@@ -317,6 +317,32 @@ unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_
   return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
 }
 
+void EP_SN<dim>::initialize_component_index ()
+{
+  unsigned int ind = 0;
+  for (unsigned int g=0; g<ngroup; ++g)
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+    {
+      ind += 1;
+      std::pair<unsigned int, unsigned int> key (i_dir, g);
+      component_index.insert (std::make_pair (key, ind));
+    }
+}
+
+template <int dim>
+unsigned int EP_SN<dim>::get_component_index (unsigned int &incident_angle_index, 
+                                              unsigned int &g)
+{
+  return component_index[std::make_pair (incident_angle_index, g)];
+}
+
+template <int dim>
+unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_id, 
+                                                         unsigned int &incident_angle_index)
+{
+  return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
+}
+
 template <int dim>
 void EP_SN<dim>::initialize_ref_bc_index ()
 {
@@ -1001,22 +1027,6 @@ void EP_SN<dim>::assemble_ho_system()
   
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
     vec_ho_sys[k]->compress (VectorOperation::add);
-}
-
-template <int dim>
-void EP_SN<dim>::assemble_ho_rhs ()
-{
-  // cell finite element object
-  FEValues<dim> fv(*fe, q_rule,
-                   update_values | update_gradients |
-                   update_quadrature_points |
-                   update_JxW_values);
-  // face finite element object for the side of the face in current cell
-  FEFaceValues<dim> fvf(*fe, qf_rule,
-                        update_values | update_gradients |
-                        update_quadrature_points | update_normal_vectors |
-                        update_JxW_values);
-
 }
 
 template <int dim>
