@@ -107,6 +107,7 @@ public:
 private:
   void initialize_index (); 
   void setup_system ();
+  void generate_globally_refined_grid ();
   void report_system ();
   // void setup_lo_system();
   void setup_boundary_types ();
@@ -336,9 +337,9 @@ static void EP_SN<dim>::declare_parameters(ParameterHandler &prm)
   prm.declare_entry("wheter (1) or not (0) to do NDA", "1", Patterns::Integer(), "Boolean to determine NDA or not");
   prm.declare_entry("boundary condition types", "", Patterns::List(Patterns::Integer()), "boundary conditions types: reflective (1) and natural (0)");
   prm.declare_entry("polynomial degree", "1", Patterns::Integer(), "polynomial degree p for finite element");
-  prm.declare_entry("x, y, z max and min values of boundary locations", "", Patterns::Integer(), "xmin, xmax, ymin, ymax, zmin, zmax of the boundaries");
+  prm.declare_entry("x, y, z max values of boundary locations", "", Patterns::List(Patterns::Double()), "xmax, ymax, zmax of the boundaries, mins are zero");
+  prm.declare_entry("number of cells for x, y, z directions", "", Patterns::List(Patterns::Integer()), "Geotry is hyper rectangle defined by how many cells exist per direction");
   prm.declare_entry("if boundaries are reflective", "", Patterns::List(Patterns::Integer()), "a list of 0/1 integers for all boundaries to determine if they are reflective");
-  
   prm.declare_entry("number of material types", "", Patterns::Integer(), "must be a positive integer");
   prm.declare_entry("read in mesh or not", "0", Patterns::Integer(), "if 0, generate block-based Cartesian mesh");
   prm.declare_entry("use explicit reflective boundary condition or not", "1", Patterns::Integer(), "");
@@ -1544,53 +1545,37 @@ void EP_SN<dim>::output_results(unsigned int g) const
 }
 
 template <int dim>
-void EP_SN<dim>::NDA_PI()
+void EP_SN<dim>::NDA_PI ()
+{ 
+}
+
+template <int dim>
+void EP_SN<dim>::NDA_SI ()
 {
-  
-  if (is_eigen_problem)
-  {
-    double dif_k_in = 1.0;
-    double dif_k_out = 1.0;
-    if (do_nda)
-    {
-      // Do NDA
-      while (dif_k_out>k_tol_out)
-      {
-        while (dif_k_in>k_tol_in)
-        {
-          // Do inner iteration
-        }// inner iteration ends
-      }// outer iteration ends
-    }
-    else
-    {
-      assemble_ho_rhs();
-      double dif_k_out = 1.0;
-      
-      while (dif_k_out>k_tol_out)
-      {
-        while (dif_k_in>k_tol_in)
-        {
-          // Do inner iteration
-        }// inner iteration ends
-      }// outer iteration ends
-    }// no NDA
-  }
-  else // fixed source problem
-  {
-    if (do_nda)
-    {
-    }
-    else
-    {
-      
-    }
-  }
+}
+
+template <int dim>
+void EP_SN<dim>::power_iteration ()
+{
+}
+
+template <int dim>
+void EP_SN<dim>::source_iteration ()
+{
 }
 
 template <int dim>
 void EP_SN<dim>::generate_globally_refined_grid ()
 {
+
+  std::vector<std::string> cell_strings = Utilities::split_string_list (prm2.get ("number of cells for x, y, z directions"));
+  AssertThrow (cell_strings.size() == dim,
+               ExcMessage ("Entries for numbers of cells should be equal to dimension"));
+  std::vector<unsigned int> cells_per_dir;
+  for (unsigned int d=0; d<dim; ++d)
+    cells_per_dir.push_back (std::atof (cell_strings[i].c_str ()));
+  prm.get ();
+  std::vector<std::vector<double> > spacings (dim);
   GridGenerator::subdivided_hyper_rectangle (triangulation, spacings,
                                              lower_left_point, 
                                              material_id_table);
@@ -1619,9 +1604,19 @@ template <int dim>
 void EP_SN<dim>::do_iterations ()
 {
   if (is_eigen_problem)
-    power_iteration ();
+  {
+    if (do_nda)
+      NDA_PI ();
+    else
+      power_iteration ();
+  }
   else
-    source_iteration ();
+  {
+    if (do_nda)
+      NDA_SI ();
+    else
+      source_iteration ();
+  }
 }
 
 template <int dim>
