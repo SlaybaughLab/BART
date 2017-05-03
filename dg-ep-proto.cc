@@ -117,6 +117,7 @@ private:
   void setup_ho_system ();
   // void setup_lo_system();
   void setup_boundary_types ();
+  void process_input_xsec ();
   void assemble_ho_system ();
   void assemble_ho_rhs ();
   void angular_quad ();
@@ -164,7 +165,8 @@ private:
   LA::MPI::Vector delta_ho_aflx;
   LA::MPI::Vector ho_rhs;
   */
-  
+ 
+
   // HO system
   std::vector<LA::MPI::SparseMatrix*> vec_ho_sys;
   std::vector<LA::MPI::Vector*> vec_aflx;
@@ -234,9 +236,12 @@ EP_SN<dim>::~EP_SN()
 template <int dim>
 static void EP_SN<dim>::declare_material_parameters(ParameterHandler &prm, ParameterHandler &prm2)
 {
-  int nmat = prm.get_integer("number of material types");
-  int ngrp = prm.get_integer("number of groups");
-  bool read_mesh = prm.get_integer("Read in mesh or not");
+  int nmat = prm.get_integer ("number of material types");
+  int ngrp = prm.get_integer ("number of groups");
+  int is_eigen = prm.get_integer ("wheter (1) or not (0) to do eigenvalue calculations");
+  std::vector<unsigned int> fissile_mats;
+    
+  bool read_mesh = prm.get_integer ("Read in mesh or not");
   
   prm2.enter_subsection("Multigroup sigma_t, g=1 to G")
   {
@@ -245,18 +250,68 @@ static void EP_SN<dim>::declare_material_parameters(ParameterHandler &prm, Param
       std::ostringstream os << "material " << m + 1;
       prm2.declare_entry(os.str(), "", Patterns::List(Patterns::Double()), "");
     }
-    prm2.leave_subsection();
   }
+  prm2.leave_subsection();
   
+  if (is_eigen)
+  {
+    std::ostringstream os_fiss = "list for whether materials are fissiles (0 or 1)";
+    std::vector<std::string> fiss_strings = Utilities::split_string_list (prm2.get (os_fiss.str ()));
+    std::ostringstream fiss_err1 << "Make sure input " << nmat << " entries for whether mats are fissile";
+    AssertThrow (fiss_strings.size () == nmat,
+                 ExcMessage (fiss_err1.str ()));
+    for (unsigned int m=1; m<nmat; ++m)
+      fissile_mats.push_back (std::atoi (fiss_strings[m].c_str()));
+    std::vector<unsigned int>::iterator it = std::max_element (fissile_mats);
+    AssertThrow (*it == 1,
+                 ExcMessage ("No fissile material presents"));
+
+    prm2.enter_subsection ("ksi, g=1 to G");
+    {
+      for (unsigned int m=0; m<nmat; ++m)
+      {
+        std::ostringstream os << "material " << m + 1;
+        prm2.declare_entry(os.str(), "", Patterns::List(Patterns::Double()), "");
+      } 
+    }
+
+    prm2.enter_subsection ("Multigroup nu*sigma_f, g=1 to G");
+    {
+      for (unsigned int m=0; m<nmat; ++m)
+      {
+        std::ostringstream os << "material " << m + 1;
+        prm2.declare_entry(os.str(), "", Patterns::List(Patterns::Double()), "");
+      } 
+    }
+    prm2.leave_subsection ();
+  }
+
   for (unsigned int m=0; m<nmat; ++m)
   {
-    std::ostringstream osm << "Transfer matrix for material " << m + 1;
-    prm2.enter_subsection(osm.str())
+    std::ostringstream os << "Transfer matrix for material " << m + 1;
+    prm2.enter_subsection(os.str());
     {
       for (unsigned int gin=0; gin<ngrp; ++gin)
       {
         std::ostringstream osg << "g_in " << gin + 1;
         prm2.declare_entry(osg.str(), "", Patterns::List(Patterns::Double()), "");
+      }
+    }
+    prm2.leave_subsection();
+  }
+
+  if (is_eigen)
+  {
+    for (unsigned int m=0; m<nmat; ++m)
+    {
+      std::ostringstream osm << "Transfer matrix for material " << m + 1;
+      prm2.enter_subsection(osm.str())
+      {
+        for (unsigned int gin=0; gin<ngrp; ++gin)
+        {
+          std::ostringstream osg << "g_in " << gin + 1;
+          prm2.declare_entry(osg.str(), "", Patterns::List(Patterns::Double()), "");
+        }
       }
       prm2.leave_subsection();
     }
@@ -267,8 +322,8 @@ static void EP_SN<dim>::declare_material_parameters(ParameterHandler &prm, Param
     prm2.subsection("Material ID map")
     {
       prm2.declare_entry("assembly material ids", "", Patterns::List(Patterns::Integer()), "Give material IDs for all blocks");
-      prm2.leave_subsection();
     }
+    prm2.leave_subsection();
   }
 }
 
@@ -279,6 +334,7 @@ static void EP_SN<dim>::declare_parameters(ParameterHandler &prm)
   prm.declare_entry("quadrature order", "4", Patterns::Integer(), "Gauss-Chebyshev level-symmetric-like quadrature");
   prm.declare_entry("number of groups", "1", Patterns::Integer(), "Number of groups in MG calculations");
   prm.declare_entry("wheter (1) or not (0) to do eigenvalue calculations", "1", Patterns::Integer(), "Boolean to determine problem type");
+  prm.declare_entry ("list for whether materials are fissiles (0 or 1)", "", Patterns::List(Patterns::Integer()), "Whether materials are fissile");
   prm.declare_entry("wheter (1) or not (0) to do NDA", "1", Patterns::Integer(), "Boolean to determine NDA or not");
   prm.declare_entry("boundary condition types", "", Patterns::List(Patterns::Integer()), "boundary conditions types: reflective (1) and natural (0)");
   prm.declare_entry("polynomial degree", "1", Patterns::Integer(), "polynomial degree p for finite element");
@@ -288,6 +344,57 @@ static void EP_SN<dim>::declare_parameters(ParameterHandler &prm)
   prm.declare_entry("number of material types", "", Patterns::Integer(), "must be a positive integer");
   prm.declare_entry("read in mesh or not", "0", Patterns::Integer(), "if 0, generate block-based Cartesian mesh");
   prm.declare_entry("use explicit reflective boundary condition or not", "1", Patterns::Integer(), "");
+}
+
+template <int dim>
+void EP_SN<dim>::process_input_xsec ()
+{
+    
+  // This block takes in sigts
+  prm2.enter_subsection ("Multigroup sigma_t, g=1 to G");
+  {
+    for (unsigned int m=0; m<nmat; ++m)
+    {
+      std::ostringstream os_sigt << "material " << m + 1;
+      std::vector<std::string> sigt_strings = Utilities::split_string_list (prm2.get (os_sigt.str()));
+      AssertThrow (sigt_strings.size() == ngroup,
+                   ExcMessage ("Ngroup is not equal to group number of sigma_t"));
+      std::vector<double> tmp_sigt;
+      for (unsigned int g=0; g<ngroup; ++g)
+        tmp_sigt.push_back (std::atof (tmp_sigt[i].c_str ()));
+      all_sigts.push_back (tmp_sigt);
+    }
+  }
+  prm2.leave_subsection ();
+
+  // This block takes in scattering transfer matrices
+  for (unsigned int m=0; m<nmat; ++m)
+  {
+    std::ostringstream osm << "Transfer matrix for material " << m + 1;
+    prm2.enter_subsection (osm.str ());
+    {
+      std::vector<std::string> sigs_strings = Utilities::split_string_list (prm2.get (os_sigs.str ()));
+      std::ostringstream os_err << "Make sure input Ngroup X Ngroup entries for scattering transfer matrix for Material " << m + 1;
+      AssertThrow (sigs_strings.size () == ngroup * ngroup,
+                   ExcMessage (os_err.str ()));
+      Table<2, double> tmp_sigs (ngroup, ngroup);
+      for (unsigned int gin=0; gin<ngroup; ++gin)
+      {
+        for (unsigned int g=0; g<ngroup; ++g)
+        {
+          tmp_sigs[gin][g] = std::atof (tmp_sigs[g].c_str ());
+        }
+      }
+    }
+    prm2.leave_subsection ();
+  }
+
+  // This block is for fission
+  if (is_eigen_problem)
+  {
+    
+  }
+  
 }
 
 template <int dim>
@@ -601,7 +708,7 @@ void EP_SN<dim>::setup_boundary_types(ParameterHandler &prm)
 }
 
 template <int dim>
-void EP_SN<dim>::assemble_ho_system()
+void EP_SN<dim>::assemble_ho_system ()
 {
   TimerOutput::Scope t(computing_timer, "assembly HO");
   
@@ -1258,7 +1365,7 @@ void EP_SN<dim>::lo_solve()
 */
 
 template <int dim>
-void EP_SN<dim>::generate_moments()
+void EP_SN<dim>::generate_moments ()
 {
   // FitIt: only scalar flux is generated for now
   AssertThrow(do_nda==false, ExcMessage("Moments are generated only without NDA"));
@@ -1274,7 +1381,7 @@ void EP_SN<dim>::generate_moments()
 }
 
 template <int dim>
-void EP_SN<dim>::generate_source()
+void EP_SN<dim>::generate_source ()
 {
   const QGauss<dim>  q_rule(p_order+1);
   const QGauss<dim>  qf_rule(p_order+1);
