@@ -19,13 +19,6 @@
  */
 
 /* ---------------------------------------------------------------------
- *
- * EP-NDA steady-state neutronics code based on PETSc/Trilinos parallelism
- *
- * Starting date: Jan. 20, 2017
- * This code does not support EP-PI directly
- * Functionality: EP-NDA-PI and EP-NDA-TG-PI
- *
  * ---------------------------------------------------------------------
  
  *
