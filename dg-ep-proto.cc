@@ -19,10 +19,9 @@
  */
 
 /* ---------------------------------------------------------------------
- * ---------------------------------------------------------------------
- 
  *
  * Author: Weixiong Zheng
+ *
  */
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/quadrature_lib.h>
@@ -107,7 +106,8 @@ public:
   
 private:
   void initialize_index (); 
-  void setup_ho_system ();
+  void setup_system ();
+  void report_system ();
   // void setup_lo_system();
   void setup_boundary_types ();
   void process_input_xsec ();
@@ -116,6 +116,7 @@ private:
   void get_cell_mfps (typename Triangulation<dim>::cell_iterator &cell,
                       std::vector<double> &local_sigts, std::vector<double> &local_mfps);
   void assemble_ho_system ();
+  void do_iterations ();
   void assemble_ho_rhs ();
   void angular_quad ();
   void initialize_ref_bc_index ();
