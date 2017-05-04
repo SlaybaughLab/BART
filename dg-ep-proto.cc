@@ -20,18 +20,9 @@
 
 /* ---------------------------------------------------------------------
  *
- * EP-NDA steady-state neutronics code based on PETSc/Trilinos parallelism
- *
- * Starting date: Jan. 20, 2017
- * This code does not support EP-PI directly
- * Functionality: EP-NDA-PI and EP-NDA-TG-PI
- *
- * ---------------------------------------------------------------------
- 
- *
  * Author: Weixiong Zheng
+ *
  */
-
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/base/function.h>
@@ -97,6 +88,7 @@ namespace LA
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <map>
 
 using namespace dealii;
 
@@ -113,22 +105,35 @@ public:
   static void declare_material_parameters (ParameterHandler &prm, ParameterHandler &prm2);
   
 private:
-  
-  void setup_ho_system();
+  void initialize_index (); 
+  void setup_system ();
+  void generate_globally_refined_grid ();
+  void report_system ();
   // void setup_lo_system();
-  void setup_boundary_types();
-  void assemble_ho_system();
-  void assemble_ho_rhs();
-  void angular_quad();
+  void setup_boundary_types ();
+  void process_input_xsec ();
+  void get_cell_sigts (unsigned int &material_id,
+                       std::vector<double> &local_sigts);
+  void get_cell_mfps (typename Triangulation<dim>::cell_iterator &cell,
+                      std::vector<double> &local_sigts, std::vector<double> &local_mfps);
+  void assemble_ho_system ();
+  void do_iterations ();
+  void assemble_ho_rhs ();
+  void angular_quad ();
+  void initialize_ref_bc_index ();
+
+  unsigned int get_component_index (unsigned int &incident_angle_index, unsigned int &g);
+  unsigned int get_reflective_direction_index (unsigned int &boundary_id, 
+                                               unsigned int &incident_angle_index);
   
-  void assemble_lo_system();
-  void prepare_correction_aflx()
+  void assemble_lo_system ();
+  void prepare_correction_aflx ();
   
-  void ho_solve(unsigned int &i_dir, unsigned int &g);
-  void lo_solve(unsigned int g);
-  void refine_grid();
-  void output_results() const;
-  void power_iteration();
+  void ho_solve (unsigned int &i_dir, unsigned int &g);
+  void lo_solve (unsigned int g);
+  void refine_grid ();
+  void output_results () const;
+  void power_iteration ();
   
   MPI_Comm mpi_communicator;
   
@@ -159,20 +164,24 @@ private:
   LA::MPI::Vector delta_ho_aflx;
   LA::MPI::Vector ho_rhs;
   */
-  
+ 
+
   // HO system
   std::vector<LA::MPI::SparseMatrix*> vec_ho_sys;
   std::vector<LA::MPI::Vector*> vec_aflx;
   std::vector<LA::MPI::Vector*> vec_ho_rhs;
   std::vector<LA::MPI::Vector*> vec_ho_sflx;
   std::vector<LA::MPI::Vector*> vec_ho_sflx_old;
+  std::vector<LA::MPI::Vector*> vec_ho_sflx_prev_gen;
   
   // LO system
   std::vector<LA::MPI::SparseMatrix*> vec_lo_sys;
   std::vector<LA::MPI::Vector*> vec_lo_rhs;
-  std::vector<LA::MPI::Vector*> vec_lo_solu;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx_prev_gen;
   
-  
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
   int ncells;
   unsigned int n_azi;
   unsigned int n_total_ho_vars;
@@ -228,9 +237,12 @@ EP_SN<dim>::~EP_SN()
 template <int dim>
 static void EP_SN<dim>::declare_material_parameters(ParameterHandler &prm, ParameterHandler &prm2)
 {
-  int nmat = prm.get_integer("number of material types");
-  int ngrp = prm.get_integer("number of groups");
-  bool read_mesh = prm.get_integer("Read in mesh or not");
+  int nmat = prm.get_integer ("number of material types");
+  int ngrp = prm.get_integer ("number of groups");
+  int is_eigen = prm.get_integer ("wheter (1) or not (0) to do eigenvalue calculations");
+  std::vector<unsigned int> fissile_mats;
+    
+  bool read_mesh = prm.get_integer ("Read in mesh or not");
   
   prm2.enter_subsection("Multigroup sigma_t, g=1 to G")
   {
@@ -239,18 +251,68 @@ static void EP_SN<dim>::declare_material_parameters(ParameterHandler &prm, Param
       std::ostringstream os << "material " << m + 1;
       prm2.declare_entry(os.str(), "", Patterns::List(Patterns::Double()), "");
     }
-    prm2.leave_subsection();
   }
+  prm2.leave_subsection();
   
+  if (is_eigen)
+  {
+    std::ostringstream os_fiss = "list for whether materials are fissiles (0 or 1)";
+    std::vector<std::string> fiss_strings = Utilities::split_string_list (prm2.get (os_fiss.str ()));
+    std::ostringstream fiss_err1 << "Make sure input " << nmat << " entries for whether mats are fissile";
+    AssertThrow (fiss_strings.size () == nmat,
+                 ExcMessage (fiss_err1.str ()));
+    for (unsigned int m=1; m<nmat; ++m)
+      fissile_mats.push_back (std::atoi (fiss_strings[m].c_str()));
+    std::vector<unsigned int>::iterator it = std::max_element (fissile_mats);
+    AssertThrow (*it == 1,
+                 ExcMessage ("No fissile material presents"));
+
+    prm2.enter_subsection ("ksi, g=1 to G");
+    {
+      for (unsigned int m=0; m<nmat; ++m)
+      {
+        std::ostringstream os << "material " << m + 1;
+        prm2.declare_entry(os.str(), "", Patterns::List(Patterns::Double()), "");
+      } 
+    }
+
+    prm2.enter_subsection ("Multigroup nu*sigma_f, g=1 to G");
+    {
+      for (unsigned int m=0; m<nmat; ++m)
+      {
+        std::ostringstream os << "material " << m + 1;
+        prm2.declare_entry(os.str(), "", Patterns::List(Patterns::Double()), "");
+      } 
+    }
+    prm2.leave_subsection ();
+  }
+
   for (unsigned int m=0; m<nmat; ++m)
   {
-    std::ostringstream osm << "Transfer matrix for material " << m + 1;
-    prm2.enter_subsection(osm.str())
+    std::ostringstream os << "Transfer matrix for material " << m + 1;
+    prm2.enter_subsection(os.str());
     {
       for (unsigned int gin=0; gin<ngrp; ++gin)
       {
         std::ostringstream osg << "g_in " << gin + 1;
         prm2.declare_entry(osg.str(), "", Patterns::List(Patterns::Double()), "");
+      }
+    }
+    prm2.leave_subsection();
+  }
+
+  if (is_eigen)
+  {
+    for (unsigned int m=0; m<nmat; ++m)
+    {
+      std::ostringstream osm << "Transfer matrix for material " << m + 1;
+      prm2.enter_subsection(osm.str())
+      {
+        for (unsigned int gin=0; gin<ngrp; ++gin)
+        {
+          std::ostringstream osg << "g_in " << gin + 1;
+          prm2.declare_entry(osg.str(), "", Patterns::List(Patterns::Double()), "");
+        }
       }
       prm2.leave_subsection();
     }
@@ -261,8 +323,8 @@ static void EP_SN<dim>::declare_material_parameters(ParameterHandler &prm, Param
     prm2.subsection("Material ID map")
     {
       prm2.declare_entry("assembly material ids", "", Patterns::List(Patterns::Integer()), "Give material IDs for all blocks");
-      prm2.leave_subsection();
     }
+    prm2.leave_subsection();
   }
 }
 
@@ -273,22 +335,154 @@ static void EP_SN<dim>::declare_parameters(ParameterHandler &prm)
   prm.declare_entry("quadrature order", "4", Patterns::Integer(), "Gauss-Chebyshev level-symmetric-like quadrature");
   prm.declare_entry("number of groups", "1", Patterns::Integer(), "Number of groups in MG calculations");
   prm.declare_entry("wheter (1) or not (0) to do eigenvalue calculations", "1", Patterns::Integer(), "Boolean to determine problem type");
+  prm.declare_entry ("list for whether materials are fissiles (0 or 1)", "", Patterns::List(Patterns::Integer()), "Whether materials are fissile");
   prm.declare_entry("wheter (1) or not (0) to do NDA", "1", Patterns::Integer(), "Boolean to determine NDA or not");
   prm.declare_entry("boundary condition types", "", Patterns::List(Patterns::Integer()), "boundary conditions types: reflective (1) and natural (0)");
   prm.declare_entry("polynomial degree", "1", Patterns::Integer(), "polynomial degree p for finite element");
-  prm.declare_entry("x, y, z max and min values of boundary locations", "", Patterns::Integer(), "xmin, xmax, ymin, ymax, zmin, zmax of the boundaries");
+  prm.declare_entry("x, y, z max values of boundary locations", "", Patterns::List(Patterns::Double()), "xmax, ymax, zmax of the boundaries, mins are zero");
+  prm.declare_entry("number of cells for x, y, z directions", "", Patterns::List(Patterns::Integer()), "Geotry is hyper rectangle defined by how many cells exist per direction");
   prm.declare_entry("if boundaries are reflective", "", Patterns::List(Patterns::Integer()), "a list of 0/1 integers for all boundaries to determine if they are reflective");
-  
   prm.declare_entry("number of material types", "", Patterns::Integer(), "must be a positive integer");
-  prm.declare_entry("Read in mesh or not", "0", Patterns::Integer(), "if 0, generate block-based Cartesian mesh")
+  prm.declare_entry("read in mesh or not", "0", Patterns::Integer(), "if 0, generate block-based Cartesian mesh");
+  prm.declare_entry("use explicit reflective boundary condition or not", "1", Patterns::Integer(), "");
 }
 
 template <int dim>
-int EP_SN<dim>::index(int &idir, int &g)
+void EP_SN<dim>::process_input_xsec ()
 {
-  // just wanna make sure all groups for one direction stays close, which might benefit
-  // the preconditioning
-  return idir * ngroup + g;
+  // This block takes in sigts
+  prm2.enter_subsection ("Multigroup sigma_t, g=1 to G");
+  {
+    for (unsigned int m=0; m<nmat; ++m)
+    {
+      std::ostringstream os_sigt << "material " << m + 1;
+      std::vector<std::string> sigt_strings = Utilities::split_string_list (prm2.get (os_sigt.str()));
+      AssertThrow (sigt_strings.size() == ngroup,
+                   ExcMessage ("Ngroup is not equal to group number of sigma_t"));
+      std::vector<double> tmp_sigt;
+      for (unsigned int g=0; g<ngroup; ++g)
+        tmp_sigt.push_back (std::atof (tmp_sigt[i].c_str ()));
+      all_sigts.push_back (tmp_sigt);
+    }
+  }
+  prm2.leave_subsection ();
+
+  // This block takes in scattering transfer matrices
+  for (unsigned int m=0; m<nmat; ++m)
+  {
+    std::ostringstream osm << "Transfer matrix for material " << m + 1;
+    prm2.enter_subsection (osm.str ());
+    {
+      std::vector<std::string> sigs_strings = Utilities::split_string_list (prm2.get (os_sigs.str ()));
+      std::ostringstream os_err << "Make sure input Ngroup X Ngroup entries for scattering transfer matrix for Material " << m + 1;
+      AssertThrow (sigs_strings.size () == ngroup * ngroup,
+                   ExcMessage (os_err.str ()));
+      Table<2, double> tmp_sigs (ngroup, ngroup);
+      for (unsigned int gin=0; gin<ngroup; ++gin)
+      {
+        for (unsigned int g=0; g<ngroup; ++g)
+        {
+          tmp_sigs[gin][g] = std::atof (tmp_sigs[g].c_str ());
+        }
+      }
+    }
+    prm2.leave_subsection ();
+  }
+
+  // This block is for fission
+  if (is_eigen_problem)
+  {
+    
+  } 
+}
+
+template <int dim>
+void get_cell_sigts (unsigned int &material_id, std::vector<double> &local_sigts)
+{
+  // retrieve multigroup total cross sections
+  local_sigts = all_sigts[material_id];
+}
+
+template <int dim>
+void get_cell_mfps (typename Triangulation<dim>::cell_iterator &cell,
+                    std::vector<double> &local_sigts, std::vector<double> &local_mfps)
+{
+  // estimate mean free path for input cell aiming for penalty coefficients
+  double h = cell->diameter () / std::sqrt (2.0);
+  for (unsigned int i=0; i<local_sigts.size (); ++i)
+    local_mfps[i] = local_sigts[i] * h;
+}
+
+template <int dim>
+void EP_SN<dim>::initialize_component_index ()
+{
+  // initialize the map from (direction, group) to component indices
+  unsigned int ind = 0;
+  for (unsigned int g=0; g<ngroup; ++g)
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+    {
+      ind += 1;
+      std::pair<unsigned int, unsigned int> key (i_dir, g);
+      component_index.insert (std::make_pair (key, ind));
+    }
+}
+
+template <int dim>
+unsigned int EP_SN<dim>::get_component_index (unsigned int &incident_angle_index, 
+                                              unsigned int &g)
+{
+  // retrieve component indecis given direction and group
+  // must be used after initializing the index map
+  return component_index[std::make_pair (incident_angle_index, g)];
+}
+
+template <int dim>
+void EP_SN<dim>::initialize_ref_bc_index ()
+{
+  std::vector<Tensor<1, dim> > boundary_normal_vectors;
+  if (dim==2)
+  {
+    boundary_normal_vectors.resize(4);
+    boundary_normal_vectors[0][0] = -1.0;
+    boundary_normal_vectors[1][0] = 1.0;
+    boundary_normal_vectors[2][1] = -1.0;
+    boundary_normal_vectors[3][1] = 1.0;
+  }
+  if (dim==3)
+  {
+    boundary_normal_vectors.resize(6);
+    boundary_normal_vectors[0][0] = -1.0;
+    boundary_normal_vectors[1][0] = 1.0;
+    boundary_normal_vectors[2][1] = -1.0;
+    boundary_normal_vectors[3][1] = 1.0;
+    boundary_normal_vectors[4][2] = -1.0;
+    boundary_normal_vectors[5][2] = 1.0;
+  }
+  for (unsigned int i=0; i<2*dim; ++i)
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+    { 
+      Tensor<1, dim> out_angle = (omega_i[i_dir]
+                                  *
+                                  (1.0 - 2.0 * (boundary_normal_vectors[i] * omega_i[i_dir])));
+      for (unsigned int r_dir=0; r_dir<n_dir; ++r_dir)
+      {
+        Tensor<1, dim> d_dir = out_angle;
+        Tensor<1, dim> d_minus_dir = out_angle;
+        d_dir -= omega_i[r_dir];
+        d_minus_dir += omega_i[r_dir];
+        if (d_dir.norm ()<1.0e-13 || d_minus_dir.norm ()<1.0e-13)
+          reflective_direction_index.insert (std::make_pair (std::make_pair (i, i_dir), r_dir));
+      }
+    }
+}
+
+template <int dim>
+unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_id, 
+                                                         unsigned int &incident_angle_index)
+{
+  AssertThrow (is_reflective_bc[boundary_id],
+               ExcMessage ("must be reflective boundary to retrieve the reflective boundary"));
+  return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
 }
 
 template <int dim>
@@ -360,12 +554,12 @@ void EP_SN<dim>::setup_system()
     
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
     {
-      vec_ho_sys[index(i_dir, g)]->reinit(local_dofs,
-                                          local_dofs,
-                                          dsp,
-                                          mpi_communicator);
-      vec_aflx[index(i_dir, g)]->reinit(local_dofs,
-                                        mpi_communicator);
+      vec_ho_sys[get_component_index(i_dir, g)]->reinit(local_dofs,
+                                                        local_dofs,
+                                                        dsp,
+                                                        mpi_communicator);
+      vec_aflx[get_component_index(i_dir, g)]->reinit(local_dofs,
+                                                      mpi_communicator);
     }
   }
   
@@ -448,12 +642,14 @@ void EP_SN<dim>::setup_system()
 template <int dim>
 void EP_SN<dim>::setup_boundary_types(ParameterHandler &prm)
 {
-  std::vector<std::string> boundary_locations = Utilities::split_string_list(prm.get("x, y, z max and min values of boundary locations"));
-  AssertThrow(boundary_locations.size()==2*dim, ExcMessage("List of boundary location specifications should be identical to twice the dimension"))
+  std::vector<std::string> boundary_locations = Utilities::split_string_list (
+      prm.get("x, y, z max and min values of boundary locations"));
+  AssertThrow (boundary_locations.size()==2*dim, 
+      ExcMessage("List of boundary location specifications should be identical to twice the dimension"))
   for (unsigned int i=0; i<boundary_locations.size(); ++i)
     boundary_location_values.push_back(std::atof(boundary_locations[i].c_str()));
   
-  typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
+  typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active (), endc = triangulation.end ();
   for (; cell!=endc; ++cell)
   {
     if (cell->is_locally_owned)
@@ -507,7 +703,7 @@ void EP_SN<dim>::setup_boundary_types(ParameterHandler &prm)
 }
 
 template <int dim>
-void EP_SN<dim>::assemble_ho_system()
+void EP_SN<dim>::assemble_ho_system ()
 {
   TimerOutput::Scope t(computing_timer, "assembly HO");
   
@@ -549,26 +745,39 @@ void EP_SN<dim>::assemble_ho_system()
   std::vector<types::global_dof_index> neigh_dof_indices (dofs_per_cell);
   
   // volumetric pre-assembly matrices
-  std::vector<FullMatrix<double> > vec_collision_local(n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
-  std::vector<std::vector<FullMatrix<double> > > vec_streaming_local(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<FullMatrix<double> > vec_collision_local (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
+  std::vector<std::vector<FullMatrix<double> > > vec_streaming_local (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
   
   // face pre-assembly matrices: value penalty
-  std::vector<std::vector<FullMatrix<double> > > vec_vp_up(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vp_un(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vn_up(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vn_un(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_vp_up (n_q, 
+      FullMatrix<double> (dofs_per_cell, dofs_per_cell));
+  std::vector<std::vector<FullMatrix<double> > > vec_vp_un (n_q, 
+      FullMatrix<double> (dofs_per_cell, dofs_per_cell));
+  std::vector<std::vector<FullMatrix<double> > > vec_vn_up (n_q, 
+      FullMatrix<double> (dofs_per_cell, dofs_per_cell));
+  std::vector<std::vector<FullMatrix<double> > > vec_vn_un (n_q, 
+      FullMatrix<double> (dofs_per_cell, dofs_per_cell));
   
   // face pre-assembly matrices: gradient penalty 1
-  std::vector<std::vector<FullMatrix<double> > > vec_vp_up_grad(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vp_un_grad(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vn_up_grad(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vn_un_grad(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_dvp_up (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_dvp_un (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_dvn_up (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_dvn_un (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
   
   // face pre-assembly matrices: gradient penalty 2
-  std::vector<std::vector<FullMatrix<double> > > vec_vp_dup(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vp_dun(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vn_dup(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
-  std::vector<std::vector<FullMatrix<double> > > vec_vn_dun(n_q, std::vector<FullMatrix<double> >(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_vp_dup (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_vp_dun (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_vn_dup (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  std::vector<std::vector<FullMatrix<double> > > vec_vn_dun (n_q, 
+      std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
   
   int pre_assemble_cell = 0;
   int pre_assemble_face = 0;
@@ -576,15 +785,17 @@ void EP_SN<dim>::assemble_ho_system()
   typename DoFHandler<dim>::active_cell_iterator
   cell = dof_handler.begin_active(),
   endc = dof_handler.end();
-  for (; cell!=endc; ++cell,++i_cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell=dof_handler.begin_active(); 
+      cell!=dof_handler.end(); ++cell)
   {
     if (cell->is_locally_owned())
     {
       fv.reinit(cell);
       cell->get_dof_indices(local_dof_indices);
-      
-      double cell_sigt;
-      
+      std::vector<double> local_sigts (ngroup);
+      std::vector<double> local_mfps (ngroup);
+      get_cell_sigts (cell, local_sigts);
+      get_cell_mfps (cell, local_sigts, local_mfps);
       // FixIt: a more proper definition for h_cell
       double cell_mfp = cell_sigt * cell->diameter() / std::sqrt(2.0);
       
@@ -615,8 +826,6 @@ void EP_SN<dim>::assemble_ho_system()
       
       for (unsigned int g=0; g<ngroup; ++g)
       {
-        cell_sigt = sigt[cell->material_id()][g]；
-        
         if (g==0)
           for (unsigned int qi=0; qi<n_q; ++qi)
             for (unsigned int i=0; i<dofs_per_cell; ++i)
@@ -652,31 +861,52 @@ void EP_SN<dim>::assemble_ho_system()
       {
         // BC imposition: only vacuum BCs need to be imposed in bilinear form
         // Reflective boundary will only exist in linear form in source iterations
-        if (cell->face(fn)->at_boundary() && !is_reflective_bc[cell->face(fn)->boundary_id()])
+        if (cell->face(fn)->at_boundary())
         {
           fvf.reinit(cell, fn);
-          for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+          Tensor<1, dim> vec_n = fvf.get_normal_vectors()[0];
+          unsigned int boundary_id = cell->face(fn)->boundary_id ();
+          if (!is_reflective_bc[boundary_id])
           {
-            Tensor<1, dim> vec_n = fvf.get_normal_vectors()[0];
-            double absndo;
-            // Note: we assume the face is not curvilinear
-            absndo = std::fabs(vec_n * omega_i[i_dir]);
-            for (unsigned int g=0; g<ngroup; ++g)
+            for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
             {
-              int ind = index(i_dir, g);
-              for (unsigned int qi=0; qi<n_q; ++qi)
-                for (unsigned int i=0; i<dofs_per_cell; ++i)
-                  for (unsigned int j=0; j<dofs_per_cell; ++j)
-                    cell_matrix[ind](i,j) += (absndo *
-                                              fvf.shape_value(i,qi) *
-                                              fvf.shape_value(j,qi) *
-                                              fvf.JxW(qi));
-            }// g
-          }// i_dir
-          
-          // if not on boundary, we specify cell with larger CellAccessor::id() to be
-          // upwind cell
-          
+              double absndo;
+              // Note: we assume the face is not curvilinear
+              absndo = std::fabs(vec_n * omega_i[i_dir]);
+              for (unsigned int g=0; g<ngroup; ++g)
+              {
+                int ind = index(i_dir, g);
+                for (unsigned int qi=0; qi<n_qf; ++qi)
+                  for (unsigned int i=0; i<dofs_per_cell; ++i)
+                    for (unsigned int j=0; j<dofs_per_cell; ++j)
+                      cell_matrix[ind](i,j) += (absndo *
+                                                fvf.shape_value(i,qi) *
+                                                fvf.shape_value(j,qi) *
+                                                fvf.JxW(qi));
+              }// g
+            }// i_dir
+          }
+          else
+          {
+            if (is_explicit_reflective)// assemble nothing if false
+              for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+              {
+                unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
+                double absndo = omega_i[i_dir] * vec_n;
+                for (unsigned int g=0; g<ngroup; ++g)
+                {
+                  unsigned int ind = get_component_index (i_dir, g);
+                  for (unsigned int qi=0; qi<n_qf; ++qi)
+                    for (unsigned int i=0; i<dofs_per_cell; ++i)
+                      for (unsigned int j=0; j<dofs_per_cell; ++j)
+                        cell_matrix[ind](i,j) += -(absndo *
+                                                   fvf.shape_value(i,qi) *
+                                                   (omega_i[r_dir] * fvf.shape_grad(j,qi)) /
+                                                   local_sigts[g] *
+                                                   fvf.JxW(qi));
+                }// g
+              }// i_dir
+          }// is_reflective_bc
         }// boundary faces for robin boundaries
         
         if (!cell->face(fn)->at_boundary() &&
@@ -688,6 +918,10 @@ void EP_SN<dim>::assemble_ho_system()
           fvf_nei.reinit(neigh, cell->neighbor_face_no(fn));
           Tensor<1,dim> n_vec = fvf.get_normal_vectors()[0];
           double sige;
+          std::vector<double> neigh_sigts;
+          std::vector<double> neigh_mfps;
+          get_cell_sigts (neigh, neigh_sigts);
+          get_cell_mfps (neigh, neigh_sigts, neigh_mfps);
           
           if (pre_assemble_face==0)
           {
@@ -799,16 +1033,11 @@ void EP_SN<dim>::assemble_ho_system()
                   {
                     int ind = index(i_dir, g);
                     // get cross sections ones per cell/neighbor
-                    double neigh_sigt;
-                    double cell_mfp;
-                    double neigh_mfp;
                     if (qi==0 && i==0 && j==0)
                     {
                       if (i_dir==0)
                       {
-                        cell_sigt = sigt[cell->material_id()][g];
                         neigh_sigt = sigt[neigh->material_id()][g];
-                        cell_mfp = cell_sigt * cell->diameter() / std::sqrt(2.0);
                         neigh_mfp = neigh_sigt * neigh->diameter() / std::sqrt(2.0);
                       }
                       sige = std::max(0.25, (tensor_norms[i_dir] / cell_mfp + tensor_norms[i_dir] / neigh_mfp));
@@ -845,19 +1074,19 @@ void EP_SN<dim>::assemble_ho_system()
                                                  +
                                                  dvp_un_jxw / cell_sigt
                                                  -
-                                                 vp_dun_jxw / cell_sigt);
+                                                 vp_dun_jxw / neigh_sigt);
                     
                     all_real_vn_up[ind](i,j) += (-sige * vp_up_jxw
                                                  -
-                                                 dvn_up_jxw / cell_sigt
+                                                 dvn_up_jxw / neigh_sigt
                                                  +
                                                  vn_dup_jxw / cell_sigt);
                     
                     all_real_vn_un[ind](i,j) += (sige * vp_up_jxw
                                                  +
-                                                 dvn_un_jxw / cell_sigt
+                                                 dvn_un_jxw / neigh_sigt
                                                  +
-                                                 vn_dun_jxw / cell_sigt);
+                                                 vn_dun_jxw / neigh_sigt);
                   }// g
                 }// i_dir
               }// j
@@ -866,9 +1095,7 @@ void EP_SN<dim>::assemble_ho_system()
           neigh->get_dof_indices(neigh_dof_indices);
           
           for (unsigned int k=0; k<n_total_ho_vars; ++k)
-          {
             for (unsigned int i=0; i<dofs_per_cell; ++i)
-            {
               for (unsigned int j=0; j<dofs_per_cell; ++j)
               {
                 vec_ho_sys[k](local_dof_indices[i],local_dof_indices[j]) += all_real_vp_up[k](i,j);
@@ -879,21 +1106,14 @@ void EP_SN<dim>::assemble_ho_system()
                 
                 vec_ho_sys[k](neigh_dof_indices[i],neigh_dof_indices[j]) += all_real_vn_un[k](i,j);
               }// j
-            }// i
-          }
-          
         }// non-boundary face
       }// face
-      
-      
       
       for (unsigned int k=0; k<n_total_ho_vars; ++k)
         for (unsigned int i=0; i<dofs_per_cell; ++i)
           for (unsigned int j=0; j<dofs_per_cell; ++j)
             vec_ho_sys[k](local_dof_indices[i],local_dof_indices[j]) += cell_matrix[k](i,j);
       // FixIt: constraints are needed if refinement work is desired
-      
-      
       /*
        constraints.distribute_local_to_global (cell_matrix,
        local_dof_indices,
@@ -912,11 +1132,11 @@ void EP_SN<dim>::assemble_ho_system()
 }
 
 template <int dim>
-void EP_SN<dim>::angular_quad()
+void EP_SN<dim>::angular_quad ()
 {
   Assert (n_azi%2==0, ExcDimensionMismatch(n_azi%2, 1));
   
-  QGauss<1> mu_quad(n_azi);
+  QGauss<1> mu_quad (n_azi);
   
   std::ofstream quadr;
   quadr.open("quadr.txt");
@@ -925,13 +1145,13 @@ void EP_SN<dim>::angular_quad()
   if (dim==1)
   {
     total_angle = 2.0;
-    quadr << "mu and weights:" << std::endl;
+    quadr << "1D mu and weights:" << std::endl;
     for (unsigned int i=0; i<n_azi/2; ++i)
     {
       Tensor <1, dim> tmp;
       tmp[0] = mu_quad.point(i)[0] * 2.0 - 1.0;;
-      omega_i.push_back(tmp);
-      wi.push_back(mu_quad.weight(i))
+      omega_i.push_back (tmp);
+      wi.push_back (mu_quad.weight(i))
       quadr << tmp[0] << "," << wi[i] << std::endl;
     }
     n_dir = n_azi / 2;
@@ -940,7 +1160,7 @@ void EP_SN<dim>::angular_quad()
   if (dim==2)
   {
     total_angle = 4.0 * pi;
-    quadr << "Omega_i and weights:" << std::endl;
+    quadr << "2D Omega_i and weights:" << std::endl;
     
     for (unsigned int i=n_azi/2; i<n_azi; ++i)
     {
@@ -953,8 +1173,8 @@ void EP_SN<dim>::angular_quad()
       for (unsigned int j=0; j<level_angle_num; ++j)
       {
         double angle = 0.5 * delta_level_angle + (double)(j) * delta_level_angle;
-        tmp[0] = std::sqrt(1.0 - mut * mut) * cos(angle);
-        tmp[1] = std::sqrt(1.0 - mut * mut) * sin(angle);
+        tmp[0] = std::sqrt (1.0 - mut * mut) * cos (angle);
+        tmp[1] = std::sqrt (1.0 - mut * mut) * sin (angle);
         // solely for EP quadratures in 2D.
         if (tmp[0]>0)
         {
@@ -973,7 +1193,7 @@ void EP_SN<dim>::angular_quad()
   if (dim==3)
   {
     total_angle = 4.0 * pi;
-    quadr << "Omega_i and weights:" << std::endl;
+    quadr << "3D Omega_i and weights:" << std::endl;
     
     for (unsigned int i=0; i<n_azi/2; ++i)
     {
@@ -1057,6 +1277,48 @@ void EP_SN<dim>::ho_solve (unsigned int &n_iter)
 }
 
 template <int dim>
+void EP_SN<dim>::ho_solve_bicgstab (unsigned int &n_iter)
+{
+  TimerOutput::Scope t(computing_timer, "HO solve");
+  LA::MPI::Vector
+  completely_distributed_solution (ho_local_dofs,
+                                   mpi_communicator);
+  
+  SolverControl solver_control (ho_dof_handler.n_dofs(), ho_rhs.l2_norm() * 1e-12);
+  
+#ifdef USE_PETSC_LA
+  LA::SolverBicgstab solver(solver_control, mpi_communicator);
+#else
+  LA::SolverBicgstab solver(solver_control);
+#endif
+  
+  // LA::MPI::PreconditionAMG preconditioner;
+  
+  if (ho_precond_kind == "amg")
+  {
+    if (n_iter==0)
+    {
+      pre_AMG.reset();
+      pre_AMG = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> (new LA::MPI::PreconditionAMG));
+      LA::MPI::PreconditionAMG::AdditionalData data;
+      
+#ifdef USE_PETSC_LA
+      data.symmetric_operator = false;
+#else
+      /* Trilinos defaults are good */
+#endif
+      pre_AMG->initialize(ho_mat, data);
+    }
+    
+    //    solver.solve (system_matrix, completely_distributed_solution, system_rhs, preconditioner);
+    solver.solve (ho_sys, all_aflx, ho_rhs, pre_AMG);
+  }
+  // FixIt: add other preconditioners
+  // constraints.distribute (completely_distributed_solution);
+}
+
+/*
+template <int dim>
 void EP_SN<dim>::lo_solve()
 {
   TimerOutput::Scope t(computing_timer, "LO solve");
@@ -1085,7 +1347,7 @@ void EP_SN<dim>::lo_solve()
 #ifdef USE_PETSC_LA
       data.symmetric_operator = true;
 #else
-      /* Trilinos defaults are good */
+
 #endif
       pre_AMG->initialize(*(vec_lo_sys)[g], data);
       
@@ -1095,9 +1357,10 @@ void EP_SN<dim>::lo_solve()
   // FixIt: add other preconditioners
   // constraints.distribute (completely_distributed_solution);
 }
+*/
 
 template <int dim>
-void EP_SN<dim>::generate_moments()
+void EP_SN<dim>::generate_moments ()
 {
   // FitIt: only scalar flux is generated for now
   AssertThrow(do_nda==false, ExcMessage("Moments are generated only without NDA"));
@@ -1113,7 +1376,7 @@ void EP_SN<dim>::generate_moments()
 }
 
 template <int dim>
-void EP_SN<dim>::generate_source()
+void EP_SN<dim>::generate_source ()
 {
   const QGauss<dim>  q_rule(p_order+1);
   const QGauss<dim>  qf_rule(p_order+1);
@@ -1131,12 +1394,17 @@ void EP_SN<dim>::generate_source()
                         update_values | update_gradients |
                         update_quadrature_points | update_normal_vectors |
                         update_JxW_values);
+
+  // cell rhs's
+  std::vector<Vector<double> > vec_cell_rhs(ngroup, Vector<double> (dofs_per_cell));
+  std::vector<Vector<double> > vec_cell_rhs_reflective_bc(n_total_ho_vars, Vector<double> (dofs_per_cell)); 
   
   for (typename DoFHandler<dim>::active_cell_iterator cell = triangulation.begin_active(); cell!= triangulation.end(); ++cell)
   {
     if (cell->is_locally_owned())
     {
       fv.reinit(cell);
+      unsigned int material_id = cell->material_id ();
       std::vector<std::vector<double> > all_cell_sflx(ngroup, std::vector<double>(n_q));
       for (unsigned int gin=0; gin<ngroup; ++gin)
       {
@@ -1149,25 +1417,38 @@ void EP_SN<dim>::generate_source()
       }// gin
       
       std::vector<std::vector<double> > cell_transfers(ngroup, std::vector<double>(ngroup));
-      for (unsigned int gin=0; gin<ngroup; ++gin)
-        for (unsigned int g=0; g<ngroup; ++g)
-        {
-          if (is_eigen_problem)
-            cell_transfers[gin][g] = sigs_per_ster[cell->material_id()][gin][g] + fiss_per_ster[cell->material_id()][gin][g] / k;
-          else
-            cell_transfers[gin][g] = sigs_per_ster[cell->material_id()][gin][g];
-        }
-      
-      for (unsigned int gin=0; gin<ngroup; ++gin)
+      for (unsigned int g=0; g<ngroup; ++g)
       {
-        fv.get_function_values(vec_ho_sflx[gin], all_cell_sflx[gin]);
-        
+        q_per_ster[g] = is_eigen_problem ? 0.0 : source_per_ster[material_id][g];
+
+        for (unsigned int gin=0; gin<ngroup; ++gin)
+          cell_transfers_per_ster[gin][g] = (sigs_per_ster[material_id][gin][g] 
+                                             +
+                                             is_eigen_problem ? 
+                                             fiss_per_ster_over_k[material_id][gin][g] : 0.0);
       }
+
+      for (unsigned int gin=0; gin<ngroup; ++gin)
+        fv.get_function_values(vec_ho_sflx[gin], all_cell_sflx[gin]);
       
       for (unsigned int qi=0; qi<n_q; ++qi)
       {
         // do something
-        
+        double jxw = fv.JxW(qi);
+        for (unsigned int i=0; i<dofs_per_cell; ++i)
+        {
+          double real_test_func = fv.shape_value(i,qi) * jxw;
+          for (unsigned int g=0; g<ngroup; ++g)
+            for (unsigned int gin=0; gin<ngroup; ++gin)
+            {
+              
+              vec_cell_rhs[g](i) += (real_test_func * 
+                                     (cell_transfers[gin][g] * all_cell_sflx[gin][qi]
+                                      +
+                                      is_eigen_problem ?
+                                      0.0 : q_per_ster[g]));
+            }
+        }
       }// qi
       
       if (cell->at_boundary())
@@ -1175,25 +1456,26 @@ void EP_SN<dim>::generate_source()
         // Boundary parts
         for (unsigned int fn=0; fn<GeometryInfo<dim>::face_per_cell; ++fn)
         {
-          if (cell->face(fn)->at_boundary() &&
-              is_reflective_bc[cell->face(fn)->boundary_id()])
+          if (cell->at_boundary (fn) &&
+              (is_reflective_bc[boundary_id] && (!is_explicit_reflective)))
           {
+            unsigned int boundary_id = cell->face(fn)->boundary_id ();
             fvf.reinit(cell, fn);
             for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
             {
-              unsigned int r_dir = ref_bc_maps[i_dir].find(i_dir)->second;
+              unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
               for (unsigned int g=0; g<ngroup; ++g)
               {
                 int ind = index(i_dir, g);
                 Tensor<1, dim> vec_n = fvf.get_normal_vectors()[0];
                 std::vector<Tensor<1, dim> > cell_daflx(n_qf);
-                fvf.get_function_gradients(vec_aflx[index(r_dir, g)], cell_daflx);
+                fvf.get_function_gradients(vec_aflx[get_component_index (r_dir, g)], cell_daflx);
                 for (unsigned int qi=0; qi<n_qf; ++qi)
                   for (unsigned int i=0; i<dofs_per_cell; ++i)
                     vec_cell_rhs[ind](i) += (fvf.shape_value(i, qi) *
                                              vec_n * omega_i[i_dir] / cell_sigt *
                                              omega_i[r_dir] * cell_daflx[qi] *
-                                             fvf.JxW(qi));
+                                             fvf.JxW(qi));               
               }// g
             }// i_dir
           }// reflective boundary face
@@ -1245,91 +1527,204 @@ void EP_SN<dim>::output_results(unsigned int g) const
 }
 
 template <int dim>
-void EP_SN<dim>::NDA_PI()
+void EP_SN<dim>::NDA_PI ()
+{ 
+}
+
+template <int dim>
+void EP_SN<dim>::NDA_SI ()
 {
-  double dif_k_in = 1.0;
-  double dif_k_out = 1.0;
+}
+
+template <int dim>
+void EP_SN<dim>::power_iteration ()
+{
+  k_ho = 1.0;
+  err_k = 1.0;
+  while (err_k>err_k_tol && err_phi>err_phi_tol)
+  {
+    k_ho_old = k_ho;
+    
+    for (unsigned int g=0; g<ngroup; ++g)
+      *(vec_ho_sflx_prev_gen)[g] = *(vec_ho_sflx)[g];
+
+    source_iteration ();
+
+    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
+
+    estimate_k (vec_ho_sflx, vec_ho_sflx_prev_gen, k_ho_old);
+
+    err_k = std::fabs (k_ho - k_ho_old) / k_ho;
+  }
+}
+
+template <int dim>
+void EP_SN<dim>::source_iteration ()
+{
+  assemble_ho_rhs ();
+  double err_phi = 1.0;
+  while (err_phi>1.0e-7)
+  {
+    std::vector<double> errors (ngroup);
+
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+      for (unsigned int g=0; g<ngroup; ++g)
+        ho_solve (i_dir, g);
+
+    generate_moments ();
+
+    for (unsigned int g=0; g<ngroup; ++g)
+    {
+      LA::MPI::Vector<double> dif = vec_ho_sflx[g];
+      dif -= vec_ho_sflx_old[g];
+      errors[g] = dif.l1_norm () / vec_ho_sflx[g].l1_norm ();
+    }
+
+    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);;
+  }
+}
+
+template <int dim>
+double EP_SN<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
+{
+  double fiss_source = 0.0;
+
+  const QGauss<dim>  q_rule(p_order+1);
+  unsigned int n_q = q_rule.size ();
+  FEValues<dim> fv(*fe, q_rule,
+                   update_values |
+                   update_quadrature_points |
+                   update_JxW_values);
   
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin (),
+                                                 endc = dof_handler.end ();
+  for (; cell!=endc; ++cell)
+    if (is_locally_owned () &&
+        is_material_fissile[cell->material_id ()])
+    {
+      fv.reinit (cell);
+      std::vector<std::vector<double> > local_phis (ngroup,
+                                                    std::vector<double> (n_q));
+      for (unsigned int g=0; g<ngroup; ++g)
+        fv.get_function_values (*(phis)[g], local_phis[g]);
+
+      for (unsigned int qi=0; qi<n_q; ++qi)
+        for (unsigned int g=0; g<ngroup; ++g)
+          fiss_source += (nu_sigf[material_id][g] *
+                          local_phis[g][qi] *
+                          fv.JxW(qi));
+    }
+  // broadcasting to all processors
+  return Utilities::MPI::sum (fiss_source, mpi_communicator);
+}
+
+template <int dim>
+double EP_SN<dim>::estimate_k (double &fiss_source,
+                               double &fiss_source_prev_gen,
+                               double &k_prev_gen)
+{
+  // do we have to re-normalize the scalar fluxes?
+  return k_prev_gen * fiss_source_prev_gen / fiss_source;
+}
+
+template <int dim>
+double EP_SN<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
+                                    std::vector<LA::MPI::Vector*> &phis_older)
+{
+  AssertThrow (phis_newer.size ()== phis_older.size (),
+               ExcMessage ("Ngroups for different phis should be identical"));
+  double err = 0.0;
+  for (unsigned int i=0; i<phis_newer.size (); ++i)
+  {  
+    LA::MPI::Vector dif = *(phis_newer)[i];
+    dif -= *(phis_older)[i];
+    err = std::max (err, dif.l1_norm () / phis_newer[i]->l1_norm ());
+  }
+  return err;
+}
+
+template <int dim>
+void EP_SN<dim>::generate_globally_refined_grid ()
+{
+
+  std::vector<std::string> cell_strings = Utilities::split_string_list (prm.get ("number of cells for x, y, z directions"));
+  AssertThrow (cell_strings.size() == dim,
+               ExcMessage ("Entries for numbers of cells should be equal to dimension"));
+  std::vector<unsigned int> cells_per_dir;
+  std::vector<std::vector<double> > spacings;
+  for (unsigned int d=0; d<dim; ++d)
+  {  
+    cells_per_dir = (std::atoi (cell_strings[i].c_str ()));
+    std::vector<double> axis_spacings (cell_per_dir, axis_maxes[d] / cell_per_dir);
+    spacings.push_back (axis_spacings);
+  }
+
+  Point<dim> lower_left_point;
+  GridGenerator::subdivided_hyper_rectangle (triangulation, spacings,
+                                             lower_left_point, 
+                                             material_id_table);
+  triangulation.refine_global (global_refinements);
+}
+
+template <int dim>
+void EP_SN<dim>::report_system ()
+{
+  pcout << "Number of active cells: "
+  << triangulation.n_global_active_cells()
+  << std::endl
+  << "Number of high-order degrees of freedom: "
+  << n_total_ho_vars * dof_handler.n_dofs()
+  << std::endl;
+    
+  if (do_nda)
+  {
+    pcout << "Number of low-order degrees of freedom: "
+    << ngroup * dof_handler.n_dofs() * ngroup
+    << std::endl;
+  }
+}
+
+template <int dim>
+void EP_SN<dim>::do_iterations ()
+{
   if (is_eigen_problem)
-    if (nda)
-    {
-      // Do NDA
-      while (dif_k_out>k_tol_out)
-      {
-        while (dif_k_in>k_tol_in)
-        {
-          // Do inner iteration
-        }// inner iteration ends
-      }// outer iteration ends
-    }
+  {
+    if (do_nda)
+      NDA_PI ();
     else
-    {
-      assemble_ho_rhs();
-      double dif_k_out = 1.0;
-      
-      while (dif_k_out>k_tol_out)
-      {
-        while (dif_k_in>k_tol_in)
-        {
-          // Do inner iteration
-        }// inner iteration ends
-      }// outer iteration ends
-    }
+      power_iteration ();
+  }
+  else
+  {
+    if (do_nda)
+      NDA_SI ();
     else
-      
-      }
+      source_iteration ();
+  }
+}
 
 template <int dim>
 void EP_SN<dim>::run()
 {
-  const unsigned int n_cycles = 1;
-  
+ 
+  generate_globally_refined_grid ();
+
+  setup_system ();
+
+  report_system ();
+
+  assemble_ho_system ();
+
+  do_iterations ();
+
+  if (Utilities::MPI::n_mpi_processes(mpi_communicator) <= 32)
   {
-    pcout << "Cycle " << cycle << ':' << std::endl;
-    
-    GridGenerator::subdivided_hyper_cube (triangulation, ncells);
-    //GridGenerator::hyper_cube (triangulation);
-    triangulation.refine_global (global_refinements);
-    
-    setup_system();
-    
-    pcout << "Number of active cells: "
-    << triangulation.n_global_active_cells()
-    << std::endl
-    << "Number of high-order degrees of freedom: "
-    << ho_dof_handler.n_dofs()
-    << std::endl;
-    
-    if (do_nda)
-    {
-      pcout << "Number of low-order degrees of freedom: "
-      << lo_dof_handler.n_dofs() * ngroup
-      << std::endl;
-    }
-    
-    assemble_ho_system();
-    
-    if (do_nda)
-    {
-      assemble_lo_system();
-    }
-    
-    if (is_eigen_problem)
-      power_iteration();
-    else
-      source_iteration();
-    
-    if (Utilities::MPI::n_mpi_processes(mpi_communicator) <= 32)
-    {
-      TimerOutput::Scope t(computing_timer, "output");
-      output_results();
-    }
-    
-    computing_timer.print_summary();
-    computing_timer.reset();
-    
-    pcout << std::endl;
+    TimerOutput::Scope t(computing_timer, "output");
+    output_results();
   }
+
+  computing_timer.print_summary ();
+  computing_timer.reset ();
 }
 
 int main(int argc, char *argv[])
