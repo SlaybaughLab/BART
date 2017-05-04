@@ -172,11 +172,13 @@ private:
   std::vector<LA::MPI::Vector*> vec_ho_rhs;
   std::vector<LA::MPI::Vector*> vec_ho_sflx;
   std::vector<LA::MPI::Vector*> vec_ho_sflx_old;
+  std::vector<LA::MPI::Vector*> vec_ho_sflx_prev_gen;
   
   // LO system
   std::vector<LA::MPI::SparseMatrix*> vec_lo_sys;
   std::vector<LA::MPI::Vector*> vec_lo_rhs;
-  std::vector<LA::MPI::Vector*> vec_lo_solu;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx_prev_gen;
   
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
@@ -391,13 +393,13 @@ void EP_SN<dim>::process_input_xsec ()
   if (is_eigen_problem)
   {
     
-  }
-  
+  } 
 }
 
 template <int dim>
 void get_cell_sigts (unsigned int &material_id, std::vector<double> &local_sigts)
 {
+  // retrieve multigroup total cross sections
   local_sigts = all_sigts[material_id];
 }
 
@@ -405,6 +407,7 @@ template <int dim>
 void get_cell_mfps (typename Triangulation<dim>::cell_iterator &cell,
                     std::vector<double> &local_sigts, std::vector<double> &local_mfps)
 {
+  // estimate mean free path for input cell aiming for penalty coefficients
   double h = cell->diameter () / std::sqrt (2.0);
   for (unsigned int i=0; i<local_sigts.size (); ++i)
     local_mfps[i] = local_sigts[i] * h;
@@ -413,6 +416,7 @@ void get_cell_mfps (typename Triangulation<dim>::cell_iterator &cell,
 template <int dim>
 void EP_SN<dim>::initialize_component_index ()
 {
+  // initialize the map from (direction, group) to component indices
   unsigned int ind = 0;
   for (unsigned int g=0; g<ngroup; ++g)
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
@@ -427,40 +431,9 @@ template <int dim>
 unsigned int EP_SN<dim>::get_component_index (unsigned int &incident_angle_index, 
                                               unsigned int &g)
 {
+  // retrieve component indecis given direction and group
+  // must be used after initializing the index map
   return component_index[std::make_pair (incident_angle_index, g)];
-}
-
-template <int dim>
-unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_id, 
-                                                         unsigned int &incident_angle_index)
-{
-  return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
-}
-
-void EP_SN<dim>::initialize_component_index ()
-{
-  unsigned int ind = 0;
-  for (unsigned int g=0; g<ngroup; ++g)
-    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    {
-      ind += 1;
-      std::pair<unsigned int, unsigned int> key (i_dir, g);
-      component_index.insert (std::make_pair (key, ind));
-    }
-}
-
-template <int dim>
-unsigned int EP_SN<dim>::get_component_index (unsigned int &incident_angle_index, 
-                                              unsigned int &g)
-{
-  return component_index[std::make_pair (incident_angle_index, g)];
-}
-
-template <int dim>
-unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_id, 
-                                                         unsigned int &incident_angle_index)
-{
-  return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
 }
 
 template <int dim>
@@ -501,6 +474,15 @@ void EP_SN<dim>::initialize_ref_bc_index ()
           reflective_direction_index.insert (std::make_pair (std::make_pair (i, i_dir), r_dir));
       }
     }
+}
+
+template <int dim>
+unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_id, 
+                                                         unsigned int &incident_angle_index)
+{
+  AssertThrow (is_reflective_bc[boundary_id],
+               ExcMessage ("must be reflective boundary to retrieve the reflective boundary"));
+  return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
 }
 
 template <int dim>
@@ -1557,25 +1539,127 @@ void EP_SN<dim>::NDA_SI ()
 template <int dim>
 void EP_SN<dim>::power_iteration ()
 {
+  k_ho = 1.0;
+  err_k = 1.0;
+  while (err_k>err_k_tol && err_phi>err_phi_tol)
+  {
+    k_ho_old = k_ho;
+    
+    for (unsigned int g=0; g<ngroup; ++g)
+      *(vec_ho_sflx_prev_gen)[g] = *(vec_ho_sflx)[g];
+
+    source_iteration ();
+
+    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
+
+    estimate_k (vec_ho_sflx, vec_ho_sflx_prev_gen, k_ho_old);
+
+    err_k = std::fabs (k_ho - k_ho_old) / k_ho;
+  }
 }
 
 template <int dim>
 void EP_SN<dim>::source_iteration ()
 {
+  assemble_ho_rhs ();
+  double err_phi = 1.0;
+  while (err_phi>1.0e-7)
+  {
+    std::vector<double> errors (ngroup);
+
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+      for (unsigned int g=0; g<ngroup; ++g)
+        ho_solve (i_dir, g);
+
+    generate_moments ();
+
+    for (unsigned int g=0; g<ngroup; ++g)
+    {
+      LA::MPI::Vector<double> dif = vec_ho_sflx[g];
+      dif -= vec_ho_sflx_old[g];
+      errors[g] = dif.l1_norm () / vec_ho_sflx[g].l1_norm ();
+    }
+
+    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);;
+  }
+}
+
+template <int dim>
+double EP_SN<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
+{
+  double fiss_source = 0.0;
+
+  const QGauss<dim>  q_rule(p_order+1);
+  unsigned int n_q = q_rule.size ();
+  FEValues<dim> fv(*fe, q_rule,
+                   update_values |
+                   update_quadrature_points |
+                   update_JxW_values);
+  
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin (),
+                                                 endc = dof_handler.end ();
+  for (; cell!=endc; ++cell)
+    if (is_locally_owned () &&
+        is_material_fissile[cell->material_id ()])
+    {
+      fv.reinit (cell);
+      std::vector<std::vector<double> > local_phis (ngroup,
+                                                    std::vector<double> (n_q));
+      for (unsigned int g=0; g<ngroup; ++g)
+        fv.get_function_values (*(phis)[g], local_phis[g]);
+
+      for (unsigned int qi=0; qi<n_q; ++qi)
+        for (unsigned int g=0; g<ngroup; ++g)
+          fiss_source += (nu_sigf[material_id][g] *
+                          local_phis[g][qi] *
+                          fv.JxW(qi));
+    }
+  // broadcasting to all processors
+  return Utilities::MPI::sum (fiss_source, mpi_communicator);
+}
+
+template <int dim>
+double EP_SN<dim>::estimate_k (double &fiss_source,
+                               double &fiss_source_prev_gen,
+                               double &k_prev_gen)
+{
+  // do we have to re-normalize the scalar fluxes?
+  return k_prev_gen * fiss_source_prev_gen / fiss_source;
+}
+
+template <int dim>
+double EP_SN<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
+                                    std::vector<LA::MPI::Vector*> &phis_older)
+{
+  AssertThrow (phis_newer.size ()== phis_older.size (),
+               ExcMessage ("Ngroups for different phis should be identical"));
+  double err = 0.0;
+  for (unsigned int i=0; i<phis_newer.size (); ++i)
+  {  
+    LA::MPI::Vector dif = *(phis_newer)[i];
+    dif -= *(phis_older)[i];
+    err = std::max (err, dif.l1_norm () / phis_newer[i]->l1_norm ());
+  }
+  return err;
 }
 
 template <int dim>
 void EP_SN<dim>::generate_globally_refined_grid ()
 {
 
-  std::vector<std::string> cell_strings = Utilities::split_string_list (prm2.get ("number of cells for x, y, z directions"));
+  std::vector<std::string> cell_strings = Utilities::split_string_list (prm.get ("number of cells for x, y, z directions"));
   AssertThrow (cell_strings.size() == dim,
                ExcMessage ("Entries for numbers of cells should be equal to dimension"));
   std::vector<unsigned int> cells_per_dir;
+  std::vector<std::vector<double> > spacings;
   for (unsigned int d=0; d<dim; ++d)
-    cells_per_dir.push_back (std::atof (cell_strings[i].c_str ()));
-  prm.get ();
-  std::vector<std::vector<double> > spacings (dim);
+  {  
+    cells_per_dir = (std::atoi (cell_strings[i].c_str ()));
+    std::vector<double> axis_spacings (cell_per_dir, axis_maxes[d] / cell_per_dir);
+    spacings.push_back (axis_spacings);
+  }
+
+  Point<dim> lower_left_point;
   GridGenerator::subdivided_hyper_rectangle (triangulation, spacings,
                                              lower_left_point, 
                                              material_id_table);
@@ -1589,13 +1673,13 @@ void EP_SN<dim>::report_system ()
   << triangulation.n_global_active_cells()
   << std::endl
   << "Number of high-order degrees of freedom: "
-  << ho_dof_handler.n_dofs()
+  << n_total_ho_vars * dof_handler.n_dofs()
   << std::endl;
     
   if (do_nda)
   {
     pcout << "Number of low-order degrees of freedom: "
-    << lo_dof_handler.n_dofs() * ngroup
+    << ngroup * dof_handler.n_dofs() * ngroup
     << std::endl;
   }
 }
