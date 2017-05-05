@@ -2,3 +2,14 @@
 1. Fixing bugs and adding AssertThrows for preprocessing modules
 2. Implemented fission source calculations in parallel environment
 3. Finishing up source_iteration () and power_iteration ()
+4. Fixing output_results () s.t. the code can output MG fluxes
+
+05-06-2017:
+1. Fixed ho_solver () (HO solver); enable to use it for both symmetric
+and asymmetric systems
+2. adding method to initialize HO preconditioners with PETSc AMG
+
+05-07~14-2017:
+0. Revised PNE paper (invited as a special issue)
+1. re-designed intaking and processing parameters
+2. Fixed output_results 
