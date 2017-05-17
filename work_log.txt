@@ -12,4 +12,20 @@ and asymmetric systems
 05-07~14-2017:
 0. Revised PNE paper (invited as a special issue)
 1. re-designed intaking and processing parameters
-2. Fixed output_results 
+2. Fixed output_results
+
+05-17-2017:
+1. start to debug while fixing things up
+
+05-22-2017:
+1. fixed the way we generate the rhs
+2. prepare for starting debugging (hopefully, we starts off on Wednesday.)
+
+05-23-2017:
+1. Fixed the material ID map input method
+2. Fixed the transfer matrix inputing
+3. Simplified one-group parameter parsing
+4. The first ever input file composed.
+
+05-25-2017:
+1. started to debug 
