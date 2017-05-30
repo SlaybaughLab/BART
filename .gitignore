@@ -1,2 +1,5 @@
 *.cmake
 Makefile
+CMakeFiles/
+*Ca*
+dg-ep*
