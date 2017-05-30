@@ -1,9 +1,9 @@
 ##
-#  CMake project for DG-EP demonstration based on deal.II
+#  CMake script for the step-40 tutorial program:
 ##
 
 # Set the name of the project and target:
-SET(TARGET "dg-ep-proto")
+SET(TARGET dg-ep-proto)
 
 # Declare all source files the target consists of. Here, this is only
 # the one step-X.cc file, but as you expand your project you may wish
@@ -15,13 +15,9 @@ SET(TARGET "dg-ep-proto")
 # or switch altogether to the large project CMakeLists.txt file discussed
 # in the "CMake in user projects" page accessible from the "User info"
 # page of the documentation.
-# SET(TARGET_SRC
-#  ${TARGET}.cc
-#  )
-FILE(GLOB TARGET_SRC "src/*.cc")
-FILE(GLOB TARGET_INC "include/*.h")
-SET(TARGET_SRC ${TARGET_SRC})
-SET(TARGET_INC ${TARGET_INC})
+SET(TARGET_SRC
+  ${TARGET}.cc
+  )
 
 # Usually, you will not need to modify anything beyond this point...
 
