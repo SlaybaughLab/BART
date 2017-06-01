@@ -1,3 +1,5 @@
+*.vtu
+*.pvtu
 *.cmake
 Makefile
 CMakeFiles/

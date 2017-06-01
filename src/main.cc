@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     int dimension;
     if (argc!=3)
     {
-      std::cerr << "Call the program as ./dg-ep-proto input_file_name dimension" << std::endl;
+      std::cerr << "Call the program as mpirun -np num_proc dg-ep-proto input_file_name dimension" << std::endl;
       return 1;
     }
     else
