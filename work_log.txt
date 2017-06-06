@@ -28,4 +28,9 @@ and asymmetric systems
 4. The first ever input file composed.
 
 05-25-2017:
-1. started to debug 
+1. started to debug
+
+05-30-2017:
+1. restructured the code so problem definition is taken care of individually.
+2. The finite element part is written as a class derived from the problem definition
+class.

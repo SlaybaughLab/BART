@@ -19,6 +19,9 @@
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/cell_id.h>
 
+#include <deal.II/lac/petsc_solver.h>
+#include <deal.II/lac/solver_bicgstab.h>
+
 #include <algorithm>
 
 #include "../include/EP_SN.h"
@@ -61,10 +64,15 @@ template <int dim>
 void EP_SN<dim>::process_input ()
 {
   {
+    global_refinements = this->get_uniform_refinement ();
+    n_group = this->get_n_group ();
+    n_dir = this->get_n_dir ();
+    p_order = this->get_fe_order ();
     discretization = this->get_discretization ();
+    pcout << "method " << discretization << std::endl;
     axis_max_values = this->get_axis_maxes ();
     ncell_per_dir = this->get_ncells ();
-    
+
     relative_position_to_id = this->get_id_map ();
     cell_size_all_dir = this->get_cell_sizes ();
     have_reflective_bc = this->get_reflective_bool ();
@@ -75,17 +83,20 @@ void EP_SN<dim>::process_input ()
     if (do_print_sn_quad &&
         Utilities::MPI::this_mpi_process(mpi_communicator)==0)
       this->print_angular_quad ();
-    
+
     component_index = this->get_component_index_map ();
     inverse_component_index = this->get_inv_component_map ();
+    wi = this->get_angular_weights ();
+    omega_i = this->get_all_directions ();
+    tensor_norms = this->get_tensor_norms ();
   }
-  
+
   if (have_reflective_bc)
   {
     is_reflective_bc = this->get_reflective_bc_map ();
     reflective_direction_index = this->get_reflective_direction_index_map ();
   }
-  
+
   {
     relative_position_to_id = this->get_id_map ();
     all_sigt = this->get_sigma_t ();
@@ -171,6 +182,7 @@ unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_
 template <int dim>
 void EP_SN<dim>::generate_globally_refined_grid ()
 {
+  pcout << "generate refined grid" << std::endl;
   Point<dim> origin;
   Point<dim> diagonal;
   switch (dim)
@@ -180,14 +192,14 @@ void EP_SN<dim>::generate_globally_refined_grid ()
       diagonal[0] = axis_max_values[0];
       break;
     }
-      
+
     case 2:
     {
       diagonal[0] = axis_max_values[0];
       diagonal[1] = axis_max_values[1];
       break;
     }
-      
+
     case 3:
     {
       diagonal[0] = axis_max_values[0];
@@ -195,7 +207,7 @@ void EP_SN<dim>::generate_globally_refined_grid ()
       diagonal[2] = axis_max_values[2];
       break;
     }
-      
+
     default:
       break;
   }
@@ -204,6 +216,7 @@ void EP_SN<dim>::generate_globally_refined_grid ()
                                              origin,
                                              diagonal);
   triangulation.refine_global (global_refinements);
+  pcout << "generate refined grid finished" << std::endl;
 }
 
 template <int dim>
@@ -237,17 +250,17 @@ void EP_SN<dim>::report_system ()
   << "Number of groups: "
   << n_group
   << std::endl;
-  
+
   pcout << "Number of active cells: "
   << triangulation.n_global_active_cells()
   << std::endl
   << "Number of high-order degrees of freedom: "
   << n_total_ho_vars * dof_handler.n_dofs()
   << std::endl;
-  
+
   if (is_eigen_problem)
     pcout << "Problem type: k-eigenvalue problem" << std::endl;
-  
+
   if (do_nda)
     pcout << "NDA DoFs: "
     << n_group * dof_handler.n_dofs() * n_group
@@ -258,29 +271,29 @@ template <int dim>
 void EP_SN<dim>::setup_system ()
 {
   //TimerOutput::Scope t(computing_timer, "setup HO system");
-  
+
   if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
     fe = new FE_DGQ<dim> (p_order);
   else
     fe = new FE_Q<dim> (p_order);
-  
+
   dof_handler.distribute_dofs (*fe);
-  
+
   local_dofs = dof_handler.locally_owned_dofs ();
-  
+
   DynamicSparsityPattern dsp (local_dofs);
-  
+
   if (discretization=="DFEM")
     DoFTools::make_flux_sparsity_pattern (dof_handler, dsp);
   else
     DoFTools::make_sparsity_pattern (dof_handler, dsp);
-  
+
   // be careful with the following
   SparsityTools::distribute_sparsity_pattern (dsp,
                                               dof_handler.n_locally_owned_dofs_per_processor (),
                                               mpi_communicator,
                                               local_dofs);
-  
+
   for (unsigned int g=0; g<n_group; ++g)
   {
     if (do_nda)
@@ -291,19 +304,19 @@ void EP_SN<dim>::setup_system ()
       vec_lo_sflx_old.push_back (new LA::MPI::Vector);
       vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
     }
-    
-    vec_ho_rhs.push_back (new LA::MPI::Vector);
+
     vec_ho_sflx.push_back (new LA::MPI::Vector);
     vec_ho_sflx_old.push_back (new LA::MPI::Vector);
     vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
-    
+
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
     {
       vec_ho_sys.push_back (new LA::MPI::SparseMatrix);
       vec_aflx.push_back (new LA::MPI::Vector);
+      vec_ho_rhs.push_back (new LA::MPI::Vector);
     }
   }
-  
+
   for (unsigned int g=0; g<n_group; ++g)
   {
     if (do_nda)
@@ -321,14 +334,14 @@ void EP_SN<dim>::setup_system ()
       vec_lo_sflx_old[g]->reinit (local_dofs,
                                   mpi_communicator);
     }
-    
+
     vec_ho_fixed_rhs[g]->reinit (local_dofs,
                                  mpi_communicator);
     vec_ho_sflx[g]->reinit (local_dofs,
                             mpi_communicator);
     vec_ho_sflx_old[g]->reinit (local_dofs,
                                 mpi_communicator);
-    
+
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
     {
       vec_ho_sys[get_component_index(i_dir, g)]->reinit(local_dofs,
@@ -341,6 +354,7 @@ void EP_SN<dim>::setup_system ()
                                                          mpi_communicator);
     }
   }
+
   c_penalty = p_order * (p_order + 1.0);
 }
 
@@ -349,28 +363,28 @@ void EP_SN<dim>::setup_system ()
  void EP_SN<dim>::assemble_diffusion()
  {
  // TimerOutput::Scope t(computing_timer, "assembly LO");
- 
+
  const QGauss<dim> q_rule (2);
- 
+
  FEValues<dim> fv(*lo_fe,q_rule,
  update_values | update_gradients |
  update_quadrature_points | update_JxW_values);
- 
+
  const unsigned int dofs_per_cell = lo_fe->dofs_per_cell;
  const unsigned int n_q = q_rule.size();
- 
+
  FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
  FullMatrix<double> cell_streaming_matrix(dofs_per_cell, dofs_per_cell);
  FullMatrix<double> cell_collision_matrix(dofs_per_cell, dofs_per_cell);
- 
+
  Vector<double> cell_rhs(dofs_per_cell);
- 
+
  std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
- 
+
  std::vector<FullMatrix<double> > vec_collision_local (n_q, FullMatrix<double> (dofs_per_cell, dofs_per_cell));
  std::vector<FullMatrix<double> > vec_streaming_local (n_q, FullMatrix<double> (dofs_per_cell, dofs_per_cell));
  int pre_assemble_cell = 0;
- 
+
  typename DoFHandler<dim>::active_cell_iterator
  cell = dof_handler.begin_active(),
  endc = dof_handler.end();
@@ -382,7 +396,7 @@ void EP_SN<dim>::setup_system ()
  cell_matrix = 0.0;
  cell_collision_matrix = 0.0;
  cell_streaming_matrix = 0.0;
- 
+
  if (pre_assemble_cell==0)
  {
  for (unsigned int qi=0; qi<n_q; ++qi)
@@ -390,28 +404,28 @@ void EP_SN<dim>::setup_system ()
  for (unsigned int j=0; j<dofs_per_cell; ++j)
  vec_collision_local[qi](i,j) += (fv.shape_value(i,qi) *
  fv.shape_value(j,qi));
- 
- 
+
+
  for (unsigned int qi=0; qi<n_q; ++qi)
  for (unsigned int i=0; i<dofs_per_cell; ++i)
  for (unsigned int j=0; j<dofs_per_cell; ++j)
  vec_streaming_local[qi][g](i,j) += (fv.shape_grad(i,qi) *
  fv.shape_grad(j,qi));
- 
+
  pre_assemble_cell = 1;
  }// assemble once on every processor for diffusion streaming and collision
- 
+
  for (unsigned int g=0; g<n_group; ++g)
  {
  double cell_siga = sigt[g][cell->material_id()] - sig0[g][cell->material_id()];
  double cell_dif_coeff = cell_dif_coeff[g][cell->material_id()];
- 
+
  for (unsigned int qi=0; qi<n_q; ++qi)
  cell_matrix.add(cell_dif_coeff,vec_streaming_local[qi],cell_siga,vec_collision_local[qi]);
- 
- 
+
+
  }// loop over all groups
- 
+
  }// locally owned cells
  }// cell
  }
@@ -422,7 +436,7 @@ void EP_SN<dim>::setup_boundary_ids ()
 {
   AssertThrow (axis_max_values.size()==dim,
                ExcMessage("number of entries axis max values should be dimension"));
-  
+
   typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active (), endc = triangulation.end ();
   for (; cell!=endc; ++cell)
   {
@@ -435,12 +449,16 @@ void EP_SN<dim>::setup_boundary_ids ()
           Point<dim> ct = cell->face(fn)->center();
           // left boundary
           if (std::fabs(ct[0])<1.0e-14)
+          {
             cell->face(fn)->set_boundary_id (0);
-          
+          }
+
           // right boundary
           if (std::fabs(ct[0]-axis_max_values[0])<1.0e-14)
+          {
             cell->face(fn)->set_boundary_id (1);
-          
+          }
+
           // 2D and 3D boundaries
           if (dim>1)
           {
@@ -448,18 +466,18 @@ void EP_SN<dim>::setup_boundary_ids ()
             // front boundary
             if (std::fabs(ct[1])<1.0e-14)
               cell->face(fn)->set_boundary_id (2);
-            
+
             // rear boundary
             if (std::fabs(ct[1]-axis_max_values[1])<1.0e-14)
               cell->face(fn)->set_boundary_id (3);
-            
+
             // 3D boundaries
             if (dim>2)
             {
               // front boundary
               if (std::fabs(ct[2])<1.0e-14)
                 cell->face(fn)->set_boundary_id (4);
-              
+
               // rear boundary
               if (std::fabs(ct[2]-axis_max_values[2])<1.0e-14)
                 cell->face(fn)->set_boundary_id (5);
@@ -475,7 +493,7 @@ template <int dim>
 void EP_SN<dim>::assemble_ho_system ()
 {
   assemble_ho_volume_boundary ();
-  
+
   if (discretization=="DFEM")
     assemble_ho_interface ();
 }
@@ -484,10 +502,10 @@ template <int dim>
 void EP_SN<dim>::assemble_ho_volume_boundary ()
 {
   //TimerOutput::Scope t(computing_timer, "assembly HO");
-  
+
   const QGauss<dim>  q_rule(p_order+1);
   const QGauss<dim-1>  qf_rule(p_order+1);
-  
+
   // cell finite element object
   FEValues<dim> fv(*fe, q_rule,
                    update_values | update_gradients |
@@ -498,24 +516,21 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
                         update_values | update_gradients |
                         update_quadrature_points | update_normal_vectors |
                         update_JxW_values);
-  
+
   const unsigned int dofs_per_cell = fe->dofs_per_cell;
+  pcout << "dofs_per_cell " << dofs_per_cell << std::endl;
   const unsigned int n_q = q_rule.size();
   const unsigned int n_qf = qf_rule.size();
-  
-  // volumetric matrix
-  std::vector<FullMatrix<double> > cell_matrix(n_total_ho_vars, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
-  FullMatrix<double> cell_matrix_collision(dofs_per_cell, dofs_per_cell);
-  
+
   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
-  
+
   // volumetric pre-assembly matrices
   std::vector<FullMatrix<double> > mass_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
-  std::vector<std::vector<FullMatrix<double> > > stiffness_at_qp (n_q,
-                                                                  std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
-  
+  std::vector<std::vector<FullMatrix<double> > >
+  stiffness_at_qp (n_q, std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+
   bool pre_assemble_cell_finished = false;
-  
+
   typename DoFHandler<dim>::active_cell_iterator
   cell = dof_handler.begin_active(),
   endc = dof_handler.end();
@@ -526,61 +541,66 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
     {
       fv.reinit(cell);
       cell->get_dof_indices (local_dof_indices);
+
       std::vector<double> local_sigt = all_sigt[cell->material_id()];
       std::vector<double> local_inv_sigt = all_inv_sigt[cell->material_id()];
-      std::vector<FullMatrix<double> > local_matrices (n_total_ho_vars, FullMatrix<double> (dofs_per_cell, dofs_per_cell));
+
+      std::vector<FullMatrix<double> >
+      local_matrices (n_total_ho_vars, FullMatrix<double> (dofs_per_cell, dofs_per_cell));
       // FixIt: a more proper definition for h_cell
-      
+
       if (!pre_assemble_cell_finished)
       {
         for (unsigned int qi=0; qi<n_q; ++qi)
           for (unsigned int i=0; i<dofs_per_cell; ++i)
             for (unsigned int j=0; j<dofs_per_cell; ++j)
-              mass_at_qp[qi](i,j) += (fv.shape_value(i,qi) *
+              mass_at_qp[qi](i,j) = (fv.shape_value(i,qi) *
                                       fv.shape_value(j,qi));
-        
-        
+
         for (unsigned int qi=0; qi<n_q; ++qi)
           for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
             for (unsigned int i=0; i<dofs_per_cell; ++i)
               for (unsigned int j=0; j<dofs_per_cell; ++j)
-                stiffness_at_qp[qi][i_dir](i,j) += ((fv.shape_grad(i,qi) *
+                stiffness_at_qp[qi][i_dir](i,j) = ((fv.shape_grad(i,qi) *
                                                      omega_i[i_dir])
                                                     *
                                                     (fv.shape_grad(j,qi) *
                                                      omega_i[i_dir]));
-        
+
         pre_assemble_cell_finished = true;
       }
-      
+
       // Use pre-assembled matrix components in reference cell to do assembly in real matrix
-      FullMatrix<double> unscaled_mass(dofs_per_cell, dofs_per_cell);
+      FullMatrix<double> unscaled_mass (dofs_per_cell, dofs_per_cell);
       std::vector<FullMatrix<double> > unscaled_stiffness(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
-      
+
       for (unsigned int qi=0; qi<n_q; ++qi)
         for (unsigned int i=0; i<dofs_per_cell; ++i)
-          for (unsigned int j=0; j<dofs_per_cell; ++i)
+          for (unsigned int j=0; j<dofs_per_cell; ++j)
             unscaled_mass(i,j) += mass_at_qp[qi](i,j) * fv.JxW(qi);
-      
+
       for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
         for (unsigned int qi=0; qi<n_q; ++qi)
           for (unsigned int i=0; i<dofs_per_cell; ++i)
             for (unsigned int j=0; j<dofs_per_cell; ++j)
-              unscaled_stiffness[i_dir](i,j) += stiffness_at_qp[qi][i_dir](i,j) * fv.JxW(qi);
-      
+              unscaled_stiffness[i_dir](i,j) += (stiffness_at_qp[qi][i_dir](i,j) *
+                                                 fv.JxW(qi));
+
       for (unsigned int g=0; g<n_group; ++g)
       {
-        FullMatrix<double> scaled_mass (dofs_per_cell, dofs_per_cell);
+        //FullMatrix<double> scaled_mass (dofs_per_cell, dofs_per_cell);
+        FullMatrix<double> scaled_mass = unscaled_mass;
+        scaled_mass *= local_sigt[g];
         for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
         {
-          if (i_dir==0)
-            scaled_mass.add (local_sigt[g], unscaled_mass);
+          //if (i_dir==0)
+            //scaled_mass.add (local_sigt[g], unscaled_mass);
           unsigned int ind = get_component_index (i_dir, g);
           local_matrices[ind] = scaled_mass;
           local_matrices[ind].add (local_inv_sigt[g], unscaled_stiffness[i_dir]);
         }
       }
-      
+
       for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
       {
         if (cell->face(fn)->at_boundary())
@@ -592,9 +612,9 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
           {
             for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
             {
-              double absndo;
+              double absndo = std::fabs (vec_n * omega_i[i_dir]);
+              //std::cout << "absndo " << absndo << std::endl;
               // Note: we assume the face is not curvilinear
-              absndo = std::fabs(vec_n * omega_i[i_dir]);
               for (unsigned int g=0; g<n_group; ++g)
               {
                 int ind = get_component_index (i_dir, g);
@@ -605,11 +625,14 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
                                                    fvf.shape_value(i,qi) *
                                                    fvf.shape_value(j,qi) *
                                                    fvf.JxW(qi));
+
+
               }// g
             }// i_dir
           }
           else
           {
+            std::cout << "sth is wrong" << std::endl;
             if (is_explicit_reflective)// assemble nothing if false
               for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
               {
@@ -621,48 +644,51 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
                   for (unsigned int qi=0; qi<n_qf; ++qi)
                     for (unsigned int i=0; i<dofs_per_cell; ++i)
                       for (unsigned int j=0; j<dofs_per_cell; ++j)
-                        local_matrices[ind](i,j) += -(absndo *
-                                                      fvf.shape_value(i,qi) *
-                                                      (omega_i[r_dir] * fvf.shape_grad(j,qi)) /
-                                                      local_sigt[g] *
-                                                      fvf.JxW(qi));
+                        local_matrices[ind](i,j) += (absndo *
+                                                     fvf.shape_value(i,qi) *
+                                                     (omega_i[r_dir] * fvf.shape_grad(j,qi)) /
+                                                     local_sigt[g] *
+                                                     fvf.JxW(qi));
                 }// g
               }// i_dir
           }// is_reflective_bc
         }// boundary faces for robin boundaries
       }// face
-      
+
       for (unsigned int k=0; k<n_total_ho_vars; ++k)
-        for (unsigned int i=0; i<dofs_per_cell; ++i)
-          for (unsigned int j=0; j<dofs_per_cell; ++j)
-            vec_ho_sys[k]->add (local_dof_indices[i],
-                                local_dof_indices[j],
-                                local_matrices[k](i, j));
+      {
+        vec_ho_sys[k]->add (local_dof_indices,
+                            local_dof_indices,
+                            local_matrices[k]);
+        //pcout << "local_matrices " << k << " norm " << local_matrices[k].l1_norm() << std::endl;
+        //pcout << "sys norms: " << vec_ho_sys[k]->l1_norm () << " on proc "
+        //<< Utilities::MPI::this_mpi_process(mpi_communicator) << std::endl;
+      }
+
       // FixIt: constraints are needed if refinement work is desired
-      /*
-       constraints.distribute_local_to_global (cell_matrix,
-       local_dof_indices,
-       system_matrix);
-       */
-      /*constraints.distribute_local_to_global (cell_matrix,
-       cell_rhs,
-       local_dof_indices,
-       *(vec_sys)[0],
-       system_rhs);*/
     }// cell locally owned
   }// cell
-  
+
+
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
     vec_ho_sys[k]->compress (VectorOperation::add);
+}
+
+template <int dim>
+void EP_SN<dim>::local_matrix_check (FullMatrix<double> &local_mat,
+                         std::string str,
+                         unsigned int ind)
+{
+  std::cout << str << ", " << local_mat.l1_norm() << ", ind " << ind << std::endl;
 }
 
 template <int dim>
 void EP_SN<dim>::assemble_ho_interface ()
 {
   //TimerOutput::Scope t(computing_timer, "assembly HO");
-  
+
   const QGauss<dim-1>  qf_rule(p_order+1);
-  
+
   // face finite element object for the side of the face in current cell
   FEFaceValues<dim> fvf(*fe, qf_rule,
                         update_values | update_gradients |
@@ -673,20 +699,20 @@ void EP_SN<dim>::assemble_ho_interface ()
                             update_values | update_gradients |
                             update_quadrature_points | update_normal_vectors |
                             update_JxW_values);
-  
-  
+
+
   const unsigned int dofs_per_cell = fe->dofs_per_cell;
   const unsigned int n_qf = qf_rule.size();
-  
+
   // face terms: v^\pm * u^\pm
   std::vector<FullMatrix<double> > all_real_vp_up(n_group * n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   std::vector<FullMatrix<double> > all_real_vp_un(n_group * n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   std::vector<FullMatrix<double> > all_real_vn_up(n_group * n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   std::vector<FullMatrix<double> > all_real_vn_un(n_group * n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
-  
+
   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
   std::vector<types::global_dof_index> neigh_dof_indices (dofs_per_cell);
-  
+
   // face pre-assembly matrices: value penalty
   std::vector<FullMatrix<double> > vec_vp_up (n_qf,
                                               FullMatrix<double> (dofs_per_cell, dofs_per_cell));
@@ -696,7 +722,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                                               FullMatrix<double> (dofs_per_cell, dofs_per_cell));
   std::vector<FullMatrix<double> > vec_vn_un (n_qf,
                                               FullMatrix<double> (dofs_per_cell, dofs_per_cell));
-  
+
   // face pre-assembly matrices: gradient penalty 1
   std::vector<std::vector<FullMatrix<double> > > vec_dvp_up (n_qf,
                                                              std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
@@ -706,7 +732,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                                                              std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
   std::vector<std::vector<FullMatrix<double> > > vec_dvn_un (n_qf,
                                                              std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
-  
+
   // face pre-assembly matrices: gradient penalty 2
   std::vector<std::vector<FullMatrix<double> > > vec_vp_dup (n_qf,
                                                              std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
@@ -716,9 +742,9 @@ void EP_SN<dim>::assemble_ho_interface ()
                                                              std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
   std::vector<std::vector<FullMatrix<double> > > vec_vn_dun (n_qf,
                                                              std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
-  
+
   bool pre_assemble_face_finished = false;
-  
+
   typename DoFHandler<dim>::active_cell_iterator
   cell = dof_handler.begin_active(),
   endc = dof_handler.end();
@@ -735,7 +761,7 @@ void EP_SN<dim>::assemble_ho_interface ()
       double h = cell->diameter () / std::sqrt (2.0);
       get_cell_mfps (material_id, h, local_mfps);
       // FixIt: a more proper definition for h_cell
-      
+
       for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
       {
         if (!cell->face(fn)->at_boundary() &&
@@ -752,7 +778,7 @@ void EP_SN<dim>::assemble_ho_interface ()
           unsigned int neigh_id = neigh->material_id ();
           double neigh_h = neigh->diameter () / std::sqrt (2.0);
           get_cell_mfps (neigh_id, neigh_h, neigh_mfps);
-          
+
           if (!pre_assemble_face_finished)
           {
             // assemble once for vp/n, up/n in a reference cell
@@ -782,7 +808,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                         vec_vn_un[qi](i,j) += (fvf_nei.shape_value(i,qi) *
                                                fvf_nei.shape_value(j,qi));
                       }
-                      
+
                       // ([v],{n*Omega*1/\sigma_t*Omega*du})
                       if (g==0)
                       {
@@ -802,7 +828,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                         vec_vn_dun[qi][i_dir](i,j) += (fvf_nei.shape_value(i,qi) *
                                                        0.5 * (omega_i[i_dir] * n_vec) *
                                                        (omega_i[i_dir] * fvf_nei.shape_grad(j,qi)));
-                        
+
                         // ({n*Omega*1/\sigma_t*Omega*grad_v},[u])
                         // dvp_up
                         vec_dvp_up[qi][i_dir](i,j) += (omega_i[i_dir] * fvf.shape_grad(i,qi) *
@@ -824,10 +850,10 @@ void EP_SN<dim>::assemble_ho_interface ()
                     }// j
                 }// g
             }// qi
-            
+
             pre_assemble_face_finished = true;
           }// pre_assemble
-          
+
           // Initialize all face matrices in real cells
           for (unsigned int k=0; k<n_total_ho_vars; ++k)
           {
@@ -837,7 +863,7 @@ void EP_SN<dim>::assemble_ho_interface ()
             all_real_vn_un[k] = 0;
           }
           // FixIt: try different penalty number sige
-          
+
           for (unsigned int qi=0; qi<n_qf; ++qi)
           {
             double jxw = fvf.JxW(qi);
@@ -856,7 +882,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                 double dvp_un_jxw;
                 double dvn_up_jxw;
                 double dvn_un_jxw;
-                
+
                 for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
                 {
                   for (unsigned int g=0; g<n_group; ++g)
@@ -865,7 +891,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                     // get cross sections ones per cell/neighbor
                     if (qi==0 && i==0 && j==0)
                       sige = std::max(0.25, (tensor_norms[i_dir] / local_mfps[g] + tensor_norms[i_dir] / neigh_mfps[g]));
-                    
+
                     // The following is calculating terms from reference cell to quadrature points
                     // value jump for only one group one direction
                     if (g==0 && i_dir==0)
@@ -881,7 +907,7 @@ void EP_SN<dim>::assemble_ho_interface ()
                       dvp_un_jxw = vec_dvp_un[qi][i_dir](i,j) * jxw;
                       dvn_up_jxw = vec_dvn_up[qi][i_dir](i,j) * jxw;
                       dvn_un_jxw = vec_dvn_un[qi][i_dir](i,j) * jxw;
-                      
+
                       vp_dup_jxw = vec_vp_dup[qi][i_dir](i,j) * jxw;
                       vp_dun_jxw = vec_vp_dun[qi][i_dir](i,j) * jxw;
                       vn_dup_jxw = vec_vn_dup[qi][i_dir](i,j) * jxw;
@@ -892,19 +918,19 @@ void EP_SN<dim>::assemble_ho_interface ()
                                                  dvp_up_jxw / local_sigt[g]
                                                  -
                                                  vp_dup_jxw / local_sigt[g]);
-                    
+
                     all_real_vp_un[ind](i,j) += (-sige * vp_un_jxw
                                                  +
                                                  dvp_un_jxw / local_sigt[g]
                                                  -
                                                  vp_dun_jxw / neigh_sigt[g]);
-                    
+
                     all_real_vn_up[ind](i,j) += (-sige * vp_up_jxw
                                                  -
                                                  dvn_up_jxw / neigh_sigt[g]
                                                  +
                                                  vn_dup_jxw / local_sigt[g]);
-                    
+
                     all_real_vn_un[ind](i,j) += (sige * vp_up_jxw
                                                  +
                                                  dvn_un_jxw / neigh_sigt[g]
@@ -914,30 +940,30 @@ void EP_SN<dim>::assemble_ho_interface ()
                 }// i_dir
               }// j
           }// qi
-          
+
           neigh->get_dof_indices(neigh_dof_indices);
-          
+
           for (unsigned int k=0; k<n_total_ho_vars; ++k)
           {
             vec_ho_sys[k]->add (local_dof_indices,
                                 local_dof_indices,
                                 all_real_vp_up[k]);
-            
+
             vec_ho_sys[k]->add (local_dof_indices,
                                 neigh_dof_indices,
                                 all_real_vp_un[k]);
-            
+
             vec_ho_sys[k]->add (neigh_dof_indices,
                                 local_dof_indices,
                                 all_real_vn_up[k]);
-            
+
             vec_ho_sys[k]->add (neigh_dof_indices,
                                 neigh_dof_indices,
                                 all_real_vn_un[k]);
           }
         }// non-boundary face
       }// face
-      
+
       // FixIt: constraints are needed if refinement work is desired
       /*
        constraints.distribute_local_to_global (cell_matrix,
@@ -951,7 +977,7 @@ void EP_SN<dim>::assemble_ho_interface ()
        system_rhs);*/
     }// cell locally owned
   }// cell
-  
+
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
     vec_ho_sys[k]->compress (VectorOperation::add);
 }
@@ -960,16 +986,17 @@ template <int dim>
 void EP_SN<dim>::initialize_ho_preconditioners ()
 {
   //TimerOutput::Scope t (computing_timer, "HO preconditioner initialization");
+  pcout << "tot vars " << n_total_ho_vars << std::endl;
   pre_ho_amg.resize (n_total_ho_vars);
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
   {
     pre_ho_amg[i].reset ();
     pre_ho_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> (new LA::MPI::PreconditionAMG));
     LA::MPI::PreconditionAMG::AdditionalData data;
-    if (!is_explicit_reflective)
-      data.symmetric_operator = true;
-    else
+    if (have_reflective_bc && is_explicit_reflective)
       data.symmetric_operator = false;
+    else
+      data.symmetric_operator = true;
     pre_ho_amg[i]->initialize(*(vec_ho_sys)[i], data);
   }
 }
@@ -978,32 +1005,43 @@ template <int dim>
 void EP_SN<dim>::ho_solve ()
 {
   //TimerOutput::Scope t(computing_timer, "HO solve");
-  
+
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
   {
     SolverControl solver_control (dof_handler.n_dofs(),
-                                  vec_ho_rhs[i]->l2_norm() * 1e-12);
-    
-#ifdef USE_PETSC_LA
-    if (!is_explicit_reflective)
+                                  vec_ho_rhs[i]->l1_norm()*1.0e-13);
+    //PETScWrappers::PreconditionNone precond (*(vec_ho_sys)[i]);
+
+//#ifdef USE_PETSC_LA
+    pcout << "solvers " << std::endl;
+    if (have_reflective_bc && is_explicit_reflective)
     {
-      LA::SolverCG solver (solver_control, mpi_communicator);
+      /*LA::SolverBicgstab solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
                     *(pre_ho_amg)[i]);
+                    */
     }
     else
     {
-      LA::SolverBicgstab solver (solver_control, mpi_communicator);
+
+      pcout << "solver cg" << std::endl;
+      LA::SolverCG solver (solver_control, mpi_communicator);
+      *(vec_aflx)[i] = 0;
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
+//                    precond);
                     *(pre_ho_amg)[i]);
+      pcout << "   Solved in " << solver_control.last_step() << std::endl;
     }
-#else
+//#else
     // LA::SolverCG solver(solver_control);
-#endif
+//#endif
+    pcout << "sys norm dir " << i << ": " << vec_ho_sys[i]->l1_norm () << std::endl;
+    pcout << "rhs norm dir " << i << ": " << vec_ho_rhs[i]->l1_norm () << std::endl;
+    pcout << "aflx norm dir " << i << ": " << vec_aflx[i]->l1_norm () << std::endl;
   }
 }
 
@@ -1027,10 +1065,10 @@ void EP_SN<dim>::generate_ho_source ()
 {
   const QGauss<dim>  q_rule(p_order+1);
   const QGauss<dim-1>  qf_rule(p_order+1);
-  
+
   unsigned int n_q = q_rule.size();
-  unsigned int n_qf = q_rule.size();
-  
+  unsigned int n_qf = qf_rule.size();
+
   // cell finite element object
   FEValues<dim> fv(*fe, q_rule,
                    update_values | update_gradients |
@@ -1041,16 +1079,15 @@ void EP_SN<dim>::generate_ho_source ()
                         update_values | update_gradients |
                         update_quadrature_points | update_normal_vectors |
                         update_JxW_values);
-  
-  
+
   // cell rhs's
   const unsigned int dofs_per_cell = fe->dofs_per_cell;
   std::vector<Vector<double> > vec_cell_rhs_reflective_bc(n_total_ho_vars, Vector<double> (dofs_per_cell));
+
   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
-  
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
     *(vec_ho_rhs)[i] = *(vec_ho_fixed_rhs)[get_component_group(i)];
-  
+
   for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
        cell!= dof_handler.end(); ++cell)
   {
@@ -1059,12 +1096,14 @@ void EP_SN<dim>::generate_ho_source ()
       fv.reinit(cell);
       cell->get_dof_indices (local_dof_indices);
       unsigned int material_id = cell->material_id ();
-      std::vector<Vector<double> > vec_cell_rhs(n_group, Vector<double> (dofs_per_cell));
+      std::vector<Vector<double> > vec_cell_rhs(n_total_ho_vars,
+                                                Vector<double> (dofs_per_cell));
+
       std::vector<std::vector<double> > all_cell_sflx(n_group, std::vector<double> (n_q));
       std::vector<double> local_sigt = all_sigt[material_id];
       for (unsigned int gin=0; gin<n_group; ++gin)
         fv.get_function_values(*(vec_ho_sflx)[gin], all_cell_sflx[gin]);
-      
+
       for (unsigned int qi=0; qi<n_q; ++qi)
       {
         // do something
@@ -1074,11 +1113,21 @@ void EP_SN<dim>::generate_ho_source ()
           double test_func_jxw = fv.shape_value(i,qi) * jxw;
           for (unsigned int g=0; g<n_group; ++g)
             for (unsigned int gin=0; gin<n_group; ++gin)
-              if (all_sigs_per_ster[material_id][gin][g]>1.0e-13)
-                vec_cell_rhs[g](i) += test_func_jxw * all_sigs_per_ster[material_id][gin][g];
+            {
+              double addition;
+              for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+              {
+                unsigned int ind = get_component_index (i_dir, g);
+                if (all_sigs_per_ster[material_id][gin][g]>1.0e-13 &&
+                    i_dir==0)
+                  addition =0;// test_func_jxw * all_sigs_per_ster[material_id][gin][g];
+
+                vec_cell_rhs[ind](i) += addition;
+              }
+            }
         }
       }// qi
-      
+
       if (cell->at_boundary())
       {
         // Boundary parts
@@ -1111,14 +1160,16 @@ void EP_SN<dim>::generate_ho_source ()
         }// corresponding boundary faces
       }// cell at boundary
       for (unsigned int k=0; k<n_total_ho_vars; ++k)
-        for (unsigned int i=0; i<dofs_per_cell; ++i)
-          vec_ho_rhs[k]->add(local_dof_indices,
-                             vec_cell_rhs[k]);
+        vec_ho_rhs[k]->add(local_dof_indices,
+                           vec_cell_rhs[k]);
+
     }// local cells
   }
-  
-  for (unsigned int i=0; i<n_total_ho_vars; ++i)
+
+  for (unsigned int i=0; i<n_total_ho_vars; ++i){
     vec_ho_rhs[i]->compress (VectorOperation::add);
+    pcout << "HO RHS L1 NORM " << vec_ho_rhs[i]->l1_norm () << std::endl;
+  }
 }
 
 template <int dim>
@@ -1156,9 +1207,9 @@ template <int dim>
 void EP_SN<dim>::generate_fixed_source ()
 {
   const QGauss<dim>  q_rule(p_order+1);
-  
+
   unsigned int n_q = q_rule.size();
-  
+
   // cell finite element object
   FEValues<dim> fv(*fe, q_rule,
                    update_values | update_gradients |
@@ -1167,8 +1218,9 @@ void EP_SN<dim>::generate_fixed_source ()
   const unsigned int dofs_per_cell = fe->dofs_per_cell;
   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
   // cell rhs's
-  std::vector<Vector<double> > vec_cell_rhs(n_group, Vector<double> (dofs_per_cell));
-  
+  std::vector<Vector<double> > vec_cell_rhs(n_total_ho_vars,
+                                            Vector<double> (dofs_per_cell));
+
   for (typename DoFHandler<dim>::active_cell_iterator
        cell = dof_handler.begin_active();
        cell!= dof_handler.end(); ++cell)
@@ -1182,10 +1234,10 @@ void EP_SN<dim>::generate_fixed_source ()
           fv.reinit (cell);
           cell->get_dof_indices (local_dof_indices);
           std::vector<std::vector<double> > local_ho_sflxes (n_group, std::vector<double> (dofs_per_cell));
-          
+
           for (unsigned int g=0; g<n_group; ++g)
             fv.get_function_values (*(vec_ho_sflx)[g], local_ho_sflxes[g]);
-          
+
           for (unsigned int qi=0; qi<n_q; ++qi)
           {
             double test_func_jxw;
@@ -1194,10 +1246,11 @@ void EP_SN<dim>::generate_fixed_source ()
               test_func_jxw = fv.shape_value (i, qi) * fv.JxW (qi);
               for (unsigned int g=0; g<n_group; ++g)
                 for (unsigned int gin=0; g<n_group; ++gin)
-                  vec_cell_rhs[g](i) += test_func_jxw * ho_scaled_fiss_transfer_per_ster[material_id][gin][g];
+                  vec_cell_rhs[g](i) += (test_func_jxw *
+                                         ho_scaled_fiss_transfer_per_ster[material_id][gin][g]);
             }
           }
-          
+
           for (unsigned int g=0; g<n_group; ++g)
             vec_ho_fixed_rhs[g]->add(local_dof_indices,
                                      vec_cell_rhs[g]);
@@ -1222,7 +1275,7 @@ void EP_SN<dim>::generate_fixed_source ()
                   vec_cell_rhs[g](i) += test_func_jxw * all_q_per_ster[material_id][g];
             }
           }
-          
+
           if (do_nda)
           {
           }
@@ -1235,10 +1288,11 @@ void EP_SN<dim>::generate_fixed_source ()
         }
       }
     }// local cells
-  
+
   for (unsigned int g=0; g<n_group; ++g)
   {
     vec_ho_fixed_rhs[g]->compress (VectorOperation::add);
+    pcout << "src l1_norm " << vec_ho_fixed_rhs[g]->l1_norm () << std::endl;
     if (do_nda)
       vec_lo_fixed_rhs[g]->compress (VectorOperation::add);
   }
@@ -1250,29 +1304,29 @@ void EP_SN<dim>::power_iteration ()
   k_ho = 1.0;
   double err_k = 1.0;
   double err_phi = 1.0;
-  
+
   initialize_ho_preconditioners ();
-  
+
   while (err_k>err_k_tol && err_phi>err_phi_tol)
   {
     k_ho_prev_gen = k_ho;
-    
+
     for (unsigned int g=0; g<n_group; ++g)
       *(vec_ho_sflx_prev_gen)[g] = *(vec_ho_sflx)[g];
-    
+
     source_iteration ();
-    
+
     fission_source_prev_gen = fission_source;
-    
+
     fission_source = estimate_fiss_source (vec_ho_sflx);
-    
+
     k_ho = estimate_k (fission_source, fission_source_prev_gen, k_ho_prev_gen);
-    
+
     double norm_factor = vec_ho_sflx[0]->l1_norm ();
     renormalize_sflx (vec_ho_sflx, norm_factor);
-    
+
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
-    
+
     err_k = std::fabs (k_ho - k_ho_prev_gen) / k_ho;
   }
 }
@@ -1281,17 +1335,11 @@ template <int dim>
 void EP_SN<dim>::source_iteration ()
 {
   double err_phi = 1.0;
-  
-  initialize_ho_preconditioners ();
-  
   while (err_phi>1.0e-7)
   {
     generate_ho_source ();
-    
     ho_solve ();
-    
     generate_moments ();
-    
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
   }
 }
@@ -1309,14 +1357,14 @@ template <int dim>
 double EP_SN<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
 {
   double fiss_source = 0.0;
-  
+
   const QGauss<dim>  q_rule(p_order+1);
   unsigned int n_q = q_rule.size ();
   FEValues<dim> fv(*fe, q_rule,
                    update_values |
                    update_quadrature_points |
                    update_JxW_values);
-  
+
   typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin (),
   endc = dof_handler.end ();
   for (; cell!=endc; ++cell)
@@ -1329,7 +1377,7 @@ double EP_SN<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
       unsigned int material_id = cell->material_id ();
       for (unsigned int g=0; g<n_group; ++g)
         fv.get_function_values (*(phis)[g], local_phis[g]);
-      
+
       for (unsigned int qi=0; qi<n_q; ++qi)
         for (unsigned int g=0; g<n_group; ++g)
           fiss_source += (all_nusigf[material_id][g] *
@@ -1368,6 +1416,9 @@ double EP_SN<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
 template <int dim>
 void EP_SN<dim>::do_iterations ()
 {
+  initialize_ho_preconditioners ();
+  generate_fixed_source ();
+
   if (is_eigen_problem)
   {
     if (do_nda)
@@ -1387,30 +1438,32 @@ void EP_SN<dim>::do_iterations ()
 template <int dim>
 void EP_SN<dim>::output_results () const
 {
+  pcout << "zero group norm " << vec_ho_sflx[0]->l1_norm () << std::endl;
+
   std::string sec_name = "Graphical output";
   //TimerOutput::Scope t (computing_timer, sec_name);
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
-  
+
   for (unsigned int g=0; g<n_group; ++g)
   {
     std::ostringstream os;
-    os << "ho-phi g=" << g;
+    os << "ho_phi_g_" << g;
     data_out.add_data_vector (*(vec_ho_sflx)[g], os.str ());
   }
-  
+
   Vector<float> subdomain (triangulation.n_active_cells ());
   for (unsigned int i=0; i<subdomain.size(); ++i)
     subdomain(i) = triangulation.locally_owned_subdomain ();
   data_out.add_data_vector (subdomain, "subdomain");
-  
+
   data_out.build_patches ();
-  
+
   const std::string filename = ("sflx-" + Utilities::int_to_string
                                 (triangulation.locally_owned_subdomain (), 4));
   std::ofstream output ((filename + ".vtu").c_str ());
   data_out.write_vtu (output);
-  
+
   if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
   {
     std::vector<std::string> filenames;
@@ -1427,22 +1480,22 @@ void EP_SN<dim>::output_results () const
 }
 
 template <int dim>
+void EP_SN<dim>::global_matrix_check (unsigned int ind)
+{
+  pcout << "global system norm index " << ind << ", " << vec_ho_sys[ind]->l1_norm () << std::endl;
+}
+
+template <int dim>
 void EP_SN<dim>::run ()
 {
-  //process_input ();
-  
   generate_globally_refined_grid ();
-  
+  setup_boundary_ids ();
   initialize_material_id ();
-  
   setup_system ();
-  
   report_system ();
-  
   assemble_ho_system ();
-  
   do_iterations ();
-  
+
   if (Utilities::MPI::n_mpi_processes(mpi_communicator) <= 32)
   {
     //TimerOutput::Scope t(computing_timer, "output");
@@ -1457,5 +1510,3 @@ void EP_SN<dim>::run ()
 // explicit instantiation to avoid linking error
 template class EP_SN<2>;
 template class EP_SN<3>;
-//template class ProblemDefinition<2>;
-//template class ProblemDefinition<3>;

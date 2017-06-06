@@ -41,9 +41,9 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
   // from Colorado State on 05-10-2017
   // The following are the basic parameters we need to define a problem
   {
-    prm.declare_entry ("spatial discretization", "", Patterns::Selection("DFEM|DG|dfem|dg|CFEM|cfem|cg"), "USE DG or CG for spatial discretization");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", Patterns::Integer (), "Number of groups in MG calculations");
+    prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("DFEM|dfem|CFEM|cfem"), "USE DG or CG for spatial discretization");
     prm.declare_entry ("do eigenvalue calculations", "false", Patterns::Bool(), "Boolean to determine problem type");
     prm.declare_entry ("do NDA", "false", Patterns::Bool(), "Boolean to determine NDA or not");
     prm.declare_entry ("have reflective BC", "false", Patterns::Bool(), "");
@@ -52,28 +52,28 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
     prm.declare_entry ("uniform refinements", "0", Patterns::Integer(), "number of uniform refinements desired");
     prm.declare_entry ("x, y, z max values of boundary locations", "", Patterns::List (Patterns::Double ()), "xmax, ymax, zmax of the boundaries, mins are zero");
     prm.declare_entry ("number of cells for x, y, z directions", "", Patterns::List (Patterns::Integer ()), "Geotry is hyper rectangle defined by how many cells exist per direction");
-    prm.declare_entry ("number of materials", "", Patterns::Integer (), "must be a positive integer");
+    prm.declare_entry ("number of materials", "1", Patterns::Integer (), "must be a positive integer");
     prm.declare_entry ("do print angular quadrature info", "true", Patterns::Bool(), "Boolean to determine if printing angular quadrature information");
     prm.declare_entry ("use explicit reflective boundary condition or not", "true", Patterns::Bool(), "");
     // prm.declare_entry("material ID map", "", Patterns::List (Patterns::Integer ()), "Give material IDs for all blocks");
   }
   // FixIt: for current deal.II code, we don't consider reading mesh
-  
+
   // Explanation: we brute-forcely declare as many entries as possible without read-in problem-definition
   // parameters. nmat and ngrp should both be large enough s.t. when reading starts, the real setting will
   // have entry-declaration
-  prm.enter_subsection ("Material ID map");
+  prm.enter_subsection ("material ID map");
   {
     for (unsigned int z=0; z<z_levels; ++z)
       for (unsigned int y=0; y<y_levels; ++y)
       {
         std::ostringstream os;
-        os << "z " << z + 1 << ", y " << y + 1;
+        os << "cz " << z + 1 << ", cy " << y + 1;
         prm.declare_entry (os.str(), "", Patterns::List(Patterns::Integer()), "material IDs for a specific z level, y row");
       }
   }
   prm.leave_subsection ();
-  
+
   prm.enter_subsection ("sigma_t, group=1 to G");
   {
     for (unsigned int m=0; m<nmat; ++m)
@@ -84,7 +84,7 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
     }
   }
   prm.leave_subsection ();
-  
+
   for (unsigned int m=0; m<nmat; ++m)
   {
     std::ostringstream os;
@@ -100,40 +100,25 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
     }
     prm.leave_subsection ();
   }
-  
+
   prm.enter_subsection ("one-group sigma_t");
   {
-    for (unsigned int m=0; m<nmat; ++m)
-    {
-      std::ostringstream os;
-      os << "material " << m + 1;
-      prm.declare_entry (os.str (), "1.0", Patterns::Double(), "");
-    }
+    prm.declare_entry ("values", "", Patterns::List(Patterns::Double()), "");
   }
   prm.leave_subsection ();
-  
+
   prm.enter_subsection ("one-group sigma_s");
   {
-    for (unsigned int m=0; m<nmat; ++m)
-    {
-      std::ostringstream os;
-      os << "material " << m + 1;
-      prm.declare_entry (os.str (), "0.0", Patterns::Double(), "");
-    }
+    prm.declare_entry ("values", "", Patterns::List(Patterns::Double()), "");
   }
   prm.leave_subsection ();
-  
+
   prm.enter_subsection ("one-group Q");
   {
-    for (unsigned int m=0; m<nmat; ++m)
-    {
-      std::ostringstream os;
-      os << "material " << m + 1;
-      prm.declare_entry (os.str (), "1.0", Patterns::Double(), "");
-    }
+    prm.declare_entry ("values", "", Patterns::List(Patterns::Double()), "");
   }
   prm.leave_subsection ();
-  
+
   prm.enter_subsection ("Q, group=1 to G");
   {
     for (unsigned int m=0; m<nmat; ++m)
@@ -144,14 +129,14 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
     }
   }
   prm.leave_subsection ();
-  
+
   // the following is for eigen problems
   prm.enter_subsection ("Fissile material IDs");
   {
     prm.declare_entry ("fissile material IDs", "", Patterns::List (Patterns::Integer ()), "");
   }
   prm.leave_subsection ();
-  
+
   prm.enter_subsection ("ksi, group=1 to G");
   {
     for (unsigned int m=0; m<nmat; ++m)
@@ -162,7 +147,7 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
     }
   }
   prm.leave_subsection ();
-  
+
   prm.enter_subsection ("nu_sigf, group=1 to G");
   {
     for (unsigned int m=0; m<nmat; ++m)
@@ -181,10 +166,10 @@ void ProblemDefinition<dim>::process_input (ParameterHandler &prm)
   preprocess_reflective_bc (prm);
   process_coordinate_information (prm);
   initialize_relative_position_to_id_map (prm);
-  process_material_properties (prm);
+  process_material_properties (prm);//???????????????????
   initialize_ref_bc_index ();
-  initialize_component_index ();
   produce_angular_quad ();
+  initialize_component_index ();
 }
 
 template <int dim>
@@ -250,16 +235,16 @@ void ProblemDefinition<dim>::process_coordinate_information (ParameterHandler &p
   // max values for all axis
   {
     std::vector<std::string> strings = Utilities::split_string_list (prm.get ("x, y, z max values of boundary locations"));
-    AssertThrow (strings.size()==dim,
+    AssertThrow (strings.size()>=dim,
                  ExcMessage("Number of axis max values must be the same as dimension"));
     for (unsigned int i=0; i<dim; ++i)
       axis_max_values.push_back (std::atof (strings[i].c_str()));
   }
-  
+
   // read in number of cells and get cell sizes along axes
   {
     std::vector<std::string> strings = Utilities::split_string_list (prm.get ("number of cells for x, y, z directions"));
-    AssertThrow (strings.size()==dim,
+    AssertThrow (strings.size()>=dim,
                  ExcMessage ("Entries for numbers of cells should be equal to dimension"));
     std::vector<unsigned int> cells_per_dir;
     std::vector<std::vector<double> > spacings;
@@ -302,18 +287,22 @@ ProblemDefinition<dim>::get_id_map ()
 template <int dim>
 void ProblemDefinition<dim>::initialize_relative_position_to_id_map (ParameterHandler &prm)
 {
-  prm.enter_subsection ("Material ID map");
+  prm.enter_subsection ("material ID map");
   {
-    for (unsigned int z=0; z<dim==3?ncell_per_dir[2]:1; ++z)
-      for (unsigned int y=0; y<dim>=2?ncell_per_dir[1]:1; ++y)
+    unsigned int ncell_z = dim==3?ncell_per_dir[2]:1;
+    unsigned int ncell_y = dim>=2?ncell_per_dir[1]:1;
+    for (unsigned int z=0; z<ncell_z; ++z)
+      for (unsigned int y=0; y<ncell_y; ++y)
       {
         std::ostringstream os;
-        os << "z " << z + 1 << ", y " << y + 1;
+        os << "cz " << z + 1 << ", cy " << y + 1;
         std::vector<std::string> strings = Utilities::split_string_list (prm.get(os.str()));
         for (unsigned int x=0; x<ncell_per_dir[0]; ++x)
         {
           std::vector<unsigned int> tmp {x, y, z};
-          relative_position_to_id[tmp] = std::atoi (strings[x].c_str());
+          AssertThrow(std::atoi(strings[x].c_str())>0,
+                      ExcMessage("material ID must be larger than 0"));
+          relative_position_to_id[tmp] = std::atoi (strings[x].c_str()-1);
         }
       }
   }
@@ -324,7 +313,6 @@ template <int dim>
 void ProblemDefinition<dim>::process_material_properties (ParameterHandler &prm)
 {
   initialize_relative_position_to_id_map (prm);
-  
   if (n_group>1)
   {
     // This block takes in sigts
@@ -348,7 +336,7 @@ void ProblemDefinition<dim>::process_material_properties (ParameterHandler &prm)
       }
     }
     prm.leave_subsection ();
-    
+
     // This block takes in scattering transfer matrices
     all_sigs.resize (n_material);
     all_sigs_per_ster.resize (n_material);
@@ -378,7 +366,7 @@ void ProblemDefinition<dim>::process_material_properties (ParameterHandler &prm)
       all_sigs[m] = tmp_sigs;
       all_sigs_per_ster[m] = tmp_sigs_per_ster;
     }
-    
+
     if (!is_eigen_problem)
     {
       prm.enter_subsection ("Q, group=1 to G");
@@ -408,18 +396,21 @@ void ProblemDefinition<dim>::process_material_properties (ParameterHandler &prm)
     prm.enter_subsection ("one-group sigma_t");
     {
       std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
-      AssertThrow (strings.size()==n_material,
+      AssertThrow (strings.size()>=n_material,
                    ExcMessage("One-group sigma_t should have N_material entries"));
-      std::vector<double> tmp_sigt (n_material);
+
       for (unsigned int m=0; m<n_material; ++m)
       {
         // sorry, c++11 again.
         std::vector<double> tmp = {std::atof (strings[m].c_str())};
+        std::vector<double> inv_tmp = {1.0 / std::atof (strings[m].c_str())};
+
         all_sigt.push_back (tmp);
+        all_inv_sigt.push_back (inv_tmp);
       }
     }
     prm.leave_subsection ();
-    
+
     prm.enter_subsection ("one-group sigma_s");
     {
       std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
@@ -436,12 +427,12 @@ void ProblemDefinition<dim>::process_material_properties (ParameterHandler &prm)
       }
     }
     prm.leave_subsection ();
-    
+
     prm.enter_subsection ("one-group Q");
     {
       std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
       AssertThrow (strings.size()==n_material,
-                   ExcMessage("One-group sigma_s should have N_material entries"));
+                   ExcMessage("One-group Q should have N_material entries"));
       std::vector<double> tmp_sigt (n_material);
       for (unsigned int m=0; m<n_material; ++m)
       {
@@ -453,7 +444,7 @@ void ProblemDefinition<dim>::process_material_properties (ParameterHandler &prm)
     }
     prm.leave_subsection ();
   }
-  
+
   // This block is for eigenvalue problems
   if (is_eigen_problem)
   {
@@ -476,7 +467,7 @@ void ProblemDefinition<dim>::process_eigen_material_properties (ParameterHandler
       fissile_ids.insert (std::atoi (strings[i].c_str ()));
   }
   prm.leave_subsection ();
-  
+
   for (unsigned int m=0; m<n_material; ++m)
   {
     if (fissile_ids.count(m))
@@ -486,7 +477,7 @@ void ProblemDefinition<dim>::process_eigen_material_properties (ParameterHandler
   }
   AssertThrow (!is_material_fissile.empty (),
                ExcMessage ("Please specify at least one valid ID for fissile materials"));
-  
+
   if (n_group>1)
   {
     prm.enter_subsection ("ksi, group=1 to G");
@@ -509,7 +500,7 @@ void ProblemDefinition<dim>::process_eigen_material_properties (ParameterHandler
       }
     }
     prm.leave_subsection ();
-    
+
     prm.enter_subsection ("nu_sigf, group=1 to G");
     {
       for (unsigned int m=0; m<n_material;++m)
@@ -547,7 +538,7 @@ void ProblemDefinition<dim>::process_eigen_material_properties (ParameterHandler
       }
     }
     prm.leave_subsection ();
-    
+
     prm.enter_subsection ("one-group nu_sigf");
     {
       std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
@@ -562,7 +553,7 @@ void ProblemDefinition<dim>::process_eigen_material_properties (ParameterHandler
     }
     prm.leave_subsection ();
   }
-  
+
   for (unsigned int m=0; m<n_material; ++m)
   {
     std::vector<std::vector<double> >  tmp (n_group, std::vector<double>(n_group));
@@ -640,10 +631,10 @@ template <int dim>
 void ProblemDefinition<dim>::produce_angular_quad ()
 {
   Assert (n_azi%2==0, ExcDimensionMismatch(n_azi%2, 1));
-  
+
   QGauss<1> mu_quad (n_azi);
-  
-  
+
+
   if (dim==1)
   {
     total_angle = 2.0;
@@ -656,19 +647,19 @@ void ProblemDefinition<dim>::produce_angular_quad ()
     }
     n_dir = n_azi / 2;
   }
-  
+
   if (dim==2)
   {
     total_angle = 4.0 * pi;
-    
+    double aha=0;
     for (unsigned int i=n_azi/2; i<n_azi; ++i)
     {
       Tensor<1, dim> tmp;
       double mut = mu_quad.point(i)[0]*2.0 - 1.0;
       unsigned int level_angle_num = 4 * (n_azi - i);
       double delta_level_angle = 2.0 * pi / level_angle_num;
-      double level_weight = mu_quad.weight(i) * 4.0 * pi;
-      
+      double level_weight = mu_quad.weight(i) * 16.0 * pi;
+
       for (unsigned int j=0; j<level_angle_num; ++j)
       {
         double angle = 0.5 * delta_level_angle + (double)(j) * delta_level_angle;
@@ -681,25 +672,25 @@ void ProblemDefinition<dim>::produce_angular_quad ()
           double point_wt = level_weight / level_angle_num;
           wi.push_back(point_wt);
         }
-        
+
       }
-      
+
     }
     n_dir = n_azi * (n_azi + 2) / 4;
   }
-  
+
   if (dim==3)
   {
     total_angle = 4.0 * pi;
-    
+
     for (unsigned int i=0; i<n_azi/2; ++i)
     {
       unsigned int level_angle_num = i < n_azi / 2 ? 4 * (i + 1) : 4 * (n_azi - i);
       double delta_level_angle = 2.0 * pi / level_angle_num;
-      double level_weight = mu_quad.weight(i) * 4.0 * pi;
+      double level_weight = mu_quad.weight(i) * 8.0 * pi;
       Tensor<1, dim> tmp;
       double mut = mu_quad.point(i)[0] * 2.0 - 1.0;
-      
+
       for (unsigned int j=0; j<level_angle_num; ++j)
       {
         double angle = 0.5 * delta_level_angle + (double)(j) * delta_level_angle;
@@ -710,12 +701,17 @@ void ProblemDefinition<dim>::produce_angular_quad ()
         double point_wt = level_weight / level_angle_num;
         wi.push_back(point_wt);
       }
-      
+
     }
-    n_dir = n_azi * (n_azi + 2) / 4;
+    n_dir = n_azi * (n_azi + 2) / 2;
   }
+  AssertThrow (n_dir==wi.size(),
+               ExcMessage("calculated number of angles should be the same as number of angular weights"));
+  AssertThrow (n_dir==omega_i.size(),
+               ExcMessage("calculated number of angles should be the same as number of angles"));
+
   n_total_ho_vars = n_dir * n_group;
-  
+
   /*
    for (unsigned int i=0; i<n_total_ho_vars; ++i)
    {
@@ -723,7 +719,7 @@ void ProblemDefinition<dim>::produce_angular_quad ()
    comp.push_back(tmp);
    }
    */
-  
+
   // estimate tensor norm to do penalty method
   for (unsigned int i=0; i<n_dir; ++i)
   {
@@ -867,7 +863,7 @@ void ProblemDefinition<dim>::initialize_component_index ()
     for (unsigned int g=0; g<n_group; ++g)
     {
       std::pair<unsigned int, unsigned int> key (i_dir, g);
-      component_index.insert (std::make_pair (key, ind));
+      component_index[key] = ind;
       inverse_component_index[ind] = key;
       ind += 1;
     }
@@ -901,7 +897,7 @@ void ProblemDefinition<dim>::print_angular_quad ()
     if (dim==1)
       AssertThrow (dim>=2,
                    ExcMessage("1D is not implemented yet."));
-    
+
     std::ofstream quadr;
     quadr.open("quadr.txt");
     quadr << "Dim = " << dim << ", SN order = " << n_azi << std::endl;
@@ -910,7 +906,7 @@ void ProblemDefinition<dim>::print_angular_quad ()
     quadr << "Weights | Omega_z | Omega_x | Omega_y" << std::endl;
     quadr << std::setfill ('-') << std::setw (57) << std::endl;
     quadr << std::setfill ('-') << std::setw (57) << std::endl;
-    
+
     for (unsigned int i=0; i<omega_i.size(); ++i)
     {
       quadr << std::fixed << std::setprecision (15);
