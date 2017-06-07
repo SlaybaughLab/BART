@@ -50,6 +50,7 @@ pcout(std::cout,
               TimerOutput::wall_times)*/
 {
   this->process_input ();
+  sflx_this_processor.resize (n_group);
 }
 
 template <int dim>
@@ -64,6 +65,7 @@ template <int dim>
 void EP_SN<dim>::process_input ()
 {
   {
+    n_azi = this->get_sn_order ();
     global_refinements = this->get_uniform_refinement ();
     n_group = this->get_n_group ();
     n_dir = this->get_n_dir ();
@@ -270,6 +272,7 @@ void EP_SN<dim>::report_system ()
 template <int dim>
 void EP_SN<dim>::setup_system ()
 {
+  local_radio ("setup system");
   //TimerOutput::Scope t(computing_timer, "setup HO system");
   
   if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
@@ -280,21 +283,37 @@ void EP_SN<dim>::setup_system ()
   dof_handler.distribute_dofs (*fe);
   
   local_dofs = dof_handler.locally_owned_dofs ();
+  DoFTools::extract_locally_relevant_dofs (dof_handler,
+                                           relevant_dofs);
   
-  DynamicSparsityPattern dsp (local_dofs);
+  constraints.clear ();
+  constraints.reinit (relevant_dofs);
+  DoFTools::make_hanging_node_constraints (dof_handler,
+                                           constraints);
+  constraints.close ();
+  
+  local_radio ("dsp setup");
+  DynamicSparsityPattern dsp (relevant_dofs);
   
   if (boost::iequals(discretization,"DFEM") ||
       boost::iequals(discretization,"DG"))
-    DoFTools::make_flux_sparsity_pattern (dof_handler, dsp);
+    DoFTools::make_flux_sparsity_pattern (dof_handler,
+                                          dsp,
+                                          constraints,
+                                          false);
   else
-    DoFTools::make_sparsity_pattern (dof_handler, dsp);
+    DoFTools::make_sparsity_pattern (dof_handler,
+                                     dsp,
+                                     constraints,
+                                     false);
   
   // be careful with the following
   SparsityTools::distribute_sparsity_pattern (dsp,
                                               dof_handler.n_locally_owned_dofs_per_processor (),
                                               mpi_communicator,
-                                              local_dofs);
+                                              relevant_dofs);
   
+  local_radio("initialize system mats and vecs");
   for (unsigned int g=0; g<n_group; ++g)
   {
     if (do_nda)
@@ -1238,6 +1257,7 @@ void EP_SN<dim>::generate_moments ()
       *vec_ho_sflx[g] = 0;
       for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
         vec_ho_sflx[g]->add(wi[i_dir], *(vec_aflx)[get_component_index(i_dir, g)]);
+      sflx_this_processor[g] = *vec_ho_sflx[g];
     }
 }
 
@@ -1285,7 +1305,7 @@ void EP_SN<dim>::generate_ho_source_new ()
         std::vector<std::vector<double> >
         sflx_at_qp (n_group, std::vector<double> (n_q));
         for (unsigned int gin=0; gin<n_group; ++gin)
-          fv.get_function_values (*vec_ho_sflx[gin], sflx_at_qp[gin]);
+          fv.get_function_values (sflx_this_processor[gin], sflx_at_qp[gin]);
         
         for (unsigned int qi=0; qi<n_q; ++qi)
           for (unsigned int i=0; i<dofs_per_cell; ++i)
@@ -1294,7 +1314,7 @@ void EP_SN<dim>::generate_ho_source_new ()
                                     fv.JxW(qi));
             for (unsigned int gin=0; gin<n_group; ++gin)
               cell_rhs(i) += (test_func_jxw *
-                              all_sigs_per_ster[material_id][gin][g] *
+                              all_sigs_per_ster[material_id][gin][g]*
                               sflx_at_qp[gin][qi]);
           }
         
@@ -1303,12 +1323,13 @@ void EP_SN<dim>::generate_ho_source_new ()
             if (cell->at_boundary(fn) &&
                 is_reflective_bc[cell->face(fn)->boundary_id()])
             {
+              local_radio("sth wrong");
               fvf.reinit (cell,fn);
               unsigned int boundary_id = cell->face(fn)->boundary_id ();
               const Tensor<1,dim> vec_n = fvf.normal_vector (0);
               unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
               std::vector<Tensor<1, dim> > gradients_at_qp (n_qf);
-              fvf.get_function_gradients (*vec_ho_sflx[g], gradients_at_qp);
+              fvf.get_function_gradients (sflx_this_processor[g], gradients_at_qp);
               
               for (unsigned int qi=0; qi<n_qf; ++qi)
                 for (unsigned int i=0; i<dofs_per_cell; ++i)
@@ -1318,15 +1339,21 @@ void EP_SN<dim>::generate_ho_source_new ()
                                   omega_i[r_dir] * gradients_at_qp[qi] *
                                   fvf.JxW(qi));
             }
-        
-        vec_ho_rhs[k]->add(local_dof_indices,
-                           cell_rhs);
+        constraints.distribute_local_to_global (cell_rhs,
+                                                local_dof_indices,
+                                                *vec_ho_rhs[k]);
+        //vec_ho_rhs[k]->add(local_dof_indices,
+        //                   cell_rhs);
       }// local cell
     
     std::ostringstream os;
     os << "sys_rhses component " << k << " compress ";
     local_radio (os.str());
     vec_ho_rhs[k]->compress (VectorOperation::add);
+    local_radio ("rhs compress done ");
+    
+    //*vec_ho_rhs[k] += *(vec_ho_fixed_rhs)[g];
+    //vec_ho_rhs[k]->compress (VectorOperation::add);
   }// component
 }
 
@@ -1700,6 +1727,7 @@ void EP_SN<dim>::source_iteration ()
   unsigned int ct = 0;
   double err_phi = 1.0;
   double err_phi_old;
+  generate_moments ();
   while (err_phi>1.0e-7)
   {
     //generate_ho_source ();
@@ -1811,8 +1839,6 @@ void EP_SN<dim>::do_iterations ()
 template <int dim>
 void EP_SN<dim>::output_results () const
 {
-  pcout << "zero group norm " << vec_ho_sflx[0]->l1_norm () << std::endl;
-  
   std::string sec_name = "Graphical output";
   //TimerOutput::Scope t (computing_timer, sec_name);
   DataOut<dim> data_out;
@@ -1822,7 +1848,7 @@ void EP_SN<dim>::output_results () const
   {
     std::ostringstream os;
     os << "ho_phi_g_" << g;
-    data_out.add_data_vector (*(vec_ho_sflx)[g], os.str ());
+    data_out.add_data_vector (sflx_this_processor[g], os.str ());
   }
   
   Vector<float> subdomain (triangulation.n_active_cells ());
@@ -1872,6 +1898,7 @@ void EP_SN<dim>::run ()
   if (Utilities::MPI::n_mpi_processes(mpi_communicator) <= 32)
   {
     //TimerOutput::Scope t(computing_timer, "output");
+    pcout << "output " << std::endl;
     output_results();
   }
   /*

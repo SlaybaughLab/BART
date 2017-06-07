@@ -16,6 +16,8 @@ namespace LA
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 #include <deal.II/lac/petsc_precondition.h>
+#include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/lac/sparsity_tools.h>
 
 #include <deal.II/numerics/vector_tools.h>
 
@@ -31,7 +33,6 @@ namespace LA
 #include <deal.II/base/numbers.h>
 #include <deal.II/base/utilities.h>
 
-#include <deal.II/lac/sparsity_tools.h>
 #include <deal.II/distributed/tria.h>
 
 #include <deal.II/numerics/data_out.h>
@@ -131,6 +132,7 @@ private:
   FE_Poly<TensorProductPolynomials<dim>,dim,dim> *fe;
   // FixIt: involve relevant_dofs for future if refinement is necessary
   IndexSet local_dofs;
+  IndexSet relevant_dofs;
   
   double pi;
   
@@ -206,8 +208,11 @@ private:
   
   ConditionalOStream                        pcout;
   //TimerOutput                               computing_timer;
+  std::vector<Vector<double> > sflx_this_processor;
   
   std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> > pre_ho_amg;
+  
+  ConstraintMatrix constraints;
 };
 
 #endif	// define  __ep_sn_h__

@@ -671,6 +671,11 @@ void ProblemDefinition<dim>::produce_angular_quad ()
           omega_i.push_back(tmp);
           double point_wt = level_weight / level_angle_num;
           wi.push_back(point_wt);
+          Tensor<1,3> tmp2;
+          tmp2[0] = tmp[0];
+          tmp2[1] = tmp[1];
+          tmp2[2] = mut;
+          omega_with_mu.push_back (tmp2);
         }
         
       }
@@ -700,6 +705,11 @@ void ProblemDefinition<dim>::produce_angular_quad ()
         omega_i.push_back(tmp);
         double point_wt = level_weight / level_angle_num;
         wi.push_back(point_wt);
+        Tensor<1,3> tmp2;
+        tmp2[0] = tmp[0];
+        tmp2[1] = tmp[1];
+        tmp2[2] = mut;
+        omega_with_mu.push_back (tmp2);
       }
       
     }
@@ -906,11 +916,11 @@ void ProblemDefinition<dim>::print_angular_quad ()
     quadr << "Weights | Omega_z | Omega_x | Omega_y" << std::endl;
     quadr << std::setfill ('-') << std::setw (57) << std::endl;
     quadr << std::setfill ('-') << std::setw (57) << std::endl;
-    
     for (unsigned int i=0; i<omega_i.size(); ++i)
     {
       quadr << std::fixed << std::setprecision (15);
       quadr << wi[i] << ", ";
+      std::cout << wi[i] << std::endl;
       quadr << omega_with_mu[i][2] << ", ";
       quadr << omega_with_mu[i][0] << ", ";
       quadr << omega_with_mu[i][1] << std::endl;
