@@ -100,6 +100,8 @@ private:
                            std::string str,
                            unsigned int ind);
 
+  void local_radio (std::string str);
+
   void global_matrix_check (unsigned int ind);
 
   double estimate_k (double &fiss_source,

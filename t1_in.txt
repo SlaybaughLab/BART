@@ -1,10 +1,10 @@
 set do print angular quadrature info         = true
-set angular quadrature order                 = 4
+set angular quadrature order                 = 2
 set number of groups                         = 1
 set do eigenvalue calculations               = false
 set do NDA                                   = false
 set have reflective BC                       = false
-set uniform refinements                      = 1
+set uniform refinements                      = 0
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
 set number of cells for x, y, z directions   = 2, 2, 2
 set number of materials                      = 2

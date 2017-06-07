@@ -492,10 +492,14 @@ void EP_SN<dim>::setup_boundary_ids ()
 template <int dim>
 void EP_SN<dim>::assemble_ho_system ()
 {
+  local_radio ("Assemble volumetric bilinear forms");
   assemble_ho_volume_boundary ();
 
   if (discretization=="DFEM")
+  {
+    local_radio ("Assemble cell interface bilinear forms for DFEM");
     assemble_ho_interface ();
+  }
 }
 
 template <int dim>
@@ -518,22 +522,19 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
                         update_JxW_values);
 
   const unsigned int dofs_per_cell = fe->dofs_per_cell;
-  pcout << "dofs_per_cell " << dofs_per_cell << std::endl;
   const unsigned int n_q = q_rule.size();
   const unsigned int n_qf = qf_rule.size();
 
   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
 
   // volumetric pre-assembly matrices
-  std::vector<FullMatrix<double> > mass_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
+  std::vector<FullMatrix<double> >
+  mass_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   std::vector<std::vector<FullMatrix<double> > >
   stiffness_at_qp (n_q, std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
 
   bool pre_assemble_cell_finished = false;
 
-  typename DoFHandler<dim>::active_cell_iterator
-  cell = dof_handler.begin_active(),
-  endc = dof_handler.end();
   for (typename DoFHandler<dim>::active_cell_iterator cell=dof_handler.begin_active();
        cell!=dof_handler.end(); ++cell)
   {
@@ -555,24 +556,26 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
           for (unsigned int i=0; i<dofs_per_cell; ++i)
             for (unsigned int j=0; j<dofs_per_cell; ++j)
               mass_at_qp[qi](i,j) = (fv.shape_value(i,qi) *
-                                      fv.shape_value(j,qi));
+                                     fv.shape_value(j,qi));
 
         for (unsigned int qi=0; qi<n_q; ++qi)
           for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
             for (unsigned int i=0; i<dofs_per_cell; ++i)
               for (unsigned int j=0; j<dofs_per_cell; ++j)
                 stiffness_at_qp[qi][i_dir](i,j) = ((fv.shape_grad(i,qi) *
-                                                     omega_i[i_dir])
-                                                    *
-                                                    (fv.shape_grad(j,qi) *
-                                                     omega_i[i_dir]));
+                                                    omega_i[i_dir])
+                                                   *
+                                                   (fv.shape_grad(j,qi) *
+                                                    omega_i[i_dir]));
 
         pre_assemble_cell_finished = true;
       }
 
       // Use pre-assembled matrix components in reference cell to do assembly in real matrix
-      FullMatrix<double> unscaled_mass (dofs_per_cell, dofs_per_cell);
-      std::vector<FullMatrix<double> > unscaled_stiffness(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
+      FullMatrix<double>
+      unscaled_mass (dofs_per_cell, dofs_per_cell);
+      std::vector<FullMatrix<double> >
+      unscaled_stiffness(n_dir, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
 
       for (unsigned int qi=0; qi<n_q; ++qi)
         for (unsigned int i=0; i<dofs_per_cell; ++i)
@@ -593,8 +596,6 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
         scaled_mass *= local_sigt[g];
         for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
         {
-          //if (i_dir==0)
-            //scaled_mass.add (local_sigt[g], unscaled_mass);
           unsigned int ind = get_component_index (i_dir, g);
           local_matrices[ind] = scaled_mass;
           local_matrices[ind].add (local_inv_sigt[g], unscaled_stiffness[i_dir]);
@@ -610,10 +611,12 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
           unsigned int boundary_id = cell->face(fn)->boundary_id ();
           if (!is_reflective_bc[boundary_id])
           {
+            std::ostringstream os;
+            os << "assemble bd " << boundary_id;
+            local_radio (os.str());
             for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
             {
               double absndo = std::fabs (vec_n * omega_i[i_dir]);
-              //std::cout << "absndo " << absndo << std::endl;
               // Note: we assume the face is not curvilinear
               for (unsigned int g=0; g<n_group; ++g)
               {
@@ -629,7 +632,7 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
 
               }// g
             }// i_dir
-          }
+          }// non-reflective boundary
           else
           {
             std::cout << "sth is wrong" << std::endl;
@@ -652,11 +655,14 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
                 }// g
               }// i_dir
           }// is_reflective_bc
-        }// boundary faces for robin boundaries
+        }// boundary face
       }// face
 
       for (unsigned int k=0; k<n_total_ho_vars; ++k)
       {
+        std::ostringstream os;
+        os << "loc_to_glob mapping cell " << cell->id() << " component " << k;
+        local_radio (os.str());
         vec_ho_sys[k]->add (local_dof_indices,
                             local_dof_indices,
                             local_matrices[k]);
@@ -669,17 +675,43 @@ void EP_SN<dim>::assemble_ho_volume_boundary ()
     }// cell locally owned
   }// cell
 
-
-  for (unsigned int k=0; k<n_total_ho_vars; ++k)
+  for (unsigned int k=0; k<1; ++k)
+  {
+    std::ostringstream os;
+    os << "compress sys_mats begins component " << k;
+    local_radio (os.str());
     vec_ho_sys[k]->compress (VectorOperation::add);
+    std::ostringstream os1;
+    os1 << "compress sys_mats ends component " << k;
+    local_radio (os1.str());
+
+  }
+  for (unsigned int k=1; k<2; ++k)
+  {
+    std::ostringstream os;
+    os << "compress sys_mats begins component " << k;
+    local_radio (os.str());
+    vec_ho_sys[k]->compress (VectorOperation::add);
+    std::ostringstream os1;
+    os1 << "compress sys_mats ends component " << k;
+    local_radio (os1.str());
+
+  }
 }
 
 template <int dim>
 void EP_SN<dim>::local_matrix_check (FullMatrix<double> &local_mat,
-                         std::string str,
-                         unsigned int ind)
+                                     std::string str,
+                                     unsigned int ind)
 {
   std::cout << str << ", " << local_mat.l1_norm() << ", ind " << ind << std::endl;
+}
+
+template <int dim>
+void EP_SN<dim>::local_radio (std::string str)
+{
+  std::cout << str << " on proc "
+  << Utilities::MPI::this_mpi_process (mpi_communicator) << std::endl;
 }
 
 template <int dim>
@@ -1009,19 +1041,20 @@ void EP_SN<dim>::ho_solve ()
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
   {
     SolverControl solver_control (dof_handler.n_dofs(),
-                                  vec_ho_rhs[i]->l1_norm()*1.0e-13);
-    //PETScWrappers::PreconditionNone precond (*(vec_ho_sys)[i]);
+                                  1.0e-15);
+                                  //vec_ho_rhs[i]->l1_norm()*1.0e-15);
+    PETScWrappers::PreconditionNone precond (*(vec_ho_sys)[i]);
 
-//#ifdef USE_PETSC_LA
+    //#ifdef USE_PETSC_LA
     pcout << "solvers " << std::endl;
     if (have_reflective_bc && is_explicit_reflective)
     {
       /*LA::SolverBicgstab solver (solver_control, mpi_communicator);
-      solver.solve (*(vec_ho_sys)[i],
-                    *(vec_aflx)[i],
-                    *(vec_ho_rhs)[i],
-                    *(pre_ho_amg)[i]);
-                    */
+       solver.solve (*(vec_ho_sys)[i],
+       *(vec_aflx)[i],
+       *(vec_ho_rhs)[i],
+       *(pre_ho_amg)[i]);
+       */
     }
     else
     {
@@ -1032,13 +1065,13 @@ void EP_SN<dim>::ho_solve ()
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
-//                    precond);
-                    *(pre_ho_amg)[i]);
+                                        precond);
+                    //*(pre_ho_amg)[i]);
       pcout << "   Solved in " << solver_control.last_step() << std::endl;
     }
-//#else
+    //#else
     // LA::SolverCG solver(solver_control);
-//#endif
+    //#endif
     pcout << "sys norm dir " << i << ": " << vec_ho_sys[i]->l1_norm () << std::endl;
     pcout << "rhs norm dir " << i << ": " << vec_ho_rhs[i]->l1_norm () << std::endl;
     pcout << "aflx norm dir " << i << ": " << vec_aflx[i]->l1_norm () << std::endl;
@@ -1055,8 +1088,9 @@ void EP_SN<dim>::generate_moments ()
     {
       *(vec_ho_sflx_old)[g] = *(vec_ho_sflx)[g];
       *(vec_ho_sflx)[g] = 0;
-      for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-        vec_ho_sflx[g]->add(wi[i_dir], *(vec_aflx)[get_component_index(i_dir, g)]);
+      *vec_ho_sflx[g]=*vec_aflx[1];
+      //for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+      //  vec_ho_sflx[g]->add(wi[i_dir], *(vec_aflx)[get_component_index(i_dir, g)]);
     }
 }
 
@@ -1164,11 +1198,14 @@ void EP_SN<dim>::generate_ho_source ()
                            vec_cell_rhs[k]);
 
     }// local cells
-  }
+  }// local
 
-  for (unsigned int i=0; i<n_total_ho_vars; ++i){
+  for (unsigned int i=0; i<n_total_ho_vars; ++i)
+  {
+    std::ostringstream os;
+    os << "sys_rhses component " << i << " compress ";
+    local_radio (os.str());
     vec_ho_rhs[i]->compress (VectorOperation::add);
-    pcout << "HO RHS L1 NORM " << vec_ho_rhs[i]->l1_norm () << std::endl;
   }
 }
 
