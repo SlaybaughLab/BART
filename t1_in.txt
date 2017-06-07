@@ -4,7 +4,7 @@ set number of groups                         = 1
 set do eigenvalue calculations               = false
 set do NDA                                   = false
 set have reflective BC                       = false
-set uniform refinements                      = 0
+set uniform refinements                      = 3
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
 set number of cells for x, y, z directions   = 2, 2, 2
 set number of materials                      = 2
@@ -35,11 +35,11 @@ subsection sigma_s, material 2
 end
 
 subsection one-group sigma_t
-set values                                   = 1.0, 1.0
+set values                                   = 10.0, 10.0
 end
 
 subsection one-group sigma_s
-set values                                   = 0.9, 0.9
+set values                                   = 9., 9.
 end
 
 subsection one-group Q
