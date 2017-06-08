@@ -39,11 +39,11 @@ set values                                   = 10.0, 10.0
 end
 
 subsection one-group sigma_s
-set values                                   = 9., 9.
+set values                                   = 0., 0.
 end
 
 subsection one-group Q
-set values                                   = 1.0, 1.0
+set values                                   = 10.0, 10.0
 end
 
 subsection one-group ksi
