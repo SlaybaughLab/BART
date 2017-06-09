@@ -70,6 +70,7 @@ private:
   void assemble_ho_volume_boundary ();
   void assemble_ho_volume_boundary_new ();
   void assemble_ho_interface ();
+  void assemble_ho_interface_new ();
   void assemble_ho_system ();
   void do_iterations ();
   void process_input ();
@@ -91,6 +92,7 @@ private:
   void refine_grid ();
   void output_results () const;
   void generate_moments ();
+  void postprocess ();
   void generate_ho_source ();
   void generate_fixed_source ();
   void generate_ho_source_new ();

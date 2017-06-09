@@ -1,18 +1,22 @@
 set do print angular quadrature info         = true
-set angular quadrature order                 = 2
+set angular quadrature order                 = 4
 set number of groups                         = 1
 set do eigenvalue calculations               = false
 set do NDA                                   = false
 set have reflective BC                       = false
+
 set uniform refinements                      = 3
+
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
 set number of cells for x, y, z directions   = 2, 2, 2
 set number of materials                      = 2
-set spatial discretization                   = cfem
+
+set spatial discretization                   = dfem
+
 set finite element polynomial degree         = 1
 
 subsection material ID map
-  set cz 1, cy 1                             = 1, 1
+  set cz 1, cy 1                             = 1, 2
   set cz 1, cy 2                             = 1, 2
 end
 
@@ -35,15 +39,15 @@ subsection sigma_s, material 2
 end
 
 subsection one-group sigma_t
-set values                                   = 10.0, 10.0
+set values                                   = 10.0, 1.0
 end
 
 subsection one-group sigma_s
-set values                                   = 9., 9.
+set values                                   = 1., 0.
 end
 
 subsection one-group Q
-set values                                   = 1.0, 1.0
+set values                                   = 0.0, 1.0
 end
 
 subsection one-group ksi
