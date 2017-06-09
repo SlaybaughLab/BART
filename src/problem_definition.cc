@@ -300,11 +300,18 @@ void ProblemDefinition<dim>::initialize_relative_position_to_id_map (ParameterHa
         for (unsigned int x=0; x<ncell_per_dir[0]; ++x)
         {
           std::vector<unsigned int> tmp {x, y, z};
+          std::cout << x << ", " << y << ", " << z << ", "
+          << std::atoi (strings[x].c_str()) - 1 << ", is the id" << std::endl;
           AssertThrow(std::atoi(strings[x].c_str())>0,
                       ExcMessage("material ID must be larger than 0"));
-          relative_position_to_id[tmp] = std::atoi (strings[x].c_str()-1);
+          relative_position_to_id[tmp] = std::atoi (strings[x].c_str()) - 1;
         }
       }
+    std::vector<unsigned int> t1{0,0,0}, t2{0,1,0}, t3{1,0,0}, t4{1,1,0};
+    std::cout << "tests: " << 0 << ", " << 0 << ", " << relative_position_to_id[t1] << std::endl;
+    std::cout << "tests: " << 0 << ", " << 1 << ", " << relative_position_to_id[t2] << std::endl;
+    std::cout << "tests: " << 1 << ", " << 0 << ", " << relative_position_to_id[t3] << std::endl;
+    std::cout << "tests: " << 1 << ", " << 1 << ", " << relative_position_to_id[t4] << std::endl;
   }
   prm.leave_subsection ();
 }
@@ -734,7 +741,12 @@ void ProblemDefinition<dim>::produce_angular_quad ()
   for (unsigned int i=0; i<n_dir; ++i)
   {
     Tensor<2, dim> tensor_tmp = outer_product(omega_i[i], omega_i[i]);
-    tensor_norms.push_back(tensor_tmp.norm());
+    //double norm = 10.;
+    //double norm = l1_norm (tensor_tmp);
+    double norm = tensor_tmp.norm();
+    //double norm = linfty_norm (tensor_tmp);
+    std::cout << "tensor norm " << norm << std::endl;
+    tensor_norms.push_back(norm);
   }
 }
 
