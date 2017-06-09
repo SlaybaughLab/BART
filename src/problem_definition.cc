@@ -161,6 +161,13 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
 }
 
 template <int dim>
+std::string ProblemDefinition<dim>::get_transport_model (ParameterHandler &prm)
+{
+  std::string model_name = prm.get("transport model");
+  return model_name;
+}
+
+template <int dim>
 void ProblemDefinition<dim>::process_input (ParameterHandler &prm)
 {
   preprocess_reflective_bc (prm);

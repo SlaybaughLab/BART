@@ -28,7 +28,7 @@
 
 //#include "../include/declare_parameters.h"
 #include "../include/problem_definition.h"
-#include "../include/EP_SN.h"
+#include "../include/transport_base.h"
 
 using namespace dealii;
 
@@ -55,23 +55,25 @@ int main(int argc, char *argv[])
     {
       case 2:
       {
-        ProblemDefinition<2>::declare_parameters(prm);
+        ProblemDefinition<2>::declare_parameters (prm);
         prm.read_input(argv[1]);
-        //ProblemDefinition<2> prob_defs (prm);
+        std::string transport_model_name = ProblemDefinition<2>::get_transport_model (prm);
         Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-        EP_SN<2> dg_ep (prm);
-        dg_ep.run ();
+        std_cxx11::shared_ptr<TransportBase<2> > transport_model
+        = TransportBase::build_transport_model (transport_model_name,prm);
+        transport_model->run ();
         break;
       }
         
       case 3:
       {
-        ProblemDefinition<3>::declare_parameters(prm);
+        ProblemDefinition<3>::declare_parameters (prm);
         prm.read_input(argv[1]);
-        //ProblemDefinition<3> prob_defs (prm);
+        std::string transport_model_name = ProblemDefinition<3>::get_transport_model (prm);
         Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-        EP_SN<3> dg_ep (prm);
-        dg_ep.run ();
+        std_cxx11::shared_ptr<TransportBase<3> > transport_model
+        = TransportBase::build_transport_model (transport_model_name,prm);
+        transport_model->run ();
         break;
       }
         

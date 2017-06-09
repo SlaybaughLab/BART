@@ -16,12 +16,12 @@
 
 #include <algorithm>
 
-#include "../include/EP_SN.h"
+#include "../include/transport_base.h"
 
 using namespace dealii;
 
 template <int dim>
-EP_SN<dim>::EP_SN (ParameterHandler &prm)
+TransportBase<dim>::TransportBase (ParameterHandler &prm)
 :
 ProblemDefinition<dim>(prm),
 mpi_communicator (MPI_COMM_WORLD),
@@ -41,14 +41,13 @@ pcout(std::cout,
 }
 
 template <int dim>
-EP_SN<dim>::~EP_SN()
+TransportBase<dim>::~TransportBase ()
 {
   dof_handler.clear();
-  delete fe;
 }
 
 template <int dim>
-void EP_SN<dim>::process_input ()
+void TransportBase<dim>::process_input ()
 {
   {
     n_azi = this->get_sn_order ();
@@ -107,7 +106,30 @@ void EP_SN<dim>::process_input ()
 }
 
 template <int dim>
-void EP_SN<dim>::get_cell_relative_position (Point<dim> &center,
+std_cxx11::shared_ptr<TransportBase<dim> >
+TransportBase<dim>::build_transport_model (std::string &transport_model_name,
+                                           ParameterHandler &prm)
+{
+  if (boost::iequals(transport_model_name,"ep") ||
+      boost::iequals(transport_model_name,"EvenParity"))
+    return std_cxx11<TransportBase<dim> > (new EvenParity<dim>(prm));
+  /*
+  else if (boost::iequals(transport_model_name,"saaf") ||
+           boost::iequals(transport_model_name,"SelfAdjointAngularFlux"))
+    return std_cxx11<TransportBase<dim> > (new SelfAdjointAngularFlux<dim>(prm));
+  else if (boost::iequals(transport_model_name,"ls") ||
+           boost::iequals(transport_model_name,"LeastSquare"))
+    return std_cxx11<TransportBase<dim> > (new SelfAdjointAngularFlux<dim>(prm));
+   */
+  else
+  {
+    pcout << "Requested transport model unavailable, even parity will be built by default" << std::end;
+    return std_cxx11<TransportBase<dim> > (new EvenParity<dim>(prm));
+  }
+}
+
+template <int dim>
+void TransportBase<dim>::get_cell_relative_position (Point<dim> &center,
                                              std::vector<unsigned int> &relative_position)
 {
   AssertThrow (relative_position.size()==3,
@@ -125,21 +147,8 @@ void EP_SN<dim>::get_cell_relative_position (Point<dim> &center,
 }
 
 template <int dim>
-void EP_SN<dim>::get_cell_mfps (unsigned int &material_id, double &cell_dimension,
-                                std::vector<double> &local_mfps)
-{
-  // estimate mean free path for input cell aiming for penalty coefficients
-  // FixIt: find a better way to estimate
-  AssertThrow (local_mfps.size()==n_group,
-               ExcMessage("size of mfp should be identical to n_group"));
-  for (unsigned int g=0; g<n_group; ++g)
-    local_mfps[g] = all_sigt[material_id][g] * cell_dimension;
-}
-
-
-template <int dim>
-unsigned int EP_SN<dim>::get_component_index (unsigned int &incident_angle_index,
-                                              unsigned int &g)
+unsigned int TransportBase<dim>::get_component_index
+(unsigned int &incident_angle_index, unsigned int &g)
 {
   // retrieve component indecis given direction and group
   // must be used after initializing the index map
@@ -147,28 +156,29 @@ unsigned int EP_SN<dim>::get_component_index (unsigned int &incident_angle_index
 }
 
 template <int dim>
-unsigned int EP_SN<dim>::get_direction (unsigned int &comp_ind)
+unsigned int TransportBase<dim>::get_direction (unsigned int &comp_ind)
 {
   return inverse_component_index[comp_ind].first;
 }
 
 template <int dim>
-unsigned int EP_SN<dim>::get_component_group (unsigned int &comp_ind)
+unsigned int TransportBase<dim>::get_component_group (unsigned int &comp_ind)
 {
   return inverse_component_index[comp_ind].second;
 }
 
 template <int dim>
-unsigned int EP_SN<dim>::get_reflective_direction_index (unsigned int &boundary_id,
-                                                         unsigned int &incident_angle_index)
+unsigned int TransportBase<dim>::get_reflective_direction_index
+(unsigned int &boundary_id, unsigned int &incident_angle_index)
 {
   AssertThrow (is_reflective_bc[boundary_id],
                ExcMessage ("must be reflective boundary to retrieve the reflective boundary"));
-  return reflective_direction_index[std::make_pair (boundary_id, incident_angle_index)];
+  return reflective_direction_index[std::make_pair (boundary_id,
+                                                    incident_angle_index)];
 }
 
 template <int dim>
-void EP_SN<dim>::generate_globally_refined_grid ()
+void TransportBase<dim>::generate_globally_refined_grid ()
 {
   pcout << "generate refined grid" << std::endl;
   Point<dim> origin;
@@ -208,7 +218,7 @@ void EP_SN<dim>::generate_globally_refined_grid ()
 }
 
 template <int dim>
-void EP_SN<dim>::initialize_material_id ()
+void TransportBase<dim>::initialize_material_id ()
 {
   for (typename Triangulation<dim>::active_cell_iterator
        cell=triangulation.begin_active();
@@ -225,58 +235,36 @@ void EP_SN<dim>::initialize_material_id ()
 }
 
 template <int dim>
-void EP_SN<dim>::report_system ()
+void TransportBase<dim>::report_system ()
 {
-  pcout << "SN quadrature order: "
-  << n_azi
-  << std::endl
-  << "Number of angles: "
-  << n_dir
-  << std::endl
-  << "Number of groups: "
-  << n_group
-  << std::endl;
+  pcout << "SN quadrature order: " << n_azi << std::endl
+  << "Number of angles: " << n_dir << std::endl
+  << "Number of groups: " << n_group << std::endl;
   
-  pcout << "Number of active cells: "
-  << triangulation.n_global_active_cells()
-  << std::endl
-  << "Number of high-order degrees of freedom: "
-  << n_total_ho_vars * dof_handler.n_dofs()
-  << std::endl;
+  pcout << "Transport model: " << transport_model_name << std::endl
+  << "Spatial discretization: " << discretization << std::endl;
+  
+  pcout << "Number of cells: " << triangulation.n_global_active_cells() << std::endl
+  << "High-order total DoF counts: " << n_total_ho_vars * dof_handler.n_dofs() << std::endl;
   
   if (is_eigen_problem)
     pcout << "Problem type: k-eigenvalue problem" << std::endl;
   
   if (do_nda)
-    pcout << "NDA DoFs: "
-    << n_group * dof_handler.n_dofs() * n_group
-    << std::endl;
+    pcout << "NDA total DoF counts: " << n_group * dof_handler.n_dofs() << std::endl;
 }
 
 template <int dim>
-void EP_SN<dim>::setup_system ()
+void TransportBase<dim>::setup_system ()
 {
   local_radio ("setup system");
-  //TimerOutput::Scope t(computing_timer, "setup HO system");
-  
-  if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
-    fe = new FE_DGQ<dim> (p_order);
-  else
-    fe = new FE_Q<dim> (p_order);
-  
-  dof_handler.distribute_dofs (*fe);
-  
-  local_dofs = dof_handler.locally_owned_dofs ();
-  DoFTools::extract_locally_relevant_dofs (dof_handler,
-                                           relevant_dofs);
-  
-  constraints.clear ();
-  constraints.reinit (relevant_dofs);
-  DoFTools::make_hanging_node_constraints (dof_handler,
-                                           constraints);
-  constraints.close ();
-  
-  local_radio ("dsp setup");
+  initialize_dealii_objects ();
+  initialize_system_matrices_vectors ();
+}
+
+template <int dim>
+void TransportBase<dim>::initialize_system_matrices_vectors ();
+{
   DynamicSparsityPattern dsp (relevant_dofs);
   
   if (boost::iequals(discretization,"DFEM") ||
@@ -297,7 +285,6 @@ void EP_SN<dim>::setup_system ()
                                               mpi_communicator,
                                               relevant_dofs);
   
-  local_radio("initialize system mats and vecs");
   for (unsigned int g=0; g<n_group; ++g)
   {
     if (do_nda)
@@ -358,12 +345,11 @@ void EP_SN<dim>::setup_system ()
                                                          mpi_communicator);
     }
   }
-  
   c_penalty = 1.0 * p_order * (p_order + 1.0);
 }
 
 template <int dim>
-void EP_SN<dim>::setup_boundary_ids ()
+void TransportBase<dim>::setup_boundary_ids ()
 {
   AssertThrow (axis_max_values.size()==dim,
                ExcMessage("number of entries axis max values should be dimension"));
@@ -421,74 +407,85 @@ void EP_SN<dim>::setup_boundary_ids ()
 }
 
 template <int dim>
-void EP_SN<dim>::assemble_ho_system ()
+void TransportBase<dim>::assemble_ho_system ()
 {
   local_radio ("Assemble volumetric bilinear forms");
-  assemble_ho_volume_boundary_new ();
+  assemble_ho_volume_boundary ();
   
   if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
   {
     local_radio ("Assemble cell interface bilinear forms for DFEM");
-    assemble_ho_interface_new ();
+    assemble_ho_interface ();
   }
 }
 
 template <int dim>
-void EP_SN<dim>::assemble_ho_volume_boundary_new ()
+void TransportBase<dim>::initialize_dealii_objects ()
 {
-  const QGauss<dim>  q_rule(p_order+1);
-  const QGauss<dim-1>  qf_rule(p_order+1);
+  if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
+    fe =
+    std_cxx11::shared_ptr<std_cxx11::shared_ptr
+    <FE_Poly<TensorProductPolynomials<dim>,dim,dim> > >
+    (new FE_DGQ<dim> (p_order));
+  else
+    fe =
+    std_cxx11::shared_ptr<std_cxx11::shared_ptr
+    <FE_Poly<TensorProductPolynomials<dim>,dim,dim> > >
+    (new FE_Q<dim> (p_order));
   
-  // cell finite element object
-  FEValues<dim> fv(*fe, q_rule,
-                   update_values | update_gradients |
-                   update_quadrature_points |
-                   update_JxW_values);
-  // face finite element object for the side of the face in current cell
-  FEFaceValues<dim> fvf(*fe, qf_rule,
-                        update_values | update_gradients |
-                        update_quadrature_points | update_normal_vectors |
-                        update_JxW_values);
+  dof_handler.distribute_dofs (*fe);
   
-  const unsigned int dofs_per_cell = fe->dofs_per_cell;
-  const unsigned int n_q = q_rule.size();
-  const unsigned int n_qf = qf_rule.size();
+  local_dofs = dof_handler.locally_owned_dofs ();
+  DoFTools::extract_locally_relevant_dofs (dof_handler,
+                                           relevant_dofs);
   
-  std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
+  constraints.clear ();
+  constraints.reinit (relevant_dofs);
+  DoFTools::make_hanging_node_constraints (dof_handler,
+                                           constraints);
+  constraints.close ();
   
+  q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
+  qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim> (p_order + 1));
+  
+  fv = std_cxx11::shared_ptr<FEValues<dim> >
+  (new FEValues<dim> (*fe, *q_rule,
+                      update_values | update_gradients |
+                      update_quadrature_points |
+                      update_JxW_values));
+  
+  fvf = std_cxx11::shared_ptr<FEFaceValues<dim-1> >
+  (new FEFaceValues<dim-1> (*fe, *qf_rule,
+                            update_values | update_gradients |
+                            update_quadrature_points | update_normal_vectors |
+                            update_JxW_values));
+  
+  fvf_nei = std_cxx11::shared_ptr<FEFaceValues<dim-1> >
+  (new FEFaceValues<dim-1> (*fe, *qf_rule,
+                            update_values | update_gradients |
+                            update_quadrature_points | update_normal_vectors |
+                            update_JxW_values));
+  
+  dofs_per_cell = fe->dofs_per_cell;
+  n_q = q_rule->size();
+  n_qf = qf_rule->size();
+  
+  local_dof_indices.resize (dofs_per_cell);
+  neigh_dof_indices.resize (dofs_per_cell);
+}
+
+template <int dim>
+void TransportBase<dim>::assemble_ho_volume_boundary ()
+{
   // volumetric pre-assembly matrices
-  std::vector<FullMatrix<double> >
-  mass_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   std::vector<std::vector<FullMatrix<double> > >
-  stiffness_at_qp (n_q, std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
+  streaming_at_qp (n_q, std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
   
-  for (typename DoFHandler<dim>::active_cell_iterator
-       cell=dof_handler.begin_active();
-       cell!=dof_handler.end(); ++cell)
-  {
-    if (cell->is_locally_owned())
-    {
-      fv.reinit(cell);
-      cell->get_dof_indices (local_dof_indices);
-      
-      for (unsigned int qi=0; qi<n_q; ++qi)
-        for (unsigned int i=0; i<dofs_per_cell; ++i)
-          for (unsigned int j=0; j<dofs_per_cell; ++j)
-            mass_at_qp[qi](i,j) = (fv.shape_value(i,qi) *
-                                   fv.shape_value(j,qi));
-      
-      for (unsigned int qi=0; qi<n_q; ++qi)
-        for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-          for (unsigned int i=0; i<dofs_per_cell; ++i)
-            for (unsigned int j=0; j<dofs_per_cell; ++j)
-              stiffness_at_qp[qi][i_dir](i,j) = ((fv.shape_grad(i,qi) *
-                                                  omega_i[i_dir])
-                                                 *
-                                                 (fv.shape_grad(j,qi) *
-                                                  omega_i[i_dir]));
-      break;
-    }// local cell
-  }// cell
+  std::vector<FullMatrix<double> >
+  collision_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
+  
+  pre_assemble_cell_matrices (streaming_at_qp,
+                              collision_at_qp);
   
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
   {
@@ -502,75 +499,53 @@ void EP_SN<dim>::assemble_ho_volume_boundary_new ()
     {
       if (cell->is_locally_owned())
       {
-        fv.reinit (cell);
         cell->get_dof_indices (local_dof_indices);
         local_mat = 0;
-        unsigned int material_id = cell->material_id ();
-        if (k==0)
-          pcout << "mat id " << material_id
-          << ", sigt: " << all_sigt[material_id][g]
-          << ", inv_sigt: " << all_inv_sigt[material_id][g] << std::endl;
         
-        for (unsigned int qi=0; qi<n_q; ++qi)
-          for (unsigned int i=0; i<dofs_per_cell; ++i)
-            for (unsigned int j=0; j<dofs_per_cell; ++j)
-            {
-              local_mat(i,j) += (stiffness_at_qp[qi][i_dir](i,j) *
-                                 all_inv_sigt[material_id][g]
-                                 +
-                                 mass_at_qp[qi](i,j) *
-                                 all_sigt[material_id][g]) * fv.JxW(qi);
-            }
-        
+        integrate_cell_bilinear_form (cell,
+                                      local_mat,
+                                      streaming_at_qp,
+                                      collision_at_qp);
         if (cell->at_boundary())
-          for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
-          {
-            if (cell->at_boundary(fn) &&
-                !is_reflective_bc[cell->face(fn)->boundary_id()])
-            {
-              fvf.reinit (cell,fn);
-              const Tensor<1,dim> vec_n = fvf.normal_vector(0);
-              double absndo = std::fabs (vec_n * omega_i[i_dir]);
-              for (unsigned int qi=0; qi<n_qf; ++qi)
-                for (unsigned int i=0; i<dofs_per_cell; ++i)
-                  for (unsigned int j=0; j<dofs_per_cell; ++j)
-                    local_mat(i,j) += (absndo *
-                                       fvf.shape_value(i,qi) *
-                                       fvf.shape_value(j,qi) *
-                                       fvf.JxW(qi));
-            }// non-ref bd
-            else if (cell->at_boundary(fn) &&
-                     is_reflective_bc[cell->face(fn)->boundary_id()] &&
-                     is_explicit_reflective)
-            {
-              fvf.reinit (cell,fn);
-              unsigned int boundary_id = cell->face(fn)->boundary_id ();
-              unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
-              const Tensor<1, dim> vec_n = fvf.normal_vector (0);
-              double ndo = omega_i[i_dir] * vec_n;
-              for (unsigned int qi=0; qi<n_qf; ++qi)
-                for (unsigned int i=0; i<dofs_per_cell; ++i)
-                  for (unsigned int j=0; j<dofs_per_cell; ++j)
-                    local_mat(i,j) += (ndo *
-                                       fvf.shape_value(i,qi) *
-                                       (omega_i[r_dir] * fvf.shape_grad(j,qi)) *
-                                       all_inv_sigt[material_id][g] *
-                                       fvf.JxW(qi));
-            }// explicit ref bd face
-          }
+          integrate_boundary_bilinear_form (cell,
+                                            local_mat);
         
         vec_ho_sys[k]->add (local_dof_indices,
                             local_dof_indices,
                             local_mat);
       }// local cell
     }// cell
-    
     vec_ho_sys[k]->compress (VectorOperation::add);
   }// components
 }
 
 template <int dim>
-void EP_SN<dim>::local_matrix_check (FullMatrix<double> &local_mat,
+void TransportBase<dim>::
+pre_assemble_cell_matrices (std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+                            std::vector<FullMatrix<double> > &collision_at_qp)
+{// this is a virtual function
+}
+
+template <int dim>
+void TransportBase<dim>::integrate_boundary_bilinear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ FullMatrix<double> &cell_matrix,
+ unsigned int &i_dir,
+ unsigned int &g)
+{// this is a virtual function
+}
+
+template <int dim>
+void TransportBase<dim>::integrate_cell_bilinear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ FullMatrix<double> &cell_matrix,
+ std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+ std::vector<FullMatrix<double> > &collision_at_qp)
+{// this is a virtual function
+}
+
+template <int dim>
+void TransportBase<dim>::local_matrix_check (FullMatrix<double> &local_mat,
                                      std::string str,
                                      unsigned int ind)
 {
@@ -578,49 +553,29 @@ void EP_SN<dim>::local_matrix_check (FullMatrix<double> &local_mat,
 }
 
 template <int dim>
-void EP_SN<dim>::local_radio (std::string str)
+void TransportBase<dim>::local_radio (std::string str)
 {
   std::cout << str << " on proc "
   << Utilities::MPI::this_mpi_process (mpi_communicator) << std::endl;
 }
 
 template <int dim>
-void EP_SN<dim>::local_radio (std::string str,
+void TransportBase<dim>::local_radio (std::string str,
                               double &num)
 {
   pcout << str << ": " << num << std::endl;
 }
 
 template <int dim>
-void EP_SN<dim>::local_radio (std::string str,
+void TransportBase<dim>::local_radio (std::string str,
                               unsigned int &num)
 {
   pcout << str << ": " << num << std::endl;
 }
 
 template <int dim>
-void EP_SN<dim>::assemble_ho_interface_new ()
+void TransportBase<dim>::assemble_ho_interface ()
 {
-  const QGauss<dim-1>  qf_rule(p_order+1);
-  
-  // face finite element object for the side of the face in current cell
-  FEFaceValues<dim> fvf(*fe, qf_rule,
-                        update_values | update_gradients |
-                        update_quadrature_points | update_normal_vectors |
-                        update_JxW_values);
-  // face finite element object for the side of the face in neighbor cell
-  FEFaceValues<dim> fvf_nei(*fe, qf_rule,
-                            update_values | update_gradients |
-                            update_quadrature_points | update_normal_vectors |
-                            update_JxW_values);
-  
-  
-  const unsigned int dofs_per_cell = fe->dofs_per_cell;
-  const unsigned int n_qf = qf_rule.size();
-  
-  std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
-  std::vector<types::global_dof_index> neigh_dof_indices (dofs_per_cell);
-  
   FullMatrix<double> vp_up (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vp_un (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vn_up (dofs_per_cell, dofs_per_cell);
@@ -652,82 +607,12 @@ void EP_SN<dim>::assemble_ho_interface_new ()
             vn_up = 0;
             vn_un = 0;
             
-            fvf.reinit (cell,fn);
-            const Tensor<1,dim> vec_n = fvf.normal_vector (0);
-            
-            typename DoFHandler<dim>::cell_iterator neig = cell->neighbor(fn);
-            fvf_nei.reinit (neig, cell->neighbor_face_no(fn));
-            neig->get_dof_indices (neigh_dof_indices);
-            double neigh_sigt = all_sigt[neig->material_id()][g];
-            double neigh_inv_sigt = all_inv_sigt[neig->material_id()][g];
-            double neigh_measure = neig->measure ();
-            
-            double face_measure = cell->face(fn)->measure ();
-            
-            double avg_mfp_inv = 0.5 * (face_measure / (local_sigt * local_measure)
-                                        + face_measure / (neigh_sigt * neigh_measure));
-            double sige = std::max(2.5, tensor_norms[i_dir] * c_penalty * avg_mfp_inv);
-            for (unsigned int qi=0; qi<n_qf; ++qi)
-              for (unsigned int i=0; i<dofs_per_cell; ++i)
-                for (unsigned int j=0; j<dofs_per_cell; ++j)
-                {
-                  double theta = 1.0;
-                  vp_up(i,j) += (sige *
-                                 fvf.shape_value(i,qi) *
-                                 fvf.shape_value(j,qi)
-                                 + theta *
-                                 (-
-                                  local_inv_sigt * vec_n * omega_i[i_dir] *
-                                  (omega_i[i_dir] * fvf.shape_grad(i,qi)) *
-                                  fvf.shape_value(j,qi) * 0.5
-                                  -
-                                  local_inv_sigt * vec_n * omega_i[i_dir] *
-                                  fvf.shape_value(i,qi) * 0.5 *
-                                  (omega_i[i_dir] * fvf.shape_grad(j,qi)))
-                                 ) * fvf.JxW(qi);
-                  
-                  vp_un(i,j) += (-sige *
-                                 fvf.shape_value(i,qi) *
-                                 fvf_nei.shape_value(j,qi)
-                                 + theta *
-                                 (+
-                                  local_inv_sigt * vec_n * omega_i[i_dir] *
-                                  (omega_i[i_dir] * fvf.shape_grad(i,qi)) *
-                                  fvf_nei.shape_value(j,qi) * 0.5
-                                  -
-                                  neigh_inv_sigt * vec_n * omega_i[i_dir] *
-                                  fvf.shape_value(i,qi) * 0.5 *
-                                  (omega_i[i_dir] * fvf_nei.shape_grad(j,qi)))
-                                 ) * fvf.JxW(qi);
-                  
-                  vn_up(i,j) += (-sige *
-                                 fvf_nei.shape_value(i,qi) *
-                                 fvf.shape_value(j,qi)
-                                 + theta *
-                                 (-
-                                  neigh_inv_sigt * vec_n * omega_i[i_dir] *
-                                  (omega_i[i_dir] * fvf_nei.shape_grad(i,qi)) *
-                                  fvf.shape_value(j,qi) * 0.5
-                                  +
-                                  local_inv_sigt * vec_n * omega_i[i_dir] *
-                                  fvf_nei.shape_value(i,qi) * 0.5 *
-                                  (omega_i[i_dir] * fvf.shape_grad(j,qi)))
-                                 ) * fvf.JxW(qi);
-                  
-                  vn_un(i,j) += (sige *
-                                 fvf_nei.shape_value(i,qi) *
-                                 fvf_nei.shape_value(j,qi)
-                                 + theta *
-                                 (+
-                                  neigh_inv_sigt * vec_n * omega_i[i_dir] *
-                                  (omega_i[i_dir] * fvf_nei.shape_grad(i,qi)) *
-                                  fvf_nei.shape_value(j,qi) * 0.5
-                                  +
-                                  neigh_inv_sigt * vec_n * omega_i[i_dir] *
-                                  fvf_nei.shape_value(i,qi) * 0.5 *
-                                  (omega_i[i_dir] * fvf_nei.shape_grad(j,qi)))
-                                 ) * fvf.JxW(qi);
-                }
+            integrate_interface_bilinear_form (cell,
+                                               fn,
+                                               vp_up,
+                                               vp_un,
+                                               vn_up,
+                                               vn_un);
             
             vec_ho_sys[k]->add (local_dof_indices,
                                 local_dof_indices,
@@ -752,9 +637,21 @@ void EP_SN<dim>::assemble_ho_interface_new ()
 }
 
 template <int dim>
-void EP_SN<dim>::initialize_ho_preconditioners ()
+void TransportBase<dim>::integrate_interface_bilinear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ unsigned int &fn,
+ unsigned int &i_dir,
+ unsigned int &g,
+ FullMatrix<double> &vp_up,
+ FullMatrix<double> &vp_un,
+ FullMatrix<double> &vn_up,
+ FullMatrix<double> &vn_un)
+{// this is a virtual function
+}
+
+template <int dim>
+void TransportBase<dim>::initialize_ho_preconditioners ()
 {
-  //TimerOutput::Scope t (computing_timer, "HO preconditioner initialization");
   pcout << "tot vars " << n_total_ho_vars << std::endl;
   pre_ho_amg.resize (n_total_ho_vars);
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
@@ -771,10 +668,8 @@ void EP_SN<dim>::initialize_ho_preconditioners ()
 }
 
 template <int dim>
-void EP_SN<dim>::ho_solve ()
+void TransportBase<dim>::ho_solve ()
 {
-  //TimerOutput::Scope t(computing_timer, "HO solve");
-  
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
   {
     SolverControl solver_control (dof_handler.n_dofs(),
@@ -805,17 +700,11 @@ void EP_SN<dim>::ho_solve ()
                     *(pre_ho_amg)[i]);
       pcout << "   Solved in " << solver_control.last_step() << std::endl;
     }
-    //#else
-    // LA::SolverCG solver(solver_control);
-    //#endif
-    //pcout << "sys norm dir " << i << ": " << vec_ho_sys[i]->l1_norm () << std::endl;
-    //pcout << "rhs norm dir " << i << ": " << vec_ho_rhs[i]->l1_norm () << std::endl;
-    //pcout << "aflx norm dir " << i << ": " << vec_aflx[i]->l1_norm () << std::endl;
   }
 }
 
 template <int dim>
-void EP_SN<dim>::generate_moments ()
+void TransportBase<dim>::generate_moments ()
 {
   // FitIt: only scalar flux is generated for now
   AssertThrow(do_nda==false, ExcMessage("Moments are generated only without NDA"));
@@ -830,28 +719,10 @@ void EP_SN<dim>::generate_moments ()
     }
 }
 
+// ????????
 template <int dim>
-void EP_SN<dim>::generate_ho_source_new ()
+void TransportBase<dim>::generate_ho_source ()
 {
-  const QGauss<dim>  q_rule(p_order+1);
-  const QGauss<dim-1>  qf_rule(p_order+1);
-  
-  unsigned int n_q = q_rule.size();
-  unsigned int n_qf = qf_rule.size();
-  
-  // cell finite element object
-  FEValues<dim> fv(*fe, q_rule,
-                   update_values | update_gradients |
-                   update_quadrature_points |
-                   update_JxW_values);
-  // face finite element object for the side of the face in current cell
-  FEFaceValues<dim> fvf(*fe, qf_rule,
-                        update_values | update_gradients |
-                        update_quadrature_points | update_normal_vectors |
-                        update_JxW_values);
-  
-  // cell rhs's
-  const unsigned int dofs_per_cell = fe->dofs_per_cell;
   Vector<double> cell_rhs (dofs_per_cell);
   
   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
@@ -920,17 +791,17 @@ void EP_SN<dim>::generate_ho_source_new ()
 }
 
 template <int dim>
-void EP_SN<dim>::NDA_PI ()
+void TransportBase<dim>::NDA_PI ()
 {
 }
 
 template <int dim>
-void EP_SN<dim>::NDA_SI ()
+void TransportBase<dim>::NDA_SI ()
 {
 }
 
 template <int dim>
-void EP_SN<dim>::scale_fiss_transfer_matrices ()
+void TransportBase<dim>::scale_fiss_transfer_matrices ()
 {
   if (do_nda)
   {
@@ -951,7 +822,7 @@ void EP_SN<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void EP_SN<dim>::generate_fixed_source_new ()
+void TransportBase<dim>::generate_fixed_source ()
 {
   const QGauss<dim>  q_rule(p_order+1);
   
@@ -1040,7 +911,7 @@ void EP_SN<dim>::generate_fixed_source_new ()
 }
 
 template <int dim>
-void EP_SN<dim>::power_iteration ()
+void TransportBase<dim>::power_iteration ()
 {
   k_ho = 1.0;
   double err_k = 1.0;
@@ -1073,7 +944,7 @@ void EP_SN<dim>::power_iteration ()
 }
 
 template <int dim>
-void EP_SN<dim>::source_iteration ()
+void TransportBase<dim>::source_iteration ()
 {
   unsigned int ct = 0;
   double err_phi = 1.0;
@@ -1083,7 +954,7 @@ void EP_SN<dim>::source_iteration ()
   {
     //generate_ho_source ();
     ct += 1;
-    generate_ho_source_new ();
+    generate_ho_source ();
     ho_solve ();
     generate_moments ();
     err_phi_old = err_phi;
@@ -1097,7 +968,7 @@ void EP_SN<dim>::source_iteration ()
 }
 
 template <int dim>
-void EP_SN<dim>::renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes, double &normalization_factor)
+void TransportBase<dim>::renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes, double &normalization_factor)
 {
   AssertThrow (target_sflxes.size()==n_group,
                ExcMessage("vector of scalar fluxes must have a size of n_group"));
@@ -1106,7 +977,7 @@ void EP_SN<dim>::renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes,
 }
 
 template <int dim>
-void EP_SN<dim>::postprocess ()
+void TransportBase<dim>::postprocess ()
 {
   std::vector<double> r_collision (n_group, 0.0);
   const QGauss<dim>  q_rule(p_order+1);
@@ -1156,7 +1027,7 @@ void EP_SN<dim>::postprocess ()
 }
 
 template <int dim>
-double EP_SN<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
+double TransportBase<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
 {
   double fiss_source = 0.0;
   
@@ -1191,7 +1062,7 @@ double EP_SN<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
 }
 
 template <int dim>
-double EP_SN<dim>::estimate_k (double &fiss_source,
+double TransportBase<dim>::estimate_k (double &fiss_source,
                                double &fiss_source_prev_gen,
                                double &k_prev_gen)
 {
@@ -1200,7 +1071,7 @@ double EP_SN<dim>::estimate_k (double &fiss_source,
 }
 
 template <int dim>
-double EP_SN<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
+double TransportBase<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                                       std::vector<LA::MPI::Vector*> &phis_older)
 {
   AssertThrow (phis_newer.size ()== phis_older.size (),
@@ -1216,10 +1087,10 @@ double EP_SN<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
 }
 
 template <int dim>
-void EP_SN<dim>::do_iterations ()
+void TransportBase<dim>::do_iterations ()
 {
   initialize_ho_preconditioners ();
-  generate_fixed_source_new ();
+  generate_fixed_source ();
   
   if (is_eigen_problem)
   {
@@ -1238,7 +1109,7 @@ void EP_SN<dim>::do_iterations ()
 }
 
 template <int dim>
-void EP_SN<dim>::output_results () const
+void TransportBase<dim>::output_results () const
 {
   std::string sec_name = "Graphical output";
   DataOut<dim> data_out;
@@ -1280,13 +1151,13 @@ void EP_SN<dim>::output_results () const
 }
 
 template <int dim>
-void EP_SN<dim>::global_matrix_check (unsigned int ind)
+void TransportBase<dim>::global_matrix_check (unsigned int ind)
 {
   pcout << "global system norm index " << ind << ", " << vec_ho_sys[ind]->l1_norm () << std::endl;
 }
 
 template <int dim>
-void EP_SN<dim>::run ()
+void TransportBase<dim>::run ()
 {
   generate_globally_refined_grid ();
   setup_boundary_ids ();
@@ -1304,5 +1175,5 @@ void EP_SN<dim>::run ()
 }
 
 // explicit instantiation to avoid linking error
-template class EP_SN<2>;
-template class EP_SN<3>;
+template class TransportBase<2>;
+template class TransportBase<3>;

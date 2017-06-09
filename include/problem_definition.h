@@ -28,6 +28,8 @@ public:
   ~ProblemDefinition ();
   
   static void declare_parameters (ParameterHandler &prm);
+  static std::string get_transport_model (ParameterHandler &prm);
+  
   void process_input (ParameterHandler &prm);
   
   std::vector<std::vector<double> > get_sigma_t ();

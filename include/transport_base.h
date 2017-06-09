@@ -1,5 +1,5 @@
-#ifndef __ep_sn_h__
-#define __ep_sn_h__
+#ifndef __transport_base_h__
+#define __transport_base_h__
 #include <deal.II/lac/generic_linear_algebra.h>
 namespace LA
 {
@@ -51,13 +51,49 @@ namespace LA
 using namespace dealii;
 
 template <int dim>
-class EP_SN : public ProblemDefinition<dim>
+class TransportBase : public ProblemDefinition<dim>
 {
 public:
-  EP_SN (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
-  ~EP_SN ();
+  TransportBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
+  virtual ~TransportBase ();
+  
+  static std_cxx11::shared_ptr<TransportBase<dim> >
+  build_transport_model (std::string &transport_model_name,
+                         ParameterHandler &prm);
   
   void run ();
+  
+  virtual void pre_assemble_cell_matrices
+  (std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+   std::vector<FullMatrix<double> > &collision_at_qp);
+  
+  virtual void integrate_cell_bilinear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   FullMatrix<double> &cell_matrix,
+   unsigned int &i_dir,
+   unsigned int &g,
+   std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+   std::vector<FullMatrix<double> > &collision_at_qp);
+  
+  virtual void integrate_boundary_bilinear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   FullMatrix<double> &cell_matrix,
+   unsigned int &i_dir,
+   unsigned int &g);
+  
+  virtual integrate_interface_bilinear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   unsigned int &fn,
+   unsigned int &i_dir,
+   unsigned int &g,
+   FullMatrix<double> &vp_up,
+   FullMatrix<double> &vp_un,
+   FullMatrix<double> &vn_up,
+   FullMatrix<double> &vn_un);
+  
+  virtual void generate_moments ();
+  virtual void postprocess ();
+  virtual void generate_ho_source ();
   
 private:
   void setup_system ();
@@ -68,9 +104,7 @@ private:
   void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
                       std::vector<double> &local_mfps);
   void assemble_ho_volume_boundary ();
-  void assemble_ho_volume_boundary_new ();
   void assemble_ho_interface ();
-  void assemble_ho_interface_new ();
   void assemble_ho_system ();
   void do_iterations ();
   void process_input ();
@@ -91,12 +125,7 @@ private:
   void lo_solve ();
   void refine_grid ();
   void output_results () const;
-  void generate_moments ();
-  void postprocess ();
-  void generate_ho_source ();
   void generate_fixed_source ();
-  void generate_ho_source_new ();
-  void generate_fixed_source_new ();
   void power_iteration ();
   void source_iteration ();
   void scale_fiss_transfer_matrices ();
@@ -123,7 +152,25 @@ private:
   void NDA_PI ();
   void NDA_SI ();
   
-  ProblemDefinition<dim>* paras;
+protected:
+  /*
+   protected variables can be accessed in cell and face integrators from
+   derived class
+   */
+  std_cxx11::shared_ptr<FE_Poly<TensorProductPolynomials<dim>,dim,dim> > fe;
+  
+  std_cxx11::shared_ptr<FEValues<dim> > fv;
+  std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
+  std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
+  
+  std_cxx11::shared_ptr<QGauss<dim> > q_rule;
+  std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
+  
+  unsigned int n_q;
+  unsigned int n_qf;
+  unsigned int dofs_per_cell;
+  std::vector<types::global_dof_index> local_dof_indices;
+  std::vector<types::global_dof_index> neigh_dof_indices;
   
   MPI_Comm mpi_communicator;
   
@@ -131,7 +178,7 @@ private:
   
   DoFHandler<dim> dof_handler;
   // FE_DGQ<dim> *fe;
-  FE_Poly<TensorProductPolynomials<dim>,dim,dim> *fe;
+  
   // FixIt: involve relevant_dofs for future if refinement is necessary
   IndexSet local_dofs;
   IndexSet relevant_dofs;
@@ -209,7 +256,6 @@ private:
   std::vector<std::vector<std::vector<double> > > lo_scaled_fiss_transfer;
   
   ConditionalOStream                        pcout;
-  //TimerOutput                               computing_timer;
   std::vector<Vector<double> > sflx_this_processor;
   
   std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> > pre_ho_amg;
@@ -217,4 +263,4 @@ private:
   ConstraintMatrix constraints;
 };
 
-#endif	// define  __ep_sn_h__
+#endif	// define  __transport_base_h__
