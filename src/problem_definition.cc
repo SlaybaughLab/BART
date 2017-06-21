@@ -15,6 +15,7 @@ template <int dim>
 ProblemDefinition<dim>::ProblemDefinition (ParameterHandler &prm)
 :
 pi(numbers::PI),
+transport_model_name(prm.get("transport model")),
 discretization(prm.get("spatial discretization")),
 n_azi(prm.get_integer("angular quadrature order")),
 n_group(prm.get_integer("number of groups")),
@@ -23,7 +24,8 @@ is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
 p_order(prm.get_integer("finite element polynomial degree")),
-global_refinements(prm.get_integer("uniform refinements"))
+global_refinements(prm.get_integer("uniform refinements")),
+output_namebase(prm.get("output file name base"))
 {
   this->process_input (prm);
 }
@@ -41,9 +43,10 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
   // from Colorado State on 05-10-2017
   // The following are the basic parameters we need to define a problem
   {
+    prm.declare_entry ("transport model", "ep", Patterns::Anything(), "valid names such as ep");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", Patterns::Integer (), "Number of groups in MG calculations");
-    prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("DFEM|dfem|CFEM|cfem"), "USE DG or CG for spatial discretization");
+    prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("DFEM|dfem|CFEM|cfem|dg|cg|DG|CG"), "USE DG or CG for spatial discretization");
     prm.declare_entry ("do eigenvalue calculations", "false", Patterns::Bool(), "Boolean to determine problem type");
     prm.declare_entry ("do NDA", "false", Patterns::Bool(), "Boolean to determine NDA or not");
     prm.declare_entry ("have reflective BC", "false", Patterns::Bool(), "");
@@ -55,6 +58,7 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
     prm.declare_entry ("number of materials", "1", Patterns::Integer (), "must be a positive integer");
     prm.declare_entry ("do print angular quadrature info", "true", Patterns::Bool(), "Boolean to determine if printing angular quadrature information");
     prm.declare_entry ("use explicit reflective boundary condition or not", "true", Patterns::Bool(), "");
+    prm.declare_entry ("output file name base", "solu", Patterns::Anything(), "name base of the output file");
     // prm.declare_entry("material ID map", "", Patterns::List (Patterns::Integer ()), "Give material IDs for all blocks");
   }
   // FixIt: for current deal.II code, we don't consider reading mesh
@@ -161,10 +165,22 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
 }
 
 template <int dim>
+std::string ProblemDefinition<dim>::get_transport_model ()
+{
+  return transport_model_name;
+}
+
+template <int dim>
 std::string ProblemDefinition<dim>::get_transport_model (ParameterHandler &prm)
 {
   std::string model_name = prm.get("transport model");
   return model_name;
+}
+
+template <int dim>
+std::string ProblemDefinition<dim>::get_output_namebase ()
+{
+  return output_namebase;
 }
 
 template <int dim>

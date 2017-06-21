@@ -23,12 +23,8 @@
  * Author: Weixiong Zheng
  *
  */
-// #include <deal.II/base/parameter_handler.h>
-// #include <deal.II/base/utilities.h>
 
-//#include "../include/declare_parameters.h"
-#include "../include/problem_definition.h"
-#include "../include/transport_base.h"
+#include "../include/model_manager.h"
 
 using namespace dealii;
 
@@ -41,7 +37,7 @@ int main(int argc, char *argv[])
     int dimension;
     if (argc!=3)
     {
-      std::cerr << "Call the program as mpirun -np num_proc dg-ep-proto input_file_name dimension" << std::endl;
+      std::cerr << "Call the program as mpirun -np num_proc xtrans input_file_name" << std::endl;
       return 1;
     }
     else
@@ -58,9 +54,11 @@ int main(int argc, char *argv[])
         ProblemDefinition<2>::declare_parameters (prm);
         prm.read_input(argv[1]);
         std::string transport_model_name = ProblemDefinition<2>::get_transport_model (prm);
+        std::cout << "building done" << std::endl;
         Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
         std_cxx11::shared_ptr<TransportBase<2> > transport_model
-        = TransportBase::build_transport_model (transport_model_name,prm);
+        = ModelManager<2>::build_transport_model (transport_model_name, prm);
+        //= TransportBase<2>::build_transport_model (transport_model_name,prm);
         transport_model->run ();
         break;
       }
@@ -72,7 +70,8 @@ int main(int argc, char *argv[])
         std::string transport_model_name = ProblemDefinition<3>::get_transport_model (prm);
         Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
         std_cxx11::shared_ptr<TransportBase<3> > transport_model
-        = TransportBase::build_transport_model (transport_model_name,prm);
+        = ModelManager<3>::build_transport_model (transport_model_name, prm);
+        //= TransportBase<3>::build_transport_model (transport_model_name,prm);
         transport_model->run ();
         break;
       }

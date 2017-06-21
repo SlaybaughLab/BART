@@ -64,11 +64,14 @@ public:
   void run ();
   
   virtual void pre_assemble_cell_matrices
-  (std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+  (const std_cxx11::shared_ptr<FEValues<dim> > fv,
+   typename DoFHandler<dim>::active_cell_iterator &cell,
+   std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp);
   
   virtual void integrate_cell_bilinear_form
-  (typename DoFHandler<dim>::active_cell_iterator &cell,
+  (const std_cxx11::shared_ptr<FEValues<dim> > fv,
+   typename DoFHandler<dim>::active_cell_iterator &cell,
    FullMatrix<double> &cell_matrix,
    unsigned int &i_dir,
    unsigned int &g,
@@ -76,14 +79,19 @@ public:
    std::vector<FullMatrix<double> > &collision_at_qp);
   
   virtual void integrate_boundary_bilinear_form
-  (typename DoFHandler<dim>::active_cell_iterator &cell,
+  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+   typename DoFHandler<dim>::active_cell_iterator &cell,
+   unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
    unsigned int &i_dir,
    unsigned int &g);
   
-  virtual integrate_interface_bilinear_form
-  (typename DoFHandler<dim>::active_cell_iterator &cell,
-   unsigned int &fn,
+  virtual void integrate_interface_bilinear_form
+  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
+   typename DoFHandler<dim>::active_cell_iterator &cell,
+   typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
+   unsigned int &fn,/*concerning face number in local cell*/
    unsigned int &i_dir,
    unsigned int &g,
    FullMatrix<double> &vp_up,
@@ -109,11 +117,11 @@ private:
   void do_iterations ();
   void process_input ();
   void initialize_material_id ();
+  void initialize_dealii_objects ();
+  void initialize_system_matrices_vectors ();
   unsigned int get_component_index (unsigned int &incident_angle_index, unsigned int &g);
   unsigned int get_direction (unsigned int &comp_ind);
   unsigned int get_component_group (unsigned int &comp_ind);
-  unsigned int get_reflective_direction_index (unsigned int &boundary_id,
-                                               unsigned int &incident_angle_index);
   void get_cell_relative_position (Point<dim> &position,
                                    std::vector<unsigned int> &relative_position);
   
@@ -135,9 +143,9 @@ private:
                            std::string str,
                            unsigned int ind);
   
-  void local_radio (std::string str);
-  void local_radio (std::string str, double &num);
-  void local_radio (std::string str, unsigned int &num);
+  void radio (std::string str);
+  void radio (std::string str, double num);
+  void radio (std::string str, unsigned int num);
   
   void global_matrix_check (unsigned int ind);
   
@@ -152,17 +160,19 @@ private:
   void NDA_PI ();
   void NDA_SI ();
   
-protected:
-  /*
-   protected variables can be accessed in cell and face integrators from
-   derived class
-   */
-  std_cxx11::shared_ptr<FE_Poly<TensorProductPolynomials<dim>,dim,dim> > fe;
-  
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   
+  std::string transport_model_name;
+  
+protected:
+  unsigned int get_reflective_direction_index (unsigned int &boundary_id,
+                                               unsigned int &incident_angle_index);
+  
+  //std_cxx11::shared_ptr<FE_Poly<TensorProductPolynomials<dim>,dim,dim> > fe;
+  
+  FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe;
   std_cxx11::shared_ptr<QGauss<dim> > q_rule;
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
   
@@ -223,6 +233,7 @@ protected:
   std::vector<unsigned int> ncell_per_dir;
   std::vector<double> cell_size_all_dir;
   std::vector<double> axis_max_values;
+  std::string namebase;
   
   bool is_eigen_problem;
   bool do_nda;

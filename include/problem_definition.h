@@ -51,6 +51,8 @@ public:
   std::vector<unsigned int> get_ncells ();
   std::vector<double> get_cell_sizes ();
   
+  std::string get_transport_model ();// overloaded function
+  std::string get_output_namebase ();
   unsigned int get_sn_order ();
   unsigned int get_n_dir ();
   unsigned int get_n_group ();
@@ -88,8 +90,10 @@ private:
   
   double pi;
   
+  
   unsigned int total_angle;
   
+  std::string transport_model_name;
   std::string discretization;
   unsigned int n_azi;
   unsigned int n_group;
@@ -101,6 +105,7 @@ private:
   bool have_reflective_bc;
   unsigned int p_order;
   unsigned int global_refinements;
+  std::string output_namebase;
   
   std::unordered_map<unsigned int, bool> is_material_fissile;
   std::unordered_map<unsigned int, bool> is_reflective_bc;

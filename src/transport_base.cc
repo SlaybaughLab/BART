@@ -49,7 +49,9 @@ TransportBase<dim>::~TransportBase ()
 template <int dim>
 void TransportBase<dim>::process_input ()
 {
+  // basic parameters
   {
+    transport_model_name = this->get_transport_model ();
     n_azi = this->get_sn_order ();
     global_refinements = this->get_uniform_refinement ();
     n_group = this->get_n_group ();
@@ -76,6 +78,7 @@ void TransportBase<dim>::process_input ()
     wi = this->get_angular_weights ();
     omega_i = this->get_all_directions ();
     tensor_norms = this->get_tensor_norms ();
+    namebase = this->get_output_namebase ();
   }
   
   if (have_reflective_bc)
@@ -106,31 +109,8 @@ void TransportBase<dim>::process_input ()
 }
 
 template <int dim>
-std_cxx11::shared_ptr<TransportBase<dim> >
-TransportBase<dim>::build_transport_model (std::string &transport_model_name,
-                                           ParameterHandler &prm)
-{
-  if (boost::iequals(transport_model_name,"ep") ||
-      boost::iequals(transport_model_name,"EvenParity"))
-    return std_cxx11<TransportBase<dim> > (new EvenParity<dim>(prm));
-  /*
-  else if (boost::iequals(transport_model_name,"saaf") ||
-           boost::iequals(transport_model_name,"SelfAdjointAngularFlux"))
-    return std_cxx11<TransportBase<dim> > (new SelfAdjointAngularFlux<dim>(prm));
-  else if (boost::iequals(transport_model_name,"ls") ||
-           boost::iequals(transport_model_name,"LeastSquare"))
-    return std_cxx11<TransportBase<dim> > (new SelfAdjointAngularFlux<dim>(prm));
-   */
-  else
-  {
-    pcout << "Requested transport model unavailable, even parity will be built by default" << std::end;
-    return std_cxx11<TransportBase<dim> > (new EvenParity<dim>(prm));
-  }
-}
-
-template <int dim>
 void TransportBase<dim>::get_cell_relative_position (Point<dim> &center,
-                                             std::vector<unsigned int> &relative_position)
+                                                     std::vector<unsigned int> &relative_position)
 {
   AssertThrow (relative_position.size()==3,
                ExcMessage("relative position should be size 3 for any dimension"));
@@ -257,22 +237,37 @@ void TransportBase<dim>::report_system ()
 template <int dim>
 void TransportBase<dim>::setup_system ()
 {
-  local_radio ("setup system");
+  radio ("setup system");
   initialize_dealii_objects ();
   initialize_system_matrices_vectors ();
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_system_matrices_vectors ();
+void TransportBase<dim>::initialize_system_matrices_vectors ()
 {
   DynamicSparsityPattern dsp (relevant_dofs);
   
   if (boost::iequals(discretization,"DFEM") ||
       boost::iequals(discretization,"DG"))
+  {
+    /*
+    Table<2,DoFTools::Coupling> cell_coupling (1,1);
+    Table<2,DoFTools::Coupling> face_coupling (1,1);
+
+    cell_coupling[0][0] = DoFTools::nonzero;
+    face_coupling[0][0] = DoFTools::nonzero;
+    
     DoFTools::make_flux_sparsity_pattern (dof_handler,
+                                          dsp,
+                                          cell_coupling,
+                                          face_coupling);
+     */
+    
+     DoFTools::make_flux_sparsity_pattern (dof_handler,
                                           dsp,
                                           constraints,
                                           false);
+  }
   else
     DoFTools::make_sparsity_pattern (dof_handler,
                                      dsp,
@@ -409,12 +404,12 @@ void TransportBase<dim>::setup_boundary_ids ()
 template <int dim>
 void TransportBase<dim>::assemble_ho_system ()
 {
-  local_radio ("Assemble volumetric bilinear forms");
+  radio ("Assemble volumetric bilinear forms");
   assemble_ho_volume_boundary ();
   
   if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
   {
-    local_radio ("Assemble cell interface bilinear forms for DFEM");
+    radio ("Assemble cell interface bilinear forms for DFEM");
     assemble_ho_interface ();
   }
 }
@@ -423,15 +418,9 @@ template <int dim>
 void TransportBase<dim>::initialize_dealii_objects ()
 {
   if (boost::iequals(discretization,"DFEM") || boost::iequals(discretization,"DG"))
-    fe =
-    std_cxx11::shared_ptr<std_cxx11::shared_ptr
-    <FE_Poly<TensorProductPolynomials<dim>,dim,dim> > >
-    (new FE_DGQ<dim> (p_order));
+    fe = (new FE_DGQ<dim> (p_order));
   else
-    fe =
-    std_cxx11::shared_ptr<std_cxx11::shared_ptr
-    <FE_Poly<TensorProductPolynomials<dim>,dim,dim> > >
-    (new FE_Q<dim> (p_order));
+    fe = (new FE_Q<dim> (p_order));
   
   dof_handler.distribute_dofs (*fe);
   
@@ -446,7 +435,7 @@ void TransportBase<dim>::initialize_dealii_objects ()
   constraints.close ();
   
   q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
-  qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim> (p_order + 1));
+  qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (p_order + 1));
   
   fv = std_cxx11::shared_ptr<FEValues<dim> >
   (new FEValues<dim> (*fe, *q_rule,
@@ -454,17 +443,17 @@ void TransportBase<dim>::initialize_dealii_objects ()
                       update_quadrature_points |
                       update_JxW_values));
   
-  fvf = std_cxx11::shared_ptr<FEFaceValues<dim-1> >
-  (new FEFaceValues<dim-1> (*fe, *qf_rule,
-                            update_values | update_gradients |
-                            update_quadrature_points | update_normal_vectors |
-                            update_JxW_values));
+  fvf = std_cxx11::shared_ptr<FEFaceValues<dim> >
+  (new FEFaceValues<dim> (*fe, *qf_rule,
+                          update_values | update_gradients |
+                          update_quadrature_points | update_normal_vectors |
+                          update_JxW_values));
   
-  fvf_nei = std_cxx11::shared_ptr<FEFaceValues<dim-1> >
-  (new FEFaceValues<dim-1> (*fe, *qf_rule,
-                            update_values | update_gradients |
-                            update_quadrature_points | update_normal_vectors |
-                            update_JxW_values));
+  fvf_nei = std_cxx11::shared_ptr<FEFaceValues<dim> >
+  (new FEFaceValues<dim> (*fe, *qf_rule,
+                          update_values | update_gradients |
+                          update_quadrature_points | update_normal_vectors |
+                          update_JxW_values));
   
   dofs_per_cell = fe->dofs_per_cell;
   n_q = q_rule->size();
@@ -484,8 +473,16 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
   std::vector<FullMatrix<double> >
   collision_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   
-  pre_assemble_cell_matrices (streaming_at_qp,
-                              collision_at_qp);
+  // this sector is for pre-assembling streaming and collision matrices at quadrature
+  // points
+  for (typename DoFHandler<dim>::active_cell_iterator cell=dof_handler.begin_active();
+       cell!=dof_handler.end(); ++cell)
+    if (cell->is_locally_owned())
+    {
+      fv->reinit (cell);
+      pre_assemble_cell_matrices (fv, cell, streaming_at_qp, collision_at_qp);
+      break;
+    }
   
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
   {
@@ -499,16 +496,29 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
     {
       if (cell->is_locally_owned())
       {
+        fv->reinit (cell);
         cell->get_dof_indices (local_dof_indices);
         local_mat = 0;
-        
-        integrate_cell_bilinear_form (cell,
+        integrate_cell_bilinear_form (fv,
+                                      cell,
                                       local_mat,
+                                      i_dir,
+                                      g,
                                       streaming_at_qp,
                                       collision_at_qp);
+        
         if (cell->at_boundary())
-          integrate_boundary_bilinear_form (cell,
-                                            local_mat);
+          for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
+            if (cell->at_boundary(fn))
+            {
+              fvf->reinit (cell, fn);
+              integrate_boundary_bilinear_form (fvf,
+                                                cell,
+                                                fn,
+                                                local_mat,
+                                                i_dir,
+                                                g);
+            }
         
         vec_ho_sys[k]->add (local_dof_indices,
                             local_dof_indices,
@@ -519,16 +529,39 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
   }// components
 }
 
+// The following is a virtual function for integraing cell bilinear form;
+// It can be overriden if cell pre-assembly is desirable
 template <int dim>
 void TransportBase<dim>::
-pre_assemble_cell_matrices (std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
-                            std::vector<FullMatrix<double> > &collision_at_qp)
+pre_assemble_cell_matrices
+(const std_cxx11::shared_ptr<FEValues<dim> > fv,
+ typename DoFHandler<dim>::active_cell_iterator &cell,
+ std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+ std::vector<FullMatrix<double> > &collision_at_qp)
 {// this is a virtual function
 }
 
+// The following is a virtual function for integraing cell bilinear form;
+// It must be overriden
+template <int dim>
+void TransportBase<dim>::integrate_cell_bilinear_form
+(const std_cxx11::shared_ptr<FEValues<dim> > fv,
+ typename DoFHandler<dim>::active_cell_iterator &cell,
+ FullMatrix<double> &cell_matrix,
+ unsigned int &i_dir,
+ unsigned int &g,
+ std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
+ std::vector<FullMatrix<double> > &collision_at_qp)
+{
+}
+
+// The following is a virtual function for integraing boundary bilinear form;
+// It must be overriden
 template <int dim>
 void TransportBase<dim>::integrate_boundary_bilinear_form
-(typename DoFHandler<dim>::active_cell_iterator &cell,
+(const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+ typename DoFHandler<dim>::active_cell_iterator &cell,
+ unsigned int &fn,/*face number*/
  FullMatrix<double> &cell_matrix,
  unsigned int &i_dir,
  unsigned int &g)
@@ -536,39 +569,30 @@ void TransportBase<dim>::integrate_boundary_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::integrate_cell_bilinear_form
-(typename DoFHandler<dim>::active_cell_iterator &cell,
- FullMatrix<double> &cell_matrix,
- std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
- std::vector<FullMatrix<double> > &collision_at_qp)
-{// this is a virtual function
-}
-
-template <int dim>
 void TransportBase<dim>::local_matrix_check (FullMatrix<double> &local_mat,
-                                     std::string str,
-                                     unsigned int ind)
+                                             std::string str,
+                                             unsigned int ind)
 {
   std::cout << str << ", " << local_mat.l1_norm() << ", ind " << ind << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::local_radio (std::string str)
+void TransportBase<dim>::radio (std::string str)
 {
   std::cout << str << " on proc "
   << Utilities::MPI::this_mpi_process (mpi_communicator) << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::local_radio (std::string str,
-                              double &num)
+void TransportBase<dim>::radio (std::string str,
+                                double num)
 {
   pcout << str << ": " << num << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::local_radio (std::string str,
-                              unsigned int &num)
+void TransportBase<dim>::radio (std::string str,
+                                unsigned int num)
 {
   pcout << str << ": " << num << std::endl;
 }
@@ -591,10 +615,6 @@ void TransportBase<dim>::assemble_ho_interface ()
          cell!=dof_handler.end(); ++cell)
       if (cell->is_locally_owned())
       {
-        unsigned int material_id = cell->material_id ();
-        double local_sigt = all_sigt[material_id][g];
-        double local_inv_sigt = all_inv_sigt[material_id][g];
-        double local_measure = cell->measure ();
         cell->get_dof_indices (local_dof_indices);
         
         for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
@@ -602,18 +622,22 @@ void TransportBase<dim>::assemble_ho_interface ()
           if (!cell->at_boundary(fn) &&
               cell->neighbor(fn)->id()<cell->id())
           {
+            fvf->reinit (cell, fn);
+            typename DoFHandler<dim>::cell_iterator
+            neigh = cell->neighbor(fn);
+            neigh->get_dof_indices (neigh_dof_indices);
+            fvf_nei->reinit (neigh, cell->neighbor_face_no(fn));
+            
             vp_up = 0;
             vp_un = 0;
             vn_up = 0;
             vn_un = 0;
             
-            integrate_interface_bilinear_form (cell,
+            integrate_interface_bilinear_form (fvf, fvf_nei,/*FEFaceValues objects*/
+                                               cell, neigh,/*cell iterators*/
                                                fn,
-                                               vp_up,
-                                               vp_un,
-                                               vn_up,
-                                               vn_un);
-            
+                                               i_dir, g,/*specific component*/
+                                               vp_up, vp_un, vn_up, vn_un);
             vec_ho_sys[k]->add (local_dof_indices,
                                 local_dof_indices,
                                 vp_up);
@@ -636,17 +660,22 @@ void TransportBase<dim>::assemble_ho_interface ()
   }// component
 }
 
+// The following is a virtual function for integrating DG interface for HO system
+// it must be overriden
 template <int dim>
 void TransportBase<dim>::integrate_interface_bilinear_form
-(typename DoFHandler<dim>::active_cell_iterator &cell,
- unsigned int &fn,
+(const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+ const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
+ typename DoFHandler<dim>::active_cell_iterator &cell,
+ typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
+ unsigned int &fn,/*concerning face number in local cell*/
  unsigned int &i_dir,
  unsigned int &g,
  FullMatrix<double> &vp_up,
  FullMatrix<double> &vp_un,
  FullMatrix<double> &vn_up,
  FullMatrix<double> &vn_un)
-{// this is a virtual function
+{
 }
 
 template <int dim>
@@ -675,10 +704,9 @@ void TransportBase<dim>::ho_solve ()
     SolverControl solver_control (dof_handler.n_dofs(),
                                   1.0e-15);
     //vec_ho_rhs[i]->l1_norm()*1.0e-15);
-    PETScWrappers::PreconditionNone precond (*(vec_ho_sys)[i]);
+    //PETScWrappers::PreconditionNone precond (*(vec_ho_sys)[i]);
     
     //#ifdef USE_PETSC_LA
-    pcout << "solvers " << std::endl;
     if (have_reflective_bc && is_explicit_reflective)
     {
       PETScWrappers::SolverBicgstab
@@ -690,15 +718,13 @@ void TransportBase<dim>::ho_solve ()
     }
     else
     {
-      
-      pcout << "solver cg" << std::endl;
       LA::SolverCG solver (solver_control, mpi_communicator);
       *(vec_aflx)[i] = 0;
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
                     *(pre_ho_amg)[i]);
-      pcout << "   Solved in " << solver_control.last_step() << std::endl;
+      pcout << "Solved in " << solver_control.last_step() << std::endl;
     }
   }
 }
@@ -719,7 +745,6 @@ void TransportBase<dim>::generate_moments ()
     }
 }
 
-// ????????
 template <int dim>
 void TransportBase<dim>::generate_ho_source ()
 {
@@ -737,7 +762,7 @@ void TransportBase<dim>::generate_ho_source ()
          cell!= dof_handler.end(); ++cell)
       if (cell->is_locally_owned())
       {
-        fv.reinit (cell);
+        fv->reinit (cell);
         cell->get_dof_indices (local_dof_indices);
         unsigned int material_id = cell->material_id ();
         cell_rhs = 0;
@@ -745,13 +770,13 @@ void TransportBase<dim>::generate_ho_source ()
         std::vector<std::vector<double> >
         sflx_at_qp (n_group, std::vector<double> (n_q));
         for (unsigned int gin=0; gin<n_group; ++gin)
-          fv.get_function_values (sflx_this_processor[gin], sflx_at_qp[gin]);
+          fv->get_function_values (sflx_this_processor[gin], sflx_at_qp[gin]);
         
         for (unsigned int qi=0; qi<n_q; ++qi)
           for (unsigned int i=0; i<dofs_per_cell; ++i)
           {
-            double test_func_jxw = (fv.shape_value(i,qi) *
-                                    fv.JxW(qi));
+            double test_func_jxw = (fv->shape_value(i,qi) *
+                                    fv->JxW(qi));
             for (unsigned int gin=0; gin<n_group; ++gin)
               cell_rhs(i) += (test_func_jxw *
                               all_sigs_per_ster[material_id][gin][g]*
@@ -763,27 +788,27 @@ void TransportBase<dim>::generate_ho_source ()
             if (cell->at_boundary(fn) &&
                 is_reflective_bc[cell->face(fn)->boundary_id()])
             {
-              local_radio("sth wrong");
-              fvf.reinit (cell,fn);
+              radio("sth wrong");
+              fvf->reinit (cell,fn);
               unsigned int boundary_id = cell->face(fn)->boundary_id ();
-              const Tensor<1,dim> vec_n = fvf.normal_vector (0);
+              const Tensor<1,dim> vec_n = fvf->normal_vector (0);
               unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
               std::vector<Tensor<1, dim> > gradients_at_qp (n_qf);
-              fvf.get_function_gradients (sflx_this_processor[g], gradients_at_qp);
+              fvf->get_function_gradients (sflx_this_processor[g], gradients_at_qp);
               
               for (unsigned int qi=0; qi<n_qf; ++qi)
                 for (unsigned int i=0; i<dofs_per_cell; ++i)
-                  cell_rhs(i) += (fvf.shape_value(i, qi) *
+                  cell_rhs(i) += (fvf->shape_value(i, qi) *
                                   vec_n * omega_i[i_dir] *
                                   all_inv_sigt[material_id][g] *
                                   omega_i[r_dir] * gradients_at_qp[qi] *
-                                  fvf.JxW(qi));
+                                  fvf->JxW(qi));
             }
-        constraints.distribute_local_to_global (cell_rhs,
-                                                local_dof_indices,
-                                                *vec_ho_rhs[k]);
-        //vec_ho_rhs[k]->add(local_dof_indices,
-        //                   cell_rhs);
+        /*constraints.distribute_local_to_global (cell_rhs,
+         local_dof_indices,
+         *vec_ho_rhs[k]);*/
+        vec_ho_rhs[k]->add(local_dof_indices,
+                           cell_rhs);
       }// local cell
     
     vec_ho_rhs[k]->compress (VectorOperation::add);
@@ -824,18 +849,6 @@ void TransportBase<dim>::scale_fiss_transfer_matrices ()
 template <int dim>
 void TransportBase<dim>::generate_fixed_source ()
 {
-  const QGauss<dim>  q_rule(p_order+1);
-  
-  unsigned int n_q = q_rule.size();
-  
-  // cell finite element object
-  FEValues<dim> fv(*fe, q_rule,
-                   update_values | update_gradients |
-                   update_quadrature_points |
-                   update_JxW_values);
-  const unsigned int dofs_per_cell = fe->dofs_per_cell;
-  std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
-  // cell rhs's
   Vector<double> cell_rhs (dofs_per_cell);
   
   for (unsigned int g=0; g<n_group; ++g)
@@ -850,19 +863,19 @@ void TransportBase<dim>::generate_fixed_source ()
         {
           if (is_material_fissile[material_id])
           {
-            fv.reinit (cell);
+            fv->reinit (cell);
             cell_rhs = 0;
             cell->get_dof_indices (local_dof_indices);
             std::vector<std::vector<double> >
             local_ho_sflxes (n_group, std::vector<double> (n_q));
             
             for (unsigned int gin=0; gin<n_group; ++gin)
-              fv.get_function_values (*(vec_ho_sflx)[gin], local_ho_sflxes[gin]);
+              fv->get_function_values (*(vec_ho_sflx)[gin], local_ho_sflxes[gin]);
             
             for (unsigned int qi=0; qi<n_q; ++qi)
               for (unsigned int i=0; i<dofs_per_cell; ++i)
               {
-                double test_func_jxw = fv.shape_value (i, qi) * fv.JxW (qi);
+                double test_func_jxw = fv->shape_value (i, qi) * fv->JxW (qi);
                 for (unsigned int gin=0; g<n_group; ++gin)
                   cell_rhs(i) += (test_func_jxw *
                                   ho_scaled_fiss_transfer_per_ster[material_id][gin][g] *
@@ -879,7 +892,7 @@ void TransportBase<dim>::generate_fixed_source ()
                                       all_q_per_ster[material_id].end());
           if (*it>1.0e-13)
           {
-            fv.reinit (cell);
+            fv->reinit (cell);
             cell->get_dof_indices (local_dof_indices);
             cell_rhs = 0.0;
             for (unsigned int qi=0; qi<n_q; ++qi)
@@ -887,7 +900,7 @@ void TransportBase<dim>::generate_fixed_source ()
               double test_func_jxw;
               for (unsigned int i=0; i<dofs_per_cell; ++i)
               {
-                test_func_jxw = fv.shape_value (i, qi) * fv.JxW (qi);
+                test_func_jxw = fv->shape_value (i, qi) * fv->JxW (qi);
                 if (all_q_per_ster[material_id][g]>1.0e-13)
                   cell_rhs(i) += test_func_jxw * all_q_per_ster[material_id][g];
               }
@@ -959,10 +972,10 @@ void TransportBase<dim>::source_iteration ()
     generate_moments ();
     err_phi_old = err_phi;
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
-    local_radio ("iteration", ct);
-    local_radio ("SI phi err", err_phi);
+    radio ("iteration", ct);
+    radio ("SI phi err", err_phi);
     double spectral_radius = err_phi / err_phi_old;
-    local_radio ("spectral radius", spectral_radius);
+    radio ("spectral radius", spectral_radius);
     postprocess ();
   }
 }
@@ -980,12 +993,6 @@ template <int dim>
 void TransportBase<dim>::postprocess ()
 {
   std::vector<double> r_collision (n_group, 0.0);
-  const QGauss<dim>  q_rule(p_order+1);
-  unsigned int n_q = q_rule.size ();
-  FEValues<dim> fv(*fe, q_rule,
-                   update_values |
-                   update_quadrature_points |
-                   update_JxW_values);
   
   for (typename DoFHandler<dim>::active_cell_iterator
        cell=dof_handler.begin_active();
@@ -993,15 +1000,15 @@ void TransportBase<dim>::postprocess ()
     if (cell->is_locally_owned() &&
         cell->material_id()==0)
     {
-      fv.reinit(cell);
+      fv->reinit(cell);
       for (unsigned int g=0; g<n_group; ++g)
       {
         std::vector<double> local_sflx (n_q);
-        fv.get_function_values (sflx_this_processor[g], local_sflx);
+        fv->get_function_values (sflx_this_processor[g], local_sflx);
         for (unsigned int qi=0; qi<n_q; ++qi)
           r_collision[g] += (all_sigt[cell->material_id()][g] *
                              local_sflx[qi] *
-                             fv.JxW(qi));
+                             fv->JxW(qi));
       }
     }
   
@@ -1031,31 +1038,24 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &
 {
   double fiss_source = 0.0;
   
-  const QGauss<dim>  q_rule(p_order+1);
-  unsigned int n_q = q_rule.size ();
-  FEValues<dim> fv(*fe, q_rule,
-                   update_values |
-                   update_quadrature_points |
-                   update_JxW_values);
-  
   typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin (),
   endc = dof_handler.end ();
   for (; cell!=endc; ++cell)
     if (cell->is_locally_owned() &&
         is_material_fissile[cell->material_id ()])
     {
-      fv.reinit (cell);
+      fv->reinit (cell);
       std::vector<std::vector<double> > local_phis (n_group,
                                                     std::vector<double> (n_q));
       unsigned int material_id = cell->material_id ();
       for (unsigned int g=0; g<n_group; ++g)
-        fv.get_function_values (*(phis)[g], local_phis[g]);
+        fv->get_function_values (*(phis)[g], local_phis[g]);
       
       for (unsigned int qi=0; qi<n_q; ++qi)
         for (unsigned int g=0; g<n_group; ++g)
           fiss_source += (all_nusigf[material_id][g] *
                           local_phis[g][qi] *
-                          fv.JxW(qi));
+                          fv->JxW(qi));
     }
   // broadcasting to all processors
   return Utilities::MPI::sum (fiss_source, mpi_communicator);
@@ -1063,8 +1063,8 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &
 
 template <int dim>
 double TransportBase<dim>::estimate_k (double &fiss_source,
-                               double &fiss_source_prev_gen,
-                               double &k_prev_gen)
+                                       double &fiss_source_prev_gen,
+                                       double &k_prev_gen)
 {
   // do we have to re-normalize the scalar fluxes?
   return k_prev_gen * fiss_source_prev_gen / fiss_source;
@@ -1072,7 +1072,7 @@ double TransportBase<dim>::estimate_k (double &fiss_source,
 
 template <int dim>
 double TransportBase<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
-                                      std::vector<LA::MPI::Vector*> &phis_older)
+                                              std::vector<LA::MPI::Vector*> &phis_older)
 {
   AssertThrow (phis_newer.size ()== phis_older.size (),
                ExcMessage ("n_groups for different phis should be identical"));
@@ -1144,7 +1144,7 @@ void TransportBase<dim>::output_results () const
                            Utilities::int_to_string (i, 4) +
                            ".vtu");
     std::ostringstream os;
-    os << "solution-" << discretization << "-" << global_refinements << ".pvtu";
+    os << namebase << "-" << discretization << "-" << global_refinements << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
     data_out.write_pvtu_record (master_output, filenames);
   }
