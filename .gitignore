@@ -4,4 +4,10 @@
 Makefile
 CMakeFiles/
 *Ca*
+xtrans
 dg-ep*
+*cg*.txt
+*dg*.txt
+*dfem*.txt
+*cfem*.txt
+quadr.txt
