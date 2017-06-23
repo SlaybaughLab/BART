@@ -68,13 +68,7 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
   // have entry-declaration
   prm.enter_subsection ("material ID map");
   {
-    for (unsigned int z=0; z<z_levels; ++z)
-      for (unsigned int y=0; y<y_levels; ++y)
-      {
-        std::ostringstream os;
-        os << "cz " << z + 1 << ", cy " << y + 1;
-        prm.declare_entry (os.str(), "", Patterns::List(Patterns::Integer()), "material IDs for a specific z level, y row");
-      }
+    prm.declare_entry ("material id file name", "mid.txt", Patterns::FileName(), "file name for material id map");
   }
   prm.leave_subsection ();
   
@@ -312,29 +306,20 @@ void ProblemDefinition<dim>::initialize_relative_position_to_id_map (ParameterHa
 {
   prm.enter_subsection ("material ID map");
   {
+    std::string id_fname = prm.get ("material id file name");
+    std::ifstream in (id_fname);
+    
     unsigned int ncell_z = dim==3?ncell_per_dir[2]:1;
     unsigned int ncell_y = dim>=2?ncell_per_dir[1]:1;
     for (unsigned int z=0; z<ncell_z; ++z)
       for (unsigned int y=0; y<ncell_y; ++y)
-      {
-        std::ostringstream os;
-        os << "cz " << z + 1 << ", cy " << y + 1;
-        std::vector<std::string> strings = Utilities::split_string_list (prm.get(os.str()));
         for (unsigned int x=0; x<ncell_per_dir[0]; ++x)
         {
           std::vector<unsigned int> tmp {x, y, z};
-          std::cout << x << ", " << y << ", " << z << ", "
-          << std::atoi (strings[x].c_str()) - 1 << ", is the id" << std::endl;
-          AssertThrow(std::atoi(strings[x].c_str())>0,
-                      ExcMessage("material ID must be larger than 0"));
-          relative_position_to_id[tmp] = std::atoi (strings[x].c_str()) - 1;
+          unsigned int id;
+          in >> id;
+          relative_position_to_id[tmp] = id - 1;
         }
-      }
-    std::vector<unsigned int> t1{0,0,0}, t2{0,1,0}, t3{1,0,0}, t4{1,1,0};
-    std::cout << "tests: " << 0 << ", " << 0 << ", " << relative_position_to_id[t1] << std::endl;
-    std::cout << "tests: " << 0 << ", " << 1 << ", " << relative_position_to_id[t2] << std::endl;
-    std::cout << "tests: " << 1 << ", " << 0 << ", " << relative_position_to_id[t3] << std::endl;
-    std::cout << "tests: " << 1 << ", " << 1 << ", " << relative_position_to_id[t4] << std::endl;
   }
   prm.leave_subsection ();
 }

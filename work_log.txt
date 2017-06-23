@@ -34,3 +34,11 @@ and asymmetric systems
 1. restructured the code so problem definition is taken care of individually.
 2. The finite element part is written as a class derived from the problem definition
 class.
+
+06-21-2017:
+1. DG-EP works, now the focus is turned to the mathematical side
+2. MPI works
+3. Input file system designed to take material configuration easily
+4. Structure implemented to hopefully easy to add new methods in.
+5. Prototypical ModelManager is designed to separate the model building
+based on user input.

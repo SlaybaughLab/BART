@@ -1,3 +1,5 @@
+serial/
+original*/
 *.vtu
 *.pvtu
 *.cmake

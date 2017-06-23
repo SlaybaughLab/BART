@@ -19,26 +19,7 @@ set finite element polynomial degree         = 1
 set output file name base                    = ep
 
 subsection material ID map
-  set cz 1, cy 1                             = 1, 2
-  set cz 1, cy 2                             = 1, 2
-end
-
-subsection sigma_t, group=1 to G
-#set material 1                                           = 1.0
-#set material 2                                           = 1.0
-end
-
-subsection Q, group 1 to G
-#set material 1                                           = 1.0
-#set material 2                                           = 1.0
-end
-
-subsection sigma_s, material 1
-#set g_in=1                                               = 0.9
-end
-
-subsection sigma_s, material 2
-#set g_in=1                                               = 0.9
+set material ID file name                    = mid.txt
 end
 
 subsection one-group sigma_t

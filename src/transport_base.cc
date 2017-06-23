@@ -710,6 +710,7 @@ void TransportBase<dim>::ho_solve ()
     if (have_reflective_bc && is_explicit_reflective)
     {
       PETScWrappers::SolverBicgstab
+      //SolverBicgstab<LA::MPI::Vector>
       solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
