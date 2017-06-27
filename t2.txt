@@ -12,7 +12,7 @@ set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
 set number of cells for x, y, z directions   = 2, 2, 2
 set number of materials                      = 2
 
-set spatial discretization                   = dg
+set spatial discretization                   = dfem
 
 set finite element polynomial degree         = 1
 

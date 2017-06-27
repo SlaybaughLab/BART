@@ -1,13 +1,6 @@
-#include <deal.II/grid/grid_generator.h>
 #include <deal.II/fe/fe_values.h>
 
 #include <boost/algorithm/string.hpp>
-#include <deal.II/grid/grid_generator.h>
-#include <deal.II/grid/grid_tools.h>
-#include <deal.II/grid/tria_accessor.h>
-#include <deal.II/grid/tria_iterator.h>
-#include <deal.II/dofs/dof_handler.h>
-#include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/cell_id.h>
 
@@ -23,7 +16,8 @@ using namespace dealii;
 template <int dim>
 TransportBase<dim>::TransportBase (ParameterHandler &prm)
 :
-ProblemDefinition<dim>(prm),
+p_def(std_cxx11::shared_ptr<ProblemDefinition<dim> >
+      (new ProblemDefinition<dim>(prm))),
 mpi_communicator (MPI_COMM_WORLD),
 triangulation (mpi_communicator,
                typename Triangulation<dim>::MeshSmoothing
@@ -38,6 +32,7 @@ pcout(std::cout,
 {
   this->process_input ();
   sflx_this_processor.resize (n_group);
+  msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >(new MeshGenerator<dim>(p_def));
 }
 
 template <int dim>
@@ -51,77 +46,54 @@ void TransportBase<dim>::process_input ()
 {
   // basic parameters
   {
-    transport_model_name = this->get_transport_model ();
-    n_azi = this->get_sn_order ();
-    global_refinements = this->get_uniform_refinement ();
-    n_group = this->get_n_group ();
-    n_dir = this->get_n_dir ();
-    p_order = this->get_fe_order ();
-    discretization = this->get_discretization ();
+    transport_model_name = p_def->get_transport_model ();
+    n_azi = p_def->get_sn_order ();
+    n_group = p_def->get_n_group ();
+    n_dir = p_def->get_n_dir ();
+    p_order = p_def->get_fe_order ();
+    discretization = p_def->get_discretization ();
     pcout << "method " << discretization << std::endl;
-    axis_max_values = this->get_axis_maxes ();
-    ncell_per_dir = this->get_ncells ();
     
-    relative_position_to_id = this->get_id_map ();
-    cell_size_all_dir = this->get_cell_sizes ();
-    have_reflective_bc = this->get_reflective_bool ();
-    do_nda = this->get_nda_bool ();
-    is_eigen_problem = this->get_eigen_problem_bool ();
-    n_total_ho_vars = this->get_n_total_ho_vars ();
-    do_print_sn_quad = this->get_print_sn_quad_bool ();
+    have_reflective_bc = p_def->get_reflective_bool ();
+    do_nda = p_def->get_nda_bool ();
+    is_eigen_problem = p_def->get_eigen_problem_bool ();
+    n_total_ho_vars = p_def->get_n_total_ho_vars ();
+    do_print_sn_quad = p_def->get_print_sn_quad_bool ();
     if (do_print_sn_quad &&
         Utilities::MPI::this_mpi_process(mpi_communicator)==0)
-      this->print_angular_quad ();
+      p_def->print_angular_quad ();
     
-    component_index = this->get_component_index_map ();
-    inverse_component_index = this->get_inv_component_map ();
-    wi = this->get_angular_weights ();
-    omega_i = this->get_all_directions ();
-    tensor_norms = this->get_tensor_norms ();
-    namebase = this->get_output_namebase ();
+    component_index = p_def->get_component_index_map ();
+    inverse_component_index = p_def->get_inv_component_map ();
+    wi = p_def->get_angular_weights ();
+    omega_i = p_def->get_all_directions ();
+    tensor_norms = p_def->get_tensor_norms ();
+    namebase = p_def->get_output_namebase ();
+    global_refinements = p_def->get_uniform_refinement ();
   }
-  
   if (have_reflective_bc)
   {
-    is_reflective_bc = this->get_reflective_bc_map ();
-    reflective_direction_index = this->get_reflective_direction_index_map ();
+    is_reflective_bc = p_def->get_reflective_bc_map ();
+    reflective_direction_index = p_def->get_reflective_direction_index_map ();
   }
   
   {
-    relative_position_to_id = this->get_id_map ();
-    all_sigt = this->get_sigma_t ();
-    all_inv_sigt = this->get_inv_sigma_t ();
-    all_sigs = this->get_sigma_s ();
-    all_sigs_per_ster = this->get_sigma_s_per_ster ();
+    relative_position_to_id = p_def->get_id_map ();
+    all_sigt = p_def->get_sigma_t ();
+    all_inv_sigt = p_def->get_inv_sigma_t ();
+    all_sigs = p_def->get_sigma_s ();
+    all_sigs_per_ster = p_def->get_sigma_s_per_ster ();
     if (is_eigen_problem)
     {
-      is_material_fissile = this->get_fissile_id_map ();
-      all_nusigf = this->get_nusigf ();
-      all_ksi_nusigf = this->get_ksi_nusigf ();
-      all_ksi_nusigf_per_ster = this->get_ksi_nusigf_per_ster ();
+      is_material_fissile = p_def->get_fissile_id_map ();
+      all_nusigf = p_def->get_nusigf ();
+      all_ksi_nusigf = p_def->get_ksi_nusigf ();
+      all_ksi_nusigf_per_ster = p_def->get_ksi_nusigf_per_ster ();
     }
     else
     {
-      all_q = this->get_q ();
-      all_q_per_ster = this->get_q_per_ster ();
-    }
-  }
-}
-
-template <int dim>
-void TransportBase<dim>::get_cell_relative_position (Point<dim> &center,
-                                                     std::vector<unsigned int> &relative_position)
-{
-  AssertThrow (relative_position.size()==3,
-               ExcMessage("relative position should be size 3 for any dimension"));
-  if (dim>=1)
-  {
-    relative_position[0] = static_cast<unsigned int>(center[0] / cell_size_all_dir[0]);
-    if (dim>=2)
-    {
-      relative_position[1] = static_cast<unsigned int>(center[1] / cell_size_all_dir[1]);
-      if (dim==3)
-        relative_position[2] = static_cast<unsigned int>(center[2] / cell_size_all_dir[2]);
+      all_q = p_def->get_q ();
+      all_q_per_ster = p_def->get_q_per_ster ();
     }
   }
 }
@@ -158,80 +130,23 @@ unsigned int TransportBase<dim>::get_reflective_direction_index
 }
 
 template <int dim>
-void TransportBase<dim>::generate_globally_refined_grid ()
-{
-  pcout << "generate refined grid" << std::endl;
-  Point<dim> origin;
-  Point<dim> diagonal;
-  switch (dim)
-  {
-    case 1:
-    {
-      diagonal[0] = axis_max_values[0];
-      break;
-    }
-      
-    case 2:
-    {
-      diagonal[0] = axis_max_values[0];
-      diagonal[1] = axis_max_values[1];
-      break;
-    }
-      
-    case 3:
-    {
-      diagonal[0] = axis_max_values[0];
-      diagonal[1] = axis_max_values[1];
-      diagonal[2] = axis_max_values[2];
-      break;
-    }
-      
-    default:
-      break;
-  }
-  GridGenerator::subdivided_hyper_rectangle (triangulation,
-                                             ncell_per_dir,
-                                             origin,
-                                             diagonal);
-  triangulation.refine_global (global_refinements);
-  pcout << "generate refined grid finished" << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::initialize_material_id ()
-{
-  for (typename Triangulation<dim>::active_cell_iterator
-       cell=triangulation.begin_active();
-       cell!=triangulation.end();
-       ++cell)
-    if (cell->is_locally_owned())
-    {
-      Point<dim> center = cell->center ();
-      std::vector<unsigned int> relative_position (3);
-      get_cell_relative_position (center, relative_position);
-      unsigned int material_id = relative_position_to_id[relative_position];
-      cell->set_material_id (material_id);
-    }
-}
-
-template <int dim>
 void TransportBase<dim>::report_system ()
 {
   pcout << "SN quadrature order: " << n_azi << std::endl
   << "Number of angles: " << n_dir << std::endl
   << "Number of groups: " << n_group << std::endl;
   
-  pcout << "Transport model: " << transport_model_name << std::endl
-  << "Spatial discretization: " << discretization << std::endl;
+  radio ("Transport model", transport_model_name);
+  radio ("Spatial discretization", discretization);
   
-  pcout << "Number of cells: " << triangulation.n_global_active_cells() << std::endl
-  << "High-order total DoF counts: " << n_total_ho_vars * dof_handler.n_dofs() << std::endl;
+  radio ("Number of cells", triangulation.n_global_active_cells());
+  radio ("High-order total DoF counts", n_total_ho_vars*dof_handler.n_dofs());
   
   if (is_eigen_problem)
-    pcout << "Problem type: k-eigenvalue problem" << std::endl;
+    radio ("Problem type: k-eigenvalue problem");
   
   if (do_nda)
-    pcout << "NDA total DoF counts: " << n_group * dof_handler.n_dofs() << std::endl;
+    radio ("NDA total DoF counts", n_group*dof_handler.n_dofs());
 }
 
 template <int dim>
@@ -251,19 +166,19 @@ void TransportBase<dim>::initialize_system_matrices_vectors ()
       boost::iequals(discretization,"DG"))
   {
     /*
-    Table<2,DoFTools::Coupling> cell_coupling (1,1);
-    Table<2,DoFTools::Coupling> face_coupling (1,1);
-
-    cell_coupling[0][0] = DoFTools::nonzero;
-    face_coupling[0][0] = DoFTools::nonzero;
-    
-    DoFTools::make_flux_sparsity_pattern (dof_handler,
-                                          dsp,
-                                          cell_coupling,
-                                          face_coupling);
+     Table<2,DoFTools::Coupling> cell_coupling (1,1);
+     Table<2,DoFTools::Coupling> face_coupling (1,1);
+     
+     cell_coupling[0][0] = DoFTools::nonzero;
+     face_coupling[0][0] = DoFTools::nonzero;
+     
+     DoFTools::make_flux_sparsity_pattern (dof_handler,
+     dsp,
+     cell_coupling,
+     face_coupling);
      */
     
-     DoFTools::make_flux_sparsity_pattern (dof_handler,
+    DoFTools::make_flux_sparsity_pattern (dof_handler,
                                           dsp,
                                           constraints,
                                           false);
@@ -344,64 +259,6 @@ void TransportBase<dim>::initialize_system_matrices_vectors ()
 }
 
 template <int dim>
-void TransportBase<dim>::setup_boundary_ids ()
-{
-  AssertThrow (axis_max_values.size()==dim,
-               ExcMessage("number of entries axis max values should be dimension"));
-  
-  typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active (), endc = triangulation.end ();
-  for (; cell!=endc; ++cell)
-  {
-    if (cell->is_locally_owned())
-    {
-      for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
-      {
-        if (cell->face(fn)->at_boundary())
-        {
-          Point<dim> ct = cell->face(fn)->center();
-          // left boundary
-          if (std::fabs(ct[0])<1.0e-14)
-          {
-            cell->face(fn)->set_boundary_id (0);
-          }
-          
-          // right boundary
-          if (std::fabs(ct[0]-axis_max_values[0])<1.0e-14)
-          {
-            cell->face(fn)->set_boundary_id (1);
-          }
-          
-          // 2D and 3D boundaries
-          if (dim>1)
-          {
-            // 2D boundaries
-            // front boundary
-            if (std::fabs(ct[1])<1.0e-14)
-              cell->face(fn)->set_boundary_id (2);
-            
-            // rear boundary
-            if (std::fabs(ct[1]-axis_max_values[1])<1.0e-14)
-              cell->face(fn)->set_boundary_id (3);
-            
-            // 3D boundaries
-            if (dim>2)
-            {
-              // front boundary
-              if (std::fabs(ct[2])<1.0e-14)
-                cell->face(fn)->set_boundary_id (4);
-              
-              // rear boundary
-              if (std::fabs(ct[2]-axis_max_values[2])<1.0e-14)
-                cell->face(fn)->set_boundary_id (5);
-            }
-          }
-        }
-      }// face
-    }// locally owned cell
-  }// cell
-}
-
-template <int dim>
 void TransportBase<dim>::assemble_ho_system ()
 {
   radio ("Assemble volumetric bilinear forms");
@@ -475,14 +332,11 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
   
   // this sector is for pre-assembling streaming and collision matrices at quadrature
   // points
-  for (typename DoFHandler<dim>::active_cell_iterator cell=dof_handler.begin_active();
-       cell!=dof_handler.end(); ++cell)
-    if (cell->is_locally_owned())
-    {
-      fv->reinit (cell);
-      pre_assemble_cell_matrices (fv, cell, streaming_at_qp, collision_at_qp);
-      break;
-    }
+  {
+    typename DoFHandler<dim>::active_cell_iterator cell = local_cells[0];
+    fv->reinit (cell);
+    pre_assemble_cell_matrices (fv, cell, streaming_at_qp, collision_at_qp);
+  }
   
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
   {
@@ -490,41 +344,36 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
     unsigned int i_dir = get_direction (k);
     FullMatrix<double> local_mat (dofs_per_cell, dofs_per_cell);
     
-    for (typename DoFHandler<dim>::active_cell_iterator
-         cell=dof_handler.begin_active();
-         cell!=dof_handler.end(); ++cell)
+    for (unsigned int ic=0; ic<local_cells.size(); ++ic)
     {
-      if (cell->is_locally_owned())
-      {
-        fv->reinit (cell);
-        cell->get_dof_indices (local_dof_indices);
-        local_mat = 0;
-        integrate_cell_bilinear_form (fv,
-                                      cell,
-                                      local_mat,
-                                      i_dir,
-                                      g,
-                                      streaming_at_qp,
-                                      collision_at_qp);
-        
-        if (cell->at_boundary())
-          for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
-            if (cell->at_boundary(fn))
-            {
-              fvf->reinit (cell, fn);
-              integrate_boundary_bilinear_form (fvf,
-                                                cell,
-                                                fn,
-                                                local_mat,
-                                                i_dir,
-                                                g);
-            }
-        
-        vec_ho_sys[k]->add (local_dof_indices,
-                            local_dof_indices,
-                            local_mat);
-      }// local cell
-    }// cell
+      typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+      fv->reinit (cell);
+      cell->get_dof_indices (local_dof_indices);
+      local_mat = 0;
+      integrate_cell_bilinear_form (fv,
+                                    cell,
+                                    local_mat,
+                                    i_dir,
+                                    g,
+                                    streaming_at_qp,
+                                    collision_at_qp);
+      
+      if (is_cell_at_bd[ic])
+        for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
+          if (cell->at_boundary(fn))
+          {
+            fvf->reinit (cell, fn);
+            integrate_boundary_bilinear_form (fvf,
+                                              cell,
+                                              fn,
+                                              local_mat,
+                                              i_dir,
+                                              g);
+          }
+      vec_ho_sys[k]->add (local_dof_indices,
+                          local_dof_indices,
+                          local_mat);
+    }
     vec_ho_sys[k]->compress (VectorOperation::add);
   }// components
 }
@@ -569,35 +418,6 @@ void TransportBase<dim>::integrate_boundary_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::local_matrix_check (FullMatrix<double> &local_mat,
-                                             std::string str,
-                                             unsigned int ind)
-{
-  std::cout << str << ", " << local_mat.l1_norm() << ", ind " << ind << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str)
-{
-  std::cout << str << " on proc "
-  << Utilities::MPI::this_mpi_process (mpi_communicator) << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str,
-                                double num)
-{
-  pcout << str << ": " << num << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str,
-                                unsigned int num)
-{
-  pcout << str << ": " << num << std::endl;
-}
-
-template <int dim>
 void TransportBase<dim>::assemble_ho_interface ()
 {
   FullMatrix<double> vp_up (dofs_per_cell, dofs_per_cell);
@@ -610,52 +430,52 @@ void TransportBase<dim>::assemble_ho_interface ()
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_direction (k);
     
-    for (typename DoFHandler<dim>::active_cell_iterator
-         cell=dof_handler.begin_active();
-         cell!=dof_handler.end(); ++cell)
-      if (cell->is_locally_owned())
-      {
-        cell->get_dof_indices (local_dof_indices);
-        
-        for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
+    for (unsigned int ic=0; ic<local_cells.size(); ++ic)
+    {
+      std::cout << "cell: " << ic << std::endl;
+      typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+      cell->get_dof_indices (local_dof_indices);
+      std::cout << "cell: " << ic << std::endl;
+      for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
+        if (!cell->at_boundary(fn) &&
+            cell->neighbor(fn)->id()<cell->id())
         {
-          if (!cell->at_boundary(fn) &&
-              cell->neighbor(fn)->id()<cell->id())
-          {
-            fvf->reinit (cell, fn);
-            typename DoFHandler<dim>::cell_iterator
-            neigh = cell->neighbor(fn);
-            neigh->get_dof_indices (neigh_dof_indices);
-            fvf_nei->reinit (neigh, cell->neighbor_face_no(fn));
-            
-            vp_up = 0;
-            vp_un = 0;
-            vn_up = 0;
-            vn_un = 0;
-            
-            integrate_interface_bilinear_form (fvf, fvf_nei,/*FEFaceValues objects*/
-                                               cell, neigh,/*cell iterators*/
-                                               fn,
-                                               i_dir, g,/*specific component*/
-                                               vp_up, vp_un, vn_up, vn_un);
-            vec_ho_sys[k]->add (local_dof_indices,
-                                local_dof_indices,
-                                vp_up);
-            
-            vec_ho_sys[k]->add (local_dof_indices,
-                                neigh_dof_indices,
-                                vp_un);
-            
-            vec_ho_sys[k]->add (neigh_dof_indices,
-                                local_dof_indices,
-                                vn_up);
-            
-            vec_ho_sys[k]->add (neigh_dof_indices,
-                                neigh_dof_indices,
-                                vn_un);
-          }// target faces
-        }// face
-      }// local cell
+          fvf->reinit (cell, fn);
+          typename DoFHandler<dim>::cell_iterator
+          neigh = cell->neighbor(fn);
+          neigh->get_dof_indices (neigh_dof_indices);
+          fvf_nei->reinit (neigh, cell->neighbor_face_no(fn));
+          std::cout << "cell: " << ic << ", fn: " << fn << std::endl;
+          
+          vp_up = 0;
+          vp_un = 0;
+          vn_up = 0;
+          vn_un = 0;
+          
+          integrate_interface_bilinear_form (fvf, fvf_nei,/*FEFaceValues objects*/
+                                             cell, neigh,/*cell iterators*/
+                                             fn,
+                                             i_dir, g,/*specific component*/
+                                             vp_up, vp_un, vn_up, vn_un);
+          std::cout << "cell: " << ic << ", fn: " << fn << std::endl;
+          vec_ho_sys[k]->add (local_dof_indices,
+                              local_dof_indices,
+                              vp_up);
+          
+          vec_ho_sys[k]->add (local_dof_indices,
+                              neigh_dof_indices,
+                              vp_un);
+          
+          vec_ho_sys[k]->add (neigh_dof_indices,
+                              local_dof_indices,
+                              vn_up);
+          
+          vec_ho_sys[k]->add (neigh_dof_indices,
+                              neigh_dof_indices,
+                              vn_un);
+          std::cout << "cell: " << ic << ", fn: " << fn << " added" << std::endl;
+        }// target faces
+    }
     vec_ho_sys[k]->compress(VectorOperation::add);
   }// component
 }
@@ -758,59 +578,52 @@ void TransportBase<dim>::generate_ho_source ()
     unsigned int i_dir = get_direction (k);
     *(vec_ho_rhs)[k] = *(vec_ho_fixed_rhs)[g];
     
-    for (typename DoFHandler<dim>::active_cell_iterator
-         cell = dof_handler.begin_active();
-         cell!= dof_handler.end(); ++cell)
-      if (cell->is_locally_owned())
-      {
-        fv->reinit (cell);
-        cell->get_dof_indices (local_dof_indices);
-        unsigned int material_id = cell->material_id ();
-        cell_rhs = 0;
-        
-        std::vector<std::vector<double> >
-        sflx_at_qp (n_group, std::vector<double> (n_q));
-        for (unsigned int gin=0; gin<n_group; ++gin)
-          fv->get_function_values (sflx_this_processor[gin], sflx_at_qp[gin]);
-        
-        for (unsigned int qi=0; qi<n_q; ++qi)
-          for (unsigned int i=0; i<dofs_per_cell; ++i)
-          {
-            double test_func_jxw = (fv->shape_value(i,qi) *
-                                    fv->JxW(qi));
-            for (unsigned int gin=0; gin<n_group; ++gin)
-              cell_rhs(i) += (test_func_jxw *
-                              all_sigs_per_ster[material_id][gin][g]*
-                              sflx_at_qp[gin][qi]);
-          }
-        
-        if (have_reflective_bc && !is_explicit_reflective)
-          for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
-            if (cell->at_boundary(fn) &&
-                is_reflective_bc[cell->face(fn)->boundary_id()])
-            {
-              radio("sth wrong");
-              fvf->reinit (cell,fn);
-              unsigned int boundary_id = cell->face(fn)->boundary_id ();
-              const Tensor<1,dim> vec_n = fvf->normal_vector (0);
-              unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
-              std::vector<Tensor<1, dim> > gradients_at_qp (n_qf);
-              fvf->get_function_gradients (sflx_this_processor[g], gradients_at_qp);
-              
-              for (unsigned int qi=0; qi<n_qf; ++qi)
-                for (unsigned int i=0; i<dofs_per_cell; ++i)
-                  cell_rhs(i) += (fvf->shape_value(i, qi) *
-                                  vec_n * omega_i[i_dir] *
-                                  all_inv_sigt[material_id][g] *
-                                  omega_i[r_dir] * gradients_at_qp[qi] *
-                                  fvf->JxW(qi));
-            }
-        /*constraints.distribute_local_to_global (cell_rhs,
-         local_dof_indices,
-         *vec_ho_rhs[k]);*/
-        vec_ho_rhs[k]->add(local_dof_indices,
-                           cell_rhs);
-      }// local cell
+    for (unsigned int ic=0; ic<local_cells.size(); ++ic)
+    {
+      typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+      fv->reinit (cell);
+      cell->get_dof_indices (local_dof_indices);
+      unsigned int material_id = cell->material_id ();
+      cell_rhs = 0;
+      
+      std::vector<std::vector<double> >
+      sflx_at_qp (n_group, std::vector<double> (n_q));
+      for (unsigned int gin=0; gin<n_group; ++gin)
+        fv->get_function_values (sflx_this_processor[gin], sflx_at_qp[gin]);
+      
+      for (unsigned int qi=0; qi<n_q; ++qi)
+        for (unsigned int i=0; i<dofs_per_cell; ++i)
+        {
+          double test_func_jxw = (fv->shape_value(i,qi) *
+                                  fv->JxW(qi));
+          for (unsigned int gin=0; gin<n_group; ++gin)
+            cell_rhs(i) += (test_func_jxw *
+                            all_sigs_per_ster[material_id][gin][g]*
+                            sflx_at_qp[gin][qi]);
+        }
+      
+      if (have_reflective_bc && !is_explicit_reflective && is_cell_at_ref_bd[ic])
+        for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
+        {
+          radio("sth wrong");
+          fvf->reinit (cell,fn);
+          unsigned int boundary_id = cell->face(fn)->boundary_id ();
+          const Tensor<1,dim> vec_n = fvf->normal_vector (0);
+          unsigned int r_dir = get_reflective_direction_index (boundary_id, i_dir);
+          std::vector<Tensor<1, dim> > gradients_at_qp (n_qf);
+          fvf->get_function_gradients (sflx_this_processor[g], gradients_at_qp);
+          
+          for (unsigned int qi=0; qi<n_qf; ++qi)
+            for (unsigned int i=0; i<dofs_per_cell; ++i)
+              cell_rhs(i) += (fvf->shape_value(i, qi) *
+                              vec_n * omega_i[i_dir] *
+                              all_inv_sigt[material_id][g] *
+                              omega_i[r_dir] * gradients_at_qp[qi] *
+                              fvf->JxW(qi));
+        }
+      vec_ho_rhs[k]->add(local_dof_indices,
+                         cell_rhs);
+    }
     
     vec_ho_rhs[k]->compress (VectorOperation::add);
   }// component
@@ -932,27 +745,19 @@ void TransportBase<dim>::power_iteration ()
   double err_phi = 1.0;
   
   initialize_ho_preconditioners ();
-  
   while (err_k>err_k_tol && err_phi>err_phi_tol)
   {
     k_ho_prev_gen = k_ho;
-    
     for (unsigned int g=0; g<n_group; ++g)
       *(vec_ho_sflx_prev_gen)[g] = *(vec_ho_sflx)[g];
     
     source_iteration ();
-    
     fission_source_prev_gen = fission_source;
-    
     fission_source = estimate_fiss_source (vec_ho_sflx);
-    
     k_ho = estimate_k (fission_source, fission_source_prev_gen, k_ho_prev_gen);
-    
-    double norm_factor = vec_ho_sflx[0]->l1_norm ();
-    renormalize_sflx (vec_ho_sflx, norm_factor);
-    
+    renormalize_sflx (vec_ho_sflx,
+                      vec_ho_sflx[0]->l1_norm ());
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
-    
     err_k = std::fabs (k_ho - k_ho_prev_gen) / k_ho;
   }
 }
@@ -982,7 +787,9 @@ void TransportBase<dim>::source_iteration ()
 }
 
 template <int dim>
-void TransportBase<dim>::renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes, double &normalization_factor)
+void TransportBase<dim>::renormalize_sflx
+(std::vector<LA::MPI::Vector*> &target_sflxes,
+ double normalization_factor)
 {
   AssertThrow (target_sflxes.size()==n_group,
                ExcMessage("vector of scalar fluxes must have a size of n_group"));
@@ -1017,8 +824,6 @@ void TransportBase<dim>::postprocess ()
   for (unsigned int g=0; g<n_group; ++g)
     r_glob[g] = Utilities::MPI::sum (r_collision[g], mpi_communicator);
   
-  
-  
   if (Utilities::MPI::this_mpi_process(mpi_communicator)==0)
   {
     std::ofstream pp;
@@ -1038,27 +843,22 @@ template <int dim>
 double TransportBase<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis)
 {
   double fiss_source = 0.0;
-  
-  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin (),
-  endc = dof_handler.end ();
-  for (; cell!=endc; ++cell)
-    if (cell->is_locally_owned() &&
-        is_material_fissile[cell->material_id ()])
-    {
-      fv->reinit (cell);
-      std::vector<std::vector<double> > local_phis (n_group,
-                                                    std::vector<double> (n_q));
-      unsigned int material_id = cell->material_id ();
+  for (unsigned int ic=0; ic<local_cells.size(); ++ic)
+  {
+    typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+    fv->reinit (cell);
+    std::vector<std::vector<double> > local_phis (n_group,
+                                                  std::vector<double> (n_q));
+    unsigned int material_id = cell->material_id ();
+    for (unsigned int g=0; g<n_group; ++g)
+      fv->get_function_values (sflx_this_processor[g],
+                               local_phis[g]);
+    for (unsigned int qi=0; qi<n_q; ++qi)
       for (unsigned int g=0; g<n_group; ++g)
-        fv->get_function_values (*(phis)[g], local_phis[g]);
-      
-      for (unsigned int qi=0; qi<n_q; ++qi)
-        for (unsigned int g=0; g<n_group; ++g)
-          fiss_source += (all_nusigf[material_id][g] *
-                          local_phis[g][qi] *
-                          fv->JxW(qi));
-    }
-  // broadcasting to all processors
+        fiss_source += (all_nusigf[material_id][g] *
+                        local_phis[g][qi] *
+                        fv->JxW(qi));
+  }
   return Utilities::MPI::sum (fiss_source, mpi_communicator);
 }
 
@@ -1072,8 +872,9 @@ double TransportBase<dim>::estimate_k (double &fiss_source,
 }
 
 template <int dim>
-double TransportBase<dim>::estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
-                                              std::vector<LA::MPI::Vector*> &phis_older)
+double TransportBase<dim>::estimate_phi_diff
+(std::vector<LA::MPI::Vector*> &phis_newer,
+ std::vector<LA::MPI::Vector*> &phis_older)
 {
   AssertThrow (phis_newer.size ()== phis_older.size (),
                ExcMessage ("n_groups for different phis should be identical"));
@@ -1152,27 +953,47 @@ void TransportBase<dim>::output_results () const
 }
 
 template <int dim>
-void TransportBase<dim>::global_matrix_check (unsigned int ind)
-{
-  pcout << "global system norm index " << ind << ", " << vec_ho_sys[ind]->l1_norm () << std::endl;
-}
-
-template <int dim>
 void TransportBase<dim>::run ()
 {
-  generate_globally_refined_grid ();
-  setup_boundary_ids ();
-  initialize_material_id ();
+  radio ("making grid");
+  msh_ptr->make_grid (triangulation);
+  msh_ptr->get_relevant_cell_iterators (dof_handler,
+                                        local_cells,
+                                        is_cell_at_bd,
+                                        is_cell_at_ref_bd);
+  msh_ptr.reset ();
   setup_system ();
   report_system ();
   assemble_ho_system ();
   do_iterations ();
-  
-  if (Utilities::MPI::n_mpi_processes(mpi_communicator) <= 32)
-  {
-    pcout << "output " << std::endl;
-    output_results();
-  }
+  output_results();
+}
+
+//utility functions used to cout information for diagonose or just simply cout
+template <int dim>
+void TransportBase<dim>::radio (std::string str)
+{
+  pcout << str << std::endl;
+}
+
+template <int dim>
+void TransportBase<dim>::radio (std::string str1, std::string str2)
+{
+  pcout << str1 << ": " << str2 << std::endl;
+}
+
+template <int dim>
+void TransportBase<dim>::radio (std::string str,
+                                double num)
+{
+  pcout << str << ": " << num << std::endl;
+}
+
+template <int dim>
+void TransportBase<dim>::radio (std::string str,
+                                unsigned int num)
+{
+  pcout << str << ": " << num << std::endl;
 }
 
 // explicit instantiation to avoid linking error

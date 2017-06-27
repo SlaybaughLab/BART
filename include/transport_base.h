@@ -28,10 +28,10 @@ namespace LA
 #include <deal.II/dofs/dof_tools.h>
 
 #include <deal.II/base/parameter_handler.h>
-#include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/index_set.h>
 #include <deal.II/base/numbers.h>
 #include <deal.II/base/utilities.h>
+#include <deal.II/base/conditional_ostream.h>
 
 #include <deal.II/distributed/tria.h>
 
@@ -47,11 +47,12 @@ namespace LA
 #include <vector>
 
 #include "problem_definition.h"
+#include "mesh_generator.h"
 
 using namespace dealii;
 
 template <int dim>
-class TransportBase : public ProblemDefinition<dim>
+class TransportBase
 {
 public:
   TransportBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
@@ -122,8 +123,6 @@ private:
   unsigned int get_component_index (unsigned int &incident_angle_index, unsigned int &g);
   unsigned int get_direction (unsigned int &comp_ind);
   unsigned int get_component_group (unsigned int &comp_ind);
-  void get_cell_relative_position (Point<dim> &position,
-                                   std::vector<unsigned int> &relative_position);
   
   void assemble_lo_system ();
   void prepare_correction_aflx ();
@@ -137,17 +136,13 @@ private:
   void power_iteration ();
   void source_iteration ();
   void scale_fiss_transfer_matrices ();
-  void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes, double &normalization_factor);
-  
-  void local_matrix_check (FullMatrix<double> &local_mat,
-                           std::string str,
-                           unsigned int ind);
+  void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes,
+                         double normalization_factor);
   
   void radio (std::string str);
+  void radio (std::string str1, std::string str2);
   void radio (std::string str, double num);
   void radio (std::string str, unsigned int num);
-  
-  void global_matrix_check (unsigned int ind);
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,
@@ -160,12 +155,18 @@ private:
   void NDA_PI ();
   void NDA_SI ();
   
+  std_cxx11::shared_ptr<ProblemDefinition<dim> > p_def;
+  std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
+  
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   
   std::string transport_model_name;
   
+  std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
+  std::vector<bool> is_cell_at_bd;
+  std::vector<bool> is_cell_at_ref_bd;
 protected:
   unsigned int get_reflective_direction_index (unsigned int &boundary_id,
                                                unsigned int &incident_angle_index);
@@ -230,9 +231,6 @@ protected:
   double c_penalty;
   unsigned int n_dir;
   std::set<unsigned int> fissile_ids;
-  std::vector<unsigned int> ncell_per_dir;
-  std::vector<double> cell_size_all_dir;
-  std::vector<double> axis_max_values;
   std::string namebase;
   
   bool is_eigen_problem;

@@ -113,29 +113,30 @@ void EvenParity<dim>::integrate_interface_bilinear_form
  FullMatrix<double> &vn_up,
  FullMatrix<double> &vn_un)
 {
+  std::cout << "ep interface bilinear 1" << std::endl;
   const Tensor<1,dim> vec_n = fvf->normal_vector (0);
   unsigned int mid = cell->material_id ();
   unsigned int mid_nei = neigh->material_id ();
-  
+  std::cout << "ep interface bilinear 2" << std::endl;
   double local_sigt = this->all_sigt[mid][g];
   double local_inv_sigt = this->all_inv_sigt[mid][g];
   double local_measure = cell->measure ();
-  
+  std::cout << "ep interface bilinear 3" << std::endl;
   double neigh_sigt = this->all_sigt[mid_nei][g];
   double neigh_inv_sigt = this->all_inv_sigt[mid_nei][g];
   double neigh_measure = neigh->measure ();
-  
+  std::cout << "ep interface bilinear 4" << std::endl;
   double face_measure = cell->face(fn)->measure ();
   
   double avg_mfp_inv = 0.5 * (face_measure / (local_sigt * local_measure)
                               + face_measure / (neigh_sigt * neigh_measure));
-  
+  std::cout << "ep interface bilinear 5 penalty: " << this->c_penalty << " ,avgmfp: " << avg_mfp_inv << " ,tensornorm:" << std::endl;
   double sige = std::max(0.25, this->tensor_norms[i_dir] * this->c_penalty * avg_mfp_inv);
   
   double ndo = vec_n * this->omega_i[i_dir];
   //double sige = std::max(std::fabs (ndo),0.25);
   //std::cout << "sige: " << sige << std::endl;
-  
+  std::cout << "ep interface bilinear 6" << std::endl;
   for (unsigned int qi=0; qi<this->n_qf; ++qi)
     for (unsigned int i=0; i<this->dofs_per_cell; ++i)
       for (unsigned int j=0; j<this->dofs_per_cell; ++j)
