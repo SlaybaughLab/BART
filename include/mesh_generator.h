@@ -7,7 +7,7 @@ template <int dim>
 class MeshGenerator
 {
 public:
-  MeshGenerator (const std_cxx11::shared_ptr<ProblemDefinition<dim> > p_def);
+  MeshGenerator (ParameterHandler &prm);
   ~MeshGenerator ();
   
   void make_grid (Triangulation<dim> &tria);
@@ -16,12 +16,17 @@ public:
    std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
    std::vector<bool> &is_cell_at_bd,
    std::vector<bool> &is_cell_at_ref_bd);
+  unsigned int get_uniform_refinement ();
+  std::map<std::vector<unsigned int>, unsigned int> get_id_map ();
+  std::unordered_map<unsigned int, bool> get_reflective_bc_map ();
   
 private:
   void generate_initial_grid (Triangulation<dim> &tria);
   void initialize_material_id (Triangulation<dim> &tria);
   void setup_boundary_ids (Triangulation<dim> &tria);
-  
+  void initialize_relative_position_to_id_map (ParameterHandler &prm);
+  void preprocess_reflective_bc (ParameterHandler &prm);
+  void process_coordinate_information (ParameterHandler &prm);
   // utility member functions
   void get_cell_relative_position
   (Point<dim> &position,
@@ -38,6 +43,8 @@ private:
   std::vector<double> axis_max_values;
   std::vector<double> cell_size_all_dir;
   std::vector<unsigned int> ncell_per_dir;
+  
+  ParameterHandler prm;
 };
 
 #endif //__mesh_generator_h__

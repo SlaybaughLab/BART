@@ -30,9 +30,12 @@ pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
 {
+  pcout << "bef mesh" << std::endl;
+  msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
+  (new MeshGenerator<dim>(prm));
+  pcout << "aft mesh" << std::endl;
   this->process_input ();
   sflx_this_processor.resize (n_group);
-  msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >(new MeshGenerator<dim>(p_def));
 }
 
 template <int dim>
@@ -52,7 +55,6 @@ void TransportBase<dim>::process_input ()
     n_dir = p_def->get_n_dir ();
     p_order = p_def->get_fe_order ();
     discretization = p_def->get_discretization ();
-    pcout << "method " << discretization << std::endl;
     
     have_reflective_bc = p_def->get_reflective_bool ();
     do_nda = p_def->get_nda_bool ();
@@ -66,16 +68,16 @@ void TransportBase<dim>::process_input ()
     omega_i = p_def->get_all_directions ();
     tensor_norms = p_def->get_tensor_norms ();
     namebase = p_def->get_output_namebase ();
-    global_refinements = p_def->get_uniform_refinement ();
+    global_refinements = msh_ptr->get_uniform_refinement ();
   }
   if (have_reflective_bc)
   {
-    is_reflective_bc = p_def->get_reflective_bc_map ();
+    is_reflective_bc = msh_ptr->get_reflective_bc_map ();
     reflective_direction_index = p_def->get_reflective_direction_index_map ();
   }
   
   {
-    relative_position_to_id = p_def->get_id_map ();
+    relative_position_to_id = msh_ptr->get_id_map ();
     all_sigt = p_def->get_sigma_t ();
     all_inv_sigt = p_def->get_inv_sigma_t ();
     all_sigs = p_def->get_sigma_s ();
@@ -93,6 +95,7 @@ void TransportBase<dim>::process_input ()
       all_q_per_ster = p_def->get_q_per_ster ();
     }
   }
+  radio ("here");
 }
 
 template <int dim>
@@ -524,7 +527,8 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
     pre_ho_amg[i].reset ();
     pre_ho_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> (new LA::MPI::PreconditionAMG));
     LA::MPI::PreconditionAMG::AdditionalData data;
-    if (have_reflective_bc && is_explicit_reflective)
+    if (transport_model_name=="ep" &&
+        have_reflective_bc && is_explicit_reflective)
       data.symmetric_operator = false;
     else
       data.symmetric_operator = true;
@@ -759,8 +763,6 @@ void TransportBase<dim>::power_iteration ()
   k_ho = 1.0;
   double err_k = 1.0;
   double err_phi = 1.0;
-  
-  initialize_ho_preconditioners ();
   while (err_k>err_k_tol && err_phi>err_phi_tol)
   {
     k_ho_prev_gen = k_ho;
@@ -773,7 +775,8 @@ void TransportBase<dim>::power_iteration ()
     k_ho = estimate_k (fission_source, fission_source_prev_gen, k_ho_prev_gen);
     renormalize_sflx (vec_ho_sflx,
                       vec_ho_sflx[0]->l1_norm ());
-    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
+    err_phi = estimate_phi_diff (vec_ho_sflx,
+                                 vec_ho_sflx_prev_gen);
     err_k = std::fabs (k_ho - k_ho_prev_gen) / k_ho;
   }
 }
@@ -784,7 +787,9 @@ void TransportBase<dim>::source_iteration ()
   unsigned int ct = 0;
   double err_phi = 1.0;
   double err_phi_old;
+  radio ("gen moment");
   generate_moments ();
+  radio ("gen moment d");
   while (err_phi>1.0e-7)
   {
     //generate_ho_source ();
@@ -798,8 +803,8 @@ void TransportBase<dim>::source_iteration ()
     radio ("SI phi err", err_phi);
     double spectral_radius = err_phi / err_phi_old;
     radio ("spectral radius", spectral_radius);
-    postprocess ();
   }
+  postprocess ();
 }
 
 template <int dim>
@@ -861,7 +866,8 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<LA::MPI::Vector*> &
   double fiss_source = 0.0;
   for (unsigned int ic=0; ic<local_cells.size(); ++ic)
   {
-    typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+    typename DoFHandler<dim>::active_cell_iterator
+    cell = local_cells[ic];
     fv->reinit (cell);
     std::vector<std::vector<double> > local_phis (n_group,
                                                   std::vector<double> (n_q));
@@ -909,7 +915,7 @@ void TransportBase<dim>::do_iterations ()
 {
   initialize_ho_preconditioners ();
   generate_fixed_source ();
-  
+  radio("fixed src done");
   if (is_eigen_problem)
   {
     if (do_nda)
@@ -985,7 +991,7 @@ void TransportBase<dim>::run ()
   output_results();
 }
 
-//utility functions used to cout information for diagonose or just simply cout
+//functions used to cout information for diagonose or just simply cout
 template <int dim>
 void TransportBase<dim>::radio (std::string str)
 {

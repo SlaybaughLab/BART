@@ -41,8 +41,6 @@ public:
   std::vector<std::vector<std::vector<double> > > get_sigma_s_per_ster ();
   std::vector<std::vector<std::vector<double> > > get_ksi_nusigf ();
   std::vector<std::vector<std::vector<double> > > get_ksi_nusigf_per_ster ();
-  std::map<std::vector<unsigned int>, unsigned int> get_id_map ();
-  std::unordered_map<unsigned int, bool> get_reflective_bc_map ();
   std::unordered_map<unsigned int, bool> get_fissile_id_map ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> get_component_index_map ();
   std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > get_inv_component_map ();
@@ -50,9 +48,6 @@ public:
   /*
    functions used to retrieve private members of ProblemDefinition<dim>
    */
-  std::vector<double> get_axis_maxes ();
-  std::vector<unsigned int> get_ncells ();
-  std::vector<double> get_cell_sizes ();
   
   std::string get_transport_model ();// overloaded function
   std::string get_output_namebase ();
@@ -66,7 +61,8 @@ public:
   
   void initialize_component_index ();
   void initialize_ref_bc_index ();
-  std::map<std::pair<unsigned int, unsigned int>, unsigned int> get_reflective_direction_index_map ();
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int>
+  get_reflective_direction_index_map ();
   
   bool get_nda_bool ();
   bool get_eigen_problem_bool ();
@@ -76,7 +72,6 @@ public:
   bool get_explicit_reflective_bool ();
   unsigned int get_fe_order ();
   unsigned int get_uniform_refinement ();
-  std::string get_mesh_file_name ();
   std::string get_discretization ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
   std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > inverse_component_index;
@@ -111,7 +106,6 @@ private:
   
   std::unordered_map<unsigned int, bool> is_material_fissile;
   std::unordered_map<unsigned int, bool> is_reflective_bc;
-  std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id;
   
   bool is_mesh_generated;
   bool do_print_sn_quad;
