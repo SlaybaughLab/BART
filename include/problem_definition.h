@@ -41,15 +41,13 @@ public:
   std::vector<std::vector<std::vector<double> > > get_sigma_s_per_ster ();
   std::vector<std::vector<std::vector<double> > > get_ksi_nusigf ();
   std::vector<std::vector<std::vector<double> > > get_ksi_nusigf_per_ster ();
-  std::map<std::vector<unsigned int>, unsigned int> get_id_map ();
-  std::unordered_map<unsigned int, bool> get_reflective_bc_map ();
   std::unordered_map<unsigned int, bool> get_fissile_id_map ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> get_component_index_map ();
   std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > get_inv_component_map ();
   
-  std::vector<double> get_axis_maxes ();
-  std::vector<unsigned int> get_ncells ();
-  std::vector<double> get_cell_sizes ();
+  /*
+   functions used to retrieve private members of ProblemDefinition<dim>
+   */
   
   std::string get_transport_model ();// overloaded function
   std::string get_output_namebase ();
@@ -62,22 +60,21 @@ public:
   std::vector<double> get_tensor_norms ();
   
   void initialize_component_index ();
-  void print_angular_quad ();
-  
-  std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
-  std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > inverse_component_index;
+  void initialize_ref_bc_index ();
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int>
+  get_reflective_direction_index_map ();
   
   bool get_nda_bool ();
   bool get_eigen_problem_bool ();
   bool get_reflective_bool ();
   bool get_print_sn_quad_bool ();
+  bool get_generated_mesh_bool ();
+  bool get_explicit_reflective_bool ();
   unsigned int get_fe_order ();
   unsigned int get_uniform_refinement ();
   std::string get_discretization ();
-  
-  bool get_explicit_reflective_bool ();
-  void initialize_ref_bc_index ();
-  std::map<std::pair<unsigned int, unsigned int>, unsigned int> get_reflective_direction_index_map ();
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
+  std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > inverse_component_index;
   
 private:
   void process_problem_definition (ParameterHandler &prm);
@@ -87,14 +84,14 @@ private:
   void process_eigen_material_properties (ParameterHandler &prm);
   void produce_angular_quad ();
   void initialize_relative_position_to_id_map (ParameterHandler &prm);
-  
+  void process_mesh (ParameterHandler &prm);
   double pi;
-  
   
   unsigned int total_angle;
   
   std::string transport_model_name;
   std::string discretization;
+  std::string mesh_filename;
   unsigned int n_azi;
   unsigned int n_group;
   unsigned int n_material;
@@ -109,8 +106,8 @@ private:
   
   std::unordered_map<unsigned int, bool> is_material_fissile;
   std::unordered_map<unsigned int, bool> is_reflective_bc;
-  std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id;
   
+  bool is_mesh_generated;
   bool do_print_sn_quad;
   bool is_explicit_reflective;
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
