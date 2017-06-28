@@ -59,9 +59,6 @@ void TransportBase<dim>::process_input ()
     is_eigen_problem = p_def->get_eigen_problem_bool ();
     n_total_ho_vars = p_def->get_n_total_ho_vars ();
     do_print_sn_quad = p_def->get_print_sn_quad_bool ();
-    if (do_print_sn_quad &&
-        Utilities::MPI::this_mpi_process(mpi_communicator)==0)
-      p_def->print_angular_quad ();
     
     component_index = p_def->get_component_index_map ();
     inverse_component_index = p_def->get_inv_component_map ();
@@ -144,9 +141,33 @@ void TransportBase<dim>::report_system ()
   
   if (is_eigen_problem)
     radio ("Problem type: k-eigenvalue problem");
-  
   if (do_nda)
     radio ("NDA total DoF counts", n_group*dof_handler.n_dofs());
+  pcout << "print sn quad? " << do_print_sn_quad << std::endl;
+  if (do_print_sn_quad &&
+      Utilities::MPI::this_mpi_process(mpi_communicator)==0)
+    print_angular_quad ();
+}
+
+template <int dim>
+void TransportBase<dim>::print_angular_quad ()
+{
+  AssertThrow (dim>=2,
+               ExcMessage("1D is not implemented yet."));
+  std::ofstream quadr;
+  quadr.open("aq.txt");
+  quadr << "Dim = " << dim << ", SN order = " << n_azi << std::endl;
+  quadr << "Weights | Omega_x | Omega_y | mu" << std::endl;
+  for (unsigned int i=0; i<omega_i.size(); ++i)
+  {
+    double mu = std::sqrt (1-(omega_i[i][0]*omega_i[i][0]+omega_i[i][1]*omega_i[i][1]));
+    quadr << std::fixed << std::setprecision (15);
+    quadr << wi[i] << ", ";
+    quadr << omega_i[i][0] << ", ";
+    quadr << omega_i[i][1] << ", ";
+    quadr << mu << std::endl;
+  }
+  quadr.close ();
 }
 
 template <int dim>
@@ -432,10 +453,8 @@ void TransportBase<dim>::assemble_ho_interface ()
     
     for (unsigned int ic=0; ic<local_cells.size(); ++ic)
     {
-      std::cout << "cell: " << ic << std::endl;
       typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
       cell->get_dof_indices (local_dof_indices);
-      std::cout << "cell: " << ic << std::endl;
       for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
         if (!cell->at_boundary(fn) &&
             cell->neighbor(fn)->id()<cell->id())
@@ -445,7 +464,6 @@ void TransportBase<dim>::assemble_ho_interface ()
           neigh = cell->neighbor(fn);
           neigh->get_dof_indices (neigh_dof_indices);
           fvf_nei->reinit (neigh, cell->neighbor_face_no(fn));
-          std::cout << "cell: " << ic << ", fn: " << fn << std::endl;
           
           vp_up = 0;
           vp_un = 0;
@@ -457,7 +475,6 @@ void TransportBase<dim>::assemble_ho_interface ()
                                              fn,
                                              i_dir, g,/*specific component*/
                                              vp_up, vp_un, vn_up, vn_un);
-          std::cout << "cell: " << ic << ", fn: " << fn << std::endl;
           vec_ho_sys[k]->add (local_dof_indices,
                               local_dof_indices,
                               vp_up);
@@ -473,7 +490,6 @@ void TransportBase<dim>::assemble_ho_interface ()
           vec_ho_sys[k]->add (neigh_dof_indices,
                               neigh_dof_indices,
                               vn_un);
-          std::cout << "cell: " << ic << ", fn: " << fn << " added" << std::endl;
         }// target faces
     }
     vec_ho_sys[k]->compress(VectorOperation::add);

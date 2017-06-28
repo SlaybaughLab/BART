@@ -65,7 +65,6 @@ public:
   std::vector<double> get_tensor_norms ();
   
   void initialize_component_index ();
-  void print_angular_quad ();
   void initialize_ref_bc_index ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> get_reflective_direction_index_map ();
   

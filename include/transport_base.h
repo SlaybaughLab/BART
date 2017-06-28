@@ -108,6 +108,8 @@ private:
   void setup_system ();
   void generate_globally_refined_grid ();
   void report_system ();
+  void print_angular_quad ();
+  
   // void setup_lo_system();
   void setup_boundary_ids ();
   void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
