@@ -32,16 +32,6 @@ public:
   
   void process_input (ParameterHandler &prm);
   
-  std::vector<std::vector<double> > get_sigma_t ();
-  std::vector<std::vector<double> > get_inv_sigma_t ();
-  std::vector<std::vector<double> > get_q ();
-  std::vector<std::vector<double> > get_q_per_ster ();
-  std::vector<std::vector<double> > get_nusigf ();
-  std::vector<std::vector<std::vector<double> > > get_sigma_s ();
-  std::vector<std::vector<std::vector<double> > > get_sigma_s_per_ster ();
-  std::vector<std::vector<std::vector<double> > > get_ksi_nusigf ();
-  std::vector<std::vector<std::vector<double> > > get_ksi_nusigf_per_ster ();
-  std::unordered_map<unsigned int, bool> get_fissile_id_map ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> get_component_index_map ();
   std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > get_inv_component_map ();
   
@@ -104,7 +94,6 @@ private:
   unsigned int global_refinements;
   std::string output_namebase;
   
-  std::unordered_map<unsigned int, bool> is_material_fissile;
   std::unordered_map<unsigned int, bool> is_reflective_bc;
   
   bool is_mesh_generated;
@@ -118,24 +107,6 @@ private:
   std::vector<Tensor<1, 3> > omega_with_mu;
   std::vector<double> tensor_norms;
   unsigned int n_total_ho_vars;
-  
-  std::vector<unsigned int> ncell_per_dir;
-  std::vector<double> cell_size_all_dir;
-  std::vector<double> axis_max_values;
-  
-  std::vector<std::vector<double> > all_sigt;
-  std::vector<std::vector<double> > all_inv_sigt;
-  std::vector<std::vector<double> > all_ksi;
-  std::vector<std::vector<double> > all_nusigf;
-  std::vector<std::vector<double> > all_q;
-  std::vector<std::vector<double> > all_q_per_ster;
-  
-  std::vector<std::vector<std::vector<double> > > all_sigs;
-  std::vector<std::vector<std::vector<double> > > all_sigs_per_ster;
-  std::vector<std::vector<std::vector<double> > > all_ksi_nusigf;
-  std::vector<std::vector<std::vector<double> > > all_ksi_nusigf_per_ster;
-  std::vector<std::vector<std::vector<double> > > ho_scaled_fiss_transfer_per_ster;
-  std::vector<std::vector<std::vector<double> > > lo_scaled_fiss_transfer;
 };
 
 
