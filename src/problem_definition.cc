@@ -1,21 +1,17 @@
-#include <deal.II/base/numbers.h>
 #include <deal.II/base/utilities.h>
-#include <boost/algorithm/string.hpp>
 
 #include <sstream>
 #include <utility>
 #include <iomanip>
-#include <fstream>
 
 #include "../include/problem_definition.h"
 
 using namespace dealii;
 
-template <int dim>
-ProblemDefinition<dim>::ProblemDefinition (ParameterHandler &prm)
+ProblemDefinition::ProblemDefinition (ParameterHandler &prm)
 :
-pi(numbers::PI),
 transport_model_name(prm.get("transport model")),
+aq_name(prm.get("angular quadrature name")),
 discretization(prm.get("spatial discretization")),
 n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
@@ -26,26 +22,25 @@ p_order(prm.get_integer("finite element polynomial degree")),
 global_refinements(prm.get_integer("uniform refinements")),
 output_namebase(prm.get("output file name base"))
 {
-  this->process_input (prm);
 }
 
-template <int dim>
-ProblemDefinition<dim>::~ProblemDefinition()
+ProblemDefinition::~ProblemDefinition()
 {
 }
 
-template <int dim>
-void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
+void ProblemDefinition::declare_parameters (ParameterHandler &prm)
 {
   // our final strategy is to declare all possible entries
   // and then ignore some of them suggested by Wolfgang Bangerth
   // from Colorado State on 05-10-2017
   // The following are the basic parameters we need to define a problem
   {
-    prm.declare_entry ("transport model", "ep", Patterns::Anything(), "valid names such as ep");
+    prm.declare_entry ("problem dimension", "2", Patterns::Integer(), "1D is not implemented");
+    prm.declare_entry ("transport model", "ep", Patterns::Selection("ep"), "valid names such as ep");
+    prm.declare_entry ("angular quadrature name", "lsgc", Patterns::Selection ("lsgc"), "angular quadrature types. only LS-GC implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", Patterns::Integer (), "Number of groups in MG calculations");
-    prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("DFEM|dfem|CFEM|cfem|dg|cg|DG|CG"), "USE DG or CG for spatial discretization");
+    prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("dfem|cfem"), "USE DFEM or CFEM for spatial discretization");
     prm.declare_entry ("do eigenvalue calculations", "false", Patterns::Bool(), "Boolean to determine problem type");
     prm.declare_entry ("do NDA", "false", Patterns::Bool(), "Boolean to determine NDA or not");
     prm.declare_entry ("have reflective BC", "false", Patterns::Bool(), "");
@@ -158,302 +153,64 @@ void ProblemDefinition<dim>::declare_parameters (ParameterHandler &prm)
   prm.leave_subsection ();
 }
 
-template <int dim>
-std::string ProblemDefinition<dim>::get_transport_model (ParameterHandler &prm)
+std::string ProblemDefinition::get_aq_name ()
 {
-  std::string name = prm.get ("transport model");
-  return name;
-}
-
-template <int dim>
-void ProblemDefinition<dim>::process_input (ParameterHandler &prm)
-{
-  // Note: this will be migrated to angular quadrature class
-  initialize_ref_bc_index ();
-  produce_angular_quad ();
-  initialize_component_index ();
-}
-
-template <int dim>
-void ProblemDefinition<dim>::initialize_ref_bc_index ()
-{
-  // Note: here we assume square domain and assume user either
-  // uses deal.II generated mesh or mesh from gmsh with proper
-  // boundary IDs setup: {0,1,2,3,4,5} for {xmin,xmax,ymin,ymax,zmin,zmax}
-  if (have_reflective_bc)
-  {
-    AssertThrow (dim>1,
-                 ExcMessage("1D cases are not implemented for now."));
-    std::vector<Tensor<1, dim> > boundary_normal_vectors;
-    boundary_normal_vectors.resize (2*dim);
-    // All boundary normal vectors are assume to be parallel to axes
-    // Then, only one component in each normal vector is nonzero
-    if (dim==2)
-    {
-      boundary_normal_vectors[0][0] = -1.0;
-      boundary_normal_vectors[1][0] = 1.0;
-      boundary_normal_vectors[2][1] = -1.0;
-      boundary_normal_vectors[3][1] = 1.0;
-    }
-    if (dim==3)
-    {
-      boundary_normal_vectors[0][0] = -1.0;
-      boundary_normal_vectors[1][0] = 1.0;
-      boundary_normal_vectors[2][1] = -1.0;
-      boundary_normal_vectors[3][1] = 1.0;
-      boundary_normal_vectors[4][2] = -1.0;
-      boundary_normal_vectors[5][2] = 1.0;
-    }
-    for (unsigned int i=0; i<2*dim; ++i)
-      for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-      {
-        Tensor<1, dim> out_angle =
-        (omega_i[i_dir] *
-         (1.0 - 2.0 * (boundary_normal_vectors[i] * omega_i[i_dir])));
-        for (unsigned int r_dir=0; r_dir<n_dir; ++r_dir)
-        {
-          Tensor<1, dim> d_dir = out_angle;
-          Tensor<1, dim> d_minus_dir = out_angle;
-          d_dir -= omega_i[r_dir];
-          d_minus_dir += omega_i[r_dir];
-          if (transport_model_name=="ep")
-            if (d_dir.norm ()<1.0e-13 || d_minus_dir.norm ()<1.0e-13)
-              reflective_direction_index.insert (std::make_pair (std::make_pair (i, i_dir), r_dir));
-          else
-            if (d_dir.norm ()<1.0e-13)
-              reflective_direction_index.insert (std::make_pair (std::make_pair (i, i_dir), r_dir));
-        }
-      }
-  }
-}
-
-template <int dim>
-void ProblemDefinition<dim>::produce_angular_quad ()
-{
-  AssertThrow (dim>=2,
-               ExcMessage("1D is not implemented"));
-  AssertThrow (n_azi%2==0,
-               ExcMessage("SN order must be even numbers"));
-  QGauss<1> mu_quad (n_azi);
-  if (dim==2)
-  {
-    total_angle = 4.0 * pi * 2.0;
-    double aha=0;
-    for (unsigned int i=0; i<n_azi/2; ++i)
-    {
-      Tensor<1, dim> tmp;
-      double mut = mu_quad.point(i)[0]*2.0 - 1.0;
-      unsigned int level_angle_num = (4 * (i + 1) /
-                                      (transport_model_name=="ep"?2:1));
-      double delta_level_angle = 2.0 * pi / level_angle_num;
-      double level_weight = mu_quad.weight(i) * total_angle;
-      
-      for (unsigned int j=0; j<level_angle_num; ++j)
-      {
-        double angle = 0.5 * delta_level_angle + (double)(j) * delta_level_angle;
-        tmp[0] = std::sqrt (1.0 - mut * mut) * cos (angle);
-        tmp[1] = std::sqrt (1.0 - mut * mut) * sin (angle);
-        // solely for EP quadratures in 2D.
-        omega_i.push_back(tmp);
-        double point_wt = level_weight / level_angle_num;
-        wi.push_back(point_wt);
-        Tensor<1,3> tmp2;
-        tmp2[0] = tmp[0];
-        tmp2[1] = tmp[1];
-        tmp2[2] = mut;
-        omega_with_mu.push_back (tmp2);
-      }
-    }
-    n_dir = (n_azi * (n_azi + 2) /
-             (transport_model_name=="ep"?4:2));
-  }
-  else if (dim==3)
-  {
-    total_angle = 4.0 * pi * (transport_model_name=="ep"?2.0:1.0);
-    unsigned int n_total_azi = transport_model_name=="ep"?(n_azi/2):n_azi;
-    for (unsigned int i=0; i<n_total_azi; ++i)
-    {
-      unsigned int level_angle_num = i < n_azi / 2 ? 4 * (i + 1) : 4 * (n_azi - i);
-      double delta_level_angle = 2.0 * pi / level_angle_num;
-      double level_weight = mu_quad.weight(i) * total_angle;
-      Tensor<1, dim> tmp;
-      double mut = mu_quad.point(i)[0] * 2.0 - 1.0;
-      
-      for (unsigned int j=0; j<level_angle_num; ++j)
-      {
-        double angle = 0.5 * delta_level_angle + (double)(j) * delta_level_angle;
-        tmp[0] = std::sqrt(1.0 - mut * mut) * cos(angle);
-        tmp[1] = std::sqrt(1.0 - mut * mut) * sin(angle);
-        tmp[2] = mut;
-        omega_i.push_back(tmp);
-        double point_wt = level_weight / level_angle_num;
-        wi.push_back(point_wt);
-        Tensor<1,3> tmp2;
-        tmp2[0] = tmp[0];
-        tmp2[1] = tmp[1];
-        tmp2[2] = mut;
-        omega_with_mu.push_back (tmp2);
-      }
-    }
-    n_dir = (n_azi * (n_azi + 2) /
-             (transport_model_name=="ep"?2:1));
-  }
-  AssertThrow (n_dir==wi.size(),
-               ExcMessage("calculated number of angles should be the same as number of angular weights"));
-  AssertThrow (n_dir==omega_i.size(),
-               ExcMessage("calculated number of angles should be the same as number of angles"));
-  
-  n_total_ho_vars = n_dir * n_group;
-  // estimate tensor norm to do penalty method for EP
-  if (transport_model_name=="ep" &&
-      (discretization=="dfem" || discretization=="dg"))
-    for (unsigned int i=0; i<n_dir; ++i)
-    {
-      Tensor<2, dim> tensor_tmp = outer_product(omega_i[i], omega_i[i]);
-      double norm = tensor_tmp.norm();
-      tensor_norms.push_back(norm);
-    }
-}
-
-template <int dim>
-void ProblemDefinition<dim>::initialize_component_index ()
-{
-  // initialize the map from (direction, group) to component indices
-  unsigned int ind = 0;
-  for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    for (unsigned int g=0; g<n_group; ++g)
-    {
-      std::pair<unsigned int, unsigned int> key (i_dir, g);
-      component_index[key] = ind;
-      inverse_component_index[ind] = key;
-      ind += 1;
-    }
+  return aq_name;
 }
 
 // public member functions used to retieve parameters processed
-template <int dim>
-bool ProblemDefinition<dim>::get_nda_bool ()
+bool ProblemDefinition::get_nda_bool ()
 {
   return do_nda;
 }
 
-template <int dim>
-std::map<std::pair<unsigned int, unsigned int>, unsigned int>
-ProblemDefinition<dim>::get_reflective_direction_index_map ()
-{
-  return reflective_direction_index;
-}
-
-template <int dim>
-bool ProblemDefinition<dim>::get_explicit_reflective_bool ()
+bool ProblemDefinition::get_explicit_reflective_bool ()
 {
   return is_explicit_reflective;
 }
 
-template <int dim>
-bool ProblemDefinition<dim>::get_print_sn_quad_bool ()
+bool ProblemDefinition::get_print_sn_quad_bool ()
 {
   return do_print_sn_quad;
 }
 
-template <int dim>
-std::string ProblemDefinition<dim>::get_transport_model ()
+std::string ProblemDefinition::get_transport_model ()
 {
   return transport_model_name;
 }
 
-template <int dim>
-std::string ProblemDefinition<dim>::get_output_namebase ()
+std::string ProblemDefinition::get_output_namebase ()
 {
   return output_namebase;
 }
 
-template <int dim>
-unsigned int ProblemDefinition<dim>::get_sn_order ()
-{
-  return n_azi;
-}
-
-template <int dim>
-unsigned int ProblemDefinition<dim>::get_n_dir ()
-{
-  return n_dir;
-}
-
-template <int dim>
-unsigned int ProblemDefinition<dim>::get_n_group ()
+unsigned int ProblemDefinition::get_n_group ()
 {
   return n_group;
 }
 
-template <int dim>
-unsigned int ProblemDefinition<dim>::get_n_total_ho_vars ()
-{
-  return n_total_ho_vars;
-}
-
-template <int dim>
-std::vector<double> ProblemDefinition<dim>::get_angular_weights ()
-{
-  return wi;
-}
-
-template <int dim>
-std::vector<Tensor<1, dim> > ProblemDefinition<dim>::get_all_directions ()
-{
-  return omega_i;
-}
-
-template <int dim>
-std::vector<double> ProblemDefinition<dim>::get_tensor_norms ()
-{
-  return tensor_norms;
-}
-
-template <int dim>
-bool ProblemDefinition<dim>::get_reflective_bool ()
+bool ProblemDefinition::get_reflective_bool ()
 {
   return have_reflective_bc;
 }
 
-template <int dim>
-bool ProblemDefinition<dim>::get_eigen_problem_bool ()
+bool ProblemDefinition::get_eigen_problem_bool ()
 {
   return is_eigen_problem;
 }
 
-template <int dim>
-unsigned int ProblemDefinition<dim>::get_fe_order ()
+unsigned int ProblemDefinition::get_fe_order ()
 {
   return p_order;
 }
 
-template <int dim>
-unsigned int ProblemDefinition<dim>::get_uniform_refinement ()
+unsigned int ProblemDefinition::get_uniform_refinement ()
 {
   return global_refinements;
 }
 
-template <int dim>
-std::map<std::pair<unsigned int, unsigned int>, unsigned int>
-ProblemDefinition<dim>::get_component_index_map ()
-{
-  return component_index;
-}
-
-template <int dim>
-std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> >
-ProblemDefinition<dim>::get_inv_component_map ()
-{
-  return inverse_component_index;
-}
-
-template <int dim>
-std::string ProblemDefinition<dim>::get_discretization ()
+std::string ProblemDefinition::get_discretization ()
 {
   return discretization;
 }
 
-// explicit instantiation to avoid linking error
-template class ProblemDefinition<2>;
-template class ProblemDefinition<3>;

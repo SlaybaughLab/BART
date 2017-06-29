@@ -25,7 +25,7 @@ void EvenParity<dim>::pre_assemble_cell_matrices
       for (unsigned int j=0; j<this->dofs_per_cell; ++j)
         collision_at_qp[qi](i,j) = (fv->shape_value(i,qi) *
                                     fv->shape_value(j,qi));
-  
+
   for (unsigned int qi=0; qi<this->n_q; ++qi)
     for (unsigned int i_dir=0; i_dir<this->n_dir; ++i_dir)
       for (unsigned int i=0; i<this->dofs_per_cell; ++i)
@@ -68,7 +68,7 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
  unsigned int &g)
 {
   unsigned int boundary_id = cell->face(fn)->boundary_id ();
-  
+
   if (!this->is_reflective_bc[boundary_id])
   {
     const Tensor<1,dim> vec_n = fvf->normal_vector(0);
@@ -123,76 +123,70 @@ void EvenParity<dim>::integrate_interface_bilinear_form
   double neigh_inv_sigt = this->all_inv_sigt[mid_nei][g];
   double neigh_measure = neigh->measure ();
   double face_measure = cell->face(fn)->measure ();
-  
+
   double avg_mfp_inv = 0.5 * (face_measure / (local_sigt * local_measure)
                               + face_measure / (neigh_sigt * neigh_measure));
   double sige = std::max(0.25, this->tensor_norms[i_dir] * this->c_penalty * avg_mfp_inv);
-  
-  double ndo = vec_n * this->omega_i[i_dir];
+
+  double half_ndo = 0.5 * vec_n * this->omega_i[i_dir];
   //double sige = std::max(std::fabs (ndo),0.25);
-  //std::cout << "sige: " << sige << std::endl;
   for (unsigned int qi=0; qi<this->n_qf; ++qi)
     for (unsigned int i=0; i<this->dofs_per_cell; ++i)
       for (unsigned int j=0; j<this->dofs_per_cell; ++j)
       {
-        double theta = 1.0;
         vp_up(i,j) += (sige *
                        fvf->shape_value(i,qi) *
                        fvf->shape_value(j,qi)
-                       + theta*
-                       (-
-                        local_inv_sigt * ndo *
-                        (this->omega_i[i_dir] * fvf->shape_grad(i,qi)) *
-                        fvf->shape_value(j,qi) * 0.5
-                        -
-                        local_inv_sigt * ndo *
-                        fvf->shape_value(i,qi) * 0.5 *
-                        (this->omega_i[i_dir] * fvf->shape_grad(j,qi)))
+                       -
+                       local_inv_sigt * half_ndo *
+                       (this->omega_i[i_dir] * fvf->shape_grad(i,qi)) *
+                       fvf->shape_value(j,qi)
+                       -
+                       local_inv_sigt * half_ndo *
+                       fvf->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * fvf->shape_grad(j,qi))
                        ) * fvf->JxW(qi);
-        
+
         vp_un(i,j) += (-sige *
                        fvf->shape_value(i,qi) *
                        fvf_nei->shape_value(j,qi)
-                       + theta*
-                       (+
-                        local_inv_sigt * ndo *
-                        (this->omega_i[i_dir] * fvf->shape_grad(i,qi)) *
-                        fvf_nei->shape_value(j,qi) * 0.5
-                        -
-                        neigh_inv_sigt * ndo *
-                        fvf->shape_value(i,qi) * 0.5 *
-                        (this->omega_i[i_dir] * fvf_nei->shape_grad(j,qi)))
+                       +
+                       local_inv_sigt * half_ndo *
+                       (this->omega_i[i_dir] * fvf->shape_grad(i,qi)) *
+                       fvf_nei->shape_value(j,qi)
+                       -
+                       neigh_inv_sigt * half_ndo *
+                       fvf->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * fvf_nei->shape_grad(j,qi))
                        ) * fvf->JxW(qi);
-        
+
         vn_up(i,j) += (-sige *
                        fvf_nei->shape_value(i,qi) *
                        fvf->shape_value(j,qi)
-                       + theta*
-                       (-
-                        neigh_inv_sigt * ndo *
-                        (this->omega_i[i_dir] * fvf_nei->shape_grad(i,qi)) *
-                        fvf->shape_value(j,qi) * 0.5
-                        +
-                        local_inv_sigt * ndo *
-                        fvf_nei->shape_value(i,qi) * 0.5 *
-                        (this->omega_i[i_dir] * fvf->shape_grad(j,qi)))
+                       -
+                       neigh_inv_sigt * half_ndo *
+                       (this->omega_i[i_dir] * fvf_nei->shape_grad(i,qi)) *
+                       fvf->shape_value(j,qi)
+                       +
+                       local_inv_sigt * half_ndo *
+                       fvf_nei->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * fvf->shape_grad(j,qi))
                        ) * fvf->JxW(qi);
-        
+
         vn_un(i,j) += (sige *
                        fvf_nei->shape_value(i,qi) *
                        fvf_nei->shape_value(j,qi)
-                       + theta*
-                       (+
-                        neigh_inv_sigt * ndo *
-                        (this->omega_i[i_dir] * fvf_nei->shape_grad(i,qi)) *
-                        fvf_nei->shape_value(j,qi) * 0.5
-                        +
-                        neigh_inv_sigt * ndo *
-                        fvf_nei->shape_value(i,qi) * 0.5 *
-                        (this->omega_i[i_dir] * fvf_nei->shape_grad(j,qi)))
+                       +
+                       neigh_inv_sigt * half_ndo *
+                       (this->omega_i[i_dir] * fvf_nei->shape_grad(i,qi)) *
+                       fvf_nei->shape_value(j,qi)
+                       +
+                       neigh_inv_sigt * half_ndo *
+                       fvf_nei->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * fvf_nei->shape_grad(j,qi))
                        ) * fvf->JxW(qi);
       }
-  
+
 }
 
 template class EvenParity<2>;

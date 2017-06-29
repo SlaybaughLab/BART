@@ -29,7 +29,6 @@ namespace LA
 
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/index_set.h>
-#include <deal.II/base/numbers.h>
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/conditional_ostream.h>
 
@@ -49,6 +48,7 @@ namespace LA
 #include "problem_definition.h"
 #include "mesh_generator.h"
 #include "material_properties.h"
+#include "aq_base.h"
 
 using namespace dealii;
 
@@ -146,17 +146,19 @@ private:
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,
                      double &k_prev_gen);
-  double estimate_fiss_source (std::vector<LA::MPI::Vector*> &phis);
+  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   //Properties<dim> *mat_prop;
   
   void NDA_PI ();
   void NDA_SI ();
+  void initialize_aq (ParameterHandler &prm);
   
-  std_cxx11::shared_ptr<ProblemDefinition<dim> > def_ptr;
+  std_cxx11::shared_ptr<ProblemDefinition> def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
+  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
@@ -177,11 +179,6 @@ protected:
   std_cxx11::shared_ptr<QGauss<dim> > q_rule;
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
   
-  unsigned int n_q;
-  unsigned int n_qf;
-  unsigned int dofs_per_cell;
-  std::vector<types::global_dof_index> local_dof_indices;
-  std::vector<types::global_dof_index> neigh_dof_indices;
   
   MPI_Comm mpi_communicator;
   
@@ -194,7 +191,40 @@ protected:
   IndexSet local_dofs;
   IndexSet relevant_dofs;
   
-  double pi;
+  const double err_k_tol;
+  const double err_phi_tol;
+  
+  double k_ho;
+  double k_ho_prev_gen;
+  double total_angle;
+  double c_penalty;
+  double fission_source;
+  double fission_source_prev_gen;
+  
+  bool is_eigen_problem;
+  bool do_nda;
+  bool have_reflective_bc;
+  bool is_explicit_reflective;
+  bool do_print_sn_quad;
+  
+  unsigned int n_q;
+  unsigned int n_qf;
+  unsigned int dofs_per_cell;
+  
+  unsigned int n_dir;
+  unsigned int n_azi;
+  unsigned int n_total_ho_vars;
+  unsigned int n_group;
+  unsigned int n_material;
+  unsigned int p_order;
+  unsigned int global_refinements;
+  
+  std::string discretization;
+  std::string namebase;
+  std::string aq_name;
+  
+  std::vector<types::global_dof_index> local_dof_indices;
+  std::vector<types::global_dof_index> neigh_dof_indices;
   
   // HO system
   std::vector<LA::MPI::SparseMatrix*> vec_ho_sys;
@@ -204,8 +234,6 @@ protected:
   std::vector<LA::MPI::Vector*> vec_ho_sflx;
   std::vector<LA::MPI::Vector*> vec_ho_sflx_old;
   std::vector<LA::MPI::Vector*> vec_ho_sflx_prev_gen;
-  double k_ho;
-  double k_ho_prev_gen;
   
   // LO system
   std::vector<LA::MPI::SparseMatrix*> vec_lo_sys;
@@ -215,57 +243,32 @@ protected:
   std::vector<LA::MPI::Vector*> vec_lo_sflx_old;
   std::vector<LA::MPI::Vector*> vec_lo_sflx_prev_gen;
   
-  std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
-  std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > inverse_component_index;
-  std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
-  std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id;
-  
-  std::string discretization;
-  double total_angle;
-  unsigned int n_azi;
-  unsigned int n_total_ho_vars;
-  unsigned int n_group;
-  unsigned int n_material;
-  int p_order;
-  int global_refinements;
-  double c_penalty;
-  unsigned int n_dir;
-  std::set<unsigned int> fissile_ids;
-  std::string namebase;
-  
-  bool is_eigen_problem;
-  bool do_nda;
-  bool have_reflective_bc;
-  bool is_explicit_reflective;
-  bool do_print_sn_quad;
-  std::unordered_map<unsigned int, bool> is_reflective_bc;
-  std::unordered_map<unsigned int, bool> is_material_fissile;
-  
   std::vector<Tensor<1, dim> > omega_i;
   std::vector<double> wi;
   std::vector<double> tensor_norms;
-  
-  double fission_source;
-  double fission_source_prev_gen;
-  
-  const double err_k_tol;
-  const double err_phi_tol;
-  
   std::vector<std::vector<double> > all_sigt;
   std::vector<std::vector<double> > all_inv_sigt;
   std::vector<std::vector<double> > all_q;
   std::vector<std::vector<double> > all_q_per_ster;
   std::vector<std::vector<double> > all_nusigf;
-  
   std::vector<std::vector<std::vector<double> > > all_sigs;
   std::vector<std::vector<std::vector<double> > > all_sigs_per_ster;
   std::vector<std::vector<std::vector<double> > > all_ksi_nusigf;
   std::vector<std::vector<std::vector<double> > > all_ksi_nusigf_per_ster;
   std::vector<std::vector<std::vector<double> > > ho_scaled_fiss_transfer_per_ster;
   std::vector<std::vector<std::vector<double> > > lo_scaled_fiss_transfer;
-  
-  ConditionalOStream                        pcout;
   std::vector<Vector<double> > sflx_this_processor;
+  
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
+  std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
+  std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id;
+  std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > inverse_component_index;
+  std::unordered_map<unsigned int, bool> is_reflective_bc;
+  std::unordered_map<unsigned int, bool> is_material_fissile;
+  
+  std::set<unsigned int> fissile_ids;
+  
+  ConditionalOStream pcout;
   
   std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> > pre_ho_amg;
   

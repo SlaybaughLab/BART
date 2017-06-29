@@ -1,23 +1,45 @@
 #include "../include/model_manager.h"
+#include "../include/transport_base.h"
+#include "../include/even_parity.h"
 
-template <int dim>
-ModelManager<dim>::ModelManager ()
+
+ModelManager::ModelManager (ParameterHandler &prm)
+:
+transport_model_name(prm.get("transport model")),
+dim(prm.get_integer("problem dimension"))
+{
+  // register new methods here
+  method_index["ep"] = 0;
+}
+
+ModelManager::~ModelManager ()
 {
 }
 
-template <int dim>
-ModelManager<dim>::~ModelManager ()
+void ModelManager::build_and_run_model (ParameterHandler &prm)
 {
+  AssertThrow(dim!=1,
+              ExcMessage("1D is not implemented"));
+  
+  unsigned int mi = method_index[transport_model_name];
+  switch (mi)
+  {
+    case 0:
+    {
+      if (dim==2)
+      {
+        std_cxx11::shared_ptr<TransportBase<2> > tb = std_cxx11::shared_ptr<TransportBase<2> > (new EvenParity<2>(prm));
+        tb->run ();
+      }
+      else
+      {
+        std_cxx11::shared_ptr<TransportBase<3> > tb = std_cxx11::shared_ptr<TransportBase<3> > (new EvenParity<3>(prm));
+        tb->run ();
+      }
+    }
+      break;
+      
+    default:
+      break;
+  }
 }
-
-template <int dim>
-std_cxx11::shared_ptr<TransportBase<dim> >
-ModelManager<dim>::build_transport_model (std::string &transport_model_name,
-                       ParameterHandler &prm)
-{
-  if (transport_model_name=="ep")
-    return std_cxx11::shared_ptr<TransportBase<dim> > (new EvenParity<dim>(prm));
-}
-
-template class ModelManager<2>;
-template class ModelManager<3>;

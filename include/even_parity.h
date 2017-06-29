@@ -3,8 +3,6 @@
 
 #include "transport_base.h"
 
-
-
 template<int dim>
 class EvenParity : public TransportBase<dim>
 {
