@@ -16,8 +16,6 @@ using namespace dealii;
 template <int dim>
 TransportBase<dim>::TransportBase (ParameterHandler &prm)
 :
-p_def(std_cxx11::shared_ptr<ProblemDefinition<dim> >
-      (new ProblemDefinition<dim>(prm))),
 mpi_communicator (MPI_COMM_WORLD),
 triangulation (mpi_communicator,
                typename Triangulation<dim>::MeshSmoothing
@@ -30,10 +28,12 @@ pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
 {
-  pcout << "bef mesh" << std::endl;
+  def_ptr = std_cxx11::shared_ptr<ProblemDefinition<dim> >
+  (new ProblemDefinition<dim>(prm));
   msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
   (new MeshGenerator<dim>(prm));
-  pcout << "aft mesh" << std::endl;
+  mat_ptr = std_cxx11::shared_ptr<MaterialProperties>
+  (new MaterialProperties(prm));
   this->process_input ();
   sflx_this_processor.resize (n_group);
 }
@@ -49,53 +49,56 @@ void TransportBase<dim>::process_input ()
 {
   // basic parameters
   {
-    transport_model_name = p_def->get_transport_model ();
-    n_azi = p_def->get_sn_order ();
-    n_group = p_def->get_n_group ();
-    n_dir = p_def->get_n_dir ();
-    p_order = p_def->get_fe_order ();
-    discretization = p_def->get_discretization ();
+    // from basic problem definition
+    transport_model_name = def_ptr->get_transport_model ();
+    n_group = def_ptr->get_n_group ();
+    n_material = mat_ptr->get_n_material ();
+    p_order = def_ptr->get_fe_order ();
+    discretization = def_ptr->get_discretization ();
+    have_reflective_bc = def_ptr->get_reflective_bool ();
+    do_nda = def_ptr->get_nda_bool ();
+    is_eigen_problem = def_ptr->get_eigen_problem_bool ();
+    do_print_sn_quad = def_ptr->get_print_sn_quad_bool ();
+    global_refinements = def_ptr->get_uniform_refinement ();
     
-    have_reflective_bc = p_def->get_reflective_bool ();
-    do_nda = p_def->get_nda_bool ();
-    is_eigen_problem = p_def->get_eigen_problem_bool ();
-    n_total_ho_vars = p_def->get_n_total_ho_vars ();
-    do_print_sn_quad = p_def->get_print_sn_quad_bool ();
-    
-    component_index = p_def->get_component_index_map ();
-    inverse_component_index = p_def->get_inv_component_map ();
-    wi = p_def->get_angular_weights ();
-    omega_i = p_def->get_all_directions ();
-    tensor_norms = p_def->get_tensor_norms ();
-    namebase = p_def->get_output_namebase ();
-    global_refinements = msh_ptr->get_uniform_refinement ();
+    // switch to isolated class for angular quadrature
+    n_azi = def_ptr->get_sn_order ();
+    n_dir = def_ptr->get_n_dir ();
+    n_total_ho_vars = def_ptr->get_n_total_ho_vars ();
+    component_index = def_ptr->get_component_index_map ();
+    inverse_component_index = def_ptr->get_inv_component_map ();
+    wi = def_ptr->get_angular_weights ();
+    omega_i = def_ptr->get_all_directions ();
+    tensor_norms = def_ptr->get_tensor_norms ();
+    namebase = def_ptr->get_output_namebase ();
   }
+  
   if (have_reflective_bc)
   {
     is_reflective_bc = msh_ptr->get_reflective_bc_map ();
-    reflective_direction_index = p_def->get_reflective_direction_index_map ();
+    reflective_direction_index = def_ptr->get_reflective_direction_index_map ();
   }
   
+  // material properties
   {
     relative_position_to_id = msh_ptr->get_id_map ();
-    all_sigt = p_def->get_sigma_t ();
-    all_inv_sigt = p_def->get_inv_sigma_t ();
-    all_sigs = p_def->get_sigma_s ();
-    all_sigs_per_ster = p_def->get_sigma_s_per_ster ();
+    all_sigt = mat_ptr->get_sigma_t ();
+    all_inv_sigt = mat_ptr->get_inv_sigma_t ();
+    all_sigs = mat_ptr->get_sigma_s ();
+    all_sigs_per_ster = mat_ptr->get_sigma_s_per_ster ();
     if (is_eigen_problem)
     {
-      is_material_fissile = p_def->get_fissile_id_map ();
-      all_nusigf = p_def->get_nusigf ();
-      all_ksi_nusigf = p_def->get_ksi_nusigf ();
-      all_ksi_nusigf_per_ster = p_def->get_ksi_nusigf_per_ster ();
+      is_material_fissile = mat_ptr->get_fissile_id_map ();
+      all_nusigf = mat_ptr->get_nusigf ();
+      all_ksi_nusigf = mat_ptr->get_ksi_nusigf ();
+      all_ksi_nusigf_per_ster = mat_ptr->get_ksi_nusigf_per_ster ();
     }
     else
     {
-      all_q = p_def->get_q ();
-      all_q_per_ster = p_def->get_q_per_ster ();
+      all_q = mat_ptr->get_q ();
+      all_q_per_ster = mat_ptr->get_q_per_ster ();
     }
   }
-  radio ("here");
 }
 
 template <int dim>
@@ -662,10 +665,9 @@ void TransportBase<dim>::NDA_SI ()
 template <int dim>
 void TransportBase<dim>::scale_fiss_transfer_matrices ()
 {
+  AssertThrow (do_nda==false,
+               ExcMessage("we don't scale fission transfer without NDA"));
   if (do_nda)
-  {
-  }
-  else
   {
     ho_scaled_fiss_transfer_per_ster.resize (n_material);
     for (unsigned int m=0; m<n_material; ++m)
@@ -768,7 +770,7 @@ void TransportBase<dim>::power_iteration ()
     k_ho_prev_gen = k_ho;
     for (unsigned int g=0; g<n_group; ++g)
       *(vec_ho_sflx_prev_gen)[g] = *(vec_ho_sflx)[g];
-    
+    generate_fixed_source ();
     source_iteration ();
     fission_source_prev_gen = fission_source;
     fission_source = estimate_fiss_source (vec_ho_sflx);
@@ -787,9 +789,7 @@ void TransportBase<dim>::source_iteration ()
   unsigned int ct = 0;
   double err_phi = 1.0;
   double err_phi_old;
-  radio ("gen moment");
   generate_moments ();
-  radio ("gen moment d");
   while (err_phi>1.0e-7)
   {
     //generate_ho_source ();
@@ -820,44 +820,7 @@ void TransportBase<dim>::renormalize_sflx
 
 template <int dim>
 void TransportBase<dim>::postprocess ()
-{
-  std::vector<double> r_collision (n_group, 0.0);
-  
-  for (typename DoFHandler<dim>::active_cell_iterator
-       cell=dof_handler.begin_active();
-       cell!=dof_handler.end(); ++cell)
-    if (cell->is_locally_owned() &&
-        cell->material_id()==0)
-    {
-      fv->reinit(cell);
-      for (unsigned int g=0; g<n_group; ++g)
-      {
-        std::vector<double> local_sflx (n_q);
-        fv->get_function_values (sflx_this_processor[g], local_sflx);
-        for (unsigned int qi=0; qi<n_q; ++qi)
-          r_collision[g] += (all_sigt[cell->material_id()][g] *
-                             local_sflx[qi] *
-                             fv->JxW(qi));
-      }
-    }
-  
-  std::vector<double> r_glob (n_group, 0.0);
-  for (unsigned int g=0; g<n_group; ++g)
-    r_glob[g] = Utilities::MPI::sum (r_collision[g], mpi_communicator);
-  
-  if (Utilities::MPI::this_mpi_process(mpi_communicator)==0)
-  {
-    std::ofstream pp;
-    std::ostringstream os;
-    os << discretization << "-info-" << global_refinements << ".txt";
-    pp.open(os.str());
-    pp << "number of cells: " << triangulation.n_global_active_cells() << std::endl;
-    pp << "dof counts: " << dof_handler.n_dofs () << std::endl;
-    pp << "Group | collision rates: " << std::endl;
-    for (unsigned int g=0; g<n_group; ++g)
-      pp << g + 1 << "    | " << std::setprecision (15) << r_glob[g] << std::endl;
-    pp.close ();
-  }
+{// do nothing in the base class
 }
 
 template <int dim>
@@ -914,8 +877,6 @@ template <int dim>
 void TransportBase<dim>::do_iterations ()
 {
   initialize_ho_preconditioners ();
-  generate_fixed_source ();
-  radio("fixed src done");
   if (is_eigen_problem)
   {
     if (do_nda)
@@ -928,7 +889,10 @@ void TransportBase<dim>::do_iterations ()
     if (do_nda)
       NDA_SI ();
     else
+    {
+      generate_fixed_source ();
       source_iteration ();
+    }
   }
 }
 

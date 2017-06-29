@@ -6,38 +6,38 @@ set do eigenvalue calculations               = false
 set do NDA                                   = false
 set have reflective BC                       = false
 
-set uniform refinements                      = 5
+set uniform refinements                      = 6
 
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
 set number of cells for x, y, z directions   = 2, 2, 2
 set number of materials                      = 2
 
-set spatial discretization                   = dfem
+set spatial discretization                   = cfem
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = ep
+set output file name base                    = flat-src
 
 subsection material ID map
 set material id file name                    = mid.txt
 end
 
 subsection one-group sigma_t
-set values                                   = 10.0, 1.0
+set values                                   = 10.0, 10.0
 end
 
 subsection one-group sigma_s
-set values                                   = 1., 0.
+set values                                   = 0., 0.
 end
 
 subsection one-group Q
-set values                                   = 0.0, 1.0
+set values                                   = 10.0, 10.0
 end
 
-subsection one-group ksi
+#subsection one-group ksi
 #set values                                   = 1.0, 1.0
-end
+#end
 
-subsection one-group nu_sigf
+#subsection one-group nu_sigf
 #set values                                                = 0.9, 0.9
-end
+#end

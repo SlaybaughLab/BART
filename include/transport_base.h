@@ -48,6 +48,7 @@ namespace LA
 
 #include "problem_definition.h"
 #include "mesh_generator.h"
+#include "material_properties.h"
 
 using namespace dealii;
 
@@ -57,10 +58,6 @@ class TransportBase
 public:
   TransportBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
   virtual ~TransportBase ();
-  
-  static std_cxx11::shared_ptr<TransportBase<dim> >
-  build_transport_model (std::string &transport_model_name,
-                         ParameterHandler &prm);
   
   void run ();
   
@@ -157,8 +154,9 @@ private:
   void NDA_PI ();
   void NDA_SI ();
   
-  std_cxx11::shared_ptr<ProblemDefinition<dim> > p_def;
+  std_cxx11::shared_ptr<ProblemDefinition<dim> > def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
+  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
