@@ -21,14 +21,31 @@ To cover at this and subsequent meeting:
 - Anything else?
 
 #### Goals
-near-term
+**near-term**
+- research tool to investigate one or two transport method(s)
+- spatial solver (2D or 3D?)
+- access to nuclear data (via PyNE?)
+Rudimentary ability for
+- source specification
+- geometry specification
+- boundary conditions (vacuum only?)
+- material assignment
+- multiple energy groups
 
 
-mid-term
+**mid-term**
+- eigenvalue solver
+- reflecting boundary conditions
+- 3D
 
-
-long-term
-
+**long-term**
+- plug-and-play research tool in which it is easy to add a new method and
+  investigate how it interacts with a variety of already established methods
+- 3D
+- multiple boundary condition types
+- multiple approaches for energy structure (?)
+- versatile geometry (?)
+- multiple solution methods
 
 [Index](#top)
 
