@@ -1,20 +1,25 @@
 #ifndef __MODEL_MANAGER__H__
 #define __MODEL_MANAGER__H__
 
-#include "transport_base.h"
-#include "even_parity.h"
+#include <deal.II/base/parameter_handler.h>
 
-template <int dim>
+#include <string>
+#include <map>
+
+using namespace dealii;
+
 class ModelManager
 {
 public:
-  ModelManager ();
+  ModelManager (ParameterHandler &prm);
   ~ModelManager ();
 
-  static std_cxx11::shared_ptr<TransportBase<dim> >
-  build_transport_model (std::string &transport_model_name,
-                         ParameterHandler &prm);
+  void build_and_run_model (ParameterHandler &prm);
 
+private:
+  unsigned int dim;
+  std::string transport_model_name;
+  std::map<std::string, unsigned int> method_index;
 };
 
 #endif //__MODEL_MANAGER__H__

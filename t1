@@ -1,3 +1,5 @@
+set problem dimension                        = 2
+set angular quadrature name                  = lsgc
 set transport model                          = ep
 set do print angular quadrature info         = true
 set angular quadrature order                 = 8
