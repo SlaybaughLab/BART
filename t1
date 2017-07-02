@@ -10,6 +10,10 @@ set have reflective BC                       = false
 
 set uniform refinements                      = 6
 
+set linear solver name                       = cg
+set preconditioner name                      = bjacobi
+
+
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
 set number of cells for x, y, z directions   = 2, 2, 2
 set number of materials                      = 2

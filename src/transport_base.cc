@@ -26,6 +26,8 @@ triangulation (mpi_communicator,
 dof_handler (triangulation),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
+linear_solver_name(prm.get("linear solver name")),
+preconditioner_name(prm.get("preconditioner name")),
 pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
@@ -492,20 +494,54 @@ void TransportBase<dim>::integrate_interface_bilinear_form
 template <int dim>
 void TransportBase<dim>::initialize_ho_preconditioners ()
 {
-  pcout << "tot vars " << n_total_ho_vars << std::endl;
-  pre_ho_amg.resize (n_total_ho_vars);
-  for (unsigned int i=0; i<n_total_ho_vars; ++i)
+  if (linear_solver_name!="direct")
   {
-    pre_ho_amg[i].reset ();
-    pre_ho_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> (new LA::MPI::PreconditionAMG));
-    LA::MPI::PreconditionAMG::AdditionalData data;
-    if (transport_model_name=="ep" &&
-        have_reflective_bc && is_explicit_reflective)
-      data.symmetric_operator = false;
-    else
-      data.symmetric_operator = true;
-    pre_ho_amg[i]->initialize(*(vec_ho_sys)[i], data);
-  }
+    if (preconditioner_name=="amg")
+    {
+      pre_ho_amg.resize (n_total_ho_vars);
+      for (unsigned int i=0; i<n_total_ho_vars; ++i)
+      {
+        pre_ho_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> (new LA::MPI::PreconditionAMG));
+        LA::MPI::PreconditionAMG::AdditionalData data;
+        if (transport_model_name!="fo")
+          data.symmetric_operator = true;
+        else
+          data.symmetric_operator = false;
+        pre_ho_amg[i]->initialize(*(vec_ho_sys)[i], data);
+      }
+    }
+    else if (preconditioner_name=="bjacobi")
+    {
+      pre_ho_bjacobi.resize (n_total_ho_vars);
+      for (unsigned int i=0; i<n_total_ho_vars; ++i)
+      {
+        pre_ho_bjacobi[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi>
+        (new PETScWrappers::PreconditionBlockJacobi);
+        pre_ho_bjacobi[i]->initialize(*(vec_ho_sys)[i]);
+      }
+    }
+    else if (preconditioner_name=="parasails")
+    {
+      pre_ho_parasails.resize (n_total_ho_vars);
+      for (unsigned int i=0; i<n_total_ho_vars; ++i)
+      {
+        pre_ho_parasails[i] = (std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails>
+                               (new PETScWrappers::PreconditionParaSails));
+        if (transport_model_name!="fo")
+        {
+          PETScWrappers::PreconditionParaSails::AdditionalData data (2);
+          pre_ho_parasails[i]->initialize(*(vec_ho_sys)[i], data);
+        }
+        else
+        {
+          PETScWrappers::PreconditionParaSails::AdditionalData data (1);
+          pre_ho_parasails[i]->initialize(*(vec_ho_sys)[i], data);
+        }
+      }
+    }
+  }// not direct solver
+  else
+    ho_direct.resize (n_total_ho_vars);
 }
 
 template <int dim>
@@ -515,30 +551,100 @@ void TransportBase<dim>::ho_solve ()
   {
     SolverControl solver_control (dof_handler.n_dofs(),
                                   1.0e-15);
-    //vec_ho_rhs[i]->l1_norm()*1.0e-15);
-    //PETScWrappers::PreconditionNone precond (*(vec_ho_sys)[i]);
-
-    //#ifdef USE_PETSC_LA
-    if (have_reflective_bc && is_explicit_reflective)
+    if (linear_solver_name=="bicgstab" && preconditioner_name=="amg")
     {
       PETScWrappers::SolverBicgstab
-      //SolverBicgstab<LA::MPI::Vector>
       solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
                     *(pre_ho_amg)[i]);
     }
-    else
+    else if (linear_solver_name=="cg" && preconditioner_name=="amg")
     {
-      LA::SolverCG solver (solver_control, mpi_communicator);
-      *(vec_aflx)[i] = 0;
+      PETScWrappers::SolverCG
+      solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
                     *(pre_ho_amg)[i]);
-      pcout << "Solved in " << solver_control.last_step() << std::endl;
     }
+    else if (linear_solver_name=="gmres" && preconditioner_name=="amg")
+    {
+      PETScWrappers::SolverGMRES
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_amg)[i]);
+    }
+    else if (linear_solver_name=="bicgstab" && preconditioner_name=="bjacobi")
+    {
+      PETScWrappers::SolverBicgstab
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_bjacobi)[i]);
+    }
+    else if (linear_solver_name=="cg" && preconditioner_name=="bjacobi")
+    {
+      PETScWrappers::SolverCG
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_bjacobi)[i]);
+    }
+    else if (linear_solver_name=="gmres" && preconditioner_name=="bjacobi")
+    {
+      PETScWrappers::SolverGMRES
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_bjacobi)[i]);
+    }
+    else if (linear_solver_name=="bicgstab" && preconditioner_name=="parasails")
+    {
+      PETScWrappers::SolverBicgstab
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_parasails)[i]);
+    }
+    else if (linear_solver_name=="cg" && preconditioner_name=="parasails")
+    {
+      PETScWrappers::SolverCG
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_parasails)[i]);
+    }
+    else if (linear_solver_name=="gmres" && preconditioner_name=="parasails")
+    {
+      PETScWrappers::SolverGMRES
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_parasails)[i]);
+    }
+    else if (linear_solver_name=="direct")
+    {
+      ho_direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
+      (new PETScWrappers::SparseDirectMUMPS(solver_control, mpi_communicator));
+      if (transport_model_name!="fo")
+        ho_direct[i]->set_symmetric_mode (true);
+      else
+        ho_direct[i]->set_symmetric_mode (false);
+      ho_direct[i]->solve (*vec_ho_sys[i],
+                           *vec_aflx[i],
+                           *vec_ho_rhs[i]);
+    }
+    pcout << "Solved in " << solver_control.last_step() << std::endl;
   }
 }
 
@@ -594,7 +700,7 @@ void TransportBase<dim>::generate_ho_source ()
                             sflx_at_qp[gin][qi]);
         }
 
-      if (have_reflective_bc && !is_explicit_reflective && is_cell_at_ref_bd[ic])
+      if (have_reflective_bc && is_cell_at_ref_bd[ic])
         for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
         {
           radio("sth wrong");

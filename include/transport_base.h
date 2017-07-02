@@ -165,6 +165,8 @@ private:
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   
   std::string transport_model_name;
+  std::string linear_solver_name;
+  std::string preconditioner_name;
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
   std::vector<bool> is_cell_at_bd;
@@ -271,6 +273,10 @@ protected:
   ConditionalOStream pcout;
   
   std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> > pre_ho_amg;
+  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi> > pre_ho_bjacobi;
+  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails> > pre_ho_parasails;
+  std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionJacobi> > pre_ho_jacobi;
+  std::vector<std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS> > ho_direct;
   
   ConstraintMatrix constraints;
 };
