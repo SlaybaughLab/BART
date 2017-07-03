@@ -45,6 +45,9 @@ public:
    FullMatrix<double> &vp_un,
    FullMatrix<double> &vn_up,
    FullMatrix<double> &vn_un);
+  
+  void generate_ho_fixed_source ();
+  void generate_ho_rhs ();
 };
 
 #endif // __even_parity__

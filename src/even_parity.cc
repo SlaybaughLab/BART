@@ -67,11 +67,25 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
  unsigned int &i_dir,
  unsigned int &g)
 {
-  unsigned int boundary_id = cell->face(fn)->boundary_id ();
-
-  if (!this->is_reflective_bc[boundary_id])
+  unsigned int bd_id = cell->face(fn)->boundary_id ();
+  const Tensor<1,dim> vec_n = fvf->normal_vector(0);
+  if (this->have_reflective_bc && this->is_reflective_bc[bd_id])
   {
-    const Tensor<1,dim> vec_n = fvf->normal_vector(0);
+    unsigned int inv_sigt = this->all_inv_sigt[cell->material_id()][g];
+    unsigned int r_dir = this->get_reflective_direction_index (bd_id, i_dir);
+    const Tensor<1,dim> vec_nr = fvf->normal_vector(0);
+    double ndo_inv_sigt = vec_n * this->omega_i[i_dir] * inv_sigt;
+    for (unsigned int qi=0; qi<this->n_qf; ++qi)
+      for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+        for (unsigned int j=0; j<this->dofs_per_cell; ++j)
+          cell_matrix(i,j) += (- ndo_inv_sigt *
+                               fvf->shape_value(i,qi) *
+                               (this->omega_i[r_dir] * fvf->shape_grad(j,qi)) *
+                               fvf->JxW(qi));
+  }
+  else/* if (!this->have_reflective_bc ||
+           (this->have_reflective_bc && !this->is_reflective_bc[bd_id]))*/
+  {
     double absndo = std::fabs (vec_n * this->omega_i[i_dir]);
     for (unsigned int qi=0; qi<this->n_qf; ++qi)
       for (unsigned int i=0; i<this->dofs_per_cell; ++i)
@@ -81,22 +95,6 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
                                fvf->shape_value(j,qi) *
                                fvf->JxW(qi));
   }// non-ref bd
-  else if (this->is_reflective_bc[boundary_id] &&
-           this->is_explicit_reflective)
-  {
-    unsigned int mid = cell->material_id ();
-    unsigned int r_dir = this->get_reflective_direction_index (boundary_id, i_dir);
-    const Tensor<1, dim> vec_n = fvf->normal_vector (0);
-    double ndo = this->omega_i[i_dir] * vec_n;
-    for (unsigned int qi=0; qi<this->n_qf; ++qi)
-      for (unsigned int i=0; i<this->dofs_per_cell; ++i)
-        for (unsigned int j=0; j<this->dofs_per_cell; ++j)
-          cell_matrix(i,j) += (ndo *
-                               fvf->shape_value(i,qi) *
-                               (this->omega_i[r_dir] * fvf->shape_grad(j,qi)) *
-                               this->all_inv_sigt[mid][g] *
-                               fvf->JxW(qi));
-  }// explicit ref bd face
 }
 
 template <int dim>
@@ -187,6 +185,121 @@ void EvenParity<dim>::integrate_interface_bilinear_form
                        ) * fvf->JxW(qi);
       }
 
+}
+
+template <int dim>
+void EvenParity<dim>::generate_ho_rhs ()
+{
+  for (unsigned int g=0; g<this->n_group; ++g)
+    for (unsigned int i_dir=0; i_dir<this->n_dir; ++i_dir)
+    {
+      unsigned int k = this->get_component_index (i_dir, g);
+      if (i_dir==0 && !this->do_nda)
+      {
+        *(this->vec_ho_rhs[k]) = 0.0;
+        for (unsigned int ic=0; ic<this->local_cells.size (); ++ic)
+        {
+          Vector<double> cell_rhs (this->dofs_per_cell);
+          typename DoFHandler<dim>::active_cell_iterator cell = this->local_cells[ic];
+          cell->get_dof_indices (this->local_dof_indices);
+          this->fv->reinit (cell);
+          unsigned int mid = cell->material_id ();
+          std::vector<std::vector<double> > local_sflxes
+          (this->n_group, std::vector<double>(this->n_q));
+          for (unsigned int gin=0; gin<this->n_group; ++gin)
+            this->fv->get_function_values (this->sflx_proc[gin], local_sflxes[gin]);
+          
+          for (unsigned int qi=0; qi<this->n_q; ++qi)
+          {
+            double q_at_qp = 0.0;
+            for (unsigned int gin=0; gin<this->n_group; ++gin)
+              q_at_qp += (this->all_sigs_per_ster[mid][gin][g]<1.0e-13?0.0:
+                          (this->all_sigs_per_ster[mid][gin][g] * local_sflxes[gin][qi]));
+            for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+              cell_rhs (i) += this->vec_test_at_qp[ic](qi, i) * q_at_qp;
+          }
+          this->vec_ho_rhs[k]->add (this->local_dof_indices, cell_rhs);
+        }// local cells
+        *(this->vec_ho_rhs[k]) += *(this->vec_ho_fixed_rhs[k]);
+        this->vec_ho_rhs[k]->compress (VectorOperation::add);
+      }// zeroth direction per group
+      else
+        *(this->vec_ho_rhs[k]) = *(this->vec_ho_rhs[this->get_component_index(0, g)]);
+    // Note that reflective boundary condition is carreid out using explicit reflective
+    // algorithm. See Memo 2 for details.
+    }// i_dir
+}
+
+template <int dim>
+void EvenParity<dim>::generate_ho_fixed_source ()
+{
+  for (unsigned int g=0; g<this->n_group; ++g)
+    for (unsigned int i_dir=0; i_dir<this->n_dir; ++i_dir)
+    {
+      unsigned int k = this->get_component_index (i_dir, g);
+      if (i_dir==0)
+      {
+        *(this->vec_ho_fixed_rhs[k]) = 0.0;
+        for (unsigned int ic=0; ic<this->local_cells.size (); ++ic)
+        {
+          Vector<double> cell_rhs (this->dofs_per_cell);
+          typename DoFHandler<dim>::active_cell_iterator cell = this->local_cells[ic];
+          unsigned int mid = cell->material_id ();
+          
+          if ((this->is_eigen_problem && this->is_material_fissile[mid]) ||
+              (!this->is_eigen_problem &&
+               (this->do_nda || (!this->do_nda && this->all_q_per_ster[mid][g]>1.0e-13))))
+          {
+            this->fv->reinit (cell);
+            cell->get_dof_indices (this->local_dof_indices);
+            std::vector<std::vector<double> > local_sflxes (this->n_group, std::vector<double>(this->n_q));
+            for (unsigned int gin=0; gin<this->n_group; ++gin)
+            {
+              if (this->do_nda)
+                this->fv->get_function_values (this->lo_sflx_proc[gin], local_sflxes[gin]);
+              else if (!this->do_nda && this->is_eigen_problem)
+                this->fv->get_function_values (this->sflx_proc_prev_gen[gin], local_sflxes[gin]);
+            }
+            
+            for (unsigned int qi=0; qi<this->n_q; ++qi)
+            {
+              double q_at_qp = 0.0;
+              // calculate pointwise source per spatial quadrature point
+              if (this->do_nda)
+              {
+                if (this->is_eigen_problem)
+                  for (unsigned int gin=0; gin<this->n_group; ++gin)
+                    q_at_qp += (this->scat_scaled_fiss_transfer_per_ster[mid][gin][g]<1.0e-13?0.0:
+                                (this->scat_scaled_fiss_transfer_per_ster[mid][gin][g] *
+                                 local_sflxes[gin][qi]));
+                else
+                  for (unsigned int gin=0; gin<this->n_group; ++gin)
+                    q_at_qp += (this->all_sigs_per_ster[mid][gin][g]<1.0e-13?0.0:
+                                (this->all_sigs_per_ster[mid][gin][g] *
+                                 local_sflxes[gin][qi]));
+              }
+              else// no NDA
+              {
+                if (this->is_eigen_problem)// fission source is the fixed source
+                  for (unsigned int gin=0; gin<this->n_group; ++gin)
+                    q_at_qp += (!this->is_material_fissile[mid]?0.0:
+                                (this->scaled_fiss_transfer_per_ster[mid][gin][g] *
+                                 local_sflxes[gin][qi]));
+                else
+                  q_at_qp += this->all_q_per_ster[mid][g];
+              }
+              for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+                cell_rhs (i) += this->vec_test_at_qp[ic](qi, i) * q_at_qp;
+            }
+            this->vec_ho_fixed_rhs[k]->add (this->local_dof_indices, cell_rhs);
+          }// when to calculate rhs
+        }// loop over local cells
+        this->vec_ho_fixed_rhs[k]->compress (VectorOperation::add);
+      }// first direction per group
+      else
+        *(this->vec_ho_fixed_rhs[k]) =
+        *(this->vec_ho_fixed_rhs[this->get_component_index(0, g)]);
+    }
 }
 
 template class EvenParity<2>;

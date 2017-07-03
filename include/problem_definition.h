@@ -40,7 +40,6 @@ public:
   bool get_reflective_bool ();
   bool get_print_sn_quad_bool ();
   bool get_generated_mesh_bool ();
-  bool get_explicit_reflective_bool ();
   unsigned int get_sn_order ();
   unsigned int get_n_dir ();
   unsigned int get_n_group ();
