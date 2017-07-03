@@ -31,7 +31,8 @@ MeshGenerator<dim>::~MeshGenerator ()
 }
 
 template <int dim>
-void MeshGenerator<dim>::make_grid (Triangulation<dim> &tria)
+void MeshGenerator<dim>::make_grid
+(parallel::distributed::Triangulation<dim> &tria)
 {
   if (is_mesh_generated)
   {
@@ -50,7 +51,8 @@ void MeshGenerator<dim>::make_grid (Triangulation<dim> &tria)
 }
 
 template <int dim>
-void MeshGenerator<dim>::generate_initial_grid (Triangulation<dim> &tria)
+void MeshGenerator<dim>::generate_initial_grid
+(parallel::distributed::Triangulation<dim> &tria)
 {
   Point<dim> origin;
   Point<dim> diagonal;
@@ -87,12 +89,13 @@ void MeshGenerator<dim>::generate_initial_grid (Triangulation<dim> &tria)
 }
 
 template <int dim>
-void MeshGenerator<dim>::initialize_material_id (Triangulation<dim> &tria)
+void MeshGenerator<dim>::initialize_material_id
+(parallel::distributed::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated==true,
                ExcMessage("mesh read in have to have boundary ids associated"));
-  for (auto cell=tria.begin_active();
-       cell!=tria.end(); ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator
+       cell=tria.begin_active(); cell!=tria.end(); ++cell)
     if (cell->is_locally_owned())
     {
       Point<dim> center = cell->center ();
@@ -122,15 +125,16 @@ void MeshGenerator<dim>::get_cell_relative_position (Point<dim> &center,
 }
 
 template <int dim>
-void MeshGenerator<dim>::setup_boundary_ids (Triangulation<dim> &tria)
+void MeshGenerator<dim>::setup_boundary_ids
+(parallel::distributed::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated==true,
                ExcMessage("mesh read in have to have boundary ids associated"));
   AssertThrow (axis_max_values.size()==dim,
                ExcMessage("number of entries axis max values should be dimension"));
   
-  for (auto cell=tria.begin_active();
-       cell!=tria.end(); ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator
+       cell=tria.begin_active(); cell!=tria.end(); ++cell)
   {
     if (cell->is_locally_owned())
     {
@@ -238,6 +242,7 @@ template <int dim>
 void MeshGenerator<dim>::get_relevant_cell_iterators
 (DoFHandler<dim> &dof_handler,
  std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &ref_bd_cells,
  std::vector<bool> &is_cell_at_bd,
  std::vector<bool> &is_cell_at_ref_bd)
 {
@@ -263,7 +268,10 @@ void MeshGenerator<dim>::get_relevant_cell_iterators
               at_ref_bd = true;
           }
         if (at_ref_bd)
+        {
+          ref_bd_cells.push_back (cell);
           is_cell_at_ref_bd.push_back (true);
+        }
         else
           is_cell_at_ref_bd.push_back (false);
       }
@@ -288,7 +296,8 @@ void MeshGenerator<dim>::initialize_relative_position_to_id_map (ParameterHandle
           in >> id;
           relative_position_to_id[tmp] = id - 1;
         }
-    std::vector<unsigned int> tmp {1,0,0};
+    //std::vector<unsigned int> tmp {1,0,0};
+    //std::cout << "id test: " << relative_position_to_id[tmp] << std::endl;
   }
   prm.leave_subsection ();
 }

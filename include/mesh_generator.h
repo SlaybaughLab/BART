@@ -1,6 +1,8 @@
 #ifndef __mesh_generator_h__
 #define __mesh_generator_h__
 
+#include <deal.II/distributed/tria.h>
+
 #include "problem_definition.h"
 
 template <int dim>
@@ -10,10 +12,11 @@ public:
   MeshGenerator (ParameterHandler &prm);
   ~MeshGenerator ();
   
-  void make_grid (Triangulation<dim> &tria);
+  void make_grid (parallel::distributed::Triangulation<dim> &tria);
   void get_relevant_cell_iterators
   (DoFHandler<dim> &dof_handler,
    std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<typename DoFHandler<dim>::active_cell_iterator> &ref_bd_cells,
    std::vector<bool> &is_cell_at_bd,
    std::vector<bool> &is_cell_at_ref_bd);
   unsigned int get_uniform_refinement ();
@@ -21,9 +24,9 @@ public:
   std::unordered_map<unsigned int, bool> get_reflective_bc_map ();
   
 private:
-  void generate_initial_grid (Triangulation<dim> &tria);
-  void initialize_material_id (Triangulation<dim> &tria);
-  void setup_boundary_ids (Triangulation<dim> &tria);
+  void generate_initial_grid (parallel::distributed::Triangulation<dim> &tria);
+  void initialize_material_id (parallel::distributed::Triangulation<dim> &tria);
+  void setup_boundary_ids (parallel::distributed::Triangulation<dim> &tria);
   void initialize_relative_position_to_id_map (ParameterHandler &prm);
   void preprocess_reflective_bc (ParameterHandler &prm);
   void process_coordinate_information (ParameterHandler &prm);

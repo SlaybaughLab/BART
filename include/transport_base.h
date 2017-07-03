@@ -84,6 +84,14 @@ public:
    unsigned int &i_dir,
    unsigned int &g);
   
+  virtual void integrate_reflective_boundary_linear_form
+  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+   typename DoFHandler<dim>::active_cell_iterator &cell,
+   unsigned int &fn,/*face number*/
+   std::vector<Vector<double> > &cell_rhses,
+   unsigned int &i_dir,
+   unsigned int &g);
+  
   virtual void integrate_interface_bilinear_form
   (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
    const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
@@ -99,7 +107,8 @@ public:
   
   virtual void generate_moments ();
   virtual void postprocess ();
-  virtual void generate_ho_source ();
+  virtual void generate_ho_rhs ();
+  virtual void generate_ho_fixed_source ();
   
 private:
   void setup_system ();
@@ -119,24 +128,21 @@ private:
   void initialize_material_id ();
   void initialize_dealii_objects ();
   void initialize_system_matrices_vectors ();
-  unsigned int get_component_index (unsigned int &incident_angle_index, unsigned int &g);
-  unsigned int get_direction (unsigned int &comp_ind);
-  unsigned int get_component_group (unsigned int &comp_ind);
-  
   void assemble_lo_system ();
   void prepare_correction_aflx ();
-  
   void initialize_ho_preconditioners ();
   void ho_solve ();
   void lo_solve ();
   void refine_grid ();
   void output_results () const;
-  void generate_fixed_source ();
   void power_iteration ();
   void source_iteration ();
   void scale_fiss_transfer_matrices ();
   void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes,
                          double normalization_factor);
+  void NDA_PI ();
+  void NDA_SI ();
+  void initialize_aq (ParameterHandler &prm);
   
   void radio (std::string str);
   void radio (std::string str1, std::string str2);
@@ -149,37 +155,38 @@ private:
   double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
-  //Properties<dim> *mat_prop;
-  
-  void NDA_PI ();
-  void NDA_SI ();
-  void initialize_aq (ParameterHandler &prm);
   
   std_cxx11::shared_ptr<ProblemDefinition> def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   
-  std_cxx11::shared_ptr<FEValues<dim> > fv;
-  std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
-  std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
-  
   std::string transport_model_name;
   std::string linear_solver_name;
   std::string preconditioner_name;
+  std::string discretization;
+  std::string namebase;
+  std::string aq_name;
+  
+protected:
+  unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
+  unsigned int get_component_direction (unsigned int comp_ind);
+  unsigned int get_component_group (unsigned int comp_ind);
+  
+  unsigned int get_reflective_direction_index (unsigned int boundary_id,
+                                               unsigned int incident_angle_index);
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
+  std::vector<typename DoFHandler<dim>::active_cell_iterator> ref_bd_cells;
   std::vector<bool> is_cell_at_bd;
   std::vector<bool> is_cell_at_ref_bd;
-protected:
-  unsigned int get_reflective_direction_index (unsigned int &boundary_id,
-                                               unsigned int &incident_angle_index);
-  
-  //std_cxx11::shared_ptr<FE_Poly<TensorProductPolynomials<dim>,dim,dim> > fe;
   
   FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe;
   std_cxx11::shared_ptr<QGauss<dim> > q_rule;
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
+  std_cxx11::shared_ptr<FEValues<dim> > fv;
+  std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
+  std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   
   
   MPI_Comm mpi_communicator;
@@ -187,17 +194,15 @@ protected:
   parallel::distributed::Triangulation<dim> triangulation;
   
   DoFHandler<dim> dof_handler;
-  // FE_DGQ<dim> *fe;
   
-  // FixIt: involve relevant_dofs for future if refinement is necessary
   IndexSet local_dofs;
   IndexSet relevant_dofs;
   
   const double err_k_tol;
   const double err_phi_tol;
   
-  double k_ho;
-  double k_ho_prev_gen;
+  double keff;
+  double keff_prev_gen;
   double total_angle;
   double c_penalty;
   double fission_source;
@@ -220,10 +225,6 @@ protected:
   unsigned int n_material;
   unsigned int p_order;
   unsigned int global_refinements;
-  
-  std::string discretization;
-  std::string namebase;
-  std::string aq_name;
   
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
@@ -257,9 +258,13 @@ protected:
   std::vector<std::vector<std::vector<double> > > all_sigs_per_ster;
   std::vector<std::vector<std::vector<double> > > all_ksi_nusigf;
   std::vector<std::vector<std::vector<double> > > all_ksi_nusigf_per_ster;
-  std::vector<std::vector<std::vector<double> > > ho_scaled_fiss_transfer_per_ster;
-  std::vector<std::vector<std::vector<double> > > lo_scaled_fiss_transfer;
-  std::vector<Vector<double> > sflx_this_processor;
+  std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer_per_ster;
+  std::vector<std::vector<std::vector<double> > > scat_scaled_fiss_transfer_per_ster;
+  std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer;
+  std::vector<FullMatrix<double> > vec_test_at_qp;
+  std::vector<Vector<double> > sflx_proc;
+  std::vector<Vector<double> > sflx_proc_prev_gen;
+  std::vector<Vector<double> > lo_sflx_proc;
   
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
