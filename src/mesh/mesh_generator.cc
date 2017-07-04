@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#include "../include/mesh_generator.h"
+#include "../../include/mesh/mesh_generator.h"
 
 template <int dim>
 MeshGenerator<dim>::MeshGenerator (ParameterHandler &prm)
@@ -189,14 +189,14 @@ void MeshGenerator<dim>::process_coordinate_information (ParameterHandler &prm)
   // max values for all axis
   std::vector<std::string> strings = Utilities::split_string_list (prm.get ("x, y, z max values of boundary locations"));
   AssertThrow (strings.size()>=dim,
-               ExcMessage("Number of axis max values must be the same as dimension"));
+               ExcMessage("Number of axis max values must be no less than dimension"));
   for (unsigned int i=0; i<dim; ++i)
     axis_max_values.push_back (std::atof (strings[i].c_str()));
   
   // read in number of cells and get cell sizes along axes
   strings = Utilities::split_string_list (prm.get ("number of cells for x, y, z directions"));
   AssertThrow (strings.size()>=dim,
-               ExcMessage ("Entries for numbers of cells should be equal to dimension"));
+               ExcMessage ("Entries for numbers of cells must be no less than dimension"));
   std::vector<unsigned int> cells_per_dir;
   std::vector<std::vector<double> > spacings;
   for (unsigned int d=0; d<dim; ++d)

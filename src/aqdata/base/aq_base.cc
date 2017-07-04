@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include "../include/aq_base.h"
+#include "../../../include/aqdata/base/aq_base.h"
 
 template <int dim>
 AQBase<dim>::AQBase (ParameterHandler &prm)
@@ -64,21 +64,20 @@ void AQBase<dim>::initialize_ref_bc_index ()
     for (unsigned int i=0; i<2*dim; ++i)
       for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
       {
-        Tensor<1, dim> out_angle =
-        (omega_i[i_dir] *
-         (1.0 - 2.0 * (boundary_normal_vectors[i] * omega_i[i_dir])));
+        Tensor<1, dim> out_angle = omega_i[i_dir] - 2.0 * (boundary_normal_vectors[i] * omega_i[i_dir]) * boundary_normal_vectors[i];
+        //(omega_i[i_dir] *
+        // (1.0 - 2.0 * (boundary_normal_vectors[i] * omega_i[i_dir])));
         for (unsigned int r_dir=0; r_dir<n_dir; ++r_dir)
         {
           Tensor<1, dim> d_dir = out_angle;
           Tensor<1, dim> d_minus_dir = out_angle;
           d_dir -= omega_i[r_dir];
           d_minus_dir += omega_i[r_dir];
-          if (transport_model_name=="ep")
-            if (d_dir.norm ()<1.0e-13 || d_minus_dir.norm ()<1.0e-13)
-              reflective_direction_index.insert (std::make_pair (std::make_pair (i, i_dir), r_dir));
-            else
-              if (d_dir.norm ()<1.0e-13)
-                reflective_direction_index.insert (std::make_pair (std::make_pair (i, i_dir), r_dir));
+          // Use caution about even parity using this std::map
+          if ((transport_model_name=="ep" &&
+               (d_dir.norm ()<1.0e-13 || d_minus_dir.norm ()<1.0e-13)) ||
+              (transport_model_name!="ep" && d_dir.norm ()<1.0e-13))
+            reflective_direction_index[std::make_pair (i, i_dir)] = r_dir;
         }
       }
   }

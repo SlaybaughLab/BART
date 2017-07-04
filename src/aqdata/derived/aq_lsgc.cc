@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../include/aq_lsgc.h"
+#include "../../../include/aqdata/derived/aq_lsgc.h"
 
 template <int dim>
 AQLSGC<dim>::AQLSGC (ParameterHandler &prm)
@@ -35,7 +35,7 @@ void AQLSGC<dim>::produce_angular_quad ()
     double mu = mu_quad.point(i)[0] * 2.0 - 1.0;
     unsigned int n_level = ((i<this->n_azi/2?4*(i+1):4*(this->n_azi-i))/
                             ((dim==2&&this->transport_model_name=="ep")?2:1));
-    double dphi = 2.0 * this->pi / n_level;
+    double dphi = 2.0 * this->pi / (n_level*(this->transport_model_name=="ep"?2.0:1.0));
     double w_pt = mu_quad.weight(i) * this->total_angle / n_level;
     for (unsigned int j=0; j<n_level; ++j)
     {

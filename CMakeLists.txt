@@ -18,8 +18,8 @@ SET(TARGET xtrans)
 # SET(TARGET_SRC
 #  ${TARGET}.cc
 #  )
-FILE(GLOB TARGET_SRC "src/*.cc")
-FILE(GLOB TARGET_INC "include/*.h")
+FILE(GLOB TARGET_SRC "src/*/*/*.cc" "src/*/*.cc")
+FILE(GLOB TARGET_INC include/*/*/*.h include/*/*.h)
 SET(TARGET_SRC ${TARGET_SRC})
 SET(TARGET_INC ${TARGET_INC})
 

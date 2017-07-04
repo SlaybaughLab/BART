@@ -3,7 +3,7 @@
 
 #include <deal.II/distributed/tria.h>
 
-#include "problem_definition.h"
+#include "../common/problem_definition.h"
 
 template <int dim>
 class MeshGenerator
