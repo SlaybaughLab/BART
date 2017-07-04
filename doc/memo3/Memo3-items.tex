@@ -1,0 +1,226 @@
+%\documentclass[review]{elsarticle}
+%
+%\usepackage{lineno,hyperref}
+%\usepackage{color}
+%\usepackage{amsmatamsfonts,amssymb,esvect,ulem}
+
+%\usepackage{graphicx}
+%\usepackage{epsfig}
+%
+%\usepackage{epstopdf}
+%\usepackage{subcaption}
+%%\usepackage{subfigure}
+%\modulolinenumbers[5]
+\documentclass[letterpaper,11pt]{texMemo}
+\usepackage{float}
+%\addtolength{\hoffset}{-2.5cm}
+%\addtolength{\textwidth}{5cm}
+%\addtolength{\textheight}{4.5cm}
+%\addtolength{\voffset}{-1.8cm}
+%\addtolength{\headsep}{-0.3cm}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.8ex plus 0.5ex minus 0.2ex}
+%\journal{Techreport 01}
+
+
+%\setlength\parindent{0pt} % Removes all indentation from paragraphs
+%\renewcommand{\vec}[1]{\ensuremath{\boldsymbol{#1}}}
+\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
+\newcommand{\px}{\frac{\partial}{\partial x}}
+\newcommand{\st}{\sigma_\mathrm{t}}
+\newcommand{\pxt}{\frac{\partial^2}{\partial x^2}}
+\newcommand{\stt}{\st^2}
+\newcommand{\dst}{\frac{\partial\st}{\partial x}}
+\newcommand{\ppz}{\partial_x}%{\frac{\partial}{\partial x}}
+\newcommand{\ppzt}{\frac{\partial^2}{\partial x^2}}
+\newcommand{\psiinc}{\psi^\mathrm{inc}}
+\newcommand{\vp}[1]{\vec{\phi}^{({#1})}}
+\newcommand{\sn}{S$_N$}
+\newcommand{\omen}{\ome\cdot\nabla}
+\newcommand{\dpsi}{\delta\psi}
+\newcommand{\qsl}{\qs^\mathrm{LS}}
+\newcommand{\vh}{\mathcal{V}}
+\newcommand{\quand}{\quad\mathrm{and}\quad}
+\newcommand{\ffi}{f_\mathrm{i}}
+\newcommand{\ffo}{f_\mathrm{o}}
+\newcommand{\pd}{\partial\mathcal{D}}
+\newcommand{\ointd}{\oint_{\pd}ds\ }
+
+\bibliographystyle{elsarticle-num}
+%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\e}[1]{\ensuremath{\times 10^{#1}}}
+\newcommand{\TAMU}{Texas A\&M University}
+\newcommand{\ddxcs}{\sigma(E'\to E,~\mu)}
+\newcommand{\sigt}{\sigma_\mathrm{t}}
+\newcommand{\sigs}{\sigma_\mathrm{s}}
+\newcommand{\siga}{\sigma_\mathrm{a}}
+\newcommand{\intd}{\int\limits_\mathcal{D}d\vec{r}\ }
+\newcommand{\qs}{q_\mathrm{s}}
+\newcommand{\ome}{\vec{\Omega}}
+\newcommand{\psil}{\psi^\mathrm{LS}}
+\newcommand{\ai}{A_\Gamma}
+\newcommand{\nij}{\vec{n}^{+}}
+\newcommand{\nji}{\vec{n}^{-}}
+\newcommand{\average}[1]{\ensuremath{\{#1\}} }
+\newcommand{\jump}[1]{\ensuremath{[\![#1]\!]} }
+\newcommand{\dii}{\mathcal{D}_\mathrm{i}}
+\newcommand{\djj}{\mathcal{D}_\mathrm{j}}
+\newcommand{\ointangle}{\oint\limits_\mathcal{S}d\Omega\ }
+\newcommand{\ointp}{\oint\limits_{\vec{n}\cdot\vec{\Omega}>0}d\Omega\ }
+\newcommand{\ointm}{\oint\limits_{\vec{n}\cdot\vec{\Omega}<0}d\Omega\ }
+\newcommand{\lbracket}{\left<}
+\newcommand{\rbracket}{\right>}
+\newcommand{\ndo}{\vec{n}\cdot\vec{\Omega}}
+\newcommand{\absndo}{\left|\vec{n}\cdot\vec{\Omega}\right|}
+\newcommand{\ppl}{\psi^+}
+\newcommand{\pmi}{\psi^-}
+\newcommand{\pspl}{\psi^{+*}}
+\newcommand{\psmi}{\psi^{-*}}
+\newcommand{\lrb}[1]{\llbracket{#1}\rrbracket}
+\newcommand{\lrbg}[2]{\lbracket{#1},{#2}\rbracket_\Gamma}
+\newcommand{\phivec}{{\vec{\phi}}}
+\newcommand{\rvec}{{\vec{R}}(\ome)}
+\newcommand{\phisvec}{{\vec{\phi}}^*}
+\newcommand{\phisvect}{{\vec{\phi}}^{*\top}}
+\newcommand{\rtvec}{{\vec{R}^\top}(\ome)}
+\newcommand{\ii}[2]{I_{\mathrm{#1}_N-\mathrm{#2}_N}}
+\newcommand{\snsum}[1]{\sum\limits_{\ndo_m{#1}0}w_m\left|\ndo_m\right|}
+
+\input{../utilities/packages.tex}
+\input{../utilities/def.tex}
+%\newcommand{\sb1}{\hat{\sigma}_\mathrm{b}}
+\begin{document}
+
+%\begin{frontmatter}
+%\logo{Research Memo}
+\memosubject{Code {\tt XTrans} progress}
+\memofrom{Weixiong Zheng}
+\memoto{Rachel N. Slaybaugh}
+\memodate{\today}
+\logotitle{\LARGE {\bf Research Memo 3}}
+\logo{\includegraphics[width=.5\textwidth]{ucb-logo}}
+\maketitle
+%\tnotetext[mytitlenote]{Fully documented templates are available in the elsarticle package on \href{http://www.ctan.org/tex-archive/macros/latex/contrib/elsarticle}{CTAN}.}
+
+%% Group authors per affiliation:
+%\author{Weixiong Zheng}
+
+
+%% or include affiliations in footnotes:
+%\author[mymainaddress,mysecondaryaddress]{Elsevier Inc}
+%\ead[url]{www.elsevier.com}
+%\author[mymainaddress]{Jim E. Morel}
+%\ead{morel@tamu.edu}
+%
+%\author[mymainaddress]{Ryan G. McClarren}
+%\ead{rgm@tamu.edu}
+
+
+
+\begin{abstract}
+	In this report, we will describe current progress of the research-purpose code originally designed for DG-even parity while later changed to generalized steady-state neutronics code.
+\end{abstract}
+
+%\end{frontmatter}
+
+%\linenumbers
+\section{My buddy: you gotta have a name for it.}
+{
+	When meeting with Vincent M. Laboure at ANS Annual and talking about the fact I am writing my own code, Vincent suggested I name it instead of using ``my code".
+	
+	It was designed for DFEM-even parity, it is rather changed/being changed to a framework allowing developer to plug in new methods without being bothered by tremendous amount of specific gadgets from the non-STL library {\tt deal.II}. So I think, indeed, we need a name for this.
+	
+	I actually like the name of X-division in LANL. So I later started to use the name {\tt XTrans}. Now I think I eventually accomplish a big part of the whole thing, naming.
+}
+
+\section{Where we are: what we have and what we have ever tested}
+{
+	\subsection{Parallelism}
+	{
+		After messing with \dealii\ MPI-related objects and utilizing \petsc\ data types, the code be run in both serial mode and parallel mode through MPI. It has been tested using 1,\ 2\ and 4\ cores on my Mac and shows the speedup effects when using more cores.
+	}
+	
+	\subsection{Problem scale on personal computers.}
+	{
+		For research purpose, I imagine we will have up to a few to hundreds of millions of DoFs per problem. On my Mac, a problem with around 21\ millions DoFs was tested using 4 cores. It consumed about 10 GB RAMs, which actually gave me a little surprise as I expected worse memory consumption. So I would assume roughly around the scale we can run on one single personal computer.
+		
+		Maybe we should think about install it on clusters.
+	}
+	
+	\subsection{Even parity}
+	{
+		Current code only implements even-parity equation as the transport solver. In terms of spatial discretization, CFEM and DFEM are both implemented. In fact, {\tt TransportBase<dim>} allows for easy implementation of CFEM and DFEM if you are clear about the mathematical formulations.
+		
+		For future, I just assigned I and Marrisa to implement CFEM-SAAF, which I prefer over even parity.
+	}
+	\subsection{Reflective boundary}
+	{
+		Functionalities for reflective boundary has been enabled. Basically, the index are precomputed for each direction per boundary. The results thereafter are utilized to form a Hash table from {\tt std::map}.
+		
+		For even parity, reflective boundary is difficult for direct implementation in conventional way. However, through using the explicit reflective boundary condition, reflective boundary is realized in \xtrans.\ The trade-off is to use BiCGStab instead of CG for solving the whole system.
+	}
+}
+
+\section{Illustrations of the way we do it.}
+{
+	As I talked to Rachel, the code would take in both first-order and second-order forms.
+	
+	With DFEM, we will be able to solve
+	\begin{align}
+	\mathcal{L}\psi=\qscat.
+	\end{align}
+	Implementation will be some students deriving a class with providing bilinear forms.
+	
+	On the other hand, with current implementation of even parity (with both CFEM and DFEM), or even later CFEM-SAAF and CFEM-LS (if interested), it is actually equivalent to define a symmetrization operator $\mm{Sym}(\cdot)$ s.t. we are solving a symmetrized transport equation:
+	\begin{align}
+	\mm{Sym}(\mathcal{L}\psi=\qscat).
+	\end{align}
+	
+	For instance, LS equation is
+	\begin{equation}
+	\mathcal{L}^\dagger\mathcal{L}\psi=\mathcal{L}^\dagger\qscat,
+	\end{equation}
+	where SAAF is equivalent to
+	\begin{equation}
+	\mathcal{L}^\dagger\frac{1}{\sigt}\mathcal{L}\psi=\mathcal{L}^\dagger\frac{1}{\sigt}\qscat,
+	\end{equation}
+}
+
+\section{What are the limitations?}
+{
+	\xtrans\ is roughly in a good shape, at least on the right track to get a good shape. However, we should be aware of the limitations existing.
+	
+	\subsection{You cannot do cell-wise spatial sweep.}
+	{
+		We will have a first-order solver, yet, not based on cell-wise sweep. Domain-decomposition based parallel sweep is actually not natural to implement based on \deal.\ However, one could utilize \deal\ functionalities in MPI to enable this. It's possible, but needs to bypass a lot of \deal\ things. The advantage I can see is that one does not need to worry about DFEM-related low-level work (basis functions, etc). And MPI wrapper functions are actually looking more friendly than typical MPI functions. The worst case would not be worse than writing a first order sweep code from scratch.
+		
+		For now, the first order solver will go into the FEM track, that is assemble the global matrix per direction per group and inverse it.
+	}
+	
+	\subsection{Difficulty in advanced algorithms.}
+	{
+		The first thing I can think of is Matrix-Free implementation. Well, it would not be a problem if we restrict ourselves to ``research purpose" code with solve small-to-intermediate scale problems with linear finite element. It would not be hard to imagine that one would have memory issues when using high-order elements with 3D whole core calculations. Also, though matrix-vector product based methods (current implementation) is faster than matrix-free methods for linear elements, it is much slower using high order elements.
+		
+		So this would be a future suggestion: try out matrix-free implementations.
+		
+		The second is actually a consequence of the first limitation: we would not be able to do JFNK through NOX (\trilinos)\ or SNES (\petsc)\ effectively as JFNK relies on interpreting behavior of matrix-vector product instead of do matrix-vector product directly.
+	}
+}
+
+\section{What we need to think about?}
+{
+	\subsection{What is \xtrans\ to \bart?}
+	{
+		This is the first thing coming into my mind. For Marissa's project, \xtrans\ is indeed the way to go as we've already had much progress on the code and hopefully will be able to do calculations for eigenvalue problems by the end of the summer. But, if we do \bart, which will take interested individuals to participate, that would be great to train everybody in the directions of method developing, collaboration and coding something complex (I bet it would be more complex than most of students' {\tt Python} codes). So I still need to think about this: how we could incorporate existing work in \xtrans\ into the \bart. 
+	}
+	
+	\subsection{What kind of the work I should assign to students instead of getting my own hand dirty?}
+	{
+		Indeed, Postdocs are the labors taking the heavy missions fast. However, a balance still needs to be carefully found between assigning missions ourselves and students because of the nature of writing the whole codes: ramping up students and letting them learning things (mathematics and implementations). The question is actually how to find and manage the balance. Maybe this is also a good point for me to learn.
+	}
+}
+%\section*{References}
+\bibliography{../utilities/mybibfile.bib}
+\bibliographystyle{plain}
+\end{document}

@@ -9,7 +9,7 @@ set do NDA                                   = false
 set have reflective BC                       = true
 set reflective boundary names                = xmin, ymin, xmax, ymax
 
-set uniform refinements                      = 3
+set uniform refinements                      = 9
 
 set linear solver name                       = cg
 set preconditioner name                      = parasails
@@ -34,7 +34,7 @@ set values                                   = 10.0, 10.0
 end
 
 subsection one-group sigma_s
-set values                                   = 1., 1.
+set values                                   = 0., 0.
 end
 
 subsection one-group Q

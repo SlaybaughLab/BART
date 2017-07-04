@@ -148,6 +148,7 @@ private:
   void radio (std::string str1, std::string str2);
   void radio (std::string str, double num);
   void radio (std::string str, unsigned int num);
+  void radio ();
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,

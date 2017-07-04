@@ -13,3 +13,8 @@ dg-ep*
 *dfem*.txt
 *cfem*.txt
 quadr.txt
+*.aux
+*.log
+*.blg
+*.out
+*.gz

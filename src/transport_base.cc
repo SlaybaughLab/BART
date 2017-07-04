@@ -341,6 +341,7 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
 
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
   {
+    radio ("Assembling Component",k);
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
     FullMatrix<double> local_mat (dofs_per_cell, dofs_per_cell);
@@ -515,6 +516,7 @@ void TransportBase<dim>::integrate_interface_bilinear_form
 template <int dim>
 void TransportBase<dim>::initialize_ho_preconditioners ()
 {
+  radio ("initialize precondiitoners for HO");
   if (linear_solver_name!="direct")
   {
     if (preconditioner_name=="amg")
@@ -565,6 +567,8 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
   }// not direct solver
   else
     ho_direct.resize (n_total_ho_vars);
+  radio ("initialization finished");
+  radio ();
 }
 
 template <int dim>
@@ -672,6 +676,7 @@ void TransportBase<dim>::ho_solve ()
     }
     pcout << "Solved in " << solver_control.last_step() << std::endl;
   }
+  radio ();
 }
 
 template <int dim>
@@ -767,7 +772,9 @@ void TransportBase<dim>::source_iteration ()
   {
     //generate_ho_source ();
     ct += 1;
+    radio ("rhs");
     generate_ho_rhs ();
+    radio ("rhs done");
     ho_solve ();
     generate_moments ();
     err_phi_old = err_phi;
@@ -985,6 +992,12 @@ void TransportBase<dim>::radio (std::string str,
                                 unsigned int num)
 {
   pcout << str << ": " << num << std::endl;
+}
+
+template <int dim>
+void TransportBase<dim>::radio ()
+{
+  pcout << "-------------------------------------" << std::endl << std::endl;
 }
 
 // explicit instantiation to avoid linking error
