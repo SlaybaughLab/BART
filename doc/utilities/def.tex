@@ -1,0 +1,387 @@
+%
+%=================================================================================================
+% new commands
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\newcommand{\nc}{\newcommand}
+\newcommand{\pdr}{\pd^\mm{r}}
+\newcommand{\pdv}{\pd^\mm{v}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\xtrans}{{\tt XTrans}}
+\newcommand{\dealii}{{\tt deal.II}}
+\newcommand{\petsc}{{\tt PETSc}}
+\newcommand{\trilinos}{{\tt Trilinos}}
+\newcommand{\bart}{{\tt BART}}
+
+% NDA
+\newcommand{\alphag}{\alpha_\mm{g}}
+\newcommand{\dg}{D_\mm{g}}
+\newcommand{\sigrg}{\sigma_\mm{r,g}}
+\newcommand{\sigsgg}{\sigma_\mm{s, g'g}}
+\newcommand{\vdg}{\vec{{\bf D}}_\mm{g}\left(\vr\right)}
+\newcommand{\vpst}{\varphi^*}
+\newcommand{\dvpst}{\nabla\vpst}
+\newcommand{\vpg}{\varphi_\mm{g}}
+\newcommand{\vpgp}{\varphi_\mm{g'}}
+\newcommand{\dvpg}{\nabla\vpg}
+\newcommand{\facev}[1]{\left<#1\right>_{\pdv}}
+\newcommand{\g}{\mm{g}}
+\newcommand{\bgg}{\mm{G}}
+\newcommand{\gp}{\mm{g'}}
+\newcommand{\mkh}{\mm{k+1/2}}
+\newcommand{\mkk}{\mm{k}}
+\newcommand{\mko}{\mm{k+1}}
+\newcommand{\epgkh}{\epsilon_\mm{g}^\mkh}
+\newcommand{\epgpkh}{\epsilon_\mm{g'}^\mkh}
+\newcommand{\rgkh}{R_\g^\mkh}
+\newcommand{\ekh}{e^\mkh\left(\vr\right)}
+\newcommand{\egpkh}{e^\mkh\left(\vr\right)}
+\newcommand{\zg}{\zeta_\g}
+\newcommand{\zgp}{\zeta_\gp}
+\newcommand{\dgav}{\aav{D}}
+\newcommand{\aav}[1]{\left<#1\right>}
+\newcommand{\vdgav}{\aav{\vec{\bf D}\left(\vr\right)}}
+\newcommand{\sigrgav}{\left<\sigma_\mm{r}\right>}
+\newcommand{\alphagav}{\aav{\alpha}}
+\newcommand{\rgkhav}{\aav{R^\mkh}}
+\newcommand{\qqg}{Q_\g}
+
+%
+% Ways of grouping things
+%
+\newcommand{\bracket}[1]{\left[ #1 \right]}
+\newcommand{\bracet}[1]{\left\{ #1 \right\}}
+\newcommand{\fn}[1]{\left( #1 \right)}
+\newcommand{\ave}[1]{\left\{#1\right\}}
+
+\newcommand{\cv}{c_\mm{V}}
+\newcommand{\cf}{c_\mm{F}}
+\newcommand{\ddrift}{\vec{D}}
+\newcommand{\hatk}{\hat{\kappa}}
+\newcommand{\jout}{\vec{J}^\mm{o}}
+\newcommand{\jpm}{\vec{J}_\pm}
+
+\newcommand{\faceinterior}[1]{\left\langle{#1}\right\rangle_\mm{e}}
+\newcommand{\facein}[1]{\left\langle{#1}\right\rangle_{\partial\mathcal{D}^-}}
+\newcommand{\faceout}[1]{\left\langle{#1}\right\rangle_{\partial\mathcal{D}^-}}
+\newcommand{\faceinout}[1]{\left\langle{#1}\right\rangle_{\partial\mathcal{D}^\mp}}
+\newcommand{\facebd}[1]{\left\langle{#1}\right\rangle_{\partial\mathcal{D}}}
+\newcommand{\volintd}[1]{\left({#1}\right)_{\md}}
+\newcommand{\volinte}[1]{\left({#1}\right)_{\me}}
+\newcommand{\phst}{\phi^*}
+%
+% Derivative forms
+%
+\newcommand{\mme}{\mm{e}}
+\newcommand{\nno}{\nonumber}
+\newcommand{\tm}{$\times$}
+
+\newcommand{\deal}{{\tt deal.II}}
+\newcommand{\libmesh}{{\tt LibMesh}}
+
+\newcommand{\bk}{{\bf K}}
+\newcommand{\mk}{{\bf K}}
+\newcommand{\ms}{\mathcal{S}}
+\newcommand{\qfp}{\frac{Q}{\fp}}
+\newcommand{\fp}{4\pi}
+\newcommand{\dx}[1]{\,d#1}
+\newcommand{\dxdy}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dxdt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\dxdz}[1]{\frac{\partial #1}{\partial z}}
+\newcommand{\dfdt}[1]{\frac{\partial}{\partial t} \fn{#1}}
+\newcommand{\dfdz}[1]{\frac{\partial}{\partial z} \fn{#1}}
+\newcommand{\ddt}[1]{\frac{\partial}{\partial t} #1}
+\newcommand{\ddz}[1]{\frac{\partial}{\partial z} #1}
+\newcommand{\dd}[2]{\frac{\partial}{\partial #1} #2}
+\newcommand{\ddx}[1]{\frac{\partial}{\partial x} #1}
+\newcommand{\ddy}[1]{\frac{\partial}{\partial y} #1}
+\newcommand{\intli}[1]{\int\limits_{#1}}
+%
+% Vector forms
+%
+%\renewcommand{\vec}[1]{\ensuremath{\stackrel{\rightarrow}{#1}}}
+%\renewcommand{\div}{\ensuremath{\vec{\nabla} \cdot}}
+%\newcommand{\grad}{\ensuremath{\vec{\nabla}}}
+
+\renewcommand{\div}{\vec{\nabla}\! \cdot \!}
+\newcommand{\grad}{\vec{\nabla}}
+\newcommand{\oa}[1]{\fn{\frac{1}{3}\hat{\Omega}\!\cdot\!\overrightarrow{A_{#1}}}}
+
+%
+% Equation beginnings and endings
+%
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\beas}{\begin{eqnarray*}}
+\newcommand{\eeas}{\end{eqnarray*}}
+\newcommand{\bdm}{\begin{displaymath}}
+\newcommand{\edm}{\end{displaymath}}
+%
+% Equation punctuation
+%
+\newcommand{\pec}{\hspace{0.25in},}
+\newcommand{\pep}{\hspace{0.25in}.}
+\newcommand{\pev}{\hspace{0.25in}}
+%
+% Equation labels and references, figure references, table references
+%
+\newcommand{\LEQ}[1]{\label{eq:#1}}
+\newcommand{\EQ}[1]{Eq.~(\ref{eq:#1})}
+\newcommand{\EQS}[1]{Eqs.~(\ref{eq:#1})}
+\newcommand{\REQ}[1]{\ref{eq:#1}}
+\newcommand{\LFI}[1]{\label{fi:#1}}
+\newcommand{\FI}[1]{Fig.~\ref{fi:#1}}
+\newcommand{\RFI}[1]{\ref{fi:#1}}
+\newcommand{\LTA}[1]{\label{ta:#1}}
+\newcommand{\TA}[1]{Table~\ref{ta:#1}}
+\newcommand{\RTA}[1]{\ref{ta:#1}}
+\newcommand{\dgen}{\frac{\ome\otimes\ome}{\st}}
+\newcommand{\ppst}{\psi^{+*}}
+%
+% List beginnings and endings
+%
+\newcommand{\dr}{d\vec{r}}
+\newcommand{\bl}{\bss\begin{itemize}}
+\newcommand{\el}{\vspace{-.5\baselineskip}\end{itemize}\ess}
+\newcommand{\benu}{\bss\begin{enumerate}}
+\newcommand{\eenu}{\vspace{-.5\baselineskip}\end{enumerate}\ess}
+\newcommand{\md}{\mathcal{D}}
+\newcommand{\mv}{\mathcal{V}}
+\newcommand{\pst}{\psi^{+*}}
+%
+% Figure and table beginnings and endings
+%
+\newcommand{\bfg}{\begin{figure}}
+\newcommand{\efg}{\end{figure}}
+\newcommand{\bt}{\begin{table}}
+\newcommand{\et}{\end{table}}
+%
+% Tabular and center beginnings and endings
+%
+\newcommand{\bc}{\begin{center}}
+\newcommand{\ec}{\end{center}}
+\newcommand{\btb}{\begin{center}\begin{tabular}}
+\newcommand{\etb}{\end{tabular}\end{center}}
+%
+% Single space command
+%
+%\newcommand{\bss}{\begin{singlespace}}
+%\newcommand{\ess}{\end{singlespace}}
+\newcommand{\bss}{\singlespacing}
+\newcommand{\ess}{\doublespacing}
+%
+%---New environment "arbspace". (modeled after singlespace environment
+%                                in Doublespace.sty)
+%   The baselinestretch only takes effect at a size change, so do one.
+%
+\def\arbspace#1{\def\baselinestretch{#1}\@normalsize}
+\def\endarbspace{}
+\newcommand{\bas}{\begin{arbspace}}
+\newcommand{\eas}{\end{arbspace}}
+%
+% An explanation for a function
+%
+\newcommand{\explain}[1]{\mbox{\hspace{2em} #1}}
+%
+% Quick commands for symbols
+%
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\third}{\frac{1}{3}}
+\newcommand{\twothird}{\frac{2}{3}}
+\newcommand{\fourth}{\frac{1}{4}}
+\newcommand{\mdot}{\dot{m}}
+\newcommand{\ten}[1]{\times 10^{#1}\,}
+\newcommand{\cL}{{\cal L}}
+\newcommand{\cD}{{\cal D}}
+\newcommand{\cF}{{\cal F}}
+\newcommand{\cE}{{\cal E}}
+\renewcommand{\Re}{\mbox{Re}}
+\newcommand{\Ma}{\mbox{Ma}}
+%
+% Inclusion of Graphics Data
+%
+%\input{psfig}
+%\psfiginit
+%
+% More Quick Commands
+%
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+\newcommand{\dxi}{\Delta x_i}
+\newcommand{\dyj}{\Delta y_j}
+\newcommand{\ts}[1]{\textstyle #1}
+
+
+\newcommand{\bu}{\boldsymbol{u}}
+\newcommand{\ber}{\boldsymbol{e}}
+\newcommand{\br}{\boldsymbol{r}}
+\newcommand{\bo}{\boldsymbol{\Omega}}
+
+\newcommand{\bn}{\boldsymbol{\nabla}}
+
+% DGFEM commands
+\newcommand{\jmp}[1]{[\![#1]\!]}                     % jump
+\newcommand{\mvl}[1]{\{\!\{#1\}\!\}}             % mean value
+
+
+\newcommand{\boxedeqn}[1]{%
+  \[\fbox{%
+      \addtolength{\linewidth}{-2\fboxsep}%
+      \addtolength{\linewidth}{-2\fboxrule}%
+      \begin{minipage}{\linewidth}%
+      \begin{equation}#1\end{equation}%
+      \end{minipage}%
+    }\]%
+}
+\newcommand{\mboxed}[1]{\boxed{\phantom{#1}}}
+\newcommand{\ud}{\,\mathrm{d}}
+\newcommand{\dome}{d\ome}
+% keff
+\newcommand{\keff}{\ensuremath{k_{\textit{eff}}}\xspace}
+
+% margin par
+\newcommand{\mt}[1]{\marginpar{ {\footnotesize #1} }}
+
+% shortcut for aposterio in italics
+\newcommand{\apost}{\textit{a posteriori\xspace}}
+\newcommand{\Apost}{\textit{A posteriori}\xspace}
+
+% shortcut for multi-group
+\newcommand{\mg}{multigroup\xspace}
+\newcommand{\Mg}{Multigroup\xspace}
+\newcommand{\ho}{higher-order\xspace}
+\newcommand{\Ho}{Higher-order\xspace}
+\newcommand{\HO}{Higher-Order\xspace}
+\newcommand{\HObig}{HIGHER-ORDER\xspace}
+\newcommand{\Mgbig}{MULTIGROUP\xspace}
+\newcommand{\pn}{P$_N$\xspace}
+
+% shortcut for domain notation
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\Sp}{\mathcal{S}}
+\newcommand{\cmt}{cm$^2$}
+\newcommand{\rcm}{cm$^{-1}$}
+% shortcut for xuthus
+\newcommand{\psc}[1]{{\sc {#1}}}
+\newcommand{\xuthus}{\psc{xuthus}\xspace}
+\newcommand{\such}{{\textit{s.t.}}}
+% vector shortcuts
+\newcommand{\vo}{\vec{\Omega}}
+\newcommand{\vr}{\vec{r}}
+\newcommand{\vn}{\vec{n}}
+\newcommand{\vnk}{\vec{\mathbf{n}}}
+\newcommand{\qscat}{q_\mm{t}}
+\newcommand{\mm}[1]{\mathrm{#1}}
+
+% extra space
+\newcommand{\qq}{\quad\quad}
+
+% sign function
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\slim}[1]{\sum\limits_{#1}}
+\newcommand{\me}{\mathcal{E}}
+
+\makeatletter
+\newcommand{\rmnum}[1]{\romannumeral #1}
+\newcommand{\Rmnum}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\newcommand{\ensuretext}[1]{\ensuremath{\text{#1}}}
+\newcommand{\Rmnumb}[1]{\ensuretext{\Rmnum{#1}}}
+
+% common reference commands
+\newcommand{\eqt}[1]{Eq.~(\ref{#1})}                     % equation
+\newcommand{\fig}[1]{Fig.~\ref{#1}}                      % figure
+\newcommand{\tbl}[1]{Table~\ref{#1}}                     % table
+\newcommand{\app}[1]{Appendix~\ref{#1}}                  % appendix
+
+
+% for mathematica notebook
+\newcommand{\IndentingNewLine}{ \\ }
+
+
+\newcommand{\rhs}{right-hand-side\xspace}
+\newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}\cleardoublepage}}
+
+\newenvironment{myverbatim}%            To change the pseudocode font
+{\par\noindent%
+ \rule[0pt]{\linewidth}{0.2pt}
+ \vspace*{-9pt}
+ \linespread{0.0}\small\verbatim}%
+{\rule[-5pt]{\linewidth}{0.2pt}\endverbatim}
+
+\newenvironment{myverbatim1}%            To change the pseudocode font
+{\par\noindent%
+ \rule[0pt]{\linewidth}{0.2pt}
+ \vspace*{-9pt}
+ \linespread{1.0}\scriptsize\verbatim}%
+{\rule[-5pt]{\linewidth}{0.2pt}\endverbatim}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}} % remove the error of algorithm+hyperref
+
+%\hypersetup{
+%    bookmarks=true,         % show bookmarks bar?
+%    unicode=false,          % non-Latin characters in Acrobat's bookmarks
+%    pdftoolbar=true,        % show Acrobat's toolbar?
+%    pdfmenubar=true,        % show Acrobat's menu?
+%    pdffitwindow=false,     % window fit to page when opened
+%    pdfstartview={FitH},    % fits the width of the page to the window
+%    pdftitle={Dissertation},    % title
+%    pdfauthor={Yaqi Wang},     % author
+%    pdfsubject={Transport AMR},   % subject of the document
+%    pdfcreator={Yaqi Wang},   % creator of the document
+%    pdfproducer={Yaqi Wang}, % producer of the document
+%    pdfkeywords={Transport, AMR}, % list of keywords
+%    pdfnewwindow=true,      % links in new window
+%    colorlinks=false,       % false: boxed links; true: colored links
+%    linkcolor=red,          % color of internal links
+%    citecolor=green,        % color of links to bibliography
+%    filecolor=magenta,      % color of file links
+%    urlcolor=cyan           % color of external links
+%}
+
+% prepare generating nomenclature and change default options
+%\makenomenclature
+%\renewcommand{\nomname}{NOMENCLATURE}
+%\RequirePackage{ifthen}
+%\renewcommand{\nomgroup}[1]{%
+%\item[]\hspace*{-\leftmargin}%
+%%\rule[2pt]{0.45\linewidth}{1pt}%
+%%\hfill
+%\ifthenelse{\equal{#1}{A}}{\textbf{Abbreviations}}{%
+%\ifthenelse{\equal{#1}{S}}{\textbf{Symbols}}{
+%\ifthenelse{\equal{#1}{U}}{\textbf{Superscripts}}{
+%\ifthenelse{\equal{#1}{V}}{\textbf{Subscripts}}{}}}}
+%%\hfill
+%%\rule[2pt]{0.45\linewidth}{1pt}
+%}
+
+% a new environment for splitting a long algorithm
+\makeatletter
+\newenvironment{breakalgo}[2][alg:\thealgorithm]{%
+  \def\@fs@cfont{\bfseries}%
+  \let\@fs@capt\relax%
+  \par\noindent%
+  \medskip%
+  \rule{\linewidth}{.8pt}%
+  \vspace{-20pt}%
+  %\par\noindent
+  \captionof{algorithm}{#2}\label{#1}%
+  \vspace{-1.2\baselineskip}%
+%  \noindent\rule{\linewidth}{.4pt}%
+  \vspace{8pt}%
+  \noindent\rule{\linewidth}{.4pt}%
+  \vspace{-1.3\baselineskip}%
+}{%
+  \vspace{-.75\baselineskip}%
+  \par\noindent%
+  \rule{\linewidth}{.4pt}%
+  \medskip%
+}
+\makeatother
+
+\providecommand{\keywords}[1]{\textbf{\textit{Keywords: }} #1}
