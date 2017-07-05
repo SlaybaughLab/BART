@@ -1,5 +1,5 @@
-#include "../include/transport_base.h"
-#include "../include/even_parity.h"
+#include "../../../include/transport/base/transport_base.h"
+#include "../../../include/transport/derived/even_parity.h"
 
 template <int dim>
 EvenParity<dim>::EvenParity (ParameterHandler &prm)
@@ -72,15 +72,19 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
   if (this->have_reflective_bc && this->is_reflective_bc[bd_id])
   {
     unsigned int inv_sigt = this->all_inv_sigt[cell->material_id()][g];
-    unsigned int r_dir = this->get_reflective_direction_index (bd_id, i_dir);
-    const Tensor<1,dim> vec_nr = fvf->normal_vector(0);
+    // hard coded part
+    Tensor<1, dim> ref_angle =
+    this->omega_i[i_dir] - 2.0 * (this->omega_i[i_dir] * vec_n) * vec_n;
+    // standard part: not stable
+    //unsigned int r_dir = this->get_reflective_direction_index (bd_id, i_dir);
+    //ref_angle = this->omega_i[r_dir];
     double ndo_inv_sigt = vec_n * this->omega_i[i_dir] * inv_sigt;
     for (unsigned int qi=0; qi<this->n_qf; ++qi)
       for (unsigned int i=0; i<this->dofs_per_cell; ++i)
         for (unsigned int j=0; j<this->dofs_per_cell; ++j)
           cell_matrix(i,j) += (- ndo_inv_sigt *
                                fvf->shape_value(i,qi) *
-                               (this->omega_i[r_dir] * fvf->shape_grad(j,qi)) *
+                               (ref_angle * fvf->shape_grad(j,qi)) *
                                fvf->JxW(qi));
   }
   else/* if (!this->have_reflective_bc ||
@@ -220,8 +224,8 @@ void EvenParity<dim>::generate_ho_rhs ()
           }
           this->vec_ho_rhs[k]->add (this->local_dof_indices, cell_rhs);
         }// local cells
-        *(this->vec_ho_rhs[k]) += *(this->vec_ho_fixed_rhs[k]);
         this->vec_ho_rhs[k]->compress (VectorOperation::add);
+        *(this->vec_ho_rhs[k]) += *(this->vec_ho_fixed_rhs[k]);
       }// zeroth direction per group
       else
         *(this->vec_ho_rhs[k]) = *(this->vec_ho_rhs[this->get_component_index(0, g)]);

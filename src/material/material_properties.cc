@@ -1,6 +1,6 @@
 #include <deal.II/base/numbers.h>
 
-#include "../include/material_properties.h"
+#include "../../include/material/material_properties.h"
 
 MaterialProperties::MaterialProperties (ParameterHandler &prm)
 :
@@ -160,16 +160,16 @@ void MaterialProperties::process_material_properties
 void MaterialProperties::process_eigen_material_properties
 (ParameterHandler &prm)
 {
-  prm.enter_subsection ("Fissile material IDs");
+  prm.enter_subsection ("fissile material IDs");
   {
     std::ostringstream os;
-    os << "fissile material IDs";
+    os << "fissile material ids";
     std::vector<std::string> strings = Utilities::split_string_list (prm.get (os.str ()));
     AssertThrow (strings.size () > 0,
                  ExcMessage ("Fissile material IDs must be inserted for eigen problems"));
     // std::set<int> fissile_ids;
     for (unsigned int i=0; i<strings.size(); ++i)
-      fissile_ids.insert (std::atoi (strings[i].c_str ()));
+      fissile_ids.insert (std::atoi(strings[i].c_str ())-1);
   }
   prm.leave_subsection ();
   

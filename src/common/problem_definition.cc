@@ -4,7 +4,7 @@
 #include <utility>
 #include <iomanip>
 
-#include "../include/problem_definition.h"
+#include "../../include/common/problem_definition.h"
 
 using namespace dealii;
 
@@ -17,6 +17,7 @@ n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
+do_print_sn_quad(prm.get_bool("do print angular quadrature info")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
 p_order(prm.get_integer("finite element polynomial degree")),
 global_refinements(prm.get_integer("uniform refinements")),
@@ -37,7 +38,8 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   {
     prm.declare_entry ("problem dimension", "2", Patterns::Integer(), "1D is not implemented");
     prm.declare_entry ("transport model", "ep", Patterns::Selection("ep"), "valid names such as ep");
-    prm.declare_entry ("preconditioner name", "amg", Patterns::Selection("amg|parasails|bjacobi"), "precond names");
+    prm.declare_entry ("preconditioner name", "amg", Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
+    prm.declare_entry ("ssor factor", "1.0", Patterns::Double (), "damping factor of Block SSOR");
     prm.declare_entry ("linear solver name", "cg", Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
     prm.declare_entry ("angular quadrature name", "lsgc", Patterns::Selection ("lsgc"), "angular quadrature types. only LS-GC implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
@@ -114,6 +116,18 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   }
   prm.leave_subsection ();
   
+  prm.enter_subsection ("one-group ksi");
+  {
+    prm.declare_entry ("values", "", Patterns::List(Patterns::Double()), "");
+  }
+  prm.leave_subsection ();
+  
+  prm.enter_subsection ("one-group nu_sigf");
+  {
+    prm.declare_entry ("values", "", Patterns::List(Patterns::Double()), "");
+  }
+  prm.leave_subsection ();
+  
   prm.enter_subsection ("Q, group=1 to G");
   {
     for (unsigned int m=0; m<nmat; ++m)
@@ -126,9 +140,9 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   prm.leave_subsection ();
   
   // the following is for eigen problems
-  prm.enter_subsection ("Fissile material IDs");
+  prm.enter_subsection ("fissile material IDs");
   {
-    prm.declare_entry ("fissile material IDs", "", Patterns::List (Patterns::Integer ()), "");
+    prm.declare_entry ("fissile material ids", "", Patterns::List (Patterns::Integer ()), "");
   }
   prm.leave_subsection ();
   

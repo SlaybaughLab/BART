@@ -4,15 +4,16 @@ set transport model                          = ep
 set do print angular quadrature info         = true
 set angular quadrature order                 = 8
 set number of groups                         = 1
-set do eigenvalue calculations               = false
+set do eigenvalue calculations               = true
 set do NDA                                   = false
-set have reflective BC                       = true
-set reflective boundary names                = xmin, ymin, xmax, ymax
+set have reflective BC                       = false
+set reflective boundary names                =  xmin, ymin
 
-set uniform refinements                      = 9
+set uniform refinements                      = 5
 
 set linear solver name                       = cg
-set preconditioner name                      = parasails
+set preconditioner name                      = amg
+#set ssor factor                              = 1.6
 
 
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0
@@ -23,28 +24,32 @@ set spatial discretization                   = cfem
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = refall
+set output file name base                    = nr
 
 subsection material ID map
 set material id file name                    = mid.txt
 end
 
 subsection one-group sigma_t
-set values                                   = 10.0, 10.0
+set values                                   = 1.0, 1.0
 end
 
 subsection one-group sigma_s
-set values                                   = 0., 0.
+set values                                   = 0.1, 0.1
 end
 
 subsection one-group Q
-set values                                   = 9.0, 9.0
+set values                                   = 0., 0.
 end
 
-#subsection one-group ksi
-#set values                                   = 1.0, 1.0
-#end
+subsection fissile material IDs
+set fissile material ids                     = 1, 2
+end
 
-#subsection one-group nu_sigf
-#set values                                                = 0.9, 0.9
-#end
+subsection one-group ksi
+set values                                   = 1.0, 1.0
+end
+
+subsection one-group nu_sigf
+set values                                   = 0.99, 0.99
+end

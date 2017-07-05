@@ -1,7 +1,7 @@
 #ifndef __aq_lsgc_h__
 #define __aq_lsgc_h__
 
-#include "aq_base.h"
+#include "../base/aq_base.h"
 
 using namespace dealii;
 

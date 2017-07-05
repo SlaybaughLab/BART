@@ -8,8 +8,8 @@
  */
 //#include <deal.II/base/utilities.h>
 
-#include "../include/problem_definition.h"
-#include "../include/model_manager.h"
+#include "../../include/common/problem_definition.h"
+#include "../../include/common/model_manager.h"
 
 using namespace dealii;
 

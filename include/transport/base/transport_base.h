@@ -45,10 +45,10 @@ namespace LA
 #include <utility>
 #include <vector>
 
-#include "problem_definition.h"
-#include "mesh_generator.h"
-#include "material_properties.h"
-#include "aq_base.h"
+#include "../../common/problem_definition.h"
+#include "../../mesh/mesh_generator.h"
+#include "../../material/material_properties.h"
+#include "../../aqdata/base/aq_base.h"
 
 using namespace dealii;
 
@@ -136,19 +136,15 @@ private:
   void refine_grid ();
   void output_results () const;
   void power_iteration ();
+  void initialize_fiss_process ();
+  void update_ho_moments_in_fiss ();
+  void update_fiss_source_keff ();
   void source_iteration ();
   void scale_fiss_transfer_matrices ();
-  void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes,
-                         double normalization_factor);
+  void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
   void NDA_PI ();
   void NDA_SI ();
   void initialize_aq (ParameterHandler &prm);
-  
-  void radio (std::string str);
-  void radio (std::string str1, std::string str2);
-  void radio (std::string str, double num);
-  void radio (std::string str, unsigned int num);
-  void radio ();
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,
@@ -157,10 +153,13 @@ private:
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   
+  std::vector<bool> direct_init;
+  
   std_cxx11::shared_ptr<ProblemDefinition> def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
+  std_cxx11::shared_ptr<SolverControl> gcn;
   
   std::string transport_model_name;
   std::string linear_solver_name;
@@ -176,6 +175,16 @@ protected:
   
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
+  
+  void radio (std::string str);
+  void radio (std::string str1, std::string str2);
+  void radio (std::string str1, unsigned int num1,
+              std::string str2, unsigned int num2,
+              std::string str3, unsigned int num3);
+  void radio (std::string str, double num);
+  void radio (std::string str, unsigned int num);
+  void radio (std::string str, bool boolean);
+  void radio ();
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
   std::vector<typename DoFHandler<dim>::active_cell_iterator> ref_bd_cells;
@@ -201,7 +210,9 @@ protected:
   
   const double err_k_tol;
   const double err_phi_tol;
+  const double err_phi_eigen_tol;
   
+  double ssor_omega;
   double keff;
   double keff_prev_gen;
   double total_angle;
@@ -226,6 +237,8 @@ protected:
   unsigned int n_material;
   unsigned int p_order;
   unsigned int global_refinements;
+  
+  std::vector<unsigned int> linear_iters;
   
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
@@ -282,6 +295,7 @@ protected:
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi> > pre_ho_bjacobi;
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails> > pre_ho_parasails;
   std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionJacobi> > pre_ho_jacobi;
+  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat> > pre_ho_eisenstat;
   std::vector<std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS> > ho_direct;
   
   ConstraintMatrix constraints;

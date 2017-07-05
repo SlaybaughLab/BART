@@ -9,9 +9,9 @@
 
 #include <algorithm>
 
-#include "../include/transport_base.h"
-#include "../include/aq_base.h"
-#include "../include/aq_lsgc.h"
+#include "../../../include/transport/base/transport_base.h"
+#include "../../../include/aqdata/base/aq_base.h"
+#include "../../../include/aqdata/derived/aq_lsgc.h"
 
 using namespace dealii;
 
@@ -26,12 +26,15 @@ triangulation (mpi_communicator,
 dof_handler (triangulation),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
+err_phi_eigen_tol(1.0e-5),
 linear_solver_name(prm.get("linear solver name")),
 preconditioner_name(prm.get("preconditioner name")),
 pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
 {
+  if (linear_solver_name!="direct" && preconditioner_name=="bssor")
+    ssor_omega = prm.get_double("ssor factor");
   initialize_aq (prm);
   def_ptr = std_cxx11::shared_ptr<ProblemDefinition>
   (new ProblemDefinition(prm));
@@ -133,7 +136,11 @@ void TransportBase<dim>::report_system ()
 
   radio ("Transport model", transport_model_name);
   radio ("Spatial discretization", discretization);
-
+  radio ("Linear solver", linear_solver_name);
+  if (linear_solver_name!="direct")
+    radio ("Preconditioner", preconditioner_name);
+  radio ("do NDA?", do_nda);
+  
   radio ("Number of cells", triangulation.n_global_active_cells());
   radio ("High-order total DoF counts", n_total_ho_vars*dof_handler.n_dofs());
 
@@ -141,10 +148,11 @@ void TransportBase<dim>::report_system ()
     radio ("Problem type: k-eigenvalue problem");
   if (do_nda)
     radio ("NDA total DoF counts", n_group*dof_handler.n_dofs());
-  pcout << "print sn quad? " << do_print_sn_quad << std::endl;
+  radio ("print sn quad?", do_print_sn_quad);
   if (do_print_sn_quad &&
       Utilities::MPI::this_mpi_process(mpi_communicator)==0)
     aqd_ptr->print_angular_quad ();
+  radio ("is eigenvalue problem?", is_eigen_problem);
 }
 
 template <int dim>
@@ -204,6 +212,7 @@ void TransportBase<dim>::initialize_system_matrices_vectors ()
     }
 
     vec_ho_sflx.push_back (new LA::MPI::Vector);
+    vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
     vec_ho_sflx_old.push_back (new LA::MPI::Vector);
 
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
@@ -341,9 +350,9 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
 
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
   {
-    radio ("Assembling Component",k);
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
+    radio ("Assembling Component",k,"direction",i_dir,"group",g);
     FullMatrix<double> local_mat (dofs_per_cell, dofs_per_cell);
 
     for (unsigned int ic=0; ic<local_cells.size(); ++ic)
@@ -519,6 +528,7 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
   radio ("initialize precondiitoners for HO");
   if (linear_solver_name!="direct")
   {
+    linear_iters.resize (n_total_ho_vars);
     if (preconditioner_name=="amg")
     {
       pre_ho_amg.resize (n_total_ho_vars);
@@ -526,11 +536,11 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
       {
         pre_ho_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> (new LA::MPI::PreconditionAMG));
         LA::MPI::PreconditionAMG::AdditionalData data;
-        if (transport_model_name!="fo" ||
+        if (transport_model_name=="fo" ||
             (transport_model_name=="ep" && have_reflective_bc))
-          data.symmetric_operator = true;
-        else
           data.symmetric_operator = false;
+        else
+          data.symmetric_operator = true;
         pre_ho_amg[i]->initialize(*(vec_ho_sys)[i], data);
       }
     }
@@ -544,6 +554,27 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
         pre_ho_bjacobi[i]->initialize(*(vec_ho_sys)[i]);
       }
     }
+    else if (preconditioner_name=="jacobi")
+    {
+      pre_ho_jacobi.resize (n_total_ho_vars);
+      for (unsigned int i=0; i<n_total_ho_vars; ++i)
+      {
+        pre_ho_jacobi[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionJacobi>
+        (new PETScWrappers::PreconditionJacobi);
+        pre_ho_jacobi[i]->initialize(*(vec_ho_sys)[i]);
+      }
+    }
+    else if (preconditioner_name=="bssor")
+    {
+      pre_ho_eisenstat.resize (n_total_ho_vars);
+      for (unsigned int i=0; i<n_total_ho_vars; ++i)
+      {
+        pre_ho_eisenstat[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat>
+        (new PETScWrappers::PreconditionEisenstat);
+        PETScWrappers::PreconditionEisenstat::AdditionalData data(ssor_omega);
+        pre_ho_eisenstat[i]->initialize(*(vec_ho_sys)[i], data);
+      }
+    }
     else if (preconditioner_name=="parasails")
     {
       pre_ho_parasails.resize (n_total_ho_vars);
@@ -551,7 +582,7 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
       {
         pre_ho_parasails[i] = (std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails>
                                (new PETScWrappers::PreconditionParaSails));
-        if (transport_model_name!="fo" ||
+        if (transport_model_name=="fo" ||
             (transport_model_name=="ep" && have_reflective_bc))
         {
           PETScWrappers::PreconditionParaSails::AdditionalData data (2);
@@ -566,7 +597,11 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
     }
   }// not direct solver
   else
+  {
     ho_direct.resize (n_total_ho_vars);
+    direct_init = std::vector<bool> (n_total_ho_vars, false);
+    gcn = std_cxx11::shared_ptr<SolverControl> (new SolverControl(dof_handler.n_dofs(), 1.0e-15));
+  }
   radio ("initialization finished");
   radio ();
 }
@@ -574,7 +609,6 @@ void TransportBase<dim>::initialize_ho_preconditioners ()
 template <int dim>
 void TransportBase<dim>::ho_solve ()
 {
-  pcout << linear_solver_name << " with " << preconditioner_name << std::endl;
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
   {
     SolverControl solver_control (dof_handler.n_dofs(),
@@ -606,34 +640,63 @@ void TransportBase<dim>::ho_solve ()
                     *(vec_ho_rhs)[i],
                     *(pre_ho_amg)[i]);
     }
-    else if (linear_solver_name=="bicgstab" && preconditioner_name=="bjacobi")
+    else if (linear_solver_name=="bicgstab" && preconditioner_name=="jacobi")
     {
       PETScWrappers::SolverBicgstab
       solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
-                    *(pre_ho_bjacobi)[i]);
+                    *(pre_ho_jacobi)[i]);
     }
-    else if (linear_solver_name=="cg" && preconditioner_name=="bjacobi")
+    else if (linear_solver_name=="cg" && preconditioner_name=="jacobi")
     {
-      radio ("mat",vec_ho_sys[i]->l1_norm());
-      radio ("rhs",vec_ho_rhs[i]->l1_norm());
+      //radio ("mat",vec_ho_sys[i]->l1_norm());
+      //radio ("rhs",vec_ho_rhs[i]->l1_norm());
       PETScWrappers::SolverCG
       solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
-                    *(pre_ho_bjacobi)[i]);
+                    *(pre_ho_jacobi)[i]);
     }
-    else if (linear_solver_name=="gmres" && preconditioner_name=="bjacobi")
+    else if (linear_solver_name=="gmres" && preconditioner_name=="jacobi")
     {
       PETScWrappers::SolverGMRES
       solver (solver_control, mpi_communicator);
       solver.solve (*(vec_ho_sys)[i],
                     *(vec_aflx)[i],
                     *(vec_ho_rhs)[i],
-                    *(pre_ho_bjacobi)[i]);
+                    *(pre_ho_jacobi)[i]);
+    }
+    else if (linear_solver_name=="bicgstab" && preconditioner_name=="bssor")
+    {
+      PETScWrappers::SolverBicgstab
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_eisenstat)[i]);
+    }
+    else if (linear_solver_name=="cg" && preconditioner_name=="bssor")
+    {
+      //radio ("mat",vec_ho_sys[i]->l1_norm());
+      //radio ("rhs",vec_ho_rhs[i]->l1_norm());
+      PETScWrappers::SolverCG
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_eisenstat)[i]);
+    }
+    else if (linear_solver_name=="gmres" && preconditioner_name=="bssor")
+    {
+      PETScWrappers::SolverGMRES
+      solver (solver_control, mpi_communicator);
+      solver.solve (*(vec_ho_sys)[i],
+                    *(vec_aflx)[i],
+                    *(vec_ho_rhs)[i],
+                    *(pre_ho_eisenstat)[i]);
     }
     else if (linear_solver_name=="bicgstab" && preconditioner_name=="parasails")
     {
@@ -664,19 +727,27 @@ void TransportBase<dim>::ho_solve ()
     }
     else if (linear_solver_name=="direct")
     {
-      ho_direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
-      (new PETScWrappers::SparseDirectMUMPS(solver_control, mpi_communicator));
-      if (transport_model_name!="fo")
-        ho_direct[i]->set_symmetric_mode (true);
-      else
-        ho_direct[i]->set_symmetric_mode (false);
+      // The design is we only initialize the solver once such that MUMPS is by
+      // only doing factorization once per PETScMatrix
+      if (!direct_init[i])
+      {
+        ho_direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
+        (new PETScWrappers::SparseDirectMUMPS(*gcn, mpi_communicator));
+        if (transport_model_name=="fo" ||
+            (transport_model_name=="ep" && have_reflective_bc))
+          ho_direct[i]->set_symmetric_mode (false);
+        else
+          ho_direct[i]->set_symmetric_mode (true);
+        direct_init[i] = true;
+      }
       ho_direct[i]->solve (*vec_ho_sys[i],
                            *vec_aflx[i],
                            *vec_ho_rhs[i]);
     }
-    pcout << "Solved in " << solver_control.last_step() << std::endl;
+    if (linear_solver_name!="direct")
+      linear_iters[i] = solver_control.last_step ();
+    //pcout << "Solved in " << solver_control.last_step() << std::endl;
   }
-  radio ();
 }
 
 template <int dim>
@@ -715,7 +786,7 @@ void TransportBase<dim>::scale_fiss_transfer_matrices ()
 {
   AssertThrow (do_nda==false,
                ExcMessage("we don't scale fission transfer without NDA"));
-  if (do_nda)
+  if (!do_nda)
   {
     scaled_fiss_transfer_per_ster.resize (n_material);
     for (unsigned int m=0; m<n_material; ++m)
@@ -736,28 +807,58 @@ void TransportBase<dim>::generate_ho_fixed_source ()
 }
 
 template <int dim>
+void TransportBase<dim>::initialize_fiss_process ()
+{
+  for (unsigned int g=0; g<n_group; ++g)
+  {
+    *vec_ho_sflx[g] = 1.0;
+    sflx_proc[g] = *vec_ho_sflx[g];
+  }
+  fission_source = estimate_fiss_source (sflx_proc);
+  keff = 1.0;
+}
+
+template <int dim>
+void TransportBase<dim>::update_ho_moments_in_fiss ()
+{
+  for (unsigned int g=0; g<n_group; ++g)
+  {
+    *vec_ho_sflx_prev_gen[g] = *vec_ho_sflx[g];
+    sflx_proc_prev_gen[g] = *vec_ho_sflx_prev_gen[g];
+  }
+}
+
+template <int dim>
+void TransportBase<dim>::update_fiss_source_keff ()
+{
+  keff_prev_gen = keff;
+  fission_source_prev_gen = fission_source;
+  fission_source = estimate_fiss_source (sflx_proc);
+  keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
+  //renormalize_sflx (vec_ho_sflx);
+}
+
+template <int dim>
 void TransportBase<dim>::power_iteration ()
 {
-  keff = 1.0;
   double err_k = 1.0;
   double err_phi = 1.0;
-  fission_source = 1.0;
-  while (err_k>err_k_tol && err_phi>err_phi_tol)
+  unsigned int ct = 0;
+  initialize_fiss_process ();
+  while (err_k>err_k_tol || err_phi>err_phi_eigen_tol)
   {
-    keff_prev_gen = keff;
-    for (unsigned int g=0; g<n_group; ++g)
-    {
-      *vec_ho_sflx_prev_gen[g] = *vec_ho_sflx[g];
-      sflx_proc_prev_gen[g] = *vec_ho_sflx_prev_gen[g];
-    }
+    ct += 1;
+    update_ho_moments_in_fiss ();
+    scale_fiss_transfer_matrices ();
     generate_ho_fixed_source ();
     source_iteration ();
-    fission_source_prev_gen = fission_source;
-    fission_source = estimate_fiss_source (sflx_proc);
-    keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
-    renormalize_sflx (vec_ho_sflx, vec_ho_sflx[0]->l1_norm ());
+    update_fiss_source_keff ();
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
     err_k = std::fabs (keff - keff_prev_gen) / keff;
+    pcout
+    << "PI iter: " << ct << ", k: " << keff
+    << ", err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
+    radio ();
   }
 }
 
@@ -767,35 +868,40 @@ void TransportBase<dim>::source_iteration ()
   unsigned int ct = 0;
   double err_phi = 1.0;
   double err_phi_old;
-  generate_moments ();
+  //generate_moments ();
   while (err_phi>err_phi_tol)
   {
     //generate_ho_source ();
     ct += 1;
-    radio ("rhs");
     generate_ho_rhs ();
-    radio ("rhs done");
     ho_solve ();
     generate_moments ();
     err_phi_old = err_phi;
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
     double spectral_radius = err_phi / err_phi_old;
-    radio ("iteration", ct);
-    radio ("SI phi err", err_phi);
-    radio ("spectral radius", spectral_radius);
+    pcout
+    << "SI iter: " << ct << ", phi err: " << err_phi
+    << ", spec. rad.: " << spectral_radius;
+    
+    if (linear_solver_name!="direct")
+    {
+      auto it = std::max_element (linear_iters.begin(), linear_iters.end());
+      pcout << ", max lin. sol. iter.: " << *it;
+    }
+    pcout << std::endl;
   }
-  postprocess ();
+  //radio ();
 }
 
 template <int dim>
 void TransportBase<dim>::renormalize_sflx
-(std::vector<LA::MPI::Vector*> &target_sflxes,
- double normalization_factor)
+(std::vector<LA::MPI::Vector*> &target_sflxes)
 {
   AssertThrow (target_sflxes.size()==n_group,
                ExcMessage("vector of scalar fluxes must have a size of n_group"));
+  double norm_factor = target_sflxes[0]->max ();
   for (unsigned int g=0; g<n_group; ++g)
-    *(target_sflxes)[g] /= normalization_factor;
+    *target_sflxes[g] /= norm_factor;
 }
 
 template <int dim>
@@ -809,22 +915,25 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &p
   double fiss_source = 0.0;
   for (unsigned int ic=0; ic<local_cells.size(); ++ic)
   {
-    typename DoFHandler<dim>::active_cell_iterator
-    cell = local_cells[ic];
-    fv->reinit (cell);
+    typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
     std::vector<std::vector<double> > local_phis (n_group,
                                                   std::vector<double> (n_q));
     unsigned int material_id = cell->material_id ();
-    for (unsigned int g=0; g<n_group; ++g)
-      fv->get_function_values (phis_this_process[g],
-                               local_phis[g]);
-    for (unsigned int qi=0; qi<n_q; ++qi)
+    if (is_material_fissile[material_id])
+    {
+      fv->reinit (cell);
       for (unsigned int g=0; g<n_group; ++g)
-        fiss_source += (all_nusigf[material_id][g] *
-                        local_phis[g][qi] *
-                        fv->JxW(qi));
+        fv->get_function_values (phis_this_process[g],
+                                 local_phis[g]);
+      for (unsigned int qi=0; qi<n_q; ++qi)
+        for (unsigned int g=0; g<n_group; ++g)
+          fiss_source += (all_nusigf[material_id][g] *
+                          local_phis[g][qi] *
+                          fv->JxW(qi));
+    }
   }
-  return Utilities::MPI::sum (fiss_source, mpi_communicator);
+  double global_fiss_source = Utilities::MPI::sum (fiss_source, mpi_communicator);
+  return global_fiss_source;
 }
 
 template <int dim>
@@ -832,8 +941,7 @@ double TransportBase<dim>::estimate_k (double &fiss_source,
                                        double &fiss_source_prev_gen,
                                        double &k_prev_gen)
 {
-  // do we have to re-normalize the scalar fluxes?
-  return k_prev_gen * fiss_source_prev_gen / fiss_source;
+  return k_prev_gen * fiss_source / fiss_source_prev_gen;
 }
 
 template <int dim>
@@ -862,7 +970,10 @@ void TransportBase<dim>::do_iterations ()
     if (do_nda)
       NDA_PI ();
     else
+    {
       power_iteration ();
+      postprocess ();
+    }
   }
   else
   {
@@ -871,7 +982,9 @@ void TransportBase<dim>::do_iterations ()
     else
     {
       generate_ho_fixed_source ();
+      generate_moments ();
       source_iteration ();
+      postprocess ();
     }
   }
 }
@@ -988,10 +1101,26 @@ void TransportBase<dim>::radio (std::string str,
 }
 
 template <int dim>
+void TransportBase<dim>::radio (std::string str1, unsigned int num1,
+                                std::string str2, unsigned int num2,
+                                std::string str3, unsigned int num3)
+{
+  pcout << str1 << ": " << num1 << ", ";
+  pcout << str2 << ": " << num2 << ", ";
+  pcout << str3 << ": " << num3 << std::endl;;
+}
+
+template <int dim>
 void TransportBase<dim>::radio (std::string str,
                                 unsigned int num)
 {
   pcout << str << ": " << num << std::endl;
+}
+
+template <int dim>
+void TransportBase<dim>::radio (std::string str, bool boolean)
+{
+  pcout << str << ": " << (boolean?"true":"false") << std::endl;
 }
 
 template <int dim>
