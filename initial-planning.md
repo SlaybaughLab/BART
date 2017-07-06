@@ -1,29 +1,12 @@
 ## <a name="top">Meeting Notes
 
-* [2017/06/29](#20170629)
-
+* [Goals](#goals)
+* [Structure](#structure)
+* [To Do](#todo)
 
 
 -----------------------------------------------------------------
-### Meeting on 2017/06/29
-
-To cover at this and subsequent meetings:
-- Goals of the project: near-, mid-, and long-term
-- Structure of project
-  - language(s): C++, python front end (c-extension? cython? need to choose how
-    exactly we want to do this) [Sam]
-  - third party libraries: deal-II for FEM; PyNE for data?
-  - testing framework: google test (?), [Marissa]
-  - integration framework: travis ci? batlab?  [Josh]
-  - test problem library (benchmark suite)
-  - build system: make
-  - documentation: doxygen
-  - style guide: TBD [Josh]
-- Collaboration / interaction plan
-- License [slaybaugh]
-- Anything else?
-
-#### Goals and ToDo Items
+#### <a name="goals">Goals
 
 Goals: 
 - research tool to investigate transport methods
@@ -36,8 +19,30 @@ Goals:
 - follows reproducible practices: git, tests, tags, documentation, style guide,
   build system, etc.
 - Covariant reference frame
+- Include a tutorial
 
-Include a tutorial
+[Index](#top)
+
+
+#### <a name="structure">Structure
+
+- language(s): C++, python front end (c-extension? cython? need to choose how
+  exactly we want to do this) [Sam]
+- third party libraries: deal-II for FEM; PyNE for data?
+- testing framework: [Google Test](https://github.com/google/googletest) 
+- integration framework: [Travis CI](https://travis-ci.org/)
+- test problem library (benchmark suite)
+- build system: [Make](https://www.gnu.org/software/make/)
+- documentation: [Doxygen](http://www.stack.nl/~dimitri/doxygen/)
+- style guide: TBD [Josh]
+- Collaboration / interaction plan
+- License [slaybaugh]
+- Anything else?
+
+[Index](#top)
+
+
+#### <a name="todo">To Do
 
 **near-term** (next 6 months)
 
@@ -68,6 +73,7 @@ Modules:
 - more versatile geometry (?)
 - spherical
 - more methods of each category
+- other transport models
 
 
 [Index](#top)
