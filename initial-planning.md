@@ -8,7 +8,6 @@
 -----------------------------------------------------------------
 #### <a name="goals">Goals
 
-Goals: 
 - research tool to investigate transport methods
 - easy to get started as a new student
 - easy to build
@@ -26,9 +25,11 @@ Goals:
 
 #### <a name="structure">Structure
 
-- language(s): C++, python front end (c-extension? cython? need to choose how
+- language(s): C++, Python 3 front end (c-extension? cython? need to choose how
   exactly we want to do this) [Sam]
-- third party libraries: deal-II for FEM; PyNE for data?
+- third party libraries: 
+  - [deal-II](http://www.dealii.org/) for FEM
+  - [PyNE](https://github.com/pyne/pyne) modules pulled in for nuclear data
 - testing framework: [Google Test](https://github.com/google/googletest) 
 - integration framework: [Travis CI](https://travis-ci.org/)
 - test problem library (benchmark suite)
