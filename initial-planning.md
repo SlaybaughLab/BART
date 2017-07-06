@@ -19,6 +19,7 @@
   build system, etc.
 - Covariant reference frame
 - Include a tutorial
+- be able to handle small and medium problems (up to ~100M degrees of freedom)
 
 [Index](#top)
 
@@ -37,7 +38,7 @@
 - documentation: [Doxygen](http://www.stack.nl/~dimitri/doxygen/)
 - style guide: TBD [Josh]
 - Collaboration / interaction plan
-- License [slaybaugh]
+- [MIT License](https://github.com/SlaybaughLab/BART/blob/master/LICENSE)
 - Anything else?
 
 [Index](#top)
@@ -50,8 +51,9 @@
 Goal: structure in place; two methods available
 
 Modules:
+- implement with testing, CI, documentation, etc. 
 - Cartesian spatial solver (2D and/or 3D)
-- access to nuclear data (via PyNE?)
+- access to nuclear data
 - source specification
   - input 
   - internal representation
@@ -60,6 +62,13 @@ Modules:
 - boundary conditions (vacuum and incident)
 - material assignment
 - multiple energy groups
+
+2017-07-06 Plan of action for code integration
+- merge [DG-EP repo](https://github.com/weixiong-zheng-berkeley/DG-EP) with
+  this repo {done}
+- implement test framework
+- hook into CI framework
+- update documentation to doxygen
 
 
 **mid-term** (out to 1.5 years)
