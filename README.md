@@ -4,8 +4,11 @@
 Software for investigating methods to solve the Boltzmann Transport equation.
 Developed and maintained by 
 
-- Rachel Slaybaugh
+- [Marissa Ramirez Zweiger](https://github.com/mzweig/)
 - [Joshua Rehak](https://github.com/jsrehak/)
+- [Rachel Slaybaugh](https://github.com/rachelslaybaugh)
+- [Richard Vasques](https://github.com/ricvasques)
+- [Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/)
 
 of the Nuclear Engineering Department at the University of California, Berkeley
 
