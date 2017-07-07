@@ -135,50 +135,36 @@ void MeshGenerator<dim>::setup_boundary_ids
   
   for (typename Triangulation<dim>::active_cell_iterator
        cell=tria.begin_active(); cell!=tria.end(); ++cell)
-  {
     if (cell->is_locally_owned())
-    {
       for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
-      {
-        if (cell->face(fn)->at_boundary())
+        if (cell->at_boundary(fn))
         {
           Point<dim> ct = cell->face(fn)->center();
-          // left boundary
+          // x-axis boundaries
           if (std::fabs(ct[0])<1.0e-14)
             cell->face(fn)->set_boundary_id (0);
-          
-          // right boundary
-          if (std::fabs(ct[0]-axis_max_values[0])<1.0e-14)
+          else if (std::fabs(ct[0]-axis_max_values[0])<1.0e-14)
             cell->face(fn)->set_boundary_id (1);
           
           // 2D and 3D boundaries
           if (dim>1)
           {
-            // 2D boundaries
-            // front boundary
+            // y-axis boundaries
             if (std::fabs(ct[1])<1.0e-14)
               cell->face(fn)->set_boundary_id (2);
-            
-            // rear boundary
-            if (std::fabs(ct[1]-axis_max_values[1])<1.0e-14)
+            else if (std::fabs(ct[1]-axis_max_values[1])<1.0e-14)
               cell->face(fn)->set_boundary_id (3);
             
-            // 3D boundaries
-            if (dim>2)
+            // z-axis boundaries
+            if (dim==3)
             {
-              // front boundary
               if (std::fabs(ct[2])<1.0e-14)
                 cell->face(fn)->set_boundary_id (4);
-              
-              // rear boundary
-              if (std::fabs(ct[2]-axis_max_values[2])<1.0e-14)
+              else if (std::fabs(ct[2]-axis_max_values[2])<1.0e-14)
                 cell->face(fn)->set_boundary_id (5);
             }
           }
         }
-      }// face
-    }// locally owned cell
-  }// cell
 }
 
 template <int dim>
@@ -283,21 +269,33 @@ void MeshGenerator<dim>::initialize_relative_position_to_id_map (ParameterHandle
 {
   prm.enter_subsection ("material ID map");
   {
-    std::string id_fname = prm.get ("material id file name");
-    std::ifstream in (id_fname);
     unsigned int ncell_z = dim==3?ncell_per_dir[2]:1;
     unsigned int ncell_y = dim>=2?ncell_per_dir[1]:1;
-    for (unsigned int z=0; z<ncell_z; ++z)
-      for (unsigned int y=0; y<ncell_y; ++y)
-        for (unsigned int x=0; x<ncell_per_dir[0]; ++x)
+    unsigned int ncell_x = ncell_per_dir[0];
+    std::string id_fname = prm.get ("material id file name");
+    std::ifstream in (id_fname);
+    std::string line;
+    unsigned int ct = 0;
+    if (in.is_open ())
+    {
+      while (std::getline (in, line))
+      {
+        unsigned int y = ct % ncell_y;
+        unsigned int z = ct / ncell_y;
+        std::vector<std::string> strings = Utilities::split_string_list (line, ' ');
+        AssertThrow (strings.size()==ncell_x,
+                     ExcMessage("Entries of material ID per row must be ncell_x"));
+        for (unsigned int x=0; x<ncell_x; ++x)
         {
           std::vector<unsigned int> tmp {x, y, z};
-          unsigned int id;
-          in >> id;
-          relative_position_to_id[tmp] = id - 1;
+          relative_position_to_id[tmp] = std::atoi (strings[x].c_str()) - 1;
         }
-    //std::vector<unsigned int> tmp {1,0,0};
-    //std::cout << "id test: " << relative_position_to_id[tmp] << std::endl;
+        ct += 1;
+      }
+      AssertThrow (ct==ncell_y*ncell_z,
+                   ExcMessage("Number of y, z ID entries are not correct"));
+      in.close ();
+    }
   }
   prm.leave_subsection ();
 }
