@@ -133,21 +133,24 @@ void MaterialProperties::process_material_properties
     }
     prm.leave_subsection ();
     
-    prm.enter_subsection ("one-group Q");
+    if (!is_eigen_problem)
     {
-      std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
-      AssertThrow (strings.size()==n_material,
-                   ExcMessage("One-group Q should have N_material entries"));
-      std::vector<double> tmp_sigt (n_material);
-      for (unsigned int m=0; m<n_material; ++m)
+      prm.enter_subsection ("one-group Q");
       {
-        std::vector<double> tmp = {std::atof (strings[m].c_str())};
-        all_q.push_back (tmp);
-        std::vector<double> tmp_per_ster = {std::atof (strings[m].c_str()) / (4.0 * pi)};
-        all_q_per_ster.push_back (tmp_per_ster);
+        std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
+        AssertThrow (strings.size()==n_material,
+                     ExcMessage("One-group Q should have N_material entries"));
+        std::vector<double> tmp_sigt (n_material);
+        for (unsigned int m=0; m<n_material; ++m)
+        {
+          std::vector<double> tmp = {std::atof (strings[m].c_str())};
+          all_q.push_back (tmp);
+          std::vector<double> tmp_per_ster = {std::atof (strings[m].c_str()) / (4.0 * pi)};
+          all_q_per_ster.push_back (tmp_per_ster);
+        }
       }
+      prm.leave_subsection ();
     }
-    prm.leave_subsection ();
   }
   
   // This block is for eigenvalue problems
