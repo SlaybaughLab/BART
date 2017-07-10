@@ -58,7 +58,7 @@ Modules:
   - input 
   - internal representation
 - geometry specification
-- mesh
+- mesh: good idea to be able to take [Exodous II](https://cubit.sandia.gov/public/13.2/help_manual/WebHelp/finite_element_model/exodus/exodus2_file_specification.htm) format
 - boundary conditions (vacuum and incident)
 - material assignment
 - multiple energy groups
