@@ -46,6 +46,7 @@ namespace LA
 #include <vector>
 
 #include "../../common/problem_definition.h"
+#include "../../common/preconditioner_solver.h"
 #include "../../mesh/mesh_generator.h"
 #include "../../material/material_properties.h"
 #include "../../aqdata/base/aq_base.h"
@@ -290,13 +291,6 @@ protected:
   std::set<unsigned int> fissile_ids;
   
   ConditionalOStream pcout;
-  
-  std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> > pre_ho_amg;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi> > pre_ho_bjacobi;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails> > pre_ho_parasails;
-  std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionJacobi> > pre_ho_jacobi;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat> > pre_ho_eisenstat;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS> > ho_direct;
   
   ConstraintMatrix constraints;
 };
