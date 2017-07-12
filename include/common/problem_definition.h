@@ -22,12 +22,12 @@ const unsigned int y_levels = 100;
 
 class ProblemDefinition
 {
-public:
+  public:
   ProblemDefinition (ParameterHandler &prm);
   ~ProblemDefinition ();
-  
+
   static void declare_parameters (ParameterHandler &prm);
-  
+
   /*
    functions used to retrieve private members of ProblemDefinition<dim>
    */
@@ -45,8 +45,8 @@ public:
   unsigned int get_n_group ();
   unsigned int get_fe_order ();
   unsigned int get_uniform_refinement ();
-  
-private:
+
+  private:
   std::string transport_model_name;
   std::string aq_name;
   std::string discretization;
