@@ -1,4 +1,5 @@
 serial/
+work_log.txt
 original*/
 *.vtu
 *.pvtu
