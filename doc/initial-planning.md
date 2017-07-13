@@ -38,7 +38,17 @@
 - build system: [Cmake](https://cmake.org/)
 - documentation: [Doxygen](http://www.stack.nl/~dimitri/doxygen/)
 - style guide: [Google C++](https://google.github.io/styleguide/cppguide.html)
-- Collaboration / interaction plan
+- Collaboration / interaction plan: 
+  - each new feature will get its own branch until it is ready to be merged into
+    master
+  - code contributions should be submitted as a PR to the main repo, someone
+    else should review the code and merge it
+  - bug / feature / etc. requests should start as issues
+  - [rebase](https://git-scm.com/docs/git-rebase): use this strategy for
+    branches; 
+    [here](https://www.atlassian.com/git/tutorials/merging-vs-rebasing) is some info
+    about how and why. Note: use with caution.
+  - we will use tags for major releases
 - [MIT License](https://github.com/SlaybaughLab/BART/blob/master/LICENSE)
 - Anything else?
 
