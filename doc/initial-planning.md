@@ -3,7 +3,7 @@
 * [Goals](#goals)
 * [Structure](#structure)
 * [To Do](#todo)
-
+* [To Do July](#july)
 
 -----------------------------------------------------------------
 #### <a name="goals">Goals
@@ -24,6 +24,7 @@
 [Index](#top)
 
 
+-----------------------------------------------------------------
 #### <a name="structure">Structure
 
 - language(s): C++, Python 3 front end (c-extension? cython? need to choose how
@@ -36,7 +37,7 @@
 - test problem library (benchmark suite)
 - build system: [Make](https://www.gnu.org/software/make/)
 - documentation: [Doxygen](http://www.stack.nl/~dimitri/doxygen/)
-- style guide: TBD [Josh]
+- style guide: [Google C++](https://google.github.io/styleguide/cppguide.html)
 - Collaboration / interaction plan
 - [MIT License](https://github.com/SlaybaughLab/BART/blob/master/LICENSE)
 - Anything else?
@@ -44,6 +45,7 @@
 [Index](#top)
 
 
+-----------------------------------------------------------------
 #### <a name="todo">To Do
 
 **near-term** (next 6 months)
@@ -62,13 +64,6 @@ Modules:
 - boundary conditions (vacuum and incident)
 - material assignment
 - multiple energy groups
-
-2017-07-06 Plan of action for code integration
-- merge [DG-EP repo](https://github.com/weixiong-zheng-berkeley/DG-EP) with
-  this repo {done}
-- implement test framework
-- hook into CI framework
-- update documentation to doxygen
 
 
 **mid-term** (out to 1.5 years)
@@ -89,3 +84,29 @@ Modules:
 [Index](#top)
 
 
+
+-----------------------------------------------------------------
+#### <a name="july">To Do for the month of July
+**2017-07-13**
+
+Notes about structure:
+- Header and source code files need to go in the same folder
+- Each class gets its own folder
+- Derived classes can go in the same folder as the base class
+- Tests for each piece of code should be in a `test` folder in the directory
+  where the code it is testing lives
+- We will have these folders
+  - `src`, which will contain all code and integration tests
+  - `doc`, which will contain a `development` folder and a `code_doc` foder
+  - 
+
+
+**2017-07-06** 
+- ~~merge [DG-EP repo](https://github.com/weixiong-zheng-berkeley/DG-EP) with
+  this repo {done}~~
+- implement test framework
+- hook into CI framework
+- update documentation to doxygen
+
+
+[Index](#top)
