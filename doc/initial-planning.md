@@ -35,7 +35,7 @@
 - testing framework: [Google Test](https://github.com/google/googletest) 
 - integration framework: [Travis CI](https://travis-ci.org/)
 - test problem library (benchmark suite)
-- build system: [Make](https://www.gnu.org/software/make/)
+- build system: [Cmake](https://cmake.org/)
 - documentation: [Doxygen](http://www.stack.nl/~dimitri/doxygen/)
 - style guide: [Google C++](https://google.github.io/styleguide/cppguide.html)
 - Collaboration / interaction plan
@@ -98,12 +98,13 @@ Notes about structure:
 - We will have these folders
   - `src`, which will contain all code and integration tests
   - `doc`, which will contain a `development` folder and a `code_doc` foder
-  - 
+- We will use linux and osx for testing on Travis CI [info
+  here](https://docs.travis-ci.com/user/multi-os/)
 
 
 **2017-07-06** 
-- ~~merge [DG-EP repo](https://github.com/weixiong-zheng-berkeley/DG-EP) with
-  this repo {done}~~
+- ~~merge [DG-EP repo](https://github.com/weixiong-zheng-berkeley/DG-EP) with~~
+  ~~this repo {done}~~
 - implement test framework
 - hook into CI framework
 - update documentation to doxygen
