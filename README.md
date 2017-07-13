@@ -30,3 +30,5 @@ Currently, we are using [deal.II](http://www.dealii.org/) finite element
 library. In the future, we are likely to convert to
 [libMesh](http://libmesh.github.io/).
 
+## Install and build
+Please check [install_build.md](https://github.com/SlaybaughLab/BART/blob/master/install_build.md) for installation and building instructions.
