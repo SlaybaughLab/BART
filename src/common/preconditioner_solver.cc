@@ -35,7 +35,7 @@ void PreconditionerSolver::initialize_ho_preconditioners
                ExcMessage("num of HO system rhs should be equal to total variable number"));
   if (ho_linear_solver_name!="direct")
   {
-    linear_iters.resize (n_total_ho_vars);
+    ho_linear_iters.resize (n_total_ho_vars);
     if (ho_preconditioner_name=="amg")
     {
       pre_ho_amg.resize (n_total_ho_vars);
@@ -125,34 +125,270 @@ void PreconditionerSolver::ho_solve
                ExcMessage("num of HO system matrices should be equal to total variable number"));
   AssertThrow (n_total_ho_vars==ho_rhses.size(),
                ExcMessage("num of HO system rhs should be equal to total variable number"));
-  
+  for (unsigned int i=0; i<n_total_ho_vars; ++i)
+  {
+    if (ho_linear_solver_name=="cg")
+    {
+      PETScWrappers::SolverCG
+      solver (*ho_cn[i], mpi_communicator);
+      if (ho_preconditioner_name=="amg")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_amg)[i]);
+      else if (ho_preconditioner_name=="jacobi")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_jacobi)[i]);
+      else if (ho_preconditioner_name=="bssor")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_eisenstat)[i]);
+      else if (ho_preconditioner_name=="parasails")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_parasails)[i]);
+    }
+    else if (ho_linear_solver_name=="bicgstab")
+    {
+      PETScWrappers::SolverBicgstab
+      solver (*ho_cn[i], mpi_communicator);
+      if (ho_preconditioner_name=="amg")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_amg)[i]);
+      else if (ho_preconditioner_name=="jacobi")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_jacobi)[i]);
+      else if (ho_preconditioner_name=="bssor")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_eisenstat)[i]);
+      else if (ho_preconditioner_name=="parasails")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_parasails)[i]);
+    }
+    else if (ho_linear_solver_name=="gmres")
+    {
+      PETScWrappers::SolverGMRES
+      solver (*ho_cn[i], mpi_communicator);
+      if (ho_preconditioner_name=="amg")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_amg)[i]);
+      else if (ho_preconditioner_name=="jacobi")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_jacobi)[i]);
+      else if (ho_preconditioner_name=="bssor")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_eisenstat)[i]);
+      else if (ho_preconditioner_name=="parasails")
+        solver.solve (*ho_syses[i],
+                      *ho_psis[i],
+                      *ho_rhses[i],
+                      *(pre_ho_parasails)[i]);
+    }
+    else// if (linear_solver_name=="direct")
+    {
+      if (!direct_init[i])
+      {
+        ho_direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
+        (new PETScWrappers::SparseDirectMUMPS(*gcn, mpi_communicator));
+        if (transport_model_name=="fo" ||
+            (transport_model_name=="ep" && have_reflective_bc))
+          ho_direct[i]->set_symmetric_mode (false);
+        else
+          ho_direct[i]->set_symmetric_mode (true);
+        direct_init[i] = true;
+      }
+      ho_direct[i]->solve (*ho_syses[i],
+                           *ho_psis[i],
+                           *ho_rhses[i]);
+    }
+    // the ho_linear_iters are for reporting linear solver status, test purpose only
+    if (ho_linear_solver_name!="direct")
+      ho_linear_iters[i] = ho_cn[i]->last_step ();
+  }
 }
 
 // the following section is for NDA solving/preconditioning
-void PreconditionerSolver::nda_solve
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &nda_syses,
- std::vector<PETScWrappers::MPI::Vector*> &nda_phis,
- std::vector<PETScWrappers::MPI::Vector*> &nda_rhses,
- unsigned int &g)
-{
-  // solve with specific solvers
-  if (nda_linear_solver_name=="direct")
-    nda_solve_direct (*nda_syses[g], *nda_phis, *nda_rhses, g);
-  else if (nda_linear_solver_name=="bicgstab")
-    nda_solve_bicgstab (*nda_syses, *nda_phis, *nda_rhses[g], g);
-  else if (nda_linear_solver_name="gmres")
-    nda_solve_gmres (*nda_syses[g], *nda_phis[g], *nda_rhses[g], g);
-}
-
+// Unlike HO system, preconditioner will be reinit every outer
+// iteration
 void PreconditionerSolver::reinit_nda_preconditioners
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &nda_syses)
+(std::vector<PETScWrappers::MPI::SparseMatrix*> &nda_syses,
+ std::vector<PETScWrappers::MPI::Vector*> &nda_rhses)
 {
   AssertThrow (nda_syses.size()==n_group,
-               ExcMessage("There should be n_group NDA matrices"));
-  if (nda_linear_solver_name=="direct")
+               ExcMessage("There sndauld be n_group NDA matrices"));
+  AssertThrow (nda_rhses.size()==n_group,
+               ExcMessage("num of NDA system rhs sndauld be equal to total group num"));
+  if (nda_linear_solver_name!="direct")
   {
-  }
+    nda_linear_iters.resize (n_group);
+    if (nda_preconditioner_name=="amg")
+    {
+      pre_nda_amg.resize (n_group);
+      for (unsigned int i=0; i<n_group; ++i)
+      {
+        pre_nda_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG>
+                          (new LA::MPI::PreconditionAMG));
+        LA::MPI::PreconditionAMG::AdditionalData data;
+        data.symmetric_operator = false;
+        pre_nda_amg[i]->initialize(*nda_syses[i], data);
+      }
+    }
+    else if (nda_preconditioner_name=="bjacobi")
+    {
+      pre_nda_bjacobi.resize (n_group);
+      for (unsigned int i=0; i<n_group; ++i)
+      {
+        pre_nda_bjacobi[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi>
+        (new PETScWrappers::PreconditionBlockJacobi);
+        pre_nda_bjacobi[i]->initialize(*nda_syses[i]);
+      }
+    }
+    else if (nda_preconditioner_name=="jacobi")
+    {
+      pre_nda_jacobi.resize (n_group);
+      for (unsigned int i=0; i<n_group; ++i)
+      {
+        pre_nda_jacobi[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionJacobi>
+        (new PETScWrappers::PreconditionJacobi);
+        pre_nda_jacobi[i]->initialize(*nda_syses[i]);
+      }
+    }
+    else if (nda_preconditioner_name=="bssor")
+    {
+      pre_nda_eisenstat.resize (n_group);
+      for (unsigned int i=0; i<n_group; ++i)
+      {
+        pre_nda_eisenstat[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat>
+        (new PETScWrappers::PreconditionEisenstat);
+        PETScWrappers::PreconditionEisenstat::AdditionalData data(ssor_omega);
+        pre_nda_eisenstat[i]->initialize(*nda_syses[i], data);
+      }
+    }
+    else if (nda_preconditioner_name=="parasails")
+    {
+      pre_nda_parasails.resize (n_group);
+      for (unsigned int i=0; i<n_group; ++i)
+      {
+        pre_nda_parasails[i] = (std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails>
+                                (new PETScWrappers::PreconditionParaSails));
+        // set the symmetric pattern to false
+        PETScWrappers::PreconditionParaSails::AdditionalData data (2);
+        pre_nda_parasails[i]->initialize(*nda_syses[i], data);
+      }
+    }
+  }// not direct solver
   else
   {
+    nda_direct.resize (n_group);
+    nda_direct_init = std::vector<bool> (n_group, false);
+  }
+  // initialize nda solver controls
+  nda_cn.resize (n_group);
+  for (unsigned int i=0; i<n_group; ++i)
+    nda_cn[i] = std_cxx11::shared_ptr<SolverControl>
+    (new SolverControl(nda_rhses[i].size(),
+                       1.0e-12*nda_rhses[i]->l1_norm()));
+}
+
+void PreconditionerSolver::nda_solve
+(PETScWrappers::MPI::SparseMatrix &nda_sys,
+ PETScWrappers::MPI::Vector &nda_phi,
+ PETScWrappers::MPI::Vector &nda_rhs,
+ unsigned int &g)
+{
+  AssertThrow (nda_linear_solver_name!="cg",
+               ExcMessage("CG is not available to NDA solving"));
+  // solve with specific solvers
+  if (nda_linear_solver_name=="direct")
+  {
+    if (!nda_direct_init[g])
+    {
+      nda_direct[g] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
+      (new PETScWrappers::SparseDirectMUMPS(*nda_cn[g], mpi_communicator));
+      nda_direct[g]->set_symmetric_mode (false);
+      nda_direct_init[g] = true;
+    }
+    nda_direct[g]->solve (nda_sys,
+                          nda_phi,
+                          nda_rhs);
+  }
+  else if (nda_linear_solver_name=="bicgstab")
+  {
+    PETScWrappers::SolverBicgstab
+    solver (*nda_cn[g], mpi_communicator);
+    if (nda_preconditioner_name=="amg")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_amg[g]);
+    else if (nda_preconditioner_name=="parasails")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_parasails[g]);
+    else if (nda_preconditioner_name=="bssor")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_eisenstat[g]);
+    else if (nda_preconditioner_name=="bjacobi")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_bjacobi[g]);
+    else if (nda_preconditioner_name=="jacobi")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_jacobi[g]);
+  }
+  else if (nda_linear_solver_name=="gmres")
+  {
+    PETScWrappers::SolverGMRES
+    solver (*nda_cn[g], mpi_communicator);
+    if (nda_preconditioner_name=="amg")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_amg[g]);
+    else if (nda_preconditioner_name=="parasails")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_parasails[g]);
+    else if (nda_preconditioner_name=="bssor")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_eisenstat[g]);
+    else if (nda_preconditioner_name=="bjacobi")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_bjacobi[g]);
+    else if (nda_preconditioner_name=="jacobi")
+      solver.solve (nda_sys,
+                    nda_phi,
+                    nda_rhs,
+                    *pre_nda_jacobi[g]);
   }
 }
+
