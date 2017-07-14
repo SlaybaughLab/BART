@@ -18,14 +18,14 @@ Installation can also be done through following instructions in [candi](https://
 This is to build deal.II with PETSc from scratch by oneself, which gives the most flexibility but is not recommended. If interested, please check [here](https://www.dealii.org/developer/readme.html).
 # Build BART
 Up to 2017-07-13, one could only build the core of BART, which is [XTrans](https://github.com/weixiong-zheng-berkeley/XTrans). In the future this will be updated.
-
-To build the core, one needs to add two lines to the .bash type file to tell where your deal.II build is:
+## On Mac OSX
+To build the core, one needs to add two lines to the ~/.profile to tell where the deal.II build is. If one installs deal.II using .dmg, one will see the requested two lines when opening the deal.II app. Depending on the version of deal.II, there will be suggestion adding something like:
 
 `export DEAL_II_CONF_SILENT=ON`
 
-`. your_path_to_dealii`
+`. /Applications/deal.II.app/Contents/Resources/share/deal.II/dealii.conf`
 
-And then source it. In the source code directory (where there is the CMakeLists.txt), type:
+And then source ~/.profile. In the source code directory (where there is the CMakeLists.txt), type:
 
 `cmake .`
 
@@ -36,3 +36,12 @@ Notice that in the future for running research problems, rather than development
 `make release`
 
 so that the code will run in release mode, which can be several times faster.
+
+## On Linux/Unix
+There is no requirement to add commands in ~/.bashrc. The only thing one needs to do after being in the source directory is:
+
+`cmake -DDEAL_II_DIR=the_path_to_dealii .`
+
+And then:
+
+`make` or `make release`
