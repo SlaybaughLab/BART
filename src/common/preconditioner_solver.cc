@@ -11,12 +11,20 @@ ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
 do_nda(prm.get_bool("do NDA"))
 {
+  if (transport_model_name=="ep")
+    have_reflective_bc = prm.get_bool ("have reflective BC");
+  
+  if (ho_preconditioner_name=="ssor")
+    ho_ssor_omega = prm.get_double ("HO ssor factor");
+  
 	if (do_nda)
 	{
 		nda_linear_solver_name = prm.get ("NDA linear solver name");
 		AssertThrow (nda_linear_solver_name!="cg",
 			           ExcMessage("CG is prohibited for solving NDA equations"));
 		nda_preconditioner_name = prm.get ("NDA preconditioner name");
+    if (nda_preconditioner_name=="ssor")
+      nda_ssor_omega = prm.get_double ("NDA ssor factor");
 	}
 }
 
@@ -27,7 +35,7 @@ PreconditionerSolver::~PreconditionerSolver ()
 // the following section is for HO solving/preconditioning
 void PreconditionerSolver::initialize_ho_preconditioners
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &ho_syses,
- std::vector<PETScWrappers::MPI::vector*> &ho_rhses)
+ std::vector<PETScWrappers::MPI::Vector*> &ho_rhses)
 {
   AssertThrow (n_total_ho_vars==ho_syses.size(),
                ExcMessage("num of HO system matrices should be equal to total variable number"));
@@ -41,9 +49,9 @@ void PreconditionerSolver::initialize_ho_preconditioners
       pre_ho_amg.resize (n_total_ho_vars);
       for (unsigned int i=0; i<n_total_ho_vars; ++i)
       {
-        pre_ho_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG>
-                         (new LA::MPI::PreconditionAMG));
-        LA::MPI::PreconditionAMG::AdditionalData data;
+        pre_ho_amg[i] = (std_cxx11::shared_ptr<PETScWrappers::PreconditionBoomerAMG>
+                         (new PETScWrappers::PreconditionBoomerAMG));
+        PETScWrappers::PreconditionBoomerAMG::AdditionalData data;
         if (transport_model_name=="fo" ||
             (transport_model_name=="ep" && have_reflective_bc))
           data.symmetric_operator = false;
@@ -79,7 +87,7 @@ void PreconditionerSolver::initialize_ho_preconditioners
       {
         pre_ho_eisenstat[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat>
         (new PETScWrappers::PreconditionEisenstat);
-        PETScWrappers::PreconditionEisenstat::AdditionalData data(ssor_omega);
+        PETScWrappers::PreconditionEisenstat::AdditionalData data(ho_ssor_omega);
         pre_ho_eisenstat[i]->initialize(*(ho_syses)[i], data);
       }
     }
@@ -107,19 +115,19 @@ void PreconditionerSolver::initialize_ho_preconditioners
   else
   {
     ho_direct.resize (n_total_ho_vars);
-    direct_init = std::vector<bool> (n_total_ho_vars, false);
+    ho_direct_init = std::vector<bool> (n_total_ho_vars, false);
   }
   // initialize HO solver controls
   ho_cn.resize (n_total_ho_vars);
   for (unsigned int i=0; i<n_total_ho_vars; ++i)
     ho_cn[i] = std_cxx11::shared_ptr<SolverControl>
-    (new SolverControl(ho_rhses[i].size(),
-                       1.0e-12*ho_rhses[i]->l1_norm()));
+    (new SolverControl(ho_rhses[i]->size(), 1.0e-12*ho_rhses[i]->l1_norm()));
 }
 
 void PreconditionerSolver::ho_solve
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &ho_syses,
- std::vector<PETScWrappers::MPI::vector*> &ho_rhses)
+ std::vector<PETScWrappers::MPI::Vector*> &ho_psis,
+ std::vector<PETScWrappers::MPI::Vector*> &ho_rhses)
 {
   AssertThrow (n_total_ho_vars==ho_syses.size(),
                ExcMessage("num of HO system matrices should be equal to total variable number"));
@@ -204,16 +212,16 @@ void PreconditionerSolver::ho_solve
     }
     else// if (linear_solver_name=="direct")
     {
-      if (!direct_init[i])
+      if (!ho_direct_init[i])
       {
         ho_direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
-        (new PETScWrappers::SparseDirectMUMPS(*gcn, mpi_communicator));
+        (new PETScWrappers::SparseDirectMUMPS(*ho_cn[i], mpi_communicator));
         if (transport_model_name=="fo" ||
             (transport_model_name=="ep" && have_reflective_bc))
           ho_direct[i]->set_symmetric_mode (false);
         else
           ho_direct[i]->set_symmetric_mode (true);
-        direct_init[i] = true;
+        ho_direct_init[i] = true;
       }
       ho_direct[i]->solve (*ho_syses[i],
                            *ho_psis[i],
@@ -244,9 +252,9 @@ void PreconditionerSolver::reinit_nda_preconditioners
       pre_nda_amg.resize (n_group);
       for (unsigned int i=0; i<n_group; ++i)
       {
-        pre_nda_amg[i] = (std_cxx11::shared_ptr<LA::MPI::PreconditionAMG>
-                          (new LA::MPI::PreconditionAMG));
-        LA::MPI::PreconditionAMG::AdditionalData data;
+        pre_nda_amg[i] = (std_cxx11::shared_ptr<PETScWrappers::PreconditionBoomerAMG>
+                          (new PETScWrappers::PreconditionBoomerAMG));
+        PETScWrappers::PreconditionBoomerAMG::AdditionalData data;
         data.symmetric_operator = false;
         pre_nda_amg[i]->initialize(*nda_syses[i], data);
       }
@@ -278,7 +286,7 @@ void PreconditionerSolver::reinit_nda_preconditioners
       {
         pre_nda_eisenstat[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat>
         (new PETScWrappers::PreconditionEisenstat);
-        PETScWrappers::PreconditionEisenstat::AdditionalData data(ssor_omega);
+        PETScWrappers::PreconditionEisenstat::AdditionalData data(nda_ssor_omega);
         pre_nda_eisenstat[i]->initialize(*nda_syses[i], data);
       }
     }
@@ -304,7 +312,7 @@ void PreconditionerSolver::reinit_nda_preconditioners
   nda_cn.resize (n_group);
   for (unsigned int i=0; i<n_group; ++i)
     nda_cn[i] = std_cxx11::shared_ptr<SolverControl>
-    (new SolverControl(nda_rhses[i].size(),
+    (new SolverControl(nda_rhses[i]->size(),
                        1.0e-12*nda_rhses[i]->l1_norm()));
 }
 

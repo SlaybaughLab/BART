@@ -154,17 +154,16 @@ private:
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   
-  std::vector<bool> direct_init;
-  
   std_cxx11::shared_ptr<ProblemDefinition> def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
+  std_cxx11::shared_ptr<PreconditionerSolver> sol_ptr;
   std_cxx11::shared_ptr<SolverControl> gcn;
   
   std::string transport_model_name;
-  std::string linear_solver_name;
-  std::string preconditioner_name;
+  std::string ho_linear_solver_name;
+  std::string ho_preconditioner_name;
   std::string discretization;
   std::string namebase;
   std::string aq_name;

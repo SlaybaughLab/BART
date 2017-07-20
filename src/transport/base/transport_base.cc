@@ -27,15 +27,16 @@ dof_handler (triangulation),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
-linear_solver_name(prm.get("linear solver name")),
-preconditioner_name(prm.get("preconditioner name")),
+ho_linear_solver_name(prm.get("linear solver name")),
+ho_preconditioner_name(prm.get("preconditioner name")),
 pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
 {
-  if (linear_solver_name!="direct" && preconditioner_name=="bssor")
-    ssor_omega = prm.get_double("ssor factor");
   initialize_aq (prm);
+  n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
+  sol_ptr = std_cxx11::shared_ptr<PreconditionerSolver>
+  (new PreconditionerSolver (prm, n_total_ho_vars, mpi_communicator));
   def_ptr = std_cxx11::shared_ptr<ProblemDefinition>
   (new ProblemDefinition(prm));
   msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
@@ -74,7 +75,6 @@ void TransportBase<dim>::process_input ()
     // from angular quadrature data
     n_azi = aqd_ptr->get_sn_order ();
     n_dir = aqd_ptr->get_n_dir ();
-    n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
     component_index = aqd_ptr->get_component_index_map ();
     inverse_component_index = aqd_ptr->get_inv_component_map ();
     wi = aqd_ptr->get_angular_weights ();
@@ -85,10 +85,6 @@ void TransportBase<dim>::process_input ()
       tensor_norms = aqd_ptr->get_tensor_norms ();
       c_penalty = 1.0 * p_order * (p_order + 1.0);
     }
-
-    // instantiate preconditioner solver pointer
-    sol_ptr = std_cxx11::shared_ptr<PreconditionerSolver>
-    (new PreconditionerSolver (prm, n_total_ho_vars, mpi_communicator));
   }
 
   if (have_reflective_bc)
@@ -139,9 +135,9 @@ void TransportBase<dim>::report_system ()
 
   radio ("Transport model", transport_model_name);
   radio ("Spatial discretization", discretization);
-  radio ("Linear solver", linear_solver_name);
-  if (linear_solver_name!="direct")
-    radio ("Preconditioner", preconditioner_name);
+  radio ("HO linear solver", ho_linear_solver_name);
+  if (ho_linear_solver_name!="direct")
+    radio ("HO preconditioner", ho_preconditioner_name);
   radio ("do NDA?", do_nda);
   
   radio ("Number of cells", triangulation.n_global_active_cells());
@@ -657,17 +653,10 @@ void TransportBase<dim>::source_iteration ()
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
     double spectral_radius = err_phi / err_phi_old;
     pcout
-    << "SI iter: " << ct << ", phi err: " << err_phi
-    << ", spec. rad.: " << spectral_radius;
-    
-    if (linear_solver_name!="direct")
-    {
-      auto it = std::max_element (linear_iters.begin(), linear_iters.end());
-      pcout << ", max lin. sol. iter.: " << *it;
-    }
-    pcout << std::endl;
+    << "SI iter: " << ct
+    << ", phi err: " << err_phi
+    << ", spec. rad.: " << spectral_radius << std::endl;
   }
-  //radio ();
 }
 
 template <int dim>
@@ -741,7 +730,7 @@ double TransportBase<dim>::estimate_phi_diff
 template <int dim>
 void TransportBase<dim>::do_iterations ()
 {
-  sol_ptr->initialize_ho_preconditioners ();
+  sol_ptr->initialize_ho_preconditioners (vec_ho_sys, vec_ho_rhs);
   if (is_eigen_problem)
   {
     if (do_nda)
@@ -787,8 +776,9 @@ void TransportBase<dim>::output_results () const
 
   data_out.build_patches ();
 
-  const std::string filename = (namebase + "-" + discretization + "-" + Utilities::int_to_string
-                                (triangulation.locally_owned_subdomain (), 4));
+  const std::string filename =
+  (namebase + "-" + discretization + "-" + Utilities::int_to_string
+   (triangulation.locally_owned_subdomain (), 4));
   std::ofstream output ((filename + ".vtu").c_str ());
   data_out.write_vtu (output);
 
