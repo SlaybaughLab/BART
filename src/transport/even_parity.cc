@@ -1,5 +1,5 @@
-#include "../../../include/transport/base/transport_base.h"
-#include "../../../include/transport/derived/even_parity.h"
+#include "transport_base.h"
+#include "even_parity.h"
 
 template <int dim>
 EvenParity<dim>::EvenParity (ParameterHandler &prm)

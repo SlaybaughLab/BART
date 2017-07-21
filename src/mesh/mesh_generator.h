@@ -2,8 +2,7 @@
 #define __mesh_generator_h__
 
 #include <deal.II/distributed/tria.h>
-
-#include "../common/problem_definition.h"
+#include <deal.II/base/parameter_handler.h>
 
 template <int dim>
 class MeshGenerator

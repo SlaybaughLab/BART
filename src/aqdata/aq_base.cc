@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include "../../../include/aqdata/base/aq_base.h"
+#include "aq_base.h"
 
 template <int dim>
 AQBase<dim>::AQBase (ParameterHandler &prm)
