@@ -45,11 +45,11 @@ namespace LA
 #include <utility>
 #include <vector>
 
-#include "../../common/problem_definition.h"
-#include "../../common/preconditioner_solver.h"
-#include "../../mesh/mesh_generator.h"
-#include "../../material/material_properties.h"
-#include "../../aqdata/base/aq_base.h"
+#include "../common/problem_definition.h"
+#include "../common/preconditioner_solver.h"
+#include "../mesh/mesh_generator.h"
+#include "../material/material_properties.h"
+#include "../aqdata/aq_base.h"
 
 using namespace dealii;
 

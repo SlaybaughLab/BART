@@ -1,4 +1,4 @@
-#include "../../include/common/preconditioner_solver.h"
+#include "preconditioner_solver.h"
 
 PreconditionerSolver::PreconditionerSolver (ParameterHandler &prm,
                                             unsigned int& n_total_ho_vars,

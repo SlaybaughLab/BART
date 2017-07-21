@@ -4,7 +4,7 @@
 #include <utility>
 #include <iomanip>
 
-#include "../../include/common/problem_definition.h"
+#include "problem_definition.h"
 
 using namespace dealii;
 

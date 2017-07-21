@@ -1,6 +1,6 @@
-#include "../../include/common/model_manager.h"
-#include "../../include/transport/base/transport_base.h"
-#include "../../include/transport/derived/even_parity.h"
+#include "model_manager.h"
+#include "../transport/transport_base.h"
+#include "../transport/even_parity.h"
 
 
 ModelManager::ModelManager (ParameterHandler &prm)

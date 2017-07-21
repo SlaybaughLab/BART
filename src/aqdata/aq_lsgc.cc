@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../../../include/aqdata/derived/aq_lsgc.h"
+#include "aq_lsgc.h"
 
 template <int dim>
 AQLSGC<dim>::AQLSGC (ParameterHandler &prm)

@@ -9,8 +9,8 @@
 //#include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
 
-#include "../../include/common/problem_definition.h"
-#include "../../include/common/model_manager.h"
+#include "problem_definition.h"
+#include "model_manager.h"
 
 using namespace dealii;
 

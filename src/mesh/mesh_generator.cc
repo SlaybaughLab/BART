@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#include "../../include/mesh/mesh_generator.h"
+#include "mesh_generator.h"
 
 template <int dim>
 MeshGenerator<dim>::MeshGenerator (ParameterHandler &prm)

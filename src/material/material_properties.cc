@@ -1,6 +1,6 @@
 #include <deal.II/base/numbers.h>
 
-#include "../../include/material/material_properties.h"
+#include "material_properties.h"
 
 MaterialProperties::MaterialProperties (ParameterHandler &prm)
 :

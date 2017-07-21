@@ -9,9 +9,9 @@
 
 #include <algorithm>
 
-#include "../../../include/transport/base/transport_base.h"
-#include "../../../include/aqdata/base/aq_base.h"
-#include "../../../include/aqdata/derived/aq_lsgc.h"
+#include "transport_base.h"
+#include "../aqdata/aq_base.h"
+#include "../aqdata/aq_lsgc.h"
 
 using namespace dealii;
 
