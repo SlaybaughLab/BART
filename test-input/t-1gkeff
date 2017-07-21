@@ -11,8 +11,8 @@ set reflective boundary names                = xmin, ymin, xmax, ymax
 
 set uniform refinements                      = 3
 
-set linear solver name                       = bicgstab
-set preconditioner name                      = amg
+set HO linear solver name                    = bicgstab
+set HO preconditioner name                   = amg
 
 
 set x, y, z max values of boundary locations = 1.,1.,1.

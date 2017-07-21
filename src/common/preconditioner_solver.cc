@@ -7,6 +7,7 @@ PreconditionerSolver::PreconditionerSolver (ParameterHandler &prm,
 n_group(prm.get_integer("number of groups")),
 n_total_ho_vars(n_total_ho_vars),
 mpi_communicator(mpi_communicator),
+transport_model_name(prm.get("transport model")),
 ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
 do_nda(prm.get_bool("do NDA"))
@@ -14,7 +15,7 @@ do_nda(prm.get_bool("do NDA"))
   if (transport_model_name=="ep")
     have_reflective_bc = prm.get_bool ("have reflective BC");
   
-  if (ho_preconditioner_name=="ssor")
+  if (ho_preconditioner_name=="bssor")
     ho_ssor_omega = prm.get_double ("HO ssor factor");
   
 	if (do_nda)

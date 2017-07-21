@@ -27,8 +27,8 @@ dof_handler (triangulation),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
-ho_linear_solver_name(prm.get("linear solver name")),
-ho_preconditioner_name(prm.get("preconditioner name")),
+ho_linear_solver_name(prm.get("HO linear solver name")),
+ho_preconditioner_name(prm.get("HO preconditioner name")),
 pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
@@ -391,6 +391,7 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
                           local_mat);
     }
     vec_ho_sys[k]->compress (VectorOperation::add);
+    pcout << "sys norm: " << vec_ho_sys[k]->l1_norm () << std::endl;
   }// components
 }
 

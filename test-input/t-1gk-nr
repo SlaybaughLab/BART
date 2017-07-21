@@ -11,8 +11,8 @@ set reflective boundary names                =  xmin, ymin
 
 set uniform refinements                      = 5
 
-set linear solver name                       = cg
-set preconditioner name                      = amg
+set HO linear solver name                    = cg
+set HO preconditioner name                   = amg
 #set ssor factor                              = 1.6
 
 
