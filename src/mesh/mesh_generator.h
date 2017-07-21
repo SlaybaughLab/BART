@@ -4,6 +4,12 @@
 #include <deal.II/distributed/tria.h>
 #include <deal.II/base/parameter_handler.h>
 
+#include <unordered_map>
+#include <map>
+#include <vector>
+
+using namespace dealii;
+
 template <int dim>
 class MeshGenerator
 {
