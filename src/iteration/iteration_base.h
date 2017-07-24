@@ -1,6 +1,17 @@
 #ifndef __transport_base_h__
 #define __transport_base_h__
 #include <deal.II/lac/generic_linear_algebra.h>
+namespace LA
+{
+#if defined(DEAL_II_WITH_PETSC) && !(defined(DEAL_II_WITH_TRILINOS) && defined(FORCE_USE_OF_TRILINOS))
+  using namespace dealii::LinearAlgebraPETSc;
+#  define USE_PETSC_LA
+#elif defined(DEAL_II_WITH_TRILINOS)
+  using namespace dealii::LinearAlgebraTrilinos;
+#else
+#  error DEAL_II_WITH_PETSC or DEAL_II_WITH_TRILINOS required
+#endif
+}
 
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
@@ -232,6 +243,22 @@ protected:
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
   
+  // HO system
+  std::vector<LA::MPI::SparseMatrix*> vec_ho_sys;
+  std::vector<LA::MPI::Vector*> vec_aflx;
+  std::vector<LA::MPI::Vector*> vec_ho_rhs;
+  std::vector<LA::MPI::Vector*> vec_ho_fixed_rhs;
+  std::vector<LA::MPI::Vector*> vec_ho_sflx;
+  std::vector<LA::MPI::Vector*> vec_ho_sflx_old;
+  std::vector<LA::MPI::Vector*> vec_ho_sflx_prev_gen;
+  
+  // LO system
+  std::vector<LA::MPI::SparseMatrix*> vec_lo_sys;
+  std::vector<LA::MPI::Vector*> vec_lo_rhs;
+  std::vector<LA::MPI::Vector*> vec_lo_fixed_rhs;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx_old;
+  std::vector<LA::MPI::Vector*> vec_lo_sflx_prev_gen;
   
   std::vector<Tensor<1, dim> > omega_i;
   std::vector<double> wi;
