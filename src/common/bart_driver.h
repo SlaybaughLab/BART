@@ -154,6 +154,8 @@ private:
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   
+  const ParameterHandler &prm;
+  
   std_cxx11::shared_ptr<ProblemDefinition> def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
@@ -168,7 +170,6 @@ private:
   std::string namebase;
   std::string aq_name;
   
-protected:
   unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
   unsigned int get_component_direction (unsigned int comp_ind);
   unsigned int get_component_group (unsigned int comp_ind);

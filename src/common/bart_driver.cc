@@ -27,6 +27,7 @@ dof_handler (triangulation),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
+prm(prm),
 ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
 pcout(std::cout,
@@ -57,62 +58,21 @@ TransportBase<dim>::~TransportBase ()
 template <int dim>
 void TransportBase<dim>::process_input ()
 {
-  // basic parameters
-  {
-    // from basic problem definition
-    transport_model_name = def_ptr->get_transport_model ();
-    n_group = def_ptr->get_n_group ();
-    n_material = mat_ptr->get_n_material ();
-    p_order = def_ptr->get_fe_order ();
-    discretization = def_ptr->get_discretization ();
-    have_reflective_bc = def_ptr->get_reflective_bool ();
-    do_nda = def_ptr->get_nda_bool ();
-    is_eigen_problem = def_ptr->get_eigen_problem_bool ();
-    do_print_sn_quad = def_ptr->get_print_sn_quad_bool ();
-    global_refinements = def_ptr->get_uniform_refinement ();
-    namebase = def_ptr->get_output_namebase ();
-
-    // from angular quadrature data
-    n_azi = aqd_ptr->get_sn_order ();
-    n_dir = aqd_ptr->get_n_dir ();
-    component_index = aqd_ptr->get_component_index_map ();
-    inverse_component_index = aqd_ptr->get_inv_component_map ();
-    wi = aqd_ptr->get_angular_weights ();
-    omega_i = aqd_ptr->get_all_directions ();
-    if (transport_model_name=="ep" &&
-        discretization=="dfem")
-    {
-      tensor_norms = aqd_ptr->get_tensor_norms ();
-      c_penalty = 1.0 * p_order * (p_order + 1.0);
-    }
-  }
-
-  if (have_reflective_bc)
-  {
-    is_reflective_bc = msh_ptr->get_reflective_bc_map ();
-    reflective_direction_index = aqd_ptr->get_reflective_direction_index_map ();
-  }
-
-  // material properties
-  {
-    relative_position_to_id = msh_ptr->get_id_map ();
-    all_sigt = mat_ptr->get_sigma_t ();
-    all_inv_sigt = mat_ptr->get_inv_sigma_t ();
-    all_sigs = mat_ptr->get_sigma_s ();
-    all_sigs_per_ster = mat_ptr->get_sigma_s_per_ster ();
-    if (is_eigen_problem)
-    {
-      is_material_fissile = mat_ptr->get_fissile_id_map ();
-      all_nusigf = mat_ptr->get_nusigf ();
-      all_ksi_nusigf = mat_ptr->get_ksi_nusigf ();
-      all_ksi_nusigf_per_ster = mat_ptr->get_ksi_nusigf_per_ster ();
-    }
-    else
-    {
-      all_q = mat_ptr->get_q ();
-      all_q_per_ster = mat_ptr->get_q_per_ster ();
-    }
-  }
+  transport_model_name = def_ptr->get_transport_model ();
+  n_group = def_ptr->get_n_group ();
+  n_material = mat_ptr->get_n_material ();
+  p_order = def_ptr->get_fe_order ();
+  discretization = def_ptr->get_discretization ();
+  have_reflective_bc = def_ptr->get_reflective_bool ();
+  do_nda = def_ptr->get_nda_bool ();
+  is_eigen_problem = def_ptr->get_eigen_problem_bool ();
+  do_print_sn_quad = def_ptr->get_print_sn_quad_bool ();
+  global_refinements = def_ptr->get_uniform_refinement ();
+  namebase = def_ptr->get_output_namebase ();
+  
+  // from angular quadrature data
+  n_azi = aqd_ptr->get_sn_order ();
+  n_dir = aqd_ptr->get_n_dir ();
 }
 
 template <int dim>

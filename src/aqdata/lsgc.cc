@@ -2,22 +2,22 @@
 
 #include <iostream>
 
-#include "aq_lsgc.h"
+#include "lsgc.h"
 
 template <int dim>
-AQLSGC<dim>::AQLSGC (ParameterHandler &prm)
+LSGC<dim>::LSGC (ParameterHandler &prm)
 :
 AQBase<dim> (prm)
 {
 }
 
 template <int dim>
-AQLSGC<dim>::~AQLSGC ()
+LSGC<dim>::~LSGC ()
 {
 }
 
 template <int dim>
-void AQLSGC<dim>::produce_angular_quad ()
+void LSGC<dim>::produce_angular_quad ()
 {
   AssertThrow (dim>=2,
                ExcMessage("1D is not implemented"));
@@ -69,5 +69,5 @@ void AQLSGC<dim>::produce_angular_quad ()
     }
 }
 
-template class AQLSGC<2>;
-template class AQLSGC<3>;
+template class LSGC<2>;
+template class LSGC<3>;
