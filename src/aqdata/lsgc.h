@@ -15,4 +15,4 @@ public:
   void produce_angular_quad ();
 };
 
-#endif//__aq_lsgc_h__
+#endif//__lsgc_h__

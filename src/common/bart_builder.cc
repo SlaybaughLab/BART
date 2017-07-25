@@ -30,6 +30,47 @@ build_aq_model (ParameterHandler &prm)
   return aq_class;
 }
 
+void radio (std::string str)
+{
+  pcout << str << std::endl;
+}
+
+void radio (std::string str1, std::string str2)
+{
+  pcout << str1 << ": " << str2 << std::endl;
+}
+
+void radio (std::string str,
+                                double num)
+{
+  pcout << str << ": " << num << std::endl;
+}
+
+void radio (std::string str1, unsigned int num1,
+                                std::string str2, unsigned int num2,
+                                std::string str3, unsigned int num3)
+{
+  pcout << str1 << ": " << num1 << ", ";
+  pcout << str2 << ": " << num2 << ", ";
+  pcout << str3 << ": " << num3 << std::endl;;
+}
+
+void radio (std::string str,
+                                unsigned int num)
+{
+  pcout << str << ": " << num << std::endl;
+}
+
+void radio (std::string str, bool boolean)
+{
+  pcout << str << ": " << (boolean?"true":"false") << std::endl;
+}
+
+void radio ()
+{
+  pcout << "-------------------------------------" << std::endl << std::endl;
+}
+
 template std_cxx11::shared_ptr<TransportBase<2> > build_transport_model;
 template std_cxx11::shared_ptr<TransportBase<3> > build_transport_model;
 template std_cxx11::shared_ptr<AQBase<2> > build_aq_model;

@@ -637,33 +637,6 @@ void TransportBase<dim>::postprocess ()
 }
 
 template <int dim>
-double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &phis_this_process)
-{
-  double fiss_source = 0.0;
-  for (unsigned int ic=0; ic<local_cells.size(); ++ic)
-  {
-    typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
-    std::vector<std::vector<double> > local_phis (n_group,
-                                                  std::vector<double> (n_q));
-    unsigned int material_id = cell->material_id ();
-    if (is_material_fissile[material_id])
-    {
-      fv->reinit (cell);
-      for (unsigned int g=0; g<n_group; ++g)
-        fv->get_function_values (phis_this_process[g],
-                                 local_phis[g]);
-      for (unsigned int qi=0; qi<n_q; ++qi)
-        for (unsigned int g=0; g<n_group; ++g)
-          fiss_source += (all_nusigf[material_id][g] *
-                          local_phis[g][qi] *
-                          fv->JxW(qi));
-    }
-  }
-  double global_fiss_source = Utilities::MPI::sum (fiss_source, mpi_communicator);
-  return global_fiss_source;
-}
-
-template <int dim>
 double TransportBase<dim>::estimate_k (double &fiss_source,
                                        double &fiss_source_prev_gen,
                                        double &k_prev_gen)
@@ -768,7 +741,6 @@ void TransportBase<dim>::run ()
                                         ref_bd_cells,
                                         is_cell_at_bd,
                                         is_cell_at_ref_bd);
-  //msh_ptr.reset ();
   setup_system ();
   report_system ();
   assemble_ho_system ();

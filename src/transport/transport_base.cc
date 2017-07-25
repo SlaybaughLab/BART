@@ -116,150 +116,11 @@ void TransportBase<dim>::process_input ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_aq (ParameterHandler &prm)
-{
-  aq_name = prm.get ("angular quadrature name");
-  AssertThrow (aq_name=="lsgc",
-               ExcMessage("only LS-GC quadrature is implemented now."));
-  if (aq_name=="lsgc")
-    aqd_ptr = std_cxx11::shared_ptr<AQBase<dim> > (new AQLSGC<dim>(prm));
-  aqd_ptr->make_aq (prm);
-}
-
-template <int dim>
-void TransportBase<dim>::report_system ()
-{
-  pcout << "SN quadrature order: " << n_azi << std::endl
-  << "Number of angles: " << n_dir << std::endl
-  << "Number of groups: " << n_group << std::endl;
-
-  radio ("Transport model", transport_model_name);
-  radio ("Spatial discretization", discretization);
-  radio ("HO linear solver", ho_linear_solver_name);
-  if (ho_linear_solver_name!="direct")
-    radio ("HO preconditioner", ho_preconditioner_name);
-  radio ("do NDA?", do_nda);
-  
-  radio ("Number of cells", triangulation.n_global_active_cells());
-  radio ("High-order total DoF counts", n_total_ho_vars*dof_handler.n_dofs());
-
-  if (is_eigen_problem)
-    radio ("Problem type: k-eigenvalue problem");
-  if (do_nda)
-    radio ("NDA total DoF counts", n_group*dof_handler.n_dofs());
-  radio ("print sn quad?", do_print_sn_quad);
-  if (do_print_sn_quad &&
-      Utilities::MPI::this_mpi_process(mpi_communicator)==0)
-    aqd_ptr->print_angular_quad ();
-  radio ("is eigenvalue problem?", is_eigen_problem);
-}
-
-template <int dim>
 void TransportBase<dim>::setup_system ()
 {
   radio ("setup system");
   initialize_dealii_objects ();
   initialize_system_matrices_vectors ();
-}
-
-template <int dim>
-void TransportBase<dim>::initialize_system_matrices_vectors ()
-{
-  DynamicSparsityPattern dsp (relevant_dofs);
-
-  if (discretization=="dfem")
-  {
-    /*
-     Table<2,DoFTools::Coupling> cell_coupling (1,1);
-     Table<2,DoFTools::Coupling> face_coupling (1,1);
-
-     cell_coupling[0][0] = DoFTools::nonzero;
-     face_coupling[0][0] = DoFTools::nonzero;
-
-     DoFTools::make_flux_sparsity_pattern (dof_handler,
-     dsp,
-     cell_coupling,
-     face_coupling);
-     */
-
-    DoFTools::make_flux_sparsity_pattern (dof_handler,
-                                          dsp,
-                                          constraints,
-                                          false);
-  }
-  else
-    DoFTools::make_sparsity_pattern (dof_handler,
-                                     dsp,
-                                     constraints,
-                                     false);
-
-  // be careful with the following
-  SparsityTools::distribute_sparsity_pattern (dsp,
-                                              dof_handler.n_locally_owned_dofs_per_processor (),
-                                              mpi_communicator,
-                                              relevant_dofs);
-
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    if (do_nda)
-    {
-      vec_lo_sys.push_back (new LA::MPI::SparseMatrix);
-      vec_lo_rhs.push_back (new LA::MPI::Vector);
-      vec_lo_sflx.push_back (new LA::MPI::Vector);
-      vec_lo_sflx_old.push_back (new LA::MPI::Vector);
-      vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
-    }
-
-    vec_ho_sflx.push_back (new LA::MPI::Vector);
-    vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
-    vec_ho_sflx_old.push_back (new LA::MPI::Vector);
-
-    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    {
-      vec_ho_sys.push_back (new LA::MPI::SparseMatrix);
-      vec_aflx.push_back (new LA::MPI::Vector);
-      vec_ho_rhs.push_back (new LA::MPI::Vector);
-      vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
-    }
-  }
-
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    if (do_nda)
-    {
-      vec_lo_sys[g]->reinit (local_dofs,
-                             local_dofs,
-                             dsp,
-                             mpi_communicator);
-      vec_lo_rhs[g]->reinit (local_dofs,
-                             mpi_communicator);
-      vec_lo_fixed_rhs[g]->reinit (local_dofs,
-                                   mpi_communicator);
-      vec_lo_sflx[g]->reinit (local_dofs,
-                              mpi_communicator);
-      vec_lo_sflx_old[g]->reinit (local_dofs,
-                                  mpi_communicator);
-    }
-
-    vec_ho_sflx[g]->reinit (local_dofs,
-                            mpi_communicator);
-    vec_ho_sflx_old[g]->reinit (local_dofs,
-                                mpi_communicator);
-
-    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    {
-      vec_ho_sys[get_component_index(i_dir, g)]->reinit(local_dofs,
-                                                        local_dofs,
-                                                        dsp,
-                                                        mpi_communicator);
-      vec_aflx[get_component_index(i_dir, g)]->reinit(local_dofs,
-                                                      mpi_communicator);
-      vec_ho_rhs[get_component_index(i_dir, g)]->reinit (local_dofs,
-                                                         mpi_communicator);
-      vec_ho_fixed_rhs[get_component_index(i_dir, g)]->reinit (local_dofs,
-                                                               mpi_communicator);
-    }
-  }
 }
 
 template <int dim>
@@ -278,25 +139,10 @@ void TransportBase<dim>::assemble_ho_system ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_dealii_objects ()
+void TransportBase<dim>::initialize_assembly_related_objects ()
 {
-  if (discretization=="dfem")
-    fe = (new FE_DGQ<dim> (p_order));
-  else
-    fe = (new FE_Q<dim> (p_order));
-
-  dof_handler.distribute_dofs (*fe);
-
-  local_dofs = dof_handler.locally_owned_dofs ();
-  DoFTools::extract_locally_relevant_dofs (dof_handler,
-                                           relevant_dofs);
-
-  constraints.clear ();
-  constraints.reinit (relevant_dofs);
-  DoFTools::make_hanging_node_constraints (dof_handler,
-                                           constraints);
-  constraints.close ();
-
+  // we need to input ptr to fe, dof_handler
+  
   q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
   qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (p_order + 1));
 
@@ -539,21 +385,6 @@ void TransportBase<dim>::generate_moments ()
 }
 
 template <int dim>
-void TransportBase<dim>::generate_ho_rhs ()
-{
-}
-
-template <int dim>
-void TransportBase<dim>::NDA_PI ()
-{
-}
-
-template <int dim>
-void TransportBase<dim>::NDA_SI ()
-{
-}
-
-template <int dim>
 void TransportBase<dim>::scale_fiss_transfer_matrices ()
 {
   AssertThrow (do_nda==false,
@@ -579,101 +410,15 @@ void TransportBase<dim>::generate_ho_fixed_source ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_fiss_process ()
-{
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    *vec_ho_sflx[g] = 1.0;
-    sflx_proc[g] = *vec_ho_sflx[g];
-  }
-  fission_source = estimate_fiss_source (sflx_proc);
-  keff = 1.0;
-}
-
-template <int dim>
-void TransportBase<dim>::update_ho_moments_in_fiss ()
+void TransportBase<dim>::update_ho_moments_in_fiss
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_prev_gen)
 {
   for (unsigned int g=0; g<n_group; ++g)
   {
     *vec_ho_sflx_prev_gen[g] = *vec_ho_sflx[g];
     sflx_proc_prev_gen[g] = *vec_ho_sflx_prev_gen[g];
   }
-}
-
-template <int dim>
-void TransportBase<dim>::update_fiss_source_keff ()
-{
-  keff_prev_gen = keff;
-  fission_source_prev_gen = fission_source;
-  fission_source = estimate_fiss_source (sflx_proc);
-  keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
-  //renormalize_sflx (vec_ho_sflx);
-}
-
-template <int dim>
-void TransportBase<dim>::power_iteration ()
-{
-  double err_k = 1.0;
-  double err_phi = 1.0;
-  unsigned int ct = 0;
-  initialize_fiss_process ();
-  while (err_k>err_k_tol || err_phi>err_phi_eigen_tol)
-  {
-    ct += 1;
-    update_ho_moments_in_fiss ();
-    scale_fiss_transfer_matrices ();
-    generate_ho_fixed_source ();
-    source_iteration ();
-    update_fiss_source_keff ();
-    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
-    err_k = std::fabs (keff - keff_prev_gen) / keff;
-    pcout
-    << "PI iter: " << ct << ", k: " << keff
-    << ", err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
-    radio ();
-  }
-}
-
-template <int dim>
-void TransportBase<dim>::source_iteration ()
-{
-  unsigned int ct = 0;
-  double err_phi = 1.0;
-  double err_phi_old;
-  //generate_moments ();
-  while (err_phi>err_phi_tol)
-  {
-    //generate_ho_source ();
-    ct += 1;
-    generate_ho_rhs ();
-    sol_ptr->ho_solve (vec_ho_sys,
-                       vec_aflx,
-                       vec_ho_rhs);
-    generate_moments ();
-    err_phi_old = err_phi;
-    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
-    double spectral_radius = err_phi / err_phi_old;
-    pcout
-    << "SI iter: " << ct
-    << ", phi err: " << err_phi
-    << ", spec. rad.: " << spectral_radius << std::endl;
-  }
-}
-
-template <int dim>
-void TransportBase<dim>::renormalize_sflx
-(std::vector<LA::MPI::Vector*> &target_sflxes)
-{
-  AssertThrow (target_sflxes.size()==n_group,
-               ExcMessage("vector of scalar fluxes must have a size of n_group"));
-  double norm_factor = target_sflxes[0]->max ();
-  for (unsigned int g=0; g<n_group; ++g)
-    *target_sflxes[g] /= norm_factor;
-}
-
-template <int dim>
-void TransportBase<dim>::postprocess ()
-{// do nothing in the base class
 }
 
 template <int dim>
@@ -701,119 +446,6 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &p
   }
   double global_fiss_source = Utilities::MPI::sum (fiss_source, mpi_communicator);
   return global_fiss_source;
-}
-
-template <int dim>
-double TransportBase<dim>::estimate_k (double &fiss_source,
-                                       double &fiss_source_prev_gen,
-                                       double &k_prev_gen)
-{
-  return k_prev_gen * fiss_source / fiss_source_prev_gen;
-}
-
-template <int dim>
-double TransportBase<dim>::estimate_phi_diff
-(std::vector<LA::MPI::Vector*> &phis_newer,
- std::vector<LA::MPI::Vector*> &phis_older)
-{
-  AssertThrow (phis_newer.size ()== phis_older.size (),
-               ExcMessage ("n_groups for different phis should be identical"));
-  double err = 0.0;
-  for (unsigned int i=0; i<phis_newer.size (); ++i)
-  {
-    LA::MPI::Vector dif = *(phis_newer)[i];
-    dif -= *(phis_older)[i];
-    err = std::max (err, dif.l1_norm () / phis_newer[i]->l1_norm ());
-  }
-  return err;
-}
-
-template <int dim>
-void TransportBase<dim>::do_iterations ()
-{
-  sol_ptr->initialize_ho_preconditioners (vec_ho_sys, vec_ho_rhs);
-  if (is_eigen_problem)
-  {
-    if (do_nda)
-      NDA_PI ();
-    else
-    {
-      power_iteration ();
-      postprocess ();
-    }
-  }
-  else
-  {
-    if (do_nda)
-      NDA_SI ();
-    else
-    {
-      generate_ho_fixed_source ();
-      generate_moments ();
-      source_iteration ();
-      postprocess ();
-    }
-  }
-}
-
-template <int dim>
-void TransportBase<dim>::output_results () const
-{
-  std::string sec_name = "Graphical output";
-  DataOut<dim> data_out;
-  data_out.attach_dof_handler (dof_handler);
-
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    std::ostringstream os;
-    os << "ho_phi_g_" << g;
-    data_out.add_data_vector (sflx_proc[g], os.str ());
-  }
-
-  Vector<float> subdomain (triangulation.n_active_cells ());
-  for (unsigned int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = triangulation.locally_owned_subdomain ();
-  data_out.add_data_vector (subdomain, "subdomain");
-
-  data_out.build_patches ();
-
-  const std::string filename =
-  (namebase + "-" + discretization + "-" + Utilities::int_to_string
-   (triangulation.locally_owned_subdomain (), 4));
-  std::ofstream output ((filename + ".vtu").c_str ());
-  data_out.write_vtu (output);
-
-  if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
-  {
-    std::vector<std::string> filenames;
-    for (unsigned int i=0;
-         i<Utilities::MPI::n_mpi_processes(mpi_communicator);
-         ++i)
-      filenames.push_back (namebase + "-" + discretization + "-" +
-                           Utilities::int_to_string (i, 4) + ".vtu");
-    std::ostringstream os;
-    os << namebase << "-" << discretization << "-" << global_refinements << ".pvtu";
-    std::ofstream master_output ((os.str()).c_str ());
-    data_out.write_pvtu_record (master_output, filenames);
-  }
-}
-
-template <int dim>
-void TransportBase<dim>::run ()
-{
-  radio ("making grid");
-  msh_ptr->make_grid (triangulation);
-  msh_ptr->get_relevant_cell_iterators (dof_handler,
-                                        local_cells,
-                                        ref_bd_cells,
-                                        is_cell_at_bd,
-                                        is_cell_at_ref_bd);
-  //msh_ptr.reset ();
-  setup_system ();
-  report_system ();
-  assemble_ho_system ();
-  do_iterations ();
-  output_results();
 }
 
 // wrapper functions used to retrieve info from various Hash tables
@@ -846,55 +478,6 @@ unsigned int TransportBase<dim>::get_reflective_direction_index
                ExcMessage ("must be reflective boundary to retrieve the reflective boundary"));
   return reflective_direction_index[std::make_pair (boundary_id,
                                                     incident_angle_index)];
-}
-
-//functions used to cout information for diagonose or just simply cout
-template <int dim>
-void TransportBase<dim>::radio (std::string str)
-{
-  pcout << str << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str1, std::string str2)
-{
-  pcout << str1 << ": " << str2 << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str,
-                                double num)
-{
-  pcout << str << ": " << num << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str1, unsigned int num1,
-                                std::string str2, unsigned int num2,
-                                std::string str3, unsigned int num3)
-{
-  pcout << str1 << ": " << num1 << ", ";
-  pcout << str2 << ": " << num2 << ", ";
-  pcout << str3 << ": " << num3 << std::endl;;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str,
-                                unsigned int num)
-{
-  pcout << str << ": " << num << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio (std::string str, bool boolean)
-{
-  pcout << str << ": " << (boolean?"true":"false") << std::endl;
-}
-
-template <int dim>
-void TransportBase<dim>::radio ()
-{
-  pcout << "-------------------------------------" << std::endl << std::endl;
 }
 
 // explicit instantiation to avoid linking error

@@ -301,8 +301,8 @@ void EvenParity<dim>::generate_ho_fixed_source ()
         this->vec_ho_fixed_rhs[k]->compress (VectorOperation::add);
       }// first direction per group
       else
-        *(this->vec_ho_fixed_rhs[k]) =
-        *(this->vec_ho_fixed_rhs[this->get_component_index(0, g)]);
+        *vec_ho_fixed_rhs[k] =
+        *vec_ho_fixed_rhs[this->get_component_index(0, g)];
     }
 }
 

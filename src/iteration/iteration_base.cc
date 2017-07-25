@@ -203,23 +203,23 @@ void TransportBase<dim>::initialize_system_matrices_vectors ()
   {
     if (do_nda)
     {
-      vec_lo_sys.push_back (new LA::MPI::SparseMatrix);
-      vec_lo_rhs.push_back (new LA::MPI::Vector);
-      vec_lo_sflx.push_back (new LA::MPI::Vector);
-      vec_lo_sflx_old.push_back (new LA::MPI::Vector);
-      vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
+      vec_lo_sys.push_back (new PETScWrappers::MPI::SparseMatrix);
+      vec_lo_rhs.push_back (new PETScWrappers::MPI::Vector);
+      vec_lo_sflx.push_back (new PETScWrappers::MPI::Vector);
+      vec_lo_sflx_old.push_back (new PETScWrappers::MPI::Vector);
+      vec_lo_fixed_rhs.push_back (new PETScWrappers::MPI::Vector);
     }
 
-    vec_ho_sflx.push_back (new LA::MPI::Vector);
-    vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
-    vec_ho_sflx_old.push_back (new LA::MPI::Vector);
+    vec_ho_sflx.push_back (new PETScWrappers::MPI::Vector);
+    vec_ho_sflx_prev_gen.push_back (new PETScWrappers::MPI::Vector);
+    vec_ho_sflx_old.push_back (new PETScWrappers::MPI::Vector);
 
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
     {
-      vec_ho_sys.push_back (new LA::MPI::SparseMatrix);
-      vec_aflx.push_back (new LA::MPI::Vector);
-      vec_ho_rhs.push_back (new LA::MPI::Vector);
-      vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
+      vec_ho_sys.push_back (new PETScWrappers::MPI::SparseMatrix);
+      vec_aflx.push_back (new PETScWrappers::MPI::Vector);
+      vec_ho_rhs.push_back (new PETScWrappers::MPI::Vector);
+      vec_ho_fixed_rhs.push_back (new PETScWrappers::MPI::Vector);
     }
   }
 
@@ -661,17 +661,6 @@ void TransportBase<dim>::source_iteration ()
 }
 
 template <int dim>
-void TransportBase<dim>::renormalize_sflx
-(std::vector<LA::MPI::Vector*> &target_sflxes)
-{
-  AssertThrow (target_sflxes.size()==n_group,
-               ExcMessage("vector of scalar fluxes must have a size of n_group"));
-  double norm_factor = target_sflxes[0]->max ();
-  for (unsigned int g=0; g<n_group; ++g)
-    *target_sflxes[g] /= norm_factor;
-}
-
-template <int dim>
 void TransportBase<dim>::postprocess ()
 {// do nothing in the base class
 }
@@ -713,15 +702,15 @@ double TransportBase<dim>::estimate_k (double &fiss_source,
 
 template <int dim>
 double TransportBase<dim>::estimate_phi_diff
-(std::vector<LA::MPI::Vector*> &phis_newer,
- std::vector<LA::MPI::Vector*> &phis_older)
+(std::vector<PETScWrappers::MPI::Vector*> &phis_newer,
+ std::vector<PETScWrappers::MPI::Vector*> &phis_older)
 {
   AssertThrow (phis_newer.size ()== phis_older.size (),
                ExcMessage ("n_groups for different phis should be identical"));
   double err = 0.0;
   for (unsigned int i=0; i<phis_newer.size (); ++i)
   {
-    LA::MPI::Vector dif = *(phis_newer)[i];
+    PETScWrappers::MPI::Vector dif = *(phis_newer)[i];
     dif -= *(phis_older)[i];
     err = std::max (err, dif.l1_norm () / phis_newer[i]->l1_norm ());
   }
@@ -754,98 +743,6 @@ void TransportBase<dim>::do_iterations ()
       postprocess ();
     }
   }
-}
-
-template <int dim>
-void TransportBase<dim>::output_results () const
-{
-  std::string sec_name = "Graphical output";
-  DataOut<dim> data_out;
-  data_out.attach_dof_handler (dof_handler);
-
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    std::ostringstream os;
-    os << "ho_phi_g_" << g;
-    data_out.add_data_vector (sflx_proc[g], os.str ());
-  }
-
-  Vector<float> subdomain (triangulation.n_active_cells ());
-  for (unsigned int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = triangulation.locally_owned_subdomain ();
-  data_out.add_data_vector (subdomain, "subdomain");
-
-  data_out.build_patches ();
-
-  const std::string filename =
-  (namebase + "-" + discretization + "-" + Utilities::int_to_string
-   (triangulation.locally_owned_subdomain (), 4));
-  std::ofstream output ((filename + ".vtu").c_str ());
-  data_out.write_vtu (output);
-
-  if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
-  {
-    std::vector<std::string> filenames;
-    for (unsigned int i=0;
-         i<Utilities::MPI::n_mpi_processes(mpi_communicator);
-         ++i)
-      filenames.push_back (namebase + "-" + discretization + "-" +
-                           Utilities::int_to_string (i, 4) + ".vtu");
-    std::ostringstream os;
-    os << namebase << "-" << discretization << "-" << global_refinements << ".pvtu";
-    std::ofstream master_output ((os.str()).c_str ());
-    data_out.write_pvtu_record (master_output, filenames);
-  }
-}
-
-template <int dim>
-void TransportBase<dim>::run ()
-{
-  radio ("making grid");
-  msh_ptr->make_grid (triangulation);
-  msh_ptr->get_relevant_cell_iterators (dof_handler,
-                                        local_cells,
-                                        ref_bd_cells,
-                                        is_cell_at_bd,
-                                        is_cell_at_ref_bd);
-  //msh_ptr.reset ();
-  setup_system ();
-  report_system ();
-  assemble_ho_system ();
-  do_iterations ();
-  output_results();
-}
-
-// wrapper functions used to retrieve info from various Hash tables
-template <int dim>
-unsigned int TransportBase<dim>::get_component_index
-(unsigned int incident_angle_index, unsigned int g)
-{
-  // retrieve component indecis given direction and group
-  // must be used after initializing the index map
-  return component_index[std::make_pair (incident_angle_index, g)];
-}
-
-template <int dim>
-unsigned int TransportBase<dim>::get_component_direction (unsigned int comp_ind)
-{
-  return inverse_component_index[comp_ind].first;
-}
-
-template <int dim>
-unsigned int TransportBase<dim>::get_component_group (unsigned int comp_ind)
-{
-  return inverse_component_index[comp_ind].second;
-}
-
-template <int dim>
-unsigned int TransportBase<dim>::get_reflective_direction_index
-(unsigned int boundary_id, unsigned int incident_angle_index)
-{
-  AssertThrow (is_reflective_bc[boundary_id],
-               ExcMessage ("must be reflective boundary to retrieve the reflective boundary"));
-  return reflective_direction_index[std::make_pair (boundary_id,
-                                                    incident_angle_index)];
 }
 
 //functions used to cout information for diagonose or just simply cout

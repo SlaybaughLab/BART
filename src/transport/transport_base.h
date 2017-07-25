@@ -113,27 +113,15 @@ private:
   void assemble_ho_volume_boundary ();
   void assemble_ho_interface ();
   void assemble_ho_system ();
-  void do_iterations ();
   void process_input ();
-  void initialize_material_id ();
-  void initialize_dealii_objects ();
   void initialize_system_matrices_vectors ();
-  void assemble_lo_system ();
   void prepare_correction_aflx ();
-  void initialize_ho_preconditioners ();
-  void ho_solve ();
-  void lo_solve ();
-  void refine_grid ();
-  void output_results () const;
-  void power_iteration ();
   void initialize_fiss_process ();
   void update_ho_moments_in_fiss ();
   void update_fiss_source_keff ();
   void source_iteration ();
   void scale_fiss_transfer_matrices ();
   void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
-  void NDA_PI ();
-  void NDA_SI ();
   void initialize_aq (ParameterHandler &prm);
   
   double estimate_k (double &fiss_source,
@@ -148,7 +136,6 @@ private:
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   std_cxx11::shared_ptr<PreconditionerSolver> sol_ptr;
-  std_cxx11::shared_ptr<SolverControl> gcn;
   
   std::string transport_model_name;
   std::string ho_linear_solver_name;
