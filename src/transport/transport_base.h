@@ -123,6 +123,9 @@ private:
   void scale_fiss_transfer_matrices ();
   void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
   void initialize_aq (ParameterHandler &prm);
+  void initialize_assembly_related_objects
+  (DoFHandler<dim> &dof_handler,
+   FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,

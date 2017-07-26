@@ -43,7 +43,8 @@ pcout(std::cout,
       (Utilities::MPI::this_mpi_process(mpi_communicator)
        == 0))
 {
-  initialize_aq (prm);
+  aqd_ptr = build_aq_model (prm)
+  aqd_ptr->make_aq (prm);
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();
@@ -56,20 +57,6 @@ template <int dim>
 BartDriver<dim>::~BartDriver ()
 {
   dof_handler.clear();
-}
-
-template <int dim>
-void BartDriver<dim>::process_input ()
-{
-  // from angular quadrature data
-  
-}
-
-template <int dim>
-void BartDriver<dim>::initialize_aq (ParameterHandler &prm)
-{
-  aqd_ptr = build_aq_model (prm)
-  aqd_ptr->make_aq (prm);
 }
 
 template <int dim>

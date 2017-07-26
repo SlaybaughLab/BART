@@ -139,7 +139,9 @@ void TransportBase<dim>::assemble_ho_system ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_assembly_related_objects ()
+void TransportBase<dim>::initialize_assembly_related_objects
+(DoFHandler<dim> &dof_handler,
+ FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe)
 {
   // we need to input ptr to fe, dof_handler
   
