@@ -10,40 +10,32 @@
 #include <algorithm>
 
 #include "transport_base.h"
-#include "../aqdata/aq_base.h"
-#include "../aqdata/aq_lsgc.h"
+#include "bart_tools.h"
 
 using namespace dealii;
 
 template <int dim>
-TransportBase<dim>::TransportBase (ParameterHandler &prm)
+TransportBase<dim>::TransportBase
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 :
-mpi_communicator (MPI_COMM_WORLD),
-triangulation (mpi_communicator,
-               typename Triangulation<dim>::MeshSmoothing
-               (Triangulation<dim>::smoothing_on_refinement |
-                Triangulation<dim>::smoothing_on_coarsening)),
-dof_handler (triangulation),
-err_k_tol(1.0e-6),
-err_phi_tol(1.0e-7),
-err_phi_eigen_tol(1.0e-5),
-ho_linear_solver_name(prm.get("HO linear solver name")),
-ho_preconditioner_name(prm.get("HO preconditioner name")),
-pcout(std::cout,
-      (Utilities::MPI::this_mpi_process(mpi_communicator)
-       == 0))
+transport_model_name(prm.get("transport model")),
+aq_name(prm.get("angular quadrature name")),
+n_material(prm.get_integer("number of materials")),
+discretization(prm.get("spatial discretization")),
+n_group(prm.get_integer("number of groups")),
+n_azi(prm.get_integer("angular quadrature order")),
+is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
+do_nda(prm.get_bool("do NDA")),
+do_print_sn_quad(prm.get_bool("do print angular quadrature info")),
+have_reflective_bc(prm.get_bool("have reflective BC")),
+p_order(prm.get_integer("finite element polynomial degree"))
 {
-  initialize_aq (prm);
-  n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
-  sol_ptr = std_cxx11::shared_ptr<PreconditionerSolver>
-  (new PreconditionerSolver (prm, n_total_ho_vars, mpi_communicator));
-  def_ptr = std_cxx11::shared_ptr<ProblemDefinition>
-  (new ProblemDefinition(prm));
-  msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
-  (new MeshGenerator<dim>(prm));
-  mat_ptr = std_cxx11::shared_ptr<MaterialProperties>
-  (new MaterialProperties(prm));
-  this->process_input ();
+  this->process_input (msh_ptr, aqd_ptr, mat_ptr);
+  if (transport_model_name=="ep" && discretization=="dfem")
+    c_penalty = 1.0 * p_order * (p_order + 1.0);
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
 }
@@ -51,51 +43,36 @@ pcout(std::cout,
 template <int dim>
 TransportBase<dim>::~TransportBase ()
 {
-  dof_handler.clear();
 }
 
 template <int dim>
-void TransportBase<dim>::process_input ()
+void TransportBase<dim>::process_input (msh_ptr, aqd_ptr, mat_ptr)
 {
-  // basic parameters
+  // mesh related
   {
-    // from basic problem definition
-    transport_model_name = def_ptr->get_transport_model ();
-    n_group = def_ptr->get_n_group ();
-    n_material = mat_ptr->get_n_material ();
-    p_order = def_ptr->get_fe_order ();
-    discretization = def_ptr->get_discretization ();
-    have_reflective_bc = def_ptr->get_reflective_bool ();
-    do_nda = def_ptr->get_nda_bool ();
-    is_eigen_problem = def_ptr->get_eigen_problem_bool ();
-    do_print_sn_quad = def_ptr->get_print_sn_quad_bool ();
-    global_refinements = def_ptr->get_uniform_refinement ();
-    namebase = def_ptr->get_output_namebase ();
-
-    // from angular quadrature data
+    relative_position_to_id = msh_ptr->get_id_map ();
+    if (have_reflective_bc)
+      is_reflective_bc = msh_ptr->get_reflective_bc_map ();
+  }
+  
+  // aq data related
+  {
+    n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
     n_azi = aqd_ptr->get_sn_order ();
     n_dir = aqd_ptr->get_n_dir ();
     component_index = aqd_ptr->get_component_index_map ();
     inverse_component_index = aqd_ptr->get_inv_component_map ();
     wi = aqd_ptr->get_angular_weights ();
     omega_i = aqd_ptr->get_all_directions ();
-    if (transport_model_name=="ep" &&
-        discretization=="dfem")
-    {
+    if (transport_model_name=="ep" && discretization=="dfem")
       tensor_norms = aqd_ptr->get_tensor_norms ();
-      c_penalty = 1.0 * p_order * (p_order + 1.0);
-    }
+    
+    if (have_reflective_bc)
+      reflective_direction_index = aqd_ptr->get_reflective_direction_index_map ();
   }
-
-  if (have_reflective_bc)
+  
+  // material related
   {
-    is_reflective_bc = msh_ptr->get_reflective_bc_map ();
-    reflective_direction_index = aqd_ptr->get_reflective_direction_index_map ();
-  }
-
-  // material properties
-  {
-    relative_position_to_id = msh_ptr->get_id_map ();
     all_sigt = mat_ptr->get_sigma_t ();
     all_inv_sigt = mat_ptr->get_inv_sigma_t ();
     all_sigs = mat_ptr->get_sigma_s ();
@@ -113,14 +90,6 @@ void TransportBase<dim>::process_input ()
       all_q_per_ster = mat_ptr->get_q_per_ster ();
     }
   }
-}
-
-template <int dim>
-void TransportBase<dim>::setup_system ()
-{
-  radio ("setup system");
-  initialize_dealii_objects ();
-  initialize_system_matrices_vectors ();
 }
 
 template <int dim>
@@ -143,8 +112,6 @@ void TransportBase<dim>::initialize_assembly_related_objects
 (DoFHandler<dim> &dof_handler,
  FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe)
 {
-  // we need to input ptr to fe, dof_handler
-  
   q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
   qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (p_order + 1));
 
@@ -239,7 +206,6 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
                           local_mat);
     }
     vec_ho_sys[k]->compress (VectorOperation::add);
-    pcout << "sys norm: " << vec_ho_sys[k]->l1_norm () << std::endl;
   }// components
 }
 
@@ -374,7 +340,8 @@ template <int dim>
 void TransportBase<dim>::generate_moments ()
 {
   // FitIt: only scalar flux is generated for now
-  AssertThrow(do_nda==false, ExcMessage("Moments are generated only without NDA"));
+  AssertThrow(do_nda==false,
+              ExcMessage("Moments are generated only without NDA"));
   if (!do_nda)
     for (unsigned int g=0; g<n_group; ++g)
     {
@@ -446,7 +413,7 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &p
                           fv->JxW(qi));
     }
   }
-  double global_fiss_source = Utilities::MPI::sum (fiss_source, mpi_communicator);
+  double global_fiss_source = Utilities::MPI::sum (fiss_source, MPI_COMM_WORLD);
   return global_fiss_source;
 }
 

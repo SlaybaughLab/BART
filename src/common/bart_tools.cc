@@ -1,4 +1,5 @@
 #include <deal.II/base/utilities.h>
+#include <deal.II/base/mpi.h>
 
 #include "bart_builder.h"
 #include "../transport/even_parity.h"

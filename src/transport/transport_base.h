@@ -46,7 +46,10 @@ template <int dim>
 class TransportBase
 {
 public:
-  TransportBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
+  TransportBase (ParameterHandler &prm,
+                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                 const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
   virtual ~TransportBase ();
   
   void run ();
