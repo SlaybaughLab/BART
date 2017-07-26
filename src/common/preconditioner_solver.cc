@@ -1,12 +1,10 @@
 #include "preconditioner_solver.h"
 
 PreconditionerSolver::PreconditionerSolver (ParameterHandler &prm,
-                                            unsigned int& n_total_ho_vars,
-                                            MPI_Comm &mpi_communicator)
+                                            unsigned int& n_total_ho_vars)
 :
 n_group(prm.get_integer("number of groups")),
 n_total_ho_vars(n_total_ho_vars),
-mpi_communicator(mpi_communicator),
 transport_model_name(prm.get("transport model")),
 ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
@@ -139,7 +137,7 @@ void PreconditionerSolver::ho_solve
     if (ho_linear_solver_name=="cg")
     {
       PETScWrappers::SolverCG
-      solver (*ho_cn[i], mpi_communicator);
+      solver (*ho_cn[i], MPI_COMM_WORLD);
       if (ho_preconditioner_name=="amg")
         solver.solve (*ho_syses[i],
                       *ho_psis[i],
@@ -164,7 +162,7 @@ void PreconditionerSolver::ho_solve
     else if (ho_linear_solver_name=="bicgstab")
     {
       PETScWrappers::SolverBicgstab
-      solver (*ho_cn[i], mpi_communicator);
+      solver (*ho_cn[i], MPI_COMM_WORLD);
       if (ho_preconditioner_name=="amg")
         solver.solve (*ho_syses[i],
                       *ho_psis[i],
@@ -189,7 +187,7 @@ void PreconditionerSolver::ho_solve
     else if (ho_linear_solver_name=="gmres")
     {
       PETScWrappers::SolverGMRES
-      solver (*ho_cn[i], mpi_communicator);
+      solver (*ho_cn[i], MPI_COMM_WORLD);
       if (ho_preconditioner_name=="amg")
         solver.solve (*ho_syses[i],
                       *ho_psis[i],
@@ -216,7 +214,7 @@ void PreconditionerSolver::ho_solve
       if (!ho_direct_init[i])
       {
         ho_direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
-        (new PETScWrappers::SparseDirectMUMPS(*ho_cn[i], mpi_communicator));
+        (new PETScWrappers::SparseDirectMUMPS(*ho_cn[i], MPI_COMM_WORLD));
         if (transport_model_name=="fo" ||
             (transport_model_name=="ep" && have_reflective_bc))
           ho_direct[i]->set_symmetric_mode (false);
@@ -331,7 +329,7 @@ void PreconditionerSolver::nda_solve
     if (!nda_direct_init[g])
     {
       nda_direct[g] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
-      (new PETScWrappers::SparseDirectMUMPS(*nda_cn[g], mpi_communicator));
+      (new PETScWrappers::SparseDirectMUMPS(*nda_cn[g], MPI_COMM_WORLD));
       nda_direct[g]->set_symmetric_mode (false);
       nda_direct_init[g] = true;
     }
@@ -342,7 +340,7 @@ void PreconditionerSolver::nda_solve
   else if (nda_linear_solver_name=="bicgstab")
   {
     PETScWrappers::SolverBicgstab
-    solver (*nda_cn[g], mpi_communicator);
+    solver (*nda_cn[g], MPI_COMM_WORLD);
     if (nda_preconditioner_name=="amg")
       solver.solve (nda_sys,
                     nda_phi,
@@ -372,7 +370,7 @@ void PreconditionerSolver::nda_solve
   else if (nda_linear_solver_name=="gmres")
   {
     PETScWrappers::SolverGMRES
-    solver (*nda_cn[g], mpi_communicator);
+    solver (*nda_cn[g], MPI_COMM_WORLD);
     if (nda_preconditioner_name=="amg")
       solver.solve (nda_sys,
                     nda_phi,
