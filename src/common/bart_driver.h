@@ -1,17 +1,6 @@
 #ifndef __transport_base_h__
 #define __transport_base_h__
 #include <deal.II/lac/generic_linear_algebra.h>
-namespace LA
-{
-#if defined(DEAL_II_WITH_PETSC) && !(defined(DEAL_II_WITH_TRILINOS) && defined(FORCE_USE_OF_TRILINOS))
-  using namespace dealii::LinearAlgebraPETSc;
-#  define USE_PETSC_LA
-#elif defined(DEAL_II_WITH_TRILINOS)
-  using namespace dealii::LinearAlgebraTrilinos;
-#else
-#  error DEAL_II_WITH_PETSC or DEAL_II_WITH_TRILINOS required
-#endif
-}
 
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
