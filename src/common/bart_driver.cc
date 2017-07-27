@@ -18,8 +18,7 @@ using namespace dealii;
 template <int dim>
 BartDriver<dim>::BartDriver (ParameterHandler &prm)
 :
-mpi_communicator (MPI_COMM_WORLD),
-triangulation (mpi_communicator,
+triangulation (MPI_COMM_WORLD,
                typename Triangulation<dim>::MeshSmoothing
                (Triangulation<dim>::smoothing_on_refinement |
                 Triangulation<dim>::smoothing_on_coarsening)),
@@ -40,8 +39,7 @@ namebase(prm.get("output file name base")),
 ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
 pcout(std::cout,
-      (Utilities::MPI::this_mpi_process(mpi_communicator)
-       == 0))
+      Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
 {
   aqd_ptr = build_aq_model (prm)
   aqd_ptr->make_aq (prm);
@@ -81,9 +79,6 @@ void BartDriver<dim>::report_system ()
   if (do_nda)
     radio ("NDA total DoF counts", n_group*dof_handler.n_dofs());
   radio ("print sn quad?", do_print_sn_quad);
-  if (do_print_sn_quad &&
-      Utilities::MPI::this_mpi_process(mpi_communicator)==0)
-    aqd_ptr->print_angular_quad ();
   radio ("is eigenvalue problem?", is_eigen_problem);
 }
 
@@ -129,7 +124,7 @@ void BartDriver<dim>::initialize_system_matrices_vectors ()
   // be careful with the following
   SparsityTools::distribute_sparsity_pattern (dsp,
                                               dof_handler.n_locally_owned_dofs_per_processor (),
-                                              mpi_communicator,
+                                              MPI_COMM_WORLD,
                                               relevant_dofs);
 
   for (unsigned int g=0; g<n_group; ++g)
@@ -163,35 +158,26 @@ void BartDriver<dim>::initialize_system_matrices_vectors ()
       vec_lo_sys[g]->reinit (local_dofs,
                              local_dofs,
                              dsp,
-                             mpi_communicator);
-      vec_lo_rhs[g]->reinit (local_dofs,
-                             mpi_communicator);
-      vec_lo_fixed_rhs[g]->reinit (local_dofs,
-                                   mpi_communicator);
-      vec_lo_sflx[g]->reinit (local_dofs,
-                              mpi_communicator);
-      vec_lo_sflx_old[g]->reinit (local_dofs,
-                                  mpi_communicator);
+                             MPI_COMM_WORLD);
+      vec_lo_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      vec_lo_fixed_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      vec_lo_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      vec_lo_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
     }
 
-    vec_ho_sflx[g]->reinit (local_dofs,
-                            mpi_communicator);
-    vec_ho_sflx_old[g]->reinit (local_dofs,
-                                mpi_communicator);
-
-    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    {
-      vec_ho_sys[get_component_index(i_dir, g)]->reinit(local_dofs,
-                                                        local_dofs,
-                                                        dsp,
-                                                        mpi_communicator);
-      vec_aflx[get_component_index(i_dir, g)]->reinit(local_dofs,
-                                                      mpi_communicator);
-      vec_ho_rhs[get_component_index(i_dir, g)]->reinit (local_dofs,
-                                                         mpi_communicator);
-      vec_ho_fixed_rhs[get_component_index(i_dir, g)]->reinit (local_dofs,
-                                                               mpi_communicator);
-    }
+    vec_ho_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
+    vec_ho_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
+  }
+  
+  for (unsigned int k=0; k<n_total_ho_vars; ++k)
+  {
+    vec_ho_sys[k]->reinit(local_dofs,
+                          local_dofs,
+                          dsp,
+                          MPI_COMM_WORLD);
+    vec_aflx[k]->reinit(local_dofs, MPI_COMM_WORLD);
+    vec_ho_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
+    vec_ho_fixed_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
   }
 }
 
@@ -243,11 +229,11 @@ void BartDriver<dim>::output_results () const
   std::ofstream output ((filename + ".vtu").c_str ());
   data_out.write_vtu (output);
 
-  if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
+  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
   {
     std::vector<std::string> filenames;
     for (unsigned int i=0;
-         i<Utilities::MPI::n_mpi_processes(mpi_communicator);
+         i<Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
          ++i)
       filenames.push_back (namebase + "-" + discretization + "-" +
                            Utilities::int_to_string (i, 4) + ".vtu");
@@ -273,87 +259,6 @@ void BartDriver<dim>::run ()
   assemble_ho_system ();
   do_iterations ();
   output_results();
-}
-
-// wrapper functions used to retrieve info from various Hash tables
-template <int dim>
-unsigned int BartDriver<dim>::get_component_index
-(unsigned int incident_angle_index, unsigned int g)
-{
-  // retrieve component indecis given direction and group
-  // must be used after initializing the index map
-  return component_index[std::make_pair (incident_angle_index, g)];
-}
-
-template <int dim>
-unsigned int BartDriver<dim>::get_component_direction (unsigned int comp_ind)
-{
-  return inverse_component_index[comp_ind].first;
-}
-
-template <int dim>
-unsigned int BartDriver<dim>::get_component_group (unsigned int comp_ind)
-{
-  return inverse_component_index[comp_ind].second;
-}
-
-template <int dim>
-unsigned int BartDriver<dim>::get_reflective_direction_index
-(unsigned int boundary_id, unsigned int incident_angle_index)
-{
-  AssertThrow (is_reflective_bc[boundary_id],
-               ExcMessage ("must be reflective boundary to retrieve the reflective boundary"));
-  return reflective_direction_index[std::make_pair (boundary_id,
-                                                    incident_angle_index)];
-}
-
-//functions used to cout information for diagonose or just simply cout
-template <int dim>
-void BartDriver<dim>::radio (std::string str)
-{
-  pcout << str << std::endl;
-}
-
-template <int dim>
-void BartDriver<dim>::radio (std::string str1, std::string str2)
-{
-  pcout << str1 << ": " << str2 << std::endl;
-}
-
-template <int dim>
-void BartDriver<dim>::radio (std::string str,
-                                double num)
-{
-  pcout << str << ": " << num << std::endl;
-}
-
-template <int dim>
-void BartDriver<dim>::radio (std::string str1, unsigned int num1,
-                                std::string str2, unsigned int num2,
-                                std::string str3, unsigned int num3)
-{
-  pcout << str1 << ": " << num1 << ", ";
-  pcout << str2 << ": " << num2 << ", ";
-  pcout << str3 << ": " << num3 << std::endl;;
-}
-
-template <int dim>
-void BartDriver<dim>::radio (std::string str,
-                                unsigned int num)
-{
-  pcout << str << ": " << num << std::endl;
-}
-
-template <int dim>
-void BartDriver<dim>::radio (std::string str, bool boolean)
-{
-  pcout << str << ": " << (boolean?"true":"false") << std::endl;
-}
-
-template <int dim>
-void BartDriver<dim>::radio ()
-{
-  pcout << "-------------------------------------" << std::endl << std::endl;
 }
 
 // explicit instantiation to avoid linking error
