@@ -220,7 +220,6 @@ void BartDriver<dim>::output_results () const
   for (unsigned int i=0; i<subdomain.size(); ++i)
     subdomain(i) = triangulation.locally_owned_subdomain ();
   data_out.add_data_vector (subdomain, "subdomain");
-
   data_out.build_patches ();
 
   const std::string filename =
@@ -229,14 +228,14 @@ void BartDriver<dim>::output_results () const
   std::ofstream output ((filename + ".vtu").c_str ());
   data_out.write_vtu (output);
 
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
+  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
   {
     std::vector<std::string> filenames;
     for (unsigned int i=0;
          i<Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
          ++i)
       filenames.push_back (namebase + "-" + discretization + "-" +
-                           Utilities::int_to_string (i, 4) + ".vtu");
+                           Utilities::int_to_string (i) + ".vtu");
     std::ostringstream os;
     os << namebase << "-" << discretization << "-" << global_refinements << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
@@ -256,9 +255,8 @@ void BartDriver<dim>::run ()
                                         is_cell_at_ref_bd);
   setup_system ();
   report_system ();
-  assemble_ho_system ();
-  do_iterations ();
-  output_results();
+  itr_ptr->do_iterations ();
+  output_results ();
 }
 
 // explicit instantiation to avoid linking error
