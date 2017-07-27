@@ -16,14 +16,8 @@
 using namespace dealii;
 
 template <int dim>
-TransportBase<dim>::TransportBase (ParameterHandler &prm)
+IterationBase<dim>::IterationBase (ParameterHandler &prm)
 :
-mpi_communicator (MPI_COMM_WORLD),
-triangulation (mpi_communicator,
-               typename Triangulation<dim>::MeshSmoothing
-               (Triangulation<dim>::smoothing_on_refinement |
-                Triangulation<dim>::smoothing_on_coarsening)),
-dof_handler (triangulation),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
@@ -41,21 +35,19 @@ pcout(std::cout,
   (new ProblemDefinition(prm));
   msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
   (new MeshGenerator<dim>(prm));
-  mat_ptr = std_cxx11::shared_ptr<MaterialProperties>
-  (new MaterialProperties(prm));
+  mat_ptr = build_material (prm);
   this->process_input ();
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
 }
 
 template <int dim>
-TransportBase<dim>::~TransportBase ()
+IterationBase<dim>::~IterationBase ()
 {
-  dof_handler.clear();
 }
 
 template <int dim>
-void TransportBase<dim>::process_input ()
+void IterationBase<dim>::process_input ()
 {
   // basic parameters
   {
@@ -116,18 +108,7 @@ void TransportBase<dim>::process_input ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_aq (ParameterHandler &prm)
-{
-  aq_name = prm.get ("angular quadrature name");
-  AssertThrow (aq_name=="lsgc",
-               ExcMessage("only LS-GC quadrature is implemented now."));
-  if (aq_name=="lsgc")
-    aqd_ptr = std_cxx11::shared_ptr<AQBase<dim> > (new AQLSGC<dim>(prm));
-  aqd_ptr->make_aq (prm);
-}
-
-template <int dim>
-void TransportBase<dim>::report_system ()
+void IterationBase<dim>::report_system ()
 {
   pcout << "SN quadrature order: " << n_azi << std::endl
   << "Number of angles: " << n_dir << std::endl
@@ -155,7 +136,7 @@ void TransportBase<dim>::report_system ()
 }
 
 template <int dim>
-void TransportBase<dim>::setup_system ()
+void IterationBase<dim>::setup_system ()
 {
   radio ("setup system");
   initialize_dealii_objects ();
@@ -163,7 +144,7 @@ void TransportBase<dim>::setup_system ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_system_matrices_vectors ()
+void IterationBase<dim>::initialize_system_matrices_vectors ()
 {
   DynamicSparsityPattern dsp (relevant_dofs);
 
@@ -263,7 +244,7 @@ void TransportBase<dim>::initialize_system_matrices_vectors ()
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_system ()
+void IterationBase<dim>::assemble_ho_system ()
 {
   radio ("Assemble volumetric bilinear forms");
   assemble_ho_volume_boundary ();
@@ -278,7 +259,7 @@ void TransportBase<dim>::assemble_ho_system ()
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_dealii_objects ()
+void IterationBase<dim>::initialize_dealii_objects ()
 {
   if (discretization=="dfem")
     fe = (new FE_DGQ<dim> (p_order));
@@ -327,7 +308,7 @@ void TransportBase<dim>::initialize_dealii_objects ()
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_volume_boundary ()
+void IterationBase<dim>::assemble_ho_volume_boundary ()
 {
   // volumetric pre-assembly matrices
   std::vector<std::vector<FullMatrix<double> > >
@@ -398,7 +379,7 @@ void TransportBase<dim>::assemble_ho_volume_boundary ()
 // The following is a virtual function for integraing cell bilinear form;
 // It can be overriden if cell pre-assembly is desirable
 template <int dim>
-void TransportBase<dim>::
+void IterationBase<dim>::
 pre_assemble_cell_matrices
 (const std_cxx11::shared_ptr<FEValues<dim> > fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -410,7 +391,7 @@ pre_assemble_cell_matrices
 // The following is a virtual function for integraing cell bilinear form;
 // It must be overriden
 template <int dim>
-void TransportBase<dim>::integrate_cell_bilinear_form
+void IterationBase<dim>::integrate_cell_bilinear_form
 (const std_cxx11::shared_ptr<FEValues<dim> > fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
@@ -424,7 +405,7 @@ void TransportBase<dim>::integrate_cell_bilinear_form
 // The following is a virtual function for integraing boundary bilinear form;
 // It must be overriden
 template <int dim>
-void TransportBase<dim>::integrate_boundary_bilinear_form
+void IterationBase<dim>::integrate_boundary_bilinear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
@@ -435,7 +416,7 @@ void TransportBase<dim>::integrate_boundary_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::integrate_reflective_boundary_linear_form
+void IterationBase<dim>::integrate_reflective_boundary_linear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
@@ -446,7 +427,7 @@ void TransportBase<dim>::integrate_reflective_boundary_linear_form
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_interface ()
+void IterationBase<dim>::assemble_ho_interface ()
 {
   FullMatrix<double> vp_up (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vp_un (dofs_per_cell, dofs_per_cell);
@@ -507,7 +488,7 @@ void TransportBase<dim>::assemble_ho_interface ()
 // The following is a virtual function for integrating DG interface for HO system
 // it must be overriden
 template <int dim>
-void TransportBase<dim>::integrate_interface_bilinear_form
+void IterationBase<dim>::integrate_interface_bilinear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
  typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -523,7 +504,7 @@ void TransportBase<dim>::integrate_interface_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::generate_moments ()
+void IterationBase<dim>::generate_moments ()
 {
   // FitIt: only scalar flux is generated for now
   AssertThrow(do_nda==false, ExcMessage("Moments are generated only without NDA"));
@@ -539,22 +520,22 @@ void TransportBase<dim>::generate_moments ()
 }
 
 template <int dim>
-void TransportBase<dim>::generate_ho_rhs ()
+void IterationBase<dim>::generate_ho_rhs ()
 {
 }
 
 template <int dim>
-void TransportBase<dim>::NDA_PI ()
+void IterationBase<dim>::NDA_PI ()
 {
 }
 
 template <int dim>
-void TransportBase<dim>::NDA_SI ()
+void IterationBase<dim>::NDA_SI ()
 {
 }
 
 template <int dim>
-void TransportBase<dim>::scale_fiss_transfer_matrices ()
+void IterationBase<dim>::scale_fiss_transfer_matrices ()
 {
   AssertThrow (do_nda==false,
                ExcMessage("we don't scale fission transfer without NDA"));
@@ -574,12 +555,12 @@ void TransportBase<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void TransportBase<dim>::generate_ho_fixed_source ()
+void IterationBase<dim>::generate_ho_fixed_source ()
 {
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_fiss_process ()
+void IterationBase<dim>::initialize_fiss_process ()
 {
   for (unsigned int g=0; g<n_group; ++g)
   {
@@ -591,7 +572,7 @@ void TransportBase<dim>::initialize_fiss_process ()
 }
 
 template <int dim>
-void TransportBase<dim>::update_ho_moments_in_fiss ()
+void IterationBase<dim>::update_ho_moments_in_fiss ()
 {
   for (unsigned int g=0; g<n_group; ++g)
   {
@@ -601,7 +582,7 @@ void TransportBase<dim>::update_ho_moments_in_fiss ()
 }
 
 template <int dim>
-void TransportBase<dim>::update_fiss_source_keff ()
+void IterationBase<dim>::update_fiss_source_keff ()
 {
   keff_prev_gen = keff;
   fission_source_prev_gen = fission_source;
@@ -611,7 +592,7 @@ void TransportBase<dim>::update_fiss_source_keff ()
 }
 
 template <int dim>
-void TransportBase<dim>::power_iteration ()
+void IterationBase<dim>::power_iteration ()
 {
   double err_k = 1.0;
   double err_phi = 1.0;
@@ -635,7 +616,7 @@ void TransportBase<dim>::power_iteration ()
 }
 
 template <int dim>
-void TransportBase<dim>::source_iteration ()
+void IterationBase<dim>::source_iteration ()
 {
   unsigned int ct = 0;
   double err_phi = 1.0;
@@ -661,12 +642,12 @@ void TransportBase<dim>::source_iteration ()
 }
 
 template <int dim>
-void TransportBase<dim>::postprocess ()
+void IterationBase<dim>::postprocess ()
 {// do nothing in the base class
 }
 
 template <int dim>
-double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &phis_this_process)
+double IterationBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &phis_this_process)
 {
   double fiss_source = 0.0;
   for (unsigned int ic=0; ic<local_cells.size(); ++ic)
@@ -693,7 +674,7 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &p
 }
 
 template <int dim>
-double TransportBase<dim>::estimate_k (double &fiss_source,
+double IterationBase<dim>::estimate_k (double &fiss_source,
                                        double &fiss_source_prev_gen,
                                        double &k_prev_gen)
 {
@@ -701,7 +682,7 @@ double TransportBase<dim>::estimate_k (double &fiss_source,
 }
 
 template <int dim>
-double TransportBase<dim>::estimate_phi_diff
+double IterationBase<dim>::estimate_phi_diff
 (std::vector<PETScWrappers::MPI::Vector*> &phis_newer,
  std::vector<PETScWrappers::MPI::Vector*> &phis_older)
 {
@@ -718,7 +699,7 @@ double TransportBase<dim>::estimate_phi_diff
 }
 
 template <int dim>
-void TransportBase<dim>::do_iterations ()
+void IterationBase<dim>::do_iterations ()
 {
   sol_ptr->initialize_ho_preconditioners (vec_ho_sys, vec_ho_rhs);
   if (is_eigen_problem)
@@ -747,26 +728,26 @@ void TransportBase<dim>::do_iterations ()
 
 //functions used to cout information for diagonose or just simply cout
 template <int dim>
-void TransportBase<dim>::radio (std::string str)
+void IterationBase<dim>::radio (std::string str)
 {
   pcout << str << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::radio (std::string str1, std::string str2)
+void IterationBase<dim>::radio (std::string str1, std::string str2)
 {
   pcout << str1 << ": " << str2 << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::radio (std::string str,
+void IterationBase<dim>::radio (std::string str,
                                 double num)
 {
   pcout << str << ": " << num << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::radio (std::string str1, unsigned int num1,
+void IterationBase<dim>::radio (std::string str1, unsigned int num1,
                                 std::string str2, unsigned int num2,
                                 std::string str3, unsigned int num3)
 {
@@ -776,24 +757,24 @@ void TransportBase<dim>::radio (std::string str1, unsigned int num1,
 }
 
 template <int dim>
-void TransportBase<dim>::radio (std::string str,
+void IterationBase<dim>::radio (std::string str,
                                 unsigned int num)
 {
   pcout << str << ": " << num << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::radio (std::string str, bool boolean)
+void IterationBase<dim>::radio (std::string str, bool boolean)
 {
   pcout << str << ": " << (boolean?"true":"false") << std::endl;
 }
 
 template <int dim>
-void TransportBase<dim>::radio ()
+void IterationBase<dim>::radio ()
 {
   pcout << "-------------------------------------" << std::endl << std::endl;
 }
 
 // explicit instantiation to avoid linking error
-template class TransportBase<2>;
-template class TransportBase<3>;
+template class IterationBase<2>;
+template class IterationBase<3>;

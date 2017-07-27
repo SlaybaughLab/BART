@@ -42,7 +42,6 @@ pcout(std::cout,
       Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
 {
   aqd_ptr = build_aq_model (prm)
-  aqd_ptr->make_aq (prm);
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();

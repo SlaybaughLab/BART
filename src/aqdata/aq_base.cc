@@ -14,6 +14,7 @@ n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
 have_reflective_bc(prm.get_bool("have reflective BC"))
 {
+  this->make_aq (prm);
 }
 
 template <int dim>

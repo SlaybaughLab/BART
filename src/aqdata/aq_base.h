@@ -21,8 +21,6 @@ public:
   virtual void produce_angular_quad ();
   virtual void initialize_component_index ();
   void print_angular_quad ();
-  
-  void make_aq (ParameterHandler &prm);
 
   unsigned int get_sn_order ();
   unsigned int get_n_dir ();
@@ -59,6 +57,7 @@ protected:
   reflective_direction_index;
 
 private:
+  void make_aq (ParameterHandler &prm);
   std::string produce_quadrature_name ();
   void initialize_ref_bc_index ();
 

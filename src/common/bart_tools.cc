@@ -14,9 +14,17 @@ std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
   return mesh_class;
 }
 
+std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
+{
+  std_cxx11::shared_ptr<MaterialProperties> material_class =
+  std_cxx11::shared_ptr<MaterialProperties>
+  (new MaterialProperties (prm));
+  return material_class;
+}
+
 template <int dim>
 std_cxx11::shared_ptr<IterationBase<dim> >
-build_iterative_solver (ParameterHandler &prm,
+build_transport_iteration (ParameterHandler &prm,
                         const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                         const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
 {

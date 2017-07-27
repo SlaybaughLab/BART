@@ -14,6 +14,8 @@ template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> >
 build_mesh (ParameterHandler &prm);
 
+std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm);
+
 template <int dim>
 std_cxx11::shared_ptr<IterationBase<dim> >
 build_iterative_solver (ParameterHandler &prm,
