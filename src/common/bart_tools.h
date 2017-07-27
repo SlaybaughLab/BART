@@ -11,8 +11,21 @@
 using namespace dealii;
 
 template <int dim>
+std_cxx11::shared_ptr<MeshGenerator<dim> >
+build_mesh (ParameterHandler &prm);
+
+template <int dim>
+std_cxx11::shared_ptr<IterationBase<dim> >
+build_iterative_solver (ParameterHandler &prm,
+                        const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                        const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr);
+
+template <int dim>
 std_cxx11::shared_ptr<TransportBase<dim> >
-build_transport_model (ParameterHandler &prm);
+build_transport_model (ParameterHandler &prm,
+                       const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
 
 template <int dim>
 std_cxx11::shared_ptr<AQBase<dim> >

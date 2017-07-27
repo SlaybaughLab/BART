@@ -46,7 +46,10 @@ TransportBase<dim>::~TransportBase ()
 }
 
 template <int dim>
-void TransportBase<dim>::process_input (msh_ptr, aqd_ptr, mat_ptr)
+void TransportBase<dim>::process_input
+(const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
   // mesh related
   {

@@ -7,7 +7,10 @@ template<int dim>
 class EvenParity : public TransportBase<dim>
 {
 public:
-  EvenParity (ParameterHandler &prm);
+  EvenParity (ParameterHandler &prm,
+              const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+              const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+              const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   ~EvenParity ();
   
   void pre_assemble_cell_matrices

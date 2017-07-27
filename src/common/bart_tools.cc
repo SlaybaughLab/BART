@@ -6,8 +6,34 @@
 #include "../aqdata/aq_lsgc"
 
 template <int dim>
+std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
+{
+  std_cxx11::shared_ptr<MeshGenerator<dim> > mesh_class =
+  std_cxx11::shared_ptr<MeshGenerator<dim> >
+  (new MeshGenerator<dim>(prm));
+  return mesh_class;
+}
+
+template <int dim>
+std_cxx11::shared_ptr<IterationBase<dim> >
+build_iterative_solver (ParameterHandler &prm,
+                        const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                        const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
+{
+  // in future development this builder will be like other two
+  std_cxx11::shared_ptr<IterationBase<dim> > iteration_class =
+  std_cxx11::shared_ptr<IterationBase<dim> > (new IterationBase<dim>(prm,
+                                                                     msh_ptr,
+                                                                     aqd_ptr));
+  return iteration_class;
+}
+
+template <int dim>
 std_cxx11::shared_ptr<TransportBase<dim> >
-build_transport_model (ParameterHandler &prm)
+build_transport_model (ParameterHandler &prm,
+                       const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
   std::string transport_model_name = prm.get ("transport model");
   AssertThrow (transport_model_name!="none",
@@ -15,7 +41,11 @@ build_transport_model (ParameterHandler &prm)
   std_cxx11::shared_ptr<TransportBase<dim> > transport_class;
   if (transport_model_name=="ep")
     transport_class =
-    std_cxx11::shared_ptr<TransportBase<dim> > (new EvenParity<dim> (prm));
+    std_cxx11::shared_ptr<TransportBase<dim> >
+    (new EvenParity<dim> (prm,
+                          msh_ptr,
+                          aqd_ptr,
+                          mat_ptr));
   return transport_class;
 }
 

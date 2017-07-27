@@ -46,9 +46,8 @@ pcout(std::cout,
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();
-  msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
-  (new MeshGenerator<dim>(prm));
-  this->process_input ();
+  msh_ptr = build_mesh (prm);
+  itr_ptr = build_transport_iteration (prm);
 }
 
 template <int dim>
@@ -255,7 +254,7 @@ void BartDriver<dim>::run ()
                                         is_cell_at_ref_bd);
   setup_system ();
   report_system ();
-  itr_ptr->do_iterations ();
+  itr_ptr->do_iterations (msh_ptr, aqd_ptr);
   output_results ();
 }
 

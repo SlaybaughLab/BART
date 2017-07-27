@@ -116,7 +116,9 @@ private:
   void assemble_ho_volume_boundary ();
   void assemble_ho_interface ();
   void assemble_ho_system ();
-  void process_input ();
+  void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                      const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                      const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   void initialize_system_matrices_vectors ();
   void prepare_correction_aflx ();
   void initialize_fiss_process ();
