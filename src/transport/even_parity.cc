@@ -238,7 +238,7 @@ void EvenParity<dim>::generate_ho_rhs ()
 }
 
 template <int dim>
-void EvenParity<dim>::generate_ho_fixed_source ()
+void EvenParity<dim>::generate_ho_fixed_source (std::vector<Vector<double> >)
 {
   for (unsigned int g=0; g<this->n_group; ++g)
     for (unsigned int i_dir=0; i_dir<this->n_dir; ++i_dir)

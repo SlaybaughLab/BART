@@ -16,26 +16,29 @@
 using namespace dealii;
 
 template <int dim>
-IterationBase<dim>::IterationBase (ParameterHandler &prm)
+IterationBase<dim>::IterationBase
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
 :
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
 ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
+is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
+do_nda(prm.get_bool("do NDA")),
 pcout(std::cout,
-      (Utilities::MPI::this_mpi_process(mpi_communicator)
-       == 0))
+      Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
 {
-  initialize_aq (prm);
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
-  sol_ptr = std_cxx11::shared_ptr<PreconditionerSolver>
-  (new PreconditionerSolver (prm, n_total_ho_vars, mpi_communicator));
-  def_ptr = std_cxx11::shared_ptr<ProblemDefinition>
-  (new ProblemDefinition(prm));
-  msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >
-  (new MeshGenerator<dim>(prm));
+  sol_ptr = build_solution (prm, n_total_ho_vars);
   mat_ptr = build_material (prm);
+  msh_ptr->get_relevant_cell_iterators (dof_handler,
+                                        local_cells,
+                                        ref_bd_cells,
+                                        is_cell_at_bd,
+                                        is_cell_at_ref_bd);
   this->process_input ();
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
@@ -52,7 +55,6 @@ void IterationBase<dim>::process_input ()
   // basic parameters
   {
     // from basic problem definition
-    transport_model_name = def_ptr->get_transport_model ();
     n_group = def_ptr->get_n_group ();
     n_material = mat_ptr->get_n_material ();
     p_order = def_ptr->get_fe_order ();
@@ -135,11 +137,6 @@ void IterationBase<dim>::scale_fiss_transfer_matrices ()
       scaled_fiss_transfer_per_ster[m] = tmp;
     }
   }
-}
-
-template <int dim>
-void IterationBase<dim>::generate_ho_fixed_source ()
-{
 }
 
 template <int dim>

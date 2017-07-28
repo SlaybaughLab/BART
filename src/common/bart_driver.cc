@@ -246,11 +246,6 @@ void BartDriver<dim>::run ()
 {
   radio ("making grid");
   msh_ptr->make_grid (triangulation);
-  msh_ptr->get_relevant_cell_iterators (dof_handler,
-                                        local_cells,
-                                        ref_bd_cells,
-                                        is_cell_at_bd,
-                                        is_cell_at_ref_bd);
   setup_system ();
   report_system ();
   itr_ptr->do_iterations (msh_ptr, aqd_ptr);
