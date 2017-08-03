@@ -98,10 +98,15 @@ public:
    FullMatrix<double> &vn_up,
    FullMatrix<double> &vn_un);
   
-  virtual void generate_moments ();
+  virtual void generate_moments
+  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
+   std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_old,
+   std::vector<Vector<double> > &sflx_proc);
   virtual void postprocess ();
   virtual void generate_ho_rhs ();
-  virtual void generate_ho_fixed_source ();
+  virtual void generate_ho_fixed_source
+  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
+   std::vector<Vector<double> > &sflx_this_proc);
   
 private:
   void setup_system ();
@@ -129,15 +134,12 @@ private:
   void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
   void initialize_aq (ParameterHandler &prm);
   void initialize_assembly_related_objects
-  (DoFHandler<dim> &dof_handler,
-   FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
+  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,
                      double &k_prev_gen);
   double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
-  double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
-                            std::vector<LA::MPI::Vector*> &phis_older);
   
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
@@ -158,47 +160,14 @@ protected:
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
   
-  void radio (std::string str);
-  void radio (std::string str1, std::string str2);
-  void radio (std::string str1, unsigned int num1,
-              std::string str2, unsigned int num2,
-              std::string str3, unsigned int num3);
-  void radio (std::string str, double num);
-  void radio (std::string str, unsigned int num);
-  void radio (std::string str, bool boolean);
-  void radio ();
-  
-  std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
-  std::vector<typename DoFHandler<dim>::active_cell_iterator> ref_bd_cells;
-  std::vector<bool> is_cell_at_bd;
-  std::vector<bool> is_cell_at_ref_bd;
-  
-  FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe;
   std_cxx11::shared_ptr<QGauss<dim> > q_rule;
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   
-  
-  MPI_Comm mpi_communicator;
-  
-  parallel::distributed::Triangulation<dim> triangulation;
-  
-  DoFHandler<dim> dof_handler;
-  
-  IndexSet local_dofs;
-  IndexSet relevant_dofs;
-  
-  const double err_k_tol;
-  const double err_phi_tol;
-  const double err_phi_eigen_tol;
-  
-  double ssor_omega;
   double keff;
   double keff_prev_gen;
-  double total_angle;
-  double c_penalty;
   double fission_source;
   double fission_source_prev_gen;
   
@@ -242,9 +211,6 @@ protected:
   std::vector<std::vector<std::vector<double> > > scat_scaled_fiss_transfer_per_ster;
   std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer;
   std::vector<FullMatrix<double> > vec_test_at_qp;
-  std::vector<Vector<double> > sflx_proc;
-  std::vector<Vector<double> > sflx_proc_prev_gen;
-  std::vector<Vector<double> > lo_sflx_proc;
   
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
@@ -256,8 +222,6 @@ protected:
   std::set<unsigned int> fissile_ids;
   
   ConditionalOStream pcout;
-  
-  ConstraintMatrix constraints;
 };
 
 #endif	// define  __transport_base_h__

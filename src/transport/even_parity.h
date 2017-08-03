@@ -49,8 +49,17 @@ public:
    FullMatrix<double> &vn_up,
    FullMatrix<double> &vn_un);
   
-  void generate_ho_fixed_source ();
-  void generate_ho_rhs ();
+  void generate_ho_fixed_source
+  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
+   std::vector<Vector<double> > &sflx_this_proc);
+  void generate_ho_rhs
+  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
+   std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
+   std::vector<Vector> &sflx_this_proc);
+
+private:
+  double c_penalty;
+  std::vector<double> tensor_norms;
 };
 
 #endif // __even_parity__

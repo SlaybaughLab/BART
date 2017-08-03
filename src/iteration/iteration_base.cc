@@ -39,6 +39,7 @@ pcout(std::cout,
                                         ref_bd_cells,
                                         is_cell_at_bd,
                                         is_cell_at_ref_bd);
+  trm_ptr = build_transport_model ();
   this->process_input ();
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
@@ -201,10 +202,8 @@ void IterationBase<dim>::source_iteration ()
   unsigned int ct = 0;
   double err_phi = 1.0;
   double err_phi_old;
-  //generate_moments ();
   while (err_phi>err_phi_tol)
   {
-    //generate_ho_source ();
     ct += 1;
     generate_ho_rhs ();
     sol_ptr->ho_solve (vec_ho_sys,

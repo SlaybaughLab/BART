@@ -29,15 +29,10 @@ n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
-do_print_sn_quad(prm.get_bool("do print angular quadrature info")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
 p_order(prm.get_integer("finite element polynomial degree"))
 {
-  this->process_input (msh_ptr, aqd_ptr, mat_ptr);
-  if (transport_model_name=="ep" && discretization=="dfem")
-    c_penalty = 1.0 * p_order * (p_order + 1.0);
-  sflx_proc.resize (n_group);
-  sflx_proc_prev_gen.resize (n_group);
+  this->process_input (msh_ptr, aqd_ptr, mat_ptr);    
 }
 
 template <int dim>
@@ -67,8 +62,6 @@ void TransportBase<dim>::process_input
     inverse_component_index = aqd_ptr->get_inv_component_map ();
     wi = aqd_ptr->get_angular_weights ();
     omega_i = aqd_ptr->get_all_directions ();
-    if (transport_model_name=="ep" && discretization=="dfem")
-      tensor_norms = aqd_ptr->get_tensor_norms ();
     
     if (have_reflective_bc)
       reflective_direction_index = aqd_ptr->get_reflective_direction_index_map ();
@@ -96,24 +89,25 @@ void TransportBase<dim>::process_input
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_system ()
+void TransportBase<dim>::assemble_ho_system
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd)
 {
   radio ("Assemble volumetric bilinear forms");
-  assemble_ho_volume_boundary ();
+  assemble_ho_volume_boundary (local_cells, is_cell_at_bd);
 
   if (discretization=="dfem")
   {
     AssertThrow (transport_model_name=="ep",
                  ExcMessage("DFEM is only implemented for even parity"));
     radio ("Assemble cell interface bilinear forms for DFEM");
-    assemble_ho_interface ();
+    assemble_ho_interface (local_cells);
   }
 }
 
 template <int dim>
 void TransportBase<dim>::initialize_assembly_related_objects
-(DoFHandler<dim> &dof_handler,
- FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe)
+(FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe)
 {
   q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
   qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (p_order + 1));
@@ -130,11 +124,12 @@ void TransportBase<dim>::initialize_assembly_related_objects
                           update_quadrature_points | update_normal_vectors |
                           update_JxW_values));
 
-  fvf_nei = std_cxx11::shared_ptr<FEFaceValues<dim> >
-  (new FEFaceValues<dim> (*fe, *qf_rule,
-                          update_values | update_gradients |
-                          update_quadrature_points | update_normal_vectors |
-                          update_JxW_values));
+  if (discretization=="dfem")
+    fvf_nei = std_cxx11::shared_ptr<FEFaceValues<dim> >
+    (new FEFaceValues<dim> (*fe, *qf_rule,
+                            update_values | update_gradients |
+                            update_quadrature_points | update_normal_vectors |
+                            update_JxW_values));
 
   dofs_per_cell = fe->dofs_per_cell;
   n_q = q_rule->size();
@@ -145,7 +140,9 @@ void TransportBase<dim>::initialize_assembly_related_objects
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_volume_boundary ()
+void TransportBase<dim>::assemble_ho_volume_boundary
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd)
 {
   // volumetric pre-assembly matrices
   std::vector<std::vector<FullMatrix<double> > >
@@ -263,7 +260,8 @@ void TransportBase<dim>::integrate_reflective_boundary_linear_form
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_interface ()
+void TransportBase<dim>::assemble_ho_interface
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
   FullMatrix<double> vp_up (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vp_un (dofs_per_cell, dofs_per_cell);
@@ -340,9 +338,13 @@ void TransportBase<dim>::integrate_interface_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::generate_moments ()
+void TransportBase<dim>::generate_moments
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_old,
+ std::vector<Vector<double> > &sflx_proc)
 {
-  // FitIt: only scalar flux is generated for now
+  // PETSc type vectors live in BartDriver
+  // TODO: only scalar flux is generated for now, future will be moments
   AssertThrow(do_nda==false,
               ExcMessage("Moments are generated only without NDA"));
   if (!do_nda)
@@ -377,25 +379,22 @@ void TransportBase<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void TransportBase<dim>::generate_ho_fixed_source ()
+void EvenParity<dim>::generate_ho_rhs
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
+ std::vector<Vector> &sflx_this_proc)
 {
 }
 
-template <int dim>
-void TransportBase<dim>::update_ho_moments_in_fiss
-(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
- std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_prev_gen)
-{
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    *vec_ho_sflx_prev_gen[g] = *vec_ho_sflx[g];
-    sflx_proc_prev_gen[g] = *vec_ho_sflx_prev_gen[g];
-  }
-}
+void TransportBase<dim>::generate_ho_fixed_source
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
+ std::vector<Vector<double> > &sflx_this_proc)
 
 template <int dim>
-double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &phis_this_process)
+double TransportBase<dim>::estimate_fiss_source
+(std::vector<Vector<double> > &phis_this_process)
 {
+  // first, estimate local fission source
   double fiss_source = 0.0;
   for (unsigned int ic=0; ic<local_cells.size(); ++ic)
   {
@@ -416,6 +415,7 @@ double TransportBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &p
                           fv->JxW(qi));
     }
   }
+  // then, we need to accumulate fission source from other processors as well
   double global_fiss_source = Utilities::MPI::sum (fiss_source, MPI_COMM_WORLD);
   return global_fiss_source;
 }

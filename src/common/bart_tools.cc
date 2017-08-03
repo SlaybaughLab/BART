@@ -17,8 +17,7 @@ std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
 std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 {
   std_cxx11::shared_ptr<MaterialProperties> material_class =
-  std_cxx11::shared_ptr<MaterialProperties>
-  (new MaterialProperties (prm));
+  std_cxx11::shared_ptr<MaterialProperties> (new MaterialProperties (prm));
   return material_class;
 }
 
