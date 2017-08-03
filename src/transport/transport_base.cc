@@ -379,7 +379,7 @@ void TransportBase<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void EvenParity<dim>::generate_ho_rhs
+void TransportBase<dim>::generate_ho_rhs
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
  std::vector<Vector> &sflx_this_proc)

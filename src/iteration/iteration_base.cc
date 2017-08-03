@@ -24,10 +24,9 @@ IterationBase<dim>::IterationBase
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
-ho_linear_solver_name(prm.get("HO linear solver name")),
-ho_preconditioner_name(prm.get("HO preconditioner name")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
+n_group(prm.get_integer("number of groups")),
 pcout(std::cout,
       Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
 {
@@ -40,7 +39,6 @@ pcout(std::cout,
                                         is_cell_at_bd,
                                         is_cell_at_ref_bd);
   trm_ptr = build_transport_model ();
-  this->process_input ();
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
 }
@@ -48,66 +46,6 @@ pcout(std::cout,
 template <int dim>
 IterationBase<dim>::~IterationBase ()
 {
-}
-
-template <int dim>
-void IterationBase<dim>::process_input ()
-{
-  // basic parameters
-  {
-    // from basic problem definition
-    n_group = def_ptr->get_n_group ();
-    n_material = mat_ptr->get_n_material ();
-    p_order = def_ptr->get_fe_order ();
-    discretization = def_ptr->get_discretization ();
-    have_reflective_bc = def_ptr->get_reflective_bool ();
-    do_nda = def_ptr->get_nda_bool ();
-    is_eigen_problem = def_ptr->get_eigen_problem_bool ();
-    do_print_sn_quad = def_ptr->get_print_sn_quad_bool ();
-    global_refinements = def_ptr->get_uniform_refinement ();
-    namebase = def_ptr->get_output_namebase ();
-
-    // from angular quadrature data
-    n_azi = aqd_ptr->get_sn_order ();
-    n_dir = aqd_ptr->get_n_dir ();
-    component_index = aqd_ptr->get_component_index_map ();
-    inverse_component_index = aqd_ptr->get_inv_component_map ();
-    wi = aqd_ptr->get_angular_weights ();
-    omega_i = aqd_ptr->get_all_directions ();
-    if (transport_model_name=="ep" &&
-        discretization=="dfem")
-    {
-      tensor_norms = aqd_ptr->get_tensor_norms ();
-      c_penalty = 1.0 * p_order * (p_order + 1.0);
-    }
-  }
-
-  if (have_reflective_bc)
-  {
-    is_reflective_bc = msh_ptr->get_reflective_bc_map ();
-    reflective_direction_index = aqd_ptr->get_reflective_direction_index_map ();
-  }
-
-  // material properties
-  {
-    relative_position_to_id = msh_ptr->get_id_map ();
-    all_sigt = mat_ptr->get_sigma_t ();
-    all_inv_sigt = mat_ptr->get_inv_sigma_t ();
-    all_sigs = mat_ptr->get_sigma_s ();
-    all_sigs_per_ster = mat_ptr->get_sigma_s_per_ster ();
-    if (is_eigen_problem)
-    {
-      is_material_fissile = mat_ptr->get_fissile_id_map ();
-      all_nusigf = mat_ptr->get_nusigf ();
-      all_ksi_nusigf = mat_ptr->get_ksi_nusigf ();
-      all_ksi_nusigf_per_ster = mat_ptr->get_ksi_nusigf_per_ster ();
-    }
-    else
-    {
-      all_q = mat_ptr->get_q ();
-      all_q_per_ster = mat_ptr->get_q_per_ster ();
-    }
-  }
 }
 
 template <int dim>
@@ -141,19 +79,22 @@ void IterationBase<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void IterationBase<dim>::initialize_fiss_process ()
+void IterationBase<dim>::initialize_fiss_process
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx)
 {
   for (unsigned int g=0; g<n_group; ++g)
   {
     *vec_ho_sflx[g] = 1.0;
     sflx_proc[g] = *vec_ho_sflx[g];
   }
-  fission_source = estimate_fiss_source (sflx_proc);
+  fission_source = trm_ptr->estimate_fiss_source (sflx_proc);
   keff = 1.0;
 }
 
 template <int dim>
-void IterationBase<dim>::update_ho_moments_in_fiss ()
+void IterationBase<dim>::update_ho_moments_in_fiss
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_prev_gen)
 {
   for (unsigned int g=0; g<n_group; ++g)
   {
@@ -167,18 +108,18 @@ void IterationBase<dim>::update_fiss_source_keff ()
 {
   keff_prev_gen = keff;
   fission_source_prev_gen = fission_source;
-  fission_source = estimate_fiss_source (sflx_proc);
+  fission_source = trm_ptr->estimate_fiss_source (sflx_proc);
   keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
-  //renormalize_sflx (vec_ho_sflx);
 }
 
 template <int dim>
-void IterationBase<dim>::power_iteration ()
+void IterationBase<dim>::power_iteration
+(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx)
 {
   double err_k = 1.0;
   double err_phi = 1.0;
   unsigned int ct = 0;
-  initialize_fiss_process ();
+  initialize_fiss_process (vec_ho_sflx);
   while (err_k>err_k_tol || err_phi>err_phi_eigen_tol)
   {
     ct += 1;
