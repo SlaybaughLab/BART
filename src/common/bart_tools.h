@@ -2,13 +2,18 @@
 #define __bart_builder_h__
 
 #include <deal.II/base/parameter_handler.h>
+#include <deal.II/fe/fe_poly.h>
 
 #include <string>
 #include <map>
 
-#include "../transport/transport_base.h"
+#include "../equations/equation_base.h"
 
 using namespace dealii;
+
+template <int dim>
+FE_Poly<TensorProductPolynomials<dim>,dim,dim>*
+build_finite_element (ParameterHandler &prm);
 
 template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> >

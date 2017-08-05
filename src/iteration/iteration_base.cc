@@ -1,6 +1,5 @@
+#include <deal.II/base/index_set.h>
 #include <deal.II/fe/fe_values.h>
-
-#include <boost/algorithm/string.hpp>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/cell_id.h>
 
@@ -9,7 +8,7 @@
 
 #include <algorithm>
 
-#include "transport_base.h"
+#include "equation_base.h"
 #include "../aqdata/aq_base.h"
 #include "../aqdata/aq_lsgc.h"
 
@@ -19,7 +18,8 @@ template <int dim>
 IterationBase<dim>::IterationBase
 (ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
- const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const IndexSet local_dofs)
 :
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
@@ -39,6 +39,7 @@ pcout(std::cout,
                                         is_cell_at_bd,
                                         is_cell_at_ref_bd);
   trm_ptr = build_transport_model ();
+  initialize_intermediate_vectors (local_dofs);
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
 }
@@ -124,8 +125,9 @@ void IterationBase<dim>::power_iteration
   {
     ct += 1;
     update_ho_moments_in_fiss ();
-    scale_fiss_transfer_matrices ();
-    generate_ho_fixed_source ();
+    trm_ptr->scale_fiss_transfer_matrices ();//???
+    trm_ptr->generate_ho_fixed_source (vec_ho_fixed_rhs,
+                                       sflx_proc_prev_gen);
     source_iteration ();
     update_fiss_source_keff ();
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
@@ -138,7 +140,12 @@ void IterationBase<dim>::power_iteration
 }
 
 template <int dim>
-void IterationBase<dim>::source_iteration ()
+void IterationBase<dim>::source_iteration
+(std::vector<PETScWrappers::MPI::SparseMatrix*> &vec_ho_sys,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
+ )
 {
   unsigned int ct = 0;
   double err_phi = 1.0;
@@ -146,11 +153,11 @@ void IterationBase<dim>::source_iteration ()
   while (err_phi>err_phi_tol)
   {
     ct += 1;
-    generate_ho_rhs ();
+    trm_ptr->generate_ho_rhs ();
     sol_ptr->ho_solve (vec_ho_sys,
                        vec_aflx,
                        vec_ho_rhs);
-    generate_moments ();
+    trm_ptr->generate_moments ();
     err_phi_old = err_phi;
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
     double spectral_radius = err_phi / err_phi_old;
@@ -164,33 +171,6 @@ void IterationBase<dim>::source_iteration ()
 template <int dim>
 void IterationBase<dim>::postprocess ()
 {// do nothing in the base class
-}
-
-template <int dim>
-double IterationBase<dim>::estimate_fiss_source (std::vector<Vector<double> > &phis_this_process)
-{
-  double fiss_source = 0.0;
-  for (unsigned int ic=0; ic<local_cells.size(); ++ic)
-  {
-    typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
-    std::vector<std::vector<double> > local_phis (n_group,
-                                                  std::vector<double> (n_q));
-    unsigned int material_id = cell->material_id ();
-    if (is_material_fissile[material_id])
-    {
-      fv->reinit (cell);
-      for (unsigned int g=0; g<n_group; ++g)
-        fv->get_function_values (phis_this_process[g],
-                                 local_phis[g]);
-      for (unsigned int qi=0; qi<n_q; ++qi)
-        for (unsigned int g=0; g<n_group; ++g)
-          fiss_source += (all_nusigf[material_id][g] *
-                          local_phis[g][qi] *
-                          fv->JxW(qi));
-    }
-  }
-  double global_fiss_source = Utilities::MPI::sum (fiss_source, mpi_communicator);
-  return global_fiss_source;
 }
 
 template <int dim>
@@ -211,8 +191,8 @@ double IterationBase<dim>::estimate_phi_diff
   double err = 0.0;
   for (unsigned int i=0; i<phis_newer.size (); ++i)
   {
-    PETScWrappers::MPI::Vector dif = *(phis_newer)[i];
-    dif -= *(phis_older)[i];
+    PETScWrappers::MPI::Vector dif = *phis_newer[i];
+    dif -= *phis_older[i];
     err = std::max (err, dif.l1_norm () / phis_newer[i]->l1_norm ());
   }
   return err;

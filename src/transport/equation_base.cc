@@ -9,13 +9,13 @@
 
 #include <algorithm>
 
-#include "transport_base.h"
+#include "equation_base.h"
 #include "bart_tools.h"
 
 using namespace dealii;
 
 template <int dim>
-TransportBase<dim>::TransportBase
+EquationBase<dim>::EquationBase
 (ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
@@ -36,12 +36,12 @@ p_order(prm.get_integer("finite element polynomial degree"))
 }
 
 template <int dim>
-TransportBase<dim>::~TransportBase ()
+EquationBase<dim>::~EquationBase ()
 {
 }
 
 template <int dim>
-void TransportBase<dim>::process_input
+void EquationBase<dim>::process_input
 (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
@@ -89,7 +89,7 @@ void TransportBase<dim>::process_input
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_system
+void EquationBase<dim>::assemble_ho_system
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
 {
@@ -106,7 +106,7 @@ void TransportBase<dim>::assemble_ho_system
 }
 
 template <int dim>
-void TransportBase<dim>::initialize_assembly_related_objects
+void EquationBase<dim>::initialize_assembly_related_objects
 (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe)
 {
   q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
@@ -140,7 +140,7 @@ void TransportBase<dim>::initialize_assembly_related_objects
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_volume_boundary
+void EquationBase<dim>::assemble_ho_volume_boundary
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
 {
@@ -212,7 +212,7 @@ void TransportBase<dim>::assemble_ho_volume_boundary
 // The following is a virtual function for integraing cell bilinear form;
 // It can be overriden if cell pre-assembly is desirable
 template <int dim>
-void TransportBase<dim>::
+void EquationBase<dim>::
 pre_assemble_cell_matrices
 (const std_cxx11::shared_ptr<FEValues<dim> > fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -224,7 +224,7 @@ pre_assemble_cell_matrices
 // The following is a virtual function for integraing cell bilinear form;
 // It must be overriden
 template <int dim>
-void TransportBase<dim>::integrate_cell_bilinear_form
+void EquationBase<dim>::integrate_cell_bilinear_form
 (const std_cxx11::shared_ptr<FEValues<dim> > fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
@@ -238,7 +238,7 @@ void TransportBase<dim>::integrate_cell_bilinear_form
 // The following is a virtual function for integraing boundary bilinear form;
 // It must be overriden
 template <int dim>
-void TransportBase<dim>::integrate_boundary_bilinear_form
+void EquationBase<dim>::integrate_boundary_bilinear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
@@ -249,7 +249,7 @@ void TransportBase<dim>::integrate_boundary_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::integrate_reflective_boundary_linear_form
+void EquationBase<dim>::integrate_reflective_boundary_linear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
@@ -260,7 +260,7 @@ void TransportBase<dim>::integrate_reflective_boundary_linear_form
 }
 
 template <int dim>
-void TransportBase<dim>::assemble_ho_interface
+void EquationBase<dim>::assemble_ho_interface
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
   FullMatrix<double> vp_up (dofs_per_cell, dofs_per_cell);
@@ -322,7 +322,7 @@ void TransportBase<dim>::assemble_ho_interface
 // The following is a virtual function for integrating DG interface for HO system
 // it must be overriden
 template <int dim>
-void TransportBase<dim>::integrate_interface_bilinear_form
+void EquationBase<dim>::integrate_interface_bilinear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
  typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -338,7 +338,7 @@ void TransportBase<dim>::integrate_interface_bilinear_form
 }
 
 template <int dim>
-void TransportBase<dim>::generate_moments
+void EquationBase<dim>::generate_moments
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_old,
  std::vector<Vector<double> > &sflx_proc)
@@ -359,7 +359,7 @@ void TransportBase<dim>::generate_moments
 }
 
 template <int dim>
-void TransportBase<dim>::scale_fiss_transfer_matrices ()
+void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 {
   AssertThrow (do_nda==false,
                ExcMessage("we don't scale fission transfer without NDA"));
@@ -379,19 +379,19 @@ void TransportBase<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void TransportBase<dim>::generate_ho_rhs
+void EquationBase<dim>::generate_ho_rhs
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
  std::vector<Vector> &sflx_this_proc)
 {
 }
 
-void TransportBase<dim>::generate_ho_fixed_source
+void EquationBase<dim>::generate_ho_fixed_source
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
  std::vector<Vector<double> > &sflx_this_proc)
 
 template <int dim>
-double TransportBase<dim>::estimate_fiss_source
+double EquationBase<dim>::estimate_fiss_source
 (std::vector<Vector<double> > &phis_this_process)
 {
   // first, estimate local fission source
@@ -422,7 +422,7 @@ double TransportBase<dim>::estimate_fiss_source
 
 // wrapper functions used to retrieve info from various Hash tables
 template <int dim>
-unsigned int TransportBase<dim>::get_component_index
+unsigned int EquationBase<dim>::get_component_index
 (unsigned int incident_angle_index, unsigned int g)
 {
   // retrieve component indecis given direction and group
@@ -431,19 +431,19 @@ unsigned int TransportBase<dim>::get_component_index
 }
 
 template <int dim>
-unsigned int TransportBase<dim>::get_component_direction (unsigned int comp_ind)
+unsigned int EquationBase<dim>::get_component_direction (unsigned int comp_ind)
 {
   return inverse_component_index[comp_ind].first;
 }
 
 template <int dim>
-unsigned int TransportBase<dim>::get_component_group (unsigned int comp_ind)
+unsigned int EquationBase<dim>::get_component_group (unsigned int comp_ind)
 {
   return inverse_component_index[comp_ind].second;
 }
 
 template <int dim>
-unsigned int TransportBase<dim>::get_reflective_direction_index
+unsigned int EquationBase<dim>::get_reflective_direction_index
 (unsigned int boundary_id, unsigned int incident_angle_index)
 {
   AssertThrow (is_reflective_bc[boundary_id],
@@ -453,5 +453,5 @@ unsigned int TransportBase<dim>::get_reflective_direction_index
 }
 
 // explicit instantiation to avoid linking error
-template class TransportBase<2>;
-template class TransportBase<3>;
+template class EquationBase<2>;
+template class EquationBase<3>;

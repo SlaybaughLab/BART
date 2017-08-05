@@ -1,9 +1,24 @@
+#include <deal.II/fe/fe_dgq.h>
+#include <deal.II/fe/fe_q.h>
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
 
 #include "bart_builder.h"
-#include "../transport/even_parity.h"
+#include "../equations/even_parity.h"
 #include "../aqdata/aq_lsgc"
+
+template <int dim>
+FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
+(ParameterHandler &prm)
+{
+  std::string discretization = prm.get ("spatial discretization");
+  AssertThrow (discretization!="none",
+               ExcMessage("valid spatial discretizations are dfem and cfem"))
+  if (discretization=="dfem")
+    return new FE_DGQ<dim> (p_order);
+  else
+    return new FE_Q<dim> (p_order);
+}
 
 template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
@@ -22,10 +37,10 @@ std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 }
 
 template <int dim>
-std_cxx11::shared_ptr<IterationBase<dim> >
-build_transport_iteration (ParameterHandler &prm,
-                        const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                        const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
+std_cxx11::shared_ptr<IterationBase<dim> > build_transport_iteration
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
 {
   // in future development this builder will be like other two
   std_cxx11::shared_ptr<IterationBase<dim> > iteration_class =
@@ -36,11 +51,11 @@ build_transport_iteration (ParameterHandler &prm,
 }
 
 template <int dim>
-std_cxx11::shared_ptr<TransportBase<dim> >
-build_transport_model (ParameterHandler &prm,
-                       const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+std_cxx11::shared_ptr<TransportBase<dim> > build_transport_model
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
   std::string transport_model_name = prm.get ("transport model");
   AssertThrow (transport_model_name!="none",

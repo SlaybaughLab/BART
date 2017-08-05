@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-#include "transport_base.h"
+#include "equation_base.h"
 #include "../aqdata/aq_base.h"
 #include "../aqdata/aq_lsgc.h"
 
@@ -23,10 +23,8 @@ triangulation (MPI_COMM_WORLD,
                (Triangulation<dim>::smoothing_on_refinement |
                 Triangulation<dim>::smoothing_on_coarsening)),
 dof_handler (triangulation),
-prm(prm),
 transport_model_name(prm.get("transport model")),
 aq_name(prm.get("angular quadrature name")),
-discretization(prm.get("spatial discretization")),
 n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
@@ -47,6 +45,7 @@ pcout(std::cout,
   n_dir = aqd_ptr->get_n_dir ();
   msh_ptr = build_mesh (prm);
   itr_ptr = build_transport_iteration (prm);
+  fe = build_finite_element (prm);
 }
 
 template <int dim>
@@ -130,22 +129,22 @@ void BartDriver<dim>::initialize_system_matrices_vectors ()
     if (do_nda)
     {
       vec_lo_sys.push_back (new LA::MPI::SparseMatrix);
-      vec_lo_rhs.push_back (new LA::MPI::Vector);
+      //vec_lo_rhs.push_back (new LA::MPI::Vector);
       vec_lo_sflx.push_back (new LA::MPI::Vector);
-      vec_lo_sflx_old.push_back (new LA::MPI::Vector);
-      vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
+      //vec_lo_sflx_old.push_back (new LA::MPI::Vector);
+      //vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
     }
 
     vec_ho_sflx.push_back (new LA::MPI::Vector);
-    vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
-    vec_ho_sflx_old.push_back (new LA::MPI::Vector);
+    //vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
+    //vec_ho_sflx_old.push_back (new LA::MPI::Vector);
 
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
     {
       vec_ho_sys.push_back (new LA::MPI::SparseMatrix);
-      vec_aflx.push_back (new LA::MPI::Vector);
-      vec_ho_rhs.push_back (new LA::MPI::Vector);
-      vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
+      //vec_aflx.push_back (new LA::MPI::Vector);
+      //vec_ho_rhs.push_back (new LA::MPI::Vector);
+      //vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
     }
   }
 
@@ -157,14 +156,14 @@ void BartDriver<dim>::initialize_system_matrices_vectors ()
                              local_dofs,
                              dsp,
                              MPI_COMM_WORLD);
-      vec_lo_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
-      vec_lo_fixed_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      //vec_lo_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      //vec_lo_fixed_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
       vec_lo_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
-      vec_lo_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      //vec_lo_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
     }
 
     vec_ho_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
-    vec_ho_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
+    //vec_ho_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
   }
   
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
@@ -173,20 +172,15 @@ void BartDriver<dim>::initialize_system_matrices_vectors ()
                           local_dofs,
                           dsp,
                           MPI_COMM_WORLD);
-    vec_aflx[k]->reinit(local_dofs, MPI_COMM_WORLD);
-    vec_ho_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
-    vec_ho_fixed_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
+    //vec_aflx[k]->reinit(local_dofs, MPI_COMM_WORLD);
+    //vec_ho_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
+    //vec_ho_fixed_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
   }
 }
 
 template <int dim>
 void BartDriver<dim>::initialize_dealii_objects ()
 {
-  if (discretization=="dfem")
-    fe = (new FE_DGQ<dim> (p_order));
-  else
-    fe = (new FE_Q<dim> (p_order));
-
   dof_handler.distribute_dofs (*fe);
 
   local_dofs = dof_handler.locally_owned_dofs ();

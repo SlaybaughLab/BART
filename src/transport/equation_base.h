@@ -43,14 +43,14 @@
 using namespace dealii;
 
 template <int dim>
-class TransportBase
+class EquationBase
 {
 public:
-  TransportBase (ParameterHandler &prm,
+  EquationBase (ParameterHandler &prm,
                  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
-  virtual ~TransportBase ();
+  virtual ~EquationBase ();
   
   void run ();
   
@@ -136,9 +136,6 @@ private:
   void initialize_assembly_related_objects
   (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
   
-  double estimate_k (double &fiss_source,
-                     double &fiss_source_prev_gen,
-                     double &k_prev_gen);
   double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
   
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
@@ -174,8 +171,6 @@ protected:
   bool is_eigen_problem;
   bool do_nda;
   bool have_reflective_bc;
-  bool is_explicit_reflective;
-  bool do_print_sn_quad;
   
   unsigned int n_q;
   unsigned int n_qf;
