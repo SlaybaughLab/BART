@@ -7,6 +7,9 @@
 #include "../equations/even_parity.h"
 #include "../aqdata/aq_lsgc"
 
+/** \brief Function to build finite element for general dimensions specified by 
+ * user.
+ */
 template <int dim>
 FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
 (ParameterHandler &prm)
@@ -20,6 +23,8 @@ FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
     return new FE_Q<dim> (p_order);
 }
 
+/** \brief Function to build mesh in calculations for general dimensions
+ */
 template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
 {
@@ -29,6 +34,8 @@ std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
   return mesh_class;
 }
 
+/** \brief Function to build pointer to MaterialProperties class.
+ */
 std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 {
   std_cxx11::shared_ptr<MaterialProperties> material_class =
@@ -50,6 +57,13 @@ std_cxx11::shared_ptr<IterationBase<dim> > build_transport_iteration
   return iteration_class;
 }
 
+/** \brief Build specific transport model
+ * 
+ * \parameter msh_ptr shared_ptr for MeshGenerator<dim> instance
+ * \parameter aqd_ptr shared_ptr for AQBase<dim> instance
+ * \parameter mat_ptr shared_ptr for MaterialProperties instance
+ * \return a shared pointer to transport model
+ */
 template <int dim>
 std_cxx11::shared_ptr<TransportBase<dim> > build_transport_model
 (ParameterHandler &prm,
@@ -64,13 +78,15 @@ std_cxx11::shared_ptr<TransportBase<dim> > build_transport_model
   if (transport_model_name=="ep")
     transport_class =
     std_cxx11::shared_ptr<TransportBase<dim> >
-    (new EvenParity<dim> (prm,
-                          msh_ptr,
-                          aqd_ptr,
-                          mat_ptr));
+    (new EvenParity<dim> (prm, msh_ptr, aqd_ptr, mat_ptr));
   return transport_class;
 }
 
+/** \brief Function to build angular quadrature for general dimensions
+ *
+ * \parameter prm A processed ParameterHandler instance
+ * \return a shared pointer to specific angular quadrature
+ */
 template <int dim>
 std_cxx11::shared_ptr<AQBase<dim> >
 build_aq_model (ParameterHandler &prm)

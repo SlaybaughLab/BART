@@ -54,6 +54,15 @@ public:
   
   void run ();
   
+  virtual void assemble_volume_boundary
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd);
+  virtual void assemble_interface
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells);
+  virtual void assemble_system
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd);
+  
   virtual void pre_assemble_cell_matrices
   (const std_cxx11::shared_ptr<FEValues<dim> > fv,
    typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -64,26 +73,26 @@ public:
   (const std_cxx11::shared_ptr<FEValues<dim> > fv,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    FullMatrix<double> &cell_matrix,
-   unsigned int &i_dir,
-   unsigned int &g,
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
-   std::vector<FullMatrix<double> > &collision_at_qp);
+   std::vector<FullMatrix<double> > &collision_at_qp,
+   const unsigned int &g,
+   const unsigned int &i_dir=0);
   
   virtual void integrate_boundary_bilinear_form
   (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
-   unsigned int &i_dir,
-   unsigned int &g);
+   const unsigned int &g,
+   const unsigned int &i_dir=0);
   
   virtual void integrate_reflective_boundary_linear_form
   (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    std::vector<Vector<double> > &cell_rhses,
-   unsigned int &i_dir,
-   unsigned int &g);
+   const unsigned int &g,
+   const unsigned int &i_dir=0);
   
   virtual void integrate_interface_bilinear_form
   (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
@@ -118,9 +127,7 @@ private:
   void setup_boundary_ids ();
   void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
                       std::vector<double> &local_mfps);
-  void assemble_ho_volume_boundary ();
-  void assemble_ho_interface ();
-  void assemble_ho_system ();
+  
   void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);

@@ -89,19 +89,19 @@ void EquationBase<dim>::process_input
 }
 
 template <int dim>
-void EquationBase<dim>::assemble_ho_system
+void EquationBase<dim>::assemble_system
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
 {
   radio ("Assemble volumetric bilinear forms");
-  assemble_ho_volume_boundary (local_cells, is_cell_at_bd);
+  assemble_volume_boundary (local_cells, is_cell_at_bd);
 
   if (discretization=="dfem")
   {
     AssertThrow (transport_model_name=="ep",
                  ExcMessage("DFEM is only implemented for even parity"));
     radio ("Assemble cell interface bilinear forms for DFEM");
-    assemble_ho_interface (local_cells);
+    assemble_interface (local_cells);
   }
 }
 
@@ -140,7 +140,7 @@ void EquationBase<dim>::initialize_assembly_related_objects
 }
 
 template <int dim>
-void EquationBase<dim>::assemble_ho_volume_boundary
+void EquationBase<dim>::assemble_volume_boundary
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
 {
@@ -178,10 +178,9 @@ void EquationBase<dim>::assemble_ho_volume_boundary
       integrate_cell_bilinear_form (fv,
                                     cell,
                                     local_mat,
-                                    i_dir,
-                                    g,
                                     streaming_at_qp,
-                                    collision_at_qp);
+                                    collision_at_qp,
+                                    g, i_dir);
 
       if (is_cell_at_bd[ic])
         for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
@@ -192,8 +191,7 @@ void EquationBase<dim>::assemble_ho_volume_boundary
                                               cell,
                                               fn,
                                               local_mat,
-                                              i_dir,
-                                              g);
+                                              g, i_dir);
           }
       
       if (k==0)
@@ -228,45 +226,60 @@ void EquationBase<dim>::integrate_cell_bilinear_form
 (const std_cxx11::shared_ptr<FEValues<dim> > fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
- unsigned int &i_dir,
- unsigned int &g,
  std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
- std::vector<FullMatrix<double> > &collision_at_qp)
+ std::vector<FullMatrix<double> > &collision_at_qp,
+ const unsigned int &g,
+ const unsigned int &i_dir=0)
 {
 }
 
-// The following is a virtual function for integraing boundary bilinear form;
-// It must be overriden
+/** \brief Integrator for boundary weak form per boundary face per angular/group
+ *
+ * The function is a virtual function. For diffusion-like system, i_dir is set 
+ * to 0 by default.
+ */
 template <int dim>
 void EquationBase<dim>::integrate_boundary_bilinear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
  FullMatrix<double> &cell_matrix,
- unsigned int &i_dir,
- unsigned int &g)
+ const unsigned int &g,
+ const unsigned int &i_dir=0)
 {// this is a virtual function
 }
 
+/** \brief Right hand side integrator specifically for reflective boundary.
+ *
+ */
 template <int dim>
 void EquationBase<dim>::integrate_reflective_boundary_linear_form
 (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
  std::vector<Vector<double> > &cell_rhses,
- unsigned int &i_dir,
- unsigned int &g)
+ const unsigned int &g,
+ const unsigned int &i_dir)
 {// this is a virtual function
 }
 
+/** \brief Interface weak form assembly driver.
+ * Member function used to assemble interface weak forms. The main functionality
+ * is to go through all non-boundary interfaces of the cells owned on current 
+ * processor and assemble the weak form using interface assembler. 
+ *
+ * There is no need to override this function for SN calculations. Yet, for PN,
+ * diffusion etc., this function must be overriden to correctly take care of the
+ * angular component.
+ */
 template <int dim>
-void EquationBase<dim>::assemble_ho_interface
+void EquationBase<dim>::assemble_interface
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
-  FullMatrix<double> vp_up (dofs_per_cell, dofs_per_cell);
-  FullMatrix<double> vp_un (dofs_per_cell, dofs_per_cell);
-  FullMatrix<double> vn_up (dofs_per_cell, dofs_per_cell);
-  FullMatrix<double> vn_un (dofs_per_cell, dofs_per_cell);
+  FullMatrix<double> vi_ui (dofs_per_cell, dofs_per_cell);
+  FullMatrix<double> vi_ue (dofs_per_cell, dofs_per_cell);
+  FullMatrix<double> ve_ui (dofs_per_cell, dofs_per_cell);
+  FullMatrix<double> ve_ue (dofs_per_cell, dofs_per_cell);
 
   for (unsigned int k=0; k<n_total_ho_vars; ++k)
   {
@@ -288,37 +301,44 @@ void EquationBase<dim>::assemble_ho_interface
           neigh->get_dof_indices (neigh_dof_indices);
           fvf_nei->reinit (neigh, cell->neighbor_face_no(fn));
 
-          vp_up = 0;
-          vp_un = 0;
-          vn_up = 0;
-          vn_un = 0;
+          vi_ui = 0;
+          vi_ue = 0;
+          ve_ui = 0;
+          ve_ue = 0;
 
           integrate_interface_bilinear_form (fvf, fvf_nei,/*FEFaceValues objects*/
                                              cell, neigh,/*cell iterators*/
                                              fn,
-                                             i_dir, g,/*specific component*/
-                                             vp_up, vp_un, vn_up, vn_un);
+                                             vi_ui, vi_ue, ve_ui, ve_ue,
+                                             g, i_dir/*specific component*/);
           vec_ho_sys[k]->add (local_dof_indices,
                               local_dof_indices,
-                              vp_up);
+                              vi_ui);
 
           vec_ho_sys[k]->add (local_dof_indices,
                               neigh_dof_indices,
-                              vp_un);
+                              vi_ue);
 
           vec_ho_sys[k]->add (neigh_dof_indices,
                               local_dof_indices,
-                              vn_up);
+                              ve_ui);
 
           vec_ho_sys[k]->add (neigh_dof_indices,
                               neigh_dof_indices,
-                              vn_un);
+                              ve_ue);
         }// target faces
     }
     vec_ho_sys[k]->compress(VectorOperation::add);
   }// component
 }
 
+/** \brief Virtual function for interface integrator.
+ * When DFEM is used, this function can be overridden as interface weak form
+ * assembler per face per angular and group component.
+ *
+ * When overridden for diffusion calculations, direction component is set to be
+ * zero by default
+ */
 // The following is a virtual function for integrating DG interface for HO system
 // it must be overriden
 template <int dim>
@@ -328,12 +348,12 @@ void EquationBase<dim>::integrate_interface_bilinear_form
  typename DoFHandler<dim>::active_cell_iterator &cell,
  typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
  unsigned int &fn,/*concerning face number in local cell*/
- unsigned int &i_dir,
- unsigned int &g,
- FullMatrix<double> &vp_up,
- FullMatrix<double> &vp_un,
- FullMatrix<double> &vn_up,
- FullMatrix<double> &vn_un)
+ FullMatrix<double> &vi_ui,
+ FullMatrix<double> &vi_ue,
+ FullMatrix<double> &ve_ui,
+ FullMatrix<double> &ve_ue,
+ const unsigned int &g,
+ const unsigned int &i_dir=0)
 {
 }
 

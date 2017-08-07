@@ -52,10 +52,10 @@ void EvenParity<dim>::integrate_cell_bilinear_form
 (const std_cxx11::shared_ptr<FEValues<dim> > fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
- unsigned int &i_dir,
- unsigned int &g,
  std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
- std::vector<FullMatrix<double> > &collision_at_qp)
+ std::vector<FullMatrix<double> > &collision_at_qp,
+ const unsigned int &g,
+ const unsigned int &i_dir)
 {
   unsigned int mid = cell->material_id ();
   for (unsigned int qi=0; qi<this->n_q; ++qi)
@@ -74,8 +74,8 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
  typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
  FullMatrix<double> &cell_matrix,
- unsigned int &i_dir,
- unsigned int &g)
+ const unsigned int &g,
+ const unsigned int &i_dir)
 {
   unsigned int bd_id = cell->face(fn)->boundary_id ();
   const Tensor<1,dim> vec_n = fvf->normal_vector(0);
@@ -118,12 +118,12 @@ void EvenParity<dim>::integrate_interface_bilinear_form
  typename DoFHandler<dim>::active_cell_iterator &cell,
  typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
  unsigned int &fn,/*concerning face number in local cell*/
- unsigned int &i_dir,
- unsigned int &g,
  FullMatrix<double> &vp_up,
  FullMatrix<double> &vp_un,
  FullMatrix<double> &vn_up,
- FullMatrix<double> &vn_un)
+ FullMatrix<double> &vn_un,
+ const unsigned int &g,
+ const unsigned int &i_dir)
 {
   const Tensor<1,dim> vec_n = fvf->normal_vector (0);
   unsigned int mid = cell->material_id ();
