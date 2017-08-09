@@ -9,19 +9,6 @@
 using namespace dealii;
 
 ProblemDefinition::ProblemDefinition (ParameterHandler &prm)
-:
-transport_model_name(prm.get("transport model")),
-aq_name(prm.get("angular quadrature name")),
-discretization(prm.get("spatial discretization")),
-n_group(prm.get_integer("number of groups")),
-n_azi(prm.get_integer("angular quadrature order")),
-is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
-do_nda(prm.get_bool("do NDA")),
-do_print_sn_quad(prm.get_bool("do print angular quadrature info")),
-have_reflective_bc(prm.get_bool("have reflective BC")),
-p_order(prm.get_integer("finite element polynomial degree")),
-global_refinements(prm.get_integer("uniform refinements")),
-output_namebase(prm.get("output file name base"))
 {
 }
 
@@ -171,60 +158,3 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   }
   prm.leave_subsection ();
 }
-
-std::string ProblemDefinition::get_aq_name ()
-{
-  return aq_name;
-}
-
-// public member functions used to retieve parameters processed
-bool ProblemDefinition::get_nda_bool ()
-{
-  return do_nda;
-}
-
-bool ProblemDefinition::get_print_sn_quad_bool ()
-{
-  return do_print_sn_quad;
-}
-
-std::string ProblemDefinition::get_transport_model ()
-{
-  return transport_model_name;
-}
-
-std::string ProblemDefinition::get_output_namebase ()
-{
-  return output_namebase;
-}
-
-unsigned int ProblemDefinition::get_n_group ()
-{
-  return n_group;
-}
-
-bool ProblemDefinition::get_reflective_bool ()
-{
-  return have_reflective_bc;
-}
-
-bool ProblemDefinition::get_eigen_problem_bool ()
-{
-  return is_eigen_problem;
-}
-
-unsigned int ProblemDefinition::get_fe_order ()
-{
-  return p_order;
-}
-
-unsigned int ProblemDefinition::get_uniform_refinement ()
-{
-  return global_refinements;
-}
-
-std::string ProblemDefinition::get_discretization ()
-{
-  return discretization;
-}
-

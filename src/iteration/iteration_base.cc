@@ -19,7 +19,7 @@ IterationBase<dim>::IterationBase
 (ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
- const IndexSet local_dofs)
+ const IndexSet &local_dofs)
 :
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),

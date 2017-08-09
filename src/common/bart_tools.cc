@@ -9,6 +9,9 @@
 
 /** \brief Function to build finite element for general dimensions specified by 
  * user.
+ *
+ * \parameter prm A reference to processed ParameterHandler instance
+ * \return A raw pointer of finite elements derived from FE_Poly
  */
 template <int dim>
 FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element

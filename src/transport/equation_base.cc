@@ -381,8 +381,6 @@ void EquationBase<dim>::generate_moments
 template <int dim>
 void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 {
-  AssertThrow (do_nda==false,
-               ExcMessage("we don't scale fission transfer without NDA"));
   if (!do_nda)
   {
     scaled_fiss_transfer_per_ster.resize (n_material);
