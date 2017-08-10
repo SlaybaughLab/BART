@@ -1,18 +1,6 @@
-#ifndef __transport_base_h__
-#define __transport_base_h__
+#ifndef __iterations_h__
+#define __iterations_h__
 #include <deal.II/lac/generic_linear_algebra.h>
-namespace LA
-{
-#if defined(DEAL_II_WITH_PETSC) && !(defined(DEAL_II_WITH_TRILINOS) && defined(FORCE_USE_OF_TRILINOS))
-  using namespace dealii::LinearAlgebraPETSc;
-#  define USE_PETSC_LA
-#elif defined(DEAL_II_WITH_TRILINOS)
-  using namespace dealii::LinearAlgebraTrilinos;
-#else
-#  error DEAL_II_WITH_PETSC or DEAL_II_WITH_TRILINOS required
-#endif
-}
-
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 #include <deal.II/lac/petsc_precondition.h>
@@ -54,11 +42,11 @@ namespace LA
 using namespace dealii;
 
 template <int dim>
-class TransportBase
+class Iterations
 {
 public:
-  IterationBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
-  virtual ~IterationBase ();
+  Iterations (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
+  virtual ~Iterations ();
   
   void do_iterations ();
   
@@ -79,7 +67,6 @@ private:
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,
                      double &k_prev_gen);
-  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   
@@ -90,14 +77,6 @@ private:
   std::string aq_name;
   
 protected:
-  unsigned int get_component_index
-  (unsigned int incident_angle_index, unsigned int g);
-  unsigned int get_component_direction (unsigned int comp_ind);
-  unsigned int get_component_group (unsigned int comp_ind);
-  
-  unsigned int get_reflective_direction_index
-  (unsigned int boundary_id, unsigned int incident_angle_index);
-  
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
   std::vector<typename DoFHandler<dim>::active_cell_iterator> ref_bd_cells;
   std::vector<bool> is_cell_at_bd;
@@ -109,8 +88,6 @@ protected:
   
   double keff;
   double keff_prev_gen;
-  double total_angle;
-  double c_penalty;
   double fission_source;
   double fission_source_prev_gen;
   
@@ -123,7 +100,6 @@ protected:
   unsigned int n_group;
   unsigned int n_material;
   unsigned int p_order;
-  unsigned int global_refinements;
   
   std::vector<unsigned int> linear_iters;
   
@@ -146,4 +122,4 @@ protected:
   std::vector<Vector<double> > lo_sflx_proc;
 };
 
-#endif	// define  __transport_base_h__
+#endif	// define  __iterations_h__

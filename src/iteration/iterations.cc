@@ -8,14 +8,14 @@
 
 #include <algorithm>
 
-#include "equation_base.h"
+#include "iterations.h"
 #include "../aqdata/aq_base.h"
 #include "../aqdata/aq_lsgc.h"
 
 using namespace dealii;
 
 template <int dim>
-IterationBase<dim>::IterationBase
+Iterations<dim>::Iterations
 (ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
@@ -43,22 +43,22 @@ n_group(prm.get_integer("number of groups"))
 }
 
 template <int dim>
-IterationBase<dim>::~IterationBase ()
+Iterations<dim>::~Iterations ()
 {
 }
 
 template <int dim>
-void IterationBase<dim>::NDA_PI ()
+void Iterations<dim>::NDA_PI ()
 {
 }
 
 template <int dim>
-void IterationBase<dim>::NDA_SI ()
+void Iterations<dim>::NDA_SI ()
 {
 }
 
 template <int dim>
-void IterationBase<dim>::initialize_system_matrices_vectors
+void Iterations<dim>::initialize_system_matrices_vectors
 (SparsityPatternType &dsp)
 {
   for (unsigned int g=0; g<n_group; ++g)
@@ -116,7 +116,7 @@ void IterationBase<dim>::initialize_system_matrices_vectors
 }
 
 template <int dim>
-void IterationBase<dim>::scale_fiss_transfer_matrices ()
+void Iterations<dim>::scale_fiss_transfer_matrices ()
 {
   AssertThrow (do_nda==false,
                ExcMessage("we don't scale fission transfer without NDA"));
@@ -136,10 +136,10 @@ void IterationBase<dim>::scale_fiss_transfer_matrices ()
 }
 
 template <int dim>
-void IterationBase<dim>::
+void Iterations<dim>::
 
 template <int dim>
-void IterationBase<dim>::initialize_fiss_process
+void Iterations<dim>::initialize_fiss_process
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx)
 {
   for (unsigned int g=0; g<n_group; ++g)
@@ -152,7 +152,7 @@ void IterationBase<dim>::initialize_fiss_process
 }
 
 template <int dim>
-void IterationBase<dim>::update_ho_moments_in_fiss
+void Iterations<dim>::update_ho_moments_in_fiss
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_prev_gen)
 {
@@ -164,7 +164,7 @@ void IterationBase<dim>::update_ho_moments_in_fiss
 }
 
 template <int dim>
-void IterationBase<dim>::update_fiss_source_keff ()
+void Iterations<dim>::update_fiss_source_keff ()
 {
   keff_prev_gen = keff;
   fission_source_prev_gen = fission_source;
@@ -173,7 +173,7 @@ void IterationBase<dim>::update_fiss_source_keff ()
 }
 
 template <int dim>
-void IterationBase<dim>::power_iteration
+void Iterations<dim>::power_iteration
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx)
 {
   double err_k = 1.0;
@@ -199,7 +199,7 @@ void IterationBase<dim>::power_iteration
 }
 
 template <int dim>
-void IterationBase<dim>::source_iteration
+void Iterations<dim>::source_iteration
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &vec_ho_sys,
  std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
@@ -228,20 +228,20 @@ void IterationBase<dim>::source_iteration
 }
 
 template <int dim>
-void IterationBase<dim>::postprocess ()
+void Iterations<dim>::postprocess ()
 {// do nothing in the base class
 }
 
 template <int dim>
-double IterationBase<dim>::estimate_k (double &fiss_source,
-                                       double &fiss_source_prev_gen,
-                                       double &k_prev_gen)
+double Iterations<dim>::estimate_k (double &fiss_source,
+                                    double &fiss_source_prev_gen,
+                                    double &k_prev_gen)
 {
   return k_prev_gen * fiss_source / fiss_source_prev_gen;
 }
 
 template <int dim>
-double IterationBase<dim>::estimate_phi_diff
+double Iterations<dim>::estimate_phi_diff
 (std::vector<PETScWrappers::MPI::Vector*> &phis_newer,
  std::vector<PETScWrappers::MPI::Vector*> &phis_older)
 {
@@ -258,7 +258,7 @@ double IterationBase<dim>::estimate_phi_diff
 }
 
 template <int dim>
-void IterationBase<dim>::do_iterations ()
+void Iterations<dim>::do_iterations ()
 {
   sol_ptr->initialize_ho_preconditioners (vec_ho_sys, vec_ho_rhs);
   if (is_eigen_problem)
@@ -286,12 +286,12 @@ void IterationBase<dim>::do_iterations ()
 }
 
 template <int dim>
-void IterationBase<dim>::get_flux_this_proc
+void Iterations<dim>::get_flux_this_proc
 (std::vector<Vector<double> > &sflxes_proc)
 {
   sflxes_proc = this->sflx_proc;
 }
 
 // explicit instantiation to avoid linking error
-template class IterationBase<2>;
-template class IterationBase<3>;
+template class Iterations<2>;
+template class Iterations<3>;
