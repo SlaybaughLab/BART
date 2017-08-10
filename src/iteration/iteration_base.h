@@ -57,80 +57,14 @@ template <int dim>
 class TransportBase
 {
 public:
-  TransportBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
-  virtual ~TransportBase ();
+  IterationBase (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
+  virtual ~IterationBase ();
   
-  void run ();
-  
-  virtual void pre_assemble_cell_matrices
-  (const std_cxx11::shared_ptr<FEValues<dim> > fv,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
-   std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
-   std::vector<FullMatrix<double> > &collision_at_qp);
-  
-  virtual void integrate_cell_bilinear_form
-  (const std_cxx11::shared_ptr<FEValues<dim> > fv,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
-   FullMatrix<double> &cell_matrix,
-   unsigned int &i_dir,
-   unsigned int &g,
-   std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
-   std::vector<FullMatrix<double> > &collision_at_qp);
-  
-  virtual void integrate_boundary_bilinear_form
-  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
-   unsigned int &fn,/*face number*/
-   FullMatrix<double> &cell_matrix,
-   unsigned int &i_dir,
-   unsigned int &g);
-  
-  virtual void integrate_reflective_boundary_linear_form
-  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
-   unsigned int &fn,/*face number*/
-   std::vector<Vector<double> > &cell_rhses,
-   unsigned int &i_dir,
-   unsigned int &g);
-  
-  virtual void integrate_interface_bilinear_form
-  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
-   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
-   typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
-   unsigned int &fn,/*concerning face number in local cell*/
-   unsigned int &i_dir,
-   unsigned int &g,
-   FullMatrix<double> &vp_up,
-   FullMatrix<double> &vp_un,
-   FullMatrix<double> &vn_up,
-   FullMatrix<double> &vn_un);
-  
-  virtual void generate_moments ();
-  virtual void postprocess ();
-  virtual void generate_ho_rhs ();
-  virtual void generate_ho_fixed_source ();
+  void do_iterations ();
   
   void initialize_system_matrices_vectors (SparsityPatternType &dsp);
   
 private:
-  void setup_system ();
-  void generate_globally_refined_grid ();
-  void report_system ();
-  void print_angular_quad ();
-  
-  // void setup_lo_system();
-  void setup_boundary_ids ();
-  void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
-                      std::vector<double> &local_mfps);
-  void do_iterations ();
-  void assemble_lo_system ();
-  void prepare_correction_aflx ();
-  void initialize_ho_preconditioners ();
-  void ho_solve ();
-  void lo_solve ();
-  void refine_grid ();
-  void output_results () const;
   void power_iteration ();
   void initialize_fiss_process ();
   void update_ho_moments_in_fiss ();
@@ -140,6 +74,7 @@ private:
   void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
   void NDA_PI ();
   void NDA_SI ();
+  void get_flux_this_proc (std::vector<Vector<double> > &sflxes_proc);
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,
@@ -172,7 +107,6 @@ protected:
   const double err_phi_tol;
   const double err_phi_eigen_tol;
   
-  double ssor_omega;
   double keff;
   double keff_prev_gen;
   double total_angle;

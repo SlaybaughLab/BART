@@ -287,6 +287,13 @@ void IterationBase<dim>::do_iterations ()
   }
 }
 
+template <int dim>
+void IterationBase<dim>::get_flux_this_proc
+(std::vector<Vector<double> > &sflxes_proc)
+{
+  sflxes_proc = this->sflx_proc;
+}
+
 // explicit instantiation to avoid linking error
 template class IterationBase<2>;
 template class IterationBase<3>;

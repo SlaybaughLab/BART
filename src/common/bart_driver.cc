@@ -84,7 +84,6 @@ void BartDriver<dim>::setup_system ()
 {
   radio ("setup system");
   initialize_dealii_objects ();
-  initialize_system_matrices_vectors ();
 }
 
 template <int dim>
@@ -105,36 +104,22 @@ void BartDriver<dim>::initialize_dealii_objects ()
   DynamicSparsityPattern dsp (relevant_dofs);
   
   if (discretization=="dfem")
-  {
-    /*
-     Table<2,DoFTools::Coupling> cell_coupling (1,1);
-     Table<2,DoFTools::Coupling> face_coupling (1,1);
-     
-     cell_coupling[0][0] = DoFTools::nonzero;
-     face_coupling[0][0] = DoFTools::nonzero;
-     
-     DoFTools::make_flux_sparsity_pattern (dof_handler,
-     dsp,
-     cell_coupling,
-     face_coupling);
-     */
-    
     DoFTools::make_flux_sparsity_pattern (dof_handler,
                                           dsp,
                                           constraints,
                                           false);
-  }
   else
     DoFTools::make_sparsity_pattern (dof_handler,
                                      dsp,
                                      constraints,
                                      false);
   
-  // be careful with the following
-  SparsityTools::distribute_sparsity_pattern (dsp,
-                                              dof_handler.n_locally_owned_dofs_per_processor (),
-                                              MPI_COMM_WORLD,
-                                              relevant_dofs);
+  // setting up dsp with telling communicator and relevant dofs
+  SparsityTools::distribute_sparsity_pattern
+  (dsp,
+   dof_handler.n_locally_owned_dofs_per_processor (),
+   MPI_COMM_WORLD,
+   relevant_dofs);
   
   itr_ptr->initialize_system_matrices_vectors (dsp);
 }
@@ -146,6 +131,8 @@ void BartDriver<dim>::output_results () const
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
 
+  itr_ptr->get_flux_this_proc (sflx_proc);
+  
   for (unsigned int g=0; g<n_group; ++g)
   {
     std::ostringstream os;
