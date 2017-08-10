@@ -111,6 +111,8 @@ public:
   virtual void generate_ho_rhs ();
   virtual void generate_ho_fixed_source ();
   
+  void initialize_system_matrices_vectors (SparsityPatternType &dsp);
+  
 private:
   void setup_system ();
   void generate_globally_refined_grid ();

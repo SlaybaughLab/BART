@@ -60,6 +60,64 @@ void IterationBase<dim>::NDA_SI ()
 }
 
 template <int dim>
+void IterationBase<dim>::initialize_system_matrices_vectors
+(SparsityPatternType &dsp)
+{
+  for (unsigned int g=0; g<n_group; ++g)
+  {
+    if (do_nda)
+    {
+      vec_lo_sys.push_back (new LA::MPI::SparseMatrix);
+      //vec_lo_rhs.push_back (new LA::MPI::Vector);
+      vec_lo_sflx.push_back (new LA::MPI::Vector);
+      //vec_lo_sflx_old.push_back (new LA::MPI::Vector);
+      //vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
+    }
+    
+    vec_ho_sflx.push_back (new LA::MPI::Vector);
+    //vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
+    //vec_ho_sflx_old.push_back (new LA::MPI::Vector);
+    
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+    {
+      vec_ho_sys.push_back (new LA::MPI::SparseMatrix);
+      //vec_aflx.push_back (new LA::MPI::Vector);
+      //vec_ho_rhs.push_back (new LA::MPI::Vector);
+      //vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
+    }
+  }
+  
+  for (unsigned int g=0; g<n_group; ++g)
+  {
+    if (do_nda)
+    {
+      vec_lo_sys[g]->reinit (local_dofs,
+                             local_dofs,
+                             dsp,
+                             MPI_COMM_WORLD);
+      //vec_lo_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      //vec_lo_fixed_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      vec_lo_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
+      //vec_lo_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
+    }
+    
+    vec_ho_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
+    //vec_ho_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
+  }
+  
+  for (unsigned int k=0; k<n_total_ho_vars; ++k)
+  {
+    vec_ho_sys[k]->reinit(local_dofs,
+                          local_dofs,
+                          dsp,
+                          MPI_COMM_WORLD);
+    //vec_aflx[k]->reinit(local_dofs, MPI_COMM_WORLD);
+    //vec_ho_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
+    //vec_ho_fixed_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
+  }
+}
+
+template <int dim>
 void IterationBase<dim>::scale_fiss_transfer_matrices ()
 {
   AssertThrow (do_nda==false,
@@ -78,6 +136,9 @@ void IterationBase<dim>::scale_fiss_transfer_matrices ()
     }
   }
 }
+
+template <int dim>
+void IterationBase<dim>::
 
 template <int dim>
 void IterationBase<dim>::initialize_fiss_process

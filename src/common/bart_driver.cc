@@ -88,97 +88,6 @@ void BartDriver<dim>::setup_system ()
 }
 
 template <int dim>
-void BartDriver<dim>::initialize_system_matrices_vectors ()
-{
-  DynamicSparsityPattern dsp (relevant_dofs);
-
-  if (discretization=="dfem")
-  {
-    /*
-     Table<2,DoFTools::Coupling> cell_coupling (1,1);
-     Table<2,DoFTools::Coupling> face_coupling (1,1);
-
-     cell_coupling[0][0] = DoFTools::nonzero;
-     face_coupling[0][0] = DoFTools::nonzero;
-
-     DoFTools::make_flux_sparsity_pattern (dof_handler,
-     dsp,
-     cell_coupling,
-     face_coupling);
-     */
-
-    DoFTools::make_flux_sparsity_pattern (dof_handler,
-                                          dsp,
-                                          constraints,
-                                          false);
-  }
-  else
-    DoFTools::make_sparsity_pattern (dof_handler,
-                                     dsp,
-                                     constraints,
-                                     false);
-
-  // be careful with the following
-  SparsityTools::distribute_sparsity_pattern (dsp,
-                                              dof_handler.n_locally_owned_dofs_per_processor (),
-                                              MPI_COMM_WORLD,
-                                              relevant_dofs);
-
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    if (do_nda)
-    {
-      vec_lo_sys.push_back (new LA::MPI::SparseMatrix);
-      //vec_lo_rhs.push_back (new LA::MPI::Vector);
-      vec_lo_sflx.push_back (new LA::MPI::Vector);
-      //vec_lo_sflx_old.push_back (new LA::MPI::Vector);
-      //vec_lo_fixed_rhs.push_back (new LA::MPI::Vector);
-    }
-
-    vec_ho_sflx.push_back (new LA::MPI::Vector);
-    //vec_ho_sflx_prev_gen.push_back (new LA::MPI::Vector);
-    //vec_ho_sflx_old.push_back (new LA::MPI::Vector);
-
-    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    {
-      vec_ho_sys.push_back (new LA::MPI::SparseMatrix);
-      //vec_aflx.push_back (new LA::MPI::Vector);
-      //vec_ho_rhs.push_back (new LA::MPI::Vector);
-      //vec_ho_fixed_rhs.push_back (new LA::MPI::Vector);
-    }
-  }
-
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    if (do_nda)
-    {
-      vec_lo_sys[g]->reinit (local_dofs,
-                             local_dofs,
-                             dsp,
-                             MPI_COMM_WORLD);
-      //vec_lo_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
-      //vec_lo_fixed_rhs[g]->reinit (local_dofs, MPI_COMM_WORLD);
-      vec_lo_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
-      //vec_lo_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
-    }
-
-    vec_ho_sflx[g]->reinit (local_dofs, MPI_COMM_WORLD);
-    //vec_ho_sflx_old[g]->reinit (local_dofs, MPI_COMM_WORLD);
-  }
-  
-  for (unsigned int k=0; k<n_total_ho_vars; ++k)
-  {
-    vec_ho_sys[k]->reinit(local_dofs,
-                          local_dofs,
-                          dsp,
-                          MPI_COMM_WORLD);
-    //vec_aflx[k]->reinit(local_dofs, MPI_COMM_WORLD);
-    //vec_ho_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
-    //vec_ho_fixed_rhs[k]->reinit (local_dofs, MPI_COMM_WORLD);
-  }
-}
-
-template <int dim>
 void BartDriver<dim>::initialize_dealii_objects ()
 {
   dof_handler.distribute_dofs (*fe);
@@ -192,6 +101,42 @@ void BartDriver<dim>::initialize_dealii_objects ()
   DoFTools::make_hanging_node_constraints (dof_handler,
                                            constraints);
   constraints.close ();
+  
+  DynamicSparsityPattern dsp (relevant_dofs);
+  
+  if (discretization=="dfem")
+  {
+    /*
+     Table<2,DoFTools::Coupling> cell_coupling (1,1);
+     Table<2,DoFTools::Coupling> face_coupling (1,1);
+     
+     cell_coupling[0][0] = DoFTools::nonzero;
+     face_coupling[0][0] = DoFTools::nonzero;
+     
+     DoFTools::make_flux_sparsity_pattern (dof_handler,
+     dsp,
+     cell_coupling,
+     face_coupling);
+     */
+    
+    DoFTools::make_flux_sparsity_pattern (dof_handler,
+                                          dsp,
+                                          constraints,
+                                          false);
+  }
+  else
+    DoFTools::make_sparsity_pattern (dof_handler,
+                                     dsp,
+                                     constraints,
+                                     false);
+  
+  // be careful with the following
+  SparsityTools::distribute_sparsity_pattern (dsp,
+                                              dof_handler.n_locally_owned_dofs_per_processor (),
+                                              MPI_COMM_WORLD,
+                                              relevant_dofs);
+  
+  itr_ptr->initialize_system_matrices_vectors (dsp);
 }
 
 template <int dim>
