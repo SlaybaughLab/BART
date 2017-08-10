@@ -111,21 +111,18 @@ build_aq_model (ParameterHandler &prm)
 
 void radio (std::string str)
 {
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
-    std::cout << str << std::endl;
+  pout << str << std::endl;
 }
 
 void radio (std::string str1, std::string str2)
 {
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
-    std::cout << str1 << ": " << str2 << std::endl;
+  pout << str1 << ": " << str2 << std::endl;
 }
 
 void radio (std::string str,
             double num)
 {
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
-    std::cout << str << ": " << num << std::endl;
+  pout << str << ": " << num << std::endl;
 }
 
 void radio (std::string str1, unsigned int num1,
@@ -142,20 +139,17 @@ void radio (std::string str1, unsigned int num1,
 
 void radio (std::string str, unsigned int num)
 {
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
-    std::cout << str << ": " << num << std::endl;
+  pout << str << ": " << num << std::endl;
 }
 
 void radio (std::string str, bool boolean)
 {
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
-    std::cout << str << ": " << (boolean?"true":"false") << std::endl;
+  pout << str << ": " << (boolean?"true":"false") << std::endl;
 }
 
 void radio ()
 {
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
-    std::cout << "-------------------------------------" << std::endl << std::endl;
+  pout << "-------------------------------------" << std::endl << std::endl;
 }
 
 template std_cxx11::shared_ptr<TransportBase<2> > build_transport_model;

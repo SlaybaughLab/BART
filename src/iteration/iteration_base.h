@@ -144,8 +144,6 @@ protected:
   std::vector<Vector<double> > sflx_proc;
   std::vector<Vector<double> > sflx_proc_prev_gen;
   std::vector<Vector<double> > lo_sflx_proc;
-  
-  ConditionalOStream pcout;
 };
 
 #endif	// define  __transport_base_h__

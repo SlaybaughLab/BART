@@ -35,9 +35,7 @@ p_order(prm.get_integer("finite element polynomial degree")),
 global_refinements(prm.get_integer("uniform refinements")),
 namebase(prm.get("output file name base")),
 ho_linear_solver_name(prm.get("HO linear solver name")),
-ho_preconditioner_name(prm.get("HO preconditioner name")),
-pcout(std::cout,
-      Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
+ho_preconditioner_name(prm.get("HO preconditioner name"))
 {
   aqd_ptr = build_aq_model (prm)
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
@@ -57,7 +55,7 @@ BartDriver<dim>::~BartDriver ()
 template <int dim>
 void BartDriver<dim>::report_system ()
 {
-  pcout << "SN quadrature order: " << n_azi << std::endl
+  pout << "SN quadrature order: " << n_azi << std::endl
   << "Number of angles: " << n_dir << std::endl
   << "Number of groups: " << n_group << std::endl;
 

@@ -26,9 +26,7 @@ err_phi_tol(1.0e-7),
 err_phi_eigen_tol(1.0e-5),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
-n_group(prm.get_integer("number of groups")),
-pcout(std::cout,
-      Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
+n_group(prm.get_integer("number of groups"))
 {
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   sol_ptr = build_solution (prm, n_total_ho_vars);
@@ -193,7 +191,7 @@ void IterationBase<dim>::power_iteration
     update_fiss_source_keff ();
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
     err_k = std::fabs (keff - keff_prev_gen) / keff;
-    pcout
+    pout
     << "PI iter: " << ct << ", k: " << keff
     << ", err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
     radio ();
@@ -222,7 +220,7 @@ void IterationBase<dim>::source_iteration
     err_phi_old = err_phi;
     err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
     double spectral_radius = err_phi / err_phi_old;
-    pcout
+    pout
     << "SI iter: " << ct
     << ", phi err: " << err_phi
     << ", spec. rad.: " << spectral_radius << std::endl;

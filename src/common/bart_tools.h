@@ -38,6 +38,9 @@ template <int dim>
 std_cxx11::shared_ptr<AQBase<dim> >
 build_aq_model (ParameterHandler &prm);
 
+ConditionalOStream pout(std::cout,
+                        Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0);
+
 void radio (std::string str);
 
 void radio (std::string str1, std::string str2);

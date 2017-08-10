@@ -230,8 +230,6 @@ protected:
   std::unordered_map<unsigned int, bool> is_material_fissile;
   
   std::set<unsigned int> fissile_ids;
-  
-  ConditionalOStream pcout;
 };
 
 #endif	// define  __transport_base_h__
