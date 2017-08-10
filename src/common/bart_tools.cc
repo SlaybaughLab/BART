@@ -27,6 +27,9 @@ FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
 }
 
 /** \brief Function to build mesh in calculations for general dimensions
+ *
+ * \parameter prm A reference to processed ParameterHandler instance
+ * \return A shared pointer to MeshGenerator<dim> instance
  */
 template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
@@ -38,6 +41,9 @@ std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
 }
 
 /** \brief Function to build pointer to MaterialProperties class.
+ *
+ * \parameter prm A reference to processed ParameterHandler instance
+ * \return A shared pointer to MaterialProperties instance
  */
 std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 {
