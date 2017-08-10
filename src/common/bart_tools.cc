@@ -3,7 +3,7 @@
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
 
-#include "bart_builder.h"
+#include "bart_tools.h"
 #include "../equations/even_parity.h"
 #include "../aqdata/aq_lsgc"
 
@@ -24,8 +24,7 @@ template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
 {
   std_cxx11::shared_ptr<MeshGenerator<dim> > mesh_class =
-  std_cxx11::shared_ptr<MeshGenerator<dim> >
-  (new MeshGenerator<dim>(prm));
+  std_cxx11::shared_ptr<MeshGenerator<dim> > (new MeshGenerator<dim>(prm));
   return mesh_class;
 }
 
@@ -65,6 +64,11 @@ build_aq_model (ParameterHandler &prm)
   if (aq_name=="lsgc")
     aq_class = std_cxx11::shared_ptr<AQBase<dim> > (new LSGC<dim>(prm));
   return aq_class;
+}
+
+bool zeroth_proc ()
+{
+  return Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0
 }
 
 void radio (std::string str)
@@ -110,8 +114,9 @@ void radio ()
   pout << "-------------------------------------" << std::endl << std::endl;
 }
 
-template std_cxx11::shared_ptr<TransportBase<2> > build_transport_model;
-template std_cxx11::shared_ptr<TransportBase<3> > build_transport_model;
+template std_cxx11::shared_ptr<EquationBase<2> > build_transport_model;
+template std_cxx11::shared_ptr<EquationBase<3> > build_transport_model;
 template std_cxx11::shared_ptr<AQBase<2> > build_aq_model;
 template std_cxx11::shared_ptr<AQBase<3> > build_aq_model;
-
+template std_cxx11::shared_ptr<MeshGenerator<2> > build_mesh;
+template std_cxx11::shared_ptr<MeshGenerator<3> > build_mesh;

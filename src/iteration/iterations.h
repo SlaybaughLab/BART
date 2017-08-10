@@ -63,6 +63,7 @@ private:
   void NDA_PI ();
   void NDA_SI ();
   void get_flux_this_proc (std::vector<Vector<double> > &sflxes_proc);
+  void get_keff (double &keff);
   
   double estimate_k (double &fiss_source,
                      double &fiss_source_prev_gen,

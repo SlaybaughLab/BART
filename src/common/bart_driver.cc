@@ -35,14 +35,14 @@ p_order(prm.get_integer("finite element polynomial degree")),
 global_refinements(prm.get_integer("uniform refinements")),
 namebase(prm.get("output file name base")),
 ho_linear_solver_name(prm.get("HO linear solver name")),
-ho_preconditioner_name(prm.get("HO preconditioner name"))
+ho_preconditioner_name(prm.get("HO preconditioner name")),
+itr_cls(prm),
 {
   aqd_ptr = build_aq_model (prm)
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();
   msh_ptr = build_mesh (prm);
-  itr_ptr = build_transport_iteration (prm);
   fe = build_finite_element (prm);
 }
 
@@ -119,7 +119,7 @@ void BartDriver<dim>::initialize_dealii_objects ()
    MPI_COMM_WORLD,
    relevant_dofs);
   
-  itr_ptr->initialize_system_matrices_vectors (dsp);
+  itr_cls.initialize_system_matrices_vectors (dsp);
 }
 
 template <int dim>
@@ -129,8 +129,11 @@ void BartDriver<dim>::output_results () const
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
 
-  itr_ptr->get_flux_this_proc (sflx_proc);
+  if (zeroth_proc())
+    itr_cls.get_keff (keff);
+  itr_cls.get_flux_this_proc (sflx_proc);
   
+  data_out.add_data_vector (keff, "keff");
   for (unsigned int g=0; g<n_group; ++g)
   {
     std::ostringstream os;
@@ -150,7 +153,7 @@ void BartDriver<dim>::output_results () const
   std::ofstream output ((filename + ".vtu").c_str ());
   data_out.write_vtu (output);
 
-  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
+  if (zeroth_proc())
   {
     std::vector<std::string> filenames;
     for (unsigned int i=0;
@@ -172,7 +175,7 @@ void BartDriver<dim>::run ()
   msh_ptr->make_grid (triangulation);
   setup_system ();
   report_system ();
-  itr_ptr->do_iterations (msh_ptr, aqd_ptr);
+  itr_cls.do_iterations (msh_ptr, aqd_ptr);
   output_results ();
 }
 

@@ -286,6 +286,12 @@ void Iterations<dim>::do_iterations ()
 }
 
 template <int dim>
+void Iterations<dim>::get_keff (double &keff)
+{
+  keff = this->keff;
+}
+
+template <int dim>
 void Iterations<dim>::get_flux_this_proc
 (std::vector<Vector<double> > &sflxes_proc)
 {

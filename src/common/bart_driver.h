@@ -34,6 +34,7 @@
 #include <utility>
 #include <vector>
 
+#include "../iteration/Iterations.h"
 #include "../common/problem_definition.h"
 #include "../common/preconditioner_solver.h"
 #include "../mesh/mesh_generator.h"
@@ -60,6 +61,7 @@ private:
   
   const ParameterHandler &prm;
   
+  Iterations<dim> itr_cls;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
@@ -95,8 +97,6 @@ private:
   unsigned int n_material;
   unsigned int p_order;
   unsigned int global_refinements;
-  
-  ConditionalOStream pcout;
   
   ConstraintMatrix constraints;
 };

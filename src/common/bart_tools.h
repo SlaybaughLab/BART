@@ -64,6 +64,8 @@ template <int dim>
 std_cxx11::shared_ptr<AQBase<dim> >
 build_aq_model (ParameterHandler &prm);
 
+bool zeroth_proc ();
+
 /** \brief ConditionalOStream object used to output things on screen with processor 0
  */
 ConditionalOStream pout (std::cout,
