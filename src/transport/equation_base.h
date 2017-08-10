@@ -164,11 +164,16 @@ protected:
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
   
+  // "c" in the following quantities means "correction" for NDA use
   std_cxx11::shared_ptr<QGauss<dim> > q_rule;
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
+  std_cxx11::shared_ptr<QGauss<dim> > qc_rule;
+  std_cxx11::shared_ptr<QGauss<dim-1> > qfc_rule;
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
+  std_cxx11::shared_ptr<FEValues<dim> > fvc;
+  std_cxx11::shared_ptr<FEFaceValues<dim> > fvfc;
   
   double keff;
   double keff_prev_gen;
@@ -179,8 +184,11 @@ protected:
   bool do_nda;
   bool have_reflective_bc;
   
+  const unsigned int nda_quadrature_order;
   unsigned int n_q;
   unsigned int n_qf;
+  unsigned int n_qc;
+  unsigned int n_qfc;
   unsigned int dofs_per_cell;
   
   unsigned int n_dir;

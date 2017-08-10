@@ -30,9 +30,11 @@ n_azi(prm.get_integer("angular quadrature order")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
-p_order(prm.get_integer("finite element polynomial degree"))
+p_order(prm.get_integer("finite element polynomial degree")),
+nda_quadrature_order(p_order+3) //this is hard coded
 {
-  this->process_input (msh_ptr, aqd_ptr, mat_ptr);    
+  this->process_input (msh_ptr, aqd_ptr, mat_ptr);
+  
 }
 
 template <int dim>
@@ -134,6 +136,25 @@ void EquationBase<dim>::initialize_assembly_related_objects
   dofs_per_cell = fe->dofs_per_cell;
   n_q = q_rule->size();
   n_qf = qf_rule->size();
+  
+  if (do_nda)
+  {
+    qc_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (nda_quadrature_order));
+    qfc_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (nda_quadrature_order));
+    fvc = std_cxx11::shared_ptr<FEValues<dim> >
+    (new FEValues<dim> (*fe, *qc_rule,
+                        update_values | update_gradients |
+                        update_quadrature_points |
+                        update_JxW_values));
+    
+    fvfc = std_cxx11::shared_ptr<FEFaceValues<dim> >
+    (new FEFaceValues<dim> (*fe, *qfc_rule,
+                            update_values | update_gradients |
+                            update_quadrature_points | update_normal_vectors |
+                            update_JxW_values));
+    n_qc = qc_rule->size ();
+    n_qfc = qfc_rule->size ();
+  }
 
   local_dof_indices.resize (dofs_per_cell);
   neigh_dof_indices.resize (dofs_per_cell);
