@@ -189,11 +189,5 @@ std::vector<Tensor<1, dim> > AQBase<dim>::get_all_directions ()
   return omega_i;
 }
 
-template <int dim>
-std::vector<double> AQBase<dim>::get_tensor_norms ()
-{
-  return tensor_norms;
-}
-
 template class AQBase<2>;
 template class AQBase<3>;

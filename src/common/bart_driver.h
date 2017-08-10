@@ -71,27 +71,9 @@ private:
   void assemble_lo_system ();
   void prepare_correction_aflx ();
   void initialize_ho_preconditioners ();
-  void ho_solve ();
-  void lo_solve ();
   void refine_grid ();
   void output_results () const;
-  void power_iteration ();
-  void initialize_fiss_process ();
-  void update_ho_moments_in_fiss ();
-  void update_fiss_source_keff ();
-  void source_iteration ();
-  void scale_fiss_transfer_matrices ();
-  void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
-  void NDA_PI ();
-  void NDA_SI ();
   void initialize_aq (ParameterHandler &prm);
-  
-  double estimate_k (double &fiss_source,
-                     double &fiss_source_prev_gen,
-                     double &k_prev_gen);
-  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
-  double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
-                            std::vector<LA::MPI::Vector*> &phis_older);
   
   const ParameterHandler &prm;
   
@@ -108,24 +90,7 @@ private:
   std::string discretization;
   std::string namebase;
   std::string aq_name;
-  
-  unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
-  unsigned int get_component_direction (unsigned int comp_ind);
-  unsigned int get_component_group (unsigned int comp_ind);
-  
-  unsigned int get_reflective_direction_index (unsigned int boundary_id,
-                                               unsigned int incident_angle_index);
-  
-  void radio (std::string str);
-  void radio (std::string str1, std::string str2);
-  void radio (std::string str1, unsigned int num1,
-              std::string str2, unsigned int num2,
-              std::string str3, unsigned int num3);
-  void radio (std::string str, double num);
-  void radio (std::string str, unsigned int num);
-  void radio (std::string str, bool boolean);
-  void radio ();
-  
+
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
   std::vector<typename DoFHandler<dim>::active_cell_iterator> ref_bd_cells;
   std::vector<bool> is_cell_at_bd;
@@ -138,9 +103,6 @@ private:
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   
-  
-  MPI_Comm mpi_communicator;
-  
   parallel::distributed::Triangulation<dim> triangulation;
   
   DoFHandler<dim> dof_handler;
@@ -148,17 +110,9 @@ private:
   IndexSet local_dofs;
   IndexSet relevant_dofs;
   
-  const double err_k_tol;
-  const double err_phi_tol;
-  const double err_phi_eigen_tol;
-  
   double ssor_omega;
   double keff;
-  double keff_prev_gen;
   double total_angle;
-  double c_penalty;
-  double fission_source;
-  double fission_source_prev_gen;
   
   bool is_eigen_problem;
   bool do_nda;

@@ -26,7 +26,6 @@ public:
   unsigned int get_n_dir ();
   unsigned int get_n_total_ho_vars ();
   std::vector<double> get_angular_weights ();
-  std::vector<double> get_tensor_norms ();
   std::vector<Tensor<1, dim> > get_all_directions ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int>
   get_component_index_map ();

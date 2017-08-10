@@ -11,7 +11,11 @@ TransportBase<dim>(prm, msh_ptr, aqd_ptr, mat_ptr)
 {
   if (this->discretization=="dfem")
   {
-    tensor_norms = aqd_ptr->get_tensor_norms ();
+    for (unsigned int i=0; i<this->n_dir; ++i)
+    {
+      Tensor<2, dim> tensor_tmp = outer_product(this->omega_i[i], this->omega_i[i]);
+      tensor_norms.push_back(tensor_tmp.norm());
+    }
     // note that the first constant on rhs is tunable and should be cautious
     // when tuning it.
     c_penalty = 1.0 * this->p_order * (this->p_order + 1.0);
