@@ -1,11 +1,11 @@
-#include "transport_base.h"
 #include "even_parity.h"
 
 template <int dim>
-EvenParity<dim>::EvenParity (ParameterHandler &prm,
-                             const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                             const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                             const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+EvenParity<dim>::EvenParity
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 :
 TransportBase<dim>(prm, msh_ptr, aqd_ptr, mat_ptr)
 {

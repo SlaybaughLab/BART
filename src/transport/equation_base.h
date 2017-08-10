@@ -19,7 +19,6 @@
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/index_set.h>
 #include <deal.II/base/utilities.h>
-#include <deal.II/base/conditional_ostream.h>
 
 #include <deal.II/distributed/tria.h>
 
