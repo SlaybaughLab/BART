@@ -4,7 +4,7 @@
 #include <utility>
 #include <iomanip>
 
-#include "../../include/common/problem_definition.h"
+#include "problem_definition.h"
 
 using namespace dealii;
 
@@ -38,9 +38,12 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   {
     prm.declare_entry ("problem dimension", "2", Patterns::Integer(), "1D is not implemented");
     prm.declare_entry ("transport model", "ep", Patterns::Selection("ep"), "valid names such as ep");
-    prm.declare_entry ("preconditioner name", "amg", Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
-    prm.declare_entry ("ssor factor", "1.0", Patterns::Double (), "damping factor of Block SSOR");
-    prm.declare_entry ("linear solver name", "cg", Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
+    prm.declare_entry ("HO linear solver name", "cg", Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
+    prm.declare_entry ("HO preconditioner name", "amg", Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
+    prm.declare_entry ("HO ssor factor", "1.0", Patterns::Double (), "damping factor of Block SSOR for HO");
+    prm.declare_entry ("NDA linear solver name", "none", Patterns::Selection("none|gmres|bicgstab|direct"), "NDA linear solers");
+    prm.declare_entry ("NDA preconditioner name", "none", Patterns::Selection("none|amg|parasails|bjacobi|jacobi|bssor"), "precond names");
+    prm.declare_entry ("NDA ssor factor", "1.0", Patterns::Double (), "damping factor of Block SSOR for NDA");
     prm.declare_entry ("angular quadrature name", "lsgc", Patterns::Selection ("lsgc"), "angular quadrature types. only LS-GC implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", Patterns::Integer (), "Number of groups in MG calculations");

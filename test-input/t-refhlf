@@ -11,8 +11,8 @@ set reflective boundary names                = xmin, ymin
 
 set uniform refinements                      = 6
 
-set linear solver name                       = bicgstab
-set preconditioner name                      = parasails
+set HO linear solver name                    = bicgstab
+set HO preconditioner name                   = parasails
 
 
 set x, y, z max values of boundary locations = 1.0, 1.0, 1.0

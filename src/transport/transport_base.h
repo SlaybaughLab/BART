@@ -45,10 +45,11 @@ namespace LA
 #include <utility>
 #include <vector>
 
-#include "../../common/problem_definition.h"
-#include "../../mesh/mesh_generator.h"
-#include "../../material/material_properties.h"
-#include "../../aqdata/base/aq_base.h"
+#include "../common/problem_definition.h"
+#include "../common/preconditioner_solver.h"
+#include "../mesh/mesh_generator.h"
+#include "../material/material_properties.h"
+#include "../aqdata/aq_base.h"
 
 using namespace dealii;
 
@@ -153,17 +154,16 @@ private:
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   
-  std::vector<bool> direct_init;
-  
   std_cxx11::shared_ptr<ProblemDefinition> def_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
+  std_cxx11::shared_ptr<PreconditionerSolver> sol_ptr;
   std_cxx11::shared_ptr<SolverControl> gcn;
   
   std::string transport_model_name;
-  std::string linear_solver_name;
-  std::string preconditioner_name;
+  std::string ho_linear_solver_name;
+  std::string ho_preconditioner_name;
   std::string discretization;
   std::string namebase;
   std::string aq_name;
@@ -290,13 +290,6 @@ protected:
   std::set<unsigned int> fissile_ids;
   
   ConditionalOStream pcout;
-  
-  std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionAMG> > pre_ho_amg;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi> > pre_ho_bjacobi;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails> > pre_ho_parasails;
-  std::vector<std_cxx11::shared_ptr<LA::MPI::PreconditionJacobi> > pre_ho_jacobi;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat> > pre_ho_eisenstat;
-  std::vector<std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS> > ho_direct;
   
   ConstraintMatrix constraints;
 };

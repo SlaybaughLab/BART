@@ -11,8 +11,8 @@ set reflective boundary names                =  xmin, xmax, ymin, ymax
 
 set uniform refinements                      = 6
 
-set linear solver name                       = direct
-set preconditioner name                      = bjacobi
+set HO linear solver name                    = direct
+set HO preconditioner name                   = bjacobi
 
 
 set x, y, z max values of boundary locations = 10.0, 10.0, 1.0
