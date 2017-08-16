@@ -18,8 +18,7 @@ template <int dim>
 Iterations<dim>::Iterations
 (ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
- const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
- const IndexSet &local_dofs)
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
 :
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-7),
@@ -37,7 +36,6 @@ n_group(prm.get_integer("number of groups"))
                                         is_cell_at_bd,
                                         is_cell_at_ref_bd);
   trm_ptr = build_transport_model ();
-  initialize_intermediate_vectors (local_dofs);
   sflx_proc.resize (n_group);
   sflx_proc_prev_gen.resize (n_group);
 }
@@ -59,7 +57,7 @@ void Iterations<dim>::NDA_SI ()
 
 template <int dim>
 void Iterations<dim>::initialize_system_matrices_vectors
-(SparsityPatternType &dsp)
+(SparsityPatternType &dsp, IndexSet &local_dofs)
 {
   for (unsigned int g=0; g<n_group; ++g)
   {
@@ -230,31 +228,6 @@ void Iterations<dim>::source_iteration
 template <int dim>
 void Iterations<dim>::postprocess ()
 {// do nothing in the base class
-}
-
-template <int dim>
-double Iterations<dim>::estimate_k (double &fiss_source,
-                                    double &fiss_source_prev_gen,
-                                    double &k_prev_gen)
-{
-  return k_prev_gen * fiss_source / fiss_source_prev_gen;
-}
-
-template <int dim>
-double Iterations<dim>::estimate_phi_diff
-(std::vector<PETScWrappers::MPI::Vector*> &phis_newer,
- std::vector<PETScWrappers::MPI::Vector*> &phis_older)
-{
-  AssertThrow (phis_newer.size ()== phis_older.size (),
-               ExcMessage ("n_groups for different phis should be identical"));
-  double err = 0.0;
-  for (unsigned int i=0; i<phis_newer.size (); ++i)
-  {
-    PETScWrappers::MPI::Vector dif = *phis_newer[i];
-    dif -= *phis_older[i];
-    err = std::max (err, dif.l1_norm () / phis_newer[i]->l1_norm ());
-  }
-  return err;
 }
 
 template <int dim>

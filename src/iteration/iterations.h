@@ -50,7 +50,8 @@ public:
   
   void do_iterations ();
   
-  void initialize_system_matrices_vectors (SparsityPatternType &dsp);
+  void initialize_system_matrices_vectors
+  (SparsityPatternType &dsp, IndexSet &local_dofs);
   
 private:
   void power_iteration ();
@@ -65,9 +66,6 @@ private:
   void get_flux_this_proc (std::vector<Vector<double> > &sflxes_proc);
   void get_keff (double &keff);
   
-  double estimate_k (double &fiss_source,
-                     double &fiss_source_prev_gen,
-                     double &k_prev_gen);
   double estimate_phi_diff (std::vector<LA::MPI::Vector*> &phis_newer,
                             std::vector<LA::MPI::Vector*> &phis_older);
   
