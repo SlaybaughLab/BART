@@ -1,0 +1,20 @@
+sudo: required
+branches:
+  only:
+  - master
+  - dev
+notifications:
+  email: false
+language: cpp
+services:
+ - docker
+before_install:
+ - sudo docker pull dealii/dealii:v8.5.0-gcc-mpi-fulldepscandi-debugrelease
+install:
+ - sudo docker run dealii/dealii:v8.5.0-gcc-mpi-fulldepscandi-debugrelease
+ - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+ - sudo docker cp ../BART $id:/home/dealii
+ - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+ - sudo docker commit $id dealii/dealii-bart
+script:
+ - sudo docker run dealii/dealii-bart /bin/sh -c "cmake BART/; make"

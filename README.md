@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=master)](https://travis-ci.org/SlaybaughLab/BART)
 
 # Bay Area Radiation Transport (BART)
 
