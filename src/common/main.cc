@@ -10,7 +10,7 @@
 #include <deal.II/base/mpi.h>
 
 #include "problem_definition.h"
-#include "model_manager.h"
+#include "bart_driver.h"
 
 using namespace dealii;
 
@@ -29,8 +29,21 @@ int main(int argc, char *argv[])
     ProblemDefinition::declare_parameters (prm);
     prm.read_input(argv[1]);
     Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-    ModelManager modeler (prm);
-    modeler.build_and_run_model (prm);
+    unsigned int dim = prm.get_integer ("problem dimension");
+    switch (dim)
+    {
+      case 2:
+        BartDriver<2> drive (prm);
+        drive.run ();
+        break;
+      
+      case 3:
+        BartDriver<3> drive (prm);
+        drive.run ();
+        
+      default:
+        break;
+    }
   }
   catch (std::exception &exc)
   {

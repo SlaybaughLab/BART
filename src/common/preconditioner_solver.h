@@ -16,8 +16,7 @@ class PreconditionerSolver
 {
 public:
   PreconditionerSolver (ParameterHandler &prm,
-                        unsigned int &n_total_ho_vars,
-                        MPI_Comm &mpi_communicator);
+                        unsigned int &n_total_ho_vars);
   ~PreconditionerSolver ();
   
   // HO solver related member functions

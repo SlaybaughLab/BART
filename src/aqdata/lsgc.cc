@@ -2,22 +2,22 @@
 
 #include <iostream>
 
-#include "aq_lsgc.h"
+#include "lsgc.h"
 
 template <int dim>
-AQLSGC<dim>::AQLSGC (ParameterHandler &prm)
+LSGC<dim>::LSGC (ParameterHandler &prm)
 :
 AQBase<dim> (prm)
 {
 }
 
 template <int dim>
-AQLSGC<dim>::~AQLSGC ()
+LSGC<dim>::~LSGC ()
 {
 }
 
 template <int dim>
-void AQLSGC<dim>::produce_angular_quad ()
+void LSGC<dim>::produce_angular_quad ()
 {
   AssertThrow (dim>=2,
                ExcMessage("1D is not implemented"));
@@ -59,15 +59,7 @@ void AQLSGC<dim>::produce_angular_quad ()
                ExcMessage("calculated number of angles should be the same as number of angles"));
 
   this->n_total_ho_vars = this->n_dir * this->n_group;
-  // estimate tensor norm to do penalty method for EP
-  if (this->transport_model_name=="ep" &&
-      this->discretization=="dfem")
-    for (unsigned int i=0; i<this->n_dir; ++i)
-    {
-      Tensor<2, dim> tensor_tmp = outer_product(this->omega_i[i], this->omega_i[i]);
-      this->tensor_norms.push_back(tensor_tmp.norm());
-    }
 }
 
-template class AQLSGC<2>;
-template class AQLSGC<3>;
+template class LSGC<2>;
+template class LSGC<3>;

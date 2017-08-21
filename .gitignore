@@ -19,3 +19,4 @@ quadr.txt
 *.blg
 *.out
 *.gz
+src/original*

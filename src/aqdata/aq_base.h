@@ -21,14 +21,11 @@ public:
   virtual void produce_angular_quad ();
   virtual void initialize_component_index ();
   void print_angular_quad ();
-  
-  void make_aq (ParameterHandler &prm);
 
   unsigned int get_sn_order ();
   unsigned int get_n_dir ();
   unsigned int get_n_total_ho_vars ();
   std::vector<double> get_angular_weights ();
-  std::vector<double> get_tensor_norms ();
   std::vector<Tensor<1, dim> > get_all_directions ();
   std::map<std::pair<unsigned int, unsigned int>, unsigned int>
   get_component_index_map ();
@@ -59,6 +56,7 @@ protected:
   reflective_direction_index;
 
 private:
+  void make_aq (ParameterHandler &prm);
   std::string produce_quadrature_name ();
   void initialize_ref_bc_index ();
 

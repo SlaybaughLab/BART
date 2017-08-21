@@ -9,19 +9,6 @@
 using namespace dealii;
 
 ProblemDefinition::ProblemDefinition (ParameterHandler &prm)
-:
-transport_model_name(prm.get("transport model")),
-aq_name(prm.get("angular quadrature name")),
-discretization(prm.get("spatial discretization")),
-n_group(prm.get_integer("number of groups")),
-n_azi(prm.get_integer("angular quadrature order")),
-is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
-do_nda(prm.get_bool("do NDA")),
-do_print_sn_quad(prm.get_bool("do print angular quadrature info")),
-have_reflective_bc(prm.get_bool("have reflective BC")),
-p_order(prm.get_integer("finite element polynomial degree")),
-global_refinements(prm.get_integer("uniform refinements")),
-output_namebase(prm.get("output file name base"))
 {
 }
 
@@ -37,14 +24,14 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   // The following are the basic parameters we need to define a problem
   {
     prm.declare_entry ("problem dimension", "2", Patterns::Integer(), "1D is not implemented");
-    prm.declare_entry ("transport model", "ep", Patterns::Selection("ep"), "valid names such as ep");
+    prm.declare_entry ("transport model", "none", Patterns::Selection("ep|none"), "valid names such as ep");
     prm.declare_entry ("HO linear solver name", "cg", Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
     prm.declare_entry ("HO preconditioner name", "amg", Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
     prm.declare_entry ("HO ssor factor", "1.0", Patterns::Double (), "damping factor of Block SSOR for HO");
     prm.declare_entry ("NDA linear solver name", "none", Patterns::Selection("none|gmres|bicgstab|direct"), "NDA linear solers");
     prm.declare_entry ("NDA preconditioner name", "none", Patterns::Selection("none|amg|parasails|bjacobi|jacobi|bssor"), "precond names");
     prm.declare_entry ("NDA ssor factor", "1.0", Patterns::Double (), "damping factor of Block SSOR for NDA");
-    prm.declare_entry ("angular quadrature name", "lsgc", Patterns::Selection ("lsgc"), "angular quadrature types. only LS-GC implemented for now.");
+    prm.declare_entry ("angular quadrature name", "none", Patterns::Selection ("lsgc|none"), "angular quadrature types. only LS-GC implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", Patterns::Integer (), "Number of groups in MG calculations");
     prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("dfem|cfem"), "USE DFEM or CFEM for spatial discretization");
@@ -171,60 +158,3 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   }
   prm.leave_subsection ();
 }
-
-std::string ProblemDefinition::get_aq_name ()
-{
-  return aq_name;
-}
-
-// public member functions used to retieve parameters processed
-bool ProblemDefinition::get_nda_bool ()
-{
-  return do_nda;
-}
-
-bool ProblemDefinition::get_print_sn_quad_bool ()
-{
-  return do_print_sn_quad;
-}
-
-std::string ProblemDefinition::get_transport_model ()
-{
-  return transport_model_name;
-}
-
-std::string ProblemDefinition::get_output_namebase ()
-{
-  return output_namebase;
-}
-
-unsigned int ProblemDefinition::get_n_group ()
-{
-  return n_group;
-}
-
-bool ProblemDefinition::get_reflective_bool ()
-{
-  return have_reflective_bc;
-}
-
-bool ProblemDefinition::get_eigen_problem_bool ()
-{
-  return is_eigen_problem;
-}
-
-unsigned int ProblemDefinition::get_fe_order ()
-{
-  return p_order;
-}
-
-unsigned int ProblemDefinition::get_uniform_refinement ()
-{
-  return global_refinements;
-}
-
-std::string ProblemDefinition::get_discretization ()
-{
-  return discretization;
-}
-
