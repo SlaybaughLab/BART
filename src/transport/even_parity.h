@@ -4,7 +4,7 @@
 #include "equation_base.h"
 
 template<int dim>
-class EvenParity : public TransportBase<dim>
+class EvenParity : public EquationBase<dim>
 {
 public:
   EvenParity (ParameterHandler &prm,

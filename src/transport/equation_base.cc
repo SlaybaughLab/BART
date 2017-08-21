@@ -402,6 +402,8 @@ void EquationBase<dim>::generate_moments
 template <int dim>
 void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 {
+  AssertThrow(is_eigen_problem,
+              ExcMessage("Only eigen problem calls this member"));
   if (!do_nda)
   {
     scaled_fiss_transfer_per_ster.resize (n_material);

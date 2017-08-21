@@ -20,9 +20,6 @@ Iterations<dim>::Iterations
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr)
 :
-err_k_tol(1.0e-6),
-err_phi_tol(1.0e-7),
-err_phi_eigen_tol(1.0e-5),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 n_group(prm.get_integer("number of groups"))
@@ -42,16 +39,6 @@ n_group(prm.get_integer("number of groups"))
 
 template <int dim>
 Iterations<dim>::~Iterations ()
-{
-}
-
-template <int dim>
-void Iterations<dim>::NDA_PI ()
-{
-}
-
-template <int dim>
-void Iterations<dim>::NDA_SI ()
 {
 }
 
@@ -137,19 +124,6 @@ template <int dim>
 void Iterations<dim>::
 
 template <int dim>
-void Iterations<dim>::initialize_fiss_process
-(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx)
-{
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    *vec_ho_sflx[g] = 1.0;
-    sflx_proc[g] = *vec_ho_sflx[g];
-  }
-  fission_source = trm_ptr->estimate_fiss_source (sflx_proc);
-  keff = 1.0;
-}
-
-template <int dim>
 void Iterations<dim>::update_ho_moments_in_fiss
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_prev_gen)
@@ -197,64 +171,21 @@ void Iterations<dim>::power_iteration
 }
 
 template <int dim>
-void Iterations<dim>::source_iteration
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &vec_ho_sys,
- std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,
- std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
- std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
- )
+void Iterations<dim>::solve_problems
+(std::vector<Vector<double> > &sflx_this_proc)
 {
-  unsigned int ct = 0;
-  double err_phi = 1.0;
-  double err_phi_old;
-  while (err_phi>err_phi_tol)
-  {
-    ct += 1;
-    trm_ptr->generate_ho_rhs ();
-    sol_ptr->ho_solve (vec_ho_sys,
-                       vec_aflx,
-                       vec_ho_rhs);
-    trm_ptr->generate_moments ();
-    err_phi_old = err_phi;
-    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_old);
-    double spectral_radius = err_phi / err_phi_old;
-    pout
-    << "SI iter: " << ct
-    << ", phi err: " << err_phi
-    << ", spec. rad.: " << spectral_radius << std::endl;
-  }
-}
-
-template <int dim>
-void Iterations<dim>::postprocess ()
-{// do nothing in the base class
-}
-
-template <int dim>
-void Iterations<dim>::do_iterations ()
-{
-  sol_ptr->initialize_ho_preconditioners (vec_ho_sys, vec_ho_rhs);
   if (is_eigen_problem)
   {
-    if (do_nda)
-      NDA_PI ();
-    else
-    {
-      power_iteration ();
-      postprocess ();
-    }
+    std_cxx11::shared_ptr<EigenBase<dim> > pro_ptr = build_eigen_problem (prm);
+    pro_ptr->do_iterations ();
+    pro_ptr->get_sflx_proc (sflx_this_proc);
+    keff = pro_ptr->get_keff ();
   }
   else
   {
-    if (do_nda)
-      NDA_SI ();
-    else
-    {
-      generate_ho_fixed_source ();
-      generate_moments ();
-      source_iteration ();
-      postprocess ();
-    }
+    std_cxx11::shared_ptr<MGBase<dim> > pro_ptr = build_mg_problem (prm);
+    pro_ptr->do_iterations ();
+    pro_ptr->get_sflx_proc (sflx_this_proc);
   }
 }
 
@@ -262,13 +193,6 @@ template <int dim>
 void Iterations<dim>::get_keff (double &keff)
 {
   keff = this->keff;
-}
-
-template <int dim>
-void Iterations<dim>::get_flux_this_proc
-(std::vector<Vector<double> > &sflxes_proc)
-{
-  sflxes_proc = this->sflx_proc;
 }
 
 // explicit instantiation to avoid linking error

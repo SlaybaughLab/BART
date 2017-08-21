@@ -65,7 +65,6 @@ private:
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
-  std_cxx11::shared_ptr<PreconditionerSolver> sol_ptr;
   
   std::string transport_model_name;
   std::string ho_linear_solver_name;

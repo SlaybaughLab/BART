@@ -119,7 +119,7 @@ void BartDriver<dim>::initialize_dealii_objects ()
    MPI_COMM_WORLD,
    relevant_dofs);
   
-  itr_cls.initialize_system_matrices_vectors (dsp);
+  itr_cls.initialize_system_matrices_vectors (dsp, local_dofs);
 }
 
 template <int dim>
@@ -129,8 +129,7 @@ void BartDriver<dim>::output_results () const
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
 
-  if (zeroth_proc())
-    itr_cls.get_keff (keff);
+  itr_cls.get_keff (keff);
   itr_cls.get_flux_this_proc (sflx_proc);
   
   data_out.add_data_vector (keff, "keff");
@@ -153,7 +152,7 @@ void BartDriver<dim>::output_results () const
   std::ofstream output ((filename + ".vtu").c_str ());
   data_out.write_vtu (output);
 
-  if (zeroth_proc())
+  if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)
   {
     std::vector<std::string> filenames;
     for (unsigned int i=0;
@@ -171,11 +170,11 @@ void BartDriver<dim>::output_results () const
 template <int dim>
 void BartDriver<dim>::run ()
 {
-  radio ("making grid");
   msh_ptr->make_grid (triangulation);
   setup_system ();
   report_system ();
-  itr_cls.do_iterations (msh_ptr, aqd_ptr);
+  itr_cls.solve_problems (msh_ptr, aqd_ptr, sflx_proc);
+  itr_cls.get_keff (keff);
   output_results ();
 }
 

@@ -56,7 +56,7 @@ void PreconditionerSolver::initialize_ho_preconditioners
           data.symmetric_operator = false;
         else
           data.symmetric_operator = true;
-        pre_ho_amg[i]->initialize(*(ho_syses)[i], data);
+        pre_ho_amg[i]->initialize(*ho_syses[i], data);
       }
     }
     else if (ho_preconditioner_name=="bjacobi")
@@ -66,7 +66,7 @@ void PreconditionerSolver::initialize_ho_preconditioners
       {
         pre_ho_bjacobi[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi>
         (new PETScWrappers::PreconditionBlockJacobi);
-        pre_ho_bjacobi[i]->initialize(*(ho_syses)[i]);
+        pre_ho_bjacobi[i]->initialize(*ho_syses[i]);
       }
     }
     else if (ho_preconditioner_name=="jacobi")
@@ -76,7 +76,7 @@ void PreconditionerSolver::initialize_ho_preconditioners
       {
         pre_ho_jacobi[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionJacobi>
         (new PETScWrappers::PreconditionJacobi);
-        pre_ho_jacobi[i]->initialize(*(ho_syses)[i]);
+        pre_ho_jacobi[i]->initialize(*ho_syses[i]);
       }
     }
     else if (ho_preconditioner_name=="bssor")
@@ -87,7 +87,7 @@ void PreconditionerSolver::initialize_ho_preconditioners
         pre_ho_eisenstat[i] = std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat>
         (new PETScWrappers::PreconditionEisenstat);
         PETScWrappers::PreconditionEisenstat::AdditionalData data(ho_ssor_omega);
-        pre_ho_eisenstat[i]->initialize(*(ho_syses)[i], data);
+        pre_ho_eisenstat[i]->initialize(*ho_syses[i], data);
       }
     }
     else if (ho_preconditioner_name=="parasails")
@@ -101,12 +101,12 @@ void PreconditionerSolver::initialize_ho_preconditioners
             (transport_model_name=="ep" && have_reflective_bc))
         {
           PETScWrappers::PreconditionParaSails::AdditionalData data (2);
-          pre_ho_parasails[i]->initialize(*(ho_syses)[i], data);
+          pre_ho_parasails[i]->initialize(*ho_syses[i], data);
         }
         else
         {
           PETScWrappers::PreconditionParaSails::AdditionalData data (1);
-          pre_ho_parasails[i]->initialize(*(ho_syses)[i], data);
+          pre_ho_parasails[i]->initialize(*ho_syses[i], data);
         }
       }
     }
@@ -124,89 +124,85 @@ void PreconditionerSolver::initialize_ho_preconditioners
 }
 
 void PreconditionerSolver::ho_solve
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &ho_syses,
- std::vector<PETScWrappers::MPI::Vector*> &ho_psis,
- std::vector<PETScWrappers::MPI::Vector*> &ho_rhses,
+(PETScWrappers::MPI::SparseMatrix &ho_sys,
+ PETScWrappers::MPI::Vector &ho_psi,
+ PETScWrappers::MPI::Vector &ho_rhs,
  unsigned int i/*component number*/)
 {
-  AssertThrow (n_total_ho_vars==ho_syses.size(),
-               ExcMessage("num of HO system matrices should be equal to total variable number"));
-  AssertThrow (n_total_ho_vars==ho_rhses.size(),
-               ExcMessage("num of HO system rhs should be equal to total variable number"));
   if (ho_linear_solver_name=="cg")
   {
     PETScWrappers::SolverCG
     solver (*ho_cn[i], MPI_COMM_WORLD);
     if (ho_preconditioner_name=="amg")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_amg)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_amg[i]);
     else if (ho_preconditioner_name=="jacobi")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_jacobi)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_jacobi[i]);
     else if (ho_preconditioner_name=="bssor")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_eisenstat)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_eisenstat[i]);
     else if (ho_preconditioner_name=="parasails")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_parasails)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_parasails[i]);
   }
   else if (ho_linear_solver_name=="bicgstab")
   {
     PETScWrappers::SolverBicgstab
     solver (*ho_cn[i], MPI_COMM_WORLD);
     if (ho_preconditioner_name=="amg")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_amg)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_amg[i]);
     else if (ho_preconditioner_name=="jacobi")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_jacobi)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_jacobi[i]);
     else if (ho_preconditioner_name=="bssor")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_eisenstat)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_eisenstat[i]);
     else if (ho_preconditioner_name=="parasails")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_parasails)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_parasails[i]);
   }
   else if (ho_linear_solver_name=="gmres")
   {
     PETScWrappers::SolverGMRES
     solver (*ho_cn[i], MPI_COMM_WORLD);
     if (ho_preconditioner_name=="amg")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_amg)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_amg[i]);
     else if (ho_preconditioner_name=="jacobi")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_jacobi)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_jacobi[i]);
     else if (ho_preconditioner_name=="bssor")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_eisenstat)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_eisenstat[i]);
     else if (ho_preconditioner_name=="parasails")
-      solver.solve (*ho_syses[i],
-                    *ho_psis[i],
-                    *ho_rhses[i],
-                    *(pre_ho_parasails)[i]);
+      solver.solve (ho_sys,
+                    ho_psi,
+                    ho_rhs,
+                    *pre_ho_parasails[i]);
   }
   else// if (linear_solver_name=="direct")
   {
@@ -221,9 +217,9 @@ void PreconditionerSolver::ho_solve
         ho_direct[i]->set_symmetric_mode (true);
       ho_direct_init[i] = true;
     }
-    ho_direct[i]->solve (*ho_syses[i],
-                         *ho_psis[i],
-                         *ho_rhses[i]);
+    ho_direct[i]->solve (ho_sys,
+                         ho_psi,
+                         ho_rhs);
   }
   // the ho_linear_iters are for reporting linear solver status, test purpose only
   if (ho_linear_solver_name!="direct")

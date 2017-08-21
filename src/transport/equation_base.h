@@ -219,7 +219,6 @@ protected:
   std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer_per_ster;
   std::vector<std::vector<std::vector<double> > > scat_scaled_fiss_transfer_per_ster;
   std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer;
-  std::vector<FullMatrix<double> > vec_test_at_qp;
   
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;

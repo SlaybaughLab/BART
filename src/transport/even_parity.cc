@@ -7,7 +7,7 @@ EvenParity<dim>::EvenParity
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 :
-TransportBase<dim>(prm, msh_ptr, aqd_ptr, mat_ptr)
+EquationBase<dim>(prm, msh_ptr, aqd_ptr, mat_ptr)
 {
   if (this->discretization=="dfem")
   {
