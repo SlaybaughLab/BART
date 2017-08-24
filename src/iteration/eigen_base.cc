@@ -15,10 +15,15 @@ EigenBase<dim>::~EigenBase ()
 }
 
 template <int dim>
-EigenBase<dim>::do_iterations ()
+EigenBase<dim>::do_iterations
+(ParameterHandler &prm,
+ std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ std_cxx11::shared_ptr<MaterialProperties> mat_ptr,
+ std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats)
 {
-  this->initialize_equations ();
-  eigen_iterations ();
+  this->initialize_equations (prm, msh_ptr, aqd_ptr, mat_ptr);
+  eigen_iterations (msh_ptr, aqd_ptr, mat_ptr, sys_mats);
 }
 
 template <int dim>

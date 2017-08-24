@@ -45,10 +45,17 @@ template <int dim>
 class EquationBase
 {
 public:
+  // For SN and NDA (NDA still needs quadrature to calculate corrections)
   EquationBase (ParameterHandler &prm,
                  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+  
+  // For diffusion (future work for someone)
+  EquationBase (ParameterHandler &prm,
+                const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+  
   virtual ~EquationBase ();
   
   void run ();
@@ -69,7 +76,8 @@ public:
    std::vector<FullMatrix<double> > &collision_at_qp);
   
   virtual void integrate_cell_bilinear_form
-  (const std_cxx11::shared_ptr<FEValues<dim> > fv,
+  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+   const std_cxx11::shared_ptr<FEValues<dim> > fv,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    FullMatrix<double> &cell_matrix,
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
@@ -78,7 +86,8 @@ public:
    const unsigned int &i_dir=0);
   
   virtual void integrate_boundary_bilinear_form
-  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
@@ -94,7 +103,8 @@ public:
    const unsigned int &i_dir=0);
   
   virtual void integrate_interface_bilinear_form
-  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
+  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
    const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
@@ -107,14 +117,19 @@ public:
    FullMatrix<double> &vn_un);
   
   virtual void generate_moments
-  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
-   std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_old,
-   std::vector<Vector<double> > &sflx_proc);
+  (std::vector<Vector<double>*> &vec_ho_sflx,
+   std::vector<Vector<double>*> &vec_ho_sflx_old,
+   std::vector<Vector<double>*> &sflx_proc);
   virtual void postprocess ();
   virtual void generate_ho_rhs ();
   virtual void generate_ho_fixed_source
   (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
    std::vector<Vector<double> > &sflx_this_proc);
+  
+  // override this three functions in derived classes
+  virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
+  virtual unsigned int get_component_direction (unsigned int comp_ind);
+  virtual unsigned int get_component_group (unsigned int comp_ind);
   
 private:
   void setup_system ();
@@ -156,10 +171,6 @@ private:
   std::string aq_name;
   
 protected:
-  unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
-  unsigned int get_component_direction (unsigned int comp_ind);
-  unsigned int get_component_group (unsigned int comp_ind);
-  
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
   
@@ -192,7 +203,7 @@ protected:
   
   unsigned int n_dir;
   unsigned int n_azi;
-  unsigned int n_total_ho_vars;
+  unsigned int n_total_vars;
   unsigned int n_group;
   unsigned int n_material;
   unsigned int p_order;

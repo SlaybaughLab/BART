@@ -59,6 +59,9 @@ protected:
   
   void initialize_equations ();
   
+  std_cxx11::shared_ptr<EquationBase<dim> > tra_ptr;
+  std_cxx11::shared_ptr<EquationBase<dim> > nda_ptr;
+  
   double total_calculation_time; /**< total time for calculations including assembly of rhs*/
   unsigned int ct_ho_iters; /**< HO iteration counts*/
   unsigned int ct_nda_iters; /**< NDA iteration counts*/
