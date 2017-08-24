@@ -34,7 +34,6 @@ p_order(prm.get_integer("finite element polynomial degree")),
 nda_quadrature_order(p_order+3) //this is hard coded
 {
   this->process_input (msh_ptr, aqd_ptr, mat_ptr);
-  
 }
 
 template <int dim>
@@ -57,7 +56,9 @@ void EquationBase<dim>::process_input
   
   // aq data related
   {
-    n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
+    // note that n_total_vars will be have to be re-init
+    // in derived class of if it's for NDA
+    n_total_vars = aqd_ptr->get_n_total_ho_vars ();
     n_azi = aqd_ptr->get_sn_order ();
     n_dir = aqd_ptr->get_n_dir ();
     component_index = aqd_ptr->get_component_index_map ();
@@ -137,6 +138,8 @@ void EquationBase<dim>::initialize_assembly_related_objects
   n_q = q_rule->size();
   n_qf = qf_rule->size();
   
+  // the following section will be for NDA soly
+  /*
   if (do_nda)
   {
     qc_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (nda_quadrature_order));
@@ -155,6 +158,7 @@ void EquationBase<dim>::initialize_assembly_related_objects
     n_qc = qc_rule->size ();
     n_qfc = qfc_rule->size ();
   }
+  */
 
   local_dof_indices.resize (dofs_per_cell);
   neigh_dof_indices.resize (dofs_per_cell);
@@ -162,7 +166,8 @@ void EquationBase<dim>::initialize_assembly_related_objects
 
 template <int dim>
 void EquationBase<dim>::assemble_volume_boundary
-(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
 {
   // volumetric pre-assembly matrices
@@ -172,9 +177,6 @@ void EquationBase<dim>::assemble_volume_boundary
   std::vector<FullMatrix<double> >
   collision_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   
-  for (unsigned int i=0; i<local_cells.size(); ++i)
-    vec_test_at_qp.push_back (FullMatrix<double> (n_q, dofs_per_cell));
-  
   // this sector is for pre-assembling streaming and collision matrices at quadrature
   // points
   {
@@ -183,7 +185,7 @@ void EquationBase<dim>::assemble_volume_boundary
     pre_assemble_cell_matrices (fv, cell, streaming_at_qp, collision_at_qp);
   }
 
-  for (unsigned int k=0; k<n_total_ho_vars; ++k)
+  for (unsigned int k=0; k<n_total_vars; ++k)
   {
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
@@ -214,17 +216,11 @@ void EquationBase<dim>::assemble_volume_boundary
                                               local_mat,
                                               g, i_dir);
           }
-      
-      if (k==0)
-        for (unsigned int qi=0; qi<n_q; ++qi)
-          for (unsigned int i=0; i<dofs_per_cell; ++i)
-            vec_test_at_qp[ic](qi, i) = fv->shape_value (i,qi) * fv->JxW (qi);
-      
-      vec_ho_sys[k]->add (local_dof_indices,
+      sys_mats[k]->add (local_dof_indices,
                           local_dof_indices,
                           local_mat);
     }
-    vec_ho_sys[k]->compress (VectorOperation::add);
+    sys_mats[k]->compress (VectorOperation::add);
   }// components
 }
 
@@ -295,14 +291,15 @@ void EquationBase<dim>::integrate_reflective_boundary_linear_form
  */
 template <int dim>
 void EquationBase<dim>::assemble_interface
-(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
+(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
   FullMatrix<double> vi_ui (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vi_ue (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> ve_ui (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> ve_ue (dofs_per_cell, dofs_per_cell);
 
-  for (unsigned int k=0; k<n_total_ho_vars; ++k)
+  for (unsigned int k=0; k<n_total_vars; ++k)
   {
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
@@ -332,24 +329,24 @@ void EquationBase<dim>::assemble_interface
                                              fn,
                                              vi_ui, vi_ue, ve_ui, ve_ue,
                                              g, i_dir/*specific component*/);
-          vec_ho_sys[k]->add (local_dof_indices,
-                              local_dof_indices,
-                              vi_ui);
-
-          vec_ho_sys[k]->add (local_dof_indices,
-                              neigh_dof_indices,
-                              vi_ue);
-
-          vec_ho_sys[k]->add (neigh_dof_indices,
-                              local_dof_indices,
-                              ve_ui);
-
-          vec_ho_sys[k]->add (neigh_dof_indices,
-                              neigh_dof_indices,
-                              ve_ue);
+          sys_mats[k]->add (local_dof_indices,
+                            local_dof_indices,
+                            vi_ui);
+          
+          sys_mats[k]->add (local_dof_indices,
+                            neigh_dof_indices,
+                            vi_ue);
+          
+          sys_mats[k]->add (neigh_dof_indices,
+                            local_dof_indices,
+                            ve_ui);
+          
+          sys_mats[k]->add (neigh_dof_indices,
+                            neigh_dof_indices,
+                            ve_ue);
         }// target faces
     }
-    vec_ho_sys[k]->compress(VectorOperation::add);
+    sys_mats[k]->compress(VectorOperation::add);
   }// component
 }
 
@@ -380,22 +377,21 @@ void EquationBase<dim>::integrate_interface_bilinear_form
 
 template <int dim>
 void EquationBase<dim>::generate_moments
-(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx,
- std::vector<PETScWrappers::MPI::Vector*> &vec_ho_sflx_old,
- std::vector<Vector<double> > &sflx_proc)
+(std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,
+ std::vector<Vector<double> > &sflx_proc,
+ std::vector<Vector<double> > &sflx_proc_old)
 {
   // PETSc type vectors live in BartDriver
   // TODO: only scalar flux is generated for now, future will be moments
-  AssertThrow(do_nda==false,
-              ExcMessage("Moments are generated only without NDA"));
+  //AssertThrow(do_nda==false,
+  //            ExcMessage("Moments are generated only without NDA"));
   if (!do_nda)
     for (unsigned int g=0; g<n_group; ++g)
     {
-      *vec_ho_sflx_old[g] = *vec_ho_sflx[g];
-      *vec_ho_sflx[g] = 0;
+      sflx_proc_old[g] = sflx_proc[g];
+      sflx_proc[g] = 0;
       for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-        vec_ho_sflx[g]->add (wi[i_dir], *vec_aflx[get_component_index(i_dir, g)]);
-      sflx_proc[g] = *vec_ho_sflx[g];
+        sflx_proc[g].add (wi[i_dir], *vec_aflx[get_component_index(i_dir, g)]);
     }
 }
 
@@ -420,20 +416,21 @@ void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 }
 
 template <int dim>
-void EquationBase<dim>::generate_ho_rhs
-(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
- std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
- std::vector<Vector> &sflx_this_proc)
+void EquationBase<dim>::generate_rhs
+(std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
+ std::vector<Vector<double> > &sflx_proc,
+ std::vector<Vector<double> > &sflx_proc_old)
 {
 }
 
-void EquationBase<dim>::generate_ho_fixed_source
+void EquationBase<dim>::generate_fixed_source
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
  std::vector<Vector<double> > &sflx_this_proc)
 
 template <int dim>
 double EquationBase<dim>::estimate_fiss_source
-(std::vector<Vector<double> > &phis_this_process)
+(std::vector<Vector<double> > &phis_this_process,
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
   // first, estimate local fission source
   double fiss_source = 0.0;

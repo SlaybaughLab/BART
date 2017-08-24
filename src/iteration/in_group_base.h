@@ -1,6 +1,7 @@
 #ifndef __in_group_base_h__
 #define __in_group_base_h__
 
+template <int dim>
 class InGroupBase : public IterationBase
 {
 public:

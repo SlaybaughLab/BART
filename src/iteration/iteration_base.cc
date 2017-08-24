@@ -72,8 +72,15 @@ double IterationBase<dim>::estimate_phi_diff
 }
 
 template <int dim>
-void IterationBase<dim>::initialize_equations ()
+void IterationBase<dim>::initialize_equations
+(ParameterHandler &prm,
+ std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
+  tra_ptr = build_transport_model (prm, msh_ptr, aqd_ptr, mat_ptr);
+  if (do_nda)
+    nda_ptr = build_nda (prm, msh_ptr, aqd_ptr, mat_ptr);
 }
 
 template class IterationBase<2>;

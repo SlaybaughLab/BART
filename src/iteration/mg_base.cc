@@ -15,20 +15,46 @@ void MGBase<dim>::do_iterations
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
  std::vector<PETScWrappers::MPI::Vector*> &sys_rhses)
 {
-  this->initialize_equations ();
-  multigroup_iterations ();
+  this->initialize_equations (prm, msh_ptr, aqd_ptr, mat_ptr);
+  mg_iterations (msh_ptr, aqd_ptr, mat_ptr);
 }
 
 template <int dim>
-void MGBase<dim>::multigroup_iterations
+void MGBase<dim>::mg_iterations
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
  std::vector<PETScWrappers::MPI::Vector*> &sys_rhses)
 {// this function needs to be overridden if JFNK is desired
+  
+  /*
   for (unsigned int g=0; g<n_group; ++g)
   {
     generate_group_rhses (sys_rhses, g);
     win_ptr->solve_in_group (sys_mats, g)
   }
+   */
+  // GS
+  /*
+  for (unsigned int g=0; g<n_group; ++g)
+  {
+    generate_group_rhses (sys_rhses, g);
+    win_ptr->solve_in_group (sys_mats,vec_aflx,sys_rhses)
+  }
+   */
+  // Jacobi
+  /*
+   for (unsigned int g=0; g<n_group; ++g)
+     generate_group_rhses (sys_rhses, g);
+   for (unsigned int g=0; g<n_group; ++g)
+     win_ptr->solve_in_group (sys_mats,vec_aflx,sys_rhses)
+   */
+}
+
+template <int dim>
+void MGBase<dim>::generate_system_matrices
+(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+ std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr)
+{
+  equ_ptr->assemble_system ();
 }
 
 template <int dim>

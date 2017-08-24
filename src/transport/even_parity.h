@@ -49,11 +49,11 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  void generate_ho_fixed_source
+  void generate_fixed_source
   (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
    std::vector<Vector<double> > &sflx_this_proc);
   
-  void generate_ho_rhs
+  void generate_rhs
   (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
    std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
    std::vector<Vector> &sflx_this_proc);

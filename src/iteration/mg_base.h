@@ -10,6 +10,7 @@ public:
   MGBase ();
   virtual ~MGBase ();
   
+  virtual void mg_iterations ();
   virtual void generate_system_matrices
   (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
   virtual void generate_group_rhses
