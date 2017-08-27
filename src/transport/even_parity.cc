@@ -29,31 +29,30 @@ EvenParity<dim>::~EvenParity ()
 
 template <int dim>
 void EvenParity<dim>::pre_assemble_cell_matrices
-(const std_cxx11::shared_ptr<FEValues<dim> > fv,
- typename DoFHandler<dim>::active_cell_iterator &cell,
+(typename DoFHandler<dim>::active_cell_iterator &cell,
  std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
  std::vector<FullMatrix<double> > &collision_at_qp)
 {
   for (unsigned int qi=0; qi<this->n_q; ++qi)
     for (unsigned int i=0; i<this->dofs_per_cell; ++i)
       for (unsigned int j=0; j<this->dofs_per_cell; ++j)
-        collision_at_qp[qi](i,j) = (fv->shape_value(i,qi) *
-                                    fv->shape_value(j,qi));
+        collision_at_qp[qi](i,j) = (this->fv->shape_value(i,qi) *
+                                    this->fv->shape_value(j,qi));
   
   for (unsigned int qi=0; qi<this->n_q; ++qi)
     for (unsigned int i_dir=0; i_dir<this->n_dir; ++i_dir)
       for (unsigned int i=0; i<this->dofs_per_cell; ++i)
         for (unsigned int j=0; j<this->dofs_per_cell; ++j)
-          streaming_at_qp[qi][i_dir](i,j) = ((fv->shape_grad(i,qi) *
+          streaming_at_qp[qi][i_dir](i,j) = ((this->fv->shape_grad(i,qi) *
                                               this->omega_i[i_dir])
                                              *
-                                             (fv->shape_grad(j,qi) *
+                                             (this->fv->shape_grad(j,qi) *
                                               this->omega_i[i_dir]));
 }
 
 template <int dim>
 void EvenParity<dim>::integrate_cell_bilinear_form
-(const std_cxx11::shared_ptr<FEValues<dim> > fv,
+(const std_cxx11::shared_ptr<FEValues<dim> > this->fv,
  typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
  std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
@@ -69,20 +68,19 @@ void EvenParity<dim>::integrate_cell_bilinear_form
                              this->all_inv_sigt[mid][g]
                              +
                              collision_at_qp[qi](i,j) *
-                             this->all_sigt[mid][g]) * fv->JxW(qi);
+                             this->all_sigt[mid][g]) * this->fv->JxW(qi);
 }
 
 template <int dim>
 void EvenParity<dim>::integrate_boundary_bilinear_form
-(const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
- typename DoFHandler<dim>::active_cell_iterator &cell,
+(typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
  FullMatrix<double> &cell_matrix,
  const unsigned int &g,
  const unsigned int &i_dir)
 {
   unsigned int bd_id = cell->face(fn)->boundary_id ();
-  const Tensor<1,dim> vec_n = fvf->normal_vector(0);
+  const Tensor<1,dim> vec_n = this->fvf->normal_vector(0);
   if (this->have_reflective_bc && this->is_reflective_bc[bd_id])
   {
     unsigned int inv_sigt = this->all_inv_sigt[cell->material_id()][g];
@@ -97,9 +95,9 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
       for (unsigned int i=0; i<this->dofs_per_cell; ++i)
         for (unsigned int j=0; j<this->dofs_per_cell; ++j)
           cell_matrix(i,j) += (- ndo_inv_sigt *
-                               fvf->shape_value(i,qi) *
-                               (ref_angle * fvf->shape_grad(j,qi)) *
-                               fvf->JxW(qi));
+                               this->fvf->shape_value(i,qi) *
+                               (ref_angle * this->fvf->shape_grad(j,qi)) *
+                               this->fvf->JxW(qi));
   }
   else/* if (!this->have_reflective_bc ||
        (this->have_reflective_bc && !this->is_reflective_bc[bd_id]))*/
@@ -109,17 +107,15 @@ void EvenParity<dim>::integrate_boundary_bilinear_form
       for (unsigned int i=0; i<this->dofs_per_cell; ++i)
         for (unsigned int j=0; j<this->dofs_per_cell; ++j)
           cell_matrix(i,j) += (absndo *
-                               fvf->shape_value(i,qi) *
-                               fvf->shape_value(j,qi) *
-                               fvf->JxW(qi));
+                               this->fvf->shape_value(i,qi) *
+                               this->fvf->shape_value(j,qi) *
+                               this->fvf->JxW(qi));
   }// non-ref bd
 }
 
 template <int dim>
 void EvenParity<dim>::integrate_interface_bilinear_form
-(const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
- const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
- typename DoFHandler<dim>::active_cell_iterator &cell,
+(typename DoFHandler<dim>::active_cell_iterator &cell,
  typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
  unsigned int &fn,/*concerning face number in local cell*/
  FullMatrix<double> &vp_up,
@@ -129,7 +125,7 @@ void EvenParity<dim>::integrate_interface_bilinear_form
  const unsigned int &g,
  const unsigned int &i_dir)
 {
-  const Tensor<1,dim> vec_n = fvf->normal_vector (0);
+  const Tensor<1,dim> vec_n = this->fvf->normal_vector (0);
   unsigned int mid = cell->material_id ();
   unsigned int mid_nei = neigh->material_id ();
   double local_sigt = this->all_sigt[mid][g];
@@ -152,66 +148,86 @@ void EvenParity<dim>::integrate_interface_bilinear_form
       for (unsigned int j=0; j<this->dofs_per_cell; ++j)
       {
         vp_up(i,j) += (sige *
-                       fvf->shape_value(i,qi) *
-                       fvf->shape_value(j,qi)
+                       this->fvf->shape_value(i,qi) *
+                       this->fvf->shape_value(j,qi)
                        -
                        local_inv_sigt * half_ndo *
-                       (this->omega_i[i_dir] * fvf->shape_grad(i,qi)) *
-                       fvf->shape_value(j,qi)
+                       (this->omega_i[i_dir] * this->fvf->shape_grad(i,qi)) *
+                       this->fvf->shape_value(j,qi)
                        -
                        local_inv_sigt * half_ndo *
-                       fvf->shape_value(i,qi) *
-                       (this->omega_i[i_dir] * fvf->shape_grad(j,qi))
-                       ) * fvf->JxW(qi);
+                       this->fvf->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * this->fvf->shape_grad(j,qi))
+                       ) * this->fvf->JxW(qi);
         
         vp_un(i,j) += (-sige *
-                       fvf->shape_value(i,qi) *
-                       fvf_nei->shape_value(j,qi)
+                       this->fvf->shape_value(i,qi) *
+                       this->fvf_nei->shape_value(j,qi)
                        +
                        local_inv_sigt * half_ndo *
-                       (this->omega_i[i_dir] * fvf->shape_grad(i,qi)) *
-                       fvf_nei->shape_value(j,qi)
+                       (this->omega_i[i_dir] * this->fvf->shape_grad(i,qi)) *
+                       this->fvf_nei->shape_value(j,qi)
                        -
                        neigh_inv_sigt * half_ndo *
-                       fvf->shape_value(i,qi) *
-                       (this->omega_i[i_dir] * fvf_nei->shape_grad(j,qi))
-                       ) * fvf->JxW(qi);
+                       this->fvf->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * this->fvf_nei->shape_grad(j,qi))
+                       ) * this->fvf->JxW(qi);
         
         vn_up(i,j) += (-sige *
-                       fvf_nei->shape_value(i,qi) *
-                       fvf->shape_value(j,qi)
+                       this->fvf_nei->shape_value(i,qi) *
+                       this->fvf->shape_value(j,qi)
                        -
                        neigh_inv_sigt * half_ndo *
-                       (this->omega_i[i_dir] * fvf_nei->shape_grad(i,qi)) *
-                       fvf->shape_value(j,qi)
+                       (this->omega_i[i_dir] * this->fvf_nei->shape_grad(i,qi)) *
+                       this->fvf->shape_value(j,qi)
                        +
                        local_inv_sigt * half_ndo *
-                       fvf_nei->shape_value(i,qi) *
-                       (this->omega_i[i_dir] * fvf->shape_grad(j,qi))
-                       ) * fvf->JxW(qi);
+                       this->fvf_nei->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * this->fvf->shape_grad(j,qi))
+                       ) * this->fvf->JxW(qi);
         
         vn_un(i,j) += (sige *
-                       fvf_nei->shape_value(i,qi) *
-                       fvf_nei->shape_value(j,qi)
+                       this->fvf_nei->shape_value(i,qi) *
+                       this->fvf_nei->shape_value(j,qi)
                        +
                        neigh_inv_sigt * half_ndo *
-                       (this->omega_i[i_dir] * fvf_nei->shape_grad(i,qi)) *
-                       fvf_nei->shape_value(j,qi)
+                       (this->omega_i[i_dir] * this->fvf_nei->shape_grad(i,qi)) *
+                       this->fvf_nei->shape_value(j,qi)
                        +
                        neigh_inv_sigt * half_ndo *
-                       fvf_nei->shape_value(i,qi) *
-                       (this->omega_i[i_dir] * fvf_nei->shape_grad(j,qi))
-                       ) * fvf->JxW(qi);
+                       this->fvf_nei->shape_value(i,qi) *
+                       (this->omega_i[i_dir] * this->fvf_nei->shape_grad(j,qi))
+                       ) * this->fvf->JxW(qi);
       }
   
 }
 
 template <int dim>
-void EvenParity<dim>::generate_ho_rhs
+void EvenParity<dim>::generate_rhs
 (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
- std::vector<Vector> &sflx_this_proc)
+ std::vector<Vector<double> > &sflx_this_proc,
+ unsigned int &g)
 {
+  for (unsigned int k=0; k<this->n_tot_vars; ++k)
+    if (this->get_component_group(k)==g)
+    {
+      unsigned int i
+      *vec_ho_rhs[k] = *vec_ho_fixed_rhs[k];
+      for (unsigned int ic=0; ic<this->local_cells.size(); ++ic)
+      {
+        Vector<double> cell_rhs (this->dofs_per_cell);
+        typename DoFHandler<dim>::active_cell_iterator cell = this->local_cells[ic];
+        cell->get_dof_indices (this->local_dof_indices);
+        this->fv->reinit (cell);
+        integrate_cell_bilinear_form (cell,
+                                      cell_rhs,
+                                      g, i_dir);
+      }
+    }
+  
+    
+  
   for (unsigned int g=0; g<this->n_group; ++g)
     for (unsigned int i_dir=0; i_dir<this->n_dir; ++i_dir)
     {
