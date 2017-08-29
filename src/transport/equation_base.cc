@@ -94,17 +94,18 @@ void EquationBase<dim>::process_input
 template <int dim>
 void EquationBase<dim>::assemble_system
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd)
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats)
 {
   radio ("Assemble volumetric bilinear forms");
-  assemble_volume_boundary (local_cells, is_cell_at_bd);
-
+  assemble_volume_boundary_bilinear_form (local_cells, is_cell_at_bd, sys_mats);
+  
   if (discretization=="dfem")
   {
     AssertThrow (transport_model_name=="ep",
                  ExcMessage("DFEM is only implemented for even parity"));
     radio ("Assemble cell interface bilinear forms for DFEM");
-    assemble_interface (local_cells);
+    assemble_interface_bilinear_form (local_cells, sys_mats);
   }
 }
 
@@ -114,66 +115,66 @@ void EquationBase<dim>::initialize_assembly_related_objects
 {
   q_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (p_order + 1));
   qf_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (p_order + 1));
-
+  
   fv = std_cxx11::shared_ptr<FEValues<dim> >
   (new FEValues<dim> (*fe, *q_rule,
                       update_values | update_gradients |
                       update_quadrature_points |
                       update_JxW_values));
-
+  
   fvf = std_cxx11::shared_ptr<FEFaceValues<dim> >
   (new FEFaceValues<dim> (*fe, *qf_rule,
                           update_values | update_gradients |
                           update_quadrature_points | update_normal_vectors |
                           update_JxW_values));
-
+  
   if (discretization=="dfem")
     fvf_nei = std_cxx11::shared_ptr<FEFaceValues<dim> >
     (new FEFaceValues<dim> (*fe, *qf_rule,
                             update_values | update_gradients |
                             update_quadrature_points | update_normal_vectors |
                             update_JxW_values));
-
+  
   dofs_per_cell = fe->dofs_per_cell;
   n_q = q_rule->size();
   n_qf = qf_rule->size();
   
   // the following section will be for NDA soly
   /*
-  if (do_nda)
-  {
-    qc_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (nda_quadrature_order));
-    qfc_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (nda_quadrature_order));
-    fvc = std_cxx11::shared_ptr<FEValues<dim> >
-    (new FEValues<dim> (*fe, *qc_rule,
-                        update_values | update_gradients |
-                        update_quadrature_points |
-                        update_JxW_values));
-    
-    fvfc = std_cxx11::shared_ptr<FEFaceValues<dim> >
-    (new FEFaceValues<dim> (*fe, *qfc_rule,
-                            update_values | update_gradients |
-                            update_quadrature_points | update_normal_vectors |
-                            update_JxW_values));
-    n_qc = qc_rule->size ();
-    n_qfc = qfc_rule->size ();
-  }
-  */
-
+   if (do_nda)
+   {
+   qc_rule = std_cxx11::shared_ptr<QGauss<dim> > (new QGauss<dim> (nda_quadrature_order));
+   qfc_rule = std_cxx11::shared_ptr<QGauss<dim-1> > (new QGauss<dim-1> (nda_quadrature_order));
+   fvc = std_cxx11::shared_ptr<FEValues<dim> >
+   (new FEValues<dim> (*fe, *qc_rule,
+   update_values | update_gradients |
+   update_quadrature_points |
+   update_JxW_values));
+   
+   fvfc = std_cxx11::shared_ptr<FEFaceValues<dim> >
+   (new FEFaceValues<dim> (*fe, *qfc_rule,
+   update_values | update_gradients |
+   update_quadrature_points | update_normal_vectors |
+   update_JxW_values));
+   n_qc = qc_rule->size ();
+   n_qfc = qfc_rule->size ();
+   }
+   */
+  
   local_dof_indices.resize (dofs_per_cell);
   neigh_dof_indices.resize (dofs_per_cell);
 }
 
 template <int dim>
-void EquationBase<dim>::assemble_volume_boundary
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd)
+void EquationBase<dim>::assemble_volume_boundary_bilinear_form
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats)
 {
   // volumetric pre-assembly matrices
   std::vector<std::vector<FullMatrix<double> > >
   streaming_at_qp (n_q, std::vector<FullMatrix<double> > (n_dir, FullMatrix<double> (dofs_per_cell, dofs_per_cell)));
-
+  
   std::vector<FullMatrix<double> >
   collision_at_qp (n_q, FullMatrix<double>(dofs_per_cell, dofs_per_cell));
   
@@ -184,27 +185,22 @@ void EquationBase<dim>::assemble_volume_boundary
     fv->reinit (cell);
     pre_assemble_cell_matrices (fv, cell, streaming_at_qp, collision_at_qp);
   }
-
+  
   for (unsigned int k=0; k<n_total_vars; ++k)
   {
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
     radio ("Assembling Component",k,"direction",i_dir,"group",g);
     FullMatrix<double> local_mat (dofs_per_cell, dofs_per_cell);
-
+    
     for (unsigned int ic=0; ic<local_cells.size(); ++ic)
     {
       typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
       fv->reinit (cell);
       cell->get_dof_indices (local_dof_indices);
       local_mat = 0;
-      integrate_cell_bilinear_form (fv,
-                                    cell,
-                                    local_mat,
-                                    streaming_at_qp,
-                                    collision_at_qp,
-                                    g, i_dir);
-
+      integrate_cell_bilinear_form (cell, cell_rhs, g, i_dir);
+      
       if (is_cell_at_bd[ic])
         for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
           if (cell->at_boundary(fn))
@@ -217,8 +213,8 @@ void EquationBase<dim>::assemble_volume_boundary
                                               g, i_dir);
           }
       sys_mats[k]->add (local_dof_indices,
-                          local_dof_indices,
-                          local_mat);
+                        local_dof_indices,
+                        local_mat);
     }
     sys_mats[k]->compress (VectorOperation::add);
   }// components
@@ -252,7 +248,7 @@ void EquationBase<dim>::integrate_cell_bilinear_form
 
 /** \brief Integrator for boundary weak form per boundary face per angular/group
  *
- * The function is a virtual function. For diffusion-like system, i_dir is set 
+ * The function is a virtual function. For diffusion-like system, i_dir is set
  * to 0 by default.
  */
 template <int dim>
@@ -263,47 +259,48 @@ void EquationBase<dim>::integrate_boundary_bilinear_form
  FullMatrix<double> &cell_matrix,
  const unsigned int &g,
  const unsigned int &i_dir=0)
-{// this is a virtual function
+{// this is a virtual function. Details have to be provided per transport model.
 }
 
-/** \brief Right hand side integrator specifically for reflective boundary.
+/** \brief Right hand side integrator specifically for boundary terms.
  *
  */
 template <int dim>
-void EquationBase<dim>::integrate_reflective_boundary_linear_form
-(const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
- typename DoFHandler<dim>::active_cell_iterator &cell,
+void EquationBase<dim>::integrate_boundary_linear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
  unsigned int &fn,/*face number*/
- std::vector<Vector<double> > &cell_rhses,
+ Vector<double> &cell_rhses,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_aflxs,
  const unsigned int &g,
  const unsigned int &i_dir)
-{// this is a virtual function
+{// this is a virtual function. Details might be provided given different models
 }
 
 /** \brief Interface weak form assembly driver.
  * Member function used to assemble interface weak forms. The main functionality
- * is to go through all non-boundary interfaces of the cells owned on current 
- * processor and assemble the weak form using interface assembler. 
+ * is to go through all non-boundary interfaces of the cells owned on current
+ * processor and assemble the weak form using interface assembler.
  *
  * There is no need to override this function for SN calculations. Yet, for PN,
  * diffusion etc., this function must be overriden to correctly take care of the
  * angular component.
  */
 template <int dim>
-void EquationBase<dim>::assemble_interface
+void EquationBase<dim>::assemble_interface_bilinear_form
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd)
 {
   FullMatrix<double> vi_ui (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vi_ue (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> ve_ui (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> ve_ue (dofs_per_cell, dofs_per_cell);
-
+  
   for (unsigned int k=0; k<n_total_vars; ++k)
   {
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
-
+    
     for (unsigned int ic=0; ic<local_cells.size(); ++ic)
     {
       typename DoFHandler<dim>::active_cell_iterator
@@ -318,12 +315,12 @@ void EquationBase<dim>::assemble_interface
           neigh = cell->neighbor(fn);
           neigh->get_dof_indices (neigh_dof_indices);
           fvf_nei->reinit (neigh, cell->neighbor_face_no(fn));
-
+          
           vi_ui = 0;
           vi_ue = 0;
           ve_ui = 0;
           ve_ue = 0;
-
+          
           integrate_interface_bilinear_form (fvf, fvf_nei,/*FEFaceValues objects*/
                                              cell, neigh,/*cell iterators*/
                                              fn,
@@ -382,50 +379,124 @@ void EquationBase<dim>::generate_moments
  std::vector<Vector<double> > &sflx_proc_old)
 {
   // PETSc type vectors live in BartDriver
-  // TODO: only scalar flux is generated for now, future will be moments
-  //AssertThrow(do_nda==false,
-  //            ExcMessage("Moments are generated only without NDA"));
-  if (!do_nda)
-    for (unsigned int g=0; g<n_group; ++g)
-    {
-      sflx_proc_old[g] = sflx_proc[g];
-      sflx_proc[g] = 0;
-      for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-        sflx_proc[g].add (wi[i_dir], *vec_aflx[get_component_index(i_dir, g)]);
-    }
+  // TODO: only scalar flux is generated for now, future will be moments considering
+  // anisotropic scattering
+  for (unsigned int g=0; g<n_group; ++g)
+  {
+    sflx_proc_old[g] = sflx_proc[g];
+    sflx_proc[g] = 0;
+    for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
+      sflx_proc[g].add (wi[i_dir], *vec_aflx[get_component_index(i_dir, g)]);
+  }
 }
 
 template <int dim>
 void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 {
+  // TODO: after changing ksi_nusigf to std::vector<Vector<double> >, we'll
+  // redo this function
   AssertThrow(is_eigen_problem,
               ExcMessage("Only eigen problem calls this member"));
-  if (!do_nda)
+  scaled_fiss_transfer_per_ster.resize (n_material);
+  for (unsigned int m=0; m<n_material; ++m)
   {
-    scaled_fiss_transfer_per_ster.resize (n_material);
-    for (unsigned int m=0; m<n_material; ++m)
+    std::vector<std::vector<double> >  tmp (n_group, std::vector<double>(n_group));
+    if (is_material_fissile[m])
+      for (unsigned int gin=0; gin<n_group; ++gin)
+        for (unsigned int g=0; g<n_group; ++g)
+          tmp[gin][g] = all_ksi_nusigf_per_ster[m][gin][g] / keff;
+    scaled_fiss_transfer_per_ster[m] = tmp;
+  }
+}
+
+// generate rhs for equation
+template <int dim>
+void EquationBase<dim>::assemble_linear_form
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_rhs,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,/*in case of reflective BC*/
+ std::vector<Vector<double> > &sflx_this_proc,
+ unsigned int &g)
+{
+  for (unsigned int k=0; k<this->n_total_vars; ++k)
+    if (get_component_group(k)==g)
     {
-      std::vector<std::vector<double> >  tmp (n_group, std::vector<double>(n_group));
-      if (is_material_fissile[m])
-        for (unsigned int gin=0; gin<n_group; ++gin)
-          for (unsigned int g=0; g<n_group; ++g)
-            tmp[gin][g] = all_ksi_nusigf_per_ster[m][gin][g] / keff;
-      scaled_fiss_transfer_per_ster[m] = tmp;
+      unsigned int i_dir = get_component_direction (k);
+      *vec_aflx[k] = 0.0;
+      *vec_rhs[k] = *vec_fixed_rhs[k];
+      for (unsigned int ic=0; ic<this->local_cells.size(); ++ic)
+      {
+        Vector<double> cell_rhs (this->dofs_per_cell);
+        typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+        cell->get_dof_indices (this->local_dof_indices);
+        fv->reinit (cell);
+        std::vector<double> cell_sflx;
+        fv->get_function_values (sflx_this_proc[g], cell_sflx);
+        integrate_scattering_linear_form (cell, cell_rhs,
+                                          g, i_dir);
+        if (is_cell_at_bd[ic])
+          for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
+            if (cell->at_boundary(fn))
+            {
+              fvf->reinit (cell, fn);
+              integrate_boundary_linear_form (cell, fn, cell_rhs,
+                                              cell_sflx,
+                                              vec_aflx,
+                                              g, i_dir);
+            }
+        vec_rhs[k]->add (local_dof_indices, cell_rhs);
+      }
+      vec_rhs[k]->compress (VectorOperation::add);
     }
+}
+
+template <int dim>
+void EquationBase<dim>::integrate_scattering_linear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ Vector<double> &cell_rhs,
+ std::vector<Vector<double> > &sflx_proc,
+ const unsigned int &g,
+ const unsigned int &i_dir)
+{}
+
+template <int dim>
+void EquationBase<dim>::assemble_fixed_linear_form
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
+ std::vector<Vector<double> > &sflx_prev)
+{
+  for (unsigned int k=0; k<n_total_vars; ++k)
+  {
+    unsigned int g = get_component_group (k);
+    unsigned int i_dir = get_component_direction (k);
+    *vec_fixed_rhs[k] = 0.0;
+    for (unsigned int ic=0; ic<local_cells.size(); ++ic)
+    {
+      Vector<double> cell_rhs (this->dofs_per_cell);
+      typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
+      cell->get_dof_indices (this->local_dof_indices);
+      fv->reinit (cell);
+      integrate_cell_fixed_linear_form (cell, cell_rhs,
+                                        sflx_prev,
+                                        g, i_dir);
+      vec_fixed_rhs[k]->add (local_dof_indices, cell_rhs);
+    }
+    vec_fixed_rhs[k]->compress (VectorOperation::add);
   }
 }
 
 template <int dim>
-void EquationBase<dim>::generate_rhs
-(std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
- std::vector<Vector<double> > &sflx_proc,
- std::vector<Vector<double> > &sflx_proc_old)
+void EquationBase<dim>::integrate_cell_fixed_linear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ Vector<double> &cell_rhs,
+ std::vector<Vector<double> > &sflx_prev,
+ const unsigned int &g,
+ const unsigned int &i_dir)
 {
 }
-
-void EquationBase<dim>::generate_fixed_source
-(std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
- std::vector<Vector<double> > &sflx_this_proc)
 
 template <int dim>
 double EquationBase<dim>::estimate_fiss_source
@@ -454,8 +525,7 @@ double EquationBase<dim>::estimate_fiss_source
     }
   }
   // then, we need to accumulate fission source from other processors as well
-  double global_fiss_source = Utilities::MPI::sum (fiss_source, MPI_COMM_WORLD);
-  return global_fiss_source;
+  return Utilities::MPI::sum (fiss_source, MPI_COMM_WORLD);
 }
 
 // wrapper functions used to retrieve info from various Hash tables

@@ -49,14 +49,19 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  void generate_fixed_source
-  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
-   std::vector<Vector<double> > &sflx_this_proc);
+  void integrate_scattering_linear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   Vector<double> &cell_rhs,
+   std::vector<Vector<double> > &sflx_proc,
+   const unsigned int &g,
+   const unsigned int &i_dir);
   
-  void generate_rhs
-  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_rhs,
-   std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
-   std::vector<Vector> &sflx_this_proc);
+  void integrate_cell_fixed_linear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   Vector<double> &cell_rhs,
+   std::vector<Vector<double> > &sflx_prev,
+   const unsigned int &g,
+   const unsigned int &i_dir);
   
 private:
   double c_penalty;
