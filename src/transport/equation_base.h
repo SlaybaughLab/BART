@@ -61,23 +61,22 @@ public:
   void run ();
   
   virtual void assemble_bilinear_form
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd)
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd,
+   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
   
   virtual void assemble_volume_boundary_bilinear_form
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd);
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd,
+   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
   
   virtual void assemble_interface_bilinear_form
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd);
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd,
+   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
   
   virtual void pre_assemble_cell_matrices
-  (const std_cxx11::shared_ptr<FEValues<dim> > fv,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp);
   
@@ -90,8 +89,7 @@ public:
    const unsigned int &i_dir=0);
   
   virtual void integrate_boundary_bilinear_form
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
    const unsigned int &g,
@@ -105,8 +103,7 @@ public:
    const unsigned int &i_dir=0);
   
   virtual void integrate_interface_bilinear_form
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
    unsigned int &fn,/*concerning face number in local cell*/
    unsigned int &i_dir,

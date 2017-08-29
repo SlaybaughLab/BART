@@ -94,17 +94,18 @@ void EquationBase<dim>::process_input
 template <int dim>
 void EquationBase<dim>::assemble_system
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd)
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats)
 {
   radio ("Assemble volumetric bilinear forms");
-  assemble_volume_boundary (local_cells, is_cell_at_bd);
+  assemble_volume_boundary_bilinear_form (local_cells, is_cell_at_bd, sys_mats);
   
   if (discretization=="dfem")
   {
     AssertThrow (transport_model_name=="ep",
                  ExcMessage("DFEM is only implemented for even parity"));
     radio ("Assemble cell interface bilinear forms for DFEM");
-    assemble_interface (local_cells);
+    assemble_interface_bilinear_form (local_cells, sys_mats);
   }
 }
 
@@ -166,9 +167,9 @@ void EquationBase<dim>::initialize_assembly_related_objects
 
 template <int dim>
 void EquationBase<dim>::assemble_volume_boundary_bilinear_form
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd)
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats)
 {
   // volumetric pre-assembly matrices
   std::vector<std::vector<FullMatrix<double> > >
@@ -411,7 +412,9 @@ void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 // generate rhs for equation
 template <int dim>
 void EquationBase<dim>::assemble_linear_form
-(std::vector<PETScWrappers::MPI::Vector*> &vec_rhs,
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,/*in case of reflective BC*/
  std::vector<Vector<double> > &sflx_this_proc,
@@ -426,7 +429,7 @@ void EquationBase<dim>::assemble_linear_form
       for (unsigned int ic=0; ic<this->local_cells.size(); ++ic)
       {
         Vector<double> cell_rhs (this->dofs_per_cell);
-        typename DoFHandler<dim>::active_cell_iterator cell = this->local_cells[ic];
+        typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
         cell->get_dof_indices (this->local_dof_indices);
         fv->reinit (cell);
         std::vector<double> cell_sflx;
@@ -460,7 +463,9 @@ void EquationBase<dim>::integrate_scattering_linear_form
 
 template <int dim>
 void EquationBase<dim>::assemble_fixed_linear_form
-(std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
+(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd,
+ std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
  std::vector<Vector<double> > &sflx_prev)
 {
   for (unsigned int k=0; k<n_total_vars; ++k)
@@ -468,10 +473,10 @@ void EquationBase<dim>::assemble_fixed_linear_form
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
     *vec_fixed_rhs[k] = 0.0;
-    for (unsigned int ic=0; ic<this->local_cells.size(); ++ic)
+    for (unsigned int ic=0; ic<local_cells.size(); ++ic)
     {
       Vector<double> cell_rhs (this->dofs_per_cell);
-      typename DoFHandler<dim>::active_cell_iterator cell = this->local_cells[ic];
+      typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
       cell->get_dof_indices (this->local_dof_indices);
       fv->reinit (cell);
       integrate_cell_fixed_linear_form (cell, cell_rhs,
