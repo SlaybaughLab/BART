@@ -60,13 +60,19 @@ public:
   
   void run ();
   
-  virtual void assemble_volume_boundary
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+  virtual void assemble_bilinear_form
+  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd)
+  
+  virtual void assemble_volume_boundary_bilinear_form
+  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
    std::vector<bool> &is_cell_at_bd);
-  virtual void assemble_interface
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells);
-  virtual void assemble_system
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+  
+  virtual void assemble_interface_bilinear_form
+  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
    std::vector<bool> &is_cell_at_bd);
   
   virtual void pre_assemble_cell_matrices
@@ -76,9 +82,7 @@ public:
    std::vector<FullMatrix<double> > &collision_at_qp);
   
   virtual void integrate_cell_bilinear_form
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   const std_cxx11::shared_ptr<FEValues<dim> > fv,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
    FullMatrix<double> &cell_matrix,
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp,
@@ -87,7 +91,6 @@ public:
   
   virtual void integrate_boundary_bilinear_form
   (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
@@ -95,8 +98,7 @@ public:
    const unsigned int &i_dir=0);
   
   virtual void integrate_reflective_boundary_linear_form
-  (const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
-   typename DoFHandler<dim>::active_cell_iterator &cell,
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    std::vector<Vector<double> > &cell_rhses,
    const unsigned int &g,
@@ -104,8 +106,6 @@ public:
   
   virtual void integrate_interface_bilinear_form
   (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf,
-   const std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei,
    typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
    unsigned int &fn,/*concerning face number in local cell*/
@@ -116,17 +116,40 @@ public:
    FullMatrix<double> &vn_up,
    FullMatrix<double> &vn_un);
   
+  virtual void integrate_scattering_linear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   Vector<double> &cell_rhs,
+   std::vector<Vector<double> > &sflx_proc,
+   const unsigned int &g,
+   const unsigned int &i_dir);
+  
+  virtual void integrate_cell_fixed_linear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   Vector<double> &cell_rhs,
+   std::vector<Vector<double> > &sflx_prev,
+   const unsigned int &g,
+   const unsigned int &i_dir);
+  
+  virtual void integrate_boundary_linear_form
+  (typename DoFHandler<dim>::active_cell_iterator &cell,
+   unsigned int &fn,/*face number*/
+   Vector<double> &cell_rhses,
+   std::vector<PETScWrappers::MPI::Vector*> &vec_aflxs,
+   const unsigned int &g,
+   const unsigned int &i_dir);
+  
   virtual void generate_moments
   (std::vector<Vector<double>*> &vec_ho_sflx,
    std::vector<Vector<double>*> &vec_ho_sflx_old,
    std::vector<Vector<double>*> &sflx_proc);
   virtual void postprocess ();
-  virtual void generate_ho_rhs ();
-  virtual void generate_ho_fixed_source
+  virtual void assemble_linear_form ();
+  virtual void assemble_fixed_linear_form ();
   (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
    std::vector<Vector<double> > &sflx_this_proc);
   
   // override this three functions in derived classes
+  // these functions have to be redefined when using diffusion, NDA, PN, SPN
   virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
   virtual unsigned int get_component_direction (unsigned int comp_ind);
   virtual unsigned int get_component_group (unsigned int comp_ind);

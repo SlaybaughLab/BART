@@ -165,7 +165,7 @@ void EquationBase<dim>::initialize_assembly_related_objects
 }
 
 template <int dim>
-void EquationBase<dim>::assemble_volume_boundary
+void EquationBase<dim>::assemble_volume_boundary_bilinear_form
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
  std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
@@ -272,7 +272,7 @@ void EquationBase<dim>::integrate_boundary_linear_form
  std::vector<PETScWrappers::MPI::Vector*> &vec_aflxs,
  const unsigned int &g,
  const unsigned int &i_dir)
-{// this is a virtual function. Details have to be provided given different models
+{// this is a virtual function. Details might be provided given different models
 }
 
 /** \brief Interface weak form assembly driver.
@@ -287,7 +287,8 @@ void EquationBase<dim>::integrate_boundary_linear_form
 template <int dim>
 void EquationBase<dim>::assemble_interface_bilinear_form
 (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+ std::vector<bool> &is_cell_at_bd)
 {
   FullMatrix<double> vi_ui (dofs_per_cell, dofs_per_cell);
   FullMatrix<double> vi_ue (dofs_per_cell, dofs_per_cell);
@@ -409,7 +410,7 @@ void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 
 // generate rhs for equation
 template <int dim>
-void EquationBase<dim>::generate_rhs
+void EquationBase<dim>::assemble_linear_form
 (std::vector<PETScWrappers::MPI::Vector*> &vec_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
  std::vector<PETScWrappers::MPI::Vector*> &vec_aflx,/*in case of reflective BC*/
@@ -421,7 +422,7 @@ void EquationBase<dim>::generate_rhs
     {
       unsigned int i_dir = get_component_direction (k);
       *vec_aflx[k] = 0.0;
-      *vec_ho_rhs[k] = *vec_ho_fixed_rhs[k];
+      *vec_rhs[k] = *vec_fixed_rhs[k];
       for (unsigned int ic=0; ic<this->local_cells.size(); ++ic)
       {
         Vector<double> cell_rhs (this->dofs_per_cell);
@@ -442,15 +443,23 @@ void EquationBase<dim>::generate_rhs
                                               vec_aflx,
                                               g, i_dir);
             }
-        vec_aflx[k]->add (local_dof_indices, cell_rhs);
+        vec_rhs[k]->add (local_dof_indices, cell_rhs);
       }
-      vec_aflx[k]->compress (VectorOperation::add);
+      vec_rhs[k]->compress (VectorOperation::add);
     }
 }
 
+template <int dim>
+void EquationBase<dim>::integrate_scattering_linear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ Vector<double> &cell_rhs,
+ std::vector<Vector<double> > &sflx_proc,
+ const unsigned int &g,
+ const unsigned int &i_dir)
+{}
 
 template <int dim>
-void EquationBase<dim>::generate_fixed_linear_form
+void EquationBase<dim>::assemble_fixed_linear_form
 (std::vector<PETScWrappers::MPI::Vector*> &vec_fixed_rhs,
  std::vector<Vector<double> > &sflx_prev)
 {
@@ -472,6 +481,16 @@ void EquationBase<dim>::generate_fixed_linear_form
     }
     vec_fixed_rhs[k]->compress (VectorOperation::add);
   }
+}
+
+template <int dim>
+void EquationBase<dim>::integrate_cell_fixed_linear_form
+(typename DoFHandler<dim>::active_cell_iterator &cell,
+ Vector<double> &cell_rhs,
+ std::vector<Vector<double> > &sflx_prev,
+ const unsigned int &g,
+ const unsigned int &i_dir)
+{
 }
 
 template <int dim>
@@ -501,8 +520,7 @@ double EquationBase<dim>::estimate_fiss_source
     }
   }
   // then, we need to accumulate fission source from other processors as well
-  double global_fiss_source = Utilities::MPI::sum (fiss_source, MPI_COMM_WORLD);
-  return global_fiss_source;
+  return Utilities::MPI::sum (fiss_source, MPI_COMM_WORLD);
 }
 
 // wrapper functions used to retrieve info from various Hash tables
