@@ -52,8 +52,7 @@ void EvenParity<dim>::pre_assemble_cell_matrices
 
 template <int dim>
 void EvenParity<dim>::integrate_cell_bilinear_form
-(const std_cxx11::shared_ptr<FEValues<dim> > this->fv,
- typename DoFHandler<dim>::active_cell_iterator &cell,
+(typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
  std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
  std::vector<FullMatrix<double> > &collision_at_qp,
