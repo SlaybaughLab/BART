@@ -50,10 +50,17 @@ std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
  */
 template <int dim>
 std_cxx11::shared_ptr<EquationBase<dim> >
-build_transport_model (ParameterHandler &prm,
-                       const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+build_equation (std::string equation_name,
+                ParameterHandler &prm,
+                const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+
+template <int dim>
+std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
+(ParameterHandler &prm,
+ std::string equation_name,
+ unsigned int& n_total_vars);
 
 /** \brief Function to build angular quadrature for general dimensions
  *

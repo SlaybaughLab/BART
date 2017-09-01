@@ -4,6 +4,7 @@
 #include <deal.II/base/mpi.h>
 
 #include "bart_tools.h"
+#include ""
 #include "../equations/even_parity.h"
 #include "../aqdata/aq_lsgc"
 
@@ -21,9 +22,13 @@ FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
 }
 
 template <int dim>
-std_cxx11::shared_ptr<PreconditionerSolver> build_linalg (ParameterHandler &prm)
+std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
+(ParameterHandler &prm,
+ std::string equation_name,
+ unsigned int& n_total_vars)
 {
-  return std_cxx11::shared_ptr<PreconditionerSolver> (new PreconditionerSolver(prm));
+  return std_cxx11::shared_ptr<PreconditionerSolver>
+  (new PreconditionerSolver(prm, equation_name, n_total_vars));
 }
 
 template <int dim>
@@ -42,16 +47,14 @@ std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 }
 
 template <int dim>
-std_cxx11::shared_ptr<EquationBase<dim> > build_transport_model
-(ParameterHandler &prm,
+std_cxx11::shared_ptr<EquationBase<dim> > build_equation
+(std::string space_angle_solver_name,
+ ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
-  std::string transport_model_name = prm.get ("transport model");
-  AssertThrow (transport_model_name!="none",
-               ExcMessage("transport model name incorrect or missing"));
-  std_cxx11::shared_ptr<EquationBase<dim> > transport_class;
+  std_cxx11::shared_ptr<EquationBase<dim> > equation_class;
   if (transport_model_name=="ep")
     equation_class =
     std_cxx11::shared_ptr<EquationBase<dim> >
@@ -115,8 +118,8 @@ void radio ()
   pout << "-------------------------------------" << std::endl << std::endl;
 }
 
-template std_cxx11::shared_ptr<EquationBase<2> > build_transport_model;
-template std_cxx11::shared_ptr<EquationBase<3> > build_transport_model;
+template std_cxx11::shared_ptr<EquationBase<2> > build_equation;
+template std_cxx11::shared_ptr<EquationBase<3> > build_equation;
 template std_cxx11::shared_ptr<AQBase<2> > build_aq_model;
 template std_cxx11::shared_ptr<AQBase<3> > build_aq_model;
 template std_cxx11::shared_ptr<MeshGenerator<2> > build_mesh;
