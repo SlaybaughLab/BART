@@ -228,9 +228,7 @@ template <int dim>
 void MeshGenerator<dim>::get_relevant_cell_iterators
 (DoFHandler<dim> &dof_handler,
  std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &ref_bd_cells,
- std::vector<bool> &is_cell_at_bd,
- std::vector<bool> &is_cell_at_ref_bd)
+ std::vector<bool> &is_cell_at_bd)
 {
   for (typename DoFHandler<dim>::active_cell_iterator
        cell=dof_handler.begin_active();
@@ -242,25 +240,6 @@ void MeshGenerator<dim>::get_relevant_cell_iterators
         is_cell_at_bd.push_back (true);
       else
         is_cell_at_bd.push_back (false);
-      
-      if (have_reflective_bc)
-      {
-        bool at_ref_bd = false;
-        for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
-          if (cell->at_boundary(fn))
-          {
-            unsigned int bd_id = cell->face(fn)->boundary_id ();
-            if (!at_ref_bd && is_reflective_bc[bd_id])
-              at_ref_bd = true;
-          }
-        if (at_ref_bd)
-        {
-          ref_bd_cells.push_back (cell);
-          is_cell_at_ref_bd.push_back (true);
-        }
-        else
-          is_cell_at_ref_bd.push_back (false);
-      }
     }
 }
 
