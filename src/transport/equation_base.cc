@@ -169,8 +169,7 @@ void EquationBase<dim>::initialize_assembly_related_objects
 template <int dim>
 void EquationBase<dim>::assemble_system
 (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd,
- std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats)
+ std::vector<bool> &is_cell_at_bd)
 {
   radio ("Assemble volumetric bilinear forms");
   assemble_volume_boundary_bilinear_form (local_cells, is_cell_at_bd);

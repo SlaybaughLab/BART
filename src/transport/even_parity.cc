@@ -2,13 +2,16 @@
 
 template <int dim>
 EvenParity<dim>::EvenParity
-(ParameterHandler &prm,
+(std::string equation_name,
+ ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 :
-EquationBase<dim>(prm, msh_ptr, aqd_ptr, mat_ptr)
+EquationBase<dim>(equation_name, prm, msh_ptr, aqd_ptr, mat_ptr)
 {
+  AssertThrow(equation_name=="ep",
+              ExcMessage("equation built incorrectly"));
   if (this->discretization=="dfem")
   {
     for (unsigned int i=0; i<this->n_dir; ++i)

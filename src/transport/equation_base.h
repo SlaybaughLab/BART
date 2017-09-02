@@ -62,18 +62,15 @@ public:
   
   virtual void assemble_bilinear_form
   (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
+   std::vector<bool> &is_cell_at_bd);
   
   virtual void assemble_volume_boundary_bilinear_form
   (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
+   std::vector<bool> &is_cell_at_bd);
   
   virtual void assemble_interface_bilinear_form
   (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
+   std::vector<bool> &is_cell_at_bd);
   
   virtual void pre_assemble_cell_matrices
   (typename DoFHandler<dim>::active_cell_iterator &cell,
