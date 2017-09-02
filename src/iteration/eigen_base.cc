@@ -3,8 +3,7 @@
 template <int dim>
 EigenBase<dim>::EigenBase () : IterationBase<dim> (),
 err_k_tol(1.0e-6),
-err_phi_tol(1.0e-7),
-err_phi_eigen_tol(1.0e-5),
+err_phi_tol(1.0e-5),
 keff(1.0)
 {
 }
@@ -44,6 +43,15 @@ void EigenBase<dim>::initialize_fiss_process ()
 }
 
 template <int dim>
+void EigenBase<dim>::update_fiss_source_keff ()
+{
+  keff_prev_gen = keff;
+  fission_source_prev_gen = fission_source;
+  fission_source = trm_ptr->estimate_fiss_source (sflx_proc);
+  keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
+}
+
+template <int dim>
 double EigenBase<dim>::estimate_k (double &fiss_source,
                                    double &fiss_source_prev,
                                    double &k_prev)
@@ -61,6 +69,12 @@ template <int dim>
 void EigenBase<dim>::eigen_iteration (double &keff,
                                      std_cxx11::shared_ptr<MGSolver<dim> > mgs_ptr)
 {
+}
+
+template <int dim>
+double EigenBase<dim>::get_keff ()
+{
+  return keff;
 }
 
 template class EigenBase<2>;
