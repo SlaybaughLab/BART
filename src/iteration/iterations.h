@@ -45,13 +45,15 @@ template <int dim>
 class Iterations
 {
 public:
-  Iterations (ParameterHandler &prm);
+  Iterations (std::string equation_name,
+              const ParameterHandler &prm,
+              const DoFHandler<dim> &dof_handler
+              const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+              const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+              const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   virtual ~Iterations ();
   
-  void solve_problems
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<Vector<double> > &sflx_proc);
+  void solve_problems (std::vector<Vector<double> > &sflx_proc);
   
   void initialize_system_matrices_vectors
   (SparsityPatternType &dsp, IndexSet &local_dofs);

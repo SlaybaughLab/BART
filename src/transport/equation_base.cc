@@ -17,7 +17,8 @@ using namespace dealii;
 template <int dim>
 EquationBase<dim>::EquationBase
 (std::string equation_name,
- ParameterHandler &prm,
+ const ParameterHandler &prm,
+ const DoFHandler<dim> &dof_handler
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
@@ -32,7 +33,10 @@ have_reflective_bc(prm.get_bool("have reflective BC")),
 p_order(prm.get_integer("finite element polynomial degree")),
 nda_quadrature_order(p_order+3) //this is hard coded
 {
-  this->process_input (msh_ptr, aqd_ptr, mat_ptr);
+  // process input for mesh, AQ and material related data
+  process_input (msh_ptr, aqd_ptr, mat_ptr);
+  // get cell iterators and booleans to tell if they are at boundary on this process
+  msh_ptr->get_relevant_cell_iterators (dof_handler, local_cells, is_cell_at_bd);
   alg_ptr = build_linalg (prm, equation_name, n_total_vars)
 }
 
@@ -91,6 +95,15 @@ void EquationBase<dim>::process_input
       all_q_per_ster = mat_ptr->get_q_per_ster ();
     }
   }
+}
+
+template <int dim>
+void EquationBase<dim>::initialize_cell_iterators_this_proc
+(const DoFHandler<dim> &dof_handler)
+{
+  msh_ptr->get_relevant_cell_iterators (dof_handler,
+                                        local_cells,
+                                        is_cell_at_bd);
 }
 
 template <int dim>
@@ -440,9 +453,7 @@ void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
 // generate rhs for equation
 template <int dim>
 void EquationBase<dim>::assemble_linear_form
-(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd,
- std::vector<Vector<double> > &sflx_this_proc,
+(std::vector<Vector<double> > &sflx_this_proc,
  unsigned int &g)
 {
   for (unsigned int k=0; k<this->n_total_vars; ++k)
@@ -487,9 +498,7 @@ void EquationBase<dim>::integrate_scattering_linear_form
 
 template <int dim>
 void EquationBase<dim>::assemble_fixed_linear_form
-(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd,
- std::vector<Vector<double> > &sflx_prev)
+(std::vector<Vector<double> > &sflx_prev)
 {
   for (unsigned int k=0; k<n_total_vars; ++k)
   {
@@ -531,8 +540,7 @@ void EquationBase<dim>::initialize_preconditioners
 
 template <int dim>
 double EquationBase<dim>::estimate_fiss_source
-(std::vector<Vector<double> > &phis_this_process,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
+(std::vector<Vector<double> > &phis_this_process)
 {
   // first, estimate local fission source
   double fiss_source = 0.0;

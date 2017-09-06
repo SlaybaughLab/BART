@@ -82,18 +82,12 @@ template <int dim>
 void BartDriver<dim>::setup_system ()
 {
   radio ("setup system");
-  initialize_dealii_objects ();
-}
-
-template <int dim>
-void BartDriver<dim>::initialize_dealii_objects ()
-{
   dof_handler.distribute_dofs (*fe);
-
+  
   local_dofs = dof_handler.locally_owned_dofs ();
   DoFTools::extract_locally_relevant_dofs (dof_handler,
                                            relevant_dofs);
-
+  
   constraints.clear ();
   constraints.reinit (relevant_dofs);
   DoFTools::make_hanging_node_constraints (dof_handler,
@@ -120,6 +114,7 @@ void BartDriver<dim>::initialize_dealii_objects ()
    MPI_COMM_WORLD,
    relevant_dofs);
   
+  itr_ptr = build_iterations (prm, dof_handler, msh_ptr, aqd_ptr, mat_ptr);
   itr_ptr->initialize_system_matrices_vectors (dsp, local_dofs);
 }
 
@@ -171,10 +166,6 @@ void BartDriver<dim>::run ()
   msh_ptr->make_grid (triangulation);
   setup_system ();
   report_system ();
-  // get cell iterators on local processors
-  msh_ptr->get_relevant_cell_iterators (dof_handler,
-                                        local_cells,
-                                        is_cell_at_bd);
   // solve the problem using iterative methods specified in Iterations class
   itr_ptr->solve_problems (local_cells, is_cell_at_bd, sflx_proc);
   if (is_eigen_problem)

@@ -10,7 +10,9 @@ public:
   
   // has to be provided
   virtual void solve_in_group
-  (std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at
+   std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
    unsigned int &g);
   
 protected:
@@ -27,7 +29,7 @@ public:
   ~SourceIteration ();
   
   void solve_in_group
-  (std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
+  (std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
    unsigned int &g);
 };
 

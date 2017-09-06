@@ -46,13 +46,19 @@ class EquationBase
 {
 public:
   // For SN and NDA (NDA still needs quadrature to calculate corrections)
-  EquationBase (ParameterHandler &prm,
+  EquationBase (std::string equation_name,
+                const ParameterHandler &prm,
+                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
-  // For diffusion (future work for someone)
-  EquationBase (ParameterHandler &prm,
+  // TODO: for diffusion (future work for someone)
+  // instead of previous constructor, diffusion overrides a constructor without
+  // asking for AQ instance.
+  EquationBase (std::string equation_name,
+                const ParameterHandler &prm,
+                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
   
@@ -60,17 +66,20 @@ public:
   
   void run ();
   
-  virtual void assemble_bilinear_form
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd);
+  virtual void assemble_bilinear_form ();
   
-  virtual void assemble_volume_boundary_bilinear_form
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd);
+  virtual void assemble_volume_boundary_bilinear_form ();
   
-  virtual void assemble_interface_bilinear_form
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd);
+  virtual void assemble_interface_bilinear_form ();
+  
+  virtual void assemble_linear_form
+  (std::vector<Vector<double> > &sflx_this_proc,
+   unsigned int &g);
+  
+  virtual void assemble_fixed_linear_form
+  (std::vector<Vector<double> > &sflx_prev);
+  
+  
   
   virtual void pre_assemble_cell_matrices
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -190,11 +199,10 @@ protected:
   unsigned int p_order;
   unsigned int global_refinements;
   
-  std::vector<unsigned int> linear_iters;
-  
+  std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
+  std::vector<bool> is_cell_at_bd;
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
-  
   
   std::vector<Tensor<1, dim> > omega_i;
   std::vector<double> wi;

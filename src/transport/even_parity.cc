@@ -3,7 +3,8 @@
 template <int dim>
 EvenParity<dim>::EvenParity
 (std::string equation_name,
- ParameterHandler &prm,
+ const ParameterHandler &prm,
+ const DoFHandler<dim> &dof_handler
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)

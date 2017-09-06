@@ -32,7 +32,8 @@ std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
 
 template <int dim>
 std_cxx11::shared_ptr<Iterations<dim> > build_iterations
-(ParameterHandler &prm,
+(const ParameterHandler &prm,
+ const DoFHandler<dim> &dof_handler,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
