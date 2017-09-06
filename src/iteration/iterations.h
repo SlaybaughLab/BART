@@ -45,22 +45,23 @@ template <int dim>
 class Iterations
 {
 public:
-  Iterations (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
+  Iterations (ParameterHandler &prm);
   virtual ~Iterations ();
   
-  void solve_problems ();
+  void solve_problems
+  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
+   std::vector<bool> &is_cell_at_bd,
+   std::vector<Vector<double> > &sflx_proc);
   
   void initialize_system_matrices_vectors
   (SparsityPatternType &dsp, IndexSet &local_dofs);
   
   void get_keff (double &keff);
+
 protected:
   double keff;
-  
   bool is_eigen_problem;
   bool do_nda;
-  
-  std::vector<unsigned int> linear_iters;
 };
 
 #endif	// define  __iterations_h__

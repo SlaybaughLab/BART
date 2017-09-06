@@ -21,7 +21,6 @@ FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
     return new FE_Q<dim> (p_order);
 }
 
-template <int dim>
 std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
 (ParameterHandler &prm,
  std::string equation_name,
@@ -32,18 +31,27 @@ std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
 }
 
 template <int dim>
+std_cxx11::shared_ptr<Iterations<dim> > build_iterations
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+{
+  return std_cxx11::shared_ptr<Iterations<dim> >
+  (new Iterations<dim> (prm, msh_ptr, aqd_ptr, mat_ptr));
+}
+
+template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
 {
-  std_cxx11::shared_ptr<MeshGenerator<dim> > mesh_class =
-  std_cxx11::shared_ptr<MeshGenerator<dim> > (new MeshGenerator<dim>(prm));
-  return mesh_class;
+  return std_cxx11::shared_ptr<MeshGenerator<dim> >
+  (new MeshGenerator<dim>(prm));
 }
 
 std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 {
-  std_cxx11::shared_ptr<MaterialProperties> material_class =
-  std_cxx11::shared_ptr<MaterialProperties> (new MaterialProperties (prm));
-  return material_class;
+  return std_cxx11::shared_ptr<MaterialProperties>
+  (new MaterialProperties (prm));
 }
 
 template <int dim>
@@ -54,12 +62,13 @@ std_cxx11::shared_ptr<EquationBase<dim> > build_equation
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
-  std_cxx11::shared_ptr<EquationBase<dim> > equation_class;
+  // TODO: add NDA to it after having NDA class
+  std_cxx11::shared_ptr<EquationBase<dim> > equation_pointer;
   if (transport_model_name=="ep")
-    equation_class =
+    equation_pointer =
     std_cxx11::shared_ptr<EquationBase<dim> >
     (new EvenParity<dim> (prm, msh_ptr, aqd_ptr, mat_ptr));
-  return equation_class;
+  return equation_pointer;
 }
 
 template <int dim>
@@ -69,10 +78,10 @@ build_aq_model (ParameterHandler &prm)
   std::string aq_name = prm.get ("angular quadrature name");
   AssertThrow (aq_name!="none",
                ExcMessage("angular quadrature name incorrect or missing"));
-  std_cxx11::shared_ptr<AQBase<dim> > aq_class;
+  std_cxx11::shared_ptr<AQBase<dim> > aq_pointer;
   if (aq_name=="lsgc")
-    aq_class = std_cxx11::shared_ptr<AQBase<dim> > (new LSGC<dim>(prm));
-  return aq_class;
+    aq_pointer = std_cxx11::shared_ptr<AQBase<dim> > (new LSGC<dim>(prm));
+  return aq_pointer;
 }
 
 void radio (std::string str)
@@ -118,6 +127,8 @@ void radio ()
   pout << "-------------------------------------" << std::endl << std::endl;
 }
 
+template std_cxx11::shared_ptr<Iterations<2> > build_iterations;
+template std_cxx11::shared_ptr<Iterations<3> > build_iterations;
 template std_cxx11::shared_ptr<EquationBase<2> > build_equation;
 template std_cxx11::shared_ptr<EquationBase<3> > build_equation;
 template std_cxx11::shared_ptr<AQBase<2> > build_aq_model;

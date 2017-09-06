@@ -78,9 +78,10 @@ void IterationBase<dim>::initialize_equations
  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
-  tra_ptr = build_transport_model (prm, msh_ptr, aqd_ptr, mat_ptr);
+  std::string space_angle_solver_name = prm.get("transport model");
+  tra_ptr = build_space_angle_solver (space_angle_solver_name,prm, msh_ptr, aqd_ptr, mat_ptr);
   if (do_nda)
-    nda_ptr = build_nda (prm, msh_ptr, aqd_ptr, mat_ptr);
+    nda_ptr = build_space_angle_solver ("nda", prm, msh_ptr, aqd_ptr, mat_ptr);
 }
 
 template class IterationBase<2>;

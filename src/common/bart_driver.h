@@ -1,5 +1,5 @@
-#ifndef __transport_base_h__
-#define __transport_base_h__
+#ifndef __bart_driver_h__
+#define __bart_driver_h__
 #include <deal.II/lac/generic_linear_algebra.h>
 
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
@@ -48,20 +48,18 @@ class BartDriver
 {
 public:
   BartDriver (ParameterHandler &prm);// : ProblemDefinition<dim> (prm){}
-  virtual ~BartDriver ();
+  ~BartDriver ();
   
   void run ();
 private:
   void setup_system ();
   void report_system ();
   void initialize_dealii_objects ();
-  void prepare_correction_aflx ();
   void output_results () const;
-  void initialize_aq (ParameterHandler &prm);
   
   const ParameterHandler &prm;
   
-  Iterations<dim> itr_cls;
+  std_cxx11::shared_ptr<Iterations<dim> > itr_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
@@ -88,7 +86,6 @@ private:
   bool do_nda;
   bool have_reflective_bc;
   
-  
   unsigned int n_dir;
   unsigned int n_azi;
   unsigned int n_total_ho_vars;
@@ -97,7 +94,9 @@ private:
   unsigned int p_order;
   unsigned int global_refinements;
   
+  std::vector<Vector<double> > sflx_proc;
+  
   ConstraintMatrix constraints;
 };
 
-#endif	// define  __transport_base_h__
+#endif	// define  __bart_driver_h__
