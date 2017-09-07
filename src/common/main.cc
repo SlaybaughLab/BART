@@ -6,7 +6,7 @@
  *
  * ----------------------------------------------------------------------
  */
-//#include <deal.II/base/utilities.h>
+#include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
 
 #include "problem_definition.h"
@@ -35,7 +35,6 @@ int main(int argc, char *argv[])
       case 2:
         BartDriver<2> drive (prm);
         drive.run ();
-        break;
       
       case 3:
         BartDriver<3> drive (prm);
