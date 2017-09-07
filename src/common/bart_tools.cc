@@ -85,6 +85,40 @@ build_aq_model (ParameterHandler &prm)
   return aq_pointer;
 }
 
+/** \brief Function used to build pointer to instance of InGroupBase's derived class
+ */
+template <int dim>
+std_cxx11::shared_ptr<EigenBase<dim> > build_eigen_iterations (ParameterHandler &prm)
+{
+  // TODO: we only have power iteration now, change later once we need to choose
+  // different in group solvers
+  bool do_nda = prm.get_bool ("do NDA");
+  if (!do_nda)
+    return std_cxx11::shared_ptr<EigenBase<dim> >
+    (new PowerIteration<dim> (prm));
+}
+
+/** \brief Function used to build pointer to instance of MGBase's derived class
+ */
+template <int dim>
+std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations (ParameterHandler &prm)
+{
+  // TODO: fill this up once we have derived class of MGBase
+}
+
+/** \brief Function used to build pointer to instance of InGroupBase's derived class
+ */
+template <int dim>
+std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations (ParameterHandler &prm)
+{
+  // TODO: we only have source iteration now, change later once we need to choose
+  // different in group solvers
+  bool do_nda = prm.get_bool ("do NDA");
+  if (!do_nda)
+    return std_cxx11::shared_ptr<InGroupBase<dim> >
+    (new SourceIteration<dim> (prm));
+}
+
 void radio (std::string str)
 {
   pout << str << std::endl;
@@ -136,3 +170,10 @@ template std_cxx11::shared_ptr<AQBase<2> > build_aq_model;
 template std_cxx11::shared_ptr<AQBase<3> > build_aq_model;
 template std_cxx11::shared_ptr<MeshGenerator<2> > build_mesh;
 template std_cxx11::shared_ptr<MeshGenerator<3> > build_mesh;
+template std_cxx11::shared_ptr<EigenBase<2> > build_eigen_iterations;
+template std_cxx11::shared_ptr<EigenBase<3> > build_eigen_iterations;
+template std_cxx11::shared_ptr<MGBase<2> > build_mg_iterations;
+template std_cxx11::shared_ptr<MGBase<3> > build_mg_iterations;
+template std_cxx11::shared_ptr<InGroupBase<2> > build_ig_iterations;
+template std_cxx11::shared_ptr<InGroupBase<3> > build_ig_iterations;
+

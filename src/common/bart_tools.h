@@ -77,6 +77,19 @@ std_cxx11::shared_ptr<Iterations<dim> > build_iterations
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
 
+template <int dim>
+std_cxx11::shared_ptr<EigenBase<dim> > build_eigen_iterations
+(ParameterHandler &prm);
+
+template <int dim>
+std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations
+(ParameterHandler &prm);
+
+template <int dim>
+std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations
+(ParameterHandler &prm);
+
+
 /** \brief Function to build angular quadrature for general dimensions
  *
  * \parameter prm A processed ParameterHandler instance
