@@ -39,10 +39,10 @@ public:
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
    unsigned int &fn,/*concerning face number in local cell*/
-   FullMatrix<double> &vp_up,
-   FullMatrix<double> &vp_un,
-   FullMatrix<double> &vn_up,
-   FullMatrix<double> &vn_un,
+   FullMatrix<double> &vi_ui,
+   FullMatrix<double> &vi_ue,
+   FullMatrix<double> &ve_ui,
+   FullMatrix<double> &ve_ue,
    const unsigned int &g,
    const unsigned int &i_dir);
   
