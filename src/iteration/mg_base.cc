@@ -1,8 +1,11 @@
 #include "mg_base.h"
 
 template <int dim>
-MGBase<dim>::MGBase () : IterationBase<dim> ()
+MGBase<dim>::MGBase (ParameterHandler &prm)
+: IterationBase<dim> (prm),
+err_phi_tol(1.0e-5)
 {
+  ig_ptr = build_ig_iteration (prm);
 }
 
 template <int dim>
@@ -12,19 +15,27 @@ MGBase<dim>::~MGBase ()
 
 template <int dim>
 void MGBase<dim>::do_iterations
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std::vector<PETScWrappers::MPI::Vector*> &sys_rhses)
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  this->initialize_equations (prm, msh_ptr, aqd_ptr, mat_ptr);
-  mg_iterations (msh_ptr, aqd_ptr, mat_ptr);
+  // assemble bilinear forms of available equations
+  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
+    equ_ptrs[i]->assemble_bilinear_forms ();
+  
+  // multigroup iterations
+  mg_iterations (sflx_proc, equ_ptrs);
 }
 
+// virtual function for all multigroup iteration method. It has to be overriden
+// per derived class of MGBase. If it's fixed source problem, it will be called
+// internally in do_iterations. Otherwise, it will be called externally in EigenBase
+// instances.
 template <int dim>
 void MGBase<dim>::mg_iterations
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std::vector<PETScWrappers::MPI::Vector*> &sys_rhses)
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {// this function needs to be overridden if JFNK is desired
-  
+  // by default, we give out Jacobi iteration scheme
   /*
   for (unsigned int g=0; g<n_group; ++g)
   {
@@ -48,33 +59,6 @@ void MGBase<dim>::mg_iterations
      win_ptr->solve_in_group (sys_mats,vec_aflx,sys_rhses)
    */
 }
-
-template <int dim>
-void MGBase<dim>::generate_system_matrices
-(std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
- std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr)
-{
-  equ_ptr->assemble_system ();
-}
-
-template <int dim>
-void MGBase<dim>::generate_group_rhses
-(std::vector<PETScWrappers::MPI::Vector*> &group_rhses, unsigned int &g)
-{// invoke win_ptr to assemble rhs per specific MG solver in derived class
-}
-
-/*
-template <int dim>
-void MGBase<dim>::iterate_over_groups
-(std::vector<PETScWrappers::MPI::Vector*> &group_rhses)
-{
-  for (unsigned int i=0; i<n_group; ++g)
-  {
-    generate_group_rhses (group_rhses, g);
-    win_ptr->solve_in_group (g);
-  }
-}
-*/
 
 template class MGBase<2>;
 template class MGBase<3>;

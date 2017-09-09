@@ -50,10 +50,45 @@ std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
  */
 template <int dim>
 std_cxx11::shared_ptr<EquationBase<dim> >
-build_transport_model (ParameterHandler &prm,
-                       const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+build_equation (std::string equation_name,
+                ParameterHandler &prm,
+                const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+
+/** \brief Build linear algebraic related stuffs for solving linear equations
+ */
+std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
+(ParameterHandler &prm,
+ std::string equation_name,
+ unsigned int& n_total_vars);
+
+/** \brief Build iterations to solve the transport problem with iterative methods
+ *
+ * This specific iteration classes according to method type will be further detailed
+ * inside Iteration<dim>::solve_problem. This class is designed as a buffer between
+ * BartDriver and specific iterative methods s.t. BartDriver will only "drive"
+ * without knowing what iterative methods are involved.
+ */
+template <int dim>
+std_cxx11::shared_ptr<Iterations<dim> > build_iterations
+(ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+
+template <int dim>
+std_cxx11::shared_ptr<EigenBase<dim> > build_eigen_iterations
+(ParameterHandler &prm);
+
+template <int dim>
+std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations
+(ParameterHandler &prm);
+
+template <int dim>
+std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations
+(ParameterHandler &prm);
+
 
 /** \brief Function to build angular quadrature for general dimensions
  *

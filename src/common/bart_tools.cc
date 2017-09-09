@@ -4,6 +4,7 @@
 #include <deal.II/base/mpi.h>
 
 #include "bart_tools.h"
+#include ""
 #include "../equations/even_parity.h"
 #include "../aqdata/aq_lsgc"
 
@@ -20,43 +21,55 @@ FE_Poly<TensorProductPolynomials<dim>,dim,dim>* build_finite_element
     return new FE_Q<dim> (p_order);
 }
 
-template <int dim>
-std_cxx11::shared_ptr<PreconditionerSolver> build_linalg (ParameterHandler &prm)
+std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
+(ParameterHandler &prm,
+ std::string equation_name,
+ unsigned int& n_total_vars)
 {
-  return std_cxx11::shared_ptr<PreconditionerSolver> (new PreconditionerSolver(prm));
+  return std_cxx11::shared_ptr<PreconditionerSolver>
+  (new PreconditionerSolver(prm, equation_name, n_total_vars));
+}
+
+template <int dim>
+std_cxx11::shared_ptr<Iterations<dim> > build_iterations
+(const ParameterHandler &prm,
+ const DoFHandler<dim> &dof_handler,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+{
+  return std_cxx11::shared_ptr<Iterations<dim> >
+  (new Iterations<dim> (prm, msh_ptr, aqd_ptr, mat_ptr));
 }
 
 template <int dim>
 std_cxx11::shared_ptr<MeshGenerator<dim> > build_mesh (ParameterHandler &prm)
 {
-  std_cxx11::shared_ptr<MeshGenerator<dim> > mesh_class =
-  std_cxx11::shared_ptr<MeshGenerator<dim> > (new MeshGenerator<dim>(prm));
-  return mesh_class;
+  return std_cxx11::shared_ptr<MeshGenerator<dim> >
+  (new MeshGenerator<dim>(prm));
 }
 
 std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
 {
-  std_cxx11::shared_ptr<MaterialProperties> material_class =
-  std_cxx11::shared_ptr<MaterialProperties> (new MaterialProperties (prm));
-  return material_class;
+  return std_cxx11::shared_ptr<MaterialProperties>
+  (new MaterialProperties (prm));
 }
 
 template <int dim>
-std_cxx11::shared_ptr<EquationBase<dim> > build_transport_model
-(ParameterHandler &prm,
+std_cxx11::shared_ptr<EquationBase<dim> > build_equation
+(std::string space_angle_solver_name,
+ ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
-  std::string transport_model_name = prm.get ("transport model");
-  AssertThrow (transport_model_name!="none",
-               ExcMessage("transport model name incorrect or missing"));
-  std_cxx11::shared_ptr<EquationBase<dim> > transport_class;
+  // TODO: add NDA to it after having NDA class
+  std_cxx11::shared_ptr<EquationBase<dim> > equation_pointer;
   if (transport_model_name=="ep")
-    equation_class =
+    equation_pointer =
     std_cxx11::shared_ptr<EquationBase<dim> >
     (new EvenParity<dim> (prm, msh_ptr, aqd_ptr, mat_ptr));
-  return equation_class;
+  return equation_pointer;
 }
 
 template <int dim>
@@ -66,10 +79,44 @@ build_aq_model (ParameterHandler &prm)
   std::string aq_name = prm.get ("angular quadrature name");
   AssertThrow (aq_name!="none",
                ExcMessage("angular quadrature name incorrect or missing"));
-  std_cxx11::shared_ptr<AQBase<dim> > aq_class;
+  std_cxx11::shared_ptr<AQBase<dim> > aq_pointer;
   if (aq_name=="lsgc")
-    aq_class = std_cxx11::shared_ptr<AQBase<dim> > (new LSGC<dim>(prm));
-  return aq_class;
+    aq_pointer = std_cxx11::shared_ptr<AQBase<dim> > (new LSGC<dim>(prm));
+  return aq_pointer;
+}
+
+/** \brief Function used to build pointer to instance of InGroupBase's derived class
+ */
+template <int dim>
+std_cxx11::shared_ptr<EigenBase<dim> > build_eigen_iterations (ParameterHandler &prm)
+{
+  // TODO: we only have power iteration now, change later once we need to choose
+  // different in group solvers
+  bool do_nda = prm.get_bool ("do NDA");
+  if (!do_nda)
+    return std_cxx11::shared_ptr<EigenBase<dim> >
+    (new PowerIteration<dim> (prm));
+}
+
+/** \brief Function used to build pointer to instance of MGBase's derived class
+ */
+template <int dim>
+std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations (ParameterHandler &prm)
+{
+  // TODO: fill this up once we have derived class of MGBase
+}
+
+/** \brief Function used to build pointer to instance of InGroupBase's derived class
+ */
+template <int dim>
+std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations (ParameterHandler &prm)
+{
+  // TODO: we only have source iteration now, change later once we need to choose
+  // different in group solvers
+  bool do_nda = prm.get_bool ("do NDA");
+  if (!do_nda)
+    return std_cxx11::shared_ptr<InGroupBase<dim> >
+    (new SourceIteration<dim> (prm));
 }
 
 void radio (std::string str)
@@ -115,9 +162,18 @@ void radio ()
   pout << "-------------------------------------" << std::endl << std::endl;
 }
 
-template std_cxx11::shared_ptr<EquationBase<2> > build_transport_model;
-template std_cxx11::shared_ptr<EquationBase<3> > build_transport_model;
+template std_cxx11::shared_ptr<Iterations<2> > build_iterations;
+template std_cxx11::shared_ptr<Iterations<3> > build_iterations;
+template std_cxx11::shared_ptr<EquationBase<2> > build_equation;
+template std_cxx11::shared_ptr<EquationBase<3> > build_equation;
 template std_cxx11::shared_ptr<AQBase<2> > build_aq_model;
 template std_cxx11::shared_ptr<AQBase<3> > build_aq_model;
 template std_cxx11::shared_ptr<MeshGenerator<2> > build_mesh;
 template std_cxx11::shared_ptr<MeshGenerator<3> > build_mesh;
+template std_cxx11::shared_ptr<EigenBase<2> > build_eigen_iterations;
+template std_cxx11::shared_ptr<EigenBase<3> > build_eigen_iterations;
+template std_cxx11::shared_ptr<MGBase<2> > build_mg_iterations;
+template std_cxx11::shared_ptr<MGBase<3> > build_mg_iterations;
+template std_cxx11::shared_ptr<InGroupBase<2> > build_ig_iterations;
+template std_cxx11::shared_ptr<InGroupBase<3> > build_ig_iterations;
+

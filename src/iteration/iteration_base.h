@@ -1,18 +1,20 @@
 #ifndef __iteration_base_h__
 #define __iteration_base_h__
 
+#include <deal.II/base/parameter_handler.h>
+
 using namespace dealii;
 
 template <int dim>
 class IterationBase
 {
 public:
-  IterationBase ();
+  IterationBase (ParameterHandler &prm);
   virtual ~IterationBase ();
   
-  virtual void do_iterations ();
-  virtual void assemble_system
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats);
+  virtual void do_iterations
+  (std::vector<Vector<double> > &sflx_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
   
 protected:
   /** \brief Function to measure the relative difference between two sets of PETSc
@@ -54,21 +56,11 @@ protected:
   double estimate_phi_diff
   (Vector<double> &phi_newer, Vector<double> &phi_older);
   
-  std_cxx11::shared_ptr<EquationBase<dim> > trm_ptr;
-  std_cxx11::shared_ptr<EquationBase<dim> > nda_ptr;
-  
-  void initialize_equations ();
-  
-  std_cxx11::shared_ptr<EquationBase<dim> > tra_ptr;
-  std_cxx11::shared_ptr<EquationBase<dim> > nda_ptr;
-  
   double total_calculation_time; /**< total time for calculations including assembly of rhs*/
   unsigned int ct_ho_iters; /**< HO iteration counts*/
   unsigned int ct_nda_iters; /**< NDA iteration counts*/
   
-  std::vector<Vector<double> > sflx_proc;
-  std::vector<Vector<double> > sflx_proc_prev_gen;
-  std::vector<Vector<double> > lo_sflx_proc;
+  //std::vector<Vector<double> > sflx_proc;
 }
 
 #endif // __iteration_base_h__

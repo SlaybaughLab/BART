@@ -1,5 +1,5 @@
-#ifndef __transport_base_h__
-#define __transport_base_h__
+#ifndef __equation_base_h__
+#define __equation_base_h__
 #include <deal.II/lac/generic_linear_algebra.h>
 
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
@@ -46,13 +46,19 @@ class EquationBase
 {
 public:
   // For SN and NDA (NDA still needs quadrature to calculate corrections)
-  EquationBase (ParameterHandler &prm,
-                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                 const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+  EquationBase (std::string equation_name,
+                const ParameterHandler &prm,
+                const DoFHandler<dim> &dof_handler
+                const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
-  // For diffusion (future work for someone)
-  EquationBase (ParameterHandler &prm,
+  // TODO: for diffusion (future work for someone)
+  // instead of previous constructor, diffusion overrides a constructor without
+  // asking for AQ instance.
+  EquationBase (std::string equation_name,
+                const ParameterHandler &prm,
+                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
   
@@ -60,20 +66,21 @@ public:
   
   void run ();
   
-  virtual void assemble_bilinear_form
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
+  virtual void assemble_bilinear_form ();
   
-  virtual void assemble_volume_boundary_bilinear_form
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
+  virtual void assemble_volume_boundary_bilinear_form ();
   
-  virtual void assemble_interface_bilinear_form
-  (std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats);
+  virtual void assemble_interface_bilinear_form ();
+  
+  void assemble_closure_bilinear_form
+  (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr);
+  
+  virtual void assemble_linear_form
+  (std::vector<Vector<double> > &sflx_this_proc,
+   unsigned int &g);
+  
+  virtual void assemble_fixed_linear_form
+  (std::vector<Vector<double> > &sflx_prev);
   
   virtual void pre_assemble_cell_matrices
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -131,65 +138,52 @@ public:
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    Vector<double> &cell_rhses,
-   std::vector<PETScWrappers::MPI::Vector*> &vec_aflxs,
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  virtual void generate_moments
-  (std::vector<Vector<double>*> &vec_ho_sflx,
-   std::vector<Vector<double>*> &vec_ho_sflx_old,
-   std::vector<Vector<double>*> &sflx_proc);
   virtual void postprocess ();
+  
   virtual void assemble_linear_form ();
+  
   virtual void assemble_fixed_linear_form ();
-  (std::vector<PETScWrappers::MPI::Vector*> &vec_ho_fixed_rhs,
-   std::vector<Vector<double> > &sflx_this_proc);
+  (std::vector<Vector<double> > &sflx_this_proc);
+  
+  virtual void solve_in_group (const unsigned int &g);
+  
+  virtual void prepare_cell_corrections
+  (const std::vector<std::vector<Tensor<1, dim> > > &ho_cell_dpsi,
+   const std::vector<Tensor<1, dim> > &ho_cell_dphi,
+   const std::vector<double> &ho_cell_phi,
+   std::vector<Tensor<1, dim> > &cell_corrections);
+  
+  virtual void prepare_boundary_corrections
+  (const std::vector<double> &ho_cell_psi
+   std::vector<double> &boundary_corrections);
+  
+  void initialize_system_matrices_vectors (SparsityPatternType &dsp, IndexSet &local_dofs);
+  
+  void initialize_preconditioners ();
+  
+  void generate_moments
+  (std::vector<Vector<double> > &sflx,
+   std::vector<Vector<double> > &sflx_old);
+  
+  void generate_moments
+  (std::vector<Vector<double> > &sflx,
+   std::vector<Vector<double> > &sflx_old,
+   const unsigned int &g);
+  
+  void generate_ho_sflx
+  (std::vector<Vector<double> > &ho_aflx_proc,
+   std::vector<Vector<double> > &ho_sflx_proc);
+  
+  void get_ho_aflx (std::vector<Vector> &ho_aflx_proc);
   
   // override this three functions in derived classes
   // these functions have to be redefined when using diffusion, NDA, PN, SPN
   virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
   virtual unsigned int get_component_direction (unsigned int comp_ind);
   virtual unsigned int get_component_group (unsigned int comp_ind);
-  
-private:
-  void setup_system ();
-  void generate_globally_refined_grid ();
-  void report_system ();
-  void print_angular_quad ();
-  
-  // void setup_lo_system();
-  void setup_boundary_ids ();
-  void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
-                      std::vector<double> &local_mfps);
-  
-  void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                      const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                      const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  void initialize_system_matrices_vectors ();
-  void prepare_correction_aflx ();
-  void initialize_fiss_process ();
-  void update_ho_moments_in_fiss ();
-  void update_fiss_source_keff ();
-  void source_iteration ();
-  void scale_fiss_transfer_matrices ();
-  void renormalize_sflx (std::vector<LA::MPI::Vector*> &target_sflxes);
-  void initialize_aq (ParameterHandler &prm);
-  void initialize_assembly_related_objects
-  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
-  
-  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
-  
-  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
-  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
-  std_cxx11::shared_ptr<PreconditionerSolver> sol_ptr;
-  
-  std::string transport_model_name;
-  std::string ho_linear_solver_name;
-  std::string ho_preconditioner_name;
-  std::string discretization;
-  std::string namebase;
-  std::string aq_name;
-  
 protected:
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
@@ -229,11 +223,10 @@ protected:
   unsigned int p_order;
   unsigned int global_refinements;
   
-  std::vector<unsigned int> linear_iters;
-  
+  std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
+  std::vector<bool> is_cell_at_bd;
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
-  
   
   std::vector<Tensor<1, dim> > omega_i;
   std::vector<double> wi;
@@ -259,6 +252,43 @@ protected:
   std::unordered_map<unsigned int, bool> is_material_fissile;
   
   std::set<unsigned int> fissile_ids;
+  
+private:
+  void setup_system ();
+  void generate_globally_refined_grid ();
+  void report_system ();
+  void print_angular_quad ();
+  
+  // void setup_lo_system();
+  void setup_boundary_ids ();
+  void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
+                      std::vector<double> &local_mfps);
+  
+  void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+                      const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+                      const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+  void source_iteration ();
+  void scale_fiss_transfer_matrices ();
+  void initialize_aq (ParameterHandler &prm);
+  
+  void initialize_assembly_related_objects
+  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
+  
+  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
+  
+  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
+  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
+  std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr;
+  
+  std::string equation_name;
+  std::string discretization;
+  
+  // related objects for current equation: matrices, vectors
+  std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats;
+  std::vector<PETScWrappers::MPI::Vector*> sys_rhses;
+  std::vector<PETScWrappers::MPI::Vector*> sys_fixed_rhses;
+  std::vector<PETScWrappers::MPI::Vector*> sys_aflxes;
+  std::vector<Vector<double> > aflxes_proc_prev;
 };
 
-#endif	// define  __transport_base_h__
+#endif	// define  __equation_base_h__

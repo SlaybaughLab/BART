@@ -1,12 +1,19 @@
 #include "iteration_base.h"
 
 template <int dim>
-IterationBase<dim>::IterationBase ()
+IterationBase<dim>::IterationBase (ParameterHandler &prm)
 {
 }
 
 template <int dim>
 IterationBase<dim>::~IterationBase ()
+{
+}
+
+template <int dim>
+void IterationBase<dim>::do_iterations
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
 }
 
@@ -78,9 +85,10 @@ void IterationBase<dim>::initialize_equations
  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
-  tra_ptr = build_transport_model (prm, msh_ptr, aqd_ptr, mat_ptr);
+  std::string space_angle_solver_name = prm.get("transport model");
+  tra_ptr = build_space_angle_solver (space_angle_solver_name,prm, msh_ptr, aqd_ptr, mat_ptr);
   if (do_nda)
-    nda_ptr = build_nda (prm, msh_ptr, aqd_ptr, mat_ptr);
+    nda_ptr = build_space_angle_solver ("nda", prm, msh_ptr, aqd_ptr, mat_ptr);
 }
 
 template class IterationBase<2>;

@@ -2,13 +2,17 @@
 
 template <int dim>
 EvenParity<dim>::EvenParity
-(ParameterHandler &prm,
+(std::string equation_name,
+ const ParameterHandler &prm,
+ const DoFHandler<dim> &dof_handler
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 :
-EquationBase<dim>(prm, msh_ptr, aqd_ptr, mat_ptr)
+EquationBase<dim>(equation_name, prm, msh_ptr, aqd_ptr, mat_ptr)
 {
+  AssertThrow(equation_name=="ep",
+              ExcMessage("equation built incorrectly"));
   if (this->discretization=="dfem")
   {
     for (unsigned int i=0; i<this->n_dir; ++i)
@@ -52,8 +56,7 @@ void EvenParity<dim>::pre_assemble_cell_matrices
 
 template <int dim>
 void EvenParity<dim>::integrate_cell_bilinear_form
-(const std_cxx11::shared_ptr<FEValues<dim> > this->fv,
- typename DoFHandler<dim>::active_cell_iterator &cell,
+(typename DoFHandler<dim>::active_cell_iterator &cell,
  FullMatrix<double> &cell_matrix,
  std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
  std::vector<FullMatrix<double> > &collision_at_qp,
@@ -221,7 +224,7 @@ void EquationBase<dim>::integrate_scattering_linear_form
       q_at_qp[qi] += (this->all_sgis_per_ster[mid][gin][g] *
                       local_flx[qi]);
   }
-  
+
   for (unsigned int qi=0; qi<this->n_q; ++qi)
     for (unsigned int i=0; i<this->dofs_per_cell; ++i)
       cell_rhs(i) += (this->fv->shape_value(i,qi) *

@@ -35,14 +35,15 @@ p_order(prm.get_integer("finite element polynomial degree")),
 global_refinements(prm.get_integer("uniform refinements")),
 namebase(prm.get("output file name base")),
 ho_linear_solver_name(prm.get("HO linear solver name")),
-ho_preconditioner_name(prm.get("HO preconditioner name")),
-itr_cls(prm),
+ho_preconditioner_name(prm.get("HO preconditioner name"))
 {
+  
   aqd_ptr = build_aq_model (prm)
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();
   msh_ptr = build_mesh (prm);
+  mat_ptr = build_material (prm);
   fe = build_finite_element (prm);
 }
 
@@ -81,18 +82,12 @@ template <int dim>
 void BartDriver<dim>::setup_system ()
 {
   radio ("setup system");
-  initialize_dealii_objects ();
-}
-
-template <int dim>
-void BartDriver<dim>::initialize_dealii_objects ()
-{
   dof_handler.distribute_dofs (*fe);
-
+  
   local_dofs = dof_handler.locally_owned_dofs ();
   DoFTools::extract_locally_relevant_dofs (dof_handler,
                                            relevant_dofs);
-
+  
   constraints.clear ();
   constraints.reinit (relevant_dofs);
   DoFTools::make_hanging_node_constraints (dof_handler,
@@ -119,7 +114,8 @@ void BartDriver<dim>::initialize_dealii_objects ()
    MPI_COMM_WORLD,
    relevant_dofs);
   
-  itr_cls.initialize_system_matrices_vectors (dsp, local_dofs);
+  itr_ptr = build_iterations (prm, dof_handler, msh_ptr, aqd_ptr, mat_ptr);
+  itr_ptr->initialize_system_matrices_vectors (dsp, local_dofs);
 }
 
 template <int dim>
@@ -129,9 +125,6 @@ void BartDriver<dim>::output_results () const
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
 
-  itr_cls.get_keff (keff);
-  itr_cls.get_flux_this_proc (sflx_proc);
-  
   data_out.add_data_vector (keff, "keff");
   for (unsigned int g=0; g<n_group; ++g)
   {
@@ -173,8 +166,10 @@ void BartDriver<dim>::run ()
   msh_ptr->make_grid (triangulation);
   setup_system ();
   report_system ();
-  itr_cls.solve_problems (msh_ptr, aqd_ptr, sflx_proc);
-  itr_cls.get_keff (keff);
+  // solve the problem using iterative methods specified in Iterations class
+  itr_ptr->solve_problems (local_cells, is_cell_at_bd, sflx_proc);
+  if (is_eigen_problem)
+    itr_ptr->get_keff (keff);
   output_results ();
 }
 

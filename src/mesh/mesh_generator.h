@@ -21,9 +21,7 @@ public:
   void get_relevant_cell_iterators
   (DoFHandler<dim> &dof_handler,
    std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
-   std::vector<typename DoFHandler<dim>::active_cell_iterator> &ref_bd_cells,
-   std::vector<bool> &is_cell_at_bd,
-   std::vector<bool> &is_cell_at_ref_bd);
+   std::vector<bool> &is_cell_at_bd);
   unsigned int get_uniform_refinement ();
   std::map<std::vector<unsigned int>, unsigned int> get_id_map ();
   std::unordered_map<unsigned int, bool> get_reflective_bc_map ();
