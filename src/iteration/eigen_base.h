@@ -1,14 +1,17 @@
 #ifndef __eigen_base_h__
 #define __eigen_base_h__
 
+#include "iteration_base.h"
+
 template <int dim>
 class EigenBase : public IterationBase
 {
 public:
-  EigenBase ();
+  EigenBase (ParameterHandler &prm);
   virtual ~EigenBase ();
   
   virtual void do_iterations ();
+  
   virtual void eigen_iterations ();
   
   double get_keff ();
@@ -20,6 +23,8 @@ protected:
   
   const double err_k_tol;
   const double err_phi_tol;
+  
+  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
   
   double keff;
   double keff_prev;

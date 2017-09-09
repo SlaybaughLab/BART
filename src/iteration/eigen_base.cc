@@ -1,11 +1,13 @@
 #include "eigen_base.h"
+#include "mg_base.h"
 
 template <int dim>
-EigenBase<dim>::EigenBase () : IterationBase<dim> (),
+EigenBase<dim>::EigenBase (ParameterHandler &prm) : IterationBase<dim> (prm),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-5),
 keff(1.0)
 {
+  mg_ptr = build_mg_iterations (prm);
 }
 
 template <int dim>
@@ -15,39 +17,48 @@ EigenBase<dim>::~EigenBase ()
 
 template <int dim>
 EigenBase<dim>::do_iterations
-(ParameterHandler &prm,
- std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
- std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
- std_cxx11::shared_ptr<MaterialProperties> mat_ptr,
- std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats)
+void MGBase<dim>::do_iterations
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  this->initialize_equations (prm, msh_ptr, aqd_ptr, mat_ptr);
-  eigen_iterations (msh_ptr, aqd_ptr, mat_ptr, sys_mats);
+  // assemble system matrices
+  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
+    equ_ptrs[i]->assemble_bilinear_form ();
+  
+  // initialize fission process
+  initialize_fiss_process (sflx_proc, equ_ptrs);
+  
+  // perform eigenvalue iterations
+  eigen_iterations (sflx_proc, equ_ptrs);
 }
 
 template <int dim>
-void EigenBase<dim>::generate_system_matrices
-(std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats)
-{
-  // EquationBase will be instantiated in InGroupBase
-  mgs_ptr->generate_system_matrices (sys_mats);
-}
-
-template <int dim>
-void EigenBase<dim>::initialize_fiss_process ()
+void EigenBase<dim>::initialize_fiss_process
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
   for (unsigned int g=0; g<n_group; ++g)
-    this->sflx_proc[g] = 1.0;
+    sflx_proc[g] = 1.0;
   
-  fission_source = this->trm_ptr->estimate_fiss_source (this->sflx_proc);
+  fission_source = equ_ptrs[0]->estimate_fiss_source (this->sflx_proc);
+}
+
+// Override this function to do specific eigenvalue iteration as desired
+template <int dim>
+void EigenBase<dim>::eigen_iterations
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+{
 }
 
 template <int dim>
-void EigenBase<dim>::update_fiss_source_keff ()
+void EigenBase<dim>::update_fiss_source_keff
+(std::vector<Vector<double> > &sflx_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  keff_prev_gen = keff;
-  fission_source_prev_gen = fission_source;
-  fission_source = trm_ptr->estimate_fiss_source (sflx_proc);
+  keff_prev = keff;
+  fission_source_prev = fission_source;
+  fission_source = equ_ptrs[0]->estimate_fiss_source (sflx_proc);
   keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
 }
 
@@ -60,15 +71,9 @@ double EigenBase<dim>::estimate_k (double &fiss_source,
 }
 
 template <int dim>
-double EigenBase<dim>::estimate_k_err (double &k, double &k_prev)
+double EigenBase<dim>::estimate_k_diff (double &k, double &k_prev)
 {
   return std::fabs (k - k_prev)/k;
-}
-
-template <int dim>
-void EigenBase<dim>::eigen_iteration (double &keff,
-                                     std_cxx11::shared_ptr<MGSolver<dim> > mgs_ptr)
-{
 }
 
 template <int dim>

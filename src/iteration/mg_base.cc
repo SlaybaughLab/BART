@@ -1,10 +1,11 @@
 #include "mg_base.h"
 
 template <int dim>
-MGBase<dim>::MGBase ()
-: IterationBase<dim> (),
+MGBase<dim>::MGBase (ParameterHandler &prm)
+: IterationBase<dim> (prm),
 err_phi_tol(1.0e-5)
 {
+  ig_ptr = build_ig_iteration (prm);
 }
 
 template <int dim>
@@ -14,29 +15,27 @@ MGBase<dim>::~MGBase ()
 
 template <int dim>
 void MGBase<dim>::do_iterations
-(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd,
+(std::vector<Vector<double> > &sflx_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  // assemble bilinear form of transport equation
-  equ_ptrs[0]->assemble_bilinear_forms (local_cells, is_cell_at_bd);
-  // assemble NDA bilinear form if do_nda
-  if (do_nda)
-    equ_ptrs[1]->assemble_bilinear_forms (local_cells, is_cell_at_bd);
+  // assemble bilinear forms of available equations
+  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
+    equ_ptrs[i]->assemble_bilinear_forms ();
+  
   // multigroup iterations
-  mg_iterations (local_cells, is_cell_at_bd, equ_ptrs);
+  mg_iterations (sflx_proc, equ_ptrs);
 }
 
+// virtual function for all multigroup iteration method. It has to be overriden
+// per derived class of MGBase. If it's fixed source problem, it will be called
+// internally in do_iterations. Otherwise, it will be called externally in EigenBase
+// instances.
 template <int dim>
 void MGBase<dim>::mg_iterations
-(std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd,
+(std::vector<Vector<double> > &sflx_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {// this function needs to be overridden if JFNK is desired
   // by default, we give out Jacobi iteration scheme
-  for (unsigned int g=0; g<n_group; <#increment#>) {
-    <#statements#>
-  }
   /*
   for (unsigned int g=0; g<n_group; ++g)
   {

@@ -43,6 +43,8 @@ template <int dim>
 void Iterations<dim>::initialize_system_matrices_vectors
 (SparsityPatternType &dsp, IndexSet &local_dofs)
 {
+  // each equation pointer contains system matrices and vectors from PETSc, per se
+  // This function is to tell the shapes and sizes of those vectors and matrices
   for (unsigned int i=0; i<equ_ptrs.size(); ++i)
     equ_ptrs[i]->initialize_system_matrices_vectors (dsp, local_dofs);
 }
@@ -53,25 +55,22 @@ void Iterations<dim>::solve_problems (std::vector<Vector<double> > &sflx_proc)
   if (is_eigen_problem)
   {
     std_cxx11::shared_ptr<EigenBase<dim> > pro_ptr = build_eigen_problem (prm);
-    pro_ptr->do_iterations (local_cells, is_cell_at_bd, sflx_proc, equ_ptrs);
+    pro_ptr->do_iterations (sflx_proc, equ_ptrs);
     pro_ptr->get_keff (keff);
   }
   else
   {
     std_cxx11::shared_ptr<MGBase<dim> > pro_ptr = build_mg_problem (prm);
-    pro_ptr->do_iterations (local_cells, is_cell_at_bd, sflx_proc, equ_ptrs);
+    pro_ptr->do_iterations (sflx_proc, equ_ptrs);
   }
 }
-
-template <int dim>
-void Iterations<dim>
 
 template <int dim>
 void Iterations<dim>::get_keff (double &k)
 {
   AssertThrow (is_eigen_problem,
                ExcMessage("Only eigen problems have keff"));
-  k = this->keff;
+  k = keff;
 }
 
 // explicit instantiation to avoid linking error

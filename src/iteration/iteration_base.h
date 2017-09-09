@@ -1,18 +1,20 @@
 #ifndef __iteration_base_h__
 #define __iteration_base_h__
 
+#include <deal.II/base/parameter_handler.h>
+
 using namespace dealii;
 
 template <int dim>
 class IterationBase
 {
 public:
-  IterationBase ();
+  IterationBase (ParameterHandler &prm);
   virtual ~IterationBase ();
   
-  virtual void do_iterations ();
-  virtual void assemble_system
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats);
+  virtual void do_iterations
+  (std::vector<Vector<double> > &sflx_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
   
 protected:
   /** \brief Function to measure the relative difference between two sets of PETSc

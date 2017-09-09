@@ -72,14 +72,15 @@ public:
   
   virtual void assemble_interface_bilinear_form ();
   
+  void assemble_closure_bilinear_form
+  (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr);
+  
   virtual void assemble_linear_form
   (std::vector<Vector<double> > &sflx_this_proc,
    unsigned int &g);
   
   virtual void assemble_fixed_linear_form
   (std::vector<Vector<double> > &sflx_prev);
-  
-  
   
   virtual void pre_assemble_cell_matrices
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -140,26 +141,49 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  virtual void generate_moments
-  (std::vector<Vector<double>*> &vec_ho_sflx,
-   std::vector<Vector<double>*> &vec_ho_sflx_old,
-   std::vector<Vector<double>*> &sflx_proc);
   virtual void postprocess ();
+  
   virtual void assemble_linear_form ();
+  
   virtual void assemble_fixed_linear_form ();
   (std::vector<Vector<double> > &sflx_this_proc);
+  
+  virtual void solve_in_group (const unsigned int &g);
+  
+  virtual void prepare_cell_corrections
+  (const std::vector<std::vector<Tensor<1, dim> > > &ho_cell_dpsi,
+   const std::vector<Tensor<1, dim> > &ho_cell_dphi,
+   const std::vector<double> &ho_cell_phi,
+   std::vector<Tensor<1, dim> > &cell_corrections);
+  
+  virtual void prepare_boundary_corrections
+  (const std::vector<double> &ho_cell_psi
+   std::vector<double> &boundary_corrections);
+  
+  void initialize_system_matrices_vectors (SparsityPatternType &dsp, IndexSet &local_dofs);
+  
+  void initialize_preconditioners ();
+  
+  void generate_moments
+  (std::vector<Vector<double> > &sflx,
+   std::vector<Vector<double> > &sflx_old);
+  
+  void generate_moments
+  (std::vector<Vector<double> > &sflx,
+   std::vector<Vector<double> > &sflx_old,
+   const unsigned int &g);
+  
+  void generate_ho_sflx
+  (std::vector<Vector<double> > &ho_aflx_proc,
+   std::vector<Vector<double> > &ho_sflx_proc);
+  
+  void get_ho_aflx (std::vector<Vector> &ho_aflx_proc);
   
   // override this three functions in derived classes
   // these functions have to be redefined when using diffusion, NDA, PN, SPN
   virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
   virtual unsigned int get_component_direction (unsigned int comp_ind);
   virtual unsigned int get_component_group (unsigned int comp_ind);
-  
-  void initialize_system_matrices_vectors (SparsityPatternType &dsp, IndexSet &local_dofs);
-  
-  void initialize_preconditioners
-  (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-   std::vector<PETScWrappers::MPI::Vector*> &sys_rhses);
 protected:
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
@@ -243,10 +267,6 @@ private:
   void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  void prepare_correction_aflx ();
-  void initialize_fiss_process ();
-  void update_ho_moments_in_fiss ();
-  void update_fiss_source_keff ();
   void source_iteration ();
   void scale_fiss_transfer_matrices ();
   void initialize_aq (ParameterHandler &prm);

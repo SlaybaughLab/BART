@@ -224,7 +224,7 @@ void EquationBase<dim>::integrate_scattering_linear_form
       q_at_qp[qi] += (this->all_sgis_per_ster[mid][gin][g] *
                       local_flx[qi]);
   }
-  
+
   for (unsigned int qi=0; qi<this->n_q; ++qi)
     for (unsigned int i=0; i<this->dofs_per_cell; ++i)
       cell_rhs(i) += (this->fv->shape_value(i,qi) *
