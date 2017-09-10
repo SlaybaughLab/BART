@@ -109,13 +109,13 @@ std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations (ParameterHandler &prm)
 /** \brief Function used to build pointer to instance of InGroupBase's derived class
  */
 template <int dim>
-std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations (ParameterHandler &prm)
+std_cxx11::shared_ptr<IGBase<dim> > build_ig_iterations (ParameterHandler &prm)
 {
   // TODO: we only have source iteration now, change later once we need to choose
   // different in group solvers
   bool do_nda = prm.get_bool ("do NDA");
   if (!do_nda)
-    return std_cxx11::shared_ptr<InGroupBase<dim> >
+    return std_cxx11::shared_ptr<IGBase<dim> >
     (new SourceIteration<dim> (prm));
 }
 

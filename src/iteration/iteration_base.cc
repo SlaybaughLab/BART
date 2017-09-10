@@ -2,6 +2,9 @@
 
 template <int dim>
 IterationBase<dim>::IterationBase (ParameterHandler &prm)
+:
+n_group(prm.get_integer("number of groups")),
+do_nda(prm.get_bool("do NDA"))
 {
 }
 
@@ -16,6 +19,11 @@ void IterationBase<dim>::do_iterations
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
 }
+
+// *****************************************************************************
+// The following section are four member functions used to estimate difference
+// between two vectors. The difference estimation is based on L1 norm.
+// *****************************************************************************
 
 template <int dim>
 double IterationBase<dim>::estimate_phi_diff
@@ -56,11 +64,11 @@ double IterationBase<dim>::estimate_phi_diff
   {
     Vector<double> dif = phis1[g];
     dif -= phis2[g];
-    double local_norminator = dif.l1_norm ();
-    double norminator = Utilities::MPI::sum (local_norminator, MPI_COMM_WORLD);
+    double local_numerator = dif.l1_norm ();
+    double numerator = Utilities::MPI::sum (local_numerator, MPI_COMM_WORLD);
     double local_denorminator = phis1[g].l1_norm ();
     double denorminator = Utilities::MPI::sum (local_denorminator, MPI_COMM_WORLD);
-    err = std::max(err, norminator/denorminator);
+    err = std::max(err, numerator/denorminator);
   }
   return err;
 }
@@ -71,24 +79,11 @@ double IterationBase<dim>::estimate_phi_diff
 {
   Vector<double> dif = phi1;
   dif -= phi2;
-  double local_norminator = dif.l1_norm ();
-  double norminator = Utilities::MPI::sum (local_norminator, MPI_COMM_WORLD);
+  double local_numerator = dif.l1_norm ();
+  double numerator = Utilities::MPI::sum (local_numerator, MPI_COMM_WORLD);
   double local_denorminator = phi1.l1_norm ();
   double denorminator = Utilities::MPI::sum (local_denorminator, MPI_COMM_WORLD);
-  return norminator / denorminator;
-}
-
-template <int dim>
-void IterationBase<dim>::initialize_equations
-(ParameterHandler &prm,
- std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
- std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
- std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
-{
-  std::string space_angle_solver_name = prm.get("transport model");
-  tra_ptr = build_space_angle_solver (space_angle_solver_name,prm, msh_ptr, aqd_ptr, mat_ptr);
-  if (do_nda)
-    nda_ptr = build_space_angle_solver ("nda", prm, msh_ptr, aqd_ptr, mat_ptr);
+  return numerator / denorminator;
 }
 
 template class IterationBase<2>;

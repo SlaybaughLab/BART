@@ -11,8 +11,8 @@ public:
   ~PowerIteration ();
   
   void eigen_iterations
-  (std::vector<Vector<double> > &sflx_proc,
-   std::vector<std_cxx>)
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > equ_ptrs);
 }
 
 #endif //__power_iteration_h__

@@ -3,6 +3,8 @@
 
 #include <deal.II/base/parameter_handler.h>
 
+#include "../equation/equation_base.h"
+
 using namespace dealii;
 
 template <int dim>
@@ -56,11 +58,12 @@ protected:
   double estimate_phi_diff
   (Vector<double> &phi_newer, Vector<double> &phi_older);
   
-  double total_calculation_time; /**< total time for calculations including assembly of rhs*/
+  const unsigned int n_group;
+  const bool do_nda;
+  
+  double total_calculation_time; /**< total time for calculations+assemblies*/
   unsigned int ct_ho_iters; /**< HO iteration counts*/
   unsigned int ct_nda_iters; /**< NDA iteration counts*/
-  
-  //std::vector<Vector<double> > sflx_proc;
 }
 
 #endif // __iteration_base_h__

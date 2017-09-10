@@ -10,28 +10,35 @@ public:
   EigenBase (ParameterHandler &prm);
   virtual ~EigenBase ();
   
-  virtual void do_iterations ();
+  virtual void do_iterations
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
   
-  virtual void eigen_iterations ();
+  virtual void eigen_iterations
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
   
-  double get_keff ();
+  virtual void update_prev_sflxes_fiss_src_keff
+  (std::vector<Vector<double> >&sflxes_proc);
   
+  void get_keff (double &k);
+
 protected:
-  double estimate_fission_source (std::vector<Vector<double> > &sflx_proc);
-  double estimate_k (double &fiss_src, double &fiss_src_prev, double &k_prev);
-  double estimate_k_err (double &k, double &k_prev);
-  
+  double estimate_fiss_src (std::vector<Vector<double> > &sflxes_proc);
+  double estimate_k ();
+  double estimate_k_err ();
+
   const double err_k_tol;
   const double err_phi_tol;
-  
-  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
-  
+
   double keff;
   double keff_prev;
-  double fiss_source;
-  double fiss_source_prev;
+  double fiss_src;
+  double fiss_src_prev;
+
+  std::vector<Vector<double> > sflxes_proc_prev_eigen;
   
-  std::vector<Vector<double> > sflxes_proc_prev_fiss;
+  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
 }
 
 #endif //__eigen_base_h__

@@ -1,8 +1,7 @@
 #ifndef __mg_base_h__
 #define __mg_base_h__
 
-#include "../transport/equation_base.h"
-#include "in_group_base.h"
+#include "ig_base.h"
 
 using namespace dealii;
 
@@ -23,7 +22,7 @@ public:
 protected:
   const double err_phi_tol;
   
-  std_cxx11::shared_ptr<InGroupBase<dim> > ig_ptr;
+  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr;
   
   std::vector<Vector<double> > sflxes_proc_prev_mg;
 }

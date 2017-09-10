@@ -2,9 +2,12 @@
 
 template <int dim>
 MGBase<dim>::MGBase (ParameterHandler &prm)
-: IterationBase<dim> (prm),
+:
+IterationBase<dim> (prm),
 err_phi_tol(1.0e-5)
 {
+  // TODO: needs change if anisotropic scattering is needed
+  sflxes_proc_prev_mg.resize (this->n_group);
   ig_ptr = build_ig_iteration (prm);
 }
 
@@ -15,13 +18,17 @@ MGBase<dim>::~MGBase ()
 
 template <int dim>
 void MGBase<dim>::do_iterations
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
+  if (this->do_nda)
+    AssertThrow (equ_ptrs.size==2,
+                 ExcMessage("There should be two equation pointers if do NDA"));
   // assemble bilinear forms of available equations
   for (unsigned int i=0; i<equ_ptrs.size(); ++i)
     equ_ptrs[i]->assemble_bilinear_forms ();
-  
+  if (this->do_nda)
+    equ_ptrs[1]->assemble_closure_bilinear_form (equ_ptrs[0]);
   // multigroup iterations
   mg_iterations (sflx_proc, equ_ptrs);
 }

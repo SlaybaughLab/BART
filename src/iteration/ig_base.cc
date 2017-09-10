@@ -1,20 +1,20 @@
-#include "in_group_base.h"
+#include "ig_base.h"
 
 template <int dim>
-InGroupBase<dim>::InGroupBase ()
+IGBase<dim>::IGBase (ParameterHandler &prm)
 :
-IterationBase<dim> (),
+IterationBase<dim> (prm),
 err_phi_tol(1.0e-6)
 {
 }
 
 template <int dim>
-InGroupBase<dim>::~InGroupBase ()
+IGBase<dim>::~IGBase ()
 {
 }
 
 template <int dim>
-InGroupBase<dim>::solve_in_group
+IGBase<dim>::solve_in_group
 (std::vector<Vector<double> > &sflxes_proc,
  std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
  unsigned int &g)
@@ -22,9 +22,9 @@ InGroupBase<dim>::solve_in_group
 }
 
 template <int dim>
-SourceIteration<dim>::SourceIteration
+SourceIteration<dim>::SourceIteration (ParameterHandler &prm)
 :
-InGroupBase<dim> ()
+IGBase<dim> (prm)
 {
 }
 
@@ -48,5 +48,5 @@ SourceIteration<dim>::solve_in_group
   }
 }
 
-template class InGroupBase<2>;
-template class InGroupBase<3>;
+template class IGBase<2>;
+template class IGBase<3>;
