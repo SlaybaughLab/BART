@@ -53,7 +53,7 @@ public:
               const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   virtual ~Iterations ();
   
-  void solve_problems (std::vector<Vector<double> > &sflx_proc);
+  void solve_problems (std::vector<Vector<double> > &sflxes_proc);
   
   void initialize_system_matrices_vectors
   (SparsityPatternType &dsp, IndexSet &local_dofs);

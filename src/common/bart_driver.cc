@@ -130,7 +130,7 @@ void BartDriver<dim>::output_results () const
   {
     std::ostringstream os;
     os << "ho_phi_g_" << g;
-    data_out.add_data_vector (sflx_proc[g], os.str ());
+    data_out.add_data_vector (sflxes_proc[g], os.str ());
   }
 
   Vector<float> subdomain (triangulation.n_active_cells ());
@@ -167,7 +167,7 @@ void BartDriver<dim>::run ()
   setup_system ();
   report_system ();
   // solve the problem using iterative methods specified in Iterations class
-  itr_ptr->solve_problems (local_cells, is_cell_at_bd, sflx_proc);
+  itr_ptr->solve_problems (local_cells, is_cell_at_bd, sflxes_proc);
   if (is_eigen_problem)
     itr_ptr->get_keff (keff);
   output_results ();

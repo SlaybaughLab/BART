@@ -18,7 +18,7 @@ EigenBase<dim>::~EigenBase ()
 template <int dim>
 EigenBase<dim>::do_iterations
 void MGBase<dim>::do_iterations
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
   // assemble system matrices
@@ -26,40 +26,40 @@ void MGBase<dim>::do_iterations
     equ_ptrs[i]->assemble_bilinear_form ();
   
   // initialize fission process
-  initialize_fiss_process (sflx_proc, equ_ptrs);
+  initialize_fiss_process (sflxes_proc, equ_ptrs);
   
   // perform eigenvalue iterations
-  eigen_iterations (sflx_proc, equ_ptrs);
+  eigen_iterations (sflxes_proc, equ_ptrs);
 }
 
 template <int dim>
 void EigenBase<dim>::initialize_fiss_process
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
   for (unsigned int g=0; g<n_group; ++g)
-    sflx_proc[g] = 1.0;
+    sflxes_proc[g] = 1.0;
   
-  fission_source = equ_ptrs[0]->estimate_fiss_source (this->sflx_proc);
+  fission_source = equ_ptrs[0]->estimate_fiss_source (this->sflxes_proc);
 }
 
 // Override this function to do specific eigenvalue iteration as desired
 template <int dim>
 void EigenBase<dim>::eigen_iterations
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
 }
 
 template <int dim>
 void EigenBase<dim>::update_fiss_source_keff
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
   keff_prev = keff;
-  fission_source_prev = fission_source;
-  fission_source = equ_ptrs[0]->estimate_fiss_source (sflx_proc);
-  keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
+  fiss_source_prev = fission_source;
+  fiss_source = equ_ptrs[0]->estimate_fiss_source (sflxes_proc);
+  keff = estimate_k (fiss_source, fiss_source_prev, keff_prev_gen);
 }
 
 template <int dim>

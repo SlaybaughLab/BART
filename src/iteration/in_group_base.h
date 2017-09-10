@@ -12,14 +12,14 @@ public:
   
   // has to be provided
   virtual void solve_in_group
-  (std::vector<Vector<double> > &sflx_proc,
+  (std::vector<Vector<double> > &sflxes_proc,
    std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
    unsigned int &g);
   
 protected:
   const double err_phi_tol;
   
-  Vector<double> sflx_proc_old;
+  Vector<double> sflx_proc_prev_ig;
 };
 
 template <int dim>
@@ -30,7 +30,7 @@ public:
   ~SourceIteration ();
   
   void solve_in_group
-  (std::vector<Vector<double> > &sflx_proc,
+  (std::vector<Vector<double> > &sflxes_proc,
    std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
    unsigned int &g);
 };

@@ -20,14 +20,14 @@ void PowerIteration<dim>::eigen_iterations
   double err_k = 1.0;
   double err_phi = 1.0;
   this->initialize_fiss_process (sflx_proc, equ_ptrs);
-  while (err_k>err_k_tol || err_phi>err_phi_eigen_tol)
+  while (err_k>this->err_k_tol || err_phi>this->err_phi_tol)
   {
-    update_ho_moments_in_fiss ();
+    this->
     equ_ptrs[0]->scale_fiss_transfer_matrices (this->keff);
     equ_ptrs[0]->assemble_fixed_linear_form (sflx_proc);
     this->mg_ptr->mg_iterations (sflx_proc, equ_ptrs);
-    update_fiss_source_keff ();
-    err_phi = estimate_phi_diff (vec_ho_sflx, vec_ho_sflx_prev_gen);
+    this->update_fiss_source_keff ();
+    err_phi = estimate_phi_diff (sflx_proc, this->sflx_proc_old);
     err_k = this->estimate_k_diff (this->keff, this->keff_prev);
     pout
     << "PI iter: " << ct << ", k: " << keff

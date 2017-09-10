@@ -50,18 +50,18 @@ void Iterations<dim>::initialize_system_matrices_vectors
 }
 
 template <int dim>
-void Iterations<dim>::solve_problems (std::vector<Vector<double> > &sflx_proc)
+void Iterations<dim>::solve_problems (std::vector<Vector<double> > &sflxes_proc)
 {
   if (is_eigen_problem)
   {
     std_cxx11::shared_ptr<EigenBase<dim> > pro_ptr = build_eigen_problem (prm);
-    pro_ptr->do_iterations (sflx_proc, equ_ptrs);
+    pro_ptr->do_iterations (sflxes_proc, equ_ptrs);
     pro_ptr->get_keff (keff);
   }
   else
   {
     std_cxx11::shared_ptr<MGBase<dim> > pro_ptr = build_mg_problem (prm);
-    pro_ptr->do_iterations (sflx_proc, equ_ptrs);
+    pro_ptr->do_iterations (sflxes_proc, equ_ptrs);
   }
 }
 
