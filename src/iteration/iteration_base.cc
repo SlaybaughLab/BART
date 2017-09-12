@@ -4,6 +4,7 @@ template <int dim>
 IterationBase<dim>::IterationBase (ParameterHandler &prm)
 :
 n_group(prm.get_integer("number of groups")),
+is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA"))
 {
 }

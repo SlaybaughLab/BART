@@ -59,6 +59,7 @@ protected:
   (Vector<double> &phi_newer, Vector<double> &phi_older);
   
   const unsigned int n_group;
+  const bool is_eigen_problem;
   const bool do_nda;
   
   double total_calculation_time; /**< total time for calculations+assemblies*/
