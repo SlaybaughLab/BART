@@ -7,6 +7,7 @@ err_k_tol(1.0e-6),
 err_phi_tol(1.0e-5)
 {
   mg_ptr = build_mg_iterations (prm);
+  sflxes_proc_prev_eigen.resize (this->n_group);
 }
 
 template <int dim>
@@ -15,23 +16,11 @@ EigenBase<dim>::~EigenBase ()
 }
 
 template <int dim>
-EigenBase<dim>::do_iterations
-void MGBase<dim>::do_iterations
+void EigenBase<dim>::do_iterations
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  if (this->do_nda)
-    AssertThrow (equ_ptrs.size==2,
-                 ExcMessage("There should be two equation pointers if do NDA"));
-  // assemble system matrices for transport equation
-  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-    equ_ptrs[i]->assemble_bilinear_forms ();
-  if (this->do_nda)
-    equ_ptrs[1]->assemble_closure_bilinear_form (equ_ptrs[0]);
-  // initialize fission process
-  initialize_fiss_process (sflxes_proc, equ_ptrs);
-  // perform eigenvalue iterations
-  eigen_iterations (sflxes_proc, equ_ptrs);
+  // override this function per derived class. Will be called in Iterations class
 }
 
 template <int dim>
@@ -39,8 +28,6 @@ void EigenBase<dim>::initialize_fiss_process
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  // initialize sflxes with unit values
-  equ_ptrs[0]->initialize_sflxes_proc (sflxes_proc);
   // calculate fission source based on initial scalar fluxes
   fiss_src = equ_ptrs[0]->estimate_fiss_src (sflxes_proc);
   // initialize keff

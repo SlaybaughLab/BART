@@ -3,6 +3,8 @@
 
 #include "iteration_base.h"
 
+using namespace dealii;
+
 template <int dim>
 class EigenBase : public IterationBase
 {
