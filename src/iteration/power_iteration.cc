@@ -13,6 +13,34 @@ PowerIteration<dim>::~PowerIteration ()
 }
 
 template <int dim>
+void PowerIteration<dim>::do_iterations
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+{
+  if (this->do_nda)
+  {
+    AssertThrow (equ_ptrs.size==2,
+                 ExcMessage("There should be two equation pointers if do NDA"));
+    for (unsigned int i=0; i<equ_ptrs.size(); ++i)
+      equ_ptrs[i]->assemble_bilinear_forms ();
+    if (this->do_nda)
+      equ_ptrs.back()->assemble_closure_bilinear_form (equ_ptrs.front(), false);
+    // TODO: fill this up with NDA
+  }
+  else
+  {
+    AssertThrow (equ_ptrs.size==1,
+                 ExcMessage("There should be one equation without NDA"));
+    // assemble system matrices for transport equation
+    equ_ptrs.back()->assemble_bilinear_forms (sflxes_proc, equ_ptrs);
+    // initialize fission process
+    this->initialize_fiss_process (sflxes_proc, equ_ptrs);
+    // perform eigenvalue iterations
+    eigen_iterations (sflxes_proc, equ_ptrs);
+  }
+}
+
+template <int dim>
 void PowerIteration<dim>::eigen_iterations
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
@@ -24,9 +52,9 @@ void PowerIteration<dim>::eigen_iterations
     // update sflxes, fission source and keff from previous fission with current sflxes
     this->update_prev_sflxes_fiss_src_keff (sflxes_proc);
     // scale ksi_nu_sigf by a factor of keff
-    equ_ptrs[0]->scale_fiss_transfer_matrices (this->keff);
+    equ_ptrs.back()->scale_fiss_transfer_matrices (this->keff);
     // assemble fission source as a "fixed source"
-    equ_ptrs[0]->assemble_fixed_linear_form (sflxes_proc);
+    equ_ptrs.back()->assemble_fixed_linear_form (sflxes_proc);
     // perform multigroup iterations
     this->mg_ptr->mg_iterations (sflxes_proc, equ_ptrs);
     // calculate fission source and keff thereafter
@@ -35,7 +63,7 @@ void PowerIteration<dim>::eigen_iterations
     err_phi = this->estimate_phi_diff (sflxes_proc, this->sflxes_proc_prev_eigen);
     err_k = this->estimate_k_diff (this->keff, this->keff_prev);
     // print on screen about the errors
-    pcout << "PI iter err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
+    pout << "PI iter err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
   }
 }
 
