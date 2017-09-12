@@ -12,6 +12,7 @@
 #include "equation_base.h"
 #include "../aqdata/aq_base.h"
 #include "../aqdata/aq_lsgc.h"
+#include "../common/bart_tools.h"
 
 using namespace dealii;
 
@@ -45,6 +46,7 @@ ho_preconditioner_name(prm.get("HO preconditioner name"))
   msh_ptr = build_mesh (prm);
   mat_ptr = build_material (prm);
   fe = build_finite_element (prm);
+  sflxes_proc.resize (n_group);
 }
 
 template <int dim>
@@ -60,22 +62,22 @@ void BartDriver<dim>::report_system ()
   << "Number of angles: " << n_dir << std::endl
   << "Number of groups: " << n_group << std::endl;
 
-  radio ("Transport model", transport_model_name);
-  radio ("Spatial discretization", discretization);
-  radio ("HO linear solver", ho_linear_solver_name);
+  pout << "Transport model: " << transport_model_name << std::endl;
+  pout << "Spatial discretization: " << discretization << std::endl;
+  pout << "HO linear solver: " << ho_linear_solver_name << std::endl;
   if (ho_linear_solver_name!="direct")
-    radio ("HO preconditioner", ho_preconditioner_name);
-  radio ("do NDA?", do_nda);
+    pout << "HO preconditioner: " << ho_preconditioner_name << std::endl;
+  pout << "do NDA? " << do_nda << std::endl;
   
-  radio ("Number of cells", triangulation.n_global_active_cells());
-  radio ("High-order total DoF counts", n_total_ho_vars*dof_handler.n_dofs());
+  pout << "Number of cells: " << triangulation.n_global_active_cells() << std::endl;
+  pout << "High-order total DoF counts: " << n_total_ho_vars*dof_handler.n_dofs() << std::endl;
 
   if (is_eigen_problem)
-    radio ("Problem type: k-eigenvalue problem");
+    pout << "Problem type: k-eigenvalue problem" << std::endl;
   if (do_nda)
-    radio ("NDA total DoF counts", n_group*dof_handler.n_dofs());
-  radio ("print sn quad?", do_print_sn_quad);
-  radio ("is eigenvalue problem?", is_eigen_problem);
+    pout << "NDA total DoF counts: " << n_group*dof_handler.n_dofs()) << std::endl;
+  pout << "print sn quad? " << do_print_sn_quad << std::endl;
+  pout << "is eigenvalue problem? " << is_eigen_problem << std::endl;
 }
 
 template <int dim>
@@ -125,11 +127,13 @@ void BartDriver<dim>::output_results () const
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
 
-  data_out.add_data_vector (keff, "keff");
+  if (is_eigen_problem)
+    data_out.add_data_vector (keff, "keff");
+  
   for (unsigned int g=0; g<n_group; ++g)
   {
     std::ostringstream os;
-    os << "ho_phi_g_" << g;
+    os << "phi_g_" << g;
     data_out.add_data_vector (sflxes_proc[g], os.str ());
   }
 
@@ -167,7 +171,7 @@ void BartDriver<dim>::run ()
   setup_system ();
   report_system ();
   // solve the problem using iterative methods specified in Iterations class
-  itr_ptr->solve_problems (local_cells, is_cell_at_bd, sflxes_proc);
+  itr_ptr->solve_problems (sflxes_proc);
   if (is_eigen_problem)
     itr_ptr->get_keff (keff);
   output_results ();

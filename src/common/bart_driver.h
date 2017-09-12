@@ -94,7 +94,7 @@ private:
   unsigned int p_order;
   unsigned int global_refinements;
   
-  std::vector<Vector<double> > sflx_proc;
+  std::vector<Vector<double> > sflxes_proc;
   
   ConstraintMatrix constraints;
 };
