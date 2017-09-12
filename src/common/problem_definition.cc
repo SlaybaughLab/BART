@@ -9,6 +9,11 @@
 using namespace dealii;
 
 ProblemDefinition::ProblemDefinition (ParameterHandler &prm)
+:
+nmat(50),
+ngrp(30),
+z_levels(30),
+y_levels(100)
 {
 }
 
@@ -34,6 +39,7 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
     prm.declare_entry ("angular quadrature name", "none", Patterns::Selection ("lsgc|none"), "angular quadrature types. only LS-GC implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", Patterns::Integer (), "Number of groups in MG calculations");
+    prm.declare_entry ("thermal group boundary", "0", Patterns::Integer (), "group number for the first thermal group");
     prm.declare_entry ("spatial discretization", "cfem", Patterns::Selection("dfem|cfem"), "USE DFEM or CFEM for spatial discretization");
     prm.declare_entry ("do eigenvalue calculations", "false", Patterns::Bool(), "Boolean to determine problem type");
     prm.declare_entry ("do NDA", "false", Patterns::Bool(), "Boolean to determine NDA or not");
