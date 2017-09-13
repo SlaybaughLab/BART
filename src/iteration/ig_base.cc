@@ -16,9 +16,11 @@ IGBase<dim>::~IGBase ()
 template <int dim>
 IGBase<dim>::solve_in_group
 (std::vector<Vector<double> > &sflxes_proc,
- std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
+ std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
  unsigned int &g)
 {
+  // the default is for diffusion like system, SPN and PN
+  equ_ptr->solve_in_group (g);
 }
 
 template <int dim>
@@ -31,18 +33,18 @@ IGBase<dim> (prm)
 template <int dim>
 SourceIteration<dim>::solve_in_group
 (std::vector<Vector<double> > &sflxes_proc,
- std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
+ std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
  unsigned int &g)
 {
   double err = 1.0;
   while (err>this->err_phi_tol)
   {
     // generate rhs for group g
-    equ_ptrs[0]->assemble_linear_form (sflxes_proc, g);
+    equ_ptr->assemble_linear_form (sflxes_proc, g);
     // solve all the directions in group g
-    equ_ptrs[0]->solve_in_group (g);
+    equ_ptr->solve_in_group (g);
     // generate moments
-    equ_ptrs[0]->generate (sflxes_proc[g], this->sflx_proc_prev_ig, g);
+    equ_ptr->generate_moments (sflxes_proc[g], this->sflx_proc_prev_ig, g);
     // calculate the difference of moments for convergence check
     err = this->estimate_phi_diff (sflxes_proc[g], this->sflx_proc_prev_ig);
   }

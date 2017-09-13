@@ -1,7 +1,9 @@
 #ifndef __ig_base_h__
 #define __ig_base_h__
 
-#include "ig_base.h"
+#include "iteration_base.h"
+
+using namespace dealii;
 
 template <int dim>
 class IGBase : public IterationBase<dim>
@@ -11,7 +13,7 @@ public:
   virtual ~IGBase();
   
   // has to be provided
-  virtual void solve_ig
+  virtual void solve_in_group
   (std::vector<Vector<double> > &sflxes_proc,
    std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
    unsigned int &g);
@@ -29,9 +31,9 @@ public:
   SourceIteration (ParameterHandler &prm);
   ~SourceIteration ();
   
-  void solve_ig
+  void solve_in_group
   (std::vector<Vector<double> > &sflxes_proc,
-   std_cxx11::shared_ptr<EquationBase<dim> > equ_ptrs,
+   std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
    unsigned int &g);
 };
 
