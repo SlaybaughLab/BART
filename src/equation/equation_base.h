@@ -73,7 +73,8 @@ public:
   virtual void assemble_interface_bilinear_form ();
   
   void assemble_closure_bilinear_form
-  (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr);
+  (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr,
+   bool do_assembly = true);
   
   virtual void assemble_linear_form
   (std::vector<Vector<double> > &sflx_this_proc,
@@ -93,21 +94,21 @@ public:
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp,
    const unsigned int &g,
-   const unsigned int &i_dir=0);
+   const unsigned int &i_dir);
   
   virtual void integrate_boundary_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
    const unsigned int &g,
-   const unsigned int &i_dir=0);
+   const unsigned int &i_dir);
   
   virtual void integrate_reflective_boundary_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    std::vector<Vector<double> > &cell_rhses,
    const unsigned int &g,
-   const unsigned int &i_dir=0);
+   const unsigned int &i_dir);
   
   virtual void integrate_interface_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -143,13 +144,15 @@ public:
   
   virtual void postprocess ();
   
-  virtual void assemble_linear_form ();
+  virtual void assemble_linear_form
+  (std::Vector<Vector<double> > &sflxes_proc, const unsigned int &g);
   
   virtual void assemble_fixed_linear_form ();
-  (std::vector<Vector<double> > &sflx_this_proc);
+  (std::vector<Vector<double> > &sflxes_proc);
   
   virtual void solve_in_group (const unsigned int &g);
   
+  // TODO: if DFEM-NDA is developed, this has to be redesigned
   virtual void prepare_cell_corrections
   (const std::vector<std::vector<Tensor<1, dim> > > &ho_cell_dpsi,
    const std::vector<Tensor<1, dim> > &ho_cell_dphi,
@@ -157,27 +160,25 @@ public:
    std::vector<Tensor<1, dim> > &cell_corrections);
   
   virtual void prepare_boundary_corrections
-  (const std::vector<double> &ho_cell_psi
+  (const std::vector<double> &ho_bd_psi,
+   const std::vector<double> &ho_bd_phi,
    std::vector<double> &boundary_corrections);
   
-  void initialize_system_matrices_vectors (SparsityPatternType &dsp, IndexSet &local_dofs);
+  virtual void initialize_system_matrices_vectors
+  (SparsityPatternType &dsp,
+   IndexSet &local_dofs
+   std::vector<Vector<double> > &sflxes_proc);
   
-  void initialize_preconditioners ();
+  virtual void generate_moments
+  (std::vector<Vector<double> > &sflxes,
+   std::vector<Vector<double> > &sflxes_old);
   
-  void generate_moments
-  (std::vector<Vector<double> > &sflx,
-   std::vector<Vector<double> > &sflx_old);
-  
-  void generate_moments
-  (std::vector<Vector<double> > &sflx,
-   std::vector<Vector<double> > &sflx_old,
+  virtual void generate_moments
+  (std::vector<Vector<double> > &sflxes,
+   std::vector<Vector<double> > &sflxes_old,
    const unsigned int &g);
   
-  void generate_ho_sflx
-  (std::vector<Vector<double> > &ho_aflx_proc,
-   std::vector<Vector<double> > &ho_sflx_proc);
-  
-  void get_ho_aflx (std::vector<Vector> &ho_aflx_proc);
+  virtual void generate_ho_sflx ();
   
   // override this three functions in derived classes
   // these functions have to be redefined when using diffusion, NDA, PN, SPN
@@ -288,7 +289,8 @@ private:
   std::vector<PETScWrappers::MPI::Vector*> sys_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_fixed_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_aflxes;
-  std::vector<Vector<double> > aflxes_proc_prev;
+  std::vector<Vector<double> > ho_aflxes_proc;
+  std::vector<Vector<double> > ho_sflxes_proc;
 };
 
 #endif	// define  __equation_base_h__
