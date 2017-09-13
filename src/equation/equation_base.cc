@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "equation_base.h"
-#include "bart_tools.h"
+#include "../common/bart_tools.h"
 
 using namespace dealii;
 
@@ -18,7 +18,6 @@ template <int dim>
 EquationBase<dim>::EquationBase
 (std::string equation_name,
  const ParameterHandler &prm,
- const DoFHandler<dim> &dof_handler
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
@@ -36,8 +35,7 @@ nda_quadrature_order(p_order+3) //this is hard coded
   // process input for mesh, AQ and material related data
   process_input (msh_ptr, aqd_ptr, mat_ptr);
   // get cell iterators and booleans to tell if they are at boundary on this process
-  msh_ptr->get_relevant_cell_iterators (dof_handler, local_cells, is_cell_at_bd);
-  alg_ptr = build_linalg (prm, equation_name, n_total_vars);
+  build_linalg (alg_ptr, prm, equation_name, n_total_vars);
   if (equation_name!="nda" && do_nda)
   {
     ho_aflxes_proc.resize (n_total_vars);
@@ -104,7 +102,8 @@ void EquationBase<dim>::process_input
 
 template <int dim>
 void EquationBase<dim>::initialize_cell_iterators_this_proc
-(const DoFHandler<dim> &dof_handler)
+(const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const DoFHandler<dim> &dof_handler)
 {
   msh_ptr->get_relevant_cell_iterators (dof_handler,
                                         local_cells,
@@ -113,7 +112,7 @@ void EquationBase<dim>::initialize_cell_iterators_this_proc
 
 template <int dim>
 void EquationBase<dim>::initialize_system_matrices_vectors
-(SparsityPatternType &dsp,
+(DynamicSparsityPattern &dsp,
  IndexSet &local_dofs,
  std::vector<Vector<double> > &sflxes_proc)
 {
@@ -196,16 +195,16 @@ void EquationBase<dim>::initialize_assembly_related_objects
 }
 
 template <int dim>
-void EquationBase<dim>::assemble_system ()
+void EquationBase<dim>::assemble_bilinear_form ()
 {
-  radio ("Assemble volumetric bilinear forms");
+  pout << "Assemble volumetric bilinear forms" << std::endl;
   assemble_volume_boundary_bilinear_form ();
   
   if (discretization=="dfem")
   {
     AssertThrow (equation_name=="ep",
                  ExcMessage("DFEM is only implemented for even parity"));
-    radio ("Assemble cell interface bilinear forms for DFEM");
+    pout << "Assemble cell interface bilinear forms for DFEM" << std::endl;
     assemble_interface_bilinear_form ();
   }
 }
@@ -214,7 +213,7 @@ void EquationBase<dim>::assemble_system ()
 template <int dim>
 void EquationBase<dim>::assemble_closure_bilinear_form
 (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr,
- bool do_assembly=true)
+ bool do_assembly)
 {
   // the input is pointer to HO equation pointer s.t. we can have estimation of
   // corrections
@@ -260,7 +259,9 @@ void EquationBase<dim>::assemble_volume_boundary_bilinear_form ()
       fv->reinit (cell);
       cell->get_dof_indices (local_dof_indices);
       local_mat = 0;
-      integrate_cell_bilinear_form (cell, cell_rhs, g, i_dir);
+      integrate_cell_bilinear_form (cell, local_mat,
+                                    streaming_at_qp, collision_at_qp,
+                                    g, i_dir);
       
       if (is_cell_at_bd[ic])
         for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
@@ -397,16 +398,7 @@ void EquationBase<dim>::assemble_interface_bilinear_form ()
   }// component
 }
 
-/** \brief Virtual function for NDA closure assembly.
- * Main functionality is to loop over all local cells and call closure integrators.
- *
- * This needs to be done
- */
-template <int dim>
-void EquationBase<dim>::assemble_closure_bilinear_form ()
-{
-}
-
+/*
 // TODO: the following two functions are not supposed to exist in EquationBase
 // and shall be moved to to-be-created NDABase<dim>
 
@@ -436,6 +428,8 @@ void EquationBase<dim>::prepare_boundary_corrections
   // TODO: fill this up
 }
 
+ */
+
 /** \brief Virtual function for interface integrator.
  * When DFEM is used, this function can be overridden as interface weak form
  * assembler per face per angular and group component.
@@ -462,17 +456,17 @@ void EquationBase<dim>::integrate_interface_bilinear_form
 // generate moments on current process for all groups at once
 template <int dim>
 void EquationBase<dim>::generate_moments
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<Vector<double> > &sflx_proc_old)
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<Vector<double> > &sflxes_proc_old)
 {
   // TODO: only scalar flux is generated for now, future will be moments considering
   // anisotropic scattering
   for (unsigned int g=0; g<n_group; ++g)
   {
-    sflx_proc_old[g] = sflx_proc[g];
-    sflx_proc[g] = 0;
+    sflxes_proc_old[g] = sflxes_proc[g];
+    sflxes_proc[g] = 0;
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-      sflx_proc[g].add (wi[i_dir], *sys_aflxes[get_component_index(i_dir, g)]);
+      sflxes_proc[g].add (wi[i_dir], *sys_aflxes[get_component_index(i_dir, g)]);
   }
 }
 
@@ -498,7 +492,7 @@ void EquationBase<dim>::generate_moments
 
 // generate scalar flux from HO solver for NDA
 template <int dim>
-void EquationBase<dim>::generate_ho_flxes_proc ()
+void EquationBase<dim>::generate_moments ()
 {
   AssertThrow (equation_name!="nda" && do_nda,
                ExcMessage("only non-NDA is supposed to call this function"));
@@ -548,17 +542,16 @@ void EquationBase<dim>::assemble_linear_form
         typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
         cell->get_dof_indices (this->local_dof_indices);
         fv->reinit (cell);
-        std::vector<double> cell_sflx;
-        fv->get_function_values (sflxes_proc[g], cell_sflx);
         integrate_scattering_linear_form (cell, cell_rhs,
+                                          sflxes_proc,
                                           g, i_dir);
         if (is_cell_at_bd[ic])
           for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
             if (cell->at_boundary(fn))
             {
               fvf->reinit (cell, fn);
-              integrate_boundary_linear_form (cell, fn, cell_rhs,
-                                              cell_sflx,
+              integrate_boundary_linear_form (cell, fn,
+                                              cell_rhs,
                                               g, i_dir);
             }
         sys_rhses[k]->add (local_dof_indices, cell_rhs);
@@ -657,6 +650,12 @@ double EquationBase<dim>::estimate_fiss_src
   }
   // then, we need to accumulate fission source from other processors as well
   return Utilities::MPI::sum (fiss_src, MPI_COMM_WORLD);
+}
+
+template <int dim>
+std::string EquationBase<dim>::get_equ_name ()
+{
+  return equation_name;
 }
 
 // wrapper functions used to retrieve info from various Hash tables

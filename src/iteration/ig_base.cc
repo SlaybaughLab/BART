@@ -1,7 +1,7 @@
 #include "ig_base.h"
 
 template <int dim>
-IGBase<dim>::IGBase (ParameterHandler &prm)
+IGBase<dim>::IGBase (const ParameterHandler &prm)
 :
 IterationBase<dim> (prm),
 err_phi_tol(1.0e-6)
@@ -14,7 +14,7 @@ IGBase<dim>::~IGBase ()
 }
 
 template <int dim>
-IGBase<dim>::solve_in_group
+void IGBase<dim>::solve_in_group
 (std::vector<Vector<double> > &sflxes_proc,
  std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
  unsigned int &g)
@@ -24,14 +24,14 @@ IGBase<dim>::solve_in_group
 }
 
 template <int dim>
-SourceIteration<dim>::SourceIteration (ParameterHandler &prm)
+SourceIteration<dim>::SourceIteration (const ParameterHandler &prm)
 :
 IGBase<dim> (prm)
 {
 }
 
 template <int dim>
-SourceIteration<dim>::solve_in_group
+void SourceIteration<dim>::solve_in_group
 (std::vector<Vector<double> > &sflxes_proc,
  std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
  unsigned int &g)

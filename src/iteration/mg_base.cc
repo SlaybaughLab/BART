@@ -1,18 +1,19 @@
 #include "mg_base.h"
+#include "../common/bart_tools.h"
 
 template <int dim>
-MGBase<dim>::MGBase (ParameterHandler &prm)
+MGBase<dim>::MGBase (const ParameterHandler &prm)
 :
 IterationBase<dim> (prm),
 g_thermal(prm.get_integer("thermal group boundary")),
 err_phi_tol(1.0e-5)
 {
-  AssertThrow (g_thermal<n_group && g_thermal>=0,
+  AssertThrow (g_thermal<this->n_group && g_thermal>=0,
                ExcMessage("Invalid thermal upper boundary"));
   
   // TODO: needs change if anisotropic scattering is needed
   sflxes_proc_prev_mg.resize (this->n_group);
-  ig_ptr = build_ig_iteration (prm);
+  build_ig_iterations (ig_ptr, prm);
 }
 
 template <int dim>
@@ -39,12 +40,12 @@ void MGBase<dim>::do_iterations
 // instances.
 template <int dim>
 void MGBase<dim>::mg_iterations
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {// this function needs to be overridden if JFNK is desired
   if (this->do_nda)
     AssertThrow (equ_ptrs.back()->get_equ_name()=="nda" &&
-                 equ_ptrs.front()->get_equ_name!="nda",
+                 equ_ptrs.front()->get_equ_name()!="nda",
                  ExcMessage("Check equation names"));
   // solve for epithermal and fast groups
   nonthermal_solves (sflxes_proc, equ_ptrs);

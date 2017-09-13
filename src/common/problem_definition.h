@@ -14,6 +14,11 @@
 
 using namespace dealii;
 
+const unsigned int nmat = 50;
+const unsigned int ngrp = 30;
+const unsigned int z_levels = 30;
+const unsigned int y_levels = 100;
+
 class ProblemDefinition
 {
 public:
@@ -21,12 +26,6 @@ public:
   ~ProblemDefinition ();
 
   static void declare_parameters (ParameterHandler &prm);
-  
-private:
-  const unsigned int nmat;
-  const unsigned int ngrp;
-  const unsigned int z_levels;
-  const unsigned int y_levels;
 };
 
 

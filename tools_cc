@@ -1,30 +1,13 @@
-#ifndef __bart_tools_h__
-#define __bart_tools_h__
-
-#include <deal.II/base/parameter_handler.h>
-#include <deal.II/base/conditional_ostream.h>
-#include <deal.II/fe/fe_poly.h>
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
 
-#include <string>
-
-#include "../equation/equation_base.h"
-#include "../aqdata/aq_base.h"
-#include "../mesh/mesh_generator.h"
-#include "../iteration/iterations.h"
-#include "../iteration/eigen_base.h"
-#include "../iteration/mg_base.h"
-#include "../iteration/ig_base.h"
-#include "../material/material_properties.h"
+#include "bart_tools.h"
 #include "../iteration/power_iteration.h"
 #include "../iteration/gauss_sidel.h"
 #include "../equation/even_parity.h"
 #include "../aqdata/lsgc.h"
-
-using namespace dealii;
 
 template <int dim>
 void build_finite_element
@@ -42,7 +25,7 @@ void build_finite_element
 
 void build_linalg
 (std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr,
- const ParameterHandler &prm,
+ ParameterHandler &prm,
  std::string equation_name,
  unsigned int& n_total_vars)
 {
@@ -81,7 +64,7 @@ template <int dim>
 void build_equation
 (std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
  std::string equation_name,
- const ParameterHandler &prm,
+ ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
@@ -91,7 +74,7 @@ void build_equation
   if (equation_name=="ep")
     equ_ptr =
     std_cxx11::shared_ptr<EquationBase<dim> >
-    (new EvenParity<dim> (equation_name, prm, msh_ptr, aqd_ptr, mat_ptr));
+    (new EvenParity<dim> (prm, msh_ptr, aqd_ptr, mat_ptr));
 }
 
 template <int dim>
@@ -111,7 +94,7 @@ void build_aq_model
  */
 template <int dim>
 void build_eigen_iterations
-(std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr, const ParameterHandler &prm)
+(std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr, ParameterHandler &prm)
 {
   // TODO: we only have power iteration now, change later once we need to choose
   // different in group solvers
@@ -124,18 +107,18 @@ void build_eigen_iterations
  */
 template <int dim>
 void build_mg_iterations
-(std_cxx11::shared_ptr<MGBase<dim> > mg_ptr, const ParameterHandler &prm)
+(std_cxx11::shared_ptr<MGBase<dim> > mg_ptr, ParameterHandler &prm)
 {
   // TODO: fill this up once we have derived class of MGBase
   mg_ptr =
-  std_cxx11::shared_ptr<MGBase<dim> > (new GaussSidel<dim> (prm));
+  std_cxx11::shared_ptr<MGBase<dim> > (new GaussSidel<dim>(prm));
 }
 
 /** \brief Function used to build pointer to instance of InGroupBase's derived class
  */
 template <int dim>
 void build_ig_iterations
-(std_cxx11::shared_ptr<IGBase<dim> > ig_ptr, const ParameterHandler &prm)
+(std_cxx11::shared_ptr<IGBase<dim> > ig_ptr, ParameterHandler &prm)
 {
   // TODO: we only have source iteration now, change later once we need to choose
   // different in group solvers
@@ -145,9 +128,22 @@ void build_ig_iterations
     std_cxx11::shared_ptr<IGBase<dim> > (new SourceIteration<dim> (prm));
 }
 
-/** \brief ConditionalOStream object used to output things on screen with processor 0
- */
-ConditionalOStream pout
-(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0);
+template void build_iterations<2>;
+template void build_iterations<3>;
+template void build_equation<2>;
+template void build_equation<3>;
+//template std_cxx11::shared_ptr<AQBase<2> > build_aq_model<2>();
+//template std_cxx11::shared_ptr<AQBase<3> > build_aq_model<3>();
+template void build_aq_model<2>;
+template void build_aq_model<3>;
+template void build_mesh<2>;
+template void build_mesh<3>;
+template void build_finite_element<2>;
+template void build_finite_element<3>;
+template void build_eigen_iterations<2>;
+template void build_eigen_iterations<3>;
+template void build_mg_iterations<2>;
+template void build_mg_iterations<3>;
+template void build_ig_iterations<2>;
+template void build_ig_iterations<3>;
 
-#endif //__bart_tools_h__

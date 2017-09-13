@@ -1,7 +1,7 @@
-#include "mg_base.h"
+#include "gauss_sidel.h"
 
 template <int dim>
-GaussSidel<dim>::GaussSidel (ParameterHandler &prm)
+GaussSidel<dim>::GaussSidel (const ParameterHandler &prm)
 :
 MGBase<dim> (prm)
 {
@@ -23,21 +23,21 @@ void GaussSidel<dim>::do_iterations
   // iteration here if NDA is used
   if (this->do_nda)
   {
-    AssertThrow (equ_ptrs.size==2,
+    AssertThrow (equ_ptrs.size()==2,
                  ExcMessage("There should be two equation pointers if do NDA"));
     // assemble bilinear forms of available equations
     for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-      equ_ptrs[i]->assemble_bilinear_forms ();
+      equ_ptrs[i]->assemble_bilinear_form ();
     // do nothing for closure at the beginning
     equ_ptrs.back()->assemble_closure_bilinear_form (equ_ptrs.front(), false);
     // TODO: fill this up with NDA
   }
   else
   {
-    AssertThrow (equ_ptrs.size==1,
+    AssertThrow (equ_ptrs.size()==1,
                  ExcMessage("There should be one equation pointer without NDA"));
     // assemble bilinear forms of available equations
-    equ_ptrs.back()->assemble_bilinear_forms ();
+    equ_ptrs.back()->assemble_bilinear_form ();
     // multigroup iterations. Note we would not need to override mg_iterations
     // until we want to do JFNK
     this->mg_iterations (sflxes_proc, equ_ptrs);
@@ -75,8 +75,9 @@ void GaussSidel<dim>::thermal_iterations
       // solve for current group
       this->ig_ptr->solve_in_group (sflxes_proc, equ_ptrs.back(), g);
       // calculate the error up to this group
-      m = std::max (m, this->estimate_phi_diff(sflxes_proc[g],
-                                               sflxes_proc_prev_mg[g]));
+      m = std::max
+      (m, this->estimate_phi_diff(sflxes_proc[g],
+                                  this->sflxes_proc_prev_mg[g]));
     }
     err = m;
   }

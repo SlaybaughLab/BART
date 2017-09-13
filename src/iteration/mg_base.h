@@ -10,7 +10,7 @@ template <int dim>
 class MGBase : public IterationBase<dim>
 {
 public:
-  MGBase (ParameterHandler &prm);
+  MGBase (const ParameterHandler &prm);
   virtual ~MGBase ();
   
   virtual void do_iterations
@@ -36,6 +36,6 @@ protected:
   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr;
   
   std::vector<Vector<double> > sflxes_proc_prev_mg;
-}
+};
 
 #endif//__mg_base_h__

@@ -1,7 +1,7 @@
 #include "iteration_base.h"
 
 template <int dim>
-IterationBase<dim>::IterationBase (ParameterHandler &prm)
+IterationBase<dim>::IterationBase (const ParameterHandler &prm)
 :
 n_group(prm.get_integer("number of groups")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
@@ -50,7 +50,7 @@ double IterationBase<dim>::estimate_phi_diff
 {
   PETScWrappers::MPI::Vector dif = *phi_newer;
   dif -= *phi_older;
-  return std::max (err, dif.l1_norm () / phi_newer->l1_norm ());
+  return dif.l1_norm () / phi_newer->l1_norm ();
 }
 
 template <int dim>

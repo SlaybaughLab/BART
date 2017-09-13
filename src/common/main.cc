@@ -33,15 +33,21 @@ int main(int argc, char *argv[])
     switch (dim)
     {
       case 2:
-        BartDriver<2> drive (prm);
-        drive.run ();
+      {
+        BartDriver<2> drive2d (prm);
+        drive2d.run ();
+      }
       
       case 3:
-        BartDriver<3> drive (prm);
-        drive.run ();
+      {
+        BartDriver<3> drive3d (prm);
+        drive3d.run ();
+      }
         
       default:
+      {
         break;
+      }
     }
   }
   catch (std::exception &exc)

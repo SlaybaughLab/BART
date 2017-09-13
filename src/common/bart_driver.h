@@ -34,8 +34,7 @@
 #include <utility>
 #include <vector>
 
-#include "../iteration/Iterations.h"
-#include "../common/problem_definition.h"
+#include "../iteration/iterations.h"
 #include "../common/preconditioner_solver.h"
 #include "../mesh/mesh_generator.h"
 #include "../material/material_properties.h"
@@ -56,8 +55,6 @@ private:
   void report_system ();
   void initialize_dealii_objects ();
   void output_results () const;
-  
-  const ParameterHandler &prm;
   
   std_cxx11::shared_ptr<Iterations<dim> > itr_ptr;
   std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;

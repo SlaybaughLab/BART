@@ -9,9 +9,7 @@
 
 #include <algorithm>
 
-#include "equation_base.h"
-#include "../aqdata/aq_base.h"
-#include "../aqdata/aq_lsgc.h"
+#include "bart_driver.h"
 #include "../common/bart_tools.h"
 
 using namespace dealii;
@@ -30,7 +28,6 @@ n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
-do_print_sn_quad(prm.get_bool("do print angular quadrature info")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
 p_order(prm.get_integer("finite element polynomial degree")),
 global_refinements(prm.get_integer("uniform refinements")),
@@ -39,13 +36,14 @@ ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name"))
 {
   
-  aqd_ptr = build_aq_model (prm)
+  build_aq_model (aqd_ptr, prm);
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();
-  msh_ptr = build_mesh (prm);
-  mat_ptr = build_material (prm);
-  fe = build_finite_element (prm);
+  build_mesh (msh_ptr, prm);
+  build_material (mat_ptr, prm);
+  build_finite_element (fe, prm);
+  build_iterations (itr_ptr, prm, msh_ptr, aqd_ptr, mat_ptr);
   sflxes_proc.resize (n_group);
 }
 
@@ -75,15 +73,14 @@ void BartDriver<dim>::report_system ()
   if (is_eigen_problem)
     pout << "Problem type: k-eigenvalue problem" << std::endl;
   if (do_nda)
-    pout << "NDA total DoF counts: " << n_group*dof_handler.n_dofs()) << std::endl;
-  pout << "print sn quad? " << do_print_sn_quad << std::endl;
+    pout << "NDA total DoF counts: " << n_group*dof_handler.n_dofs() << std::endl;
   pout << "is eigenvalue problem? " << is_eigen_problem << std::endl;
 }
 
 template <int dim>
 void BartDriver<dim>::setup_system ()
 {
-  radio ("setup system");
+  pout << "setup system" << std::endl;
   dof_handler.distribute_dofs (*fe);
   
   local_dofs = dof_handler.locally_owned_dofs ();
@@ -116,8 +113,10 @@ void BartDriver<dim>::setup_system ()
    MPI_COMM_WORLD,
    relevant_dofs);
   
-  itr_ptr = build_iterations (prm, dof_handler, msh_ptr, aqd_ptr, mat_ptr);
-  itr_ptr->initialize_system_matrices_vectors (dsp, local_dofs);
+  // initialize equation assembly objects inside itr_ptr
+  itr_ptr->initialize_cell_iterators_this_proc (msh_ptr, dof_handler);
+  itr_ptr->initialize_assembly_related_objects (fe);
+  itr_ptr->initialize_system_matrices_vectors (dsp, local_dofs, sflxes_proc);
 }
 
 template <int dim>

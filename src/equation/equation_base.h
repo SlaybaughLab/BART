@@ -48,7 +48,6 @@ public:
   // For SN and NDA (NDA still needs quadrature to calculate corrections)
   EquationBase (std::string equation_name,
                 const ParameterHandler &prm,
-                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
@@ -58,9 +57,8 @@ public:
   // asking for AQ instance.
   EquationBase (std::string equation_name,
                 const ParameterHandler &prm,
-                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
   virtual ~EquationBase ();
   
@@ -114,12 +112,12 @@ public:
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
    unsigned int &fn,/*concerning face number in local cell*/
-   unsigned int &i_dir,
-   unsigned int &g,
-   FullMatrix<double> &vp_up,
-   FullMatrix<double> &vp_un,
-   FullMatrix<double> &vn_up,
-   FullMatrix<double> &vn_un);
+   FullMatrix<double> &vi_ui,
+   FullMatrix<double> &vi_ue,
+   FullMatrix<double> &ve_ui,
+   FullMatrix<double> &ve_ue,
+   const unsigned int &g,
+   const unsigned int &i_dir);
   
   virtual void integrate_scattering_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -144,12 +142,6 @@ public:
   
   virtual void postprocess ();
   
-  virtual void assemble_linear_form
-  (std::Vector<Vector<double> > &sflxes_proc, const unsigned int &g);
-  
-  virtual void assemble_fixed_linear_form ();
-  (std::vector<Vector<double> > &sflxes_proc);
-  
   virtual void solve_in_group (const unsigned int &g);
   
   // TODO: if DFEM-NDA is developed, this has to be redesigned
@@ -165,8 +157,8 @@ public:
    std::vector<double> &boundary_corrections);
   
   virtual void initialize_system_matrices_vectors
-  (SparsityPatternType &dsp,
-   IndexSet &local_dofs
+  (DynamicSparsityPattern &dsp,
+   IndexSet &local_dofs,
    std::vector<Vector<double> > &sflxes_proc);
   
   virtual void generate_moments
@@ -174,17 +166,32 @@ public:
    std::vector<Vector<double> > &sflxes_old);
   
   virtual void generate_moments
-  (std::vector<Vector<double> > &sflxes,
-   std::vector<Vector<double> > &sflxes_old,
+  (Vector<double> &sflx,
+   Vector<double> &sflx_old,
    const unsigned int &g);
   
-  virtual void generate_ho_sflx ();
+  virtual void generate_moments ();
   
   // override this three functions in derived classes
   // these functions have to be redefined when using diffusion, NDA, PN, SPN
   virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
   virtual unsigned int get_component_direction (unsigned int comp_ind);
   virtual unsigned int get_component_group (unsigned int comp_ind);
+  
+  double estimate_fiss_src (std::vector<Vector<double> > &sflxes_proc);
+  
+  void initialize_cell_iterators_this_proc
+  (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+   const DoFHandler<dim> &dof_handler);
+  
+  void initialize_assembly_related_objects
+  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
+  
+  void initialize_preconditioners ();
+  
+  void scale_fiss_transfer_matrices (double keff);
+  
+  std::string get_equ_name ();
 protected:
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
@@ -199,6 +206,9 @@ protected:
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   std_cxx11::shared_ptr<FEValues<dim> > fvc;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvfc;
+  
+  std::string equation_name;
+  std::string discretization;
   
   double keff;
   double keff_prev_gen;
@@ -268,21 +278,10 @@ private:
   void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  void source_iteration ();
-  void scale_fiss_transfer_matrices ();
-  void initialize_aq (ParameterHandler &prm);
-  
-  void initialize_assembly_related_objects
-  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
-  
-  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
   
   std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
   std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr;
-  
-  std::string equation_name;
-  std::string discretization;
   
   // related objects for current equation: matrices, vectors
   std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats;

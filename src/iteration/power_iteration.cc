@@ -1,7 +1,8 @@
-#include "eigen_base.h"
+#include "power_iteration.h"
+#include "../common/bart_tools.h"
 
 template <int dim>
-PowerIteration<dim>::PowerIteration (ParameterHandler &prm)
+PowerIteration<dim>::PowerIteration (const ParameterHandler &prm)
 :
 EigenBase<dim> (prm)
 {
@@ -19,20 +20,20 @@ void PowerIteration<dim>::do_iterations
 {
   if (this->do_nda)
   {
-    AssertThrow (equ_ptrs.size==2,
+    AssertThrow (equ_ptrs.size()==2,
                  ExcMessage("There should be two equation pointers if do NDA"));
     for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-      equ_ptrs[i]->assemble_bilinear_forms ();
+      equ_ptrs[i]->assemble_bilinear_form ();
     if (this->do_nda)
       equ_ptrs.back()->assemble_closure_bilinear_form (equ_ptrs.front(), false);
     // TODO: fill this up with NDA
   }
   else
   {
-    AssertThrow (equ_ptrs.size==1,
+    AssertThrow (equ_ptrs.size()==1,
                  ExcMessage("There should be one equation without NDA"));
     // assemble system matrices for transport equation
-    equ_ptrs.back()->assemble_bilinear_forms (sflxes_proc, equ_ptrs);
+    equ_ptrs.back()->assemble_bilinear_form ();
     // initialize fission process
     this->initialize_fiss_process (sflxes_proc, equ_ptrs);
     // perform eigenvalue iterations
@@ -58,10 +59,10 @@ void PowerIteration<dim>::eigen_iterations
     // perform multigroup iterations
     this->mg_ptr->mg_iterations (sflxes_proc, equ_ptrs);
     // calculate fission source and keff thereafter
-    this->calculate_fiss_src_keff (sflxes_proc);
+    this->calculate_fiss_src_keff (sflxes_proc, equ_ptrs.front());
     // calculate errors of QoI for convergence check
     err_phi = this->estimate_phi_diff (sflxes_proc, this->sflxes_proc_prev_eigen);
-    err_k = this->estimate_k_diff (this->keff, this->keff_prev);
+    err_k = this->estimate_k_diff ();
     // print on screen about the errors
     pout << "PI iter err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
   }

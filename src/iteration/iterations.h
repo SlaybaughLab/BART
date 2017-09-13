@@ -24,20 +24,18 @@
 
 #include <deal.II/numerics/data_out.h>
 
-#include <fstream>
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <map>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "eigen_base.h"
+#include "mg_base.h"
 #include "../common/problem_definition.h"
 #include "../common/preconditioner_solver.h"
 #include "../mesh/mesh_generator.h"
 #include "../material/material_properties.h"
 #include "../aqdata/aq_base.h"
+#include "../equation/equation_base.h"
 
 using namespace dealii;
 
@@ -46,7 +44,6 @@ class Iterations
 {
 public:
   Iterations (const ParameterHandler &prm,
-              const DoFHandler<dim> &dof_handler
               const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
               const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
               const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
@@ -54,17 +51,28 @@ public:
   
   void solve_problems (std::vector<Vector<double> > &sflxes_proc);
   
+  void initialize_cell_iterators_this_proc
+  (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+   const DoFHandler<dim> &dof_handler);
+  
   void initialize_assembly_related_objects
   (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
   
   void initialize_system_matrices_vectors
-  (SparsityPatternType &dsp,
+  (DynamicSparsityPattern &dsp,
    IndexSet &local_dofs,
    std::vector<Vector<double> > &sflxes_proc);
   
   void get_keff (double &keff);
 
 private:
+  const std::string transport_name;
+  
+  std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr;
+  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
+  
+  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > equ_ptrs;
+  
   double keff;
   bool is_eigen_problem;
 };

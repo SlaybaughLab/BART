@@ -11,7 +11,7 @@ template <int dim>
 class IterationBase
 {
 public:
-  IterationBase (ParameterHandler &prm);
+  IterationBase (const ParameterHandler &prm);
   virtual ~IterationBase ();
   
   virtual void do_iterations
@@ -65,6 +65,6 @@ protected:
   double total_calculation_time; /**< total time for calculations+assemblies*/
   unsigned int ct_ho_iters; /**< HO iteration counts*/
   unsigned int ct_nda_iters; /**< NDA iteration counts*/
-}
+};
 
 #endif // __iteration_base_h__

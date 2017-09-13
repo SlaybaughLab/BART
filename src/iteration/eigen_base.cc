@@ -1,12 +1,15 @@
 #include "eigen_base.h"
 #include "mg_base.h"
+#include "../common/bart_tools.h"
 
 template <int dim>
-EigenBase<dim>::EigenBase (ParameterHandler &prm) : IterationBase<dim> (prm),
+EigenBase<dim>::EigenBase (const ParameterHandler &prm)
+:
+IterationBase<dim>(prm),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-5)
 {
-  mg_ptr = build_mg_iterations (prm);
+  build_mg_iterations (mg_ptr, prm);
   sflxes_proc_prev_eigen.resize (this->n_group);
 }
 
@@ -58,9 +61,9 @@ void EigenBase<dim>::update_prev_sflxes_fiss_src_keff
 template <int dim>
 void EigenBase<dim>::calculate_fiss_src_keff
 (std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+ std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr)
 {
-  fiss_src = equ_ptrs[0]->estimate_fiss_src (sflxes_proc);
+  fiss_src = equ_ptr->estimate_fiss_src (sflxes_proc);
   keff = estimate_k ();
 }
 

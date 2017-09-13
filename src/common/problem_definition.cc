@@ -9,11 +9,6 @@
 using namespace dealii;
 
 ProblemDefinition::ProblemDefinition (ParameterHandler &prm)
-:
-nmat(50),
-ngrp(30),
-z_levels(30),
-y_levels(100)
 {
 }
 

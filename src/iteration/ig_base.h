@@ -9,7 +9,7 @@ template <int dim>
 class IGBase : public IterationBase<dim>
 {
 public:
-  IGBase (ParameterHandler &prm);
+  IGBase (const ParameterHandler &prm);
   virtual ~IGBase();
   
   // has to be provided
@@ -28,7 +28,7 @@ template <int dim>
 class SourceIteration : public IGBase<dim>
 {
 public:
-  SourceIteration (ParameterHandler &prm);
+  SourceIteration (const ParameterHandler &prm);
   ~SourceIteration ();
   
   void solve_in_group
