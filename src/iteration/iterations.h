@@ -45,25 +45,28 @@ template <int dim>
 class Iterations
 {
 public:
-  Iterations (std::string equation_name,
-              const ParameterHandler &prm,
+  Iterations (const ParameterHandler &prm,
               const DoFHandler<dim> &dof_handler
               const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
               const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
               const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  virtual ~Iterations ();
+  ~Iterations ();
   
   void solve_problems (std::vector<Vector<double> > &sflxes_proc);
   
+  void initialize_assembly_related_objects
+  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
+  
   void initialize_system_matrices_vectors
-  (SparsityPatternType &dsp, IndexSet &local_dofs);
+  (SparsityPatternType &dsp,
+   IndexSet &local_dofs,
+   std::vector<Vector<double> > &sflxes_proc);
   
   void get_keff (double &keff);
 
-protected:
+private:
   double keff;
   bool is_eigen_problem;
-  bool do_nda;
 };
 
 #endif	// define  __iterations_h__
