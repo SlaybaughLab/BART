@@ -1,16 +1,14 @@
 #include <deal.II/fe/fe_values.h>
-
 #include <boost/algorithm/string.hpp>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/cell_id.h>
-
 #include <deal.II/lac/petsc_solver.h>
 #include <deal.II/lac/solver_bicgstab.h>
+#include <deal.II/base/utilities.h>
 
 #include <algorithm>
 
 #include "equation_base.h"
-#include "../common/bart_tools.h"
 
 using namespace dealii;
 
@@ -30,12 +28,16 @@ is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
 p_order(prm.get_integer("finite element polynomial degree")),
+pcout(std::cout,
+      (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)),
 nda_quadrature_order(p_order+3) //this is hard coded
 {
   // process input for mesh, AQ and material related data
   process_input (msh_ptr, aqd_ptr, mat_ptr);
   // get cell iterators and booleans to tell if they are at boundary on this process
-  build_linalg (alg_ptr, prm, equation_name, n_total_vars);
+  alg_ptr = std_cxx11::shared_ptr<PreconditionerSolver>
+  (new PreconditionerSolver(prm, equation_name, n_total_vars));
+  
   if (equation_name!="nda" && do_nda)
   {
     ho_aflxes_proc.resize (n_total_vars);
@@ -197,14 +199,14 @@ void EquationBase<dim>::initialize_assembly_related_objects
 template <int dim>
 void EquationBase<dim>::assemble_bilinear_form ()
 {
-  pout << "Assemble volumetric bilinear forms" << std::endl;
+  pcout << "Assemble volumetric bilinear forms" << std::endl;
   assemble_volume_boundary_bilinear_form ();
   
   if (discretization=="dfem")
   {
     AssertThrow (equation_name=="ep",
                  ExcMessage("DFEM is only implemented for even parity"));
-    pout << "Assemble cell interface bilinear forms for DFEM" << std::endl;
+    pcout << "Assemble cell interface bilinear forms for DFEM" << std::endl;
     assemble_interface_bilinear_form ();
   }
 }
@@ -250,7 +252,7 @@ void EquationBase<dim>::assemble_volume_boundary_bilinear_form ()
     
     unsigned int g = get_component_group (k);
     unsigned int i_dir = get_component_direction (k);
-    pout << "Assembling Component: " << k << ", direction: " << i_dir << ", group: " << g << std::endl;
+    pcout << "Assembling Component: " << k << ", direction: " << i_dir << ", group: " << g << std::endl;
     FullMatrix<double> local_mat (dofs_per_cell, dofs_per_cell);
     
     for (unsigned int ic=0; ic<local_cells.size(); ++ic)

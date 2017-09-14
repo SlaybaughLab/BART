@@ -1,6 +1,4 @@
 #include "eigen_base.h"
-#include "mg_base.h"
-#include "../common/bart_tools.h"
 
 template <int dim>
 EigenBase<dim>::EigenBase (const ParameterHandler &prm)
@@ -9,7 +7,6 @@ IterationBase<dim>(prm),
 err_k_tol(1.0e-6),
 err_phi_tol(1.0e-5)
 {
-  build_mg_iterations (mg_ptr, prm);
   sflxes_proc_prev_eigen.resize (this->n_group);
 }
 
@@ -21,7 +18,9 @@ EigenBase<dim>::~EigenBase ()
 template <int dim>
 void EigenBase<dim>::do_iterations
 (std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+ std_cxx11::shared_ptr<MGBase<dim> > mg_ptr)
 {
   // override this function per derived class. Will be called in Iterations class
 }
@@ -41,7 +40,9 @@ void EigenBase<dim>::initialize_fiss_process
 template <int dim>
 void EigenBase<dim>::eigen_iterations
 (std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+ std_cxx11::shared_ptr<MGBase<dim> > mg_ptr)
 {
 }
 

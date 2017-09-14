@@ -15,7 +15,8 @@ GaussSidel<dim>::~GaussSidel ()
 template <int dim>
 void GaussSidel<dim>::do_iterations
 (std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
 {
   AssertThrow (!this->is_eigen_problem,
                ExcMessage("This function shall not be called if it's eigen prob."));
@@ -40,27 +41,29 @@ void GaussSidel<dim>::do_iterations
     equ_ptrs.back()->assemble_bilinear_form ();
     // multigroup iterations. Note we would not need to override mg_iterations
     // until we want to do JFNK
-    this->mg_iterations (sflxes_proc, equ_ptrs);
+    this->mg_iterations (sflxes_proc, equ_ptrs, ig_ptr);
   }
 }
 
 template <int dim>
 void GaussSidel<dim>::nonthermal_solves
 (std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
 {
   // loop over all nonthermal groups, assemble and solve one by one
   for (unsigned int g=0; g<this->g_thermal; ++g)
   {
     equ_ptrs.back()->assemble_linear_form (sflxes_proc, g);
-    this->ig_ptr->solve_in_group (sflxes_proc, equ_ptrs.back(), g);
+    ig_ptr->solve_in_group (sflxes_proc, equ_ptrs.back(), g);
   }
 }
 
 template <int dim>
 void GaussSidel<dim>::thermal_iterations
 (std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
 {
   double err = 1.0;
   while (err>this->err_phi_tol)
@@ -73,7 +76,7 @@ void GaussSidel<dim>::thermal_iterations
       // assemble rhs for current mg iteration at current group
       equ_ptrs.back()->assemble_linear_form (sflxes_proc, g);
       // solve for current group
-      this->ig_ptr->solve_in_group (sflxes_proc, equ_ptrs.back(), g);
+      ig_ptr->solve_in_group (sflxes_proc, equ_ptrs.back(), g);
       // calculate the error up to this group
       m = std::max
       (m, this->estimate_phi_diff(sflxes_proc[g],

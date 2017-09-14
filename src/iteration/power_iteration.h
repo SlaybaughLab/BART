@@ -14,11 +14,15 @@ public:
   
   void do_iterations
   (std::vector<Vector<double> > &sflxes_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+   std_cxx11::shared_ptr<MGBase<dim> > mg_ptr);
   
   void eigen_iterations
   (std::vector<Vector<double> > &sflxes_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+   std_cxx11::shared_ptr<MGBase<dim> > mg_ptr);
 };
 
 #endif //__power_iteration_h__

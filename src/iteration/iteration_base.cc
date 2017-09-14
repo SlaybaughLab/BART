@@ -14,13 +14,6 @@ IterationBase<dim>::~IterationBase ()
 {
 }
 
-template <int dim>
-void IterationBase<dim>::do_iterations
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
-{
-}
-
 // *****************************************************************************
 // The following section are four member functions used to estimate difference
 // between two vectors. The difference estimation is based on L1 norm.

@@ -1,28 +1,22 @@
 #ifndef __equation_base_h__
 #define __equation_base_h__
-#include <deal.II/lac/generic_linear_algebra.h>
 
+#include <deal.II/lac/generic_linear_algebra.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 #include <deal.II/lac/petsc_precondition.h>
 #include <deal.II/lac/constraint_matrix.h>
 #include <deal.II/lac/sparsity_tools.h>
-
 #include <deal.II/numerics/vector_tools.h>
-
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/fe/fe_poly.h>
-
+#include <deal.II/fe/fe_values.h>
 #include <deal.II/dofs/dof_tools.h>
-
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/index_set.h>
-#include <deal.II/base/utilities.h>
-
+#include <deal.II/base/conditional_ostream.h>
 #include <deal.II/distributed/tria.h>
-
-#include <deal.II/numerics/data_out.h>
 
 #include <fstream>
 #include <iostream>
@@ -101,13 +95,6 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  virtual void integrate_reflective_boundary_linear_form
-  (typename DoFHandler<dim>::active_cell_iterator &cell,
-   unsigned int &fn,/*face number*/
-   std::vector<Vector<double> > &cell_rhses,
-   const unsigned int &g,
-   const unsigned int &i_dir);
-  
   virtual void integrate_interface_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
@@ -140,10 +127,9 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  virtual void postprocess ();
-  
   virtual void solve_in_group (const unsigned int &g);
   
+  /*
   // TODO: if DFEM-NDA is developed, this has to be redesigned
   virtual void prepare_cell_corrections
   (const std::vector<std::vector<Tensor<1, dim> > > &ho_cell_dpsi,
@@ -155,6 +141,7 @@ public:
   (const std::vector<double> &ho_bd_psi,
    const std::vector<double> &ho_bd_phi,
    std::vector<double> &boundary_corrections);
+   */
   
   virtual void initialize_system_matrices_vectors
   (DynamicSparsityPattern &dsp,
@@ -264,6 +251,7 @@ protected:
   
   std::set<unsigned int> fissile_ids;
   
+  ConditionalOStream pcout;
 private:
   void setup_system ();
   void generate_globally_refined_grid ();
@@ -279,8 +267,6 @@ private:
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
-  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
-  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr;
   
   // related objects for current equation: matrices, vectors

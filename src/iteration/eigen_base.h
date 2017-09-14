@@ -13,13 +13,18 @@ public:
   EigenBase (const ParameterHandler &prm);
   virtual ~EigenBase ();
   
+  // override this in derived class for NDA-eigen
   virtual void do_iterations
   (std::vector<Vector<double> > &sflxes_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+   std_cxx11::shared_ptr<MGBase<dim> > mg_ptr);
   
   virtual void eigen_iterations
   (std::vector<Vector<double> > &sflxes_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+   std_cxx11::shared_ptr<MGBase<dim> > mg_ptr);
   
   virtual void update_prev_sflxes_fiss_src_keff
   (std::vector<Vector<double> >&sflxes_proc);
@@ -48,8 +53,6 @@ protected:
   double fiss_src_prev;
 
   std::vector<Vector<double> > sflxes_proc_prev_eigen;
-  
-  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
 };
 
 #endif //__eigen_base_h__

@@ -31,6 +31,11 @@ IGBase<dim> (prm)
 }
 
 template <int dim>
+SourceIteration<dim>::~SourceIteration ()
+{
+}
+
+template <int dim>
 void SourceIteration<dim>::solve_in_group
 (std::vector<Vector<double> > &sflxes_proc,
  std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
@@ -52,3 +57,5 @@ void SourceIteration<dim>::solve_in_group
 
 template class IGBase<2>;
 template class IGBase<3>;
+template class SourceIteration<2>;
+template class SourceIteration<3>;
