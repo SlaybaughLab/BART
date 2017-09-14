@@ -1,8 +1,8 @@
 #ifndef __mg_base_h__
 #define __mg_base_h__
 
-#include "../transport/equation_base.h"
-#include "in_group_base.h"
+#include "iteration_base.h"
+#include "ig_base.h"
 
 using namespace dealii;
 
@@ -10,31 +10,34 @@ template <int dim>
 class MGBase : public IterationBase<dim>
 {
 public:
-  MGBase (ParameterHandler &prm);
+  MGBase (const ParameterHandler &prm);
   virtual ~MGBase ();
   
   virtual void do_iterations
-  (std::vector<Vector<double> > &sflx_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
   
   virtual void mg_iterations
-  (std::vector<Vector<double> > &sflx_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs);
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
   
-  virtual void generate_group_rhses
-  (std::vector<PETScWrappers::MPI::Vector*> &group_rhses, unsigned int &g);
+  virtual void nonthermal_solves
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
   
-  virtual void iteration_over_groups
-  (std::vector<PETScWrappers::MPI::Vector*> &group_rhses);
-  
+  virtual void thermal_iterations
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
 protected:
   const double err_phi_tol;
   
-  std_cxx11::shared_ptr<InGroupBase<dim> > ig_ptr;
+  unsigned int g_thermal;
   
-  std::vector<Vector<double> > sflx_proc_old;
-  // auxiliary flux if it's HOLO methodology: it will be for HO flux
-  std::vector<Vector<double> > sflx_proc_aux;
-}
+  std::vector<Vector<double> > sflxes_proc_prev_mg;
+};
 
 #endif//__mg_base_h__

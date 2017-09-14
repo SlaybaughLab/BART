@@ -19,7 +19,7 @@ public:
   
   void make_grid (parallel::distributed::Triangulation<dim> &tria);
   void get_relevant_cell_iterators
-  (DoFHandler<dim> &dof_handler,
+  (const DoFHandler<dim> &dof_handler,
    std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
    std::vector<bool> &is_cell_at_bd);
   unsigned int get_uniform_refinement ();

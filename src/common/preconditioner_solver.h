@@ -15,7 +15,7 @@ using namespace dealii;
 class PreconditionerSolver
 {
 public:
-  PreconditionerSolver (ParameterHandler &prm,
+  PreconditionerSolver (const ParameterHandler &prm,
                         std::string equation_name,
                         unsigned int& n_total_vars);
   ~PreconditionerSolver ();
@@ -36,16 +36,13 @@ private:
   const std::string equation_name;
   
   bool have_reflective_bc;
-  double ho_ssor_omega;
-  double nda_ssor_omega;
+  double ssor_omega;
   
   std::string linear_solver_name;
   std::string preconditioner_name;
   
-  std::vector<bool> ho_direct_init;
-  std::vector<bool> nda_direct_init;
-  std::vector<unsigned int> ho_linear_iters;
-  std::vector<unsigned int> nda_linear_iters;
+  std::vector<bool> direct_init;
+  std::vector<unsigned int> linear_iters;
   
   // solver related variables
   // TODO: Add some other PETSc preconditioners existing in deal.II

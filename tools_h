@@ -6,12 +6,15 @@
 #include <deal.II/fe/fe_poly.h>
 
 #include <string>
-#include <map>
 
-#include "../equations/equation_base.h"
+#include "../equation/equation_base.h"
 #include "../aqdata/aq_base.h"
 #include "../mesh/mesh_generator.h"
-#include "../common/material_properties.h"
+#include "../iteration/iterations.h"
+#include "../iteration/eigen_base.h"
+#include "../iteration/mg_base.h"
+#include "../iteration/ig_base.h"
+#include "../material/material_properties.h"
 
 using namespace dealii;
 
@@ -22,8 +25,8 @@ using namespace dealii;
  * \return A raw pointer of finite elements derived from FE_Poly
  */
 template <int dim>
-FE_Poly<TensorProductPolynomials<dim>,dim,dim>*
-build_finite_element (ParameterHandler &prm);
+void build_finite_element
+(FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe, ParameterHandler &prm);
 
 /** \brief Function to build mesh in calculations for general dimensions
  *
@@ -31,15 +34,16 @@ build_finite_element (ParameterHandler &prm);
  * \return A shared pointer to MeshGenerator<dim> instance
  */
 template <int dim>
-std_cxx11::shared_ptr<MeshGenerator<dim> >
-build_mesh (ParameterHandler &prm);
+void build_mesh
+(std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr, ParameterHandler &prm);
 
 /** \brief Function to build pointer to MaterialProperties class.
  *
  * \parameter prm A reference to processed ParameterHandler instance
  * \return A shared pointer to MaterialProperties instance
  */
-std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm);
+void build_material
+(std_cxx11::shared_ptr<MaterialProperties> mat_ptr, ParameterHandler &prm);
 
 /** \brief Build specific transport model
  *
@@ -49,17 +53,19 @@ std_cxx11::shared_ptr<MaterialProperties> build_material (ParameterHandler &prm)
  * \return a shared pointer to transport model
  */
 template <int dim>
-std_cxx11::shared_ptr<EquationBase<dim> >
-build_equation (std::string equation_name,
-                ParameterHandler &prm,
-                const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
+void build_equation
+(std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
+ std::string equation_name,
+ ParameterHandler &prm,
+ const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+ const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
+ const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
 
 /** \brief Build linear algebraic related stuffs for solving linear equations
  */
-std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
-(ParameterHandler &prm,
+void build_linalg
+(std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr,
+ ParameterHandler &prm,
  std::string equation_name,
  unsigned int& n_total_vars);
 
@@ -71,22 +77,23 @@ std_cxx11::shared_ptr<PreconditionerSolver> build_linalg
  * without knowing what iterative methods are involved.
  */
 template <int dim>
-std_cxx11::shared_ptr<Iterations<dim> > build_iterations
-(ParameterHandler &prm,
+void build_iterations
+(std_cxx11::shared_ptr<Iterations<dim> > itr_ptr,
+ const ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
 
 template <int dim>
-std_cxx11::shared_ptr<EigenBase<dim> > build_eigen_iterations
-(ParameterHandler &prm);
+void build_eigen_iterations
+(std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr, ParameterHandler &prm);
 
 template <int dim>
-std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations
-(ParameterHandler &prm);
+void build_mg_iterations
+(std_cxx11::shared_ptr<MGBase<dim> > mg_ptr, ParameterHandler &prm);
 
 template <int dim>
-std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations
+std_cxx11::shared_ptr<IGBase<dim> > build_ig_iterations
 (ParameterHandler &prm);
 
 
@@ -96,30 +103,12 @@ std_cxx11::shared_ptr<InGroupBase<dim> > build_ig_iterations
  * \return a shared pointer to specific angular quadrature
  */
 template <int dim>
-std_cxx11::shared_ptr<AQBase<dim> >
-build_aq_model (ParameterHandler &prm);
-
-bool zeroth_proc ();
+void build_aq_model
+(std_cxx11::shared_ptr<AQBase<dim> >aq_pointer, ParameterHandler &prm);
 
 /** \brief ConditionalOStream object used to output things on screen with processor 0
  */
-ConditionalOStream pout (std::cout,
-                         Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0);
-
-void radio (std::string str);
-
-void radio (std::string str1, std::string str2);
-
-void radio (std::string str, double num);
-
-void radio (std::string str1, unsigned int num1,
-            std::string str2, unsigned int num2,
-            std::string str3, unsigned int num3);
-
-void radio (std::string str, unsigned int num);
-
-void radio (std::string str, bool boolean);
-
-void radio ();
+ConditionalOStream pout
+(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0);
 
 #endif //__bart_tools_h__

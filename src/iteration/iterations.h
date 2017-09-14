@@ -1,5 +1,6 @@
 #ifndef __iterations_h__
 #define __iterations_h__
+
 #include <deal.II/lac/generic_linear_algebra.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
@@ -24,20 +25,17 @@
 
 #include <deal.II/numerics/data_out.h>
 
-#include <fstream>
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <map>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "eigen_base.h"
+#include "mg_base.h"
+#include "ig_base.h"
 #include "../common/problem_definition.h"
 #include "../common/preconditioner_solver.h"
-#include "../mesh/mesh_generator.h"
-#include "../material/material_properties.h"
-#include "../aqdata/aq_base.h"
+#include "../equation/equation_base.h"
+
 
 using namespace dealii;
 
@@ -45,25 +43,23 @@ template <int dim>
 class Iterations
 {
 public:
-  Iterations (std::string equation_name,
-              const ParameterHandler &prm,
-              const DoFHandler<dim> &dof_handler
-              const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-              const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
-              const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  virtual ~Iterations ();
+  Iterations (const ParameterHandler &prm);
+  ~Iterations ();
   
-  void solve_problems (std::vector<Vector<double> > &sflx_proc);
-  
-  void initialize_system_matrices_vectors
-  (SparsityPatternType &dsp, IndexSet &local_dofs);
+  void solve_problems
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+   std_cxx11::shared_ptr<MGBase<dim> > mg_ptr,
+   std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr);
   
   void get_keff (double &keff);
 
-protected:
+private:
+  const std::string transport_name;
+  
   double keff;
   bool is_eigen_problem;
-  bool do_nda;
 };
 
 #endif	// define  __iterations_h__

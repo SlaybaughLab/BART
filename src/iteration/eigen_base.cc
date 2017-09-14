@@ -1,13 +1,13 @@
 #include "eigen_base.h"
-#include "mg_base.h"
 
 template <int dim>
-EigenBase<dim>::EigenBase (ParameterHandler &prm) : IterationBase<dim> (prm),
+EigenBase<dim>::EigenBase (const ParameterHandler &prm)
+:
+IterationBase<dim>(prm),
 err_k_tol(1.0e-6),
-err_phi_tol(1.0e-5),
-keff(1.0)
+err_phi_tol(1.0e-5)
 {
-  mg_ptr = build_mg_iterations (prm);
+  sflxes_proc_prev_eigen.resize (this->n_group);
 }
 
 template <int dim>
@@ -16,70 +16,74 @@ EigenBase<dim>::~EigenBase ()
 }
 
 template <int dim>
-EigenBase<dim>::do_iterations
-void MGBase<dim>::do_iterations
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+void EigenBase<dim>::do_iterations
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+ std_cxx11::shared_ptr<MGBase<dim> > mg_ptr)
 {
-  // assemble system matrices
-  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-    equ_ptrs[i]->assemble_bilinear_form ();
-  
-  // initialize fission process
-  initialize_fiss_process (sflx_proc, equ_ptrs);
-  
-  // perform eigenvalue iterations
-  eigen_iterations (sflx_proc, equ_ptrs);
+  // override this function per derived class. Will be called in Iterations class
 }
 
 template <int dim>
 void EigenBase<dim>::initialize_fiss_process
-(std::vector<Vector<double> > &sflx_proc,
+(std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
 {
-  for (unsigned int g=0; g<n_group; ++g)
-    sflx_proc[g] = 1.0;
-  
-  fission_source = equ_ptrs[0]->estimate_fiss_source (this->sflx_proc);
+  // calculate fission source based on initial scalar fluxes
+  fiss_src = equ_ptrs[0]->estimate_fiss_src (sflxes_proc);
+  // initialize keff
+  keff = 1.0;
 }
 
 // Override this function to do specific eigenvalue iteration as desired
 template <int dim>
 void EigenBase<dim>::eigen_iterations
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+ std_cxx11::shared_ptr<MGBase<dim> > mg_ptr)
 {
 }
 
 template <int dim>
-void EigenBase<dim>::update_fiss_source_keff
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+void EigenBase<dim>::update_prev_sflxes_fiss_src_keff
+(std::vector<Vector<double> >&sflxes_proc)
 {
+  // update scalar fluxes from previous eigen iteration
+  for (unsigned int g=0; g<this->n_group; ++g)
+    sflxes_proc_prev_eigen[g] = sflxes_proc[g];
+  // update fission source from previous eigen iteration
+  fiss_src_prev = fiss_src;
+  // update keff from previous eigen iteration
   keff_prev = keff;
-  fission_source_prev = fission_source;
-  fission_source = equ_ptrs[0]->estimate_fiss_source (sflx_proc);
-  keff = estimate_k (fission_source, fission_source_prev_gen, keff_prev_gen);
 }
 
 template <int dim>
-double EigenBase<dim>::estimate_k (double &fiss_source,
-                                   double &fiss_source_prev,
-                                   double &k_prev)
+void EigenBase<dim>::calculate_fiss_src_keff
+(std::vector<Vector<double> > &sflxes_proc,
+ std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr)
 {
-  return k_prev * fiss_source / fiss_source_prev;
+  fiss_src = equ_ptr->estimate_fiss_src (sflxes_proc);
+  keff = estimate_k ();
 }
 
 template <int dim>
-double EigenBase<dim>::estimate_k_diff (double &k, double &k_prev)
+double EigenBase<dim>::estimate_k ()
 {
-  return std::fabs (k - k_prev)/k;
+  return keff_prev * fiss_src / fiss_src_prev;
 }
 
 template <int dim>
-double EigenBase<dim>::get_keff ()
+double EigenBase<dim>::estimate_k_diff ()
 {
-  return keff;
+  return std::fabs (keff - keff_prev) / keff;
+}
+
+template <int dim>
+void EigenBase<dim>::get_keff (double &k)
+{
+  k = keff;
 }
 
 template class EigenBase<2>;

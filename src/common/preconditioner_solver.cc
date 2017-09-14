@@ -1,6 +1,6 @@
 #include "preconditioner_solver.h"
 
-PreconditionerSolver::PreconditionerSolver (ParameterHandler &prm,
+PreconditionerSolver::PreconditionerSolver (const ParameterHandler &prm,
                                             std::string equation_name,
                                             unsigned int& n_total_vars)
 :
@@ -139,24 +139,24 @@ void PreconditionerSolver::linear_algebra_solve
     PETScWrappers::SolverCG
     solver (*cn[i], MPI_COMM_WORLD);
     if (preconditioner_name=="amg")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_amg[i]);
     else if (preconditioner_name=="jacobi")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_jacobi[i]);
     else if (preconditioner_name=="bssor")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_eisenstat[i]);
     else if (preconditioner_name=="parasails")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_parasails[i]);
   }
   else if (linear_solver_name=="bicgstab")
@@ -164,24 +164,24 @@ void PreconditionerSolver::linear_algebra_solve
     PETScWrappers::SolverBicgstab
     solver (*cn[i], MPI_COMM_WORLD);
     if (preconditioner_name=="amg")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_amg[i]);
     else if (preconditioner_name=="jacobi")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_jacobi[i]);
     else if (preconditioner_name=="bssor")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_eisenstat[i]);
     else if (preconditioner_name=="parasails")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_parasails[i]);
   }
   else if (linear_solver_name=="gmres")
@@ -189,24 +189,24 @@ void PreconditionerSolver::linear_algebra_solve
     PETScWrappers::SolverGMRES
     solver (*cn[i], MPI_COMM_WORLD);
     if (preconditioner_name=="amg")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_amg[i]);
     else if (preconditioner_name=="jacobi")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_jacobi[i]);
     else if (preconditioner_name=="bssor")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_eisenstat[i]);
     else if (preconditioner_name=="parasails")
-      solver.solve (sys_mats,
-                    sys_flxes,
-                    sys_rhses,
+      solver.solve (*sys_mats[i],
+                    *sys_flxes[i],
+                    *sys_rhses[i],
                     *pre_parasails[i]);
   }
   else// if (linear_solver_name=="direct")
@@ -222,9 +222,9 @@ void PreconditionerSolver::linear_algebra_solve
         direct[i]->set_symmetric_mode (true);
       direct_init[i] = true;
     }
-    direct[i]->solve (sys_mats,
-                         sys_flxes,
-                         rhs);
+    direct[i]->solve (*sys_mats[i],
+                      *sys_flxes[i],
+                      *sys_rhses[i]);
   }
   // the linear_iters are for reporting linear solver status, test purpose only
   if (linear_solver_name!="direct")

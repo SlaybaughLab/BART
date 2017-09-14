@@ -14,7 +14,6 @@
 
 using namespace dealii;
 
-/* Hard coded part, have to be changed in the future */
 const unsigned int nmat = 50;
 const unsigned int ngrp = 30;
 const unsigned int z_levels = 30;

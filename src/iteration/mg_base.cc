@@ -1,11 +1,17 @@
 #include "mg_base.h"
 
 template <int dim>
-MGBase<dim>::MGBase (ParameterHandler &prm)
-: IterationBase<dim> (prm),
+MGBase<dim>::MGBase (const ParameterHandler &prm)
+:
+IterationBase<dim> (prm),
+g_thermal(prm.get_integer("thermal group boundary")),
 err_phi_tol(1.0e-5)
 {
-  ig_ptr = build_ig_iteration (prm);
+  AssertThrow (g_thermal<this->n_group && g_thermal>=0,
+               ExcMessage("Invalid thermal upper boundary"));
+  
+  // TODO: needs change if anisotropic scattering is needed
+  sflxes_proc_prev_mg.resize (this->n_group);
 }
 
 template <int dim>
@@ -15,15 +21,16 @@ MGBase<dim>::~MGBase ()
 
 template <int dim>
 void MGBase<dim>::do_iterations
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
 {
-  // assemble bilinear forms of available equations
-  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-    equ_ptrs[i]->assemble_bilinear_forms ();
+  // this function will be called only when it's not an eigenvalue problem. Copy
+  // the following assertion in ALL derived class of MGBase.
+  AssertThrow (!this->is_eigen_problem,
+               ExcMessage("This function shall not be called if it's eigen prob."));
   
-  // multigroup iterations
-  mg_iterations (sflx_proc, equ_ptrs);
+  // override this function per derived class
 }
 
 // virtual function for all multigroup iteration method. It has to be overriden
@@ -32,32 +39,46 @@ void MGBase<dim>::do_iterations
 // instances.
 template <int dim>
 void MGBase<dim>::mg_iterations
-(std::vector<Vector<double> > &sflx_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs)
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
 {// this function needs to be overridden if JFNK is desired
-  // by default, we give out Jacobi iteration scheme
-  /*
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    generate_group_rhses (sys_rhses, g);
-    win_ptr->solve_in_group (sys_mats, g)
-  }
-   */
-  // GS
-  /*
-  for (unsigned int g=0; g<n_group; ++g)
-  {
-    generate_group_rhses (sys_rhses, g);
-    win_ptr->solve_in_group (sys_mats,vec_aflx,sys_rhses)
-  }
-   */
-  // Jacobi
-  /*
-   for (unsigned int g=0; g<n_group; ++g)
-     generate_group_rhses (sys_rhses, g);
-   for (unsigned int g=0; g<n_group; ++g)
-     win_ptr->solve_in_group (sys_mats,vec_aflx,sys_rhses)
-   */
+  if (this->do_nda)
+    AssertThrow (equ_ptrs.back()->get_equ_name()=="nda" &&
+                 equ_ptrs.front()->get_equ_name()!="nda",
+                 ExcMessage("Check equation names"));
+  // solve for epithermal and fast groups
+  nonthermal_solves (sflxes_proc, equ_ptrs, ig_ptr);
+  // thermal group iterations
+  thermal_iterations (sflxes_proc, equ_ptrs, ig_ptr);
+}
+
+/** virtual function for solving nonthermal groups.
+ 
+ Usually, nonthermal groups have no upscattering. So this function is a group-by-
+ group one-pass solving until reaching the thermal group. It will not be called 
+ if algorithms like JFNK are called
+ */
+template <int dim>
+void MGBase<dim>::nonthermal_solves
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
+{
+}
+
+/** virtual function for solving thermal groups iteratively.
+ 
+ Thermal groups have upscattering for applications like LWR. So this function is
+ to solve for thermal groups iteratively. It will not be called if algorithms like
+ JFNK are called
+ */
+template <int dim>
+void MGBase<dim>::thermal_iterations
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
+{
 }
 
 template class MGBase<2>;

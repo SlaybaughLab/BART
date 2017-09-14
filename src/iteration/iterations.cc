@@ -9,29 +9,16 @@
 #include <algorithm>
 
 #include "iterations.h"
-#include "../aqdata/aq_base.h"
-#include "../aqdata/aq_lsgc.h"
 
 using namespace dealii;
 
 template <int dim>
 Iterations<dim>::Iterations
-(const ParameterHandler &prm,
- const DoFHandler<dim> &dof_handler
- const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
- const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
- const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+(const ParameterHandler &prm)
 :
-transport_name (prm.get("transport model")),
-is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
-do_nda(prm.get_bool("do NDA"))
+transport_name(prm.get("transport model")),
+is_eigen_problem(prm.get_bool("do eigenvalue calculations"))
 {
-  mat_ptr = build_material (prm);
-  // vectors containing all the pointers to equations. Size is 2 if NDA is used.
-  equ_ptrs.resize (do_nda?2:1);
-  equ_ptrs[0] = build_equation (transport_name, prm, dof_handler, msh_ptr, aqd_ptr, mat_ptr);
-  if (do_nda)
-    equ_ptrs[1] = build_equation ("nda", prm, dof_handler, msh_ptr, aqd_ptr, mat_ptr);
 }
 
 template <int dim>
@@ -40,29 +27,20 @@ Iterations<dim>::~Iterations ()
 }
 
 template <int dim>
-void Iterations<dim>::initialize_system_matrices_vectors
-(SparsityPatternType &dsp, IndexSet &local_dofs)
-{
-  // each equation pointer contains system matrices and vectors from PETSc, per se
-  // This function is to tell the shapes and sizes of those vectors and matrices
-  for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-    equ_ptrs[i]->initialize_system_matrices_vectors (dsp, local_dofs);
-}
-
-template <int dim>
-void Iterations<dim>::solve_problems (std::vector<Vector<double> > &sflx_proc)
+void Iterations<dim>::solve_problems
+(std::vector<Vector<double> > &sflxes_proc,
+ std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
+ std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
+ std_cxx11::shared_ptr<MGBase<dim> > mg_ptr,
+ std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr)
 {
   if (is_eigen_problem)
   {
-    std_cxx11::shared_ptr<EigenBase<dim> > pro_ptr = build_eigen_problem (prm);
-    pro_ptr->do_iterations (sflx_proc, equ_ptrs);
-    pro_ptr->get_keff (keff);
+    eig_ptr->do_iterations (sflxes_proc, equ_ptrs, ig_ptr, mg_ptr);
+    eig_ptr->get_keff (keff);
   }
   else
-  {
-    std_cxx11::shared_ptr<MGBase<dim> > pro_ptr = build_mg_problem (prm);
-    pro_ptr->do_iterations (sflx_proc, equ_ptrs);
-  }
+    mg_ptr->do_iterations (sflxes_proc, equ_ptrs, ig_ptr);
 }
 
 template <int dim>

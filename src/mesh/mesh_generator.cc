@@ -226,7 +226,7 @@ void MeshGenerator<dim>::preprocess_reflective_bc (ParameterHandler &prm)
 
 template <int dim>
 void MeshGenerator<dim>::get_relevant_cell_iterators
-(DoFHandler<dim> &dof_handler,
+(const DoFHandler<dim> &dof_handler,
  std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
  std::vector<bool> &is_cell_at_bd)
 {

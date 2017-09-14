@@ -4,7 +4,6 @@ template <int dim>
 EvenParity<dim>::EvenParity
 (std::string equation_name,
  const ParameterHandler &prm,
- const DoFHandler<dim> &dof_handler
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
@@ -206,7 +205,7 @@ void EvenParity<dim>::integrate_interface_bilinear_form
 }
 
 template <int dim>
-void EquationBase<dim>::integrate_scattering_linear_form
+void EvenParity<dim>::integrate_scattering_linear_form
 (typename DoFHandler<dim>::active_cell_iterator &cell,
  Vector<double> &cell_rhs,
  std::vector<Vector<double> > &sflx_proc,
@@ -219,9 +218,9 @@ void EquationBase<dim>::integrate_scattering_linear_form
   for (unsigned int gin=0; gin<this->n_group; ++gin)
   {
     std::vector<double> local_flx (this->n_q);
-    this->fv->get_function_values (sflx_proc[g], local_flx);
+    this->fv->get_function_values (sflx_proc[gin], local_flx);
     for (unsigned int qi=0; qi<this->n_q; ++qi)
-      q_at_qp[qi] += (this->all_sgis_per_ster[mid][gin][g] *
+      q_at_qp[qi] += (this->all_sigs_per_ster[mid][gin][g] *
                       local_flx[qi]);
   }
 

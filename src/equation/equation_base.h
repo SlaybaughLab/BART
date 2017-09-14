@@ -1,28 +1,22 @@
 #ifndef __equation_base_h__
 #define __equation_base_h__
-#include <deal.II/lac/generic_linear_algebra.h>
 
+#include <deal.II/lac/generic_linear_algebra.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 #include <deal.II/lac/petsc_precondition.h>
 #include <deal.II/lac/constraint_matrix.h>
 #include <deal.II/lac/sparsity_tools.h>
-
 #include <deal.II/numerics/vector_tools.h>
-
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/fe/fe_poly.h>
-
+#include <deal.II/fe/fe_values.h>
 #include <deal.II/dofs/dof_tools.h>
-
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/index_set.h>
-#include <deal.II/base/utilities.h>
-
+#include <deal.II/base/conditional_ostream.h>
 #include <deal.II/distributed/tria.h>
-
-#include <deal.II/numerics/data_out.h>
 
 #include <fstream>
 #include <iostream>
@@ -48,7 +42,6 @@ public:
   // For SN and NDA (NDA still needs quadrature to calculate corrections)
   EquationBase (std::string equation_name,
                 const ParameterHandler &prm,
-                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
@@ -58,9 +51,8 @@ public:
   // asking for AQ instance.
   EquationBase (std::string equation_name,
                 const ParameterHandler &prm,
-                const DoFHandler<dim> &dof_handler
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
+                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
   virtual ~EquationBase ();
   
@@ -73,7 +65,8 @@ public:
   virtual void assemble_interface_bilinear_form ();
   
   void assemble_closure_bilinear_form
-  (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr);
+  (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr,
+   bool do_assembly = true);
   
   virtual void assemble_linear_form
   (std::vector<Vector<double> > &sflx_this_proc,
@@ -93,32 +86,25 @@ public:
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp,
    const unsigned int &g,
-   const unsigned int &i_dir=0);
+   const unsigned int &i_dir);
   
   virtual void integrate_boundary_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
    FullMatrix<double> &cell_matrix,
    const unsigned int &g,
-   const unsigned int &i_dir=0);
-  
-  virtual void integrate_reflective_boundary_linear_form
-  (typename DoFHandler<dim>::active_cell_iterator &cell,
-   unsigned int &fn,/*face number*/
-   std::vector<Vector<double> > &cell_rhses,
-   const unsigned int &g,
-   const unsigned int &i_dir=0);
+   const unsigned int &i_dir);
   
   virtual void integrate_interface_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
    unsigned int &fn,/*concerning face number in local cell*/
-   unsigned int &i_dir,
-   unsigned int &g,
-   FullMatrix<double> &vp_up,
-   FullMatrix<double> &vp_un,
-   FullMatrix<double> &vn_up,
-   FullMatrix<double> &vn_un);
+   FullMatrix<double> &vi_ui,
+   FullMatrix<double> &vi_ue,
+   FullMatrix<double> &ve_ui,
+   FullMatrix<double> &ve_ue,
+   const unsigned int &g,
+   const unsigned int &i_dir);
   
   virtual void integrate_scattering_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -141,15 +127,10 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
-  virtual void postprocess ();
-  
-  virtual void assemble_linear_form ();
-  
-  virtual void assemble_fixed_linear_form ();
-  (std::vector<Vector<double> > &sflx_this_proc);
-  
   virtual void solve_in_group (const unsigned int &g);
   
+  /*
+  // TODO: if DFEM-NDA is developed, this has to be redesigned
   virtual void prepare_cell_corrections
   (const std::vector<std::vector<Tensor<1, dim> > > &ho_cell_dpsi,
    const std::vector<Tensor<1, dim> > &ho_cell_dphi,
@@ -157,33 +138,47 @@ public:
    std::vector<Tensor<1, dim> > &cell_corrections);
   
   virtual void prepare_boundary_corrections
-  (const std::vector<double> &ho_cell_psi
+  (const std::vector<double> &ho_bd_psi,
+   const std::vector<double> &ho_bd_phi,
    std::vector<double> &boundary_corrections);
+   */
   
-  void initialize_system_matrices_vectors (SparsityPatternType &dsp, IndexSet &local_dofs);
+  virtual void initialize_system_matrices_vectors
+  (DynamicSparsityPattern &dsp,
+   IndexSet &local_dofs,
+   std::vector<Vector<double> > &sflxes_proc);
   
-  void initialize_preconditioners ();
+  virtual void generate_moments
+  (std::vector<Vector<double> > &sflxes,
+   std::vector<Vector<double> > &sflxes_old);
   
-  void generate_moments
-  (std::vector<Vector<double> > &sflx,
-   std::vector<Vector<double> > &sflx_old);
-  
-  void generate_moments
-  (std::vector<Vector<double> > &sflx,
-   std::vector<Vector<double> > &sflx_old,
+  virtual void generate_moments
+  (Vector<double> &sflx,
+   Vector<double> &sflx_old,
    const unsigned int &g);
   
-  void generate_ho_sflx
-  (std::vector<Vector<double> > &ho_aflx_proc,
-   std::vector<Vector<double> > &ho_sflx_proc);
-  
-  void get_ho_aflx (std::vector<Vector> &ho_aflx_proc);
+  virtual void generate_moments ();
   
   // override this three functions in derived classes
   // these functions have to be redefined when using diffusion, NDA, PN, SPN
   virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
   virtual unsigned int get_component_direction (unsigned int comp_ind);
   virtual unsigned int get_component_group (unsigned int comp_ind);
+  
+  double estimate_fiss_src (std::vector<Vector<double> > &sflxes_proc);
+  
+  void initialize_cell_iterators_this_proc
+  (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
+   const DoFHandler<dim> &dof_handler);
+  
+  void initialize_assembly_related_objects
+  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
+  
+  void initialize_preconditioners ();
+  
+  void scale_fiss_transfer_matrices (double keff);
+  
+  std::string get_equ_name ();
 protected:
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
@@ -198,6 +193,9 @@ protected:
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
   std_cxx11::shared_ptr<FEValues<dim> > fvc;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvfc;
+  
+  std::string equation_name;
+  std::string discretization;
   
   double keff;
   double keff_prev_gen;
@@ -253,6 +251,7 @@ protected:
   
   std::set<unsigned int> fissile_ids;
   
+  ConditionalOStream pcout;
 private:
   void setup_system ();
   void generate_globally_refined_grid ();
@@ -267,28 +266,16 @@ private:
   void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  void source_iteration ();
-  void scale_fiss_transfer_matrices ();
-  void initialize_aq (ParameterHandler &prm);
   
-  void initialize_assembly_related_objects
-  (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
-  
-  double estimate_fiss_source (std::vector<Vector<double> > &phis_this_process);
-  
-  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
-  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr;
-  
-  std::string equation_name;
-  std::string discretization;
   
   // related objects for current equation: matrices, vectors
   std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats;
   std::vector<PETScWrappers::MPI::Vector*> sys_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_fixed_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_aflxes;
-  std::vector<Vector<double> > aflxes_proc_prev;
+  std::vector<Vector<double> > ho_aflxes_proc;
+  std::vector<Vector<double> > ho_sflxes_proc;
 };
 
 #endif	// define  __equation_base_h__
