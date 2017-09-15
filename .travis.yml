@@ -19,10 +19,10 @@ services:
  - docker
 
 before_install:
- - sudo docker pull DEALII
+ - sudo docker pull $DEALII
 
 install:
- - sudo docker run DEALII
+ - sudo docker run $DEALII
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker cp ../BART $id:/home/dealii
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
