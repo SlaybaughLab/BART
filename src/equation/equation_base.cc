@@ -40,7 +40,7 @@ nda_quadrature_order(p_order+3) //this is hard coded
   
   if (equation_name!="nda" && do_nda)
   {
-    ho_aflxes_proc.resize (n_total_vars);
+    aflxes_proc.resize (n_total_vars);
     ho_sflxes_proc.resize (n_group);
   }
 }
@@ -463,12 +463,18 @@ void EquationBase<dim>::generate_moments
 {
   // TODO: only scalar flux is generated for now, future will be moments considering
   // anisotropic scattering
+  AssertThrow (equation_name!="nda" && do_nda,
+               ExcMessage("only non-NDA is supposed to call this function"));
   for (unsigned int g=0; g<n_group; ++g)
   {
     sflxes_proc_old[g] = sflxes_proc[g];
     sflxes_proc[g] = 0;
     for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-      sflxes_proc[g].add (wi[i_dir], *sys_aflxes[get_component_index(i_dir, g)]);
+    {
+      unsigned int i = get_component_index(i_dir, g);
+      aflxes_proc[i] = *sys_aflxes[i];
+      sflxes_proc[g].add (wi[i_dir], aflxes_proc[i]);
+    }
   }
 }
 
@@ -489,7 +495,11 @@ void EquationBase<dim>::generate_moments
   sflx_proc_old = sflx_proc;
   sflx_proc = 0;
   for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
-    sflx_proc.add (wi[i_dir], *sys_aflxes[get_component_index(i_dir, g)]);
+  {
+    unsigned int i = get_component_index(i_dir, g);
+    aflxes_proc[i] = *sys_aflxes[i];
+    sflx_proc.add (wi[i_dir], aflxes_proc[i]);
+  }
 }
 
 // generate scalar flux from HO solver for NDA
@@ -500,13 +510,13 @@ void EquationBase<dim>::generate_moments ()
                ExcMessage("only non-NDA is supposed to call this function"));
   // get a copy of angular fluxes on current processor
   for (unsigned int i=0; i<n_total_vars; ++i)
-    ho_aflxes_proc[i] = *sys_aflxes[i];
+    aflxes_proc[i] = *sys_aflxes[i];
   // generate a copy of scalar fluxes on current processor
   for (unsigned int g=0; g<n_group; ++g)
   {
-    ho_sflxes_proc[g].equ (wi[0], ho_aflxes_proc[get_component_index(0, g)]);
+    ho_sflxes_proc[g].equ (wi[0], aflxes_proc[get_component_index(0, g)]);
     for (unsigned int i_dir=1; i_dir<n_dir; ++i_dir)
-      ho_sflxes_proc[g].add (wi[i_dir], ho_aflxes_proc[get_component_index(i_dir, g)]);
+      ho_sflxes_proc[g].add (wi[i_dir], aflxes_proc[get_component_index(i_dir, g)]);
   }
 }
 

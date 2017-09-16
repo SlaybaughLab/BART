@@ -274,7 +274,7 @@ private:
   std::vector<PETScWrappers::MPI::Vector*> sys_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_fixed_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_aflxes;
-  std::vector<Vector<double> > ho_aflxes_proc;
+  std::vector<Vector<double> > aflxes_proc;
   std::vector<Vector<double> > ho_sflxes_proc;
 };
 
