@@ -1,14 +1,14 @@
-#ifndef __gauss_sidel_h__
-#define __gauss_sidel_h__
+#ifndef __gauss_seidel_h__
+#define __gauss_seidel_h__
 
 #include "mg_base.h"
 
 template <int dim>
-class GaussSidel : public MGBase<dim>
+class GaussSeidel : public MGBase<dim>
 {
 public:
-  GaussSidel (const ParameterHandler &prm);
-  ~GaussSidel ();
+  GaussSeidel (const ParameterHandler &prm);
+  ~GaussSeidel ();
   
   void nonthermal_solves
   (std::vector<Vector<double> > &sflxes_proc,
@@ -26,4 +26,4 @@ public:
    std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
 };
 
-#endif //__gauss_sidel_h__
+#endif //__gauss_Seidel_h__
