@@ -42,6 +42,7 @@ void SourceIteration<dim>::solve_in_group
  unsigned int &g)
 {
   double err = 1.0;
+  int iter = 0;
   while (err>this->err_phi_tol)
   {
     // generate rhs for group g
@@ -52,6 +53,7 @@ void SourceIteration<dim>::solve_in_group
     equ_ptr->generate_moments (sflxes_proc[g], this->sflx_proc_prev_ig, g);
     // calculate the difference of moments for convergence check
     err = this->estimate_phi_diff (sflxes_proc[g], this->sflx_proc_prev_ig);
+    this->pcout << "SI error: " << err << ", Iter: " << iter++ << std::endl;
   }
 }
 

@@ -61,6 +61,8 @@ protected:
   double total_calculation_time; /**< total time for calculations+assemblies*/
   unsigned int ct_ho_iters; /**< HO iteration counts*/
   unsigned int ct_nda_iters; /**< NDA iteration counts*/
+  
+  ConditionalOStream pcout;
 };
 
 #endif // __iteration_base_h__

@@ -51,6 +51,7 @@ void PowerIteration<dim>::eigen_iterations
 {
   double err_k = 1.0;
   double err_phi = 1.0;
+  int iter = 0;
   while (err_k>this->err_k_tol || err_phi>this->err_phi_tol)
   {
     // update sflxes, fission source and keff from previous fission with current sflxes
@@ -67,7 +68,8 @@ void PowerIteration<dim>::eigen_iterations
     err_phi = this->estimate_phi_diff (sflxes_proc, this->sflxes_proc_prev_eigen);
     err_k = this->estimate_k_diff ();
     // print on screen about the errors
-    //pout << "PI iter err_k: " << err_k << ", err_phi: " << err_phi << std::endl;
+    this->pcout << std::endl << std::endl << "PI iter: " << iter++
+    << ", err_k: " << err_k << ", err_phi: " << err_phi << std::endl << std::endl;
   }
 }
 

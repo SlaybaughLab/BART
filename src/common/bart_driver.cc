@@ -15,7 +15,7 @@
 #include "../aqdata/lsgc.h"
 #include "../equation/even_parity.h"
 #include "../iteration/power_iteration.h"
-#include "../iteration/gauss_sidel.h"
+#include "../iteration/gauss_seidel.h"
 
 
 template <int dim>
@@ -28,18 +28,19 @@ triangulation (MPI_COMM_WORLD,
 dof_handler (triangulation),
 pcout(std::cout,
       (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)),
-transport_model_name(prm.get("transport model")),
+transport_model(prm.get("transport model")),
+ho_linear_solver_name(prm.get("HO linear solver name")),
+ho_preconditioner_name(prm.get("HO preconditioner name")),
+discretization(prm.get("spatial discretization")),
+namebase(prm.get("output file name base")),
 aq_name(prm.get("angular quadrature name")),
-n_group(prm.get_integer("number of groups")),
-n_azi(prm.get_integer("angular quadrature order")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
+n_azi(prm.get_integer("angular quadrature order")),
+n_group(prm.get_integer("number of groups")),
 p_order(prm.get_integer("finite element polynomial degree")),
-global_refinements(prm.get_integer("uniform refinements")),
-namebase(prm.get("output file name base")),
-ho_linear_solver_name(prm.get("HO linear solver name")),
-ho_preconditioner_name(prm.get("HO preconditioner name"))
+global_refinements(prm.get_integer("uniform refinements"))
 {
   sflxes_proc.resize (n_group);
   build_basis (prm);
@@ -58,20 +59,26 @@ void BartDriver<dim>::build_basis (ParameterHandler &prm)
   // is left for future improvement
   
   // build pointer to Iterations
+  pcout << "building iterations" << std::endl;
   itr_ptr = std_cxx11::shared_ptr<Iterations<dim> > (new Iterations<dim>(prm));
   
-  // build pointer to angular quadrature data
-  build_aq_model (aqd_ptr, prm);
+  // build pointer to angular quadrature data and make angular quadrature
+  pcout << "building AQ data and making aq" << std::endl;
+  aqd_ptr = build_aq_model (prm);
+  aqd_ptr->make_aq ();
   
   // get angular infomation
   n_total_ho_vars = aqd_ptr->get_n_total_ho_vars ();
   n_azi = aqd_ptr->get_sn_order ();
   n_dir = aqd_ptr->get_n_dir ();
+  pcout << n_total_ho_vars << n_total_ho_vars << n_total_ho_vars << std::endl;
   
   // build pointers to mesh constructors and data
+  pcout << "building mesh for dim " << dim << std::endl;
   msh_ptr = std_cxx11::shared_ptr<MeshGenerator<dim> >(new MeshGenerator<dim>(prm));
   
   // build pointers to material data
+  pcout << "building materials" << std::endl;
   mat_ptr = std_cxx11::shared_ptr<MaterialProperties>(new MaterialProperties(prm));
   
   // initialize finite element space
@@ -82,20 +89,24 @@ void BartDriver<dim>::build_basis (ParameterHandler &prm)
   
   // instantiate equation pointers
   equ_ptrs.resize (do_nda?2:1);
-  build_equation
-  (equ_ptrs.front(), transport_model_name, prm, msh_ptr, aqd_ptr, mat_ptr);
+  equ_ptrs.front() = build_equation (transport_model, prm, msh_ptr, aqd_ptr, mat_ptr);
   if (do_nda)
-    build_equation (equ_ptrs.back(), "nda", prm, msh_ptr, aqd_ptr, mat_ptr);
+    equ_ptrs.back() = build_equation ("nda", prm, msh_ptr, aqd_ptr, mat_ptr);
   
   // instantiate in group iterations
-  build_ig_iterations (ig_ptr, prm);
+  ig_ptr = build_ig_iterations (prm);
   // instantiate multigroup iterations
-  build_mg_iterations (mg_ptr, prm);
+  mg_ptr = build_mg_iterations (prm);
   // instantiate eigen iterations if this is eigen problem
   if (is_eigen_problem)
-    build_eigen_iterations (eig_ptr, prm);
+  {
+    pcout << "building eigenvalue iterations" << std::endl;
+    eig_ptr = build_eigen_iterations (prm);
+  }
 }
 
+/**\brief report details about user specifications to run BART
+ */
 template <int dim>
 void BartDriver<dim>::report_system ()
 {
@@ -103,7 +114,7 @@ void BartDriver<dim>::report_system ()
   << "Number of angles: " << n_dir << std::endl
   << "Number of groups: " << n_group << std::endl;
 
-  pcout << "Transport model: " << transport_model_name << std::endl;
+  pcout << "Transport model: " << transport_model << std::endl;
   pcout << "Spatial discretization: " << discretization << std::endl;
   pcout << "HO linear solver: " << ho_linear_solver_name << std::endl;
   if (ho_linear_solver_name!="direct")
@@ -111,6 +122,7 @@ void BartDriver<dim>::report_system ()
   pcout << "do NDA? " << do_nda << std::endl;
   
   pcout << "Number of cells: " << triangulation.n_global_active_cells() << std::endl;
+  pcout << "DoF counts per component: " << dof_handler.n_dofs() << std::endl;
   pcout << "High-order total DoF counts: " << n_total_ho_vars*dof_handler.n_dofs() << std::endl;
 
   if (is_eigen_problem)
@@ -121,71 +133,76 @@ void BartDriver<dim>::report_system ()
 }
 
 template <int dim>
-void BartDriver<dim>::build_equation
-(std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
- std::string equation_name,
+std_cxx11::shared_ptr<EquationBase<dim> > BartDriver<dim>::build_equation
+(std::string equation_name,
  const ParameterHandler &prm,
  const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 {
   // TODO: add NDA to it after having NDA class
-  std_cxx11::shared_ptr<EquationBase<dim> > equation_pointer;
+  std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr;
   if (equation_name=="ep")
-    equ_ptr =
-    std_cxx11::shared_ptr<EquationBase<dim> >
+    equ_ptr = std_cxx11::shared_ptr<EquationBase<dim> >
     (new EvenParity<dim> (equation_name, prm, msh_ptr, aqd_ptr, mat_ptr));
+  return equ_ptr;
 }
 
 template <int dim>
-void BartDriver<dim>::build_aq_model
-(std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr, ParameterHandler &prm)
+std_cxx11::shared_ptr<AQBase<dim> > BartDriver<dim>::build_aq_model
+(ParameterHandler &prm)
 {
   std::string aq_name = prm.get ("angular quadrature name");
   AssertThrow (aq_name!="none",
                ExcMessage("angular quadrature name incorrect or missing"));
   // TODO: add more angular quadratures
+  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
   if (aq_name=="lsgc")
+  {
+    pcout << "constructing lsgc" << std::endl;
     aqd_ptr = std_cxx11::shared_ptr<AQBase<dim> > (new LSGC<dim>(prm));
-  //return aq_pointer;
+  }
+  return aqd_ptr;
 }
 
 /** \brief Function used to build pointer to instance of InGroupBase's derived class
  */
 template <int dim>
-void BartDriver<dim>::build_eigen_iterations
-(std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr, const ParameterHandler &prm)
+std_cxx11::shared_ptr<EigenBase<dim> > BartDriver<dim>::build_eigen_iterations
+(const ParameterHandler &prm)
 {
   // TODO: we only have power iteration now, change later once we need to choose
   // different in group solvers
-  eig_ptr =
-  std_cxx11::shared_ptr<EigenBase<dim> >
-  (new PowerIteration<dim> (prm));
+  std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr;
+  eig_ptr = std_cxx11::shared_ptr<EigenBase<dim> > (new PowerIteration<dim> (prm));
+  return eig_ptr;
 }
 
 /** \brief Function used to build pointer to instance of MGBase's derived class
  */
 template <int dim>
-void BartDriver<dim>::build_mg_iterations
-(std_cxx11::shared_ptr<MGBase<dim> > mg_ptr, const ParameterHandler &prm)
+std_cxx11::shared_ptr<MGBase<dim> > BartDriver<dim>::build_mg_iterations
+(const ParameterHandler &prm)
 {
   // TODO: fill this up once we have derived class of MGBase
-  mg_ptr =
-  std_cxx11::shared_ptr<MGBase<dim> > (new GaussSidel<dim> (prm));
+  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
+  mg_ptr = std_cxx11::shared_ptr<MGBase<dim> > (new GaussSeidel<dim> (prm));
+  return mg_ptr;
 }
 
 /** \brief Function used to build pointer to instance of InGroupBase's derived class
  */
 template <int dim>
-void BartDriver<dim>::build_ig_iterations
-(std_cxx11::shared_ptr<IGBase<dim> > ig_ptr, const ParameterHandler &prm)
+std_cxx11::shared_ptr<IGBase<dim> > BartDriver<dim>::build_ig_iterations
+(const ParameterHandler &prm)
 {
   // TODO: we only have source iteration now, change later once we need to choose
   // different in group solvers
+  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr;
   bool do_nda = prm.get_bool ("do NDA");
   if (!do_nda)
-    ig_ptr =
-    std_cxx11::shared_ptr<IGBase<dim> > (new SourceIteration<dim> (prm));
+    ig_ptr = std_cxx11::shared_ptr<IGBase<dim> > (new SourceIteration<dim> (prm));
+  return ig_ptr;
 }
 
 template <int dim>
@@ -239,6 +256,7 @@ void BartDriver<dim>::setup_system ()
 template <int dim>
 void BartDriver<dim>::output_results () const
 {
+  pcout << "output results" << std::endl;
   std::string sec_name = "Graphical output";
   DataOut<dim> data_out;
   data_out.attach_dof_handler (dof_handler);
@@ -272,7 +290,7 @@ void BartDriver<dim>::output_results () const
          i<Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
          ++i)
       filenames.push_back (namebase + "-" + discretization + "-" +
-                           Utilities::int_to_string (i) + ".vtu");
+                           Utilities::int_to_string (i, 4) + ".vtu");
     std::ostringstream os;
     os << namebase << "-" << discretization << "-" << global_refinements << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
@@ -289,7 +307,10 @@ void BartDriver<dim>::run ()
   // solve the problem using iterative methods specified in Iterations class
   itr_ptr->solve_problems (sflxes_proc, equ_ptrs, ig_ptr, mg_ptr, eig_ptr);
   if (is_eigen_problem)
+  {
     itr_ptr->get_keff (keff);
+    pcout << "keff = " << keff << std::endl;
+  }
   output_results ();
 }
 

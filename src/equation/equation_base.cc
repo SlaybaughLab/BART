@@ -7,6 +7,7 @@
 #include <deal.II/base/utilities.h>
 
 #include <algorithm>
+#include <fstream>
 
 #include "equation_base.h"
 
@@ -21,16 +22,16 @@ EquationBase<dim>::EquationBase
  const std_cxx11::shared_ptr<MaterialProperties> mat_ptr)
 :
 equation_name(equation_name),
-n_material(prm.get_integer("number of materials")),
 discretization(prm.get("spatial discretization")),
-n_group(prm.get_integer("number of groups")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
+n_group(prm.get_integer("number of groups")),
+n_material(prm.get_integer("number of materials")),
 p_order(prm.get_integer("finite element polynomial degree")),
+nda_quadrature_order(p_order+3), //this is hard coded
 pcout(std::cout,
-      (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)),
-nda_quadrature_order(p_order+3) //this is hard coded
+      (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))
 {
   // process input for mesh, AQ and material related data
   process_input (msh_ptr, aqd_ptr, mat_ptr);
@@ -38,11 +39,8 @@ nda_quadrature_order(p_order+3) //this is hard coded
   alg_ptr = std_cxx11::shared_ptr<PreconditionerSolver>
   (new PreconditionerSolver(prm, equation_name, n_total_vars));
   
-  if (equation_name!="nda" && do_nda)
-  {
-    aflxes_proc.resize (n_total_vars);
-    ho_sflxes_proc.resize (n_group);
-  }
+  aflxes_proc.resize (n_total_vars);
+  ho_sflxes_proc.resize (n_group);
 }
 
 template <int dim>
@@ -209,6 +207,9 @@ void EquationBase<dim>::assemble_bilinear_form ()
     pcout << "Assemble cell interface bilinear forms for DFEM" << std::endl;
     assemble_interface_bilinear_form ();
   }
+  
+  // initialize preconditioners
+  alg_ptr->initialize_preconditioners (sys_mats, sys_rhses);
 }
 
 // TODO: derive a NDA class and override the following function
@@ -281,6 +282,12 @@ void EquationBase<dim>::assemble_volume_boundary_bilinear_form ()
     }
     sys_mats[k]->compress (VectorOperation::add);
   }// components
+  /* lines for printing system matrices for sanity check purpose
+  std::ofstream mat_file;
+  mat_file.open("matrix-test.txt");
+  sys_mats[0]->print (mat_file);
+  mat_file.close();
+  */
 }
 
 // The following is a virtual function for integraing cell bilinear form;
@@ -497,6 +504,8 @@ void EquationBase<dim>::generate_moments
   for (unsigned int i_dir=0; i_dir<n_dir; ++i_dir)
   {
     unsigned int i = get_component_index(i_dir, g);
+    // NOTE: the following step copying global vector to local process has to be
+    // explicitly done to prevent error after deal.II 8.4.2
     aflxes_proc[i] = *sys_aflxes[i];
     sflx_proc.add (wi[i_dir], aflxes_proc[i]);
   }
@@ -593,9 +602,9 @@ void EquationBase<dim>::assemble_fixed_linear_form
     *sys_fixed_rhses[k] = 0.0;
     for (unsigned int ic=0; ic<local_cells.size(); ++ic)
     {
-      Vector<double> cell_rhs (this->dofs_per_cell);
+      Vector<double> cell_rhs (dofs_per_cell);
       typename DoFHandler<dim>::active_cell_iterator cell = local_cells[ic];
-      cell->get_dof_indices (this->local_dof_indices);
+      cell->get_dof_indices (local_dof_indices);
       fv->reinit (cell);
       integrate_cell_fixed_linear_form (cell, cell_rhs,
                                         sflx_prev,
@@ -614,12 +623,6 @@ void EquationBase<dim>::integrate_cell_fixed_linear_form
  const unsigned int &g,
  const unsigned int &i_dir)
 {
-}
-
-template <int dim>
-void EquationBase<dim>::initialize_preconditioners ()
-{
-  alg_ptr->initialize_preconditioners (sys_mats, sys_rhses);
 }
 
 template <int dim>

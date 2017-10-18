@@ -24,7 +24,6 @@ void LSGC<dim>::produce_angular_quad ()
   AssertThrow (this->n_azi%2==0,
                ExcMessage("SN order must be even numbers"));
   QGauss<1> mu_quad (this->n_azi);
-
   this->total_angle =
   (dim==2 ? 8.0*this->pi :
    4.0*this->pi*(this->transport_model_name=="ep" ? 2.0 : 1.0));

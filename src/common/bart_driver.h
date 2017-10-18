@@ -55,31 +55,26 @@ private:
   void initialize_dealii_objects ();
   void output_results () const;
   
-  void build_equation
-  (std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr,
-   std::string equation_name,
+  std_cxx11::shared_ptr<EquationBase<dim> > build_equation
+  (std::string equation_name,
    const ParameterHandler &prm,
    const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
    const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
    const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
-  void build_aq_model
-  (std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr, ParameterHandler &prm);
+  std_cxx11::shared_ptr<AQBase<dim> > build_aq_model (ParameterHandler &prm);
   
   /** \brief Function used to build pointer to instance of InGroupBase's derived class
    */
-  void build_eigen_iterations
-  (std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr, const ParameterHandler &prm);
+  std_cxx11::shared_ptr<EigenBase<dim> > build_eigen_iterations (const ParameterHandler &prm);
   
   /** \brief Function used to build pointer to instance of MGBase's derived class
    */
-  void build_mg_iterations
-  (std_cxx11::shared_ptr<MGBase<dim> > mg_ptr, const ParameterHandler &prm);
+  std_cxx11::shared_ptr<MGBase<dim> > build_mg_iterations (const ParameterHandler &prm);
   
   /** \brief Function used to build pointer to instance of InGroupBase's derived class
    */
-  void build_ig_iterations
-  (std_cxx11::shared_ptr<IGBase<dim> > ig_ptr, const ParameterHandler &prm);
+  std_cxx11::shared_ptr<IGBase<dim> > build_ig_iterations (const ParameterHandler &prm);
   
   void initialize_cell_iterators_this_proc
   (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
@@ -93,22 +88,6 @@ private:
    IndexSet &local_dofs,
    std::vector<Vector<double> > &sflxes_proc);
   
-  std_cxx11::shared_ptr<Iterations<dim> > itr_ptr;
-  std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
-  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
-  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
-  std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr;
-  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
-  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr;
-  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > equ_ptrs;
-  
-  std::string transport_model_name;
-  std::string ho_linear_solver_name;
-  std::string ho_preconditioner_name;
-  std::string discretization;
-  std::string namebase;
-  std::string aq_name;
-
   FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe;
   
   parallel::distributed::Triangulation<dim> triangulation;
@@ -118,6 +97,25 @@ private:
   IndexSet local_dofs;
   IndexSet relevant_dofs;
   
+  ConstraintMatrix constraints;
+  ConditionalOStream pcout;
+  
+  std_cxx11::shared_ptr<Iterations<dim> > itr_ptr;
+  std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr;
+  std_cxx11::shared_ptr<MaterialProperties> mat_ptr;
+  std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr;
+  std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr;
+  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr;
+  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr;
+  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > equ_ptrs;
+  
+  std::string transport_model;
+  std::string ho_linear_solver_name;
+  std::string ho_preconditioner_name;
+  std::string discretization;
+  std::string namebase;
+  std::string aq_name;
+
   double keff;
   
   bool is_eigen_problem;
@@ -133,9 +131,6 @@ private:
   unsigned int global_refinements;
   
   std::vector<Vector<double> > sflxes_proc;
-  
-  ConstraintMatrix constraints;
-  ConditionalOStream pcout;
 };
 
 #endif	// define  __bart_driver_h__

@@ -14,7 +14,7 @@ n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
 have_reflective_bc(prm.get_bool("have reflective BC"))
 {
-  this->make_aq (prm);
+  make_aq ();
 }
 
 template <int dim>
@@ -23,10 +23,8 @@ AQBase<dim>::~AQBase ()
 }
 
 template <int dim>
-void AQBase<dim>::make_aq (ParameterHandler &prm)
+void AQBase<dim>::make_aq ()
 {
-  if (transport_model_name=="ep")
-    discretization = prm.get ("spatial discretization");
   produce_angular_quad ();
   initialize_component_index ();
   initialize_ref_bc_index ();
