@@ -5,7 +5,9 @@ IterationBase<dim>::IterationBase (const ParameterHandler &prm)
 :
 n_group(prm.get_integer("number of groups")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
-do_nda(prm.get_bool("do NDA"))
+do_nda(prm.get_bool("do NDA")),
+pcout(std::cout,
+      (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))
 {
 }
 

@@ -1,19 +1,19 @@
-#include "gauss_sidel.h"
+#include "gauss_seidel.h"
 
 template <int dim>
-GaussSidel<dim>::GaussSidel (const ParameterHandler &prm)
+GaussSeidel<dim>::GaussSeidel (const ParameterHandler &prm)
 :
 MGBase<dim> (prm)
 {
 }
 
 template <int dim>
-GaussSidel<dim>::~GaussSidel ()
+GaussSeidel<dim>::~GaussSeidel ()
 {
 }
 
 template <int dim>
-void GaussSidel<dim>::do_iterations
+void GaussSeidel<dim>::do_iterations
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
@@ -46,7 +46,7 @@ void GaussSidel<dim>::do_iterations
 }
 
 template <int dim>
-void GaussSidel<dim>::nonthermal_solves
+void GaussSeidel<dim>::nonthermal_solves
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
@@ -60,7 +60,7 @@ void GaussSidel<dim>::nonthermal_solves
 }
 
 template <int dim>
-void GaussSidel<dim>::thermal_iterations
+void GaussSeidel<dim>::thermal_iterations
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr)
@@ -86,5 +86,5 @@ void GaussSidel<dim>::thermal_iterations
   }
 }
 
-template class GaussSidel<2>;
-template class GaussSidel<3>;
+template class GaussSeidel<2>;
+template class GaussSeidel<3>;

@@ -18,6 +18,7 @@ public:
   AQBase<dim> (ParameterHandler &prm);
   virtual ~AQBase ();
 
+  void make_aq ();
   virtual void produce_angular_quad ();
   virtual void initialize_component_index ();
   void print_angular_quad ();
@@ -56,7 +57,6 @@ protected:
   reflective_direction_index;
 
 private:
-  void make_aq (ParameterHandler &prm);
   std::string produce_quadrature_name ();
   void initialize_ref_bc_index ();
 

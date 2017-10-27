@@ -45,9 +45,9 @@ private:
   std::vector<unsigned int> linear_iters;
   
   // solver related variables
-  // TODO: Add some other PETSc preconditioners existing in deal.II
-  // solver control pointers: handling information for/from linear solvers
-  std::vector<std_cxx11::shared_ptr<SolverControl> > cn;
+  // Solver control
+  std_cxx11::shared_ptr<SolverControl> cn;
+  
   // preconditioner pointers: different preconditioners for iterative linear solvers
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBoomerAMG> > pre_amg;
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi> > pre_bjacobi;

@@ -20,3 +20,4 @@ quadr.txt
 *.out
 *.gz
 src/original*
+*matrix*txt

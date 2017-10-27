@@ -247,7 +247,7 @@ void EvenParity<dim>::integrate_cell_fixed_linear_form
   if (!this->is_eigen_problem)
     q_at_qp = std::vector<double> (this->n_q, this->all_q_per_ster[mid][g]);
   else if (this->is_eigen_problem && this->is_material_fissile[mid])
-    for (unsigned int gin=0; gin<this->n_q; ++gin)
+    for (unsigned int gin=0; gin<this->n_group; ++gin)
     {
       std::vector<double> local_flx (this->n_q);
       this->fv->get_function_values (sflx_prev[gin], local_flx);

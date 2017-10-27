@@ -174,8 +174,6 @@ public:
   void initialize_assembly_related_objects
   (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
   
-  void initialize_preconditioners ();
-  
   void scale_fiss_transfer_matrices (double keff);
   
   std::string get_equ_name ();
@@ -206,7 +204,6 @@ protected:
   bool do_nda;
   bool have_reflective_bc;
   
-  const unsigned int nda_quadrature_order;
   unsigned int n_q;
   unsigned int n_qf;
   unsigned int n_qc;
@@ -219,6 +216,7 @@ protected:
   unsigned int n_group;
   unsigned int n_material;
   unsigned int p_order;
+  const unsigned int nda_quadrature_order;
   unsigned int global_refinements;
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;

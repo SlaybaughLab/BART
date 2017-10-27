@@ -4,8 +4,8 @@ PreconditionerSolver::PreconditionerSolver (const ParameterHandler &prm,
                                             std::string equation_name,
                                             unsigned int& n_total_vars)
 :
-equation_name(equation_name),
-n_total_vars(n_total_vars)
+n_total_vars(n_total_vars),
+equation_name(equation_name)
 {
   if (equation_name=="nda")
   {
@@ -43,8 +43,6 @@ void PreconditionerSolver::initialize_preconditioners
 {
   AssertThrow (n_total_vars==sys_mats.size(),
                ExcMessage("num of system matrices should be equal to total variable number"));
-  AssertThrow (n_total_vars==sys_rhses.size(),
-               ExcMessage("num of system rhs should be equal to total variable number"));
   if (linear_solver_name!="direct")
   {
     linear_iters.resize (n_total_vars);
@@ -121,11 +119,10 @@ void PreconditionerSolver::initialize_preconditioners
     direct.resize (n_total_vars);
     direct_init = std::vector<bool> (n_total_vars, false);
   }
-  // initialize HO solver controls
-  cn.resize (n_total_vars);
-  for (unsigned int i=0; i<n_total_vars; ++i)
-    cn[i] = std_cxx11::shared_ptr<SolverControl>
-    (new SolverControl(sys_rhses[i]->size(), 1.0e-12*sys_rhses[i]->l1_norm()));
+  // TODO: find a better way for solver control
+  // initialize solver control
+  cn = std_cxx11::shared_ptr<SolverControl>
+  (new SolverControl(sys_rhses.back()->size(), sys_rhses.back()->size()*1.0e-12));
 }
 
 void PreconditionerSolver::linear_algebra_solve
@@ -137,7 +134,7 @@ void PreconditionerSolver::linear_algebra_solve
   if (linear_solver_name=="cg")
   {
     PETScWrappers::SolverCG
-    solver (*cn[i], MPI_COMM_WORLD);
+    solver (*cn, MPI_COMM_WORLD);
     if (preconditioner_name=="amg")
       solver.solve (*sys_mats[i],
                     *sys_flxes[i],
@@ -162,7 +159,7 @@ void PreconditionerSolver::linear_algebra_solve
   else if (linear_solver_name=="bicgstab")
   {
     PETScWrappers::SolverBicgstab
-    solver (*cn[i], MPI_COMM_WORLD);
+    solver (*cn, MPI_COMM_WORLD);
     if (preconditioner_name=="amg")
       solver.solve (*sys_mats[i],
                     *sys_flxes[i],
@@ -187,7 +184,7 @@ void PreconditionerSolver::linear_algebra_solve
   else if (linear_solver_name=="gmres")
   {
     PETScWrappers::SolverGMRES
-    solver (*cn[i], MPI_COMM_WORLD);
+    solver (*cn, MPI_COMM_WORLD);
     if (preconditioner_name=="amg")
       solver.solve (*sys_mats[i],
                     *sys_flxes[i],
@@ -211,13 +208,16 @@ void PreconditionerSolver::linear_algebra_solve
   }
   else// if (linear_solver_name=="direct")
   {
+    // if the solvers have not been initilized yet
     if (!direct_init[i])
     {
       direct[i] = std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS>
-      (new PETScWrappers::SparseDirectMUMPS(*cn[i], MPI_COMM_WORLD));
+      (new PETScWrappers::SparseDirectMUMPS(*cn, MPI_COMM_WORLD));
       if (equation_name=="fo" ||
           (equation_name=="ep" && have_reflective_bc))
+      {
         direct[i]->set_symmetric_mode (false);
+      }
       else
         direct[i]->set_symmetric_mode (true);
       direct_init[i] = true;
@@ -228,5 +228,5 @@ void PreconditionerSolver::linear_algebra_solve
   }
   // the linear_iters are for reporting linear solver status, test purpose only
   if (linear_solver_name!="direct")
-    linear_iters[i] = cn[i]->last_step ();
+    linear_iters[i] = cn->last_step ();
 }

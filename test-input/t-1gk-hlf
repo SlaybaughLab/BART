@@ -7,7 +7,7 @@ set number of groups                         = 1
 set do eigenvalue calculations               = true
 set do NDA                                   = false
 set have reflective BC                       = true
-set reflective boundary names                =  xmin, ymin, xmax, ymax
+set reflective boundary names                =  xmin, ymin
 
 set uniform refinements                      = 3
 
@@ -35,7 +35,7 @@ set values                                   = 1.0, 1.0
 end
 
 subsection one-group sigma_s
-set values                                   = 0.1, 0.1
+set values                                   = 0.15, 0.15
 end
 
 subsection one-group Q
