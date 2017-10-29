@@ -5,18 +5,12 @@
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 #include <deal.II/lac/petsc_precondition.h>
-#include <deal.II/lac/constraint_matrix.h>
-#include <deal.II/lac/sparsity_tools.h>
 #include <deal.II/numerics/vector_tools.h>
-#include <deal.II/fe/fe_dgq.h>
-#include <deal.II/fe/fe_q.h>
 #include <deal.II/fe/fe_poly.h>
 #include <deal.II/fe/fe_values.h>
-#include <deal.II/dofs/dof_tools.h>
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/index_set.h>
 #include <deal.II/base/conditional_ostream.h>
-#include <deal.II/distributed/tria.h>
 
 #include <fstream>
 #include <iostream>

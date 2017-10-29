@@ -1,11 +1,7 @@
-#include <deal.II/fe/fe_values.h>
-
-#include <boost/algorithm/string.hpp>
+#include <deal.II/fe/fe_dgq.h>
+#include <deal.II/fe/fe_q.h>
 #include <deal.II/dofs/dof_tools.h>
-#include <deal.II/grid/cell_id.h>
-
-#include <deal.II/lac/petsc_solver.h>
-#include <deal.II/lac/solver_bicgstab.h>
+#include <deal.II/base/utilities.h>
 
 #include <algorithm>
 #include <fstream>
@@ -33,7 +29,6 @@ ho_linear_solver_name(prm.get("HO linear solver name")),
 ho_preconditioner_name(prm.get("HO preconditioner name")),
 discretization(prm.get("spatial discretization")),
 namebase(prm.get("output file name base")),
-aq_name(prm.get("angular quadrature name")),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
 have_reflective_bc(prm.get_bool("have reflective BC")),
@@ -105,8 +100,6 @@ void BartDriver<dim>::build_basis (ParameterHandler &prm)
   }
 }
 
-/**\brief report details about user specifications to run BART
- */
 template <int dim>
 void BartDriver<dim>::report_system ()
 {
@@ -165,8 +158,6 @@ std_cxx11::shared_ptr<AQBase<dim> > BartDriver<dim>::build_aq_model
   return aqd_ptr;
 }
 
-/** \brief Function used to build pointer to instance of InGroupBase's derived class
- */
 template <int dim>
 std_cxx11::shared_ptr<EigenBase<dim> > BartDriver<dim>::build_eigen_iterations
 (const ParameterHandler &prm)
@@ -178,8 +169,6 @@ std_cxx11::shared_ptr<EigenBase<dim> > BartDriver<dim>::build_eigen_iterations
   return eig_ptr;
 }
 
-/** \brief Function used to build pointer to instance of MGBase's derived class
- */
 template <int dim>
 std_cxx11::shared_ptr<MGBase<dim> > BartDriver<dim>::build_mg_iterations
 (const ParameterHandler &prm)
@@ -190,8 +179,6 @@ std_cxx11::shared_ptr<MGBase<dim> > BartDriver<dim>::build_mg_iterations
   return mg_ptr;
 }
 
-/** \brief Function used to build pointer to instance of InGroupBase's derived class
- */
 template <int dim>
 std_cxx11::shared_ptr<IGBase<dim> > BartDriver<dim>::build_ig_iterations
 (const ParameterHandler &prm)
@@ -276,7 +263,7 @@ void BartDriver<dim>::output_results () const
     subdomain(i) = triangulation.locally_owned_subdomain ();
   data_out.add_data_vector (subdomain, "subdomain");
   data_out.build_patches ();
-
+  
   const std::string filename =
   (namebase + "-" + discretization + "-" + Utilities::int_to_string
    (triangulation.locally_owned_subdomain (), 4));
