@@ -1,0 +1,51 @@
+\subsection*{Packages requirement on B\+A\+RT}
+
+The C++ core is based upon the third-\/party library \href{http://www.dealii.org/}{\tt deal.\+II}. Besides, P\+E\+T\+Sc is required to provided M\+PI interface and corresponding objects such as sparsematrix etc.
+
+Before installation process, it is required to have C\+Make. If installation is on Mac O\+SX, xcode and commend line tool is also required. Checkout deal.\+II \href{https://github.com/dealii/dealii/wiki/MacOSX}{\tt wiki} for instructions.
+
+\subsection*{Mac O\+SX through .dmg}
+
+deal.\+II installation package can be downloaded \href{https://www.dealii.org/download.html}{\tt here} on the upper right corner. Checkout the Section \char`\"{}\+Detailed instructions\char`\"{} of deal.\+II \href{https://github.com/dealii/dealii/wiki/MacOSX}{\tt wiki page} for installation steps.
+
+This installation contains every aspect of deal.\+II including P\+E\+T\+Sc, Trilinos, etc. \subsection*{Linux/\+Unix and Mac O\+SX through Homebrew/\+Linuxbrew}
+
+Installation on Linux/\+Unix and O\+SX can be done through Homebrew Linuxbrew as well. Checkout \href{https://github.com/dealii/dealii/wiki/deal.II-on-Homebrew---Linuxbrew}{\tt here} for instructions.
+
+\subsection*{Installation through candi}
+
+Installation can also be done through following instructions in \href{https://github.com/koecher/candi}{\tt candi}.
+
+\subsection*{Build from scratch}
+
+This is to build deal.\+II with P\+E\+T\+Sc from scratch by oneself, which gives the most flexibility but is not recommended. If interested, please check \href{https://www.dealii.org/developer/readme.html}{\tt here}. \section*{Build B\+A\+RT}
+
+Up to 2017-\/07-\/13, one could only build the core of B\+A\+RT, which is \href{https://github.com/weixiong-zheng-berkeley/XTrans}{\tt X\+Trans}. In the future this will be updated. \subsection*{On Mac O\+SX}
+
+To build the core, one needs to add two lines to the $\sim$/.profile to tell where the deal.\+II build is. If one installs deal.\+II using .dmg, one will see the requested two lines when opening the deal.\+II app. Depending on the version of deal.\+II, there will be suggestion adding something like\+:
+
+{\ttfamily export D\+E\+A\+L\+\_\+\+I\+I\+\_\+\+C\+O\+N\+F\+\_\+\+S\+I\+L\+E\+NT=ON}
+
+{\ttfamily . /\+Applications/deal.I\+I.\+app/\+Contents/\+Resources/share/deal.I\+I/dealii.\+conf}
+
+And then source $\sim$/.profile. In the source code directory (where there is the C\+Make\+Lists.\+txt), type\+:
+
+{\ttfamily cmake .}
+
+{\ttfamily make}
+
+Notice that in the future for running research problems, rather than development, replace {\ttfamily make} with\+:
+
+{\ttfamily make release}
+
+so that the code will run in release mode, which can be several times faster.
+
+\subsection*{On Linux/\+Unix}
+
+There is no requirement to add commands in $\sim$/.bashrc. The only thing one needs to do after being in the source directory is\+:
+
+{\ttfamily cmake -\/\+D\+D\+E\+A\+L\+\_\+\+I\+I\+\_\+\+D\+IR=the\+\_\+path\+\_\+to\+\_\+dealii .}
+
+And then\+:
+
+{\ttfamily make} or {\ttfamily make release} 
