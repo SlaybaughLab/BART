@@ -8,7 +8,7 @@
 
 using namespace dealii;
 
-ProblemDefinition::ProblemDefinition (ParameterHandler &prm)
+ProblemDefinition::ProblemDefinition ()
 {
 }
 

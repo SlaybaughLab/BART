@@ -22,7 +22,7 @@ const unsigned int y_levels = 100;
 class ProblemDefinition
 {
 public:
-  ProblemDefinition (ParameterHandler &prm);
+  ProblemDefinition ();
   ~ProblemDefinition ();
 
   static void declare_parameters (ParameterHandler &prm);
