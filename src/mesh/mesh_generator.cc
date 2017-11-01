@@ -99,7 +99,7 @@ void MeshGenerator<dim>::initialize_material_id
     if (cell->is_locally_owned())
     {
       Point<dim> center = cell->center ();
-      std::vector<unsigned int> relative_position (3);
+      std::vector<unsigned int> relative_position (dim);
       get_cell_relative_position (center, relative_position);
       unsigned int material_id = relative_position_to_id[relative_position];
       cell->set_material_id (material_id);
@@ -110,7 +110,7 @@ template <int dim>
 void MeshGenerator<dim>::get_cell_relative_position (Point<dim> &center,
                                                      std::vector<unsigned int> &relative_position)
 {
-  AssertThrow (relative_position.size()==3,
+  AssertThrow (relative_position.size()==dim,
                ExcMessage("relative position should be size 3 for any dimension"));
   if (dim>=1)
   {
@@ -227,20 +227,13 @@ void MeshGenerator<dim>::preprocess_reflective_bc (ParameterHandler &prm)
 template <int dim>
 void MeshGenerator<dim>::get_relevant_cell_iterators
 (const DoFHandler<dim> &dof_handler,
- std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells,
- std::vector<bool> &is_cell_at_bd)
+ std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
   for (typename DoFHandler<dim>::active_cell_iterator
        cell=dof_handler.begin_active();
        cell!=dof_handler.end(); ++cell)
     if (cell->is_locally_owned())
-    {
       local_cells.push_back (cell);
-      if (cell->at_boundary())
-        is_cell_at_bd.push_back (true);
-      else
-        is_cell_at_bd.push_back (false);
-    }
 }
 
 template <int dim>
@@ -277,14 +270,6 @@ void MeshGenerator<dim>::initialize_relative_position_to_id_map (ParameterHandle
     }
   }
   prm.leave_subsection ();
-}
-
-// functions used to return private member variables
-template <int dim>
-std::map<std::vector<unsigned int>, unsigned int>
-MeshGenerator<dim>::get_id_map ()
-{
-  return relative_position_to_id;
 }
 
 template <int dim>

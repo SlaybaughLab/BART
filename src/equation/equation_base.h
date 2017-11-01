@@ -210,7 +210,6 @@ protected:
   unsigned int global_refinements;
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
-  std::vector<bool> is_cell_at_bd;
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
   

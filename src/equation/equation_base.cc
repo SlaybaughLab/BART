@@ -52,7 +52,6 @@ void EquationBase<dim>::process_input
 {
   // mesh related
   {
-    relative_position_to_id = msh_ptr->get_id_map ();
     if (have_reflective_bc)
       is_reflective_bc = msh_ptr->get_reflective_bc_map ();
   }
@@ -101,9 +100,7 @@ void EquationBase<dim>::initialize_cell_iterators_this_proc
 (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
  const DoFHandler<dim> &dof_handler)
 {
-  msh_ptr->get_relevant_cell_iterators (dof_handler,
-                                        local_cells,
-                                        is_cell_at_bd);
+  msh_ptr->get_relevant_cell_iterators (dof_handler, local_cells);
 }
 
 template <int dim>
@@ -262,7 +259,7 @@ void EquationBase<dim>::assemble_volume_boundary_bilinear_form ()
                                     streaming_at_qp, collision_at_qp,
                                     g, i_dir);
       
-      if (is_cell_at_bd[ic])
+      if (cell->at_boundary())
         for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
           if (cell->at_boundary(fn))
           {
@@ -562,7 +559,7 @@ void EquationBase<dim>::assemble_linear_form
         integrate_scattering_linear_form (cell, cell_rhs,
                                           sflxes_proc,
                                           g, i_dir);
-        if (is_cell_at_bd[ic])
+        if (cell->at_boundary())
           for (unsigned int fn=0; fn<GeometryInfo<dim>::faces_per_cell; ++fn)
             if (cell->at_boundary(fn))
             {
