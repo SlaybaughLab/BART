@@ -19,12 +19,32 @@ const unsigned int ngrp = 30;
 const unsigned int z_levels = 30;
 const unsigned int y_levels = 100;
 
+//! This class performs parameter parsing.
+/*!
+ This class handles user-defined parameters.
+ 
+ \author Weixiong Zheng
+ \date 2017/06
+ */
 class ProblemDefinition
 {
 public:
+  //! Class constructor.
   ProblemDefinition ();
+  
+  //! Class destructor.
   ~ProblemDefinition ();
 
+  /*!
+   This function process ParameterHandler object using info read from user-provided
+   input. Specifically, it declares all possible parameter entries and parse info
+   from user-defined input file to prm. After the processing, prm contains all the
+   necessary info to define the problem and ready for other classes to retrieve 
+   the info.
+   
+   \param prm ParameterHandler object.
+   \return Void.
+   */
   static void declare_parameters (ParameterHandler &prm);
 };
 
