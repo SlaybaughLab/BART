@@ -1,0 +1,307 @@
+\hypertarget{class_preconditioner_solver}{}\section{Preconditioner\+Solver Class Reference}
+\label{class_preconditioner_solver}\index{Preconditioner\+Solver@{Preconditioner\+Solver}}
+
+
+The class provides linear solving functionalities.  
+
+
+
+
+{\ttfamily \#include $<$preconditioner\+\_\+solver.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_preconditioner_solver_a5b49c94b10dc0e2b78ad278d19a8281d}{Preconditioner\+Solver} (const Parameter\+Handler \&prm, std\+::string \hyperlink{class_preconditioner_solver_af20758bf54111e7092c49688622b1e54}{equation\+\_\+name}, unsigned int \&\hyperlink{class_preconditioner_solver_ac2c59527a78b06037f0eb18132d8be63}{n\+\_\+total\+\_\+vars})
+\item 
+\hyperlink{class_preconditioner_solver_a8418873c20ded98dc1af3f66880d8e91}{$\sim$\+Preconditioner\+Solver} ()
+\begin{DoxyCompactList}\small\item\em Class destructors. \end{DoxyCompactList}\item 
+void \hyperlink{class_preconditioner_solver_adfb504161a00566d8adc3534d58b3611}{initialize\+\_\+preconditioners} (std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Sparse\+Matrix $\ast$$>$ \&sys\+\_\+mats, std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector $\ast$$>$ \&sys\+\_\+rhses)
+\item 
+void \hyperlink{class_preconditioner_solver_a5adc9e36ec12ed148eef7f1120c1bc4e}{linear\+\_\+algebra\+\_\+solve} (std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Sparse\+Matrix $\ast$$>$ \&sys\+\_\+mats, std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector $\ast$$>$ \&sys\+\_\+flxes, std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector $\ast$$>$ \&sys\+\_\+rhses, unsigned int \&i)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const unsigned int \hyperlink{class_preconditioner_solver_ac2c59527a78b06037f0eb18132d8be63}{n\+\_\+total\+\_\+vars}
+\begin{DoxyCompactList}\small\item\em Total number of variables in the target system. \end{DoxyCompactList}\item 
+const std\+::string \hyperlink{class_preconditioner_solver_af20758bf54111e7092c49688622b1e54}{equation\+\_\+name}
+\begin{DoxyCompactList}\small\item\em Name of the target equation. \end{DoxyCompactList}\item 
+bool \hyperlink{class_preconditioner_solver_a954ef4f8c7d8206b277280a4b41aa9b1}{have\+\_\+reflective\+\_\+bc}
+\begin{DoxyCompactList}\small\item\em Booolean to determine if there\textquotesingle{}s any reflective boundary. \end{DoxyCompactList}\item 
+double \hyperlink{class_preconditioner_solver_ab9548e7699e82a2b006db283c59e4a80}{ssor\+\_\+omega}
+\begin{DoxyCompactList}\small\item\em The relaxation factor if block S\+S\+OR is used as preconditioner. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{class_preconditioner_solver_ae13f7d32f80aad8eb1a4a9d1d2c4d019}{linear\+\_\+solver\+\_\+name}
+\begin{DoxyCompactList}\small\item\em Linear solver name for current equation. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{class_preconditioner_solver_a2d8afd11d073e87487da0442486c3e48}{preconditioner\+\_\+name}
+\begin{DoxyCompactList}\small\item\em Preconditioner name for current equation. \end{DoxyCompactList}\item 
+std\+::vector$<$ bool $>$ \hyperlink{class_preconditioner_solver_a0241f0b26a8c964fc1e3fd8fef5a20a6}{direct\+\_\+init}
+\begin{DoxyCompactList}\small\item\em A vector of boolean to determine if direct solver of a component is initilized. \end{DoxyCompactList}\item 
+std\+::vector$<$ unsigned int $>$ \hyperlink{class_preconditioner_solver_a09b25f234ad6a225fb8a002fc919181a}{linear\+\_\+iters}
+\begin{DoxyCompactList}\small\item\em A vector of integers showing number of iterations in linear solves. \end{DoxyCompactList}\item 
+std\+\_\+cxx11\+::shared\+\_\+ptr$<$ Solver\+Control $>$ \hyperlink{class_preconditioner_solver_a3170128a1c287f729fa40c9aff2f2eed}{cn}
+\begin{DoxyCompactList}\small\item\em pointer of Solver\+Control object. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Boomer\+A\+MG $>$ $>$ \hyperlink{class_preconditioner_solver_a235b12fcd8e5978c1a3df8c76d05808b}{pre\+\_\+amg}
+\begin{DoxyCompactList}\small\item\em A vector of pointers of Boomer\+A\+MG preconditioner. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Block\+Jacobi $>$ $>$ \hyperlink{class_preconditioner_solver_af3d0217e39b9527c67ac6ce56464f11a}{pre\+\_\+bjacobi}
+\begin{DoxyCompactList}\small\item\em A vector of pointers of block Jacobi preconditioner. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Para\+Sails $>$ $>$ \hyperlink{class_preconditioner_solver_a90b15442f60786b56729f2756e191336}{pre\+\_\+parasails}
+\begin{DoxyCompactList}\small\item\em A vector of pointers of Para\+Sails preconditioner. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Jacobi $>$ $>$ \hyperlink{class_preconditioner_solver_ab2379323cfbca020045ec5dd4ab708dc}{pre\+\_\+jacobi}
+\begin{DoxyCompactList}\small\item\em A vector of pointers of Jacobi preconditioner. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Eisenstat $>$ $>$ \hyperlink{class_preconditioner_solver_aab4bd157aebca7681283ff6cf0e69392}{pre\+\_\+eisenstat}
+\begin{DoxyCompactList}\small\item\em A vector of pointers of Eisenstat (block S\+S\+OR) preconditioner. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ P\+E\+T\+Sc\+Wrappers\+::\+Sparse\+Direct\+M\+U\+M\+PS $>$ $>$ \hyperlink{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}{direct}
+\begin{DoxyCompactList}\small\item\em A vector of pointers of M\+U\+M\+PS solver objects. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The class provides linear solving functionalities. 
+
+This class is a wrapper class aiming to simplifies linear solving process. deal.\+II algebraic preconditioner wrappers and solver wrappers will be called to utilize P\+E\+T\+Sc linear solving functionalities in parallel. This class only provide two functions interfaces outside\+: initialize\+\_\+preconditioners and linear\+\_\+algebraic\+\_\+solve.
+
+About how to use this class\+:
+
+(1) Everytime a new equation is assembled, call initialize\+\_\+preconditioners to either initilize preconditioners if iterative solvers are used or initilize factorization for direct solver based on M\+U\+M\+PS. Note that initialization only needs to be done once per equation.
+
+(2) Call linear\+\_\+algebra\+\_\+solve whenever needed.
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+\+: 2017/10 
+\end{DoxyDate}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_preconditioner_solver_a5b49c94b10dc0e2b78ad278d19a8281d}\label{class_preconditioner_solver_a5b49c94b10dc0e2b78ad278d19a8281d}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{Preconditioner\+Solver()}{PreconditionerSolver()}}
+{\footnotesize\ttfamily Preconditioner\+Solver\+::\+Preconditioner\+Solver (\begin{DoxyParamCaption}\item[{const Parameter\+Handler \&}]{prm,  }\item[{std\+::string}]{equation\+\_\+name,  }\item[{unsigned int \&}]{n\+\_\+total\+\_\+vars }\end{DoxyParamCaption})}
+
+Class constructor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em prm} & A Parameter\+Handler object containing all user defined parameters. \\
+\hline
+{\em equation\+\_\+name} & A string describing the name of the target equation. \\
+\hline
+{\em n\+\_\+total\+\_\+vars} & A integer for the total number components for target equation. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_preconditioner_solver_a8418873c20ded98dc1af3f66880d8e91}\label{class_preconditioner_solver_a8418873c20ded98dc1af3f66880d8e91}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!````~Preconditioner\+Solver@{$\sim$\+Preconditioner\+Solver}}
+\index{````~Preconditioner\+Solver@{$\sim$\+Preconditioner\+Solver}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{$\sim$\+Preconditioner\+Solver()}{~PreconditionerSolver()}}
+{\footnotesize\ttfamily Preconditioner\+Solver\+::$\sim$\+Preconditioner\+Solver (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Class destructors. 
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_preconditioner_solver_adfb504161a00566d8adc3534d58b3611}\label{class_preconditioner_solver_adfb504161a00566d8adc3534d58b3611}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!initialize\+\_\+preconditioners@{initialize\+\_\+preconditioners}}
+\index{initialize\+\_\+preconditioners@{initialize\+\_\+preconditioners}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{initialize\+\_\+preconditioners()}{initialize\_preconditioners()}}
+{\footnotesize\ttfamily void Preconditioner\+Solver\+::initialize\+\_\+preconditioners (\begin{DoxyParamCaption}\item[{std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Sparse\+Matrix $\ast$$>$ \&}]{sys\+\_\+mats,  }\item[{std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector $\ast$$>$ \&}]{sys\+\_\+rhses }\end{DoxyParamCaption})}
+
+This function initilizes preconditioners for an equation. The main functionalities include one of the following two points\+:
+
+(1) For iterative solvers, initializing preconditioners and store them in shared\+\_\+ptr\textquotesingle{}s.
+
+(2) For M\+U\+M\+PS direct solver, initializing factorizations and store them in shared\+\_\+ptr\textquotesingle{}s.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sys\+\_\+mats} & A vector of pointers to system matrices of the target equation. \\
+\hline
+{\em sys\+\_\+rhses} & A vector of pointers to system right-\/hand-\/side vectors of the target equation. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_preconditioner_solver_a5adc9e36ec12ed148eef7f1120c1bc4e}\label{class_preconditioner_solver_a5adc9e36ec12ed148eef7f1120c1bc4e}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!linear\+\_\+algebra\+\_\+solve@{linear\+\_\+algebra\+\_\+solve}}
+\index{linear\+\_\+algebra\+\_\+solve@{linear\+\_\+algebra\+\_\+solve}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{linear\+\_\+algebra\+\_\+solve()}{linear\_algebra\_solve()}}
+{\footnotesize\ttfamily void Preconditioner\+Solver\+::linear\+\_\+algebra\+\_\+solve (\begin{DoxyParamCaption}\item[{std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Sparse\+Matrix $\ast$$>$ \&}]{sys\+\_\+mats,  }\item[{std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector $\ast$$>$ \&}]{sys\+\_\+flxes,  }\item[{std\+::vector$<$ P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector $\ast$$>$ \&}]{sys\+\_\+rhses,  }\item[{unsigned int \&}]{i }\end{DoxyParamCaption})}
+
+This function provide functionality of performing linear algebraic solve for a specific component of the target equation.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sys\+\_\+mats} & A vector of pointers to system matrices of the target equation. \\
+\hline
+{\em sys\+\_\+flxes} & A vector of pointers to system solutions of the target equation \\
+\hline
+{\em sys\+\_\+rhses} & A vector of pointers to system right-\/hand-\/side vectors of the target equation. \\
+\hline
+{\em i} & An integer specifying the component index of interest. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_preconditioner_solver_a3170128a1c287f729fa40c9aff2f2eed}\label{class_preconditioner_solver_a3170128a1c287f729fa40c9aff2f2eed}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!cn@{cn}}
+\index{cn@{cn}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{cn}{cn}}
+{\footnotesize\ttfamily std\+\_\+cxx11\+::shared\+\_\+ptr$<$Solver\+Control$>$ Preconditioner\+Solver\+::cn\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+pointer of Solver\+Control object. 
+
+Control iterative algebraic linear solvers to determine convergence. Can be used to show number of linear iterations in the algebraic solve, linear solver residual after each iteration etc. \mbox{\Hypertarget{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}\label{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!direct@{direct}}
+\index{direct@{direct}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{direct}{direct}}
+{\footnotesize\ttfamily std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$P\+E\+T\+Sc\+Wrappers\+::\+Sparse\+Direct\+M\+U\+M\+PS$>$ $>$ Preconditioner\+Solver\+::direct\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of pointers of M\+U\+M\+PS solver objects. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_a0241f0b26a8c964fc1e3fd8fef5a20a6}\label{class_preconditioner_solver_a0241f0b26a8c964fc1e3fd8fef5a20a6}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!direct\+\_\+init@{direct\+\_\+init}}
+\index{direct\+\_\+init@{direct\+\_\+init}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{direct\+\_\+init}{direct\_init}}
+{\footnotesize\ttfamily std\+::vector$<$bool$>$ Preconditioner\+Solver\+::direct\+\_\+init\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of boolean to determine if direct solver of a component is initilized. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_af20758bf54111e7092c49688622b1e54}\label{class_preconditioner_solver_af20758bf54111e7092c49688622b1e54}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!equation\+\_\+name@{equation\+\_\+name}}
+\index{equation\+\_\+name@{equation\+\_\+name}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{equation\+\_\+name}{equation\_name}}
+{\footnotesize\ttfamily const std\+::string Preconditioner\+Solver\+::equation\+\_\+name\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Name of the target equation. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_a954ef4f8c7d8206b277280a4b41aa9b1}\label{class_preconditioner_solver_a954ef4f8c7d8206b277280a4b41aa9b1}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}}
+\index{have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{have\+\_\+reflective\+\_\+bc}{have\_reflective\_bc}}
+{\footnotesize\ttfamily bool Preconditioner\+Solver\+::have\+\_\+reflective\+\_\+bc\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Booolean to determine if there\textquotesingle{}s any reflective boundary. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_a09b25f234ad6a225fb8a002fc919181a}\label{class_preconditioner_solver_a09b25f234ad6a225fb8a002fc919181a}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!linear\+\_\+iters@{linear\+\_\+iters}}
+\index{linear\+\_\+iters@{linear\+\_\+iters}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{linear\+\_\+iters}{linear\_iters}}
+{\footnotesize\ttfamily std\+::vector$<$unsigned int$>$ Preconditioner\+Solver\+::linear\+\_\+iters\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of integers showing number of iterations in linear solves. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_ae13f7d32f80aad8eb1a4a9d1d2c4d019}\label{class_preconditioner_solver_ae13f7d32f80aad8eb1a4a9d1d2c4d019}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!linear\+\_\+solver\+\_\+name@{linear\+\_\+solver\+\_\+name}}
+\index{linear\+\_\+solver\+\_\+name@{linear\+\_\+solver\+\_\+name}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{linear\+\_\+solver\+\_\+name}{linear\_solver\_name}}
+{\footnotesize\ttfamily std\+::string Preconditioner\+Solver\+::linear\+\_\+solver\+\_\+name\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Linear solver name for current equation. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_ac2c59527a78b06037f0eb18132d8be63}\label{class_preconditioner_solver_ac2c59527a78b06037f0eb18132d8be63}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!n\+\_\+total\+\_\+vars@{n\+\_\+total\+\_\+vars}}
+\index{n\+\_\+total\+\_\+vars@{n\+\_\+total\+\_\+vars}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{n\+\_\+total\+\_\+vars}{n\_total\_vars}}
+{\footnotesize\ttfamily const unsigned int Preconditioner\+Solver\+::n\+\_\+total\+\_\+vars\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Total number of variables in the target system. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_a235b12fcd8e5978c1a3df8c76d05808b}\label{class_preconditioner_solver_a235b12fcd8e5978c1a3df8c76d05808b}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+amg@{pre\+\_\+amg}}
+\index{pre\+\_\+amg@{pre\+\_\+amg}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{pre\+\_\+amg}{pre\_amg}}
+{\footnotesize\ttfamily std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Boomer\+A\+MG$>$ $>$ Preconditioner\+Solver\+::pre\+\_\+amg\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of pointers of Boomer\+A\+MG preconditioner. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_af3d0217e39b9527c67ac6ce56464f11a}\label{class_preconditioner_solver_af3d0217e39b9527c67ac6ce56464f11a}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+bjacobi@{pre\+\_\+bjacobi}}
+\index{pre\+\_\+bjacobi@{pre\+\_\+bjacobi}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{pre\+\_\+bjacobi}{pre\_bjacobi}}
+{\footnotesize\ttfamily std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Block\+Jacobi$>$ $>$ Preconditioner\+Solver\+::pre\+\_\+bjacobi\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of pointers of block Jacobi preconditioner. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_aab4bd157aebca7681283ff6cf0e69392}\label{class_preconditioner_solver_aab4bd157aebca7681283ff6cf0e69392}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+eisenstat@{pre\+\_\+eisenstat}}
+\index{pre\+\_\+eisenstat@{pre\+\_\+eisenstat}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{pre\+\_\+eisenstat}{pre\_eisenstat}}
+{\footnotesize\ttfamily std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Eisenstat$>$ $>$ Preconditioner\+Solver\+::pre\+\_\+eisenstat\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of pointers of Eisenstat (block S\+S\+OR) preconditioner. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_ab2379323cfbca020045ec5dd4ab708dc}\label{class_preconditioner_solver_ab2379323cfbca020045ec5dd4ab708dc}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+jacobi@{pre\+\_\+jacobi}}
+\index{pre\+\_\+jacobi@{pre\+\_\+jacobi}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{pre\+\_\+jacobi}{pre\_jacobi}}
+{\footnotesize\ttfamily std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Jacobi$>$ $>$ Preconditioner\+Solver\+::pre\+\_\+jacobi\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of pointers of Jacobi preconditioner. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_a90b15442f60786b56729f2756e191336}\label{class_preconditioner_solver_a90b15442f60786b56729f2756e191336}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+parasails@{pre\+\_\+parasails}}
+\index{pre\+\_\+parasails@{pre\+\_\+parasails}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{pre\+\_\+parasails}{pre\_parasails}}
+{\footnotesize\ttfamily std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$P\+E\+T\+Sc\+Wrappers\+::\+Precondition\+Para\+Sails$>$ $>$ Preconditioner\+Solver\+::pre\+\_\+parasails\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+A vector of pointers of Para\+Sails preconditioner. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_a2d8afd11d073e87487da0442486c3e48}\label{class_preconditioner_solver_a2d8afd11d073e87487da0442486c3e48}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!preconditioner\+\_\+name@{preconditioner\+\_\+name}}
+\index{preconditioner\+\_\+name@{preconditioner\+\_\+name}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{preconditioner\+\_\+name}{preconditioner\_name}}
+{\footnotesize\ttfamily std\+::string Preconditioner\+Solver\+::preconditioner\+\_\+name\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Preconditioner name for current equation. 
+
+\mbox{\Hypertarget{class_preconditioner_solver_ab9548e7699e82a2b006db283c59e4a80}\label{class_preconditioner_solver_ab9548e7699e82a2b006db283c59e4a80}} 
+\index{Preconditioner\+Solver@{Preconditioner\+Solver}!ssor\+\_\+omega@{ssor\+\_\+omega}}
+\index{ssor\+\_\+omega@{ssor\+\_\+omega}!Preconditioner\+Solver@{Preconditioner\+Solver}}
+\subsubsection{\texorpdfstring{ssor\+\_\+omega}{ssor\_omega}}
+{\footnotesize\ttfamily double Preconditioner\+Solver\+::ssor\+\_\+omega\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The relaxation factor if block S\+S\+OR is used as preconditioner. 
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/common/\hyperlink{preconditioner__solver_8h}{preconditioner\+\_\+solver.\+h}\item 
+src/common/\hyperlink{preconditioner__solver_8cc}{preconditioner\+\_\+solver.\+cc}\end{DoxyCompactItemize}

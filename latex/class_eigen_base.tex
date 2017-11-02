@@ -1,0 +1,206 @@
+\hypertarget{class_eigen_base}{}\section{Eigen\+Base$<$ dim $>$ Class Template Reference}
+\label{class_eigen_base}\index{Eigen\+Base$<$ dim $>$@{Eigen\+Base$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$eigen\+\_\+base.\+h$>$}
+
+Inheritance diagram for Eigen\+Base$<$ dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_eigen_base}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_eigen_base_a041823ed11437980ff73ada87a9717fe}{Eigen\+Base} (const Parameter\+Handler \&prm)
+\item 
+virtual \hyperlink{class_eigen_base_afe9efbe26f3d5a427caa1d5022555038}{$\sim$\+Eigen\+Base} ()
+\item 
+virtual void \hyperlink{class_eigen_base_a8a9ef8878e5b7199aa662f2b61b2d864}{do\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$ mg\+\_\+ptr)
+\item 
+virtual void \hyperlink{class_eigen_base_ae09830ed4bcb14b7b699cd5f5460fab7}{eigen\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$ mg\+\_\+ptr)
+\item 
+virtual void \hyperlink{class_eigen_base_aa51c202e12e88c70652aefbe4d399f2b}{update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc)
+\item 
+void \hyperlink{class_eigen_base_aeb0646a8338d5929cb33d5d7aee49e08}{get\+\_\+keff} (double \&k)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_eigen_base_a833156f74622e81a0e4e191e1b972186}{initialize\+\_\+fiss\+\_\+process} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs)
+\item 
+void \hyperlink{class_eigen_base_a325ceda011337e2416cef726bbd5d28f}{calculate\+\_\+fiss\+\_\+src\+\_\+keff} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ equ\+\_\+ptr)
+\item 
+double \hyperlink{class_eigen_base_ae733df97cbb04ca2e8a2568acdf9f222}{estimate\+\_\+fiss\+\_\+src} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc)
+\item 
+double \hyperlink{class_eigen_base_a1ad5ce67d3534960731d34691db2f4d9}{estimate\+\_\+k} ()
+\item 
+double \hyperlink{class_eigen_base_ac9b7836c98e95a8be4d57b3ccf11f185}{estimate\+\_\+k\+\_\+diff} ()
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const double \hyperlink{class_eigen_base_af082247a6dec17c46fd664a780d9a765}{err\+\_\+k\+\_\+tol}
+\item 
+const double \hyperlink{class_eigen_base_acc8e2b79484a329d746a55ba656feead}{err\+\_\+phi\+\_\+tol}
+\item 
+double \hyperlink{class_eigen_base_a9373e0bd7462b70829d88b82cb66ac10}{keff}
+\item 
+double \hyperlink{class_eigen_base_a1499f0cb877e5dff2013328e06a29b4a}{keff\+\_\+prev}
+\item 
+double \hyperlink{class_eigen_base_a6fa0753510038439c30de5c1832e4ebc}{fiss\+\_\+src}
+\item 
+double \hyperlink{class_eigen_base_aa324e40bd20edd51659416da3220d295}{fiss\+\_\+src\+\_\+prev}
+\item 
+std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_eigen_base_aec9885df50ea40a18fd5708061139843}{sflxes\+\_\+proc\+\_\+prev\+\_\+eigen}
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_eigen_base_a041823ed11437980ff73ada87a9717fe}\label{class_eigen_base_a041823ed11437980ff73ada87a9717fe}} 
+\index{Eigen\+Base@{Eigen\+Base}!Eigen\+Base@{Eigen\+Base}}
+\index{Eigen\+Base@{Eigen\+Base}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{Eigen\+Base()}{EigenBase()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::\hyperlink{class_eigen_base}{Eigen\+Base} (\begin{DoxyParamCaption}\item[{const Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_eigen_base_afe9efbe26f3d5a427caa1d5022555038}\label{class_eigen_base_afe9efbe26f3d5a427caa1d5022555038}} 
+\index{Eigen\+Base@{Eigen\+Base}!````~Eigen\+Base@{$\sim$\+Eigen\+Base}}
+\index{````~Eigen\+Base@{$\sim$\+Eigen\+Base}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{$\sim$\+Eigen\+Base()}{~EigenBase()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::$\sim$\hyperlink{class_eigen_base}{Eigen\+Base} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_eigen_base_a325ceda011337e2416cef726bbd5d28f}\label{class_eigen_base_a325ceda011337e2416cef726bbd5d28f}} 
+\index{Eigen\+Base@{Eigen\+Base}!calculate\+\_\+fiss\+\_\+src\+\_\+keff@{calculate\+\_\+fiss\+\_\+src\+\_\+keff}}
+\index{calculate\+\_\+fiss\+\_\+src\+\_\+keff@{calculate\+\_\+fiss\+\_\+src\+\_\+keff}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{calculate\+\_\+fiss\+\_\+src\+\_\+keff()}{calculate\_fiss\_src\_keff()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::calculate\+\_\+fiss\+\_\+src\+\_\+keff (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$}]{equ\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_a8a9ef8878e5b7199aa662f2b61b2d864}\label{class_eigen_base_a8a9ef8878e5b7199aa662f2b61b2d864}} 
+\index{Eigen\+Base@{Eigen\+Base}!do\+\_\+iterations@{do\+\_\+iterations}}
+\index{do\+\_\+iterations@{do\+\_\+iterations}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{do\+\_\+iterations()}{do\_iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::do\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Reimplemented in \hyperlink{class_power_iteration_a7a87263df0f1ca9e01f2647cd91461ed}{Power\+Iteration$<$ dim $>$}.
+
+\mbox{\Hypertarget{class_eigen_base_ae09830ed4bcb14b7b699cd5f5460fab7}\label{class_eigen_base_ae09830ed4bcb14b7b699cd5f5460fab7}} 
+\index{Eigen\+Base@{Eigen\+Base}!eigen\+\_\+iterations@{eigen\+\_\+iterations}}
+\index{eigen\+\_\+iterations@{eigen\+\_\+iterations}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{eigen\+\_\+iterations()}{eigen\_iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::eigen\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Reimplemented in \hyperlink{class_power_iteration_a583586002126f8b7a523e95327047cba}{Power\+Iteration$<$ dim $>$}.
+
+\mbox{\Hypertarget{class_eigen_base_ae733df97cbb04ca2e8a2568acdf9f222}\label{class_eigen_base_ae733df97cbb04ca2e8a2568acdf9f222}} 
+\index{Eigen\+Base@{Eigen\+Base}!estimate\+\_\+fiss\+\_\+src@{estimate\+\_\+fiss\+\_\+src}}
+\index{estimate\+\_\+fiss\+\_\+src@{estimate\+\_\+fiss\+\_\+src}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{estimate\+\_\+fiss\+\_\+src()}{estimate\_fiss\_src()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::estimate\+\_\+fiss\+\_\+src (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_a1ad5ce67d3534960731d34691db2f4d9}\label{class_eigen_base_a1ad5ce67d3534960731d34691db2f4d9}} 
+\index{Eigen\+Base@{Eigen\+Base}!estimate\+\_\+k@{estimate\+\_\+k}}
+\index{estimate\+\_\+k@{estimate\+\_\+k}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{estimate\+\_\+k()}{estimate\_k()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::estimate\+\_\+k (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_ac9b7836c98e95a8be4d57b3ccf11f185}\label{class_eigen_base_ac9b7836c98e95a8be4d57b3ccf11f185}} 
+\index{Eigen\+Base@{Eigen\+Base}!estimate\+\_\+k\+\_\+diff@{estimate\+\_\+k\+\_\+diff}}
+\index{estimate\+\_\+k\+\_\+diff@{estimate\+\_\+k\+\_\+diff}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{estimate\+\_\+k\+\_\+diff()}{estimate\_k\_diff()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::estimate\+\_\+k\+\_\+diff (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_aeb0646a8338d5929cb33d5d7aee49e08}\label{class_eigen_base_aeb0646a8338d5929cb33d5d7aee49e08}} 
+\index{Eigen\+Base@{Eigen\+Base}!get\+\_\+keff@{get\+\_\+keff}}
+\index{get\+\_\+keff@{get\+\_\+keff}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{get\+\_\+keff()}{get\_keff()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::get\+\_\+keff (\begin{DoxyParamCaption}\item[{double \&}]{k }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_eigen_base_a833156f74622e81a0e4e191e1b972186}\label{class_eigen_base_a833156f74622e81a0e4e191e1b972186}} 
+\index{Eigen\+Base@{Eigen\+Base}!initialize\+\_\+fiss\+\_\+process@{initialize\+\_\+fiss\+\_\+process}}
+\index{initialize\+\_\+fiss\+\_\+process@{initialize\+\_\+fiss\+\_\+process}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{initialize\+\_\+fiss\+\_\+process()}{initialize\_fiss\_process()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::initialize\+\_\+fiss\+\_\+process (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_aa51c202e12e88c70652aefbe4d399f2b}\label{class_eigen_base_aa51c202e12e88c70652aefbe4d399f2b}} 
+\index{Eigen\+Base@{Eigen\+Base}!update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff@{update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff}}
+\index{update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff@{update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff()}{update\_prev\_sflxes\_fiss\_src\_keff()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::update\+\_\+prev\+\_\+sflxes\+\_\+fiss\+\_\+src\+\_\+keff (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_eigen_base_af082247a6dec17c46fd664a780d9a765}\label{class_eigen_base_af082247a6dec17c46fd664a780d9a765}} 
+\index{Eigen\+Base@{Eigen\+Base}!err\+\_\+k\+\_\+tol@{err\+\_\+k\+\_\+tol}}
+\index{err\+\_\+k\+\_\+tol@{err\+\_\+k\+\_\+tol}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{err\+\_\+k\+\_\+tol}{err\_k\_tol}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+const double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::err\+\_\+k\+\_\+tol\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_acc8e2b79484a329d746a55ba656feead}\label{class_eigen_base_acc8e2b79484a329d746a55ba656feead}} 
+\index{Eigen\+Base@{Eigen\+Base}!err\+\_\+phi\+\_\+tol@{err\+\_\+phi\+\_\+tol}}
+\index{err\+\_\+phi\+\_\+tol@{err\+\_\+phi\+\_\+tol}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{err\+\_\+phi\+\_\+tol}{err\_phi\_tol}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+const double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::err\+\_\+phi\+\_\+tol\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_a6fa0753510038439c30de5c1832e4ebc}\label{class_eigen_base_a6fa0753510038439c30de5c1832e4ebc}} 
+\index{Eigen\+Base@{Eigen\+Base}!fiss\+\_\+src@{fiss\+\_\+src}}
+\index{fiss\+\_\+src@{fiss\+\_\+src}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{fiss\+\_\+src}{fiss\_src}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::fiss\+\_\+src\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_aa324e40bd20edd51659416da3220d295}\label{class_eigen_base_aa324e40bd20edd51659416da3220d295}} 
+\index{Eigen\+Base@{Eigen\+Base}!fiss\+\_\+src\+\_\+prev@{fiss\+\_\+src\+\_\+prev}}
+\index{fiss\+\_\+src\+\_\+prev@{fiss\+\_\+src\+\_\+prev}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{fiss\+\_\+src\+\_\+prev}{fiss\_src\_prev}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::fiss\+\_\+src\+\_\+prev\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_a9373e0bd7462b70829d88b82cb66ac10}\label{class_eigen_base_a9373e0bd7462b70829d88b82cb66ac10}} 
+\index{Eigen\+Base@{Eigen\+Base}!keff@{keff}}
+\index{keff@{keff}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{keff}{keff}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::keff\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_a1499f0cb877e5dff2013328e06a29b4a}\label{class_eigen_base_a1499f0cb877e5dff2013328e06a29b4a}} 
+\index{Eigen\+Base@{Eigen\+Base}!keff\+\_\+prev@{keff\+\_\+prev}}
+\index{keff\+\_\+prev@{keff\+\_\+prev}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{keff\+\_\+prev}{keff\_prev}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::keff\+\_\+prev\hspace{0.3cm}{\ttfamily [protected]}}
+
+\mbox{\Hypertarget{class_eigen_base_aec9885df50ea40a18fd5708061139843}\label{class_eigen_base_aec9885df50ea40a18fd5708061139843}} 
+\index{Eigen\+Base@{Eigen\+Base}!sflxes\+\_\+proc\+\_\+prev\+\_\+eigen@{sflxes\+\_\+proc\+\_\+prev\+\_\+eigen}}
+\index{sflxes\+\_\+proc\+\_\+prev\+\_\+eigen@{sflxes\+\_\+proc\+\_\+prev\+\_\+eigen}!Eigen\+Base@{Eigen\+Base}}
+\subsubsection{\texorpdfstring{sflxes\+\_\+proc\+\_\+prev\+\_\+eigen}{sflxes\_proc\_prev\_eigen}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::vector$<$Vector$<$double$>$ $>$ \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::sflxes\+\_\+proc\+\_\+prev\+\_\+eigen\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/iteration/\hyperlink{eigen__base_8h}{eigen\+\_\+base.\+h}\item 
+src/iteration/\hyperlink{eigen__base_8cc}{eigen\+\_\+base.\+cc}\end{DoxyCompactItemize}

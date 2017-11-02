@@ -1,0 +1,320 @@
+\hypertarget{class_mesh_generator}{}\section{Mesh\+Generator$<$ dim $>$ Class Template Reference}
+\label{class_mesh_generator}\index{Mesh\+Generator$<$ dim $>$@{Mesh\+Generator$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$mesh\+\_\+generator.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_mesh_generator_aaf711e4f4d1702dd2f91b8dc3d425765}{Mesh\+Generator} (Parameter\+Handler \&prm)
+\item 
+\hyperlink{class_mesh_generator_aa8a590f00d9732424e56f54bcc2b6339}{$\sim$\+Mesh\+Generator} ()
+\item 
+void \hyperlink{class_mesh_generator_a27c6ff0b0c51700373ef9a1dc10abaaf}{make\+\_\+grid} (parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&tria)
+\item 
+void \hyperlink{class_mesh_generator_a0c5f845cf8476424892eb7b263672e73}{get\+\_\+relevant\+\_\+cell\+\_\+iterators} (const Do\+F\+Handler$<$ dim $>$ \&dof\+\_\+handler, std\+::vector$<$ typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator $>$ \&local\+\_\+cells)
+\item 
+unsigned int \hyperlink{class_mesh_generator_aabb238d5d787e8c9834e4a31d2cc5ea9}{get\+\_\+uniform\+\_\+refinement} ()
+\item 
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_mesh_generator_a525754e676dca1ed4ffac34f63a5d1ae}{get\+\_\+reflective\+\_\+bc\+\_\+map} ()
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_mesh_generator_a57b433e53fa1b80670a76a1e0c898963}{generate\+\_\+initial\+\_\+grid} (parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&tria)
+\item 
+void \hyperlink{class_mesh_generator_a8c0f48b88435360f1209251253912411}{initialize\+\_\+material\+\_\+id} (parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&tria)
+\item 
+void \hyperlink{class_mesh_generator_a661d4e5efeb3ee94cc70c5da8e94a0ee}{setup\+\_\+boundary\+\_\+ids} (parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&tria)
+\item 
+void \hyperlink{class_mesh_generator_a6d216567b5b599cee526f33d435e6655}{initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map} (Parameter\+Handler \&prm)
+\item 
+void \hyperlink{class_mesh_generator_a93d10aa06b5b638a859e2fc53dbea5e0}{preprocess\+\_\+reflective\+\_\+bc} (Parameter\+Handler \&prm)
+\item 
+void \hyperlink{class_mesh_generator_a253330ef901e2a915576f6d6cd4262b5}{process\+\_\+coordinate\+\_\+information} (Parameter\+Handler \&prm)
+\item 
+void \hyperlink{class_mesh_generator_a9b3414fd31d1d06b0cc4a0c345bc6542}{get\+\_\+cell\+\_\+relative\+\_\+position} (Point$<$ dim $>$ \&position, std\+::vector$<$ unsigned int $>$ \&relative\+\_\+position)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \hyperlink{class_mesh_generator_ad2e8abde741e4c291741cf4ee790e0e2}{is\+\_\+mesh\+\_\+generated}
+\item 
+bool \hyperlink{class_mesh_generator_a7d6e17f844b8026a062b93ae12b1ee40}{have\+\_\+reflective\+\_\+bc}
+\begin{DoxyCompactList}\small\item\em Boolean to determine if reflective BC is used. \end{DoxyCompactList}\item 
+std\+::string \hyperlink{class_mesh_generator_a1b283d2ba59b1719cab8dd191e72508a}{mesh\+\_\+filename}
+\begin{DoxyCompactList}\small\item\em Mesh filename if mesh is read in. \end{DoxyCompactList}\item 
+unsigned int \hyperlink{class_mesh_generator_af8fc6b25c91228ca1ccce7f1c7a2a526}{global\+\_\+refinements}
+\begin{DoxyCompactList}\small\item\em Number of global refinements to perform. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::vector$<$ unsigned int $>$, unsigned int $>$ \hyperlink{class_mesh_generator_a4d3e0a3f830a2fa4d35d7f269fba3b02}{relative\+\_\+position\+\_\+to\+\_\+id}
+\item 
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_mesh_generator_a5a6820b74d7cef07596e1d28a8bad8aa}{is\+\_\+reflective\+\_\+bc}
+\item 
+std\+::vector$<$ double $>$ \hyperlink{class_mesh_generator_ab65cdce3616c05ca7b02f88a63c7a403}{axis\+\_\+max\+\_\+values}
+\begin{DoxyCompactList}\small\item\em Max values per axis in the mesh. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \hyperlink{class_mesh_generator_a55a1699f8cdb9418486af6b0fa3487cc}{cell\+\_\+size\+\_\+all\+\_\+dir}
+\begin{DoxyCompactList}\small\item\em Cell length per direction on the coarse mesh. \end{DoxyCompactList}\item 
+std\+::vector$<$ unsigned int $>$ \hyperlink{class_mesh_generator_a4d73b2d6a3f66e8a696e2228dc53fb76}{ncell\+\_\+per\+\_\+dir}
+\begin{DoxyCompactList}\small\item\em Initial number of cells per axis on the coarse mesh. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim$>$\newline
+class Mesh\+Generator$<$ dim $>$}
+
+This class implement generating meshes using user-\/defined parameters. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_mesh_generator_aaf711e4f4d1702dd2f91b8dc3d425765}\label{class_mesh_generator_aaf711e4f4d1702dd2f91b8dc3d425765}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!Mesh\+Generator@{Mesh\+Generator}}
+\index{Mesh\+Generator@{Mesh\+Generator}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{Mesh\+Generator()}{MeshGenerator()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::\hyperlink{class_mesh_generator}{Mesh\+Generator} (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_mesh_generator_aa8a590f00d9732424e56f54bcc2b6339}\label{class_mesh_generator_aa8a590f00d9732424e56f54bcc2b6339}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!````~Mesh\+Generator@{$\sim$\+Mesh\+Generator}}
+\index{````~Mesh\+Generator@{$\sim$\+Mesh\+Generator}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{$\sim$\+Mesh\+Generator()}{~MeshGenerator()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::$\sim$\hyperlink{class_mesh_generator}{Mesh\+Generator} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_mesh_generator_a57b433e53fa1b80670a76a1e0c898963}\label{class_mesh_generator_a57b433e53fa1b80670a76a1e0c898963}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!generate\+\_\+initial\+\_\+grid@{generate\+\_\+initial\+\_\+grid}}
+\index{generate\+\_\+initial\+\_\+grid@{generate\+\_\+initial\+\_\+grid}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{generate\+\_\+initial\+\_\+grid()}{generate\_initial\_grid()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::generate\+\_\+initial\+\_\+grid (\begin{DoxyParamCaption}\item[{parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&}]{tria }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Generate initial coarse grid according to user defined parameters. The mesh is a hyer rectangle. In 2D, it is a rectangle. In 3D it is a cuboid. Defining the hyper rectangle requires two diagonal points and mesh cells per axis.
+
+
+\begin{DoxyParams}{Parameters}
+{\em tria} & Triangulation object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. Modify tria in place. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_mesh_generator_a9b3414fd31d1d06b0cc4a0c345bc6542}\label{class_mesh_generator_a9b3414fd31d1d06b0cc4a0c345bc6542}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!get\+\_\+cell\+\_\+relative\+\_\+position@{get\+\_\+cell\+\_\+relative\+\_\+position}}
+\index{get\+\_\+cell\+\_\+relative\+\_\+position@{get\+\_\+cell\+\_\+relative\+\_\+position}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{get\+\_\+cell\+\_\+relative\+\_\+position()}{get\_cell\_relative\_position()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::get\+\_\+cell\+\_\+relative\+\_\+position (\begin{DoxyParamCaption}\item[{Point$<$ dim $>$ \&}]{position,  }\item[{std\+::vector$<$ unsigned int $>$ \&}]{relative\+\_\+position }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_mesh_generator_a525754e676dca1ed4ffac34f63a5d1ae}\label{class_mesh_generator_a525754e676dca1ed4ffac34f63a5d1ae}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!get\+\_\+reflective\+\_\+bc\+\_\+map@{get\+\_\+reflective\+\_\+bc\+\_\+map}}
+\index{get\+\_\+reflective\+\_\+bc\+\_\+map@{get\+\_\+reflective\+\_\+bc\+\_\+map}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{get\+\_\+reflective\+\_\+bc\+\_\+map()}{get\_reflective\_bc\_map()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::get\+\_\+reflective\+\_\+bc\+\_\+map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Public member function to get Hash table showing if a boundary is reflective.
+
+\begin{DoxyReturn}{Returns}
+std\+::unordered\+\_\+map with key as the boundary\+\_\+id (integer) and value as the boolean. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_mesh_generator_a0c5f845cf8476424892eb7b263672e73}\label{class_mesh_generator_a0c5f845cf8476424892eb7b263672e73}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!get\+\_\+relevant\+\_\+cell\+\_\+iterators@{get\+\_\+relevant\+\_\+cell\+\_\+iterators}}
+\index{get\+\_\+relevant\+\_\+cell\+\_\+iterators@{get\+\_\+relevant\+\_\+cell\+\_\+iterators}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{get\+\_\+relevant\+\_\+cell\+\_\+iterators()}{get\_relevant\_cell\_iterators()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::get\+\_\+relevant\+\_\+cell\+\_\+iterators (\begin{DoxyParamCaption}\item[{const Do\+F\+Handler$<$ dim $>$ \&}]{dof\+\_\+handler,  }\item[{std\+::vector$<$ typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator $>$ \&}]{local\+\_\+cells }\end{DoxyParamCaption})}
+
+This function initializes iterators for cells on current processor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dof\+\_\+handler} & An Do\+F\+Handler object containing iterators of all cells. \\
+\hline
+{\em local\+\_\+cells} & Vector of active cell iterators living only on current processor. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_mesh_generator_aabb238d5d787e8c9834e4a31d2cc5ea9}\label{class_mesh_generator_aabb238d5d787e8c9834e4a31d2cc5ea9}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!get\+\_\+uniform\+\_\+refinement@{get\+\_\+uniform\+\_\+refinement}}
+\index{get\+\_\+uniform\+\_\+refinement@{get\+\_\+uniform\+\_\+refinement}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{get\+\_\+uniform\+\_\+refinement()}{get\_uniform\_refinement()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+unsigned int \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::get\+\_\+uniform\+\_\+refinement (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Public member function to get total number of global refinements.
+
+\begin{DoxyReturn}{Returns}
+Total number of global refinements. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_mesh_generator_a8c0f48b88435360f1209251253912411}\label{class_mesh_generator_a8c0f48b88435360f1209251253912411}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!initialize\+\_\+material\+\_\+id@{initialize\+\_\+material\+\_\+id}}
+\index{initialize\+\_\+material\+\_\+id@{initialize\+\_\+material\+\_\+id}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{initialize\+\_\+material\+\_\+id()}{initialize\_material\_id()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::initialize\+\_\+material\+\_\+id (\begin{DoxyParamCaption}\item[{parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&}]{tria }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+This member function set up material I\+Ds to the cells belonging to current processor on the coarse mesh before performing global refinements.
+
+
+\begin{DoxyParams}{Parameters}
+{\em tria} & Triangulation object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. Modify tria in place. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_mesh_generator_a6d216567b5b599cee526f33d435e6655}\label{class_mesh_generator_a6d216567b5b599cee526f33d435e6655}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map@{initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map}}
+\index{initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map@{initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map()}{initialize\_relative\_position\_to\_id\_map()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::initialize\+\_\+relative\+\_\+position\+\_\+to\+\_\+id\+\_\+map (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_mesh_generator_a27c6ff0b0c51700373ef9a1dc10abaaf}\label{class_mesh_generator_a27c6ff0b0c51700373ef9a1dc10abaaf}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!make\+\_\+grid@{make\+\_\+grid}}
+\index{make\+\_\+grid@{make\+\_\+grid}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{make\+\_\+grid()}{make\_grid()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::make\+\_\+grid (\begin{DoxyParamCaption}\item[{parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&}]{tria }\end{DoxyParamCaption})}
+
+This function generates or reads in coarse mesh without global refinements. Currently, read-\/in is not fully implemented yet. Note that there is unknown error if total number of cells cannot be divided by number of processors.
+
+
+\begin{DoxyParams}{Parameters}
+{\em tria} & Triangulation object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. Modify tria in place. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_mesh_generator_a93d10aa06b5b638a859e2fc53dbea5e0}\label{class_mesh_generator_a93d10aa06b5b638a859e2fc53dbea5e0}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!preprocess\+\_\+reflective\+\_\+bc@{preprocess\+\_\+reflective\+\_\+bc}}
+\index{preprocess\+\_\+reflective\+\_\+bc@{preprocess\+\_\+reflective\+\_\+bc}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{preprocess\+\_\+reflective\+\_\+bc()}{preprocess\_reflective\_bc()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::preprocess\+\_\+reflective\+\_\+bc (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_mesh_generator_a253330ef901e2a915576f6d6cd4262b5}\label{class_mesh_generator_a253330ef901e2a915576f6d6cd4262b5}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!process\+\_\+coordinate\+\_\+information@{process\+\_\+coordinate\+\_\+information}}
+\index{process\+\_\+coordinate\+\_\+information@{process\+\_\+coordinate\+\_\+information}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{process\+\_\+coordinate\+\_\+information()}{process\_coordinate\_information()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::process\+\_\+coordinate\+\_\+information (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_mesh_generator_a661d4e5efeb3ee94cc70c5da8e94a0ee}\label{class_mesh_generator_a661d4e5efeb3ee94cc70c5da8e94a0ee}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!setup\+\_\+boundary\+\_\+ids@{setup\+\_\+boundary\+\_\+ids}}
+\index{setup\+\_\+boundary\+\_\+ids@{setup\+\_\+boundary\+\_\+ids}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{setup\+\_\+boundary\+\_\+ids()}{setup\_boundary\_ids()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::setup\+\_\+boundary\+\_\+ids (\begin{DoxyParamCaption}\item[{parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&}]{tria }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+This function set up boundary I\+Ds. The naming philosophy is xmin-\/$>$0, xmax-\/$>$1, ymin-\/$>$2, ymax-\/$>$3, zmin-\/$>$4, zmax-\/$>$5 if boundaries are applicable.
+
+
+\begin{DoxyParams}{Parameters}
+{\em tria} & Triangulation object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. Modify tria in place. 
+\end{DoxyReturn}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_mesh_generator_ab65cdce3616c05ca7b02f88a63c7a403}\label{class_mesh_generator_ab65cdce3616c05ca7b02f88a63c7a403}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!axis\+\_\+max\+\_\+values@{axis\+\_\+max\+\_\+values}}
+\index{axis\+\_\+max\+\_\+values@{axis\+\_\+max\+\_\+values}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{axis\+\_\+max\+\_\+values}{axis\_max\_values}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::vector$<$double$>$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::axis\+\_\+max\+\_\+values\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Max values per axis in the mesh. 
+
+\mbox{\Hypertarget{class_mesh_generator_a55a1699f8cdb9418486af6b0fa3487cc}\label{class_mesh_generator_a55a1699f8cdb9418486af6b0fa3487cc}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!cell\+\_\+size\+\_\+all\+\_\+dir@{cell\+\_\+size\+\_\+all\+\_\+dir}}
+\index{cell\+\_\+size\+\_\+all\+\_\+dir@{cell\+\_\+size\+\_\+all\+\_\+dir}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{cell\+\_\+size\+\_\+all\+\_\+dir}{cell\_size\_all\_dir}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::vector$<$double$>$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::cell\+\_\+size\+\_\+all\+\_\+dir\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Cell length per direction on the coarse mesh. 
+
+\mbox{\Hypertarget{class_mesh_generator_af8fc6b25c91228ca1ccce7f1c7a2a526}\label{class_mesh_generator_af8fc6b25c91228ca1ccce7f1c7a2a526}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!global\+\_\+refinements@{global\+\_\+refinements}}
+\index{global\+\_\+refinements@{global\+\_\+refinements}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{global\+\_\+refinements}{global\_refinements}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+unsigned int \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::global\+\_\+refinements\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Number of global refinements to perform. 
+
+\mbox{\Hypertarget{class_mesh_generator_a7d6e17f844b8026a062b93ae12b1ee40}\label{class_mesh_generator_a7d6e17f844b8026a062b93ae12b1ee40}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}}
+\index{have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{have\+\_\+reflective\+\_\+bc}{have\_reflective\_bc}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+bool \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::have\+\_\+reflective\+\_\+bc\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Boolean to determine if reflective BC is used. 
+
+\mbox{\Hypertarget{class_mesh_generator_ad2e8abde741e4c291741cf4ee790e0e2}\label{class_mesh_generator_ad2e8abde741e4c291741cf4ee790e0e2}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!is\+\_\+mesh\+\_\+generated@{is\+\_\+mesh\+\_\+generated}}
+\index{is\+\_\+mesh\+\_\+generated@{is\+\_\+mesh\+\_\+generated}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{is\+\_\+mesh\+\_\+generated}{is\_mesh\_generated}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+bool \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::is\+\_\+mesh\+\_\+generated\hspace{0.3cm}{\ttfamily [private]}}
+
+Boolean to determine if mesh needs to be generated or read-\/in. Currently, B\+A\+RT can only use generated mesh and read-\/in functionality is not fully developed. \mbox{\Hypertarget{class_mesh_generator_a5a6820b74d7cef07596e1d28a8bad8aa}\label{class_mesh_generator_a5a6820b74d7cef07596e1d28a8bad8aa}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!is\+\_\+reflective\+\_\+bc@{is\+\_\+reflective\+\_\+bc}}
+\index{is\+\_\+reflective\+\_\+bc@{is\+\_\+reflective\+\_\+bc}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{is\+\_\+reflective\+\_\+bc}{is\_reflective\_bc}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::unordered\+\_\+map$<$unsigned int, bool$>$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::is\+\_\+reflective\+\_\+bc\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_mesh_generator_a1b283d2ba59b1719cab8dd191e72508a}\label{class_mesh_generator_a1b283d2ba59b1719cab8dd191e72508a}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!mesh\+\_\+filename@{mesh\+\_\+filename}}
+\index{mesh\+\_\+filename@{mesh\+\_\+filename}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{mesh\+\_\+filename}{mesh\_filename}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::string \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::mesh\+\_\+filename\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Mesh filename if mesh is read in. 
+
+\mbox{\Hypertarget{class_mesh_generator_a4d73b2d6a3f66e8a696e2228dc53fb76}\label{class_mesh_generator_a4d73b2d6a3f66e8a696e2228dc53fb76}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!ncell\+\_\+per\+\_\+dir@{ncell\+\_\+per\+\_\+dir}}
+\index{ncell\+\_\+per\+\_\+dir@{ncell\+\_\+per\+\_\+dir}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{ncell\+\_\+per\+\_\+dir}{ncell\_per\_dir}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::vector$<$unsigned int$>$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::ncell\+\_\+per\+\_\+dir\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Initial number of cells per axis on the coarse mesh. 
+
+\mbox{\Hypertarget{class_mesh_generator_a4d3e0a3f830a2fa4d35d7f269fba3b02}\label{class_mesh_generator_a4d3e0a3f830a2fa4d35d7f269fba3b02}} 
+\index{Mesh\+Generator@{Mesh\+Generator}!relative\+\_\+position\+\_\+to\+\_\+id@{relative\+\_\+position\+\_\+to\+\_\+id}}
+\index{relative\+\_\+position\+\_\+to\+\_\+id@{relative\+\_\+position\+\_\+to\+\_\+id}!Mesh\+Generator@{Mesh\+Generator}}
+\subsubsection{\texorpdfstring{relative\+\_\+position\+\_\+to\+\_\+id}{relative\_position\_to\_id}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::map$<$std\+::vector$<$unsigned int$>$, unsigned int$>$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$\+::relative\+\_\+position\+\_\+to\+\_\+id\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/mesh/\hyperlink{mesh__generator_8h}{mesh\+\_\+generator.\+h}\item 
+src/mesh/\hyperlink{mesh__generator_8cc}{mesh\+\_\+generator.\+cc}\end{DoxyCompactItemize}

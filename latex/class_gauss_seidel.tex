@@ -1,0 +1,127 @@
+\hypertarget{class_gauss_seidel}{}\section{Gauss\+Seidel$<$ dim $>$ Class Template Reference}
+\label{class_gauss_seidel}\index{Gauss\+Seidel$<$ dim $>$@{Gauss\+Seidel$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$gauss\+\_\+seidel.\+h$>$}
+
+Inheritance diagram for Gauss\+Seidel$<$ dim $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_gauss_seidel}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_gauss_seidel_a6024b3a7447aa8fb1cd0bd513c1af81e}{Gauss\+Seidel} (const Parameter\+Handler \&prm)
+\item 
+\hyperlink{class_gauss_seidel_a4d41231183512ec5aab1fa7088c60788}{$\sim$\+Gauss\+Seidel} ()
+\item 
+void \hyperlink{class_gauss_seidel_a28fc4ef9150773f587f90951c704c994}{nonthermal\+\_\+solves} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr)
+\item 
+void \hyperlink{class_gauss_seidel_a8db6abbdc88413cbf502ac606b415733}{thermal\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr)
+\item 
+void \hyperlink{class_gauss_seidel_a24619a31b8a3d787bdc98e33a13f0ba6}{do\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr)
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_gauss_seidel_a6024b3a7447aa8fb1cd0bd513c1af81e}\label{class_gauss_seidel_a6024b3a7447aa8fb1cd0bd513c1af81e}} 
+\index{Gauss\+Seidel@{Gauss\+Seidel}!Gauss\+Seidel@{Gauss\+Seidel}}
+\index{Gauss\+Seidel@{Gauss\+Seidel}!Gauss\+Seidel@{Gauss\+Seidel}}
+\subsubsection{\texorpdfstring{Gauss\+Seidel()}{GaussSeidel()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_gauss_seidel}{Gauss\+Seidel}$<$ dim $>$\+::\hyperlink{class_gauss_seidel}{Gauss\+Seidel} (\begin{DoxyParamCaption}\item[{const Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_gauss_seidel_a4d41231183512ec5aab1fa7088c60788}\label{class_gauss_seidel_a4d41231183512ec5aab1fa7088c60788}} 
+\index{Gauss\+Seidel@{Gauss\+Seidel}!````~Gauss\+Seidel@{$\sim$\+Gauss\+Seidel}}
+\index{````~Gauss\+Seidel@{$\sim$\+Gauss\+Seidel}!Gauss\+Seidel@{Gauss\+Seidel}}
+\subsubsection{\texorpdfstring{$\sim$\+Gauss\+Seidel()}{~GaussSeidel()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_gauss_seidel}{Gauss\+Seidel}$<$ dim $>$\+::$\sim$\hyperlink{class_gauss_seidel}{Gauss\+Seidel} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_gauss_seidel_a24619a31b8a3d787bdc98e33a13f0ba6}\label{class_gauss_seidel_a24619a31b8a3d787bdc98e33a13f0ba6}} 
+\index{Gauss\+Seidel@{Gauss\+Seidel}!do\+\_\+iterations@{do\+\_\+iterations}}
+\index{do\+\_\+iterations@{do\+\_\+iterations}!Gauss\+Seidel@{Gauss\+Seidel}}
+\subsubsection{\texorpdfstring{do\+\_\+iterations()}{do\_iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_gauss_seidel}{Gauss\+Seidel}$<$ dim $>$\+::do\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function will call mg\+\_\+iterations to perform MG iterations in fixed source problems. This function shall not be called in eigenvalue calculations.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sflxes\+\_\+proc} & A vector of scalar fluxes for all groups. \\
+\hline
+{\em equ\+\_\+ptrs} & A vector of shared\+\_\+ptr\textquotesingle{}s of \hyperlink{class_equation_base}{Equation\+Base} objects. \\
+\hline
+{\em ig\+\_\+ptr} & A shared\+\_\+ptr of In\+Group\+Base object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_m_g_base_a3586c47d901608bc42792c6de456b1cb}{M\+G\+Base$<$ dim $>$}.
+
+\mbox{\Hypertarget{class_gauss_seidel_a28fc4ef9150773f587f90951c704c994}\label{class_gauss_seidel_a28fc4ef9150773f587f90951c704c994}} 
+\index{Gauss\+Seidel@{Gauss\+Seidel}!nonthermal\+\_\+solves@{nonthermal\+\_\+solves}}
+\index{nonthermal\+\_\+solves@{nonthermal\+\_\+solves}!Gauss\+Seidel@{Gauss\+Seidel}}
+\subsubsection{\texorpdfstring{nonthermal\+\_\+solves()}{nonthermal\_solves()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_gauss_seidel}{Gauss\+Seidel}$<$ dim $>$\+::nonthermal\+\_\+solves (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This virtual function performs energy solves over nonthermal groups.
+
+Usually, nonthermal groups have no upscattering. So this function is a group-\/by-\/ group one-\/pass solving until reaching the thermal group. It will not be called if algorithms like J\+F\+NK are called
+
+
+\begin{DoxyParams}{Parameters}
+{\em equ\+\_\+ptrs} & A vector of shared\+\_\+ptr\textquotesingle{}s of \hyperlink{class_equation_base}{Equation\+Base} objects. \\
+\hline
+{\em ig\+\_\+ptr} & A shared\+\_\+ptr of \hyperlink{class_i_g_base}{I\+G\+Base} object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_m_g_base_a55ba9bef3616dd5eab9e3986f6e8e311}{M\+G\+Base$<$ dim $>$}.
+
+\mbox{\Hypertarget{class_gauss_seidel_a8db6abbdc88413cbf502ac606b415733}\label{class_gauss_seidel_a8db6abbdc88413cbf502ac606b415733}} 
+\index{Gauss\+Seidel@{Gauss\+Seidel}!thermal\+\_\+iterations@{thermal\+\_\+iterations}}
+\index{thermal\+\_\+iterations@{thermal\+\_\+iterations}!Gauss\+Seidel@{Gauss\+Seidel}}
+\subsubsection{\texorpdfstring{thermal\+\_\+iterations()}{thermal\_iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_gauss_seidel}{Gauss\+Seidel}$<$ dim $>$\+::thermal\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This virtual function performs iterative energy solves over thermal groups.
+
+Thermal groups have upscattering for applications like L\+WR. So this function is to solve for thermal groups iteratively. It will not be called if algorithms like J\+F\+NK are called.
+
+
+\begin{DoxyParams}{Parameters}
+{\em equ\+\_\+ptrs} & A vector of shared\+\_\+ptr\textquotesingle{}s of \hyperlink{class_equation_base}{Equation\+Base} objects. \\
+\hline
+{\em ig\+\_\+ptr} & A shared\+\_\+ptr of \hyperlink{class_i_g_base}{I\+G\+Base} object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_m_g_base_a9d3c6ab6e58f0119badb30feedb2ac4d}{M\+G\+Base$<$ dim $>$}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/iteration/\hyperlink{gauss__seidel_8h}{gauss\+\_\+seidel.\+h}\item 
+src/iteration/\hyperlink{gauss__seidel_8cc}{gauss\+\_\+seidel.\+cc}\end{DoxyCompactItemize}

@@ -1,0 +1,90 @@
+\hypertarget{class_iterations}{}\section{Iterations$<$ dim $>$ Class Template Reference}
+\label{class_iterations}\index{Iterations$<$ dim $>$@{Iterations$<$ dim $>$}}
+
+
+{\ttfamily \#include $<$iterations.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_iterations_a0355678383cd174840beb772ce7e9e8d}{Iterations} (const Parameter\+Handler \&prm)
+\item 
+\hyperlink{class_iterations_ae6ea082615afe8919000b4ea1465f9cf}{$\sim$\+Iterations} ()
+\item 
+void \hyperlink{class_iterations_ae41347e35b05b6f0fd3cb2a03ab60341}{solve\+\_\+problems} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$ mg\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$ $>$ eig\+\_\+ptr)
+\item 
+void \hyperlink{class_iterations_ae80aa8efae880a81421502dfdf1a7466}{get\+\_\+keff} (double \&\hyperlink{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}{keff})
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const std\+::string \hyperlink{class_iterations_a3a29339b09351ffa95e9c99be5d5e575}{transport\+\_\+name}
+\item 
+double \hyperlink{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}{keff}
+\item 
+bool \hyperlink{class_iterations_acfd49ecddab96b70fc271942b3173ad7}{is\+\_\+eigen\+\_\+problem}
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_iterations_a0355678383cd174840beb772ce7e9e8d}\label{class_iterations_a0355678383cd174840beb772ce7e9e8d}} 
+\index{Iterations@{Iterations}!Iterations@{Iterations}}
+\index{Iterations@{Iterations}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{Iterations()}{Iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::\hyperlink{class_iterations}{Iterations} (\begin{DoxyParamCaption}\item[{const Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_iterations_ae6ea082615afe8919000b4ea1465f9cf}\label{class_iterations_ae6ea082615afe8919000b4ea1465f9cf}} 
+\index{Iterations@{Iterations}!````~Iterations@{$\sim$\+Iterations}}
+\index{````~Iterations@{$\sim$\+Iterations}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{$\sim$\+Iterations()}{~Iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::$\sim$\hyperlink{class_iterations}{Iterations} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_iterations_ae80aa8efae880a81421502dfdf1a7466}\label{class_iterations_ae80aa8efae880a81421502dfdf1a7466}} 
+\index{Iterations@{Iterations}!get\+\_\+keff@{get\+\_\+keff}}
+\index{get\+\_\+keff@{get\+\_\+keff}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{get\+\_\+keff()}{get\_keff()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::get\+\_\+keff (\begin{DoxyParamCaption}\item[{double \&}]{keff }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_iterations_ae41347e35b05b6f0fd3cb2a03ab60341}\label{class_iterations_ae41347e35b05b6f0fd3cb2a03ab60341}} 
+\index{Iterations@{Iterations}!solve\+\_\+problems@{solve\+\_\+problems}}
+\index{solve\+\_\+problems@{solve\+\_\+problems}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{solve\+\_\+problems()}{solve\_problems()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::solve\+\_\+problems (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$ $>$}]{eig\+\_\+ptr }\end{DoxyParamCaption})}
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_iterations_acfd49ecddab96b70fc271942b3173ad7}\label{class_iterations_acfd49ecddab96b70fc271942b3173ad7}} 
+\index{Iterations@{Iterations}!is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}}
+\index{is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{is\+\_\+eigen\+\_\+problem}{is\_eigen\_problem}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+bool \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::is\+\_\+eigen\+\_\+problem\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}\label{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}} 
+\index{Iterations@{Iterations}!keff@{keff}}
+\index{keff@{keff}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{keff}{keff}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::keff\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_iterations_a3a29339b09351ffa95e9c99be5d5e575}\label{class_iterations_a3a29339b09351ffa95e9c99be5d5e575}} 
+\index{Iterations@{Iterations}!transport\+\_\+name@{transport\+\_\+name}}
+\index{transport\+\_\+name@{transport\+\_\+name}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{transport\+\_\+name}{transport\_name}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+const std\+::string \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::transport\+\_\+name\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/iteration/\hyperlink{iterations_8h}{iterations.\+h}\item 
+src/iteration/\hyperlink{iterations_8cc}{iterations.\+cc}\end{DoxyCompactItemize}

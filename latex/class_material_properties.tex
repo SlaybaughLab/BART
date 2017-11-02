@@ -1,0 +1,302 @@
+\hypertarget{class_material_properties}{}\section{Material\+Properties Class Reference}
+\label{class_material_properties}\index{Material\+Properties@{Material\+Properties}}
+
+
+{\ttfamily \#include $<$material\+\_\+properties.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81}{Material\+Properties} (Parameter\+Handler \&prm)
+\item 
+\hyperlink{class_material_properties_aab94335e9db402f624b88603b233bcab}{$\sim$\+Material\+Properties} ()
+\item 
+bool \hyperlink{class_material_properties_af12005ec9e915a626afd93890c4f7b3a}{get\+\_\+eigen\+\_\+problem\+\_\+bool} ()
+\item 
+unsigned int \hyperlink{class_material_properties_ab78d4abe8fba20919d0a8d7700de0763}{get\+\_\+n\+\_\+group} ()
+\item 
+unsigned int \hyperlink{class_material_properties_a2a43f90684a6f2ad0b32e10384e13254}{get\+\_\+n\+\_\+material} ()
+\item 
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_material_properties_ae04d6676e685d374cb82a15a6b45d96b}{get\+\_\+fissile\+\_\+id\+\_\+map} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ada6ea8094dfc4b5c9610c6dc8d54a47a}{get\+\_\+sigma\+\_\+t} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a319b2dd1caaa13cc9b1afc9ace17e218}{get\+\_\+inv\+\_\+sigma\+\_\+t} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a0bbf8a7d69c73288b015b4247ab0451c}{get\+\_\+q} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a3903e07c80bfe939a3a70be59c74bc53}{get\+\_\+q\+\_\+per\+\_\+ster} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a75afcc7707f4d77aedf439bacacbfb51}{get\+\_\+nusigf} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a25c7a9ed0b651758dab132bf627c6269}{get\+\_\+sigma\+\_\+s} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a9dbfb1ca140d3b5de3dff2994899182f}{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_af0b54d368b5e4dbe43f71a51f58f1192}{get\+\_\+ksi\+\_\+nusigf} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a3cc177eb673386b4019133ecadfea6e4}{get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster} ()
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_material_properties_a83121d60325c02dbce98968b45134993}{process\+\_\+material\+\_\+properties} (Parameter\+Handler \&prm)
+\item 
+void \hyperlink{class_material_properties_a2a25d8392fb1002f27e048d40f37d627}{process\+\_\+eigen\+\_\+material\+\_\+properties} (Parameter\+Handler \&prm)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const double \hyperlink{class_material_properties_a28173c461cf9a74c3b0ebe0f51c386d3}{pi}
+\item 
+bool \hyperlink{class_material_properties_a2193d0f80fcfbba74a2e84fae0518097}{is\+\_\+eigen\+\_\+problem}
+\item 
+bool \hyperlink{class_material_properties_a911d589ba4b11eee87ce5748b760437a}{do\+\_\+nda}
+\item 
+unsigned int \hyperlink{class_material_properties_a4cae7eee21ea5ed5246765c049caf58b}{n\+\_\+group}
+\item 
+unsigned int \hyperlink{class_material_properties_a3bc9713ea94f32fb93d60f2a726e4f2d}{n\+\_\+material}
+\item 
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_material_properties_a232e0fa7b96e2d93597e4dd6839b5223}{is\+\_\+material\+\_\+fissile}
+\item 
+std\+::set$<$ unsigned int $>$ \hyperlink{class_material_properties_a272a39984c2c2a5ca277787ee22f412d}{fissile\+\_\+ids}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ac2a59b00e3be0e775249354182ae08a4}{all\+\_\+sigt}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a9cf448a469e554386e3313d7db0ed4b5}{all\+\_\+inv\+\_\+sigt}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ae753809af30d2f6a3b0c7375555e68bb}{all\+\_\+ksi}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ac20f8acc8fb9dd7ef9805eff006f4710}{all\+\_\+nusigf}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a63087272811561aa476e594b6aa6f4a9}{all\+\_\+q}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a6ca548f222ef27140c7fc1876c97e6aa}{all\+\_\+q\+\_\+per\+\_\+ster}
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a786a421a5a5c61a203b7517e7bafa829}{all\+\_\+sigs}
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a206fc7b81483c3430de643b4dc6598a4}{all\+\_\+sigs\+\_\+per\+\_\+ster}
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a76c5f9ee2a768ee26cb5ed3c2c78a395}{all\+\_\+ksi\+\_\+nusigf}
+\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_ae44a1ebbeefb9400b02f21ad30086017}{all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81}\label{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81}} 
+\index{Material\+Properties@{Material\+Properties}!Material\+Properties@{Material\+Properties}}
+\index{Material\+Properties@{Material\+Properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{Material\+Properties()}{MaterialProperties()}}
+{\footnotesize\ttfamily Material\+Properties\+::\+Material\+Properties (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_aab94335e9db402f624b88603b233bcab}\label{class_material_properties_aab94335e9db402f624b88603b233bcab}} 
+\index{Material\+Properties@{Material\+Properties}!````~Material\+Properties@{$\sim$\+Material\+Properties}}
+\index{````~Material\+Properties@{$\sim$\+Material\+Properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{$\sim$\+Material\+Properties()}{~MaterialProperties()}}
+{\footnotesize\ttfamily Material\+Properties\+::$\sim$\+Material\+Properties (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_material_properties_af12005ec9e915a626afd93890c4f7b3a}\label{class_material_properties_af12005ec9e915a626afd93890c4f7b3a}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+eigen\+\_\+problem\+\_\+bool@{get\+\_\+eigen\+\_\+problem\+\_\+bool}}
+\index{get\+\_\+eigen\+\_\+problem\+\_\+bool@{get\+\_\+eigen\+\_\+problem\+\_\+bool}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+eigen\+\_\+problem\+\_\+bool()}{get\_eigen\_problem\_bool()}}
+{\footnotesize\ttfamily bool Material\+Properties\+::get\+\_\+eigen\+\_\+problem\+\_\+bool (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_ae04d6676e685d374cb82a15a6b45d96b}\label{class_material_properties_ae04d6676e685d374cb82a15a6b45d96b}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+fissile\+\_\+id\+\_\+map@{get\+\_\+fissile\+\_\+id\+\_\+map}}
+\index{get\+\_\+fissile\+\_\+id\+\_\+map@{get\+\_\+fissile\+\_\+id\+\_\+map}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+fissile\+\_\+id\+\_\+map()}{get\_fissile\_id\_map()}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ Material\+Properties\+::get\+\_\+fissile\+\_\+id\+\_\+map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a319b2dd1caaa13cc9b1afc9ace17e218}\label{class_material_properties_a319b2dd1caaa13cc9b1afc9ace17e218}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+inv\+\_\+sigma\+\_\+t@{get\+\_\+inv\+\_\+sigma\+\_\+t}}
+\index{get\+\_\+inv\+\_\+sigma\+\_\+t@{get\+\_\+inv\+\_\+sigma\+\_\+t}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+inv\+\_\+sigma\+\_\+t()}{get\_inv\_sigma\_t()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+inv\+\_\+sigma\+\_\+t (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_af0b54d368b5e4dbe43f71a51f58f1192}\label{class_material_properties_af0b54d368b5e4dbe43f71a51f58f1192}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+ksi\+\_\+nusigf@{get\+\_\+ksi\+\_\+nusigf}}
+\index{get\+\_\+ksi\+\_\+nusigf@{get\+\_\+ksi\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+ksi\+\_\+nusigf()}{get\_ksi\_nusigf()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+ksi\+\_\+nusigf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a3cc177eb673386b4019133ecadfea6e4}\label{class_material_properties_a3cc177eb673386b4019133ecadfea6e4}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster@{get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}}
+\index{get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster@{get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster()}{get\_ksi\_nusigf\_per\_ster()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_ab78d4abe8fba20919d0a8d7700de0763}\label{class_material_properties_ab78d4abe8fba20919d0a8d7700de0763}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+n\+\_\+group@{get\+\_\+n\+\_\+group}}
+\index{get\+\_\+n\+\_\+group@{get\+\_\+n\+\_\+group}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+n\+\_\+group()}{get\_n\_group()}}
+{\footnotesize\ttfamily unsigned int Material\+Properties\+::get\+\_\+n\+\_\+group (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a2a43f90684a6f2ad0b32e10384e13254}\label{class_material_properties_a2a43f90684a6f2ad0b32e10384e13254}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+n\+\_\+material@{get\+\_\+n\+\_\+material}}
+\index{get\+\_\+n\+\_\+material@{get\+\_\+n\+\_\+material}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+n\+\_\+material()}{get\_n\_material()}}
+{\footnotesize\ttfamily unsigned int Material\+Properties\+::get\+\_\+n\+\_\+material (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a75afcc7707f4d77aedf439bacacbfb51}\label{class_material_properties_a75afcc7707f4d77aedf439bacacbfb51}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+nusigf@{get\+\_\+nusigf}}
+\index{get\+\_\+nusigf@{get\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+nusigf()}{get\_nusigf()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+nusigf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a0bbf8a7d69c73288b015b4247ab0451c}\label{class_material_properties_a0bbf8a7d69c73288b015b4247ab0451c}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+q@{get\+\_\+q}}
+\index{get\+\_\+q@{get\+\_\+q}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+q()}{get\_q()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+q (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a3903e07c80bfe939a3a70be59c74bc53}\label{class_material_properties_a3903e07c80bfe939a3a70be59c74bc53}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+q\+\_\+per\+\_\+ster@{get\+\_\+q\+\_\+per\+\_\+ster}}
+\index{get\+\_\+q\+\_\+per\+\_\+ster@{get\+\_\+q\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+q\+\_\+per\+\_\+ster()}{get\_q\_per\_ster()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+q\+\_\+per\+\_\+ster (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a25c7a9ed0b651758dab132bf627c6269}\label{class_material_properties_a25c7a9ed0b651758dab132bf627c6269}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+sigma\+\_\+s@{get\+\_\+sigma\+\_\+s}}
+\index{get\+\_\+sigma\+\_\+s@{get\+\_\+sigma\+\_\+s}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+sigma\+\_\+s()}{get\_sigma\_s()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+sigma\+\_\+s (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a9dbfb1ca140d3b5de3dff2994899182f}\label{class_material_properties_a9dbfb1ca140d3b5de3dff2994899182f}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster@{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster}}
+\index{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster@{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster()}{get\_sigma\_s\_per\_ster()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_ada6ea8094dfc4b5c9610c6dc8d54a47a}\label{class_material_properties_ada6ea8094dfc4b5c9610c6dc8d54a47a}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+sigma\+\_\+t@{get\+\_\+sigma\+\_\+t}}
+\index{get\+\_\+sigma\+\_\+t@{get\+\_\+sigma\+\_\+t}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+sigma\+\_\+t()}{get\_sigma\_t()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+sigma\+\_\+t (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_material_properties_a2a25d8392fb1002f27e048d40f37d627}\label{class_material_properties_a2a25d8392fb1002f27e048d40f37d627}} 
+\index{Material\+Properties@{Material\+Properties}!process\+\_\+eigen\+\_\+material\+\_\+properties@{process\+\_\+eigen\+\_\+material\+\_\+properties}}
+\index{process\+\_\+eigen\+\_\+material\+\_\+properties@{process\+\_\+eigen\+\_\+material\+\_\+properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{process\+\_\+eigen\+\_\+material\+\_\+properties()}{process\_eigen\_material\_properties()}}
+{\footnotesize\ttfamily void Material\+Properties\+::process\+\_\+eigen\+\_\+material\+\_\+properties (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a83121d60325c02dbce98968b45134993}\label{class_material_properties_a83121d60325c02dbce98968b45134993}} 
+\index{Material\+Properties@{Material\+Properties}!process\+\_\+material\+\_\+properties@{process\+\_\+material\+\_\+properties}}
+\index{process\+\_\+material\+\_\+properties@{process\+\_\+material\+\_\+properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{process\+\_\+material\+\_\+properties()}{process\_material\_properties()}}
+{\footnotesize\ttfamily void Material\+Properties\+::process\+\_\+material\+\_\+properties (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_material_properties_a9cf448a469e554386e3313d7db0ed4b5}\label{class_material_properties_a9cf448a469e554386e3313d7db0ed4b5}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+inv\+\_\+sigt@{all\+\_\+inv\+\_\+sigt}}
+\index{all\+\_\+inv\+\_\+sigt@{all\+\_\+inv\+\_\+sigt}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+inv\+\_\+sigt}{all\_inv\_sigt}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+inv\+\_\+sigt\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_ae753809af30d2f6a3b0c7375555e68bb}\label{class_material_properties_ae753809af30d2f6a3b0c7375555e68bb}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+ksi@{all\+\_\+ksi}}
+\index{all\+\_\+ksi@{all\+\_\+ksi}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+ksi}{all\_ksi}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+ksi\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a76c5f9ee2a768ee26cb5ed3c2c78a395}\label{class_material_properties_a76c5f9ee2a768ee26cb5ed3c2c78a395}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+ksi\+\_\+nusigf@{all\+\_\+ksi\+\_\+nusigf}}
+\index{all\+\_\+ksi\+\_\+nusigf@{all\+\_\+ksi\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+ksi\+\_\+nusigf}{all\_ksi\_nusigf}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+ksi\+\_\+nusigf\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_ae44a1ebbeefb9400b02f21ad30086017}\label{class_material_properties_ae44a1ebbeefb9400b02f21ad30086017}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster@{all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}}
+\index{all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster@{all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}{all\_ksi\_nusigf\_per\_ster}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_ac20f8acc8fb9dd7ef9805eff006f4710}\label{class_material_properties_ac20f8acc8fb9dd7ef9805eff006f4710}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+nusigf@{all\+\_\+nusigf}}
+\index{all\+\_\+nusigf@{all\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+nusigf}{all\_nusigf}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+nusigf\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a63087272811561aa476e594b6aa6f4a9}\label{class_material_properties_a63087272811561aa476e594b6aa6f4a9}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+q@{all\+\_\+q}}
+\index{all\+\_\+q@{all\+\_\+q}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+q}{all\_q}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+q\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a6ca548f222ef27140c7fc1876c97e6aa}\label{class_material_properties_a6ca548f222ef27140c7fc1876c97e6aa}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+q\+\_\+per\+\_\+ster@{all\+\_\+q\+\_\+per\+\_\+ster}}
+\index{all\+\_\+q\+\_\+per\+\_\+ster@{all\+\_\+q\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+q\+\_\+per\+\_\+ster}{all\_q\_per\_ster}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+q\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a786a421a5a5c61a203b7517e7bafa829}\label{class_material_properties_a786a421a5a5c61a203b7517e7bafa829}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+sigs@{all\+\_\+sigs}}
+\index{all\+\_\+sigs@{all\+\_\+sigs}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+sigs}{all\_sigs}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+sigs\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a206fc7b81483c3430de643b4dc6598a4}\label{class_material_properties_a206fc7b81483c3430de643b4dc6598a4}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+sigs\+\_\+per\+\_\+ster@{all\+\_\+sigs\+\_\+per\+\_\+ster}}
+\index{all\+\_\+sigs\+\_\+per\+\_\+ster@{all\+\_\+sigs\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+sigs\+\_\+per\+\_\+ster}{all\_sigs\_per\_ster}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+sigs\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_ac2a59b00e3be0e775249354182ae08a4}\label{class_material_properties_ac2a59b00e3be0e775249354182ae08a4}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+sigt@{all\+\_\+sigt}}
+\index{all\+\_\+sigt@{all\+\_\+sigt}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+sigt}{all\_sigt}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+sigt\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a911d589ba4b11eee87ce5748b760437a}\label{class_material_properties_a911d589ba4b11eee87ce5748b760437a}} 
+\index{Material\+Properties@{Material\+Properties}!do\+\_\+nda@{do\+\_\+nda}}
+\index{do\+\_\+nda@{do\+\_\+nda}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{do\+\_\+nda}{do\_nda}}
+{\footnotesize\ttfamily bool Material\+Properties\+::do\+\_\+nda\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a272a39984c2c2a5ca277787ee22f412d}\label{class_material_properties_a272a39984c2c2a5ca277787ee22f412d}} 
+\index{Material\+Properties@{Material\+Properties}!fissile\+\_\+ids@{fissile\+\_\+ids}}
+\index{fissile\+\_\+ids@{fissile\+\_\+ids}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{fissile\+\_\+ids}{fissile\_ids}}
+{\footnotesize\ttfamily std\+::set$<$unsigned int$>$ Material\+Properties\+::fissile\+\_\+ids\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a2193d0f80fcfbba74a2e84fae0518097}\label{class_material_properties_a2193d0f80fcfbba74a2e84fae0518097}} 
+\index{Material\+Properties@{Material\+Properties}!is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}}
+\index{is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{is\+\_\+eigen\+\_\+problem}{is\_eigen\_problem}}
+{\footnotesize\ttfamily bool Material\+Properties\+::is\+\_\+eigen\+\_\+problem\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a232e0fa7b96e2d93597e4dd6839b5223}\label{class_material_properties_a232e0fa7b96e2d93597e4dd6839b5223}} 
+\index{Material\+Properties@{Material\+Properties}!is\+\_\+material\+\_\+fissile@{is\+\_\+material\+\_\+fissile}}
+\index{is\+\_\+material\+\_\+fissile@{is\+\_\+material\+\_\+fissile}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{is\+\_\+material\+\_\+fissile}{is\_material\_fissile}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$unsigned int, bool$>$ Material\+Properties\+::is\+\_\+material\+\_\+fissile\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a4cae7eee21ea5ed5246765c049caf58b}\label{class_material_properties_a4cae7eee21ea5ed5246765c049caf58b}} 
+\index{Material\+Properties@{Material\+Properties}!n\+\_\+group@{n\+\_\+group}}
+\index{n\+\_\+group@{n\+\_\+group}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{n\+\_\+group}{n\_group}}
+{\footnotesize\ttfamily unsigned int Material\+Properties\+::n\+\_\+group\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a3bc9713ea94f32fb93d60f2a726e4f2d}\label{class_material_properties_a3bc9713ea94f32fb93d60f2a726e4f2d}} 
+\index{Material\+Properties@{Material\+Properties}!n\+\_\+material@{n\+\_\+material}}
+\index{n\+\_\+material@{n\+\_\+material}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{n\+\_\+material}{n\_material}}
+{\footnotesize\ttfamily unsigned int Material\+Properties\+::n\+\_\+material\hspace{0.3cm}{\ttfamily [private]}}
+
+\mbox{\Hypertarget{class_material_properties_a28173c461cf9a74c3b0ebe0f51c386d3}\label{class_material_properties_a28173c461cf9a74c3b0ebe0f51c386d3}} 
+\index{Material\+Properties@{Material\+Properties}!pi@{pi}}
+\index{pi@{pi}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{pi}{pi}}
+{\footnotesize\ttfamily const double Material\+Properties\+::pi\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/material/\hyperlink{material__properties_8h}{material\+\_\+properties.\+h}\item 
+src/material/\hyperlink{material__properties_8cc}{material\+\_\+properties.\+cc}\end{DoxyCompactItemize}
