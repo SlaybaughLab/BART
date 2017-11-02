@@ -231,6 +231,16 @@ std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_equation_base_a25123c
 \end{DoxyCompactItemize}
 
 
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim$>$\newline
+class Equation\+Base$<$ dim $>$}
+
+
+
+Definition at line 29 of file equation\+\_\+base.\+h.
+
+
+
 \subsection{Constructor \& Destructor Documentation}
 \mbox{\Hypertarget{class_equation_base_a1e027696da2ab5a030daa34bf99430fe}\label{class_equation_base_a1e027696da2ab5a030daa34bf99430fe}} 
 \index{Equation\+Base@{Equation\+Base}!Equation\+Base@{Equation\+Base}}
@@ -238,6 +248,10 @@ std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_equation_base_a25123c
 \subsubsection{\texorpdfstring{Equation\+Base()}{EquationBase()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::\hyperlink{class_equation_base}{Equation\+Base} (\begin{DoxyParamCaption}\item[{std\+::string}]{equation\+\_\+name,  }\item[{const Parameter\+Handler \&}]{prm,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$ $>$}]{msh\+\_\+ptr,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$ $>$}]{aqd\+\_\+ptr,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_material_properties}{Material\+Properties} $>$}]{mat\+\_\+ptr }\end{DoxyParamCaption})}
+
+
+
+Definition at line 14 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a5e3fdb508c7aa186117ae81883ef1c59}\label{class_equation_base_a5e3fdb508c7aa186117ae81883ef1c59}} 
 \index{Equation\+Base@{Equation\+Base}!Equation\+Base@{Equation\+Base}}
@@ -255,6 +269,10 @@ std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_equation_base_a25123c
 
 
 
+Definition at line 43 of file equation\+\_\+base.\+cc.
+
+
+
 \subsection{Member Function Documentation}
 \mbox{\Hypertarget{class_equation_base_a7d4047f59b31ef73ef404ab396712878}\label{class_equation_base_a7d4047f59b31ef73ef404ab396712878}} 
 \index{Equation\+Base@{Equation\+Base}!assemble\+\_\+bilinear\+\_\+form@{assemble\+\_\+bilinear\+\_\+form}}
@@ -263,6 +281,10 @@ std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_equation_base_a25123c
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\+bilinear\+\_\+form (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+
+
+Definition at line 191 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a44faf34fc306d85f5e84e9c16bea985d}\label{class_equation_base_a44faf34fc306d85f5e84e9c16bea985d}} 
 \index{Equation\+Base@{Equation\+Base}!assemble\+\_\+closure\+\_\+bilinear\+\_\+form@{assemble\+\_\+closure\+\_\+bilinear\+\_\+form}}
 \index{assemble\+\_\+closure\+\_\+bilinear\+\_\+form@{assemble\+\_\+closure\+\_\+bilinear\+\_\+form}!Equation\+Base@{Equation\+Base}}
@@ -270,12 +292,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\+closure\+\_\+bilinear\+\_\+form (\begin{DoxyParamCaption}\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$}]{ho\+\_\+equ\+\_\+ptr,  }\item[{bool}]{do\+\_\+assembly = {\ttfamily true} }\end{DoxyParamCaption})}
 
+
+
+Definition at line 211 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_aa6a5d3dd752c1e2389b329c141c44ee7}\label{class_equation_base_aa6a5d3dd752c1e2389b329c141c44ee7}} 
 \index{Equation\+Base@{Equation\+Base}!assemble\+\_\+fixed\+\_\+linear\+\_\+form@{assemble\+\_\+fixed\+\_\+linear\+\_\+form}}
 \index{assemble\+\_\+fixed\+\_\+linear\+\_\+form@{assemble\+\_\+fixed\+\_\+linear\+\_\+form}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{assemble\+\_\+fixed\+\_\+linear\+\_\+form()}{assemble\_fixed\_linear\_form()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\+fixed\+\_\+linear\+\_\+form (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflx\+\_\+prev }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Definition at line 589 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_ac590b2065d95ea03fcf411c965e6cfd9}\label{class_equation_base_ac590b2065d95ea03fcf411c965e6cfd9}} 
 \index{Equation\+Base@{Equation\+Base}!assemble\+\_\+interface\+\_\+bilinear\+\_\+form@{assemble\+\_\+interface\+\_\+bilinear\+\_\+form}}
@@ -288,12 +318,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\
 
 Interface weak form assembly driver. Member function used to assemble interface weak forms. The main functionality is to go through all non-\/boundary interfaces of the cells owned on current processor and assemble the weak form using interface assembler. 
 
-There is no need to override this function for SN calculations. Yet, for PN, diffusion etc., this function must be overriden to correctly take care of the angular component. \mbox{\Hypertarget{class_equation_base_ac08c0b8c03ccd29f0b9eb49f6e63f8e9}\label{class_equation_base_ac08c0b8c03ccd29f0b9eb49f6e63f8e9}} 
+There is no need to override this function for SN calculations. Yet, for PN, diffusion etc., this function must be overriden to correctly take care of the angular component. 
+
+Definition at line 347 of file equation\+\_\+base.\+cc.
+
+\mbox{\Hypertarget{class_equation_base_ac08c0b8c03ccd29f0b9eb49f6e63f8e9}\label{class_equation_base_ac08c0b8c03ccd29f0b9eb49f6e63f8e9}} 
 \index{Equation\+Base@{Equation\+Base}!assemble\+\_\+linear\+\_\+form@{assemble\+\_\+linear\+\_\+form}}
 \index{assemble\+\_\+linear\+\_\+form@{assemble\+\_\+linear\+\_\+form}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{assemble\+\_\+linear\+\_\+form()}{assemble\_linear\_form()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\+linear\+\_\+form (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflx\+\_\+this\+\_\+proc,  }\item[{unsigned int \&}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Definition at line 545 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a42472101cbaeab32d22c4e8ff1dc9830}\label{class_equation_base_a42472101cbaeab32d22c4e8ff1dc9830}} 
 \index{Equation\+Base@{Equation\+Base}!assemble\+\_\+volume\+\_\+boundary\+\_\+bilinear\+\_\+form@{assemble\+\_\+volume\+\_\+boundary\+\_\+bilinear\+\_\+form}}
@@ -302,12 +340,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::assemble\+\_\+volume\+\_\+boundary\+\_\+bilinear\+\_\+form (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+
+
+Definition at line 225 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a1f36aebd8d54a082db3b2d2a621e67d6}\label{class_equation_base_a1f36aebd8d54a082db3b2d2a621e67d6}} 
 \index{Equation\+Base@{Equation\+Base}!estimate\+\_\+fiss\+\_\+src@{estimate\+\_\+fiss\+\_\+src}}
 \index{estimate\+\_\+fiss\+\_\+src@{estimate\+\_\+fiss\+\_\+src}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{estimate\+\_\+fiss\+\_\+src()}{estimate\_fiss\_src()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::estimate\+\_\+fiss\+\_\+src (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc }\end{DoxyParamCaption})}
+
+
+
+Definition at line 636 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a4e6885c2724687cf6bd840694bbbc85e}\label{class_equation_base_a4e6885c2724687cf6bd840694bbbc85e}} 
 \index{Equation\+Base@{Equation\+Base}!generate\+\_\+globally\+\_\+refined\+\_\+grid@{generate\+\_\+globally\+\_\+refined\+\_\+grid}}
@@ -323,6 +369,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::generate\+\_\
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::generate\+\_\+moments (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes,  }\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+old }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+
+
+Definition at line 461 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a893affe5706a8798bed68bb4ff531eec}\label{class_equation_base_a893affe5706a8798bed68bb4ff531eec}} 
 \index{Equation\+Base@{Equation\+Base}!generate\+\_\+moments@{generate\+\_\+moments}}
 \index{generate\+\_\+moments@{generate\+\_\+moments}!Equation\+Base@{Equation\+Base}}
@@ -330,12 +380,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::generate\+\_\
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::generate\+\_\+moments (\begin{DoxyParamCaption}\item[{Vector$<$ double $>$ \&}]{sflx,  }\item[{Vector$<$ double $>$ \&}]{sflx\+\_\+old,  }\item[{const unsigned int \&}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+
+
+Definition at line 484 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_ab74a0a15d0d2a20022cafad8dd6f46aa}\label{class_equation_base_ab74a0a15d0d2a20022cafad8dd6f46aa}} 
 \index{Equation\+Base@{Equation\+Base}!generate\+\_\+moments@{generate\+\_\+moments}}
 \index{generate\+\_\+moments@{generate\+\_\+moments}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{generate\+\_\+moments()}{generate\_moments()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::generate\+\_\+moments (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Definition at line 509 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a16045453c59c84bb3f012aef293415aa}\label{class_equation_base_a16045453c59c84bb3f012aef293415aa}} 
 \index{Equation\+Base@{Equation\+Base}!get\+\_\+cell\+\_\+mfps@{get\+\_\+cell\+\_\+mfps}}
@@ -351,12 +409,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+\_\+cell
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+\_\+component\+\_\+direction (\begin{DoxyParamCaption}\item[{unsigned int}]{comp\+\_\+ind }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+
+
+Definition at line 680 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a43a783f117149eac90a770d471cd7671}\label{class_equation_base_a43a783f117149eac90a770d471cd7671}} 
 \index{Equation\+Base@{Equation\+Base}!get\+\_\+component\+\_\+group@{get\+\_\+component\+\_\+group}}
 \index{get\+\_\+component\+\_\+group@{get\+\_\+component\+\_\+group}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{get\+\_\+component\+\_\+group()}{get\_component\_group()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+\_\+component\+\_\+group (\begin{DoxyParamCaption}\item[{unsigned int}]{comp\+\_\+ind }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Definition at line 686 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a03a5a22088edb15689e0041dcc6d323c}\label{class_equation_base_a03a5a22088edb15689e0041dcc6d323c}} 
 \index{Equation\+Base@{Equation\+Base}!get\+\_\+component\+\_\+index@{get\+\_\+component\+\_\+index}}
@@ -365,12 +431,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+\_\+component\+\_\+index (\begin{DoxyParamCaption}\item[{unsigned int}]{incident\+\_\+angle\+\_\+index,  }\item[{unsigned int}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+
+
+Definition at line 672 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_abc4842a38ebb180b57ae11ec1325535c}\label{class_equation_base_abc4842a38ebb180b57ae11ec1325535c}} 
 \index{Equation\+Base@{Equation\+Base}!get\+\_\+equ\+\_\+name@{get\+\_\+equ\+\_\+name}}
 \index{get\+\_\+equ\+\_\+name@{get\+\_\+equ\+\_\+name}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{get\+\_\+equ\+\_\+name()}{get\_equ\_name()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::string \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+\_\+equ\+\_\+name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line 664 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a7c46fc281a4040a89bbd97ccf0f46ac7}\label{class_equation_base_a7c46fc281a4040a89bbd97ccf0f46ac7}} 
 \index{Equation\+Base@{Equation\+Base}!get\+\_\+reflective\+\_\+direction\+\_\+index@{get\+\_\+reflective\+\_\+direction\+\_\+index}}
@@ -379,12 +453,20 @@ std\+::string \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::get\+\_\+reflective\+\_\+direction\+\_\+index (\begin{DoxyParamCaption}\item[{unsigned int}]{boundary\+\_\+id,  }\item[{unsigned int}]{incident\+\_\+angle\+\_\+index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 693 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a932c91c91d2b758a155548e5b20ed1ff}\label{class_equation_base_a932c91c91d2b758a155548e5b20ed1ff}} 
 \index{Equation\+Base@{Equation\+Base}!initialize\+\_\+assembly\+\_\+related\+\_\+objects@{initialize\+\_\+assembly\+\_\+related\+\_\+objects}}
 \index{initialize\+\_\+assembly\+\_\+related\+\_\+objects@{initialize\+\_\+assembly\+\_\+related\+\_\+objects}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{initialize\+\_\+assembly\+\_\+related\+\_\+objects()}{initialize\_assembly\_related\_objects()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::initialize\+\_\+assembly\+\_\+related\+\_\+objects (\begin{DoxyParamCaption}\item[{F\+E\+\_\+\+Poly$<$ Tensor\+Product\+Polynomials$<$ dim $>$, dim, dim $>$ $\ast$}]{fe }\end{DoxyParamCaption})}
+
+
+
+Definition at line 139 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a4268bd83e1858fb6326c9b67851e85cc}\label{class_equation_base_a4268bd83e1858fb6326c9b67851e85cc}} 
 \index{Equation\+Base@{Equation\+Base}!initialize\+\_\+cell\+\_\+iterators\+\_\+this\+\_\+proc@{initialize\+\_\+cell\+\_\+iterators\+\_\+this\+\_\+proc}}
@@ -393,12 +475,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::initialize\+\
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::initialize\+\_\+cell\+\_\+iterators\+\_\+this\+\_\+proc (\begin{DoxyParamCaption}\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$ $>$}]{msh\+\_\+ptr,  }\item[{const Do\+F\+Handler$<$ dim $>$ \&}]{dof\+\_\+handler }\end{DoxyParamCaption})}
 
+
+
+Definition at line 100 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a25ff3b8e1a0c98dc5077e6afbac6606c}\label{class_equation_base_a25ff3b8e1a0c98dc5077e6afbac6606c}} 
 \index{Equation\+Base@{Equation\+Base}!initialize\+\_\+system\+\_\+matrices\+\_\+vectors@{initialize\+\_\+system\+\_\+matrices\+\_\+vectors}}
 \index{initialize\+\_\+system\+\_\+matrices\+\_\+vectors@{initialize\+\_\+system\+\_\+matrices\+\_\+vectors}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{initialize\+\_\+system\+\_\+matrices\+\_\+vectors()}{initialize\_system\_matrices\_vectors()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::initialize\+\_\+system\+\_\+matrices\+\_\+vectors (\begin{DoxyParamCaption}\item[{Dynamic\+Sparsity\+Pattern \&}]{dsp,  }\item[{Index\+Set \&}]{local\+\_\+dofs,  }\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Definition at line 108 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_ae294806284f671619cac9e7169ffff8d}\label{class_equation_base_ae294806284f671619cac9e7169ffff8d}} 
 \index{Equation\+Base@{Equation\+Base}!integrate\+\_\+boundary\+\_\+bilinear\+\_\+form@{integrate\+\_\+boundary\+\_\+bilinear\+\_\+form}}
@@ -415,6 +505,10 @@ The function is a virtual function. For diffusion-\/like system, i\+\_\+dir is s
 
 Reimplemented in \hyperlink{class_even_parity_ae800cb49f85cf417167ca5385b50df6f}{Even\+Parity$<$ dim $>$}.
 
+
+
+Definition at line 316 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a1a213c4e21984bead9146e50be97077f}\label{class_equation_base_a1a213c4e21984bead9146e50be97077f}} 
 \index{Equation\+Base@{Equation\+Base}!integrate\+\_\+boundary\+\_\+linear\+\_\+form@{integrate\+\_\+boundary\+\_\+linear\+\_\+form}}
 \index{integrate\+\_\+boundary\+\_\+linear\+\_\+form@{integrate\+\_\+boundary\+\_\+linear\+\_\+form}!Equation\+Base@{Equation\+Base}}
@@ -425,6 +519,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::integrate\+\_
 
 
 Right hand side integrator specifically for boundary terms. 
+
+
+
+Definition at line 329 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a7421b3c18433975ac794ac22c3af715a}\label{class_equation_base_a7421b3c18433975ac794ac22c3af715a}} 
 \index{Equation\+Base@{Equation\+Base}!integrate\+\_\+cell\+\_\+bilinear\+\_\+form@{integrate\+\_\+cell\+\_\+bilinear\+\_\+form}}
@@ -437,6 +535,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::integrate\+\_
 
 Reimplemented in \hyperlink{class_even_parity_adb381ea4f45e5ae3741b1d30a0de02b6}{Even\+Parity$<$ dim $>$}.
 
+
+
+Definition at line 300 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_ae8472f5c20d76c7d01e5660f8377887e}\label{class_equation_base_ae8472f5c20d76c7d01e5660f8377887e}} 
 \index{Equation\+Base@{Equation\+Base}!integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form@{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form}}
 \index{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form@{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form}!Equation\+Base@{Equation\+Base}}
@@ -447,6 +549,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::integrate\+\_
 
 
 Reimplemented in \hyperlink{class_even_parity_a5efaf943f1bde0b3f9a62ea8f5dc5ff0}{Even\+Parity$<$ dim $>$}.
+
+
+
+Definition at line 613 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_af56caa04c80d8f388e116307930d0063}\label{class_equation_base_af56caa04c80d8f388e116307930d0063}} 
 \index{Equation\+Base@{Equation\+Base}!integrate\+\_\+interface\+\_\+bilinear\+\_\+form@{integrate\+\_\+interface\+\_\+bilinear\+\_\+form}}
@@ -463,6 +569,10 @@ When overridden for diffusion calculations, direction component is set to be zer
 
 Reimplemented in \hyperlink{class_even_parity_a0a6674c14f34f22c8ff383aee81ffabf}{Even\+Parity$<$ dim $>$}.
 
+
+
+Definition at line 446 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_aca5998c1afd2b89ee93d3fbbfde7f3d0}\label{class_equation_base_aca5998c1afd2b89ee93d3fbbfde7f3d0}} 
 \index{Equation\+Base@{Equation\+Base}!integrate\+\_\+scattering\+\_\+linear\+\_\+form@{integrate\+\_\+scattering\+\_\+linear\+\_\+form}}
 \index{integrate\+\_\+scattering\+\_\+linear\+\_\+form@{integrate\+\_\+scattering\+\_\+linear\+\_\+form}!Equation\+Base@{Equation\+Base}}
@@ -474,6 +584,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::integrate\+\_
 
 Reimplemented in \hyperlink{class_even_parity_a595082361e618c077877f92d04ebab0b}{Even\+Parity$<$ dim $>$}.
 
+
+
+Definition at line 579 of file equation\+\_\+base.\+cc.
+
 \mbox{\Hypertarget{class_equation_base_a39f0465a523e038302f624f89c08a2ee}\label{class_equation_base_a39f0465a523e038302f624f89c08a2ee}} 
 \index{Equation\+Base@{Equation\+Base}!pre\+\_\+assemble\+\_\+cell\+\_\+matrices@{pre\+\_\+assemble\+\_\+cell\+\_\+matrices}}
 \index{pre\+\_\+assemble\+\_\+cell\+\_\+matrices@{pre\+\_\+assemble\+\_\+cell\+\_\+matrices}!Equation\+Base@{Equation\+Base}}
@@ -484,6 +598,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::pre\+\_\+asse
 
 
 Reimplemented in \hyperlink{class_even_parity_a4cc64002161193e2227e962c9ecb8cf5}{Even\+Parity$<$ dim $>$}.
+
+
+
+Definition at line 290 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_acf618369789a383d0aeebd70ddd60b9e}\label{class_equation_base_acf618369789a383d0aeebd70ddd60b9e}} 
 \index{Equation\+Base@{Equation\+Base}!print\+\_\+angular\+\_\+quad@{print\+\_\+angular\+\_\+quad}}
@@ -498,6 +616,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::print\+\_\+an
 \subsubsection{\texorpdfstring{process\+\_\+input()}{process\_input()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::process\+\_\+input (\begin{DoxyParamCaption}\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$ $>$}]{msh\+\_\+ptr,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$ $>$}]{aqd\+\_\+ptr,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_material_properties}{Material\+Properties} $>$}]{mat\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 49 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_a9b4d33dbf86898d75754a22fda9c9e98}\label{class_equation_base_a9b4d33dbf86898d75754a22fda9c9e98}} 
 \index{Equation\+Base@{Equation\+Base}!report\+\_\+system@{report\+\_\+system}}
@@ -519,6 +641,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::run (\begin{D
 \subsubsection{\texorpdfstring{scale\+\_\+fiss\+\_\+transfer\+\_\+matrices()}{scale\_fiss\_transfer\_matrices()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::scale\+\_\+fiss\+\_\+transfer\+\_\+matrices (\begin{DoxyParamCaption}\item[{double}]{keff }\end{DoxyParamCaption})}
+
+
+
+Definition at line 526 of file equation\+\_\+base.\+cc.
 
 \mbox{\Hypertarget{class_equation_base_aeeac77cdccc1907fe6e53b27e614ee86}\label{class_equation_base_aeeac77cdccc1907fe6e53b27e614ee86}} 
 \index{Equation\+Base@{Equation\+Base}!setup\+\_\+boundary\+\_\+ids@{setup\+\_\+boundary\+\_\+ids}}
@@ -543,6 +669,10 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::solve\+\_\+in
 
 
 
+Definition at line 622 of file equation\+\_\+base.\+cc.
+
+
+
 \subsection{Member Data Documentation}
 \mbox{\Hypertarget{class_equation_base_aa5a26770211dc6c8b2c17e35deffa60b}\label{class_equation_base_aa5a26770211dc6c8b2c17e35deffa60b}} 
 \index{Equation\+Base@{Equation\+Base}!aflxes\+\_\+proc@{aflxes\+\_\+proc}}
@@ -551,12 +681,20 @@ void \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::solve\+\_\+in
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$Vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::aflxes\+\_\+proc\hspace{0.3cm}{\ttfamily [private]}}
 
+
+
+Definition at line 264 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_aa4b83dfa34d4588cf3250a21ffc2e984}\label{class_equation_base_aa4b83dfa34d4588cf3250a21ffc2e984}} 
 \index{Equation\+Base@{Equation\+Base}!alg\+\_\+ptr@{alg\+\_\+ptr}}
 \index{alg\+\_\+ptr@{alg\+\_\+ptr}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{alg\+\_\+ptr}{alg\_ptr}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$\hyperlink{class_preconditioner_solver}{Preconditioner\+Solver}$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::alg\+\_\+ptr\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 257 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_aedead29f1c4bb6b9f7b17b1fe1441c5f}\label{class_equation_base_aedead29f1c4bb6b9f7b17b1fe1441c5f}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+inv\+\_\+sigt@{all\+\_\+inv\+\_\+sigt}}
@@ -565,12 +703,20 @@ std\+\_\+cxx11\+::shared\+\_\+ptr$<$\hyperlink{class_preconditioner_solver}{Prec
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+inv\+\_\+sigt\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 220 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a6dd0c8e99876686f8b6310dd3c914966}\label{class_equation_base_a6dd0c8e99876686f8b6310dd3c914966}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+ksi\+\_\+nusigf@{all\+\_\+ksi\+\_\+nusigf}}
 \index{all\+\_\+ksi\+\_\+nusigf@{all\+\_\+ksi\+\_\+nusigf}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{all\+\_\+ksi\+\_\+nusigf}{all\_ksi\_nusigf}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+ksi\+\_\+nusigf\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 226 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_aa9d38817ca8b3d8c5bc577c7010473d0}\label{class_equation_base_aa9d38817ca8b3d8c5bc577c7010473d0}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster@{all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster}}
@@ -579,12 +725,20 @@ std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{cla
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+ksi\+\_\+nusigf\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 227 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a8c88d4b3e532cb639cea6e653dee5cfc}\label{class_equation_base_a8c88d4b3e532cb639cea6e653dee5cfc}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+nusigf@{all\+\_\+nusigf}}
 \index{all\+\_\+nusigf@{all\+\_\+nusigf}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{all\+\_\+nusigf}{all\_nusigf}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+nusigf\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 223 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_add5be1036bc07500adc0d925020798a6}\label{class_equation_base_add5be1036bc07500adc0d925020798a6}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+q@{all\+\_\+q}}
@@ -593,12 +747,20 @@ std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Eq
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+q\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 221 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a6a633374c56fe767325b5c0860269fbf}\label{class_equation_base_a6a633374c56fe767325b5c0860269fbf}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+q\+\_\+per\+\_\+ster@{all\+\_\+q\+\_\+per\+\_\+ster}}
 \index{all\+\_\+q\+\_\+per\+\_\+ster@{all\+\_\+q\+\_\+per\+\_\+ster}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{all\+\_\+q\+\_\+per\+\_\+ster}{all\_q\_per\_ster}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+q\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 222 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a6775388f6b8dcd903a0f95443b2e8c0d}\label{class_equation_base_a6775388f6b8dcd903a0f95443b2e8c0d}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+sigs@{all\+\_\+sigs}}
@@ -607,12 +769,20 @@ std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Eq
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+sigs\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 224 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_abf2c1a575944b0661bb48e2380c269a0}\label{class_equation_base_abf2c1a575944b0661bb48e2380c269a0}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+sigs\+\_\+per\+\_\+ster@{all\+\_\+sigs\+\_\+per\+\_\+ster}}
 \index{all\+\_\+sigs\+\_\+per\+\_\+ster@{all\+\_\+sigs\+\_\+per\+\_\+ster}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{all\+\_\+sigs\+\_\+per\+\_\+ster}{all\_sigs\_per\_ster}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+sigs\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 225 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a818488c38892b44ccf25eb6f61e89ecc}\label{class_equation_base_a818488c38892b44ccf25eb6f61e89ecc}} 
 \index{Equation\+Base@{Equation\+Base}!all\+\_\+sigt@{all\+\_\+sigt}}
@@ -621,12 +791,20 @@ std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{cla
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::all\+\_\+sigt\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 219 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a7e2b3d305d1f1f7799acff6c86bc67f8}\label{class_equation_base_a7e2b3d305d1f1f7799acff6c86bc67f8}} 
 \index{Equation\+Base@{Equation\+Base}!component\+\_\+index@{component\+\_\+index}}
 \index{component\+\_\+index@{component\+\_\+index}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{component\+\_\+index}{component\_index}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::map$<$std\+::pair$<$unsigned int, unsigned int$>$, unsigned int$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::component\+\_\+index\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 232 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_adf124367d26087d33b6f252aa3cdd0a3}\label{class_equation_base_adf124367d26087d33b6f252aa3cdd0a3}} 
 \index{Equation\+Base@{Equation\+Base}!discretization@{discretization}}
@@ -635,12 +813,20 @@ std\+::map$<$std\+::pair$<$unsigned int, unsigned int$>$, unsigned int$>$ \hyper
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::string \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::discretization\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 186 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a908f21db148a15d7d51a8508aa1fc58a}\label{class_equation_base_a908f21db148a15d7d51a8508aa1fc58a}} 
 \index{Equation\+Base@{Equation\+Base}!do\+\_\+nda@{do\+\_\+nda}}
 \index{do\+\_\+nda@{do\+\_\+nda}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{do\+\_\+nda}{do\_nda}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 bool \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::do\+\_\+nda\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 194 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a66b4cac3e416505fba70789599a98d14}\label{class_equation_base_a66b4cac3e416505fba70789599a98d14}} 
 \index{Equation\+Base@{Equation\+Base}!dofs\+\_\+per\+\_\+cell@{dofs\+\_\+per\+\_\+cell}}
@@ -649,12 +835,20 @@ bool \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::do\+\_\+nda\h
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::dofs\+\_\+per\+\_\+cell\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 201 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a0a72472959e531f5256400dec911f3a5}\label{class_equation_base_a0a72472959e531f5256400dec911f3a5}} 
 \index{Equation\+Base@{Equation\+Base}!equation\+\_\+name@{equation\+\_\+name}}
 \index{equation\+\_\+name@{equation\+\_\+name}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{equation\+\_\+name}{equation\_name}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::string \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::equation\+\_\+name\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 185 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_aafa902bf78cf78770557098fa9027188}\label{class_equation_base_aafa902bf78cf78770557098fa9027188}} 
 \index{Equation\+Base@{Equation\+Base}!fissile\+\_\+ids@{fissile\+\_\+ids}}
@@ -663,12 +857,20 @@ std\+::string \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::equa
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::set$<$unsigned int$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fissile\+\_\+ids\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 239 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_aec6881c5aa66a28deab370236219f569}\label{class_equation_base_aec6881c5aa66a28deab370236219f569}} 
 \index{Equation\+Base@{Equation\+Base}!fission\+\_\+source@{fission\+\_\+source}}
 \index{fission\+\_\+source@{fission\+\_\+source}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{fission\+\_\+source}{fission\_source}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fission\+\_\+source\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 190 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_aac7587c6cd96b508a52f1ed4782b4806}\label{class_equation_base_aac7587c6cd96b508a52f1ed4782b4806}} 
 \index{Equation\+Base@{Equation\+Base}!fission\+\_\+source\+\_\+prev\+\_\+gen@{fission\+\_\+source\+\_\+prev\+\_\+gen}}
@@ -677,12 +879,20 @@ double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fission\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fission\+\_\+source\+\_\+prev\+\_\+gen\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 191 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_abf3c19880eaea0911fff9eb7f3b4b425}\label{class_equation_base_abf3c19880eaea0911fff9eb7f3b4b425}} 
 \index{Equation\+Base@{Equation\+Base}!fv@{fv}}
 \index{fv@{fv}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{fv}{fv}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Values$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fv\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 179 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a04c2626e352fcc6b1c24c50a7e899c2f}\label{class_equation_base_a04c2626e352fcc6b1c24c50a7e899c2f}} 
 \index{Equation\+Base@{Equation\+Base}!fvc@{fvc}}
@@ -691,12 +901,20 @@ std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Values$<$dim$>$ $>$ \hyperlink{class_e
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Values$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fvc\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 182 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a80b624dc27281e2758918d83fd38daf4}\label{class_equation_base_a80b624dc27281e2758918d83fd38daf4}} 
 \index{Equation\+Base@{Equation\+Base}!fvf@{fvf}}
 \index{fvf@{fvf}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{fvf}{fvf}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Face\+Values$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fvf\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 180 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_abd53ef2bf719d3f8e72881072383180c}\label{class_equation_base_abd53ef2bf719d3f8e72881072383180c}} 
 \index{Equation\+Base@{Equation\+Base}!fvf\+\_\+nei@{fvf\+\_\+nei}}
@@ -705,12 +923,20 @@ std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Face\+Values$<$dim$>$ $>$ \hyperlink{c
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Face\+Values$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fvf\+\_\+nei\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 181 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a6f6ca8b0e78bcbe0edd07f7967a0a6f9}\label{class_equation_base_a6f6ca8b0e78bcbe0edd07f7967a0a6f9}} 
 \index{Equation\+Base@{Equation\+Base}!fvfc@{fvfc}}
 \index{fvfc@{fvfc}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{fvfc}{fvfc}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Face\+Values$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::fvfc\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 183 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a9433f3e6cb2251b0b7d0408570677b2e}\label{class_equation_base_a9433f3e6cb2251b0b7d0408570677b2e}} 
 \index{Equation\+Base@{Equation\+Base}!global\+\_\+refinements@{global\+\_\+refinements}}
@@ -719,12 +945,20 @@ std\+\_\+cxx11\+::shared\+\_\+ptr$<$F\+E\+Face\+Values$<$dim$>$ $>$ \hyperlink{c
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::global\+\_\+refinements\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 210 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a145ca193add91b43e7a00d6f35c0e1fb}\label{class_equation_base_a145ca193add91b43e7a00d6f35c0e1fb}} 
 \index{Equation\+Base@{Equation\+Base}!have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}}
 \index{have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{have\+\_\+reflective\+\_\+bc}{have\_reflective\_bc}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 bool \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::have\+\_\+reflective\+\_\+bc\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 195 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a25123cf5f335e267799a52420396a276}\label{class_equation_base_a25123cf5f335e267799a52420396a276}} 
 \index{Equation\+Base@{Equation\+Base}!ho\+\_\+sflxes\+\_\+proc@{ho\+\_\+sflxes\+\_\+proc}}
@@ -733,12 +967,20 @@ bool \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::have\+\_\+ref
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$Vector$<$double$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::ho\+\_\+sflxes\+\_\+proc\hspace{0.3cm}{\ttfamily [private]}}
 
+
+
+Definition at line 265 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a1d2e520638913dfeb4e16f3a09911836}\label{class_equation_base_a1d2e520638913dfeb4e16f3a09911836}} 
 \index{Equation\+Base@{Equation\+Base}!inverse\+\_\+component\+\_\+index@{inverse\+\_\+component\+\_\+index}}
 \index{inverse\+\_\+component\+\_\+index@{inverse\+\_\+component\+\_\+index}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{inverse\+\_\+component\+\_\+index}{inverse\_component\_index}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::unordered\+\_\+map$<$unsigned int, std\+::pair$<$unsigned int, unsigned int$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::inverse\+\_\+component\+\_\+index\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 235 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a749f717dadd0df287fd0c366a7a8e0c1}\label{class_equation_base_a749f717dadd0df287fd0c366a7a8e0c1}} 
 \index{Equation\+Base@{Equation\+Base}!is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}}
@@ -747,12 +989,20 @@ std\+::unordered\+\_\+map$<$unsigned int, std\+::pair$<$unsigned int, unsigned i
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 bool \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::is\+\_\+eigen\+\_\+problem\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 193 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a2568ffad6a52d3bf3227eea51a314cb4}\label{class_equation_base_a2568ffad6a52d3bf3227eea51a314cb4}} 
 \index{Equation\+Base@{Equation\+Base}!is\+\_\+material\+\_\+fissile@{is\+\_\+material\+\_\+fissile}}
 \index{is\+\_\+material\+\_\+fissile@{is\+\_\+material\+\_\+fissile}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{is\+\_\+material\+\_\+fissile}{is\_material\_fissile}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::unordered\+\_\+map$<$unsigned int, bool$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::is\+\_\+material\+\_\+fissile\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 237 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a91757532b2fd3759a976b22a83a9f8d8}\label{class_equation_base_a91757532b2fd3759a976b22a83a9f8d8}} 
 \index{Equation\+Base@{Equation\+Base}!is\+\_\+reflective\+\_\+bc@{is\+\_\+reflective\+\_\+bc}}
@@ -761,12 +1011,20 @@ std\+::unordered\+\_\+map$<$unsigned int, bool$>$ \hyperlink{class_equation_base
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::unordered\+\_\+map$<$unsigned int, bool$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::is\+\_\+reflective\+\_\+bc\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 236 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_ab3cf94dc329f486555f89bdb0dd94ed6}\label{class_equation_base_ab3cf94dc329f486555f89bdb0dd94ed6}} 
 \index{Equation\+Base@{Equation\+Base}!keff@{keff}}
 \index{keff@{keff}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{keff}{keff}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::keff\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 188 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a80de7bca9496a5739f842ed154ecd274}\label{class_equation_base_a80de7bca9496a5739f842ed154ecd274}} 
 \index{Equation\+Base@{Equation\+Base}!keff\+\_\+prev\+\_\+gen@{keff\+\_\+prev\+\_\+gen}}
@@ -775,12 +1033,20 @@ double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::keff\hspace
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 double \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::keff\+\_\+prev\+\_\+gen\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 189 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a60d687f69ae6fd56881c15435e91e4e5}\label{class_equation_base_a60d687f69ae6fd56881c15435e91e4e5}} 
 \index{Equation\+Base@{Equation\+Base}!local\+\_\+cells@{local\+\_\+cells}}
 \index{local\+\_\+cells@{local\+\_\+cells}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{local\+\_\+cells}{local\_cells}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$typename Do\+F\+Handler$<$dim$>$\+::active\+\_\+cell\+\_\+iterator$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::local\+\_\+cells\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 212 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a63c4e27465bea3cf4c2348ea7f4782c8}\label{class_equation_base_a63c4e27465bea3cf4c2348ea7f4782c8}} 
 \index{Equation\+Base@{Equation\+Base}!local\+\_\+dof\+\_\+indices@{local\+\_\+dof\+\_\+indices}}
@@ -789,12 +1055,20 @@ std\+::vector$<$typename Do\+F\+Handler$<$dim$>$\+::active\+\_\+cell\+\_\+iterat
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$types\+::global\+\_\+dof\+\_\+index$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::local\+\_\+dof\+\_\+indices\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 213 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a006861508fc71350aee8274fd949b1e6}\label{class_equation_base_a006861508fc71350aee8274fd949b1e6}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+azi@{n\+\_\+azi}}
 \index{n\+\_\+azi@{n\+\_\+azi}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{n\+\_\+azi}{n\_azi}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+azi\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 204 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a7f01312245816bc60e1cf0a1630030a2}\label{class_equation_base_a7f01312245816bc60e1cf0a1630030a2}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+dir@{n\+\_\+dir}}
@@ -803,12 +1077,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+dir\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 203 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_adf5fc09a70820108fd273b0e2183db55}\label{class_equation_base_adf5fc09a70820108fd273b0e2183db55}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+group@{n\+\_\+group}}
 \index{n\+\_\+group@{n\+\_\+group}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{n\+\_\+group}{n\_group}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+group\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 206 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a6eba5e7408331bce23945068cba4ed19}\label{class_equation_base_a6eba5e7408331bce23945068cba4ed19}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+material@{n\+\_\+material}}
@@ -817,12 +1099,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+material\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 207 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a8b8a299e37005a06a089ace9f473f94e}\label{class_equation_base_a8b8a299e37005a06a089ace9f473f94e}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+q@{n\+\_\+q}}
 \index{n\+\_\+q@{n\+\_\+q}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{n\+\_\+q}{n\_q}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+q\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 197 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a001c60e6c8df319b9f267688f84471da}\label{class_equation_base_a001c60e6c8df319b9f267688f84471da}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+qc@{n\+\_\+qc}}
@@ -831,12 +1121,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+qc\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 199 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_ad0bad2bd155657e65a923910e5b114aa}\label{class_equation_base_ad0bad2bd155657e65a923910e5b114aa}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+qf@{n\+\_\+qf}}
 \index{n\+\_\+qf@{n\+\_\+qf}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{n\+\_\+qf}{n\_qf}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+qf\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 198 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a5cb013018da03250a101941f196df23b}\label{class_equation_base_a5cb013018da03250a101941f196df23b}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+qfc@{n\+\_\+qfc}}
@@ -845,12 +1143,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+qfc\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 200 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a505c44d58215a614d263615a53159fda}\label{class_equation_base_a505c44d58215a614d263615a53159fda}} 
 \index{Equation\+Base@{Equation\+Base}!n\+\_\+total\+\_\+vars@{n\+\_\+total\+\_\+vars}}
 \index{n\+\_\+total\+\_\+vars@{n\+\_\+total\+\_\+vars}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{n\+\_\+total\+\_\+vars}{n\_total\_vars}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_\+total\+\_\+vars\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 205 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_aafed438df52a6a2adca972fad322dd7b}\label{class_equation_base_aafed438df52a6a2adca972fad322dd7b}} 
 \index{Equation\+Base@{Equation\+Base}!nda\+\_\+quadrature\+\_\+order@{nda\+\_\+quadrature\+\_\+order}}
@@ -859,12 +1165,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::n\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 const unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::nda\+\_\+quadrature\+\_\+order\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 209 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a94114d6debfbf1955c3c39f5330ac3c2}\label{class_equation_base_a94114d6debfbf1955c3c39f5330ac3c2}} 
 \index{Equation\+Base@{Equation\+Base}!neigh\+\_\+dof\+\_\+indices@{neigh\+\_\+dof\+\_\+indices}}
 \index{neigh\+\_\+dof\+\_\+indices@{neigh\+\_\+dof\+\_\+indices}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{neigh\+\_\+dof\+\_\+indices}{neigh\_dof\_indices}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$types\+::global\+\_\+dof\+\_\+index$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::neigh\+\_\+dof\+\_\+indices\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 214 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a46320b14358dd65c8450bba919c856d0}\label{class_equation_base_a46320b14358dd65c8450bba919c856d0}} 
 \index{Equation\+Base@{Equation\+Base}!omega\+\_\+i@{omega\+\_\+i}}
@@ -873,12 +1187,20 @@ std\+::vector$<$types\+::global\+\_\+dof\+\_\+index$>$ \hyperlink{class_equation
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$Tensor$<$1, dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::omega\+\_\+i\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 216 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a0facd1cc5977e32b301a134ed5b9fa98}\label{class_equation_base_a0facd1cc5977e32b301a134ed5b9fa98}} 
 \index{Equation\+Base@{Equation\+Base}!p\+\_\+order@{p\+\_\+order}}
 \index{p\+\_\+order@{p\+\_\+order}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{p\+\_\+order}{p\_order}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::p\+\_\+order\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 208 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a12dd28de05c41d4dd3ec30e7195bfa97}\label{class_equation_base_a12dd28de05c41d4dd3ec30e7195bfa97}} 
 \index{Equation\+Base@{Equation\+Base}!pcout@{pcout}}
@@ -887,12 +1209,20 @@ unsigned int \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::p\+\_
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 Conditional\+O\+Stream \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::pcout\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 241 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a5e677b436f1abeeeffc3da284e5c1c4c}\label{class_equation_base_a5e677b436f1abeeeffc3da284e5c1c4c}} 
 \index{Equation\+Base@{Equation\+Base}!q\+\_\+rule@{q\+\_\+rule}}
 \index{q\+\_\+rule@{q\+\_\+rule}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{q\+\_\+rule}{q\_rule}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$Q\+Gauss$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::q\+\_\+rule\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 175 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a306b0c876f50b5eb936e5bf71ebcd988}\label{class_equation_base_a306b0c876f50b5eb936e5bf71ebcd988}} 
 \index{Equation\+Base@{Equation\+Base}!qc\+\_\+rule@{qc\+\_\+rule}}
@@ -901,12 +1231,20 @@ std\+\_\+cxx11\+::shared\+\_\+ptr$<$Q\+Gauss$<$dim$>$ $>$ \hyperlink{class_equat
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$Q\+Gauss$<$dim$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::qc\+\_\+rule\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 177 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_ab4c9256889d7f5a6b7d4295c81b9193b}\label{class_equation_base_ab4c9256889d7f5a6b7d4295c81b9193b}} 
 \index{Equation\+Base@{Equation\+Base}!qf\+\_\+rule@{qf\+\_\+rule}}
 \index{qf\+\_\+rule@{qf\+\_\+rule}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{qf\+\_\+rule}{qf\_rule}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$Q\+Gauss$<$dim-\/1$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::qf\+\_\+rule\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 176 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a867f14c44c6132bd65542e9cdcf264c4}\label{class_equation_base_a867f14c44c6132bd65542e9cdcf264c4}} 
 \index{Equation\+Base@{Equation\+Base}!qfc\+\_\+rule@{qfc\+\_\+rule}}
@@ -915,12 +1253,20 @@ std\+\_\+cxx11\+::shared\+\_\+ptr$<$Q\+Gauss$<$dim-\/1$>$ $>$ \hyperlink{class_e
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+\_\+cxx11\+::shared\+\_\+ptr$<$Q\+Gauss$<$dim-\/1$>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::qfc\+\_\+rule\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 178 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a55a37edb6a0cc2ac25e31b4e8aa91e33}\label{class_equation_base_a55a37edb6a0cc2ac25e31b4e8aa91e33}} 
 \index{Equation\+Base@{Equation\+Base}!reflective\+\_\+direction\+\_\+index@{reflective\+\_\+direction\+\_\+index}}
 \index{reflective\+\_\+direction\+\_\+index@{reflective\+\_\+direction\+\_\+index}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{reflective\+\_\+direction\+\_\+index}{reflective\_direction\_index}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::map$<$std\+::pair$<$unsigned int, unsigned int$>$, unsigned int$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::reflective\+\_\+direction\+\_\+index\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 233 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a53b48062132ee777856a3b340b4000b2}\label{class_equation_base_a53b48062132ee777856a3b340b4000b2}} 
 \index{Equation\+Base@{Equation\+Base}!relative\+\_\+position\+\_\+to\+\_\+id@{relative\+\_\+position\+\_\+to\+\_\+id}}
@@ -929,12 +1275,20 @@ std\+::map$<$std\+::pair$<$unsigned int, unsigned int$>$, unsigned int$>$ \hyper
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::map$<$std\+::vector$<$unsigned int$>$, unsigned int$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::relative\+\_\+position\+\_\+to\+\_\+id\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 234 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_aadf1651f816a1a65301faac3cd075aeb}\label{class_equation_base_aadf1651f816a1a65301faac3cd075aeb}} 
 \index{Equation\+Base@{Equation\+Base}!scaled\+\_\+fiss\+\_\+transfer@{scaled\+\_\+fiss\+\_\+transfer}}
 \index{scaled\+\_\+fiss\+\_\+transfer@{scaled\+\_\+fiss\+\_\+transfer}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{scaled\+\_\+fiss\+\_\+transfer}{scaled\_fiss\_transfer}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::scaled\+\_\+fiss\+\_\+transfer\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 230 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a5452991f01541261dba1e0322a0f5392}\label{class_equation_base_a5452991f01541261dba1e0322a0f5392}} 
 \index{Equation\+Base@{Equation\+Base}!scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster@{scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster}}
@@ -943,12 +1297,20 @@ std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{cla
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 228 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_ad445f7f2e377cc05f2003de4d632baa7}\label{class_equation_base_ad445f7f2e377cc05f2003de4d632baa7}} 
 \index{Equation\+Base@{Equation\+Base}!scat\+\_\+scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster@{scat\+\_\+scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster}}
 \index{scat\+\_\+scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster@{scat\+\_\+scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{scat\+\_\+scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster}{scat\_scaled\_fiss\_transfer\_per\_ster}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::scat\+\_\+scaled\+\_\+fiss\+\_\+transfer\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 229 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_afe48e9f1d2f6b4f13cefe80d43d18300}\label{class_equation_base_afe48e9f1d2f6b4f13cefe80d43d18300}} 
 \index{Equation\+Base@{Equation\+Base}!sys\+\_\+aflxes@{sys\+\_\+aflxes}}
@@ -957,12 +1319,20 @@ std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ \hyperlink{cla
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector$\ast$$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::sys\+\_\+aflxes\hspace{0.3cm}{\ttfamily [private]}}
 
+
+
+Definition at line 263 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a556e9d3b402dae0303e786e2ef38a29b}\label{class_equation_base_a556e9d3b402dae0303e786e2ef38a29b}} 
 \index{Equation\+Base@{Equation\+Base}!sys\+\_\+fixed\+\_\+rhses@{sys\+\_\+fixed\+\_\+rhses}}
 \index{sys\+\_\+fixed\+\_\+rhses@{sys\+\_\+fixed\+\_\+rhses}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{sys\+\_\+fixed\+\_\+rhses}{sys\_fixed\_rhses}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector$\ast$$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::sys\+\_\+fixed\+\_\+rhses\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 262 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_afcdb76718da046b950c466500de44a03}\label{class_equation_base_afcdb76718da046b950c466500de44a03}} 
 \index{Equation\+Base@{Equation\+Base}!sys\+\_\+mats@{sys\+\_\+mats}}
@@ -971,12 +1341,20 @@ std\+::vector$<$P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector$\ast$$>$ \hyperli
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Sparse\+Matrix$\ast$$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::sys\+\_\+mats\hspace{0.3cm}{\ttfamily [private]}}
 
+
+
+Definition at line 260 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a89fe13a13fa7f46cc20bdab8a884216c}\label{class_equation_base_a89fe13a13fa7f46cc20bdab8a884216c}} 
 \index{Equation\+Base@{Equation\+Base}!sys\+\_\+rhses@{sys\+\_\+rhses}}
 \index{sys\+\_\+rhses@{sys\+\_\+rhses}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{sys\+\_\+rhses}{sys\_rhses}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector$\ast$$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::sys\+\_\+rhses\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 261 of file equation\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_equation_base_a2e5e8e486a1e6994c606dc05227752dd}\label{class_equation_base_a2e5e8e486a1e6994c606dc05227752dd}} 
 \index{Equation\+Base@{Equation\+Base}!tensor\+\_\+norms@{tensor\+\_\+norms}}
@@ -985,12 +1363,20 @@ std\+::vector$<$P\+E\+T\+Sc\+Wrappers\+::\+M\+P\+I\+::\+Vector$\ast$$>$ \hyperli
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$double$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::tensor\+\_\+norms\hspace{0.3cm}{\ttfamily [protected]}}
 
+
+
+Definition at line 218 of file equation\+\_\+base.\+h.
+
 \mbox{\Hypertarget{class_equation_base_a46388ad4bea156033fa98fd8f484a068}\label{class_equation_base_a46388ad4bea156033fa98fd8f484a068}} 
 \index{Equation\+Base@{Equation\+Base}!wi@{wi}}
 \index{wi@{wi}!Equation\+Base@{Equation\+Base}}
 \subsubsection{\texorpdfstring{wi}{wi}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$double$>$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$\+::wi\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line 217 of file equation\+\_\+base.\+h.
 
 
 

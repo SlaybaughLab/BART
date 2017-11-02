@@ -26,13 +26,21 @@ using namespace dealii;
 
 /*!
  This class operate BART. The functionalities include:
+ 
  (1) Build necessary components for BART, such as AQ data, mesh, equations etc. For
      This functionality, please see documentation for BartDriver<dim>::build_basis.
+ 
  (2) Setting up system.
+ 
  (3) Reporting system on screen.
+ 
  (4) Operation calculations at highest level: instantiating Iterations and perform
      iterations.
+ 
  (5) Output results for visualization.
+ 
+ \author Weixiong Zheng
+ \date 2017/08
  */
 template <int dim>
 class BartDriver
@@ -150,7 +158,7 @@ private:
    \todo It would be necessary to modify it to vectors of fe pointers if CMFD is
    of interest.
    */
-  FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe;//!< Finite element type.
+  FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe;
   
   parallel::distributed::Triangulation<dim> triangulation;//!< Triangulation in distrubted system
   
@@ -217,7 +225,6 @@ private:
   unsigned int p_order;//!< Polynomial order.
   unsigned int global_refinements;//!< Total number of global refinements.
   
-  //! Scalar fluxes for all groups on current processor
   /*!
    The scalar fluxes for all groups on current processor. Values will be assigned
    in the process of calculations. It will also be the output scalar fluxes in the 

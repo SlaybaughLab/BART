@@ -74,6 +74,10 @@ Weixiong Zheng
 \end{DoxyDate}
 
 
+Definition at line 35 of file preconditioner\+\_\+solver.\+h.
+
+
+
 \subsection{Constructor \& Destructor Documentation}
 \mbox{\Hypertarget{class_preconditioner_solver_a5b49c94b10dc0e2b78ad278d19a8281d}\label{class_preconditioner_solver_a5b49c94b10dc0e2b78ad278d19a8281d}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -92,6 +96,10 @@ Class constructor.
 {\em n\+\_\+total\+\_\+vars} & A integer for the total number components for target equation. \\
 \hline
 \end{DoxyParams}
+
+
+Definition at line 3 of file preconditioner\+\_\+solver.\+cc.
+
 \mbox{\Hypertarget{class_preconditioner_solver_a8418873c20ded98dc1af3f66880d8e91}\label{class_preconditioner_solver_a8418873c20ded98dc1af3f66880d8e91}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!````~Preconditioner\+Solver@{$\sim$\+Preconditioner\+Solver}}
 \index{````~Preconditioner\+Solver@{$\sim$\+Preconditioner\+Solver}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -101,6 +109,10 @@ Class constructor.
 
 
 Class destructors. 
+
+
+
+Definition at line 35 of file preconditioner\+\_\+solver.\+cc.
 
 
 
@@ -124,6 +136,10 @@ This function initilizes preconditioners for an equation. The main functionaliti
 {\em sys\+\_\+rhses} & A vector of pointers to system right-\/hand-\/side vectors of the target equation. \\
 \hline
 \end{DoxyParams}
+
+
+Definition at line 41 of file preconditioner\+\_\+solver.\+cc.
+
 \mbox{\Hypertarget{class_preconditioner_solver_a5adc9e36ec12ed148eef7f1120c1bc4e}\label{class_preconditioner_solver_a5adc9e36ec12ed148eef7f1120c1bc4e}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!linear\+\_\+algebra\+\_\+solve@{linear\+\_\+algebra\+\_\+solve}}
 \index{linear\+\_\+algebra\+\_\+solve@{linear\+\_\+algebra\+\_\+solve}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -148,6 +164,10 @@ Void.
 \end{DoxyReturn}
 
 
+Definition at line 129 of file preconditioner\+\_\+solver.\+cc.
+
+
+
 \subsection{Member Data Documentation}
 \mbox{\Hypertarget{class_preconditioner_solver_a3170128a1c287f729fa40c9aff2f2eed}\label{class_preconditioner_solver_a3170128a1c287f729fa40c9aff2f2eed}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!cn@{cn}}
@@ -159,7 +179,11 @@ Void.
 
 pointer of Solver\+Control object. 
 
-Control iterative algebraic linear solvers to determine convergence. Can be used to show number of linear iterations in the algebraic solve, linear solver residual after each iteration etc. \mbox{\Hypertarget{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}\label{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}} 
+Control iterative algebraic linear solvers to determine convergence. Can be used to show number of linear iterations in the algebraic solve, linear solver residual after each iteration etc. 
+
+Definition at line 109 of file preconditioner\+\_\+solver.\+h.
+
+\mbox{\Hypertarget{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}\label{class_preconditioner_solver_acd3bde261fb29c50e15ffe6ecd78ee5f}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!direct@{direct}}
 \index{direct@{direct}!Preconditioner\+Solver@{Preconditioner\+Solver}}
 \subsubsection{\texorpdfstring{direct}{direct}}
@@ -168,6 +192,10 @@ Control iterative algebraic linear solvers to determine convergence. Can be used
 
 
 A vector of pointers of M\+U\+M\+PS solver objects. 
+
+
+
+Definition at line 127 of file preconditioner\+\_\+solver.\+h.
 
 \mbox{\Hypertarget{class_preconditioner_solver_a0241f0b26a8c964fc1e3fd8fef5a20a6}\label{class_preconditioner_solver_a0241f0b26a8c964fc1e3fd8fef5a20a6}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!direct\+\_\+init@{direct\+\_\+init}}
@@ -179,6 +207,10 @@ A vector of pointers of M\+U\+M\+PS solver objects.
 
 A vector of boolean to determine if direct solver of a component is initilized. 
 
+
+
+Definition at line 98 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_af20758bf54111e7092c49688622b1e54}\label{class_preconditioner_solver_af20758bf54111e7092c49688622b1e54}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!equation\+\_\+name@{equation\+\_\+name}}
 \index{equation\+\_\+name@{equation\+\_\+name}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -188,6 +220,10 @@ A vector of boolean to determine if direct solver of a component is initilized.
 
 
 Name of the target equation. 
+
+
+
+Definition at line 89 of file preconditioner\+\_\+solver.\+h.
 
 \mbox{\Hypertarget{class_preconditioner_solver_a954ef4f8c7d8206b277280a4b41aa9b1}\label{class_preconditioner_solver_a954ef4f8c7d8206b277280a4b41aa9b1}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}}
@@ -199,6 +235,10 @@ Name of the target equation.
 
 Booolean to determine if there\textquotesingle{}s any reflective boundary. 
 
+
+
+Definition at line 91 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_a09b25f234ad6a225fb8a002fc919181a}\label{class_preconditioner_solver_a09b25f234ad6a225fb8a002fc919181a}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!linear\+\_\+iters@{linear\+\_\+iters}}
 \index{linear\+\_\+iters@{linear\+\_\+iters}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -208,6 +248,10 @@ Booolean to determine if there\textquotesingle{}s any reflective boundary.
 
 
 A vector of integers showing number of iterations in linear solves. 
+
+
+
+Definition at line 101 of file preconditioner\+\_\+solver.\+h.
 
 \mbox{\Hypertarget{class_preconditioner_solver_ae13f7d32f80aad8eb1a4a9d1d2c4d019}\label{class_preconditioner_solver_ae13f7d32f80aad8eb1a4a9d1d2c4d019}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!linear\+\_\+solver\+\_\+name@{linear\+\_\+solver\+\_\+name}}
@@ -219,6 +263,10 @@ A vector of integers showing number of iterations in linear solves.
 
 Linear solver name for current equation. 
 
+
+
+Definition at line 94 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_ac2c59527a78b06037f0eb18132d8be63}\label{class_preconditioner_solver_ac2c59527a78b06037f0eb18132d8be63}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!n\+\_\+total\+\_\+vars@{n\+\_\+total\+\_\+vars}}
 \index{n\+\_\+total\+\_\+vars@{n\+\_\+total\+\_\+vars}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -228,6 +276,10 @@ Linear solver name for current equation.
 
 
 Total number of variables in the target system. 
+
+
+
+Definition at line 88 of file preconditioner\+\_\+solver.\+h.
 
 \mbox{\Hypertarget{class_preconditioner_solver_a235b12fcd8e5978c1a3df8c76d05808b}\label{class_preconditioner_solver_a235b12fcd8e5978c1a3df8c76d05808b}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+amg@{pre\+\_\+amg}}
@@ -239,6 +291,10 @@ Total number of variables in the target system.
 
 A vector of pointers of Boomer\+A\+MG preconditioner. 
 
+
+
+Definition at line 112 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_af3d0217e39b9527c67ac6ce56464f11a}\label{class_preconditioner_solver_af3d0217e39b9527c67ac6ce56464f11a}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+bjacobi@{pre\+\_\+bjacobi}}
 \index{pre\+\_\+bjacobi@{pre\+\_\+bjacobi}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -248,6 +304,10 @@ A vector of pointers of Boomer\+A\+MG preconditioner.
 
 
 A vector of pointers of block Jacobi preconditioner. 
+
+
+
+Definition at line 115 of file preconditioner\+\_\+solver.\+h.
 
 \mbox{\Hypertarget{class_preconditioner_solver_aab4bd157aebca7681283ff6cf0e69392}\label{class_preconditioner_solver_aab4bd157aebca7681283ff6cf0e69392}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+eisenstat@{pre\+\_\+eisenstat}}
@@ -259,6 +319,10 @@ A vector of pointers of block Jacobi preconditioner.
 
 A vector of pointers of Eisenstat (block S\+S\+OR) preconditioner. 
 
+
+
+Definition at line 124 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_ab2379323cfbca020045ec5dd4ab708dc}\label{class_preconditioner_solver_ab2379323cfbca020045ec5dd4ab708dc}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+jacobi@{pre\+\_\+jacobi}}
 \index{pre\+\_\+jacobi@{pre\+\_\+jacobi}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -268,6 +332,10 @@ A vector of pointers of Eisenstat (block S\+S\+OR) preconditioner.
 
 
 A vector of pointers of Jacobi preconditioner. 
+
+
+
+Definition at line 121 of file preconditioner\+\_\+solver.\+h.
 
 \mbox{\Hypertarget{class_preconditioner_solver_a90b15442f60786b56729f2756e191336}\label{class_preconditioner_solver_a90b15442f60786b56729f2756e191336}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!pre\+\_\+parasails@{pre\+\_\+parasails}}
@@ -279,6 +347,10 @@ A vector of pointers of Jacobi preconditioner.
 
 A vector of pointers of Para\+Sails preconditioner. 
 
+
+
+Definition at line 118 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_a2d8afd11d073e87487da0442486c3e48}\label{class_preconditioner_solver_a2d8afd11d073e87487da0442486c3e48}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!preconditioner\+\_\+name@{preconditioner\+\_\+name}}
 \index{preconditioner\+\_\+name@{preconditioner\+\_\+name}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -289,6 +361,10 @@ A vector of pointers of Para\+Sails preconditioner.
 
 Preconditioner name for current equation. 
 
+
+
+Definition at line 95 of file preconditioner\+\_\+solver.\+h.
+
 \mbox{\Hypertarget{class_preconditioner_solver_ab9548e7699e82a2b006db283c59e4a80}\label{class_preconditioner_solver_ab9548e7699e82a2b006db283c59e4a80}} 
 \index{Preconditioner\+Solver@{Preconditioner\+Solver}!ssor\+\_\+omega@{ssor\+\_\+omega}}
 \index{ssor\+\_\+omega@{ssor\+\_\+omega}!Preconditioner\+Solver@{Preconditioner\+Solver}}
@@ -298,6 +374,10 @@ Preconditioner name for current equation.
 
 
 The relaxation factor if block S\+S\+OR is used as preconditioner. 
+
+
+
+Definition at line 92 of file preconditioner\+\_\+solver.\+h.
 
 
 

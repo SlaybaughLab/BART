@@ -210,6 +210,8 @@ Private Attributes</h2></td></tr>
 class BartDriver&lt; dim &gt;</h3>
 
 <p>This class operate BART. The functionalities include: (1) Build necessary components for BART, such as AQ data, mesh, equations etc. For This functionality, please see documentation for <a class="el" href="class_bart_driver.html#ade375a4999de1e775434e11d4e6dd935">BartDriver&lt;dim&gt;::build_basis</a>. (2) Setting up system. (3) Reporting system on screen. (4) Operation calculations at highest level: instantiating <a class="el" href="class_iterations.html">Iterations</a> and perform iterations. (5) Output results for visualization. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00038">38</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="acad3b3200543d46ab9e4c78b860f822c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acad3b3200543d46ab9e4c78b860f822c">&#9670;&nbsp;</a></span>BartDriver()</h2>
@@ -236,6 +238,8 @@ template&lt;int dim&gt; </div>
   </dd>
 </dl>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00018">18</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
+
 </div>
 </div>
 <a id="aa89fe626d99cb4013b83d5e99698a9f3"></a>
@@ -256,6 +260,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Destructor. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00045">45</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
 
 </div>
 </div>
@@ -296,6 +302,8 @@ template&lt;int dim&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>shared_ptr pointing to <a class="el" href="class_a_q_base.html">AQBase</a> instance. </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00146">146</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
+
 </div>
 </div>
 <a id="ade375a4999de1e775434e11d4e6dd935"></a>
@@ -331,6 +339,8 @@ template&lt;int dim&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Void. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00051">51</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
 
 </div>
 </div>
@@ -369,6 +379,8 @@ template&lt;int dim&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>shared_ptr pointing to <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a> instance. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00163">163</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
 
 </div>
 </div>
@@ -435,6 +447,8 @@ template&lt;int dim&gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>shared_ptr pointing to <a class="el" href="class_equation_base.html">EquationBase</a> instance. </dd></dl>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00130">130</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
+
 </div>
 </div>
 <a id="adc7ebcc2b3d02b7058410abef7e1b8a5"></a>
@@ -464,6 +478,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Function used to build pointer to instance of InGroupBase's derived class. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00184">184</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
 
 </div>
 </div>
@@ -495,6 +511,8 @@ template&lt;int dim&gt; </div>
 
 <p>Function used to build pointer to instance of <a class="el" href="class_m_g_base.html">MGBase</a>'s derived class. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00174">174</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
+
 </div>
 </div>
 <a id="a1c440c9add7a5ec9d28afb7d44fa23d9"></a>
@@ -523,6 +541,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 <p>This function outputs results. The main functionality is to provide output files that can be read by Paraview or Visit.</p>
 <p>Procedure of outputing results includes: (1) Output results on current processor to .vtu format files (2) Write out a .pvtu files on one processor which has access information for all .vtu files. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00244">244</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
 
 </div>
 </div>
@@ -553,6 +573,8 @@ template&lt;int dim&gt; </div>
 
 <p>Function to print features such as SN order, number of groups etc. on screen. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00104">104</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
+
 </div>
 </div>
 <a id="a20c70ef3733fc4406353e6fdfee6c684"></a>
@@ -574,6 +596,8 @@ template&lt;int dim&gt; </div>
 
 <p>Public function used to run all the functions inside it. </p>
 <p>This is the only function callable outside of the class. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00289">289</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
 
 </div>
 </div>
@@ -603,6 +627,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 <p>This function initializes system settings. Main functionalities include: (1) Initializing dof_handler, local_dofs and relevant_dofs. (2) Initializing, producing and distributing sparsity pattern (3) Initializing cell iterators on current iterators, assembly related objects and system matrices and vectors (PETSc related objects) </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8cc_source.html#l00196">196</a> of file <a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a>.</p>
+
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
@@ -629,6 +655,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Pointer of <a class="el" href="class_a_q_base.html">AQBase</a> instance. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00187">187</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -657,6 +685,8 @@ template&lt;int dim&gt; </div>
 <p>Constraints for hanging nodes. </p>
 <p>This will be useful if adaptive local refinement is of interest. For now, this variable is of no practical use. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00181">181</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a75cc884c6895beca3d3861ca226b4a3f"></a>
@@ -683,6 +713,8 @@ template&lt;int dim&gt; </div>
 
 <p>Spatial discretization method. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00203">203</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="acb7aa4c65a18deef5e1be7a3477d1b12"></a>
@@ -708,6 +740,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Boolean to determine if NDA is to be used for accelerations. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00209">209</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -736,6 +770,8 @@ template&lt;int dim&gt; </div>
 <p>DoFHandler instance. </p>
 <p>Could be interpreted as a container containing smart pointers to accessors of cells (cell iterators) and relevant cell properties such as material_id, if cell is at boundary and dof mapping between local cell and global system etc. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00163">163</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a90adc0f013f07a10c5d423e3506bd589"></a>
@@ -761,6 +797,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Pointer of <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a> instance. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00188">188</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -788,6 +826,8 @@ template&lt;int dim&gt; </div>
 
 <p>A vector of pointers of <a class="el" href="class_equation_base.html">EquationBase</a> instances. </p>
 <p>The rule is if NDA is not used, this vector only has one component for transport model. Otherwise, std::vector::front() contains the pointer of HO equation and std::vector::back() contains the pointer of NDA equation. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00198">198</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -818,6 +858,8 @@ template&lt;int dim&gt; </div>
 <dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo:</a></b></dt><dd>It would be necessary to modify it to vectors of fe pointers if CMFD is of interest. </dd></dl>
 <p>Finite element type. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00153">153</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a1ddb881c78ef92c59f2c686b320c970e"></a>
@@ -843,6 +885,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Total number of global refinements. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00218">218</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -870,6 +914,8 @@ template&lt;int dim&gt; </div>
 
 <p>Boolean to determine if there is any BC are reflective. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00210">210</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a7dcefb31d64ad2e76d4c04a44cb26f7c"></a>
@@ -895,6 +941,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Algebraic solver name. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00201">201</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -922,6 +970,8 @@ template&lt;int dim&gt; </div>
 
 <p>Algebraic preconditioner name. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00202">202</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a83323d9561c906f6094a51a5c936cea4"></a>
@@ -947,6 +997,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Pointer of InGroupBase instance. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00190">190</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -974,6 +1026,8 @@ template&lt;int dim&gt; </div>
 
 <p>Boolean to determine if a problem is about eigenvalue. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00208">208</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="ae07e7a592dd255d69685f17d98a2ecc6"></a>
@@ -999,6 +1053,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Pointer of <a class="el" href="class_iterations.html">Iterations</a> instance. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00184">184</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1026,6 +1082,8 @@ template&lt;int dim&gt; </div>
 
 <p>keff result in eigenvalue problems </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00206">206</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a06a4f83c6f9bea928ec311fcdf974ab1"></a>
@@ -1051,6 +1109,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Index of dofs living on current processor. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00165">165</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1078,6 +1138,8 @@ template&lt;int dim&gt; </div>
 
 <p>Pointer of <a class="el" href="class_material_properties.html">MaterialProperties</a> instance. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00186">186</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a1ae1a91d9a049ba4354c71f6ad689d74"></a>
@@ -1103,6 +1165,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Pointer of <a class="el" href="class_m_g_base.html">MGBase</a> instance. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00189">189</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1130,6 +1194,8 @@ template&lt;int dim&gt; </div>
 
 <p>Pointer of <a class="el" href="class_mesh_generator.html">MeshGenerator</a> instance. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00185">185</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a3726013dac04d13b87e35cb0c3b8b557"></a>
@@ -1155,6 +1221,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>SN order. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00213">213</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1182,6 +1250,8 @@ template&lt;int dim&gt; </div>
 
 <p>Total number of directions in SN calculations. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00212">212</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="aeb5a04392c80b32379b02e18acbc1126"></a>
@@ -1207,6 +1277,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Total number of energy groups. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00215">215</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1234,6 +1306,8 @@ template&lt;int dim&gt; </div>
 
 <p>Total number of material types. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00216">216</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="ab290f0bd63869bf124163f68e1be1a6a"></a>
@@ -1260,6 +1334,8 @@ template&lt;int dim&gt; </div>
 
 <p>Total number of components. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00214">214</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a34229e58237aaac1551db7a3ec140e1c"></a>
@@ -1283,6 +1359,8 @@ template&lt;int dim&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00204">204</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1310,6 +1388,8 @@ template&lt;int dim&gt; </div>
 
 <p>Polynomial order. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00217">217</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="ad7bd8e33b7a6e67aa3d31527e40d18ea"></a>
@@ -1335,6 +1415,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Conditional ostream, i.e. ostream on one processor. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00182">182</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1363,6 +1445,8 @@ template&lt;int dim&gt; </div>
 <p>Index of dofs relevant to current processor. </p>
 <p>This variable includes not only indices of dofs living on current processor, but also those living in ghost cells belonging to current processor. Ghost cells could be interpreted as cells living on other processors but neighboring to cells in current processor. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00174">174</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a560ae94f3801fb64a35fdbcd0d8a772d"></a>
@@ -1390,6 +1474,8 @@ template&lt;int dim&gt; </div>
 <p>Scalar fluxes for all groups on current processor. </p>
 <p>The scalar fluxes for all groups on current processor. Values will be assigned in the process of calculations. It will also be the output scalar fluxes in the member method output_results </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00226">226</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <a id="a736f40f99459dc715fdb174e06626f55"></a>
@@ -1415,6 +1501,8 @@ template&lt;int dim&gt; </div>
 </div><div class="memdoc">
 
 <p>Name of transport model. </p>
+
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00200">200</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
 
 </div>
 </div>
@@ -1442,11 +1530,13 @@ template&lt;int dim&gt; </div>
 
 <p>Triangulation in distrubted system. </p>
 
+<p class="definition">Definition at line <a class="el" href="bart__driver_8h_source.html#l00155">155</a> of file <a class="el" href="bart__driver_8h_source.html">bart_driver.h</a>.</p>
+
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/common/<a class="el" href="bart__driver_8h_source.html">bart_driver.h</a></li>
-<li>src/common/<a class="el" href="bart__driver_8cc.html">bart_driver.cc</a></li>
+<li>src/common/<a class="el" href="bart__driver_8cc_source.html">bart_driver.cc</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
