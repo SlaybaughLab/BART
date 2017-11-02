@@ -75,11 +75,41 @@ public:
    \return Total number of directions in integer.
    */
   unsigned int get_n_dir ();
+  
+  /*!
+   A function to return total number of components in HO equation.
+   
+   \return Total number of components in HO equation.
+   */
   unsigned int get_n_total_ho_vars ();
+  
+  /*!
+   A function to return AQBase<dim>::wi.
+   
+   \return A vector of all angular weights.
+   */
   std::vector<double> get_angular_weights ();
+  
+  /*!
+   A function to return all the directions.
+   
+   \return A vector of dealii::Tensor<1, dim> representing directions.
+   */
   std::vector<Tensor<1, dim> > get_all_directions ();
+  
+  /*!
+   A function to return HO component indices, AQBase<dim>::component_index.
+   
+   \return A std::map for (group_idx, dir_idx)->component_idx.
+   */
   std::map<std::pair<unsigned int, unsigned int>, unsigned int>
   get_component_index_map ();
+  
+  /*!
+   A function to return AQBase<dim>::inverse_component_index.
+   
+   \return A Hash table for component_idx->(group_idx, dir_idx).
+   */
   std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> >
   get_inv_component_map ();
   
