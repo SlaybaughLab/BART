@@ -10,8 +10,19 @@
 
 using namespace dealii;
 
+//! This class provides functionalities to generate a distributed mesh.
 /*!
- This class implement generating meshes using user-defined parameters.
+ This class implement generating meshes using user-defined parameters. Supported
+ functionalities are:
+ 
+ (1) Genereate a coarse mesh;
+ 
+ (2) Set up material IDs for all cells in coarse mesh;
+ 
+ (3) Perform global refinements to the mesh.
+ 
+ \author Weixiong Zheng
+ \date 2017/05
  */
 template <int dim>
 class MeshGenerator
@@ -22,8 +33,12 @@ public:
   
   /*!
    This function generates or reads in coarse mesh without global refinements.
-   Currently, read-in is not fully implemented yet. Note that there is unknown
-   error if total number of cells cannot be divided by number of processors.
+   Currently, read-in is not fully implemented yet. 
+   
+   \note There is unknown error if total number of cells in the coarse mesh 
+   cannot be divided by number of processors.
+   
+   \todo Add functionality to read in meshes.
    
    \param tria Triangulation object.
    \return Void. Modify tria in place.
