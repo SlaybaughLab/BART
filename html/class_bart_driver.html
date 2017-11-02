@@ -98,7 +98,7 @@ Private Member Functions</h2></td></tr>
 <tr class="memdesc:ac5d2985a0286bdac161f3c0fbb80197a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function used to build pointer to instance of <a class="el" href="class_a_q_base.html">AQBase</a>'s derived class.  <a href="#ac5d2985a0286bdac161f3c0fbb80197a">More...</a><br /></td></tr>
 <tr class="separator:ac5d2985a0286bdac161f3c0fbb80197a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc542028ef1ab71693acba10bf017018"><td class="memItemLeft" align="right" valign="top">std_cxx11::shared_ptr&lt; <a class="el" href="class_eigen_base.html">EigenBase</a>&lt; dim &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bart_driver.html#abc542028ef1ab71693acba10bf017018">build_eigen_iterations</a> (const ParameterHandler &amp;prm)</td></tr>
-<tr class="memdesc:abc542028ef1ab71693acba10bf017018"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function used to build pointer to instance of <a class="el" href="class_eigen_base.html">EigenBase</a>'s derived class.  <a href="#abc542028ef1ab71693acba10bf017018">More...</a><br /></td></tr>
+<tr class="memdesc:abc542028ef1ab71693acba10bf017018"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function used to build pointer to instance of <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a>'s derived class.  <a href="#abc542028ef1ab71693acba10bf017018">More...</a><br /></td></tr>
 <tr class="separator:abc542028ef1ab71693acba10bf017018"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0c96d5fe57cdb8df75e1fb93ce6196b"><td class="memItemLeft" align="right" valign="top">std_cxx11::shared_ptr&lt; <a class="el" href="class_m_g_base.html">MGBase</a>&lt; dim &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bart_driver.html#af0c96d5fe57cdb8df75e1fb93ce6196b">build_mg_iterations</a> (const ParameterHandler &amp;prm)</td></tr>
 <tr class="memdesc:af0c96d5fe57cdb8df75e1fb93ce6196b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function used to build pointer to instance of <a class="el" href="class_m_g_base.html">MGBase</a>'s derived class.  <a href="#af0c96d5fe57cdb8df75e1fb93ce6196b">More...</a><br /></td></tr>
@@ -143,7 +143,7 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:a818149e4acfe5a7108ef42938650ff11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer of <a class="el" href="class_a_q_base.html">AQBase</a> instance.  <a href="#a818149e4acfe5a7108ef42938650ff11">More...</a><br /></td></tr>
 <tr class="separator:a818149e4acfe5a7108ef42938650ff11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90adc0f013f07a10c5d423e3506bd589"><td class="memItemLeft" align="right" valign="top">std_cxx11::shared_ptr&lt; <a class="el" href="class_eigen_base.html">EigenBase</a>&lt; dim &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bart_driver.html#a90adc0f013f07a10c5d423e3506bd589">eig_ptr</a></td></tr>
-<tr class="memdesc:a90adc0f013f07a10c5d423e3506bd589"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer of <a class="el" href="class_eigen_base.html">EigenBase</a> instance.  <a href="#a90adc0f013f07a10c5d423e3506bd589">More...</a><br /></td></tr>
+<tr class="memdesc:a90adc0f013f07a10c5d423e3506bd589"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer of <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a> instance.  <a href="#a90adc0f013f07a10c5d423e3506bd589">More...</a><br /></td></tr>
 <tr class="separator:a90adc0f013f07a10c5d423e3506bd589"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ae1a91d9a049ba4354c71f6ad689d74"><td class="memItemLeft" align="right" valign="top">std_cxx11::shared_ptr&lt; <a class="el" href="class_m_g_base.html">MGBase</a>&lt; dim &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_bart_driver.html#a1ae1a91d9a049ba4354c71f6ad689d74">mg_ptr</a></td></tr>
 <tr class="memdesc:a1ae1a91d9a049ba4354c71f6ad689d74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer of <a class="el" href="class_m_g_base.html">MGBase</a> instance.  <a href="#a1ae1a91d9a049ba4354c71f6ad689d74">More...</a><br /></td></tr>
@@ -323,7 +323,7 @@ template&lt;int dim&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>A function invoked in <a class="el" href="class_bart_driver.html">BartDriver</a> constructor to build basis of BART. The main functionalities includes: (1) Building pointer to Iteration class. (2) Downcasting <a class="el" href="class_a_q_base.html">AQBase</a> and make angular quadrature. (3) Building pointer to <a class="el" href="class_mesh_generator.html">MeshGenerator</a> class for generating mesh. (4) Building pointer to <a class="el" href="class_material_properties.html">MaterialProperties</a> class for generating material properties (5) Downcasting finite element type (6) Downcasting <a class="el" href="class_equation_base.html">EquationBase</a> (7) Downcasting InGroupBase, <a class="el" href="class_m_g_base.html">MGBase</a>, <a class="el" href="class_eigen_base.html">EigenBase</a></p>
+<p>A function invoked in <a class="el" href="class_bart_driver.html">BartDriver</a> constructor to build basis of BART. The main functionalities includes: (1) Building pointer to Iteration class. (2) Downcasting <a class="el" href="class_a_q_base.html">AQBase</a> and make angular quadrature. (3) Building pointer to <a class="el" href="class_mesh_generator.html">MeshGenerator</a> class for generating mesh. (4) Building pointer to <a class="el" href="class_material_properties.html">MaterialProperties</a> class for generating material properties (5) Downcasting finite element type (6) Downcasting <a class="el" href="class_equation_base.html">EquationBase</a> (7) Downcasting InGroupBase, <a class="el" href="class_m_g_base.html">MGBase</a>, <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a></p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">prm</td><td>ParameterHandler object containing all parameters. </td></tr>
@@ -360,7 +360,7 @@ template&lt;int dim&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Function used to build pointer to instance of <a class="el" href="class_eigen_base.html">EigenBase</a>'s derived class. </p>
+<p>Function used to build pointer to instance of <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a>'s derived class. </p>
 <p>The main functionality is to perform downcasting from base class to derived class based on derived class type defined in ParameterHandler object. For robustness reason, shared_ptr instead of raw pointer is used in the casting process.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -368,7 +368,7 @@ template&lt;int dim&gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>shared_ptr pointing to <a class="el" href="class_eigen_base.html">EigenBase</a> instance. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>shared_ptr pointing to <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a> instance. </dd></dl>
 
 </div>
 </div>
@@ -760,7 +760,7 @@ template&lt;int dim&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer of <a class="el" href="class_eigen_base.html">EigenBase</a> instance. </p>
+<p>Pointer of <a class="el" href="class_eigen_base.html" title="This class provides eigenvalue calculations foundations. ">EigenBase</a> instance. </p>
 
 </div>
 </div>

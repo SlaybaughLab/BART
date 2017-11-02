@@ -68,6 +68,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>This class provides eigenvalue calculations foundations.  
+ <a href="class_eigen_base.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="eigen__base_8h_source.html">eigen_base.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for EigenBase&lt; dim &gt;:</div>
@@ -155,7 +158,15 @@ Protected Attributes</h2></td></tr>
 <tr class="memitem:ab057491553962560cfad06f19fb00ff5 inherit pro_attribs_class_iteration_base"><td class="memItemLeft" align="right" valign="top">ConditionalOStream&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_iteration_base.html#ab057491553962560cfad06f19fb00ff5">pcout</a></td></tr>
 <tr class="separator:ab057491553962560cfad06f19fb00ff5 inherit pro_attribs_class_iteration_base"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;int dim&gt;<br />
+class EigenBase&lt; dim &gt;</h3>
+
+<p>This class provides eigenvalue calculations foundations. </p>
+<p>This class is the base class of eigenvalue calculations. It will operate the iteration at a high level without touching specifics in the equations. Alternatively, it interfaces with <a class="el" href="class_m_g_base.html">MGBase</a> objects iteratively.</p>
+<dl class="section author"><dt>Author</dt><dd>Weixiong Zheng </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2017/09 </dd></dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a041823ed11437980ff73ada87a9717fe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a041823ed11437980ff73ada87a9717fe">&#9670;&nbsp;</a></span>EigenBase()</h2>
 
@@ -289,8 +300,8 @@ template&lt;int dim&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Reimplemented in <a class="el" href="class_power_iteration.html#a7a87263df0f1ca9e01f2647cd91461ed">PowerIteration&lt; dim &gt;</a>.</p>
+<p>This function calls eigen_iterations to performs eigenvalue iterations.</p>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>Add NDA functionality. </dd></dl>
 
 </div>
 </div>
@@ -341,6 +352,8 @@ template&lt;int dim&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>This virtual function performs eigenvalue iteration after overriding with the std::vector&lt;std_cxx11::shared_ptr&lt;EquationBase&lt;dim&gt; &gt; &gt;::back().</p>
+<dl class="section return"><dt>Returns</dt><dd>Void. </dd></dl>
 
 <p>Reimplemented in <a class="el" href="class_power_iteration.html#a583586002126f8b7a523e95327047cba">PowerIteration&lt; dim &gt;</a>.</p>
 

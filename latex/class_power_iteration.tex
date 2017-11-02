@@ -19,11 +19,9 @@ Inheritance diagram for Power\+Iteration$<$ dim $>$\+:\begin{figure}[H]
 \begin{DoxyCompactItemize}
 \item 
 \hyperlink{class_power_iteration_a2608445223ce7d27b24be0f9d7042554}{Power\+Iteration} (const Parameter\+Handler \&prm)
-\item 
+\begin{DoxyCompactList}\small\item\em Class constructor. \end{DoxyCompactList}\item 
 \hyperlink{class_power_iteration_ad660a351afc4f23b1bcf7b334ef033dd}{$\sim$\+Power\+Iteration} ()
-\item 
-void \hyperlink{class_power_iteration_a7a87263df0f1ca9e01f2647cd91461ed}{do\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$ mg\+\_\+ptr)
-\item 
+\begin{DoxyCompactList}\small\item\em Class destructor. \end{DoxyCompactList}\item 
 void \hyperlink{class_power_iteration_a583586002126f8b7a523e95327047cba}{eigen\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$ mg\+\_\+ptr)
 \end{DoxyCompactItemize}
 \subsection*{Additional Inherited Members}
@@ -35,6 +33,16 @@ class Power\+Iteration$<$ dim $>$}
 
 This class provides power iteration scheme. 
 
+This class implements power iteration for eigenvalue calculations.
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2017/09 
+\end{DoxyDate}
+
+
 \subsection{Constructor \& Destructor Documentation}
 \mbox{\Hypertarget{class_power_iteration_a2608445223ce7d27b24be0f9d7042554}\label{class_power_iteration_a2608445223ce7d27b24be0f9d7042554}} 
 \index{Power\+Iteration@{Power\+Iteration}!Power\+Iteration@{Power\+Iteration}}
@@ -42,6 +50,10 @@ This class provides power iteration scheme.
 \subsubsection{\texorpdfstring{Power\+Iteration()}{PowerIteration()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 \hyperlink{class_power_iteration}{Power\+Iteration}$<$ dim $>$\+::\hyperlink{class_power_iteration}{Power\+Iteration} (\begin{DoxyParamCaption}\item[{const Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+
+
+Class constructor. 
 
 \mbox{\Hypertarget{class_power_iteration_ad660a351afc4f23b1bcf7b334ef033dd}\label{class_power_iteration_ad660a351afc4f23b1bcf7b334ef033dd}} 
 \index{Power\+Iteration@{Power\+Iteration}!````~Power\+Iteration@{$\sim$\+Power\+Iteration}}
@@ -52,18 +64,11 @@ This class provides power iteration scheme.
 
 
 
+Class destructor. 
+
+
+
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{class_power_iteration_a7a87263df0f1ca9e01f2647cd91461ed}\label{class_power_iteration_a7a87263df0f1ca9e01f2647cd91461ed}} 
-\index{Power\+Iteration@{Power\+Iteration}!do\+\_\+iterations@{do\+\_\+iterations}}
-\index{do\+\_\+iterations@{do\+\_\+iterations}!Power\+Iteration@{Power\+Iteration}}
-\subsubsection{\texorpdfstring{do\+\_\+iterations()}{do\_iterations()}}
-{\footnotesize\ttfamily template$<$int dim$>$ \\
-void \hyperlink{class_power_iteration}{Power\+Iteration}$<$ dim $>$\+::do\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
-
-
-
-Reimplemented from \hyperlink{class_eigen_base_a8a9ef8878e5b7199aa662f2b61b2d864}{Eigen\+Base$<$ dim $>$}.
-
 \mbox{\Hypertarget{class_power_iteration_a583586002126f8b7a523e95327047cba}\label{class_power_iteration_a583586002126f8b7a523e95327047cba}} 
 \index{Power\+Iteration@{Power\+Iteration}!eigen\+\_\+iterations@{eigen\+\_\+iterations}}
 \index{eigen\+\_\+iterations@{eigen\+\_\+iterations}!Power\+Iteration@{Power\+Iteration}}
@@ -71,6 +76,11 @@ Reimplemented from \hyperlink{class_eigen_base_a8a9ef8878e5b7199aa662f2b61b2d864
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_power_iteration}{Power\+Iteration}$<$ dim $>$\+::eigen\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+This virtual function performs eigenvalue iteration after overriding with the std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$Equation\+Base$<$dim$>$ $>$ $>$\+::back().
+
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Reimplemented from \hyperlink{class_eigen_base_ae09830ed4bcb14b7b699cd5f5460fab7}{Eigen\+Base$<$ dim $>$}.

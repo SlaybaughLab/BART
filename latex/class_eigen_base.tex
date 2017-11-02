@@ -2,6 +2,11 @@
 \label{class_eigen_base}\index{Eigen\+Base$<$ dim $>$@{Eigen\+Base$<$ dim $>$}}
 
 
+This class provides eigenvalue calculations foundations.  
+
+
+
+
 {\ttfamily \#include $<$eigen\+\_\+base.\+h$>$}
 
 Inheritance diagram for Eigen\+Base$<$ dim $>$\+:\begin{figure}[H]
@@ -57,6 +62,22 @@ std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_eigen_base_aec9885df5
 \end{DoxyCompactItemize}
 
 
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim$>$\newline
+class Eigen\+Base$<$ dim $>$}
+
+This class provides eigenvalue calculations foundations. 
+
+This class is the base class of eigenvalue calculations. It will operate the iteration at a high level without touching specifics in the equations. Alternatively, it interfaces with \hyperlink{class_m_g_base}{M\+G\+Base} objects iteratively.
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2017/09 
+\end{DoxyDate}
+
+
 \subsection{Constructor \& Destructor Documentation}
 \mbox{\Hypertarget{class_eigen_base_a041823ed11437980ff73ada87a9717fe}\label{class_eigen_base_a041823ed11437980ff73ada87a9717fe}} 
 \index{Eigen\+Base@{Eigen\+Base}!Eigen\+Base@{Eigen\+Base}}
@@ -89,10 +110,10 @@ void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::calculate\+\_\+fiss
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::do\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+This function calls eigen\+\_\+iterations to performs eigenvalue iterations.
 
-
-Reimplemented in \hyperlink{class_power_iteration_a7a87263df0f1ca9e01f2647cd91461ed}{Power\+Iteration$<$ dim $>$}.
-
+\begin{DoxyRefDesc}{Todo}
+\item[\hyperlink{todo__todo000002}{Todo}]Add N\+DA functionality. \end{DoxyRefDesc}
 \mbox{\Hypertarget{class_eigen_base_ae09830ed4bcb14b7b699cd5f5460fab7}\label{class_eigen_base_ae09830ed4bcb14b7b699cd5f5460fab7}} 
 \index{Eigen\+Base@{Eigen\+Base}!eigen\+\_\+iterations@{eigen\+\_\+iterations}}
 \index{eigen\+\_\+iterations@{eigen\+\_\+iterations}!Eigen\+Base@{Eigen\+Base}}
@@ -100,6 +121,11 @@ Reimplemented in \hyperlink{class_power_iteration_a7a87263df0f1ca9e01f2647cd9146
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$\+::eigen\+\_\+iterations (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+This virtual function performs eigenvalue iteration after overriding with the std\+::vector$<$std\+\_\+cxx11\+::shared\+\_\+ptr$<$Equation\+Base$<$dim$>$ $>$ $>$\+::back().
+
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Reimplemented in \hyperlink{class_power_iteration_a583586002126f8b7a523e95327047cba}{Power\+Iteration$<$ dim $>$}.
