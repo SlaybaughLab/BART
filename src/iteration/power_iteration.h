@@ -5,11 +5,21 @@
 
 using namespace dealii;
 
+//! This class provides power iteration scheme.
+/*!
+ This class implements power iteration for eigenvalue calculations.
+ 
+ \author Weixiong Zheng
+ \date 2017/09
+ */
 template <int dim>
 class PowerIteration : public EigenBase<dim>
 {
 public:
+  //! Class constructor.
   PowerIteration (const ParameterHandler &prm);
+  
+  //
   ~PowerIteration ();
   
   void do_iterations
