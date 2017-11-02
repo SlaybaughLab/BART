@@ -13,36 +13,6 @@ PowerIteration<dim>::~PowerIteration ()
 }
 
 template <int dim>
-void PowerIteration<dim>::do_iterations
-(std::vector<Vector<double> > &sflxes_proc,
- std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
- std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
- std_cxx11::shared_ptr<MGBase<dim> > mg_ptr)
-{
-  if (this->do_nda)
-  {
-    AssertThrow (equ_ptrs.size()==2,
-                 ExcMessage("There should be two equation pointers if do NDA"));
-    for (unsigned int i=0; i<equ_ptrs.size(); ++i)
-      equ_ptrs[i]->assemble_bilinear_form ();
-    if (this->do_nda)
-      equ_ptrs.back()->assemble_closure_bilinear_form (equ_ptrs.front(), false);
-    // TODO: fill this up with NDA
-  }
-  else
-  {
-    AssertThrow (equ_ptrs.size()==1,
-                 ExcMessage("There should be one equation without NDA"));
-    // assemble system matrices for transport equation
-    equ_ptrs.back()->assemble_bilinear_form ();
-    // initialize fission process
-    this->initialize_fiss_process (sflxes_proc, equ_ptrs);
-    // perform eigenvalue iterations
-    eigen_iterations (sflxes_proc, equ_ptrs, ig_ptr, mg_ptr);
-  }
-}
-
-template <int dim>
 void PowerIteration<dim>::eigen_iterations
 (std::vector<Vector<double> > &sflxes_proc,
  std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,

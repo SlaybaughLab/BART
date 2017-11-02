@@ -19,14 +19,8 @@ public:
   //! Class constructor.
   PowerIteration (const ParameterHandler &prm);
   
-  //
+  //! Class destructor.
   ~PowerIteration ();
-  
-  void do_iterations
-  (std::vector<Vector<double> > &sflxes_proc,
-   std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
-   std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
-   std_cxx11::shared_ptr<MGBase<dim> > mg_ptr);
   
   void eigen_iterations
   (std::vector<Vector<double> > &sflxes_proc,

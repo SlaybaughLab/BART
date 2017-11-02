@@ -20,11 +20,20 @@ public:
   MeshGenerator (ParameterHandler &prm);
   ~MeshGenerator ();
   
+  /*!
+   This function generates or reads in coarse mesh without global refinements.
+   Currently, read-in is not fully implemented yet. Note that there is unknown
+   error if total number of cells cannot be divided by number of processors.
+   
+   \param tria Triangulation object.
+   \return Void. Modify tria in place.
+   */
   void make_grid (parallel::distributed::Triangulation<dim> &tria);
   
   /*!
    This function initializes iterators for cells on current processor.
    
+   \param dof_handler An DoFHandler object containing iterators of all cells.
    \param local_cells Vector of active cell iterators living only on current 
    processor.
    \return Void.

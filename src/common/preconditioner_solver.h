@@ -13,7 +13,7 @@
 
 using namespace dealii;
 
-//! The class providing linear solving functionalities.
+//! The class provides linear solving functionalities.
 /*!
  This class is a wrapper class aiming to simplifies linear solving process. deal.II
  algebraic preconditioner wrappers and solver wrappers will be called to utilize
@@ -21,17 +21,23 @@ using namespace dealii;
  functions interfaces outside: initialize_preconditioners and linear_algebraic_solve.
  
  About how to use this class:
+ 
  (1) Everytime a new equation is assembled, call initialize_preconditioners to
      either initilize preconditioners if iterative solvers are used or initilize
      factorization for direct solver based on MUMPS. Note that initialization only
      needs to be done once per equation.
+ 
  (2) Call linear_algebra_solve whenever needed.
+ 
+ \author Weixiong Zheng
+ \date: 2017/10
  */
 class PreconditionerSolver
 {
 public:
-  //! Class constructor.
   /*!
+   Class constructor.
+   
    \param prm A ParameterHandler object containing all user defined parameters.
    \param equation_name A string describing the name of the target equation.
    \param n_total_vars A integer for the total number components for target equation.
@@ -43,11 +49,13 @@ public:
   //! Class destructors.
   ~PreconditionerSolver ();
   
-  //! The function used to initilize preconditioners for an equation
   /*!
-   The main functionalities include one of the following two points:
+   This function initilizes preconditioners for an equation. The main 
+   functionalities include one of the following two points:
+   
    (1) For iterative solvers, initializing preconditioners and store them in 
        shared_ptr's.
+   
    (2) For MUMPS direct solver, initializing factorizations and store them in
        shared_ptr's.
    
@@ -59,7 +67,6 @@ public:
   (std::vector<PETScWrappers::MPI::SparseMatrix*> &sys_mats,
    std::vector<PETScWrappers::MPI::Vector*> &sys_rhses);
   
-  //! The function used to perform linear algebraic solve.
   /*!
    This function provide functionality of performing linear algebraic solve for 
    a specific component of the target equation.

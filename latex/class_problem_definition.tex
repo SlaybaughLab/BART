@@ -2,6 +2,11 @@
 \label{class_problem_definition}\index{Problem\+Definition@{Problem\+Definition}}
 
 
+This class performs parameter parsing.  
+
+
+
+
 {\ttfamily \#include $<$problem\+\_\+definition.\+h$>$}
 
 \subsection*{Public Member Functions}
@@ -19,6 +24,8 @@ static void \hyperlink{class_problem_definition_a0a68b3c08b69729642dcfd37f23e749
 
 
 \subsection{Detailed Description}
+This class performs parameter parsing. 
+
 This class handles user-\/defined parameters.
 
 \begin{DoxyAuthor}{Author}
@@ -59,7 +66,7 @@ Class destructor.
 \subsubsection{\texorpdfstring{declare\+\_\+parameters()}{declare\_parameters()}}
 {\footnotesize\ttfamily void Problem\+Definition\+::declare\+\_\+parameters (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
 
-This function process Parameter\+Handler object using info read from user-\/provided input.
+This function process Parameter\+Handler object using info read from user-\/provided input. Specifically, it declares all possible parameter entries and parse info from user-\/defined input file to prm. After the processing, prm contains all the necessary info to define the problem and ready for other classes to retrieve the info.
 
 
 \begin{DoxyParams}{Parameters}

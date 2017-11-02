@@ -24,9 +24,8 @@
 
 using namespace dealii;
 
-//! BART operation class.
 /*!
- Namely, this class is the "driver" of the BART. The functionalities include:
+ This class operate BART. The functionalities include:
  (1) Build necessary components for BART, such as AQ data, mesh, equations etc. For
      This functionality, please see documentation for BartDriver<dim>::build_basis.
  (2) Setting up system.
@@ -39,8 +38,9 @@ template <int dim>
 class BartDriver
 {
 public:
-  //! Class constructor
   /*!
+   Class constructor.
+   
    \param prm ParameterHandler object containing all user defined parameters.
    */
   BartDriver (ParameterHandler &prm);
@@ -52,9 +52,9 @@ public:
    */
   void run ();
 private:
-  //! A function building basis for BART to run
   /*!
-   A function invoked in BartDriver constructor. The main functionalities includes:
+   A function invoked in BartDriver constructor to build basis of BART. The main
+   functionalities includes:
    (1) Building pointer to Iteration class.
    (2) Downcasting AQBase and make angular quadrature.
    (3) Building pointer to MeshGenerator class for generating mesh.
@@ -68,9 +68,8 @@ private:
    */
   void build_basis (ParameterHandler &prm);
   
-  //! Initilize system settings.
   /*!
-   Main functionalities include:
+   This function initializes system settings. Main functionalities include:
    (1) Initializing dof_handler, local_dofs and relevant_dofs.
    (2) Initializing, producing and distributing sparsity pattern
    (3) Initializing cell iterators on current iterators, assembly related objects
@@ -81,10 +80,9 @@ private:
   //! Function to print features such as SN order, number of groups etc. on screen.
   void report_system ();
   
-  //! Function to output results.
   /*!
-   The main functionality is to provide output files that can be read by Paraview
-   or Visit.
+   This function outputs results. The main functionality is to provide output 
+   files that can be read by Paraview or Visit.
    
    Procedure of outputing results includes:
    (1) Output results on current processor to .vtu format files
@@ -93,12 +91,12 @@ private:
    */
   void output_results () const;
   
-  //! Function used to build pointer to instance of space-angle solver.
   /*!
-   The main functionality is to perform downcasting from base class to derived
-   class based on derived class type defined in ParameterHandler object. For
-   robustness reason, shared_ptr instead of raw pointer is used in the casting
-   process.
+   Function builds pointer of EquationBase object, i.e. instance of space-angle 
+   solver. The main functionality is to perform downcasting from base class to 
+   derived class based on derived class type defined in ParameterHandler object. 
+   For robustness reason, shared_ptr instead of raw pointer is used in the 
+   casting process.
    
    \param equation_name A string defining the name of the desired equation.
    \param prm A ParameterHandler object containing all parameters processed from

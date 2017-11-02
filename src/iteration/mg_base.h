@@ -6,17 +6,17 @@
 
 using namespace dealii;
 
-//! Base class for multigroup (MG) iterations.
 /*!
- This class serves as the basis class of MG iterations. It inherits from
+ This class serves as the base class of MG iterations. It inherits from
  IterationBase.
  */
 template <int dim>
 class MGBase : public IterationBase<dim>
 {
 public:
-  //! A constructor for MGBase
   /*!
+   A constructor of MGBase.
+   
    \param prm A ParameterHandler object containing all the parameters needed.
    */
   MGBase (const ParameterHandler &prm);
@@ -24,14 +24,13 @@ public:
   //! A virtual destructor for MGBase
   virtual ~MGBase ();
   
-  //! A virtual function doing MG iterations.
   /*!
    This function will call mg_iterations to perform MG iterations in fixed source
    problems. This function shall not be called in eigenvalue calculations.
    
    \param sflxes_proc A vector of scalar fluxes for all groups.
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
-   \param ig_ptr A shared_ptr of in group solver.
+   \param ig_ptr A shared_ptr of InGroupBase object.
    \return Void.
    */
   virtual void do_iterations
@@ -39,7 +38,6 @@ public:
    std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
    std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
   
-  //! A virtual function performing MG iterations.
   /*!
    A virtual function performing MG iterations. By default, it will call
    nonthermal_solves for nonthermal MG calculations and thereafter the
@@ -56,7 +54,7 @@ public:
    \param sflxes_proc A vector of scalar fluxes for all groups living on current
    processor.
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
-   \param ig_ptr A shared_ptr of in group solver.
+   \param ig_ptr A shared_ptr of IGBase object.
    \return Void.
    */
   virtual void mg_iterations
@@ -64,14 +62,15 @@ public:
    std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
    std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
   
-  //! A virtual function solving transport problem in the nonthermal groups.
   /*!
+   This virtual function performs energy solves over nonthermal groups.
+   
    Usually, nonthermal groups have no upscattering. So this function is a group-by-
    group one-pass solving until reaching the thermal group. It will not be called
    if algorithms like JFNK are called
    
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
-   \param ig_ptr A shared_ptr of in group solver.
+   \param ig_ptr A shared_ptr of IGBase object.
    \return Void.
    */
   virtual void nonthermal_solves
@@ -79,14 +78,15 @@ public:
    std::vector<std_cxx11::shared_ptr<EquationBase<dim> > > &equ_ptrs,
    std_cxx11::shared_ptr<IGBase<dim> > ig_ptr);
   
-  //! A virtual function solving transport problem in the thermal groups.
   /*!
+   This virtual function performs iterative energy solves over thermal groups.
+   
    Thermal groups have upscattering for applications like LWR. So this function is
    to solve for thermal groups iteratively. It will not be called if algorithms like
    JFNK are called.
    
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
-   \param ig_ptr A shared_ptr of in group solver.
+   \param ig_ptr A shared_ptr of IGBase object.
    \return Void.
    */
   virtual void thermal_iterations

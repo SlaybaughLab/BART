@@ -18,37 +18,39 @@ protected:
   /** \brief Function to measure the relative difference between two sets of PETSc
    * Vectors
    *
-   * \parameters Two sets of PETSc Vectors with the same length
+   * \param Two sets of PETSc Vectors with the same length
    * \return relative difference in vector l1 norm measure
    */
   double estimate_phi_diff
   (std::vector<PETScWrappers::MPI::Vector*> &phis_newer,
    std::vector<PETScWrappers::MPI::Vector*> &phis_older);
   
-  /** \brief Function to measure the relative difference between two PETSc
+  /** Function to measure the relative difference between two PETSc
    * Vectors
    *
-   * \parameters Two PETSc Vectors with the same length
+   * \param Two PETSc Vectors with the same length
    * \return relative difference in vector l1 norm measure
    */
   double estimate_phi_diff
   (PETScWrappers::MPI::Vector* phi_newer,
    PETScWrappers::MPI::Vector* phi_older);
   
-  /** \brief Function to measure the relative difference between two sets of PETSc
-   * Vectors
+  /**
+   * Function to measure the relative difference between two PETSc MPI Vectors.
    *
-   * \parameters Two sets of PETSc Vectors with the same length
+   * \param Two sets of PETSc Vectors with the same length
    * \return relative difference in vector l1 norm measure
    */
   double estimate_phi_diff
   (std::vector<Vector<double> > &phis_newer,
    std::vector<Vector<double> > &phis_older);
   
-  /** \brief Function to measure the relative difference between two PETSc
-   * Vectors
+  /**
+   * Function to measure the relative difference between two sets of deal.II 
+   * Vectors. Note that though all vectors live on current processor, broadcast
+   * is performed to obtain global results.
    *
-   * \parameters Two PETSc Vectors with the same length
+   * \param Two deal.II Vectors with the same length
    * \return relative difference in vector l1 norm measure
    */
   double estimate_phi_diff

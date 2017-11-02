@@ -67,6 +67,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>This class performs parameter parsing.  
+ <a href="class_problem_definition.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="problem__definition_8h_source.html">problem_definition.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -84,7 +87,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:a0a68b3c08b69729642dcfd37f23e7494"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This class handles user-defined parameters.</p>
+<div class="textblock"><p>This class performs parameter parsing. </p>
+<p>This class handles user-defined parameters.</p>
 <dl class="section author"><dt>Author</dt><dd>Weixiong Zheng </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2017/06 </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
@@ -150,7 +154,7 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This function process ParameterHandler object using info read from user-provided input.</p>
+<p>This function process ParameterHandler object using info read from user-provided input. Specifically, it declares all possible parameter entries and parse info from user-defined input file to prm. After the processing, prm contains all the necessary info to define the problem and ready for other classes to retrieve the info.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">prm</td><td>ParameterHandler object. </td></tr>

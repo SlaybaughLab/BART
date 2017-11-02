@@ -22,7 +22,15 @@ void EigenBase<dim>::do_iterations
  std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
  std_cxx11::shared_ptr<MGBase<dim> > mg_ptr)
 {
-  // override this function per derived class. Will be called in Iterations class
+  if (!this->do_nda)
+  {
+    // assemble system matrices for transport equation
+    equ_ptrs.back()->assemble_bilinear_form ();
+    // initialize fission process
+    this->initialize_fiss_process (sflxes_proc, equ_ptrs);
+    // perform eigenvalue iterations
+    eigen_iterations (sflxes_proc, equ_ptrs, ig_ptr, mg_ptr);
+  }
 }
 
 template <int dim>
