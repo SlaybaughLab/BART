@@ -2,6 +2,11 @@
 \label{class_l_s_g_c}\index{L\+S\+G\+C$<$ dim $>$@{L\+S\+G\+C$<$ dim $>$}}
 
 
+This class produces level-\/symmetric Gauss-\/\+Chebyshev quadrature.  
+
+
+
+
 {\ttfamily \#include $<$lsgc.\+h$>$}
 
 Inheritance diagram for L\+S\+GC$<$ dim $>$\+:\begin{figure}[H]
@@ -14,7 +19,7 @@ Inheritance diagram for L\+S\+GC$<$ dim $>$\+:\begin{figure}[H]
 \begin{DoxyCompactItemize}
 \item 
 \hyperlink{class_l_s_g_c_a9b89f615563bd3583a4a6a36d7b3eb7d}{L\+S\+GC} (Parameter\+Handler \&prm)
-\item 
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
 \hyperlink{class_l_s_g_c_abcba8afdb075485278288db321776b7e}{$\sim$\+L\+S\+GC} ()
 \item 
 void \hyperlink{class_l_s_g_c_a1d135fb9ca12a9b65b8cc397479fc4d7}{produce\+\_\+angular\+\_\+quad} ()
@@ -26,9 +31,9 @@ void \hyperlink{class_l_s_g_c_a1d135fb9ca12a9b65b8cc397479fc4d7}{produce\+\_\+an
 \subsubsection*{template$<$int dim$>$\newline
 class L\+S\+G\+C$<$ dim $>$}
 
+This class produces level-\/symmetric Gauss-\/\+Chebyshev quadrature. 
 
-
-Definition at line 9 of file lsgc.\+h.
+Definition at line 10 of file lsgc.\+h.
 
 
 
@@ -40,6 +45,17 @@ Definition at line 9 of file lsgc.\+h.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 \hyperlink{class_l_s_g_c}{L\+S\+GC}$<$ dim $>$\+::\hyperlink{class_l_s_g_c}{L\+S\+GC} (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
 
+
+
+Destructor. 
+
+Class constructor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em prm} & Parameter\+Handler object. \\
+\hline
+\end{DoxyParams}
 
 
 Definition at line 8 of file lsgc.\+cc.
@@ -65,6 +81,11 @@ Definition at line 15 of file lsgc.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_l_s_g_c}{L\+S\+GC}$<$ dim $>$\+::produce\+\_\+angular\+\_\+quad (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+This function override \hyperlink{class_a_q_base_a16c7871be0da6c112f547f39d50258fd}{A\+Q\+Base$<$dim$>$\+::produce\+\_\+angular\+\_\+quad} () to specifically produce level-\/symmetric Gauss-\/\+Chebyshev quadrature.
+
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Reimplemented from \hyperlink{class_a_q_base_a16c7871be0da6c112f547f39d50258fd}{A\+Q\+Base$<$ dim $>$}.

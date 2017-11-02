@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['tensor_5fnorms',['tensor_norms',['../class_a_q_base.html#a89db12cbc1a0a01420897480ab8678e8',1,'AQBase::tensor_norms()'],['../class_equation_base.html#a2e5e8e486a1e6994c606dc05227752dd',1,'EquationBase::tensor_norms()'],['../class_even_parity.html#aca63481c4a5de27e6acc2fc72d802303',1,'EvenParity::tensor_norms()']]],
+  ['tensor_5fnorms',['tensor_norms',['../class_equation_base.html#a2e5e8e486a1e6994c606dc05227752dd',1,'EquationBase::tensor_norms()'],['../class_even_parity.html#aca63481c4a5de27e6acc2fc72d802303',1,'EvenParity::tensor_norms()']]],
   ['thermal_5fiterations',['thermal_iterations',['../class_gauss_seidel.html#a8db6abbdc88413cbf502ac606b415733',1,'GaussSeidel::thermal_iterations()'],['../class_m_g_base.html#a9d3c6ab6e58f0119badb30feedb2ac4d',1,'MGBase::thermal_iterations()']]],
   ['todo_20list',['Todo List',['../todo.html',1,'']]],
   ['total_5fangle',['total_angle',['../class_a_q_base.html#a930e1dbffe2c99f42b76ea3164905ac1',1,'AQBase']]],

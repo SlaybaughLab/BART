@@ -2,6 +2,11 @@
 \label{class_a_q_base}\index{A\+Q\+Base$<$ dim $>$@{A\+Q\+Base$<$ dim $>$}}
 
 
+This class provides AQ data, component indices and reflective directions.  
+
+
+
+
 {\ttfamily \#include $<$aq\+\_\+base.\+h$>$}
 
 Inheritance diagram for A\+Q\+Base$<$ dim $>$\+:\begin{figure}[H]
@@ -16,12 +21,12 @@ Inheritance diagram for A\+Q\+Base$<$ dim $>$\+:\begin{figure}[H]
 \hyperlink{class_a_q_base_a3a05ceb6b201b4e6e605b260d766842d}{A\+Q\+Base} (Parameter\+Handler \&prm)
 \item 
 virtual \hyperlink{class_a_q_base_ab394068aae3c9b3f3932c3bfa3edceab}{$\sim$\+A\+Q\+Base} ()
-\item 
-void \hyperlink{class_a_q_base_ad8bf7c63bde67a2f514aea2c589983dd}{make\+\_\+aq} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
 virtual void \hyperlink{class_a_q_base_a16c7871be0da6c112f547f39d50258fd}{produce\+\_\+angular\+\_\+quad} ()
 \item 
 virtual void \hyperlink{class_a_q_base_ab1cbcd2132328df15fb9651597e8ab48}{initialize\+\_\+component\+\_\+index} ()
+\item 
+void \hyperlink{class_a_q_base_ad8bf7c63bde67a2f514aea2c589983dd}{make\+\_\+aq} ()
 \item 
 void \hyperlink{class_a_q_base_adbe2961a0c0db888ca6a22ead08732eb}{print\+\_\+angular\+\_\+quad} ()
 \item 
@@ -45,29 +50,27 @@ std\+::map$<$ std\+::pair$<$ unsigned int, unsigned int $>$, unsigned int $>$ \h
 \begin{DoxyCompactItemize}
 \item 
 const double \hyperlink{class_a_q_base_a002ce18f617db787616e60fba67899a9}{pi}
-\item 
+\begin{DoxyCompactList}\small\item\em Constant PI, 3.\+14159... \end{DoxyCompactList}\item 
 double \hyperlink{class_a_q_base_a930e1dbffe2c99f42b76ea3164905ac1}{total\+\_\+angle}
-\item 
+\begin{DoxyCompactList}\small\item\em Total solid angle. \end{DoxyCompactList}\item 
 bool \hyperlink{class_a_q_base_a8afa1e0da5bbb4846e495178e165b5b5}{have\+\_\+reflective\+\_\+bc}
-\item 
+\begin{DoxyCompactList}\small\item\em Boolean about if there is any reflective boundary. \end{DoxyCompactList}\item 
 std\+::string \hyperlink{class_a_q_base_a14d94b7179306f35228b90fd5f42c65a}{transport\+\_\+model\+\_\+name}
-\item 
+\begin{DoxyCompactList}\small\item\em Transport model name in string. \end{DoxyCompactList}\item 
 std\+::string \hyperlink{class_a_q_base_a6c454af11008e235340a7b8e31a02114}{discretization}
-\item 
+\begin{DoxyCompactList}\small\item\em Spatial discretization method in string. \end{DoxyCompactList}\item 
 unsigned int \hyperlink{class_a_q_base_aaff6bd848436445d267c1a121a93e4ea}{n\+\_\+azi}
-\item 
+\begin{DoxyCompactList}\small\item\em Total number of azimuthal angles. \end{DoxyCompactList}\item 
 unsigned int \hyperlink{class_a_q_base_a07b0839db1844f879f3d9c7d7014fb7f}{n\+\_\+group}
-\item 
+\begin{DoxyCompactList}\small\item\em Total number of groups. \end{DoxyCompactList}\item 
 unsigned int \hyperlink{class_a_q_base_a93b0c70dd1d3ec401601ceaca88723b1}{n\+\_\+dir}
-\item 
+\begin{DoxyCompactList}\small\item\em Total number of directions in the quadrature. \end{DoxyCompactList}\item 
 unsigned int \hyperlink{class_a_q_base_a7169f8e3b53059317bb2144519f64be9}{n\+\_\+total\+\_\+ho\+\_\+vars}
-\item 
+\begin{DoxyCompactList}\small\item\em Total number of components in HO equation. \end{DoxyCompactList}\item 
 std\+::vector$<$ Tensor$<$ 1, dim $>$ $>$ \hyperlink{class_a_q_base_a07aaf517b03be3f8405fd4063cf59231}{omega\+\_\+i}
-\item 
+\begin{DoxyCompactList}\small\item\em All directions in Tensor$<$1, dim$>$ \end{DoxyCompactList}\item 
 std\+::vector$<$ double $>$ \hyperlink{class_a_q_base_aa43b0232837b86e608da7507bd9a14b5}{wi}
-\item 
-std\+::vector$<$ double $>$ \hyperlink{class_a_q_base_a89db12cbc1a0a01420897480ab8678e8}{tensor\+\_\+norms}
-\item 
+\begin{DoxyCompactList}\small\item\em All angular weights. \end{DoxyCompactList}\item 
 std\+::map$<$ std\+::pair$<$ unsigned int, unsigned int $>$, unsigned int $>$ \hyperlink{class_a_q_base_a0d9e9c6302e481718d62d76c09c83d2d}{component\+\_\+index}
 \item 
 std\+::unordered\+\_\+map$<$ unsigned int, std\+::pair$<$ unsigned int, unsigned int $>$ $>$ \hyperlink{class_a_q_base_a657640cc73cef6130bdf5b325dd0fd11}{inverse\+\_\+component\+\_\+index}
@@ -92,9 +95,19 @@ std\+::string \hyperlink{class_a_q_base_a3e50d2d59d1a4a2fabed3c4852f80c49}{aq\+\
 \subsubsection*{template$<$int dim$>$\newline
 class A\+Q\+Base$<$ dim $>$}
 
+This class provides AQ data, component indices and reflective directions. 
+
+This class is the base class of AQ data.
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2017/04 
+\end{DoxyDate}
 
 
-Definition at line 15 of file aq\+\_\+base.\+h.
+Definition at line 22 of file aq\+\_\+base.\+h.
 
 
 
@@ -106,6 +119,13 @@ Definition at line 15 of file aq\+\_\+base.\+h.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::\hyperlink{class_a_q_base}{A\+Q\+Base} (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
 
+Class constructor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em prm} & Parameter\+Handler object. \\
+\hline
+\end{DoxyParams}
 
 
 Definition at line 8 of file aq\+\_\+base.\+cc.
@@ -116,6 +136,10 @@ Definition at line 8 of file aq\+\_\+base.\+cc.
 \subsubsection{\texorpdfstring{$\sim$\+A\+Q\+Base()}{~AQBase()}}
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::$\sim$\hyperlink{class_a_q_base}{A\+Q\+Base} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Virtual destructor. 
 
 
 
@@ -175,6 +199,11 @@ Definition at line 148 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::get\+\_\+n\+\_\+dir (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
+A function to return total number of directions.
+
+\begin{DoxyReturn}{Returns}
+Total number of directions in integer. 
+\end{DoxyReturn}
 
 
 Definition at line 167 of file aq\+\_\+base.\+cc.
@@ -197,6 +226,11 @@ Definition at line 173 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::map$<$ std\+::pair$<$ unsigned int, unsigned int $>$, unsigned int $>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::get\+\_\+reflective\+\_\+direction\+\_\+index\+\_\+map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
+A function to return \hyperlink{class_a_q_base_a9aa6c274dd0ef167528bbec76637cc22}{A\+Q\+Base$<$dim$>$\+::reflective\+\_\+direction\+\_\+index}.
+
+\begin{DoxyReturn}{Returns}
+std\+::map for the mapping\+: (boundary\+\_\+id, current\+\_\+dir)-\/$>$refl\+\_\+dir. 
+\end{DoxyReturn}
 
 
 Definition at line 155 of file aq\+\_\+base.\+cc.
@@ -208,6 +242,11 @@ Definition at line 155 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 unsigned int \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::get\+\_\+sn\+\_\+order (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
+A function to return SN order in integer.
+
+\begin{DoxyReturn}{Returns}
+SN order. 
+\end{DoxyReturn}
 
 
 Definition at line 161 of file aq\+\_\+base.\+cc.
@@ -230,6 +269,11 @@ Definition at line 91 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::initialize\+\_\+ref\+\_\+bc\+\_\+index (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
 
+This function initialize reflective direction indices on all boundaries. If \hyperlink{class_a_q_base_a8afa1e0da5bbb4846e495178e165b5b5}{A\+Q\+Base$<$dim$>$\+::have\+\_\+reflective\+\_\+bc} is true, this function will generate such indices for all boundaries and result in std\+::map using std\+::pair of boundary id and current direction index as the key and reflective direction index as the value.
+
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Definition at line 34 of file aq\+\_\+base.\+cc.
@@ -241,6 +285,17 @@ Definition at line 34 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::make\+\_\+aq (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
+This function calls other members to\+:
+
+(1) Create aq data;
+
+(2) Create indices of components in transport system;
+
+(3) Create indices of reflective directions for all directions in the aq on all boundaries.
+
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Definition at line 26 of file aq\+\_\+base.\+cc.
@@ -252,6 +307,11 @@ Definition at line 26 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::print\+\_\+angular\+\_\+quad (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
+This function output angular quadrature in aq.\+txt file.
+
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Definition at line 106 of file aq\+\_\+base.\+cc.
@@ -263,6 +323,14 @@ Definition at line 106 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 void \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::produce\+\_\+angular\+\_\+quad (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
 
+A virtual function to produce angular quadrature.
+
+\begin{DoxyNote}{Note}
+One has to override this function in derived classes. 
+\end{DoxyNote}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
 
 
 Reimplemented in \hyperlink{class_l_s_g_c_a1d135fb9ca12a9b65b8cc397479fc4d7}{L\+S\+G\+C$<$ dim $>$}.
@@ -278,6 +346,11 @@ Definition at line 86 of file aq\+\_\+base.\+cc.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::string \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::produce\+\_\+quadrature\+\_\+name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
 
+This function returns full name of the angular quadrature in string based on the abbreviated name.
+
+\begin{DoxyReturn}{Returns}
+Full AQ name in string. 
+\end{DoxyReturn}
 
 
 Definition at line 129 of file aq\+\_\+base.\+cc.
@@ -294,7 +367,7 @@ std\+::string \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::aq\+\_\+name\
 
 
 
-Definition at line 63 of file aq\+\_\+base.\+h.
+Definition at line 147 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a0d9e9c6302e481718d62d76c09c83d2d}\label{class_a_q_base_a0d9e9c6302e481718d62d76c09c83d2d}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!component\+\_\+index@{component\+\_\+index}}
@@ -303,9 +376,9 @@ Definition at line 63 of file aq\+\_\+base.\+h.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::map$<$std\+::pair$<$unsigned int, unsigned int$>$, unsigned int$>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::component\+\_\+index\hspace{0.3cm}{\ttfamily [protected]}}
 
+A std\+::map using pair of group and direction indices as key and component index as value. 
 
-
-Definition at line 53 of file aq\+\_\+base.\+h.
+Definition at line 112 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a6c454af11008e235340a7b8e31a02114}\label{class_a_q_base_a6c454af11008e235340a7b8e31a02114}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!discretization@{discretization}}
@@ -316,7 +389,11 @@ std\+::string \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::discretizatio
 
 
 
-Definition at line 44 of file aq\+\_\+base.\+h.
+Spatial discretization method in string. 
+
+
+
+Definition at line 99 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a8afa1e0da5bbb4846e495178e165b5b5}\label{class_a_q_base_a8afa1e0da5bbb4846e495178e165b5b5}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}}
@@ -327,7 +404,11 @@ bool \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::have\+\_\+reflective\+
 
 
 
-Definition at line 42 of file aq\+\_\+base.\+h.
+Boolean about if there is any reflective boundary. 
+
+
+
+Definition at line 97 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a657640cc73cef6130bdf5b325dd0fd11}\label{class_a_q_base_a657640cc73cef6130bdf5b325dd0fd11}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!inverse\+\_\+component\+\_\+index@{inverse\+\_\+component\+\_\+index}}
@@ -336,9 +417,9 @@ Definition at line 42 of file aq\+\_\+base.\+h.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::unordered\+\_\+map$<$unsigned int, std\+::pair$<$unsigned int, unsigned int$>$ $>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::inverse\+\_\+component\+\_\+index\hspace{0.3cm}{\ttfamily [protected]}}
 
+A Hash table using component index as key and pair of group and direction indices as value. 
 
-
-Definition at line 55 of file aq\+\_\+base.\+h.
+Definition at line 119 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_aaff6bd848436445d267c1a121a93e4ea}\label{class_a_q_base_aaff6bd848436445d267c1a121a93e4ea}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!n\+\_\+azi@{n\+\_\+azi}}
@@ -349,7 +430,11 @@ unsigned int \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::n\+\_\+azi\hsp
 
 
 
-Definition at line 45 of file aq\+\_\+base.\+h.
+Total number of azimuthal angles. 
+
+
+
+Definition at line 100 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a93b0c70dd1d3ec401601ceaca88723b1}\label{class_a_q_base_a93b0c70dd1d3ec401601ceaca88723b1}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!n\+\_\+dir@{n\+\_\+dir}}
@@ -360,7 +445,11 @@ unsigned int \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::n\+\_\+dir\hsp
 
 
 
-Definition at line 47 of file aq\+\_\+base.\+h.
+Total number of directions in the quadrature. 
+
+
+
+Definition at line 102 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a07b0839db1844f879f3d9c7d7014fb7f}\label{class_a_q_base_a07b0839db1844f879f3d9c7d7014fb7f}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!n\+\_\+group@{n\+\_\+group}}
@@ -371,7 +460,11 @@ unsigned int \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::n\+\_\+group\h
 
 
 
-Definition at line 46 of file aq\+\_\+base.\+h.
+Total number of groups. 
+
+
+
+Definition at line 101 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a7169f8e3b53059317bb2144519f64be9}\label{class_a_q_base_a7169f8e3b53059317bb2144519f64be9}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!n\+\_\+total\+\_\+ho\+\_\+vars@{n\+\_\+total\+\_\+ho\+\_\+vars}}
@@ -382,7 +475,11 @@ unsigned int \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::n\+\_\+total\+
 
 
 
-Definition at line 48 of file aq\+\_\+base.\+h.
+Total number of components in HO equation. 
+
+
+
+Definition at line 103 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a07aaf517b03be3f8405fd4063cf59231}\label{class_a_q_base_a07aaf517b03be3f8405fd4063cf59231}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!omega\+\_\+i@{omega\+\_\+i}}
@@ -393,7 +490,11 @@ std\+::vector$<$Tensor$<$1, dim$>$ $>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$
 
 
 
-Definition at line 49 of file aq\+\_\+base.\+h.
+All directions in Tensor$<$1, dim$>$ 
+
+
+
+Definition at line 104 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a002ce18f617db787616e60fba67899a9}\label{class_a_q_base_a002ce18f617db787616e60fba67899a9}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!pi@{pi}}
@@ -404,7 +505,11 @@ const double \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::pi\hspace{0.3c
 
 
 
-Definition at line 40 of file aq\+\_\+base.\+h.
+Constant PI, 3.\+14159... 
+
+
+
+Definition at line 95 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a9aa6c274dd0ef167528bbec76637cc22}\label{class_a_q_base_a9aa6c274dd0ef167528bbec76637cc22}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!reflective\+\_\+direction\+\_\+index@{reflective\+\_\+direction\+\_\+index}}
@@ -413,20 +518,9 @@ Definition at line 40 of file aq\+\_\+base.\+h.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::map$<$std\+::pair$<$unsigned int, unsigned int$>$, unsigned int$>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::reflective\+\_\+direction\+\_\+index\hspace{0.3cm}{\ttfamily [protected]}}
 
+A std\+::map using pair of boundary id and current direction index as key and reflective direction index as value. 
 
-
-Definition at line 57 of file aq\+\_\+base.\+h.
-
-\mbox{\Hypertarget{class_a_q_base_a89db12cbc1a0a01420897480ab8678e8}\label{class_a_q_base_a89db12cbc1a0a01420897480ab8678e8}} 
-\index{A\+Q\+Base@{A\+Q\+Base}!tensor\+\_\+norms@{tensor\+\_\+norms}}
-\index{tensor\+\_\+norms@{tensor\+\_\+norms}!A\+Q\+Base@{A\+Q\+Base}}
-\subsubsection{\texorpdfstring{tensor\+\_\+norms}{tensor\_norms}}
-{\footnotesize\ttfamily template$<$int dim$>$ \\
-std\+::vector$<$double$>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::tensor\+\_\+norms\hspace{0.3cm}{\ttfamily [protected]}}
-
-
-
-Definition at line 51 of file aq\+\_\+base.\+h.
+Definition at line 126 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a930e1dbffe2c99f42b76ea3164905ac1}\label{class_a_q_base_a930e1dbffe2c99f42b76ea3164905ac1}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!total\+\_\+angle@{total\+\_\+angle}}
@@ -437,7 +531,11 @@ double \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::total\+\_\+angle\hsp
 
 
 
-Definition at line 41 of file aq\+\_\+base.\+h.
+Total solid angle. 
+
+
+
+Definition at line 96 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_a14d94b7179306f35228b90fd5f42c65a}\label{class_a_q_base_a14d94b7179306f35228b90fd5f42c65a}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!transport\+\_\+model\+\_\+name@{transport\+\_\+model\+\_\+name}}
@@ -448,7 +546,11 @@ std\+::string \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::transport\+\_
 
 
 
-Definition at line 43 of file aq\+\_\+base.\+h.
+Transport model name in string. 
+
+
+
+Definition at line 98 of file aq\+\_\+base.\+h.
 
 \mbox{\Hypertarget{class_a_q_base_aa43b0232837b86e608da7507bd9a14b5}\label{class_a_q_base_aa43b0232837b86e608da7507bd9a14b5}} 
 \index{A\+Q\+Base@{A\+Q\+Base}!wi@{wi}}
@@ -459,7 +561,11 @@ std\+::vector$<$double$>$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$\+::w
 
 
 
-Definition at line 50 of file aq\+\_\+base.\+h.
+All angular weights. 
+
+
+
+Definition at line 105 of file aq\+\_\+base.\+h.
 
 
 

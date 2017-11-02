@@ -100,16 +100,34 @@ unsigned int \hyperlink{class_bart_driver_ae6d782d30c28d741bb0df46251087809}{p\+
 unsigned int \hyperlink{class_bart_driver_a1ddb881c78ef92c59f2c686b320c970e}{global\+\_\+refinements}
 \begin{DoxyCompactList}\small\item\em Total number of global refinements. \end{DoxyCompactList}\item 
 std\+::vector$<$ Vector$<$ double $>$ $>$ \hyperlink{class_bart_driver_a560ae94f3801fb64a35fdbcd0d8a772d}{sflxes\+\_\+proc}
-\begin{DoxyCompactList}\small\item\em Scalar fluxes for all groups on current processor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
 \subsubsection*{template$<$int dim$>$\newline
 class Bart\+Driver$<$ dim $>$}
 
-This class operate B\+A\+RT. The functionalities include\+: (1) Build necessary components for B\+A\+RT, such as AQ data, mesh, equations etc. For This functionality, please see documentation for \hyperlink{class_bart_driver_ade375a4999de1e775434e11d4e6dd935}{Bart\+Driver$<$dim$>$\+::build\+\_\+basis}. (2) Setting up system. (3) Reporting system on screen. (4) Operation calculations at highest level\+: instantiating \hyperlink{class_iterations}{Iterations} and perform iterations. (5) Output results for visualization. 
+This class operate B\+A\+RT. The functionalities include\+:
 
-Definition at line 38 of file bart\+\_\+driver.\+h.
+(1) Build necessary components for B\+A\+RT, such as AQ data, mesh, equations etc. For This functionality, please see documentation for \hyperlink{class_bart_driver_ade375a4999de1e775434e11d4e6dd935}{Bart\+Driver$<$dim$>$\+::build\+\_\+basis}.
+
+(2) Setting up system.
+
+(3) Reporting system on screen.
+
+(4) Operation calculations at highest level\+: instantiating \hyperlink{class_iterations}{Iterations} and perform iterations.
+
+(5) Output results for visualization.
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2017/08 
+\end{DoxyDate}
+
+
+Definition at line 46 of file bart\+\_\+driver.\+h.
 
 
 
@@ -344,7 +362,7 @@ Pointer of \hyperlink{class_a_q_base}{A\+Q\+Base} instance.
 
 
 
-Definition at line 187 of file bart\+\_\+driver.\+h.
+Definition at line 195 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a2414c8e66212bb95c86f1c70db4a4099}\label{class_bart_driver_a2414c8e66212bb95c86f1c70db4a4099}} 
 \index{Bart\+Driver@{Bart\+Driver}!constraints@{constraints}}
@@ -359,7 +377,7 @@ Constraints for hanging nodes.
 
 This will be useful if adaptive local refinement is of interest. For now, this variable is of no practical use. 
 
-Definition at line 181 of file bart\+\_\+driver.\+h.
+Definition at line 189 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a75cc884c6895beca3d3861ca226b4a3f}\label{class_bart_driver_a75cc884c6895beca3d3861ca226b4a3f}} 
 \index{Bart\+Driver@{Bart\+Driver}!discretization@{discretization}}
@@ -374,7 +392,7 @@ Spatial discretization method.
 
 
 
-Definition at line 203 of file bart\+\_\+driver.\+h.
+Definition at line 211 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_acb7aa4c65a18deef5e1be7a3477d1b12}\label{class_bart_driver_acb7aa4c65a18deef5e1be7a3477d1b12}} 
 \index{Bart\+Driver@{Bart\+Driver}!do\+\_\+nda@{do\+\_\+nda}}
@@ -389,7 +407,7 @@ Boolean to determine if N\+DA is to be used for accelerations.
 
 
 
-Definition at line 209 of file bart\+\_\+driver.\+h.
+Definition at line 217 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a102ccb2fc2ea225bc75f757214152c1b}\label{class_bart_driver_a102ccb2fc2ea225bc75f757214152c1b}} 
 \index{Bart\+Driver@{Bart\+Driver}!dof\+\_\+handler@{dof\+\_\+handler}}
@@ -404,7 +422,7 @@ Do\+F\+Handler instance.
 
 Could be interpreted as a container containing smart pointers to accessors of cells (cell iterators) and relevant cell properties such as material\+\_\+id, if cell is at boundary and dof mapping between local cell and global system etc. 
 
-Definition at line 163 of file bart\+\_\+driver.\+h.
+Definition at line 171 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a90adc0f013f07a10c5d423e3506bd589}\label{class_bart_driver_a90adc0f013f07a10c5d423e3506bd589}} 
 \index{Bart\+Driver@{Bart\+Driver}!eig\+\_\+ptr@{eig\+\_\+ptr}}
@@ -419,7 +437,7 @@ Pointer of \hyperlink{class_eigen_base}{Eigen\+Base} instance.
 
 
 
-Definition at line 188 of file bart\+\_\+driver.\+h.
+Definition at line 196 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a0a6f52aed8e9c22da12a99653d1acba8}\label{class_bart_driver_a0a6f52aed8e9c22da12a99653d1acba8}} 
 \index{Bart\+Driver@{Bart\+Driver}!equ\+\_\+ptrs@{equ\+\_\+ptrs}}
@@ -434,7 +452,7 @@ A vector of pointers of \hyperlink{class_equation_base}{Equation\+Base} instance
 
 The rule is if N\+DA is not used, this vector only has one component for transport model. Otherwise, std\+::vector\+::front() contains the pointer of HO equation and std\+::vector\+::back() contains the pointer of N\+DA equation. 
 
-Definition at line 198 of file bart\+\_\+driver.\+h.
+Definition at line 206 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ac2e63d4ab8a403649e19f4b1acf94c04}\label{class_bart_driver_ac2e63d4ab8a403649e19f4b1acf94c04}} 
 \index{Bart\+Driver@{Bart\+Driver}!fe@{fe}}
@@ -451,9 +469,9 @@ The finite element type will be specified by downcasting to either F\+E\+\_\+\+D
 
 \begin{DoxyRefDesc}{Todo}
 \item[\hyperlink{todo__todo000001}{Todo}]It would be necessary to modify it to vectors of fe pointers if C\+M\+FD is of interest. \end{DoxyRefDesc}
-Finite element type. 
 
-Definition at line 153 of file bart\+\_\+driver.\+h.
+
+Definition at line 161 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a1ddb881c78ef92c59f2c686b320c970e}\label{class_bart_driver_a1ddb881c78ef92c59f2c686b320c970e}} 
 \index{Bart\+Driver@{Bart\+Driver}!global\+\_\+refinements@{global\+\_\+refinements}}
@@ -468,7 +486,7 @@ Total number of global refinements.
 
 
 
-Definition at line 218 of file bart\+\_\+driver.\+h.
+Definition at line 226 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ad42739169c4b4b97014c53a616f2d1ee}\label{class_bart_driver_ad42739169c4b4b97014c53a616f2d1ee}} 
 \index{Bart\+Driver@{Bart\+Driver}!have\+\_\+reflective\+\_\+bc@{have\+\_\+reflective\+\_\+bc}}
@@ -483,7 +501,7 @@ Boolean to determine if there is any BC are reflective.
 
 
 
-Definition at line 210 of file bart\+\_\+driver.\+h.
+Definition at line 218 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a7dcefb31d64ad2e76d4c04a44cb26f7c}\label{class_bart_driver_a7dcefb31d64ad2e76d4c04a44cb26f7c}} 
 \index{Bart\+Driver@{Bart\+Driver}!ho\+\_\+linear\+\_\+solver\+\_\+name@{ho\+\_\+linear\+\_\+solver\+\_\+name}}
@@ -498,7 +516,7 @@ Algebraic solver name.
 
 
 
-Definition at line 201 of file bart\+\_\+driver.\+h.
+Definition at line 209 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a0662a7c4208dc352aec9adf789edb463}\label{class_bart_driver_a0662a7c4208dc352aec9adf789edb463}} 
 \index{Bart\+Driver@{Bart\+Driver}!ho\+\_\+preconditioner\+\_\+name@{ho\+\_\+preconditioner\+\_\+name}}
@@ -513,7 +531,7 @@ Algebraic preconditioner name.
 
 
 
-Definition at line 202 of file bart\+\_\+driver.\+h.
+Definition at line 210 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a83323d9561c906f6094a51a5c936cea4}\label{class_bart_driver_a83323d9561c906f6094a51a5c936cea4}} 
 \index{Bart\+Driver@{Bart\+Driver}!ig\+\_\+ptr@{ig\+\_\+ptr}}
@@ -528,7 +546,7 @@ Pointer of In\+Group\+Base instance.
 
 
 
-Definition at line 190 of file bart\+\_\+driver.\+h.
+Definition at line 198 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a6ee26434a788284182df94da5d71ca12}\label{class_bart_driver_a6ee26434a788284182df94da5d71ca12}} 
 \index{Bart\+Driver@{Bart\+Driver}!is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}}
@@ -543,7 +561,7 @@ Boolean to determine if a problem is about eigenvalue.
 
 
 
-Definition at line 208 of file bart\+\_\+driver.\+h.
+Definition at line 216 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ae07e7a592dd255d69685f17d98a2ecc6}\label{class_bart_driver_ae07e7a592dd255d69685f17d98a2ecc6}} 
 \index{Bart\+Driver@{Bart\+Driver}!itr\+\_\+ptr@{itr\+\_\+ptr}}
@@ -558,7 +576,7 @@ Pointer of \hyperlink{class_iterations}{Iterations} instance.
 
 
 
-Definition at line 184 of file bart\+\_\+driver.\+h.
+Definition at line 192 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a459fab858171aa05e4618d6d9d327e87}\label{class_bart_driver_a459fab858171aa05e4618d6d9d327e87}} 
 \index{Bart\+Driver@{Bart\+Driver}!keff@{keff}}
@@ -573,7 +591,7 @@ keff result in eigenvalue problems
 
 
 
-Definition at line 206 of file bart\+\_\+driver.\+h.
+Definition at line 214 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a06a4f83c6f9bea928ec311fcdf974ab1}\label{class_bart_driver_a06a4f83c6f9bea928ec311fcdf974ab1}} 
 \index{Bart\+Driver@{Bart\+Driver}!local\+\_\+dofs@{local\+\_\+dofs}}
@@ -588,7 +606,7 @@ Index of dofs living on current processor.
 
 
 
-Definition at line 165 of file bart\+\_\+driver.\+h.
+Definition at line 173 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_aef9abac579c212463a6790a0e39e6429}\label{class_bart_driver_aef9abac579c212463a6790a0e39e6429}} 
 \index{Bart\+Driver@{Bart\+Driver}!mat\+\_\+ptr@{mat\+\_\+ptr}}
@@ -603,7 +621,7 @@ Pointer of \hyperlink{class_material_properties}{Material\+Properties} instance.
 
 
 
-Definition at line 186 of file bart\+\_\+driver.\+h.
+Definition at line 194 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a1ae1a91d9a049ba4354c71f6ad689d74}\label{class_bart_driver_a1ae1a91d9a049ba4354c71f6ad689d74}} 
 \index{Bart\+Driver@{Bart\+Driver}!mg\+\_\+ptr@{mg\+\_\+ptr}}
@@ -618,7 +636,7 @@ Pointer of \hyperlink{class_m_g_base}{M\+G\+Base} instance.
 
 
 
-Definition at line 189 of file bart\+\_\+driver.\+h.
+Definition at line 197 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a976c3ba1c98180dced85019dfd56e225}\label{class_bart_driver_a976c3ba1c98180dced85019dfd56e225}} 
 \index{Bart\+Driver@{Bart\+Driver}!msh\+\_\+ptr@{msh\+\_\+ptr}}
@@ -633,7 +651,7 @@ Pointer of \hyperlink{class_mesh_generator}{Mesh\+Generator} instance.
 
 
 
-Definition at line 185 of file bart\+\_\+driver.\+h.
+Definition at line 193 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a3726013dac04d13b87e35cb0c3b8b557}\label{class_bart_driver_a3726013dac04d13b87e35cb0c3b8b557}} 
 \index{Bart\+Driver@{Bart\+Driver}!n\+\_\+azi@{n\+\_\+azi}}
@@ -648,7 +666,7 @@ SN order.
 
 
 
-Definition at line 213 of file bart\+\_\+driver.\+h.
+Definition at line 221 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_aa1694538581e7941bbda0960bd3c7e39}\label{class_bart_driver_aa1694538581e7941bbda0960bd3c7e39}} 
 \index{Bart\+Driver@{Bart\+Driver}!n\+\_\+dir@{n\+\_\+dir}}
@@ -663,7 +681,7 @@ Total number of directions in SN calculations.
 
 
 
-Definition at line 212 of file bart\+\_\+driver.\+h.
+Definition at line 220 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_aeb5a04392c80b32379b02e18acbc1126}\label{class_bart_driver_aeb5a04392c80b32379b02e18acbc1126}} 
 \index{Bart\+Driver@{Bart\+Driver}!n\+\_\+group@{n\+\_\+group}}
@@ -678,7 +696,7 @@ Total number of energy groups.
 
 
 
-Definition at line 215 of file bart\+\_\+driver.\+h.
+Definition at line 223 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ae6c9141662b95c89b674ccdc04e9233f}\label{class_bart_driver_ae6c9141662b95c89b674ccdc04e9233f}} 
 \index{Bart\+Driver@{Bart\+Driver}!n\+\_\+material@{n\+\_\+material}}
@@ -693,7 +711,7 @@ Total number of material types.
 
 
 
-Definition at line 216 of file bart\+\_\+driver.\+h.
+Definition at line 224 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ab290f0bd63869bf124163f68e1be1a6a}\label{class_bart_driver_ab290f0bd63869bf124163f68e1be1a6a}} 
 \index{Bart\+Driver@{Bart\+Driver}!n\+\_\+total\+\_\+ho\+\_\+vars@{n\+\_\+total\+\_\+ho\+\_\+vars}}
@@ -708,7 +726,7 @@ Total number of components.
 
 
 
-Definition at line 214 of file bart\+\_\+driver.\+h.
+Definition at line 222 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a34229e58237aaac1551db7a3ec140e1c}\label{class_bart_driver_a34229e58237aaac1551db7a3ec140e1c}} 
 \index{Bart\+Driver@{Bart\+Driver}!namebase@{namebase}}
@@ -719,7 +737,7 @@ std\+::string \hyperlink{class_bart_driver}{Bart\+Driver}$<$ dim $>$\+::namebase
 
 
 
-Definition at line 204 of file bart\+\_\+driver.\+h.
+Definition at line 212 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ae6d782d30c28d741bb0df46251087809}\label{class_bart_driver_ae6d782d30c28d741bb0df46251087809}} 
 \index{Bart\+Driver@{Bart\+Driver}!p\+\_\+order@{p\+\_\+order}}
@@ -734,7 +752,7 @@ Polynomial order.
 
 
 
-Definition at line 217 of file bart\+\_\+driver.\+h.
+Definition at line 225 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_ad7bd8e33b7a6e67aa3d31527e40d18ea}\label{class_bart_driver_ad7bd8e33b7a6e67aa3d31527e40d18ea}} 
 \index{Bart\+Driver@{Bart\+Driver}!pcout@{pcout}}
@@ -749,7 +767,7 @@ Conditional ostream, i.\+e. ostream on one processor.
 
 
 
-Definition at line 182 of file bart\+\_\+driver.\+h.
+Definition at line 190 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_aabb9851e7b41f4a4b9395d79e4653ec7}\label{class_bart_driver_aabb9851e7b41f4a4b9395d79e4653ec7}} 
 \index{Bart\+Driver@{Bart\+Driver}!relevant\+\_\+dofs@{relevant\+\_\+dofs}}
@@ -764,7 +782,7 @@ Index of dofs relevant to current processor.
 
 This variable includes not only indices of dofs living on current processor, but also those living in ghost cells belonging to current processor. Ghost cells could be interpreted as cells living on other processors but neighboring to cells in current processor. 
 
-Definition at line 174 of file bart\+\_\+driver.\+h.
+Definition at line 182 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a560ae94f3801fb64a35fdbcd0d8a772d}\label{class_bart_driver_a560ae94f3801fb64a35fdbcd0d8a772d}} 
 \index{Bart\+Driver@{Bart\+Driver}!sflxes\+\_\+proc@{sflxes\+\_\+proc}}
@@ -773,13 +791,9 @@ Definition at line 174 of file bart\+\_\+driver.\+h.
 {\footnotesize\ttfamily template$<$int dim$>$ \\
 std\+::vector$<$Vector$<$double$>$ $>$ \hyperlink{class_bart_driver}{Bart\+Driver}$<$ dim $>$\+::sflxes\+\_\+proc\hspace{0.3cm}{\ttfamily [private]}}
 
-
-
-Scalar fluxes for all groups on current processor. 
-
 The scalar fluxes for all groups on current processor. Values will be assigned in the process of calculations. It will also be the output scalar fluxes in the member method output\+\_\+results 
 
-Definition at line 226 of file bart\+\_\+driver.\+h.
+Definition at line 233 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a736f40f99459dc715fdb174e06626f55}\label{class_bart_driver_a736f40f99459dc715fdb174e06626f55}} 
 \index{Bart\+Driver@{Bart\+Driver}!transport\+\_\+model@{transport\+\_\+model}}
@@ -794,7 +808,7 @@ Name of transport model.
 
 
 
-Definition at line 200 of file bart\+\_\+driver.\+h.
+Definition at line 208 of file bart\+\_\+driver.\+h.
 
 \mbox{\Hypertarget{class_bart_driver_a8bdcafa21b042017d1e871ed07ae3a81}\label{class_bart_driver_a8bdcafa21b042017d1e871ed07ae3a81}} 
 \index{Bart\+Driver@{Bart\+Driver}!triangulation@{triangulation}}
@@ -809,7 +823,7 @@ Triangulation in distrubted system.
 
 
 
-Definition at line 155 of file bart\+\_\+driver.\+h.
+Definition at line 163 of file bart\+\_\+driver.\+h.
 
 
 
