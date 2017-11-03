@@ -10,6 +10,9 @@ using namespace dealii;
 /*!
  This class serves as the base class of MG iterations. It inherits from
  IterationBase.
+ 
+ \author Weixiong Zheng
+ \date 2017/08
  */
 template <int dim>
 class MGBase : public IterationBase<dim>
