@@ -6,6 +6,7 @@
 
 using namespace dealii;
 
+//! This class provides abstract functionalities for MG calculations.
 /*!
  This class serves as the base class of MG iterations. It inherits from
  IterationBase.
@@ -28,9 +29,11 @@ public:
    This function will call mg_iterations to perform MG iterations in fixed source
    problems. This function shall not be called in eigenvalue calculations.
    
+   \todo Implement NDA scheme in this function.
+   
    \param sflxes_proc A vector of scalar fluxes for all groups.
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
-   \param ig_ptr A shared_ptr of InGroupBase object.
+   \param ig_ptr A shared_ptr of IGBase<dim> object.
    \return Void.
    */
   virtual void do_iterations
