@@ -24,6 +24,7 @@
 
 using namespace dealii;
 
+//! This class provides highest-level operations on BART to solve the problems.
 /*!
  This class operate BART. The functionalities include:
  
@@ -38,6 +39,9 @@ using namespace dealii;
      iterations.
  
  (5) Output results for visualization.
+ 
+ Note that BartDriver does not touch details about how one specifically solve a
+ transport problem. It rather calls Iterations to handle the solving.
  
  \author Weixiong Zheng
  \date 2017/08
