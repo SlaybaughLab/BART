@@ -30,11 +30,7 @@ int main(int argc, char *argv[])
     prm.read_input(argv[1]);
     Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
     unsigned int dim = prm.get_integer ("problem dimension");
-    if (dim==3)
-    {
-      std::cerr << "something wrong about dimension" << std::endl;
-      return 1;
-    }
+    Assert (dim>=2, ExcNotImplemented());
     switch (dim)
     {
       case 2:
