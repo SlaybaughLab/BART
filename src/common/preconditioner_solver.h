@@ -29,8 +29,11 @@ using namespace dealii;
  
  (2) Call linear_algebra_solve whenever needed.
  
+ For details of PETSc wrappers of linear algebra functions/objects, refer to 
+ <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/group__PETScWrappers.html" style="color:blue"><b>PETScWrappers</b></a>.
+ 
  \author Weixiong Zheng
- \date: 2017/10
+ \date 2017/10
  */
 class PreconditionerSolver
 {
@@ -100,7 +103,7 @@ private:
   //! A vector of integers showing number of iterations in linear solves.
   std::vector<unsigned int> linear_iters;
   
-  //! pointer of SolverControl object.
+  //! pointer of <a href="https://www.dealii.org/8.4.1/doxygen/deal.II/classSolverControl.html" style="color:blue"><b>SolverControl</b></a> object.
   /*!
    Control iterative algebraic linear solvers to determine convergence. Can be used
    to show number of linear iterations in the algebraic solve, linear solver residual
@@ -108,22 +111,22 @@ private:
    */
   std_cxx11::shared_ptr<SolverControl> cn;
   
-  //! A vector of pointers of BoomerAMG preconditioner.
+  //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1PreconditionBoomerAMG.html" style="color:blue"><b>BoomerAMG</b></a> preconditioner.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBoomerAMG> > pre_amg;
   
-  //! A vector of pointers of block Jacobi preconditioner.
+  //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1PreconditionBlockJacobi.html" style="color:blue"><b>block Jacobi</b></a> preconditioner.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBlockJacobi> > pre_bjacobi;
   
-  //! A vector of pointers of ParaSails preconditioner.
+  //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1PreconditionParaSails.html" style="color:blue"><b>ParaSails</b></a> preconditioner.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionParaSails> > pre_parasails;
   
-  //! A vector of pointers of Jacobi preconditioner.
+  //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1PreconditionJacobi.html" style="color:blue"><b>Jacobi</b></a> preconditioner.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionJacobi> > pre_jacobi;
   
-  //! A vector of pointers of Eisenstat (block SSOR) preconditioner.
+  //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1PreconditionEisenstat.html" style="color:blue"><b>Eisenstat</b></a> (block SSOR) preconditioner.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionEisenstat> > pre_eisenstat;
   
-  //! A vector of pointers of MUMPS solver objects.
+  //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1SparseDirectMUMPS.html" style="color:blue"><b>MUMPS</b></a> solver objects.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::SparseDirectMUMPS> > direct;
 };
 
