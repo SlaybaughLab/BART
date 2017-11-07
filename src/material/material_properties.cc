@@ -1,4 +1,5 @@
 #include <deal.II/base/numbers.h>
+#include <deal.II/base/utilities.h>
 
 #include "material_properties.h"
 

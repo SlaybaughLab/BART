@@ -2,11 +2,9 @@
 #define __material_properties_h__
 
 #include <deal.II/base/parameter_handler.h>
-#include <deal.II/base/utilities.h>
 
 #include <iostream>
 #include <string>
-#include <map>
 #include <unordered_map>
 #include <vector>
 #include <set>
