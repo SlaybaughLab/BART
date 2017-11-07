@@ -10,10 +10,13 @@
  combined with formulations specifically for degenerate diffusion equation, which
  contains a rank 2 tensor in streaming term. Mathematical details of similar
  formulations are extensively discussed <a href="http://epubs.siam.org/doi/abs/1
- 0.1137/S0036142900374111" style="color:blue"><b>here</b></a>.
+ 0.1137/S0036142900374111" style="color:blue"><b>here</b></a>. For details about
+ even-parity equation, please refer to <a href="http://www.springer.com/cda/cont
+ ent/document/cda_downloaddocument/9789048134106-c2.pdf?SGWID=0-0-45-1125054-p17
+ 3921104"><b>E. E. Lewis's book chapter</b></a>.
  
  Related documentation could be found in <a href="https://www.dealii.org/8.5.0/
- doxygen/deal.II/" style="color:blue"><b>deal.II documentation</b></a>
+ doxygen/deal.II/" style="color:blue"><b>deal.II documentation</b></a>.
  
  \author Weixiong Zheng
  \date 2017/05
