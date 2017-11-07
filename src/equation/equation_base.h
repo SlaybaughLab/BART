@@ -25,20 +25,44 @@
 
 using namespace dealii;
 
+//! This class provides weak form assembly and physical quantity computation functionalities
+/*!
+ This class implements abstract functionalities of matrix and vector assembly as
+ well as physical quantity computations such as fission source and keff. It serves
+ as the base class for any equation involved in BART calculation.
+ 
+ \author Weixiong Zheng
+ \date 2017/06~08
+ */
 template <int dim>
 class EquationBase
 {
 public:
-  // For SN and NDA (NDA still needs quadrature to calculate corrections)
+  /*!
+   Class constructor.
+   
+   \param equation_name An abbreviated name of the equation.
+   \param msh_ptr An shared_ptr of MeshGenerator<dim> object.
+   \param aqd_ptr An shared_ptr of AQBase<dim> object.
+   \param mat_ptr An shared_ptr of MaterialProperties object.
+   */
   EquationBase (std::string equation_name,
                 const ParameterHandler &prm,
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
-  // TODO: for diffusion (future work for someone)
-  // instead of previous constructor, diffusion overrides a constructor without
-  // asking for AQ instance.
+  /*!
+   Class constructor. The difference from previous constructor is that no AQBase
+   pointer is needed. It was designed for diffusion-like system.
+   
+   \param equation_name An abbreviated name of the equation.
+   \param msh_ptr An shared_ptr of MeshGenerator<dim> object.
+   \param mat_ptr An shared_ptr of MaterialProperties object.
+   
+   \todo Discuss the necessity of this constructor. We actually can use the first
+   constructor simply by passing empty AQBase pointer for diffusion.
+   */
   EquationBase (std::string equation_name,
                 const ParameterHandler &prm,
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
@@ -117,6 +141,14 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
+  /*!
+   Virtual function to perform one-pass linear solve for all components in target
+   group. As diffusion has no concept of direction, this function has to be 
+   overriden in such a case. For SN, yet, no overriden is needed unless Krylov
+   method is developed.
+   
+   \param g Group index.
+   */
   virtual void solve_in_group (const unsigned int &g);
   
   /*
@@ -194,18 +226,18 @@ protected:
   bool do_nda;
   bool have_reflective_bc;
   
-  unsigned int n_q;
-  unsigned int n_qf;
-  unsigned int n_qc;
-  unsigned int n_qfc;
-  unsigned int dofs_per_cell;
+  unsigned int n_q;//!< Total number quadrature points in a cell for assembly.
+  unsigned int n_qf;//!< Total number of face quadrature points in face assembly.
+  unsigned int n_qc;//!< Total number of quadrature points for NDA correction assembly in cells.
+  unsigned int n_qfc;//!< Total number of quadrature points for NDA correction assembly on faces.
+  unsigned int dofs_per_cell;//!< Total number of degrees of freedom per cell.
   
-  unsigned int n_dir;
-  unsigned int n_azi;
-  unsigned int n_total_vars;
-  unsigned int n_group;
-  unsigned int n_material;
-  unsigned int p_order;
+  unsigned int n_dir;//!< Total number of directions if applicable.
+  unsigned int n_azi;//!< Total number of azimuthal angles if applicable.
+  unsigned int n_total_vars;//!< Total number of components in current equation.
+  unsigned int n_group;//!< Total number of groups.
+  unsigned int n_material;//!< Total number of material types.
+  unsigned int p_order;//!< Polynomial order for finite elements.
   const unsigned int nda_quadrature_order;
   unsigned int global_refinements;
   
