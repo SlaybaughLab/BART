@@ -138,7 +138,7 @@ public:
    std::vector<Vector<double> > &sflxes_proc,
    const unsigned int &g,
    const unsigned int &i_dir);
-  
+
   /*!
    This function provides cellwise integrator for linear form assembly specifically
    for the contribution of fixed source in fixed-source problems or fission in

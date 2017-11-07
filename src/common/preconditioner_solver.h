@@ -110,7 +110,7 @@ private:
    after each iteration etc.
    */
   std_cxx11::shared_ptr<SolverControl> cn;
-  
+
   //! A vector of pointers of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classPETScWrappers_1_1PreconditionBoomerAMG.html" style="color:blue"><b>BoomerAMG</b></a> preconditioner.
   std::vector<std_cxx11::shared_ptr<PETScWrappers::PreconditionBoomerAMG> > pre_amg;
   
