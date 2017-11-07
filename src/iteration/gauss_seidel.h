@@ -9,6 +9,13 @@
  MGBase<dim>::nonthermal_solves and MGBase<dim>::thermal_iterations are overriden
  using Gauss-Seidel iterations.
  
+ A Gauss-Seidel iteration can be represented as:
+ \f[
+ T_g\psi_g^{l+1}=\sum\limits_{g'=0}^{g}S_{g'\to g}\psi_{g'}^{l+1}+\sum\limits_{g'=g+1}^{G-1}S_{g'\to g}\psi_{g'}^{l}+Q,
+ \f]
+ where \f$T\f$, \f$S\f$ and \f$Q\f$ are transport operator, scattering operator
+ and source and \f$l\f$ stands for MG iteration index.
+ 
  \author Weixiong Zheng
  \date 2017/09
  */
