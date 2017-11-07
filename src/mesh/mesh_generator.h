@@ -108,13 +108,43 @@ private:
    \return Void. Modify tria in place.
    */
   void setup_boundary_ids (parallel::distributed::Triangulation<dim> &tria);
+  
+  /*!
+   Function to initialize the mapping: cell relative pos.->material ID on initial
+   mesh.
+   
+   \param prm ParameterHandler object.
+   \return Void.
+   */
   void initialize_relative_position_to_id_map (ParameterHandler &prm);
+  
+  /*!
+   A function to establish the mapping: boundary id->refl. BC or not.
+   
+   \param prm ParameterHandler object.
+   */
   void preprocess_reflective_bc (ParameterHandler &prm);
+  
+  /*!
+   A function to process coordinate info such as axis lengths, cell number per
+   axis on initial mesh etc.
+   
+   \param prm ParameterHandler object.
+   \return Void.
+   */
   void process_coordinate_information (ParameterHandler &prm);
-  // utility member functions
+  
+  /*!
+   Get relative position of a cell by providing its center.
+   
+   \note This function will be used only when the mesh is not refined.
+   
+   \param position Cell center.
+   \param relateive_position Relative position of a cell on initial coarse mesh.
+   \return Void.
+   */
   void get_cell_relative_position
-  (Point<dim> &position,
-   std::vector<unsigned int> &relative_position);
+  (Point<dim> &position, std::vector<unsigned int> &relative_position);
   
   /*!
    Boolean to determine if mesh needs to be generated or read-in. Currently, BART
@@ -124,7 +154,11 @@ private:
   bool have_reflective_bc;//!< Boolean to determine if reflective BC is used.
   std::string mesh_filename;//!< Mesh filename if mesh is read in.
   unsigned int global_refinements;//!< Number of global refinements to perform.
+  
+  //! Mapping: cell relative position->material ID.
   std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id;
+  
+  //! Hash table for the mapping: boundary ID->refl. boundary or not.
   std::unordered_map<unsigned int, bool> is_reflective_bc;
   
   std::vector<double> axis_max_values;//!< Max values per axis in the mesh.
