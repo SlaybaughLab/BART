@@ -21,7 +21,9 @@ const unsigned int y_levels = 100;
 
 //! This class performs parameter parsing.
 /*!
- This class handles user-defined parameters.
+ This class handles user-defined parameters. For details about parameter parsing,
+ refer to <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classParameterHa
+ ndler.html" style="color:blue"><b>ParameterHandler</b></a>.
  
  \author Weixiong Zheng
  \date 2017/06
