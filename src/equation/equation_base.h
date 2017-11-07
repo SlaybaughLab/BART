@@ -68,10 +68,17 @@ public:
                 const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
+  /*!
+   Virtual class destructor.
+   */
   virtual ~EquationBase ();
   
-  void run ();
-  
+  /*!
+   Virtual function to assemble bilinear form. Inside this function, volumetric,
+   boundary and cell interface (if applicable) bilinear forms will be assembled.
+   
+   \return Void.
+   */
   virtual void assemble_bilinear_form ();
   
   virtual void assemble_volume_boundary_bilinear_form ();
@@ -200,11 +207,19 @@ public:
   
   std::string get_equ_name ();
 protected:
+  /*!
+   This function returns the mapping result: (boundary id, direction index)->
+   refl. index.
+   
+   \param boundary_id A integer representing ID of the boundary (ranging from 0 to
+   2*dim)
+   \param incident_angle_index Incident direction index.
+   */
   unsigned int get_reflective_direction_index (unsigned int boundary_id,
                                                unsigned int incident_angle_index);
   
   // "c" in the following quantities means "correction" for NDA use
-  std_cxx11::shared_ptr<QGauss<dim> > q_rule;
+  std_cxx11::shared_ptr<QGauss<dim> > q_rule;//!< Pointer to quadrature rule in cell.
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
   std_cxx11::shared_ptr<QGauss<dim> > qc_rule;
   std_cxx11::shared_ptr<QGauss<dim-1> > qfc_rule;
@@ -214,17 +229,17 @@ protected:
   std_cxx11::shared_ptr<FEValues<dim> > fvc;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvfc;
   
-  std::string equation_name;
-  std::string discretization;
+  std::string equation_name;//!< String for equation name.
+  std::string discretization;//!< String for spatial discretization.
   
-  double keff;
-  double keff_prev_gen;
-  double fission_source;
-  double fission_source_prev_gen;
+  double keff;//!< keff with current generation of neutron.
+  double keff_prev_gen;//!< keff from last generation of neutron.
+  double fission_source;//!< Fission source with current generation neutron.
+  double fission_source_prev_gen;//!< Fission source with previous generation neutron.
   
-  bool is_eigen_problem;
-  bool do_nda;
-  bool have_reflective_bc;
+  bool is_eigen_problem;//!< Boolean to determine if it's eigenvalue problem.
+  bool do_nda;//!< Boolean to determine if NDA is performed.
+  bool have_reflective_bc;//!< Boolean to determine if problem has reflective BC.
   
   unsigned int n_q;//!< Total number quadrature points in a cell for assembly.
   unsigned int n_qf;//!< Total number of face quadrature points in face assembly.
@@ -238,16 +253,17 @@ protected:
   unsigned int n_group;//!< Total number of groups.
   unsigned int n_material;//!< Total number of material types.
   unsigned int p_order;//!< Polynomial order for finite elements.
+  
+  //! Quadrature order for NDA volumetric correction assembly.
   const unsigned int nda_quadrature_order;
-  unsigned int global_refinements;
+  unsigned int global_refinements;//! Number uniform refinements to perform.
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
   std::vector<types::global_dof_index> local_dof_indices;
   std::vector<types::global_dof_index> neigh_dof_indices;
   
-  std::vector<Tensor<1, dim> > omega_i;
-  std::vector<double> wi;
-  std::vector<double> tensor_norms;
+  std::vector<Tensor<1, dim> > omega_i;//!< All the directions.
+  std::vector<double> wi;//!< All the angular weight.
   std::vector<std::vector<double> > all_sigt;
   std::vector<std::vector<double> > all_inv_sigt;
   std::vector<std::vector<double> > all_q;
