@@ -280,16 +280,6 @@ void MaterialProperties::process_eigen_material_properties
   }
 }
 
-unsigned int MaterialProperties::get_n_group ()
-{
-  return n_group;
-}
-
-unsigned int MaterialProperties::get_n_material ()
-{
-  return n_material;
-}
-
 std::vector<std::vector<double> > MaterialProperties::get_sigma_t ()
 {
   return all_sigt;
