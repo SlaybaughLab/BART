@@ -7,11 +7,24 @@
 
 using namespace dealii;
 
+//! This class provides common functionalities for iteration related classes.
+/*!
+ \author Weixiong
+ \date 2017/08~10
+ \todo Implement iteration counts for every type of iteration in calculations.
+ */
 template <int dim>
 class IterationBase
 {
 public:
+  /*!
+   Class constructor.
+   
+   \param prm Const dealii::ParameterHandler object.
+   */
   IterationBase (const ParameterHandler &prm);
+  
+  //! Virtual class destructor.
   virtual ~IterationBase ();
 
 protected:
@@ -56,14 +69,19 @@ protected:
   double estimate_phi_diff
   (Vector<double> &phi_newer, Vector<double> &phi_older);
   
-  const unsigned int n_group;
-  const bool is_eigen_problem;
-  const bool do_nda;
+  const unsigned int n_group;//!< Number of groups.
+  const bool is_eigen_problem;//!< Boolean to determine if it's eigenvalue problem.
+  const bool do_nda;//!< Boolean to determine if NDA is used.
   
   double total_calculation_time; /**< total time for calculations+assemblies*/
   unsigned int ct_ho_iters; /**< HO iteration counts*/
   unsigned int ct_nda_iters; /**< NDA iteration counts*/
   
+  //! ostream on processor with rank to be 0.
+  /*!
+   Details can be found <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/cl
+   assConditionalOStream.html" style="color:blue"><b>here</b></a>.
+   */
   ConditionalOStream pcout;
 };
 
