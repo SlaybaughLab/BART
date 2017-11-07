@@ -271,8 +271,8 @@ protected:
   std::vector<std::vector<double> > all_nusigf;
   std::vector<std::vector<std::vector<double> > > all_sigs;
   std::vector<std::vector<std::vector<double> > > all_sigs_per_ster;
-  std::vector<std::vector<std::vector<double> > > all_ksi_nusigf;
-  std::vector<std::vector<std::vector<double> > > all_ksi_nusigf_per_ster;
+  std::vector<std::vector<std::vector<double> > > all_chi_nusigf;
+  std::vector<std::vector<std::vector<double> > > all_chi_nusigf_per_ster;
   std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer_per_ster;
   std::vector<std::vector<std::vector<double> > > scat_scaled_fiss_transfer_per_ster;
   std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer;

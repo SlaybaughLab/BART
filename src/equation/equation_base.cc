@@ -84,8 +84,8 @@ void EquationBase<dim>::process_input
     {
       is_material_fissile = mat_ptr->get_fissile_id_map ();
       all_nusigf = mat_ptr->get_nusigf ();
-      all_ksi_nusigf = mat_ptr->get_ksi_nusigf ();
-      all_ksi_nusigf_per_ster = mat_ptr->get_ksi_nusigf_per_ster ();
+      all_chi_nusigf = mat_ptr->get_chi_nusigf ();
+      all_chi_nusigf_per_ster = mat_ptr->get_chi_nusigf_per_ster ();
     }
     else
     {
@@ -534,7 +534,7 @@ void EquationBase<dim>::scale_fiss_transfer_matrices (double keff)
     if (is_material_fissile[m])
       for (unsigned int gin=0; gin<n_group; ++gin)
         for (unsigned int g=0; g<n_group; ++g)
-          tmp[gin][g] = all_ksi_nusigf_per_ster[m][gin][g] / keff;
+          tmp[gin][g] = all_chi_nusigf_per_ster[m][gin][g] / keff;
     scaled_fiss_transfer_per_ster[m] = tmp;
   }
 }

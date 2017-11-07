@@ -26,7 +26,7 @@ void PowerIteration<dim>::eigen_iterations
   {
     // update sflxes, fission source and keff from previous fission with current sflxes
     this->update_prev_sflxes_fiss_src_keff (sflxes_proc);
-    // scale ksi_nu_sigf by a factor of keff
+    // scale chi_nu_sigf by a factor of keff
     equ_ptrs.back()->scale_fiss_transfer_matrices (this->keff);
     // assemble fission source as a "fixed source"
     equ_ptrs.back()->assemble_fixed_linear_form (sflxes_proc);

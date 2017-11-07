@@ -16,7 +16,11 @@ template <int dim>
 class PowerIteration : public EigenBase<dim>
 {
 public:
-  //! Class constructor.
+  /*!
+   Class constructor.
+   
+   \param prm ParameterHandler object.
+   */
   PowerIteration (const ParameterHandler &prm);
   
   //! Class destructor.

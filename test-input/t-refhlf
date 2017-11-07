@@ -41,7 +41,7 @@ subsection one-group Q
 set values                                   = 10.0, 10.0
 end
 
-#subsection one-group ksi
+#subsection one-group chi
 #set values                                   = 1.0, 1.0
 #end
 

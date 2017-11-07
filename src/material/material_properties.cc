@@ -189,7 +189,7 @@ void MaterialProperties::process_eigen_material_properties
   
   if (n_group>1)
   {
-    prm.enter_subsection ("ksi, group=1 to G");
+    prm.enter_subsection ("chi, group=1 to G");
     {
       for (unsigned int m=0; m<n_material;++m)
       {
@@ -200,12 +200,12 @@ void MaterialProperties::process_eigen_material_properties
           os << "material " << m + 1;
           std::vector<std::string> strings = Utilities::split_string_list (prm.get (os.str ()));
           AssertThrow (strings.size () == n_group,
-                       ExcMessage ("n_group is not equal to group number of ksi"));
+                       ExcMessage ("n_group is not equal to group number of chi"));
           std::vector<double> tmp;
           for (unsigned int g=0; g<n_group; ++g)
             tmp[g] = std::atof (strings[g].c_str ());
         }
-        all_ksi.push_back (tmp);
+        all_chi.push_back (tmp);
       }
     }
     prm.leave_subsection ();
@@ -233,17 +233,17 @@ void MaterialProperties::process_eigen_material_properties
   }
   else
   {
-    prm.enter_subsection ("one-group ksi");
+    prm.enter_subsection ("one-group chi");
     {
       std::vector<std::string> strings = Utilities::split_string_list (prm.get("values"));
       AssertThrow (strings.size()==n_material,
-                   ExcMessage("One-group ksi should have N_material entries"));
+                   ExcMessage("One-group chi should have N_material entries"));
       std::vector<double> tmp_sigt (n_material);
       for (unsigned int m=0; m<n_material; ++m)
       {
         // sorry, c++11 again.
         std::vector<double> tmp {is_material_fissile[m] ? std::atof (strings[m].c_str()) : 0.0};
-        all_ksi.push_back (tmp);
+        all_chi.push_back (tmp);
       }
     }
     prm.leave_subsection ();
@@ -272,17 +272,12 @@ void MaterialProperties::process_eigen_material_properties
       for (unsigned int gin=0; gin<n_group; ++gin)
         for (unsigned int g=0; g<n_group; ++g)
         {
-          tmp[gin][g] = all_ksi[m][g] * all_nusigf[m][gin];
+          tmp[gin][g] = all_chi[m][g] * all_nusigf[m][gin];
           tmp_per_ster[gin][g] = tmp[gin][g] / (4.0 * pi);
         }
-    all_ksi_nusigf.push_back (tmp_per_ster);
-    all_ksi_nusigf_per_ster.push_back (tmp_per_ster);
+    all_chi_nusigf.push_back (tmp_per_ster);
+    all_chi_nusigf_per_ster.push_back (tmp_per_ster);
   }
-}
-
-bool MaterialProperties::get_eigen_problem_bool ()
-{
-  return is_eigen_problem;
 }
 
 unsigned int MaterialProperties::get_n_group ()
@@ -325,14 +320,14 @@ std::vector<std::vector<std::vector<double> > > MaterialProperties::get_sigma_s_
   return all_sigs_per_ster;
 }
 
-std::vector<std::vector<std::vector<double> > > MaterialProperties::get_ksi_nusigf ()
+std::vector<std::vector<std::vector<double> > > MaterialProperties::get_chi_nusigf ()
 {
-  return all_ksi_nusigf;
+  return all_chi_nusigf;
 }
 
-std::vector<std::vector<std::vector<double> > > MaterialProperties::get_ksi_nusigf_per_ster ()
+std::vector<std::vector<std::vector<double> > > MaterialProperties::get_chi_nusigf_per_ster ()
 {
-  return all_ksi_nusigf_per_ster;
+  return all_chi_nusigf_per_ster;
 }
 
 std::vector<std::vector<double> > MaterialProperties::get_nusigf ()

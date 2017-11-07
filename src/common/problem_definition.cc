@@ -107,7 +107,7 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   }
   prm.leave_subsection ();
   
-  prm.enter_subsection ("one-group ksi");
+  prm.enter_subsection ("one-group chi");
   {
     prm.declare_entry ("values", "", Patterns::List(Patterns::Double()), "");
   }
@@ -137,7 +137,7 @@ void ProblemDefinition::declare_parameters (ParameterHandler &prm)
   }
   prm.leave_subsection ();
   
-  prm.enter_subsection ("ksi, group=1 to G");
+  prm.enter_subsection ("chi, group=1 to G");
   {
     for (unsigned int m=0; m<nmat; ++m)
     {

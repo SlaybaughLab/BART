@@ -46,7 +46,7 @@ subsection fissile material IDs
 set fissile material ids                     = 1, 2
 end
 
-subsection one-group ksi
+subsection one-group chi
 set values                                   = 1.0, 1.0
 end
 
