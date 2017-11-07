@@ -28,7 +28,14 @@ template <int dim>
 class MeshGenerator
 {
 public:
+  /*!
+   Class constructor.
+   
+   \param prm ParameterHandler object.
+   */
   MeshGenerator (ParameterHandler &prm);
+  
+  //! Class destructor.
   ~MeshGenerator ();
   
   /*!
