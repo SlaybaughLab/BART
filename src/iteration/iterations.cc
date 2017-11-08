@@ -1,13 +1,3 @@
-#include <deal.II/base/index_set.h>
-#include <deal.II/fe/fe_values.h>
-#include <deal.II/dofs/dof_tools.h>
-#include <deal.II/grid/cell_id.h>
-
-#include <deal.II/lac/petsc_solver.h>
-#include <deal.II/lac/solver_bicgstab.h>
-
-#include <algorithm>
-
 #include "iterations.h"
 
 using namespace dealii;
