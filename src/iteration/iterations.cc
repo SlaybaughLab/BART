@@ -37,18 +37,10 @@ void Iterations<dim>::solve_problems
   if (is_eigen_problem)
   {
     eig_ptr->do_iterations (sflxes_proc, equ_ptrs, ig_ptr, mg_ptr);
-    eig_ptr->get_keff (keff);
+    keff = eig_ptr->get_keff ();
   }
   else
     mg_ptr->do_iterations (sflxes_proc, equ_ptrs, ig_ptr);
-}
-
-template <int dim>
-void Iterations<dim>::get_keff (double &k)
-{
-  AssertThrow (is_eigen_problem,
-               ExcMessage("Only eigen problems have keff"));
-  k = keff;
 }
 
 // explicit instantiation to avoid linking error

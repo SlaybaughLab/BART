@@ -79,17 +79,6 @@ public:
    std_cxx11::shared_ptr<IGBase<dim> > ig_ptr,
    std_cxx11::shared_ptr<MGBase<dim> > mg_ptr,
    std_cxx11::shared_ptr<EigenBase<dim> > eig_ptr);
-  
-  /*!
-   A function to retrieve value of keff.
-   
-   \todo Change this function to return fashion to keep consistency of get_xxx type
-   functions.
-   
-   \param keff A double living in BartDriver<dim> to be modified in-place.
-   \return Void.
-   */
-  void get_keff (double &keff);
 
 private:
   const std::string transport_name;//!< HO equation name.

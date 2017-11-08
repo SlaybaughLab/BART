@@ -13,7 +13,10 @@ using namespace dealii;
 
 //! This class provides AQ data, component indices and reflective directions.
 /*!
- This class is the base class of AQ data.
+ This class is the base class of AQ data. The directions are represented by a
+ series of <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classTensor.htm
+ l" style="color:blue"><b>Tensor<1,dim></b></a>. deal.II has well defined
+ operations such as dot product of tensors.
  
  \author Weixiong Zheng
  \date 2017/04

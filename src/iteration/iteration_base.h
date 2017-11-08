@@ -9,9 +9,12 @@ using namespace dealii;
 
 //! This class provides common functionalities for iteration related classes.
 /*!
+ Currently, it is mainly for providing functionalities on estimating vector
+ differences.
+ 
  \author Weixiong
  \date 2017/08~10
- \todo Implement iteration counts for every type of iteration in calculations.
+ \todo Implement iteration counting for every type of iteration in calculations.
  */
 template <int dim>
 class IterationBase
@@ -28,7 +31,8 @@ public:
   virtual ~IterationBase ();
 
 protected:
-  /** \brief Function to measure the relative difference between two sets of PETSc
+  /**
+   * Function to measure the relative difference between two sets of PETSc
    * Vectors
    *
    * \param Two sets of PETSc Vectors with the same length

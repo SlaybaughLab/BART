@@ -295,7 +295,7 @@ void BartDriver<dim>::run ()
   itr_ptr->solve_problems (sflxes_proc, equ_ptrs, ig_ptr, mg_ptr, eig_ptr);
   if (is_eigen_problem)
   {
-    itr_ptr->get_keff (keff);
+    keff = eig_ptr->get_keff ();
     pcout << "keff = " << keff << std::endl;
   }
   output_results ();
