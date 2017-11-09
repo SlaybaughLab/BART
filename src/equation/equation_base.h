@@ -27,9 +27,21 @@ using namespace dealii;
 
 //! This class provides weak form assembly and physical quantity computation functionalities
 /*!
- This class implements abstract functionalities of matrix and vector assembly as
- well as physical quantity computations such as fission source and keff. It serves
- as the base class for any equation involved in BART calculation.
+ The governing equation can be presented as
+ \f[
+ \mathcal{T}\psi=\mathcal{S}\psi+\mathcal{F}\psi\ (\mathrm{or}\
+ \frac{Q}{4\pi}),
+ \f]
+ where \f$\mathcal{T}\f$, \f$\mathcal{S}\f$, \f$\mathcal{F}\f$ and
+ \f$Q\f$ are the transport operator (including streaming and collision),
+ scattering operator, fission operator and fixed volumetric source, respectively.
+ 
+ 
+ This class implements abstract functionalities of matrix and vector assembly of
+ weak formulation for the governing equation above with finite element method as
+ well as physical quantity computations such as fission source and 
+ \f$k_\mathrm{eff}\f$. It serves as the base class for any equation involved in 
+ BART calculation.
  
  \author Weixiong Zheng
  \date 2017/06~08
@@ -53,22 +65,6 @@ public:
                 const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
   /*!
-   Class constructor. The difference from previous constructor is that no AQBase
-   pointer is needed. It was designed for diffusion-like system.
-   
-   \param equation_name An abbreviated name of the equation.
-   \param msh_ptr An shared_ptr of MeshGenerator<dim> object.
-   \param mat_ptr An shared_ptr of MaterialProperties object.
-   
-   \todo Discuss the necessity of this constructor. We actually can use the first
-   constructor simply by passing empty AQBase pointer for diffusion.
-   */
-  EquationBase (std::string equation_name,
-                const ParameterHandler &prm,
-                const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
-                const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
-  
-  /*!
    Virtual class destructor.
    */
   virtual ~EquationBase ();
@@ -81,14 +77,43 @@ public:
    */
   virtual void assemble_bilinear_form ();
   
+  /*!
+   Virtual function to assemble volumetric and boundary bilinear form. It is not
+   recommended to override this function until there's a strong reason. What it
+   basically does is per component, we go over all cells on current processor
+   and call integrators for volumetric and boundary bilinear form assembly.
+   
+   \note Component loop needs to be the outer loop to avoid MPI related error
+   caused by PETSc.
+   
+   \return void
+   */
   virtual void assemble_volume_boundary_bilinear_form ();
   
+  /*!
+   Virtual function to assemble interface bilinear form for DFEM. It is not
+   recommended to override this function until there's a strong reason. What it
+   basically does is per component, we go over all cells on current processor
+   and call integrators for cell interface bilinear form assembly.
+   
+   \note Component loop needs to be the outer loop to avoid MPI related error
+   caused by PETSc.
+   
+   \return void
+   */
   virtual void assemble_interface_bilinear_form ();
   
   void assemble_closure_bilinear_form
   (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr,
    bool do_assembly = true);
   
+  /*!
+   Virtual function to assemble linear forms for a specific group using input 
+   flux. Overriding has to be provided. Preassumably, fission source or fixed
+   source have been assembled before calling this function.
+   
+   \return Void.
+   */
   virtual void assemble_linear_form
   (std::vector<Vector<double> > &sflx_this_proc,
    unsigned int &g);
@@ -101,6 +126,9 @@ public:
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp);
   
+  /*!
+   Virtual cell bilinear form integrator.
+   */
   virtual void integrate_cell_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    FullMatrix<double> &cell_matrix,
@@ -116,6 +144,22 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
+  /*!
+   Virtual function provides integrator for interface bilinear form assembly in 
+   DFEM formulations. Mathematically, this contribute to the numerical flux term
+   for DFEM. Generically, we would separate out four terms.
+   
+   \param cell Active cell iterator containing cell info.
+   \param neigh Cell iterator for neighboring cell about current face.
+   \param fn Face index in current cell for current boundary face.
+   \param vi_ui Face matrix from testing interior basis by interior basis.
+   \param vi_ue Face matrix from testing exterior basis by interior basis.
+   \param ve_ui Face matrix from testing interior basis by exterior basis.
+   \param ve_ue Face matrix from testing exterior basis by exterior basis.
+   \param g Group index.
+   \param i_dir Direction index.
+   \return Void.
+   */
   virtual void integrate_interface_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    typename DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
@@ -127,6 +171,18 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
+  /*!
+   Virtual function to provide cellwise integrator for linear form assembly
+   specifically for the contribution of scattering. It needs to be overriden
+   for different derived classes.
+   
+   \param cell Active cell iterator containing cell info.
+   \param cell_rhs Local vector (linear form) to be modified.
+   \param sflxes_proc Scalar fluxes for all groups living on current processor.
+   \param g Group index.
+   \param i_dir Direction index.
+   \return Void.
+   */
   virtual void integrate_scattering_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    Vector<double> &cell_rhs,
@@ -134,6 +190,28 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
+  /*!
+   Virtual function to provide cellwise integrator for linear form assembly 
+   specifically for the contribution of fixed source in fixed-source problems or 
+   fission in eigenvalue problems. It needs to be overriden for different derived
+   classes. It can be represented with generic fission operator \f$\mathcal{F}\f$ as
+   \f[
+   \left(v,\mathcal{F}(\psi)\right)_\mathcal{D},
+   \f]
+   
+   where \f$v\f$, the test function, does not necessarily need to belong to the same
+   function space as \f$\psi\f$.
+   
+   \param cell Active cell iterator containing cell info.
+   \param cell_rhs Local vector (linear form) to be modified.
+   \param sflxes_prev Scalar fluxes from previous generation due to fission for
+   all groups living on current processor.
+   \param g Group index.
+   \param i_dir Direction index.
+   \return Void.
+   
+   \note sflxes_prev will do nothing inside the integrator fixed source problems.
+   */
   virtual void integrate_cell_fixed_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    Vector<double> &cell_rhs,
@@ -172,6 +250,21 @@ public:
    std::vector<double> &boundary_corrections);
    */
   
+  /*!
+   Virtual function to initialize:
+   
+   (1) Global matrices (PETSc objects) for all components;
+   
+   (2) Global vectors (PETSc objects), i.e. solutions and right hand side 
+   vectors;
+   
+   (3) \f$\phi\f$ for all groups living on current processor.
+   
+   \param dsp Sparsity pattern built from BartDriver.
+   \param local_dofs Index set for indices of degrees of freedom living on
+   current processor.
+   \param sflxes_proc \f$\phi\f$ for all groups on current processor.
+   */
   virtual void initialize_system_matrices_vectors
   (DynamicSparsityPattern &dsp,
    IndexSet &local_dofs,
@@ -205,6 +298,11 @@ public:
   
   void scale_fiss_transfer_matrices (double keff);
   
+  /*!
+   Function to retrieve current equation name.
+   
+   \return A string for the equation name.
+   */
   std::string get_equ_name ();
 protected:
   /*!
@@ -219,10 +317,25 @@ protected:
                                                unsigned int incident_angle_index);
   
   // "c" in the following quantities means "correction" for NDA use
-  std_cxx11::shared_ptr<QGauss<dim> > q_rule;//!< Pointer to quadrature rule in cell.
+  //!< Pointer of quadrature rule in cell.
+  std_cxx11::shared_ptr<QGauss<dim> > q_rule;
+  
+  //!< Pointer of quadrature rule on cell face.
   std_cxx11::shared_ptr<QGauss<dim-1> > qf_rule;
+  
+  //!< Pointer of quadrature rule in cell for NDA correction term.
   std_cxx11::shared_ptr<QGauss<dim> > qc_rule;
+  
+  //!< Pointer of quadrature rule on cell face for NDA correction term.
   std_cxx11::shared_ptr<QGauss<dim-1> > qfc_rule;
+  
+  //! Pointer of FEValues object.
+  /*!
+   In short FEValues and FEFaceValues represent finite element evaluated in
+   quadrature points of a cell or on a face. For details, please refer to <a href
+   ="https://www.dealii.org/8.5.0/doxygen/deal.II/classFEValuesBase.html" 
+   style="color:blue"><b>FEValues page</b></a>.
+   */
   std_cxx11::shared_ptr<FEValues<dim> > fv;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
@@ -259,14 +372,30 @@ protected:
   unsigned int global_refinements;//! Number uniform refinements to perform.
   
   std::vector<typename DoFHandler<dim>::active_cell_iterator> local_cells;
+  
+  //! Local to global indices for all cells.
   std::vector<types::global_dof_index> local_dof_indices;
+  
+  //! Local to global indices for all cells.
+  /*!
+   The same as local_dof_indices except this is used for neighboring cells when
+   assembling DFEM interface terms.
+   */
   std::vector<types::global_dof_index> neigh_dof_indices;
   
   std::vector<Tensor<1, dim> > omega_i;//!< All the directions.
   std::vector<double> wi;//!< All the angular weight.
+
+  //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
   std::vector<std::vector<double> > all_sigt;
+  
+  //! \f$1/\sigma_\mathrm{t}\f$ of all groups for all materials.
   std::vector<std::vector<double> > all_inv_sigt;
+  
+  //! \f$Q\f$ values of all groups for all materials.
   std::vector<std::vector<double> > all_q;
+  
+  //! \f$Q/(4\pi)\f$ values of all groups for all materials.
   std::vector<std::vector<double> > all_q_per_ster;
   std::vector<std::vector<double> > all_nusigf;
   std::vector<std::vector<std::vector<double> > > all_sigs;
@@ -288,23 +417,13 @@ protected:
   
   ConditionalOStream pcout;
 private:
-  void setup_system ();
-  void generate_globally_refined_grid ();
-  void report_system ();
-  void print_angular_quad ();
-  
-  // void setup_lo_system();
-  void setup_boundary_ids ();
-  void get_cell_mfps (unsigned int &material_id, double &cell_dimension,
-                      std::vector<double> &local_mfps);
-  
   void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
   std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr;
   
-  // related objects for current equation: matrices, vectors
+  //!
   std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats;
   std::vector<PETScWrappers::MPI::Vector*> sys_rhses;
   std::vector<PETScWrappers::MPI::Vector*> sys_fixed_rhses;
