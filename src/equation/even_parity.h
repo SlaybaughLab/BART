@@ -5,6 +5,27 @@
 
 //! This class provides weak formulation for even-parity equation.
 /*!
+ The governing equation for this class is the even-parity equation. Considering
+ one-group steady-state equation with isotropic scattering, we transform the
+ angular flux to get a even parity flux: 
+ \f[
+ \psi^+\left(\vec{\Omega}\right)=\frac{\psi\left(\vec{\Omega}\right)+
+ \psi\left(-\vec{\Omega}\right)}{2}.
+ \f]
+ One would realize:
+ \f[
+ \phi=2\int\limits_{2\pi}d\Omega\ \psi^+.
+ \f]
+ Skipping all the intermediate steps, one would reach the equation:
+ \f[
+ \vec{\Omega}\cdot\nabla\frac{1}{\sigma_\mathrm{t}}\vec{\Omega}\cdot\nabla\psi^+
+ +
+ \sigma_\mathrm{t}\psi^+=
+ \frac{\sigma_\mathrm{s}}{4\pi}\phi
+ +
+ \frac{\nu\sigma_\mathrm{f}}{4\pi k_\mathrm{eff}}\phi\ (\mathrm{or}\ \frac{Q}{4\pi}).
+ \f]
+ 
  This class implements weak formulation for even-parity equation in both DFEM
  and CFEM. DFEM formulation is based on symmetric interior penalty method 
  combined with formulations specifically for degenerate diffusion equation, which
@@ -100,7 +121,7 @@ public:
   
   /*!
    This function provides integrator for interface bilinear form assembly in DFEM
-   formulations.
+   formulations for even parity using interior penalty method.
    
    \param cell Active cell iterator containing cell info.
    \param neigh Cell iterator for neighboring cell about current face.
@@ -169,6 +190,17 @@ private:
   double c_penalty;
   
   //! Frobenius norms of directional tensors (Rank 2).
+  /*!
+   Denoting the directions as column vectors with length of dim, the directional
+   tensor is defined as:
+   \f[
+   \mathcal{K}:=\vec{\Omega}\vec{\Omega}^\top,
+   \f]
+   which is a Rank 2 tensor as well as a symmetric dimxdim matrix.
+   
+   For the definition of Fronbenius norm, please refer to <a href="http://mathwo
+   rld.wolfram.com/FrobeniusNorm.html" style="color:blue"><b>wolfram page</b></a>.
+   */
   std::vector<double> tensor_norms;
 };
 
