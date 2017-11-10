@@ -34,7 +34,7 @@
   - [PyNE](https://github.com/pyne/pyne) modules pulled in for nuclear data
 - build environment: [Docker](https://www.docker.com/)?
 - testing framework: [Google Test](https://github.com/google/googletest) 
-- integration framework: [GoCD](https://www.gocd.org/)?  ~~[Travis CI](https://travis-ci.org/)~~
+- integration framework: [Travis CI](https://travis-ci.org/)
 - test problem library (benchmark suite)
 - build system: [Cmake](https://cmake.org/)
 - documentation: [Doxygen](http://www.stack.nl/~dimitri/doxygen/)
