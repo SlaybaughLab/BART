@@ -1,6 +1,6 @@
 # Installations
 ## Packages requirement on BART
-The C++ core is based upon the third-party library [deal.II](http://www.dealii.org/). Besides, PETSc is required to provided MPI interface and corresponding objects such as sparsematrix etc.
+The C++ core is based upon the third-party library [deal.II](http://www.dealii.org/). Besides, [PETSc](https://www.mcs.anl.gov/petsc/) is required to provided MPI interface and corresponding objects such as sparse matrix etc. Note that BART does not interface with PETSc directly, but rather uses [wrappers](https://dealii.org/8.4.1/doxygen/deal.II/group__PETScWrappers.html) from deal.II.
 
 Before installation process, it is required to have CMake. If installation is on Mac OSX, xcode and commend line tool is also required. Checkout deal.II [wiki](https://github.com/dealii/dealii/wiki/MacOSX) for instructions.
 
@@ -45,3 +45,22 @@ There is no requirement to add commands in ~/.bashrc. The only thing one needs t
 And then:
 
 `make` or `make release`
+
+# Documentation with doxygen
+## Dependencies
+There are two main dependencies. The first one is [GraphViz](http://www.graphviz.org/) and second one is [doxygen](http://www.stack.nl/~dimitri/doxygen/). Both are available on [Homebrew](https://brew.sh/).
+
+In a terminal, run
+
+`brew install graphviz`
+
+and
+
+`brew install doxygen`
+
+## How to see the documentation
+BART is documented with doxygen. A optimized doxygen configuration file has been provided in BART directory named "doxygen_config". Run the following command therein to build documentation pages:
+
+`doxygen doxygen_config`
+
+and doxygen html file is contained in doc/html. Open annotated.html therein to see the documentation.
