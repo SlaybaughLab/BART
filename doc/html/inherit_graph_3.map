@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_iteration_base.html" title="This class provides common functionalities for iteration related classes. " alt="" coords="5,56,151,83"/>
+<area shape="rect" id="node2" href="$class_eigen_base.html" title="This class provides eigenvalue calculations foundations. " alt="" coords="199,5,329,32"/>
+<area shape="rect" id="node4" href="$class_i_g_base.html" title="This class provides in&#45;group solving scheme. " alt="" coords="209,56,319,83"/>
+<area shape="rect" id="node6" href="$class_m_g_base.html" title="This class provides abstract functionalities for MG calculations. " alt="" coords="205,107,323,133"/>
+<area shape="rect" id="node3" href="$class_power_iteration.html" title="This class provides power iteration scheme. " alt="" coords="380,5,532,32"/>
+<area shape="rect" id="node5" href="$class_source_iteration.html" title="This class provides source iteration scheme for in group solve. " alt="" coords="377,56,535,83"/>
+<area shape="rect" id="node7" href="$class_gauss_seidel.html" title="This class provides Gauss&#45;Seidel scheme for MG calculations. " alt="" coords="385,107,527,133"/>
+</map>

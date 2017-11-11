@@ -1,0 +1,374 @@
+\hypertarget{class_even_parity}{}\section{Even\+Parity$<$ dim $>$ Class Template Reference}
+\label{class_even_parity}\index{Even\+Parity$<$ dim $>$@{Even\+Parity$<$ dim $>$}}
+
+
+This class provides weak formulation for even-\/parity equation.  
+
+
+
+
+{\ttfamily \#include $<$even\+\_\+parity.\+h$>$}
+
+
+
+Inheritance diagram for Even\+Parity$<$ dim $>$\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=192pt]{class_even_parity__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Even\+Parity$<$ dim $>$\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=192pt]{class_even_parity__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_even_parity_a2877e7e239900be85cc84471fe670abd}{Even\+Parity} (std\+::string \hyperlink{class_equation_base_a0a72472959e531f5256400dec911f3a5}{equation\+\_\+name}, const Parameter\+Handler \&prm, const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$ $>$ msh\+\_\+ptr, const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$ $>$ aqd\+\_\+ptr, const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_material_properties}{Material\+Properties} $>$ mat\+\_\+ptr)
+\item 
+\hyperlink{class_even_parity_a9c3caf641043e0a1e44632478946576b}{$\sim$\+Even\+Parity} ()
+\item 
+void \hyperlink{class_even_parity_a4cc64002161193e2227e962c9ecb8cf5}{pre\+\_\+assemble\+\_\+cell\+\_\+matrices} (typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&cell, std\+::vector$<$ std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ $>$ \&streaming\+\_\+at\+\_\+qp, std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ \&collision\+\_\+at\+\_\+qp)
+\item 
+void \hyperlink{class_even_parity_adb381ea4f45e5ae3741b1d30a0de02b6}{integrate\+\_\+cell\+\_\+bilinear\+\_\+form} (typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&cell, Full\+Matrix$<$ double $>$ \&cell\+\_\+matrix, std\+::vector$<$ std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ $>$ \&streaming\+\_\+at\+\_\+qp, std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ \&collision\+\_\+at\+\_\+qp, const unsigned int \&g, const unsigned int \&i\+\_\+dir)
+\item 
+void \hyperlink{class_even_parity_ae800cb49f85cf417167ca5385b50df6f}{integrate\+\_\+boundary\+\_\+bilinear\+\_\+form} (typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&cell, unsigned int \&fn, Full\+Matrix$<$ double $>$ \&cell\+\_\+matrix, const unsigned int \&g, const unsigned int \&i\+\_\+dir)
+\item 
+void \hyperlink{class_even_parity_a0a6674c14f34f22c8ff383aee81ffabf}{integrate\+\_\+interface\+\_\+bilinear\+\_\+form} (typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&cell, typename Do\+F\+Handler$<$ dim $>$\+::cell\+\_\+iterator \&neigh, unsigned int \&fn, Full\+Matrix$<$ double $>$ \&vi\+\_\+ui, Full\+Matrix$<$ double $>$ \&vi\+\_\+ue, Full\+Matrix$<$ double $>$ \&ve\+\_\+ui, Full\+Matrix$<$ double $>$ \&ve\+\_\+ue, const unsigned int \&g, const unsigned int \&i\+\_\+dir)
+\item 
+void \hyperlink{class_even_parity_ad29fd3a026508233ef772ea11f27402e}{integrate\+\_\+scattering\+\_\+linear\+\_\+form} (typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&cell, Vector$<$ double $>$ \&cell\+\_\+rhs, std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, const unsigned int \&g, const unsigned int \&i\+\_\+dir)
+\item 
+void \hyperlink{class_even_parity_adc8fad33adf1fae4fb59268b365b21f9}{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form} (typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&cell, Vector$<$ double $>$ \&cell\+\_\+rhs, std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+prev, const unsigned int \&g, const unsigned int \&i\+\_\+dir)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double \hyperlink{class_even_parity_a0eeae2ea4837040ebd8df4a997d82acd}{c\+\_\+penalty}
+\begin{DoxyCompactList}\small\item\em Polynomial order related part of penalty coefficient. \end{DoxyCompactList}\item 
+std\+::vector$<$ double $>$ \hyperlink{class_even_parity_aca63481c4a5de27e6acc2fc72d802303}{tensor\+\_\+norms}
+\begin{DoxyCompactList}\small\item\em Frobenius norms of directional tensors (Rank 2). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim$>$\newline
+class Even\+Parity$<$ dim $>$}
+
+This class provides weak formulation for even-\/parity equation. 
+
+The governing equation for this class is the even-\/parity equation. Considering one-\/group steady-\/state equation with isotropic scattering, we transform the angular flux to get a even parity flux\+: \[ \psi^+\left(\vec{\Omega}\right)=\frac{\psi\left(\vec{\Omega}\right)+ \psi\left(-\vec{\Omega}\right)}{2}. \] One would realize\+: \[ \phi=2\int\limits_{2\pi}d\Omega\ \psi^+. \] Skipping all the intermediate steps, one would reach the equation\+: \[ \vec{\Omega}\cdot\nabla\frac{1}{\sigma_\mathrm{t}}\vec{\Omega}\cdot\nabla\psi^+ + \sigma_\mathrm{t}\psi^+= \frac{\sigma_\mathrm{s}}{4\pi}\phi + \frac{\nu\sigma_\mathrm{f}}{4\pi k_\mathrm{eff}}\phi\ (\mathrm{or}\ \frac{Q}{4\pi}). \]
+
+This class implements weak formulation for even-\/parity equation in both D\+F\+EM and C\+F\+EM. D\+F\+EM formulation is based on symmetric interior penalty method combined with formulations specifically for degenerate diffusion equation, which contains a rank 2 tensor in streaming term. Mathematical details of similar formulations are extensively discussed \href{http://epubs.siam.org/doi/abs/1
+0.1137/S0036142900374111}{\tt {\bfseries here}}. For details about even-\/parity equation, please refer to \href{http://www.springer.com/cda/cont
+ent/document/cda_downloaddocument/9789048134106-c2.pdf?SGWID=0-0-45-1125054-p17
+3921104}{\tt {\bfseries E. E. Lewis\textquotesingle{}s book chapter}}.
+
+Related documentation could be found in \href{https://www.dealii.org/8.5.0/
+doxygen/deal.II/}{\tt {\bfseries deal.\+II documentation}}.
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2017/05 
+\end{DoxyDate}
+
+
+Definition at line 46 of file even\+\_\+parity.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_even_parity_a2877e7e239900be85cc84471fe670abd}\label{class_even_parity_a2877e7e239900be85cc84471fe670abd}} 
+\index{Even\+Parity@{Even\+Parity}!Even\+Parity@{Even\+Parity}}
+\index{Even\+Parity@{Even\+Parity}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{Even\+Parity()}{EvenParity()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::\hyperlink{class_even_parity}{Even\+Parity} (\begin{DoxyParamCaption}\item[{std\+::string}]{equation\+\_\+name,  }\item[{const Parameter\+Handler \&}]{prm,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_mesh_generator}{Mesh\+Generator}$<$ dim $>$ $>$}]{msh\+\_\+ptr,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_a_q_base}{A\+Q\+Base}$<$ dim $>$ $>$}]{aqd\+\_\+ptr,  }\item[{const std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_material_properties}{Material\+Properties} $>$}]{mat\+\_\+ptr }\end{DoxyParamCaption})}
+
+Class constructor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em equation\+\_\+name} & An abbreviated name of the equation. \\
+\hline
+{\em msh\+\_\+ptr} & An shared\+\_\+ptr of Mesh\+Generator$<$dim$>$ object. \\
+\hline
+{\em aqd\+\_\+ptr} & An shared\+\_\+ptr of A\+Q\+Base$<$dim$>$ object. \\
+\hline
+{\em mat\+\_\+ptr} & An shared\+\_\+ptr of Material\+Properties object. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 5 of file even\+\_\+parity.\+cc.
+
+\mbox{\Hypertarget{class_even_parity_a9c3caf641043e0a1e44632478946576b}\label{class_even_parity_a9c3caf641043e0a1e44632478946576b}} 
+\index{Even\+Parity@{Even\+Parity}!````~Even\+Parity@{$\sim$\+Even\+Parity}}
+\index{````~Even\+Parity@{$\sim$\+Even\+Parity}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{$\sim$\+Even\+Parity()}{~EvenParity()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::$\sim$\hyperlink{class_even_parity}{Even\+Parity} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Class destructor. 
+
+Definition at line 29 of file even\+\_\+parity.\+cc.
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_even_parity_ae800cb49f85cf417167ca5385b50df6f}\label{class_even_parity_ae800cb49f85cf417167ca5385b50df6f}} 
+\index{Even\+Parity@{Even\+Parity}!integrate\+\_\+boundary\+\_\+bilinear\+\_\+form@{integrate\+\_\+boundary\+\_\+bilinear\+\_\+form}}
+\index{integrate\+\_\+boundary\+\_\+bilinear\+\_\+form@{integrate\+\_\+boundary\+\_\+bilinear\+\_\+form}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{integrate\+\_\+boundary\+\_\+bilinear\+\_\+form()}{integrate\_boundary\_bilinear\_form()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::integrate\+\_\+boundary\+\_\+bilinear\+\_\+form (\begin{DoxyParamCaption}\item[{typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&}]{cell,  }\item[{unsigned int \&}]{fn,  }\item[{Full\+Matrix$<$ double $>$ \&}]{cell\+\_\+matrix,  }\item[{const unsigned int \&}]{g,  }\item[{const unsigned int \&}]{i\+\_\+dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function provides cellwise integrator for bilinear form assembly on boundary.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cell} & Active cell iterator containing cell info. \\
+\hline
+{\em fn} & Face index in current cell for current boundary face. \\
+\hline
+{\em cell\+\_\+matrix} & Local cell matrix to be modified in current cell. \\
+\hline
+{\em g} & Group index. \\
+\hline
+{\em i\+\_\+dir} & Direction index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_equation_base_ae294806284f671619cac9e7169ffff8d}{Equation\+Base$<$ dim $>$}.
+
+
+
+Definition at line 78 of file even\+\_\+parity.\+cc.
+
+\mbox{\Hypertarget{class_even_parity_adb381ea4f45e5ae3741b1d30a0de02b6}\label{class_even_parity_adb381ea4f45e5ae3741b1d30a0de02b6}} 
+\index{Even\+Parity@{Even\+Parity}!integrate\+\_\+cell\+\_\+bilinear\+\_\+form@{integrate\+\_\+cell\+\_\+bilinear\+\_\+form}}
+\index{integrate\+\_\+cell\+\_\+bilinear\+\_\+form@{integrate\+\_\+cell\+\_\+bilinear\+\_\+form}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{integrate\+\_\+cell\+\_\+bilinear\+\_\+form()}{integrate\_cell\_bilinear\_form()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::integrate\+\_\+cell\+\_\+bilinear\+\_\+form (\begin{DoxyParamCaption}\item[{typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&}]{cell,  }\item[{Full\+Matrix$<$ double $>$ \&}]{cell\+\_\+matrix,  }\item[{std\+::vector$<$ std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ $>$ \&}]{streaming\+\_\+at\+\_\+qp,  }\item[{std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ \&}]{collision\+\_\+at\+\_\+qp,  }\item[{const unsigned int \&}]{g,  }\item[{const unsigned int \&}]{i\+\_\+dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function provides cell-\/wise integrator for bilinear form. Specifically, this overrides Equation\+Base$<$dim$>$\textquotesingle{}s integrator for even parity equation. Note that interface and boundary face terms are not handled in this integrator.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cell} & Active iterator used to iterating cells. \\
+\hline
+{\em cell\+\_\+matrix} & Local matrix in bilinear form to be modified. \\
+\hline
+{\em streaming\+\_\+at\+\_\+qp} & Preassembled streaming matrix per quadrature point. \\
+\hline
+{\em collision\+\_\+at\+\_\+qp} & Preassembled collision matrix per quadrature point. \\
+\hline
+{\em g} & Group index. \\
+\hline
+{\em i\+\_\+dir} & Direction index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_equation_base_a7421b3c18433975ac794ac22c3af715a}{Equation\+Base$<$ dim $>$}.
+
+
+
+Definition at line 58 of file even\+\_\+parity.\+cc.
+
+\mbox{\Hypertarget{class_even_parity_adc8fad33adf1fae4fb59268b365b21f9}\label{class_even_parity_adc8fad33adf1fae4fb59268b365b21f9}} 
+\index{Even\+Parity@{Even\+Parity}!integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form@{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form}}
+\index{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form@{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form()}{integrate\_cell\_fixed\_linear\_form()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::integrate\+\_\+cell\+\_\+fixed\+\_\+linear\+\_\+form (\begin{DoxyParamCaption}\item[{typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&}]{cell,  }\item[{Vector$<$ double $>$ \&}]{cell\+\_\+rhs,  }\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+prev,  }\item[{const unsigned int \&}]{g,  }\item[{const unsigned int \&}]{i\+\_\+dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function provides cellwise integrator for linear form assembly specifically for the contribution of fixed source in fixed-\/source problems or fission in eigenvalue problems.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cell} & Active cell iterator containing cell info. \\
+\hline
+{\em cell\+\_\+rhs} & Local vector (linear form) to be modified. \\
+\hline
+{\em sflxes\+\_\+prev} & Scalar fluxes from previous generation due to fission for all groups living on current processor. \\
+\hline
+{\em g} & Group index. \\
+\hline
+{\em i\+\_\+dir} & Direction index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void.
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+sflxes\+\_\+prev will do nothing inside the integrator fixed source problems. 
+\end{DoxyNote}
+
+
+Reimplemented from \hyperlink{class_equation_base_ae8472f5c20d76c7d01e5660f8377887e}{Equation\+Base$<$ dim $>$}.
+
+
+
+Definition at line 236 of file even\+\_\+parity.\+cc.
+
+\mbox{\Hypertarget{class_even_parity_a0a6674c14f34f22c8ff383aee81ffabf}\label{class_even_parity_a0a6674c14f34f22c8ff383aee81ffabf}} 
+\index{Even\+Parity@{Even\+Parity}!integrate\+\_\+interface\+\_\+bilinear\+\_\+form@{integrate\+\_\+interface\+\_\+bilinear\+\_\+form}}
+\index{integrate\+\_\+interface\+\_\+bilinear\+\_\+form@{integrate\+\_\+interface\+\_\+bilinear\+\_\+form}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{integrate\+\_\+interface\+\_\+bilinear\+\_\+form()}{integrate\_interface\_bilinear\_form()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::integrate\+\_\+interface\+\_\+bilinear\+\_\+form (\begin{DoxyParamCaption}\item[{typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&}]{cell,  }\item[{typename Do\+F\+Handler$<$ dim $>$\+::cell\+\_\+iterator \&}]{neigh,  }\item[{unsigned int \&}]{fn,  }\item[{Full\+Matrix$<$ double $>$ \&}]{vi\+\_\+ui,  }\item[{Full\+Matrix$<$ double $>$ \&}]{vi\+\_\+ue,  }\item[{Full\+Matrix$<$ double $>$ \&}]{ve\+\_\+ui,  }\item[{Full\+Matrix$<$ double $>$ \&}]{ve\+\_\+ue,  }\item[{const unsigned int \&}]{g,  }\item[{const unsigned int \&}]{i\+\_\+dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function provides integrator for interface bilinear form assembly in D\+F\+EM formulations for even parity using interior penalty method.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cell} & Active cell iterator containing cell info. \\
+\hline
+{\em neigh} & Cell iterator for neighboring cell about current face. \\
+\hline
+{\em fn} & Face index in current cell for current boundary face. \\
+\hline
+{\em vi\+\_\+ui} & Face matrix from testing interior basis by interior basis. \\
+\hline
+{\em vi\+\_\+ue} & Face matrix from testing exterior basis by interior basis. \\
+\hline
+{\em ve\+\_\+ui} & Face matrix from testing interior basis by exterior basis. \\
+\hline
+{\em ve\+\_\+ue} & Face matrix from testing exterior basis by exterior basis. \\
+\hline
+{\em g} & Group index. \\
+\hline
+{\em i\+\_\+dir} & Direction index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_equation_base_af56caa04c80d8f388e116307930d0063}{Equation\+Base$<$ dim $>$}.
+
+
+
+Definition at line 120 of file even\+\_\+parity.\+cc.
+
+\mbox{\Hypertarget{class_even_parity_ad29fd3a026508233ef772ea11f27402e}\label{class_even_parity_ad29fd3a026508233ef772ea11f27402e}} 
+\index{Even\+Parity@{Even\+Parity}!integrate\+\_\+scattering\+\_\+linear\+\_\+form@{integrate\+\_\+scattering\+\_\+linear\+\_\+form}}
+\index{integrate\+\_\+scattering\+\_\+linear\+\_\+form@{integrate\+\_\+scattering\+\_\+linear\+\_\+form}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{integrate\+\_\+scattering\+\_\+linear\+\_\+form()}{integrate\_scattering\_linear\_form()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::integrate\+\_\+scattering\+\_\+linear\+\_\+form (\begin{DoxyParamCaption}\item[{typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&}]{cell,  }\item[{Vector$<$ double $>$ \&}]{cell\+\_\+rhs,  }\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{const unsigned int \&}]{g,  }\item[{const unsigned int \&}]{i\+\_\+dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function provides cellwise integrator for linear form assembly specifically for the contribution of scattering.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cell} & Active cell iterator containing cell info. \\
+\hline
+{\em cell\+\_\+rhs} & Local vector (linear form) to be modified. \\
+\hline
+{\em sflxes\+\_\+proc} & Scalar fluxes for all groups living on current processor. \\
+\hline
+{\em g} & Group index. \\
+\hline
+{\em i\+\_\+dir} & Direction index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_equation_base_aca5998c1afd2b89ee93d3fbbfde7f3d0}{Equation\+Base$<$ dim $>$}.
+
+
+
+Definition at line 209 of file even\+\_\+parity.\+cc.
+
+\mbox{\Hypertarget{class_even_parity_a4cc64002161193e2227e962c9ecb8cf5}\label{class_even_parity_a4cc64002161193e2227e962c9ecb8cf5}} 
+\index{Even\+Parity@{Even\+Parity}!pre\+\_\+assemble\+\_\+cell\+\_\+matrices@{pre\+\_\+assemble\+\_\+cell\+\_\+matrices}}
+\index{pre\+\_\+assemble\+\_\+cell\+\_\+matrices@{pre\+\_\+assemble\+\_\+cell\+\_\+matrices}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{pre\+\_\+assemble\+\_\+cell\+\_\+matrices()}{pre\_assemble\_cell\_matrices()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::pre\+\_\+assemble\+\_\+cell\+\_\+matrices (\begin{DoxyParamCaption}\item[{typename Do\+F\+Handler$<$ dim $>$\+::active\+\_\+cell\+\_\+iterator \&}]{cell,  }\item[{std\+::vector$<$ std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ $>$ \&}]{streaming\+\_\+at\+\_\+qp,  }\item[{std\+::vector$<$ Full\+Matrix$<$ double $>$ $>$ \&}]{collision\+\_\+at\+\_\+qp }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+This function provides pre-\/assembled matrices for even-\/parity equation in cell. Current implementation does not include the interface parts, that being said, only C\+F\+EM pre-\/assembly is supported.
+
+
+\begin{DoxyParams}{Parameters}
+{\em cell} & Active iterator used to iterating cells. \\
+\hline
+{\em streaming\+\_\+at\+\_\+qp} & Vector of streaming matrices per quadrature point. \\
+\hline
+{\em collision\+\_\+at\+\_\+qp} & Vector of mass matrices per quadrature point. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Reimplemented from \hyperlink{class_equation_base_a39f0465a523e038302f624f89c08a2ee}{Equation\+Base$<$ dim $>$}.
+
+
+
+Definition at line 35 of file even\+\_\+parity.\+cc.
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_even_parity_a0eeae2ea4837040ebd8df4a997d82acd}\label{class_even_parity_a0eeae2ea4837040ebd8df4a997d82acd}} 
+\index{Even\+Parity@{Even\+Parity}!c\+\_\+penalty@{c\+\_\+penalty}}
+\index{c\+\_\+penalty@{c\+\_\+penalty}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{c\+\_\+penalty}{c\_penalty}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::c\+\_\+penalty\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Polynomial order related part of penalty coefficient. 
+
+
+
+Definition at line 190 of file even\+\_\+parity.\+h.
+
+\mbox{\Hypertarget{class_even_parity_aca63481c4a5de27e6acc2fc72d802303}\label{class_even_parity_aca63481c4a5de27e6acc2fc72d802303}} 
+\index{Even\+Parity@{Even\+Parity}!tensor\+\_\+norms@{tensor\+\_\+norms}}
+\index{tensor\+\_\+norms@{tensor\+\_\+norms}!Even\+Parity@{Even\+Parity}}
+\subsubsection{\texorpdfstring{tensor\+\_\+norms}{tensor\_norms}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+std\+::vector$<$double$>$ \hyperlink{class_even_parity}{Even\+Parity}$<$ dim $>$\+::tensor\+\_\+norms\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Frobenius norms of directional tensors (Rank 2). 
+
+Denoting the directions as column vectors with length of dim, the directional tensor is defined as\+: \[ \mathcal{K}:=\vec{\Omega}\vec{\Omega}^\top, \] which is a Rank 2 tensor as well as a symmetric dimxdim matrix.
+
+For the definition of Fronbenius norm, please refer to \href{http://mathwo
+rld.wolfram.com/FrobeniusNorm.html}{\tt {\bfseries wolfram page}}. 
+
+Definition at line 204 of file even\+\_\+parity.\+h.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/equation/\hyperlink{even__parity_8h}{even\+\_\+parity.\+h}\item 
+src/equation/\hyperlink{even__parity_8cc}{even\+\_\+parity.\+cc}\end{DoxyCompactItemize}

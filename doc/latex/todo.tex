@@ -1,0 +1,29 @@
+
+\begin{DoxyRefList}
+\item[\label{todo__todo000001}%
+\Hypertarget{todo__todo000001}%
+Member \hyperlink{class_bart_driver_ac2e63d4ab8a403649e19f4b1acf94c04}{Bart\+Driver$<$ dim $>$\+:\+:fe} ]It would be necessary to modify it to vectors of fe pointers if C\+M\+FD is of interest.  
+\item[\label{todo__todo000002}%
+\Hypertarget{todo__todo000002}%
+Member \hyperlink{class_eigen_base_a8a9ef8878e5b7199aa662f2b61b2d864}{Eigen\+Base$<$ dim $>$\+:\+:do\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ Equation\+Base$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ I\+G\+Base$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ M\+G\+Base$<$ dim $>$ $>$ mg\+\_\+ptr)]Add N\+DA functionality.  
+\item[\label{todo__todo000003}%
+\Hypertarget{todo__todo000003}%
+Member \hyperlink{class_i_g_base_a0a301d6077cb7c94ab0942ab3d5082a5}{I\+G\+Base$<$ dim $>$\+:\+:sflx\+\_\+proc\+\_\+prev\+\_\+ig} ]Needs modification if anisotropic scattering is to be implemented. Specifically, a quantities like std\+::vector$<$Vector$<$double$>$ $>$ has to be provided to contain all moments.  
+\item[\label{todo__todo000004}%
+\Hypertarget{todo__todo000004}%
+Class \hyperlink{class_iteration_base}{Iteration\+Base$<$ dim $>$} ]Implement iteration counting for every type of iteration in calculations.  
+\item[\label{todo__todo000007}%
+\Hypertarget{todo__todo000007}%
+Class \hyperlink{class_material_properties}{Material\+Properties} ]Change scattering data from std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ to std\+::vector$<$Vector$<$double$>$ $>$ for scattering matrix eigenvalue decomposition. 
+
+Add functionality to perform eigenvalue decomposition.  
+\item[\label{todo__todo000008}%
+\Hypertarget{todo__todo000008}%
+Member \hyperlink{class_material_properties_afb25f14545f97c91dacfffcae9d0dcf3}{Material\+Properties\+:\+:all\+\_\+chi} ]Change this to std\+::vector$<$double$>$ chi, or using Hash table.  
+\item[\label{todo__todo000006}%
+\Hypertarget{todo__todo000006}%
+Member \hyperlink{class_mesh_generator_a27c6ff0b0c51700373ef9a1dc10abaaf}{Mesh\+Generator$<$ dim $>$\+:\+:make\+\_\+grid} (parallel\+::distributed\+::\+Triangulation$<$ dim $>$ \&tria)]Add functionality to read in meshes. 
+\item[\label{todo__todo000005}%
+\Hypertarget{todo__todo000005}%
+Member \hyperlink{class_m_g_base_a3586c47d901608bc42792c6de456b1cb}{M\+G\+Base$<$ dim $>$\+:\+:do\+\_\+iterations} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ Equation\+Base$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ I\+G\+Base$<$ dim $>$ $>$ ig\+\_\+ptr)]Implement N\+DA scheme in this function.
+\end{DoxyRefList}
