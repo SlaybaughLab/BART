@@ -103,7 +103,15 @@ public:
    */
   virtual void assemble_interface_bilinear_form ();
   
-  void assemble_closure_bilinear_form
+  /*!
+   Virtual function to assemble closure terms in NDA weak form.
+   
+   \param ho_equ_ptr Pointer of HO equation.
+   \param do_assembly Boolean to determine if closure terms are assembled. By
+   default, it's true.
+   \return Void.
+   */
+  virtual void assemble_closure_bilinear_form
   (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr,
    bool do_assembly = true);
   
@@ -112,22 +120,61 @@ public:
    flux. Overriding has to be provided. Preassumably, fission source or fixed
    source have been assembled before calling this function.
    
+   \param sflxes_proc Scalar fluxes for all groups on current processor.
+   \param g Group index.
    \return Void.
    */
   virtual void assemble_linear_form
-  (std::vector<Vector<double> > &sflx_this_proc,
+  (std::vector<Vector<double> > &sflxes_proc,
    unsigned int &g);
   
+  /*!
+   Virtual function to assemble fixed source or fission source linear forms.
+   Overriding has to be provided. This is the step before assembling linear 
+   forms.
+   
+   \return Void.
+   */
   virtual void assemble_fixed_linear_form
   (std::vector<Vector<double> > &sflx_prev);
   
+  /*!
+   Virtual function for preassembling streaming and collision matrices at all
+   quadrature points in reference cells. Main intension is to reduce computational
+   cost on assembly of system matrices, which can be extremely expensive.
+   
+   \param cell Active cell iterator containing cell info.
+   \param streaming_at_qp Preassembled local streaming matrices of all dirs at
+   all quadrature points in reference cell to be modified.
+   \param collision_aq_qp Collision (mass) matrices at all quadrature points
+   in reference cell to be modified.
+   \return Void.
+   
+   \note If overriding is not provided, the cellwise and boundary integrator has
+   to provide ad hoc assembly from scratch.
+   */
   virtual void pre_assemble_cell_matrices
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    std::vector<std::vector<FullMatrix<double> > > &streaming_at_qp,
    std::vector<FullMatrix<double> > &collision_at_qp);
   
   /*!
-   Virtual cell bilinear form integrator.
+   Virtual function providing integrator for volumetric bilinear form assembly.
+   This include both streaming and collision term. Boundary bilinear form, yet,
+   is assembled in this integrator.
+   
+   \param cell Active cell iterator containing cell info.
+   \param cell_matrix Local matrix for current cell to be modified.
+   \param streaming_at_qp Preassembled local streaming matrices of all dirs at 
+   all quadrature points in reference cell.
+   \param collision_aq_qp Collision (mass) matrices at all quadrature points
+   in reference cell.
+   \param g Group index.
+   \param i_dir Direction index.
+   \return Void.
+   
+   \note Integrator per call only provides integration for one component of an
+   equation specified by group and direction index.
    */
   virtual void integrate_cell_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -137,6 +184,17 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
+  /*!
+   Virtual function providing integrator for boundary face bilinear form assembly.
+   Overriding has to be provided per equation.
+   
+   \param cell Active cell iterator containing cell info.
+   \param fn Face index in current cell for current face.
+   \param cell_matrix Local matrix for current cell to be modified.
+   \param g Group index.
+   \param i_dir Direction index.
+   \return Void.
+   */
   virtual void integrate_boundary_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
@@ -145,13 +203,13 @@ public:
    const unsigned int &i_dir);
   
   /*!
-   Virtual function provides integrator for interface bilinear form assembly in 
+   Virtual function providing integrator for interface bilinear form assembly in
    DFEM formulations. Mathematically, this contribute to the numerical flux term
    for DFEM. Generically, we would separate out four terms.
    
    \param cell Active cell iterator containing cell info.
    \param neigh Cell iterator for neighboring cell about current face.
-   \param fn Face index in current cell for current boundary face.
+   \param fn Face index in current cell for current face.
    \param vi_ui Face matrix from testing interior basis by interior basis.
    \param vi_ue Face matrix from testing exterior basis by interior basis.
    \param ve_ui Face matrix from testing interior basis by exterior basis.
@@ -159,6 +217,9 @@ public:
    \param g Group index.
    \param i_dir Direction index.
    \return Void.
+   
+   \note Integrator per call only provides integration for one component of an
+   equation specified by group and direction index.
    */
   virtual void integrate_interface_bilinear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -182,6 +243,9 @@ public:
    \param g Group index.
    \param i_dir Direction index.
    \return Void.
+   
+   \note Integrator per call only provides integration for one component of an
+   equation specified by group and direction index.
    */
   virtual void integrate_scattering_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -210,7 +274,9 @@ public:
    \param i_dir Direction index.
    \return Void.
    
-   \note sflxes_prev will do nothing inside the integrator fixed source problems.
+   \note sflxes_prev will do nothing inside the integrator fixed source problems. 
+   Integrator per call only provides integration for one component of an 
+   equation specified by group and direction index.
    */
   virtual void integrate_cell_fixed_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
@@ -219,6 +285,18 @@ public:
    const unsigned int &g,
    const unsigned int &i_dir);
   
+  /*!
+   Virtual function to provide integrator for linear form assembly on boundary.
+   Overriding has to be provided if needed per derived class of EquationBase<dim>.
+   
+   \param cell Active cell iterator containing cell info.
+   \param fn Face index in current cell for current face.
+   \param cell_rhses Local vector to be modified for boundary contribution of RHS
+   of the equation.
+   \param g Group index.
+   \param i_dir Direction index.
+   \return Void.
+   */
   virtual void integrate_boundary_linear_form
   (typename DoFHandler<dim>::active_cell_iterator &cell,
    unsigned int &fn,/*face number*/
@@ -233,6 +311,7 @@ public:
    method is developed.
    
    \param g Group index.
+   \return Void.
    */
   virtual void solve_in_group (const unsigned int &g);
   
@@ -270,32 +349,126 @@ public:
    IndexSet &local_dofs,
    std::vector<Vector<double> > &sflxes_proc);
   
+  /*!
+   Virtual function to generate moments on current processor and update the old
+   moments for all groups. By default, scalar flux will be generated from SN
+   angular fluxes.
+   
+   \param sflxes
+   \return Void.
+   
+   \todo Only scalar fluxes are generated currently. Higher moments generation
+   has to be implemented if anisotropic scattering exists.
+   */
   virtual void generate_moments
-  (std::vector<Vector<double> > &sflxes,
-   std::vector<Vector<double> > &sflxes_old);
+  (std::vector<Vector<double> > &sflxes_proc,
+   std::vector<Vector<double> > &sflxes_proc_old);
   
+  /*!
+   Virtual function to generate scalar flux for a specific group. By default, 
+   scalar flux will be generated from SN angular fluxes. \f$\phi\f$ from previous
+   iteration will also be updated.
+   
+   \param sflxes_proc \f$\phi\f$ generated by angular flux.
+   \param sflxes_proc_old \f$\phi\f$ from previous iterations to be updated.
+   \return Void.
+   
+   \todo Only scalar flux is generated currently. Moments for the group should be
+   implemented for scattering anisotropy.
+   */
   virtual void generate_moments
   (Vector<double> &sflx,
    Vector<double> &sflx_old,
    const unsigned int &g);
   
+  /*!
+   Virtual function to generate scalar fluxes. The intension is s.t. those scalar
+   fluxes can be used to generate NDA corrections.
+   
+   \return Void.
+   \note Will only be used when NDA is enabled.
+   */
   virtual void generate_moments ();
   
-  // override this three functions in derived classes
-  // these functions have to be redefined when using diffusion, NDA, PN, SPN
-  virtual unsigned int get_component_index (unsigned int incident_angle_index, unsigned int g);
+  /*!
+   Virtual function to retrieve component index given group and direction indices.
+   
+   \param direction_index Direction index.
+   \param g Group index.
+   \return Component index.
+   \note Overriding has to be provided for non-SN systems.
+   */
+  virtual unsigned int get_component_index (unsigned int direction_index,
+                                            unsigned int g);
+  
+  /*!
+   Virtual function to retrieve direction index given component index. For
+   diffusion-like systems (NDA and diffusion), overriding has to be provided. For
+   moment systems, direction could be interpreted as moment index.
+   
+   \param comp_ind Component index.
+   \return Direction index.
+   */
   virtual unsigned int get_component_direction (unsigned int comp_ind);
+  
+  /*!
+   Virtual function to retrieve group index given component index. By default, a
+   mapping for SN are generated and stored and to be retrieved. For non-SN equations,
+   overriding needs to be provided.
+   
+   \param comp_ind Component index.
+   \return Group index.
+   */
   virtual unsigned int get_component_group (unsigned int comp_ind);
   
+  /*!
+   Estimate fission source given scalar fluxes. Given scalar fluxes for all groups
+   on current processor, fission source will firstly be calculated on current
+   processor and thereafter globally value will be summed up and distributed
+   to each processor.
+   
+   \param sflxes_proc \f$\phi\f$ of all groups on current processor.
+   \return Global fission source.
+   */
   double estimate_fiss_src (std::vector<Vector<double> > &sflxes_proc);
   
+  /*!
+   Retrieve cell iterators living on current processor and store them in vector.
+   
+   \param msh_ptr Pointer of MeshGenerator<dim> object.
+   \param dof_handler DoFHandler<dim> object containing all cell info on every
+   processor.
+   \return Void.
+   */
   void initialize_cell_iterators_this_proc
   (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
    const DoFHandler<dim> &dof_handler);
   
+  /*!
+   Initialize assembly related objects. These mainly include (but are not limited
+   to):
+   
+   (1) Quadrature rules.
+   
+   (2) Specific finite element type.
+   
+   (3) <a><b href="https://www.dealii.org/8.4.0/doxygen/deal.II/classFEValuesBas
+   e.html" style="color:blue">FEValuesBase</b></a> related objects.
+   
+   \param Pointer of polynomial-space finite elements. For details, please refer
+   to <a href="https://www.dealii.org/8.5.0/doxygen/deal.II/classFE__Poly.html">
+   <b>FE_Poly class page</b></a>.
+   \return Void.
+   */
   void initialize_assembly_related_objects
   (FE_Poly<TensorProductPolynomials<dim>,dim,dim>* fe);
   
+  /*!
+   Function to scale \f$\chi\nu\sigma_\mathrm{f}\f$ by \f$k_\mathrm{eff}\f$.
+   
+   \param keff \f$k_\mathrm{eff}\f$ value.
+   \return Void.
+   */
   void scale_fiss_transfer_matrices (double keff);
   
   /*!
@@ -337,9 +510,17 @@ protected:
    style="color:blue"><b>FEValues page</b></a>.
    */
   std_cxx11::shared_ptr<FEValues<dim> > fv;
+  
+  //! Pointer of FEFaceValues object.
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf;
+  
+  //! Pointer of FEFaceValues object used in DFEM interface bilinear form assembly.
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvf_nei;
+  
+  //! Pointer of FEValues object for NDA cell correction evaluation and assembly.
   std_cxx11::shared_ptr<FEValues<dim> > fvc;
+  
+  //! Pointer of FEFaceValues object for NDA face correction evaluation and assembly.
   std_cxx11::shared_ptr<FEFaceValues<dim> > fvfc;
   
   std::string equation_name;//!< String for equation name.
@@ -397,38 +578,85 @@ protected:
   
   //! \f$Q/(4\pi)\f$ values of all groups for all materials.
   std::vector<std::vector<double> > all_q_per_ster;
+  
+  //! \f$\nu\sigma_\mathrm{f}\f$ of all groups for all fissile materials.
+  /*!
+   \todo Change data type to std::unordered_map.
+   */
   std::vector<std::vector<double> > all_nusigf;
+  
+  //! Scattering matrices for all materials (i.e. \f$\sigma_\mathrm{s,g'\to g}\f$).
+  /*!
+   \todo Change data type to std::vector<FullMatrix<double> >
+   */
   std::vector<std::vector<std::vector<double> > > all_sigs;
+  
+  //! \f$\sigma_\mathrm{s,g'\to g}/(4\pi)\f$
   std::vector<std::vector<std::vector<double> > > all_sigs_per_ster;
+  
+  //! \f$\chi\nu\sigma_\mathrm{f}\f$ of all incident and outgoing groups for fissile materials.
   std::vector<std::vector<std::vector<double> > > all_chi_nusigf;
+  
+  //! \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for fissile materials.
   std::vector<std::vector<std::vector<double> > > all_chi_nusigf_per_ster;
-  std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer_per_ster;
-  std::vector<std::vector<std::vector<double> > > scat_scaled_fiss_transfer_per_ster;
+  
+  //! \f$\chi\nu\sigma_\mathrm{f}/k_\mathrm{eff}\f$.
   std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer;
   
+  //! \f$\chi\nu\sigma_\mathrm{f}/(4\pi k_\mathrm{eff})\f$.
+  std::vector<std::vector<std::vector<double> > > scaled_fiss_transfer_per_ster;
+  
+  //! Mapping: (group, direction)->component index.
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> component_index;
+  
+  //! Mapping: (reflective boundary ID, direction)->reflective direction ID.
   std::map<std::pair<unsigned int, unsigned int>, unsigned int> reflective_direction_index;
-  std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id;
+  
+  //! Hash table for mapping: component index->(group index, direction index).
   std::unordered_map<unsigned int, std::pair<unsigned int, unsigned int> > inverse_component_index;
+  
+  //! Hash table for mapping: boundary ID->if boundary is reflective.
   std::unordered_map<unsigned int, bool> is_reflective_bc;
+  
+  //! Hash table for mapping: material ID->if material is fissile.
   std::unordered_map<unsigned int, bool> is_material_fissile;
   
-  std::set<unsigned int> fissile_ids;
-  
+  //! ostream on processor with rank==0.
   ConditionalOStream pcout;
 private:
+  /*!
+   Function to process input get necessary parameters for equation assembly.
+   Relevant parameters will be retrieved from input pointers and assigned to
+   correspoding member variables of this class.
+   
+   \param msh_ptr Pointer of MeshGenerator<dim> object.
+   \param aqd_ptr Pointer of AQBase<dim> object.
+   \param mat_ptr Pointer of MaterialProperties object.
+   \return Void.
+   */
   void process_input (const std_cxx11::shared_ptr<MeshGenerator<dim> > msh_ptr,
                       const std_cxx11::shared_ptr<AQBase<dim> > aqd_ptr,
                       const std_cxx11::shared_ptr<MaterialProperties> mat_ptr);
   
+  //! Pointer of PreconditionerSolver object serving as linear solve facility.
   std_cxx11::shared_ptr<PreconditionerSolver> alg_ptr;
   
-  //!
+  //! System matrices for bilinear forms of all components.
   std::vector<PETScWrappers::MPI::SparseMatrix*> sys_mats;
+  
+  //! System vectors for linear forms of all components.
   std::vector<PETScWrappers::MPI::Vector*> sys_rhses;
+  
+  //! System vectors for linear forms for fixed or fission source of all components.
   std::vector<PETScWrappers::MPI::Vector*> sys_fixed_rhses;
+  
+  //! Solution vectors of all components. They are angular fluxes in SN.
   std::vector<PETScWrappers::MPI::Vector*> sys_aflxes;
+  
+  //! Solution vectors living on current processor.
   std::vector<Vector<double> > aflxes_proc;
+  
+  //! HO \f$\phi\f$ of all groups on current processor.
   std::vector<Vector<double> > ho_sflxes_proc;
 };
 

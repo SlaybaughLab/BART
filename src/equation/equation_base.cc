@@ -211,14 +211,8 @@ void EquationBase<dim>::assemble_closure_bilinear_form
 (std_cxx11::shared_ptr<EquationBase<dim> > ho_equ_ptr,
  bool do_assembly)
 {
-  // the input is pointer to HO equation pointer s.t. we can have estimation of
-  // corrections
-  if (do_assembly)
-  {
-    AssertThrow (equation_name=="nda",
-                 ExcMessage("only instance for NDA calls this function"));
-    // TODO: fill this up in to-be-created NDABase<dim>
-  }
+  AssertThrow (equation_name=="nda",
+               ExcMessage("only instance for NDA calls this function"));
 }
 
 template <int dim>
