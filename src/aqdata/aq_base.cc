@@ -8,11 +8,11 @@ template <int dim>
 AQBase<dim>::AQBase (ParameterHandler &prm)
 :
 pi(numbers::PI),
+have_reflective_bc(prm.get_bool("have reflective BC")),
 transport_model_name(prm.get("transport model")),
-aq_name(prm.get("angular quadrature name")),
-n_group(prm.get_integer("number of groups")),
 n_azi(prm.get_integer("angular quadrature order")),
-have_reflective_bc(prm.get_bool("have reflective BC"))
+n_group(prm.get_integer("number of groups")),
+aq_name(prm.get("angular quadrature name"))
 {
   make_aq ();
 }

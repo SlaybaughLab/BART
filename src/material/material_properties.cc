@@ -8,8 +8,8 @@ MaterialProperties::MaterialProperties (ParameterHandler &prm)
 pi(numbers::PI),
 is_eigen_problem(prm.get_bool("do eigenvalue calculations")),
 do_nda(prm.get_bool("do NDA")),
-n_material(prm.get_integer("number of materials")),
-n_group(prm.get_integer("number of groups"))
+n_group(prm.get_integer("number of groups")),
+n_material(prm.get_integer("number of materials"))
 {
   process_material_properties (prm);
 }
