@@ -28,7 +28,7 @@
 \usepackage{graphicx} % Required for the inclusion of images
 \usepackage{natbib} % Required to change bibliography style to APA
 \usepackage{amsmath} % Required for some math elements 
-\usepackage{color}
+\usepackage[usenames]{color}
 \usepackage{xcolor}
 \usepackage{listings}
 \setlength\parindent{1em} % Removes all indentation from paragraphs
@@ -40,10 +40,12 @@
 \newcommand{\libmesh}{{\tt Libmesh}}
 \newcommand{\dealii}{{\tt deal.II}}
 \newcommand{\moose}{{\tt MOOSE}}
+\newcommand{\cpp}{{\tt C++}}
 \newcommand{\latex}{\LaTeX}
 \newcommand{\blue}[1]{\textcolor{blue}{#1}}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 
+\definecolor{localgreen}{rgb}{0,0.6,0}
 %----------------------------------------------------------------------------------------
 %	DOCUMENT INFORMATION
 %----------------------------------------------------------------------------------------
@@ -56,15 +58,22 @@
 
 \begin{document}
 \lstset{language=C++,
-	keywordstyle=\color{blue},
-	stringstyle=\color{red},
-	commentstyle=\color{teal},
+	keywordstyle=\color{purple},
+	commentstyle=\color{violet},
 	basicstyle=\ttfamily,
 	breaklines=true,
 	breakindent=0pt,
 	xleftmargin=0.5cm,
 	xrightmargin=1cm,
-	morecomment=[l][\color{magenta}]{\#}}
+	backgroundcolor=\color{lightgray},
+	morecomment=[l][\color{magenta}]{\#},
+	otherkeywords={std,endl,dealii,::,vector,set,sort,shared\_ptr,pcout,<<,\&\&,||,!},
+	morekeywords=[2]{std,endl,dealii,::,vector,set,sort,shared\_ptr},
+	morekeywords=[3]{pcout,<<},
+	morekeywords=[5]{\&\&,||,!},
+	keywordstyle=[2]{\color{blue}},
+	keywordstyle=[3]{\color{olive}},
+	keywordstyle=[5]{\color{magenta}}}
 \maketitle % Insert the title, author and date
 % If you wish to include an abstract, uncomment the lines below
 % \begin{abstract}
@@ -136,7 +145,7 @@ The first drawback is that it does not necessarily have readability. If the func
 
 \dealii and \libmesh use lower cases with underscores linking different words in function names and keep it consistent. \bart originally uses this and I think if consistency is kept, there's no reason to deny this style. For instance, the example function is then named as
 \begin{lstlisting}
-void initialize_dealii_related_objects()
+void initialize_system_matrices_vectors ();
 \end{lstlisting}
 \subsection{Constant variable naming}
 Google's style is weird that for normal variables, you use combination of lower cases and underscores with extra tailing underscore, which is clear. But for constant, it changes to leading k with mixed-case words. Still, I don't think mixing upper and lower cases is a good idea. So what I suggested and we agreed is:
@@ -197,8 +206,40 @@ DemoClass::DemoClass ()
 \end{lstlisting}
 %----------------------------------------------------------------------------------------
 
-\section{Further restrictions from Google style (to be cont'd)}
-There are something Google style gives a lot of flexibilities, such as horizontal spaces
+\section{Further restrictions on horizontal spaces}
+Google style does not give strict restrictions for horizontal spaces. To increase the readability, we restrict ourselves on some rules proposed in this section.
+\subsection{Horizontal spaces}
+\subsubsection{Places where we have horizontal spaces}
+{\bf Logical operators.}
+\begin{lstlisting}
+if (!x && y)
+\end{lstlisting}
+
+\subsubsection{Places we don't use horizontal spaces}
+There are certain places we don't want horizontal spaces. 
+
+{\bf Adjacent close brackets.} Certain old compilers with old \cpp standard required horizontal spaces. But modern compilers do not.
+\begin{lstlisting}
+std::vector<std::vector<double>> vec_of_vec;
+std::vector<std::shared_ptr<EquationBase<dim>>> equ_ptrs;
+\end{lstlisting}
+
+{\bf Adjacent parentheses.}
+\begin{lstlisting}
+int a = ((1+2)*(2+3));
+\end{lstlisting}
+
+\subsection{Use of parenthesis in conditionals}
+Proper use of parenthesis would increase the readability. It's especially hard when multiple logical operations are involved. For instance,
+\begin{lstlisting}
+if (a_expr && b_expr || c_expr && d_expr || e_expr)
+{...}
+\end{lstlisting}
+would be more readable if it's changed to
+\begin{lstlisting}
+if ((a_expr && b_expr) || (c_expr && d_expr) || e_expr)
+{...}
+\end{lstlisting}
 
 \section{About documentation style}
 \subsection{General rule}
@@ -307,7 +348,7 @@ double calculate_k_diff ();
 \subsection{What about really long lines?}
 Google style says nothing about this as this situation would be rare and maybe people tend to avoid it. \dealii never has this problem as it does not have the limit on how many columns to use per row as most people read source code with doxygen and it still has good readability in html. \libmesh, on the other hand, does not have very long line code per row. For us, we sometimes has
 \begin{lstlisting}
-pre_jacobi = std_cxx11::shared_ptr<PETScWrappers::PreconditionJacobi> (new PETScWrappers::PreconditionJacobi)
+pre_jacobi = std::shared_ptr<PETScWrappers::PreconditionJacobi> (new PETScWrappers::PreconditionJacobi)
 \end{lstlisting}
 
 In situations like this, we can create an alias for the type with {\tt typedef}. For instance
@@ -316,7 +357,7 @@ In situations like this, we can create an alias for the type with {\tt typedef}.
 typedef PETScWrappers::PreconditionJacobi PJacobi;
 ...
 // when you use it, life is much easier
-pre_jacobi = std_cxx11::shared_ptr<PJacobi> (new PJacobi);
+pre_jacobi = std::shared_ptr<PJacobi> (new PJacobi);
 \end{lstlisting}
 
 In summary, if the type name is longer than 20\ characters, alias is adviced to be used.
@@ -325,6 +366,39 @@ After using alias, long line would be rare in \bart. In those rare cases, such a
 \begin{lstlisting}
 pcout << "This is the first line showing breaking a long line"
       << "We come to the second line" << std::endl;
+\end{lstlisting}
+
+\subsection{Useful things (maybe) for used-to-Python developers}
+\cpp 11\ and later simplifies a lot of things from old standards.
+
+{\bf Lambda expression.} Take the following example sorting a series of pairs of integers. We sort the pairs according to the {\tt std::pair<T, T>::second}
+\begin{lstlisting}
+// pairs
+std::vector<std::pairs<int, int>> pairs;
+...// some assigning-value process
+std::sort (pairs.begin(), pairs.end(), 
+           [](std::pair<int, int>& p1, std::pair<int, int>& p2)
+           {return p1.second<p2.second;});
+\end{lstlisting}
+
+{\bf Brace initializations.}
+\begin{lstlisting}
+std::vector<int> vec_int = {1, 2, 3};
+std::vector<std::vector<int>> id_map = {{1, 2}, {2, 2}};
+\end{lstlisting}
+
+{\bf Range based for loop.} Beside the index based for loop, range-based (since \cpp\ 11)\ is also very useful. It works for a lot of data types including maps.
+\begin{lstlisting}
+for (auto m : mymap)
+{
+  auto key = m.first;
+  auto val = m.second;
+}
+\end{lstlisting}
+or even more Pythonic if \cpp\ 17\ is supported
+\begin{lstlisting}
+for (auto &[key, val] : mymap)
+{...}
 \end{lstlisting}
 \section{What's not covered}
 Rest part that is not yet covered but being used in practice would follow the Google style guide \url{https://google.github.io/styleguide/cppguide.html}.
