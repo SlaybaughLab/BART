@@ -124,6 +124,29 @@ void this_function_has_super_looooooooooooooooong_name (
     double p1,
     double p2);
 \end{lstlisting}
+
+\subsection{Breaking up a general long line}
+Just use four extra spaces following the first letter of the previous line.
+\begin{lstlisting}
+void some_func ()
+{
+  std::unique_ptr<SomeLongNameClass> = 
+      std::unique_ptr<SomeLongNameClass> (new SomeLongNameClass);
+}
+\end{lstlisting}
+
+For braces, it follows the same rule. Just match the first characters of all the following lines.
+\begin{lstlisting}
+// This example is valid since C++ 11
+std::map<std::pair<int, int>, int> test_component_map = {
+    ({0, 0}, 0), ({0, 1}, 1), ({0, 2}, 2), ({0, 3}, 3),
+    ({1, 0}, 4), ({1, 1}, 5), ({1, 2}, 6), ({1, 3}, 7)};
+\end{lstlisting}
+or follow the parenthesis rule if a few item in the braces can be fitted in the first line
+\begin{lstlisting}
+std::vector<std::vector<int>> demo_vec = {{0, 1, 2, 3, 4, 5, 6, 7},
+			                  {8, 9}};
+\end{lstlisting}
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
