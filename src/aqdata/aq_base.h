@@ -45,12 +45,14 @@ public:
   virtual ~AQBase ();
 
   /*!
-   A virtual function to produce angular quadrature.
+   A pure virtual function to produce angular quadrature.
+   
+   A overriding has to be provided per derived class.
    
    \note One has to override this function in derived classes.
    \return Void.
    */
-  virtual void produce_angular_quad ();
+  virtual void produce_angular_quad () = 0;
   
   /*!
    A virtual function to initialize component index given group and direction 
@@ -113,7 +115,7 @@ public:
    
    \return A vector of dealii::Tensor<1, dim> representing directions.
    */
-  std::vector<dealii::Tensor<1, dim> > get_all_directions ();
+  std::vector<dealii::Tensor<1, dim>> get_all_directions ();
   
   /*!
    A function to return HO component indices, AQBase<dim>::component_index.
@@ -127,7 +129,7 @@ public:
    
    \return A Hash table for component_idx->(group_idx, dir_idx).
    */
-  std::unordered_map<int, std::pair<int, int> > get_inv_component_map ();
+  std::unordered_map<int, std::pair<int, int>> get_inv_component_map ();
   
   /*!
    A function to return AQBase<dim>::reflective_direction_index.
@@ -146,7 +148,7 @@ protected:
   int n_group_;//!< Total number of groups.
   int n_dir_;//!< Total number of directions in the quadrature.
   int n_total_ho_vars_;//!< Total number of components in HO equation.
-  std::vector<dealii::Tensor<1, dim> > omega_i_;//!< All directions in Tensor<1, dim>
+  std::vector<dealii::Tensor<1, dim>> omega_i_;//!< All directions in Tensor<1, dim>
   std::vector<double> wi_;//!< All angular weights
   
   /*!
@@ -159,7 +161,7 @@ protected:
    A Hash table using component index as key and pair of group and direction indices
    as value.
    */
-  std::unordered_map<int, std::pair<int, int> > inverse_component_index_;
+  std::unordered_map<int, std::pair<int, int>> inverse_component_index_;
   
   /*!
    A std::map using pair of boundary id and current direction index as key and

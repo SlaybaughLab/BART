@@ -21,14 +21,11 @@ AQBase<dim>::AQBase (dealii::ParameterHandler &prm)
       n_azi_(prm.get_integer("angular quadrature order")),
       n_group_(prm.get_integer("number of groups")),
       aq_name_(prm.get("angular quadrature name"))
-{
-  make_aq ();
-}
+{}
 
 template <int dim>
 AQBase<dim>::~AQBase ()
-{
-}
+{}
 
 template <int dim>
 void AQBase<dim>::make_aq ()
@@ -47,7 +44,7 @@ void AQBase<dim>::initialize_ref_bc_index ()
   if (have_reflective_bc_) {
     dealii::Assert (dim>1,
                     dealii::ExcNotImplemented());
-    std::vector<dealii::Tensor<1, dim> > bnv;
+    std::vector<dealii::Tensor<1, dim>> bnv;
     bnv.resize (2*dim);
     // All boundary normal vectors are assume to be parallel to axes
     // Then, only one component in each normal vector is nonzero
@@ -92,8 +89,7 @@ void AQBase<dim>::initialize_ref_bc_index ()
 
 template <int dim>
 void AQBase<dim>::produce_angular_quad ()
-{
-}
+{}
 
 template <int dim>
 void AQBase<dim>::initialize_component_index ()
@@ -151,7 +147,7 @@ std::map<std::pair<int, int>, int> AQBase<dim>::get_component_index_map ()
 }
 
 template <int dim>
-std::unordered_map<int, std::pair<int, int> > AQBase<dim>::get_inv_component_map ()
+std::unordered_map<int, std::pair<int, int>> AQBase<dim>::get_inv_component_map ()
 {
   return inverse_component_index_;
 }
@@ -187,7 +183,7 @@ std::vector<double> AQBase<dim>::get_angular_weights ()
 }
 
 template <int dim>
-std::vector<dealii::Tensor<1, dim> > AQBase<dim>::get_all_directions ()
+std::vector<dealii::Tensor<1, dim>> AQBase<dim>::get_all_directions ()
 {
   return omega_i_;
 }
