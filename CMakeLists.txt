@@ -18,10 +18,11 @@ SET(TARGET xtrans)
 # SET(TARGET_SRC
 #  ${TARGET}.cc
 #  )
-FILE(GLOB TARGET_SRC "src/*/*.cc")
-FILE(GLOB TARGET_INC "src/*/*.h")
-SET(TARGET_SRC ${TARGET_SRC})
-SET(TARGET_INC ${TARGET_INC})
+FILE(GLOB TARGET_SRCS "src/*/*.*" "src/main.cc")
+# FILE(GLOB TARGET_INCS "src/*/*.h")
+# SET(TARGET_SRC ${TARGET_SRCS} ${TARGET_INCS})
+SET(TARGET_SRC ${TARGET_SRCS})
+# SET(TARGET_INC ${TARGET_INC})
 
 # Usually, you will not need to modify anything beyond this point...
 
@@ -57,3 +58,23 @@ DEAL_II_INITIALIZE_CACHED_VARIABLES()
 SET(CLEAN_UP_FILES *.log *.gmv *.gnuplot *.gpl *.eps *.pov *.vtk *.ucd *.d2 *.vtu *.pvtu)
 PROJECT(${TARGET})
 DEAL_II_INVOKE_AUTOPILOT()
+
+# separating source files (excluding main.cc) to make a library
+ADD_LIBRARY (xtrans_lib src/*/*.cc)
+ADD_EXECUTABLE (xtrans src/main.cc)
+
+# enable the testing
+ENABLE_TESTING ()
+FIND_PACKAGE (gtest REQUIRED)
+FIND_PACKAGE (gmock REQUIRED)
+
+FILE (GLOB TESTING_SRCS "src/*/tests/*.cc")
+SET (TESTING_SRC_FILES ${TESTING_SRCS})
+ADD_EXECUTABLE (xtrans_test, ${TESTING_SRC_FILES})
+ADD_TEST (NAME unit-tests COMMAND xtrans_test)
+
+# link with gtest gmock
+TARGET_LINK_LIBRARIES (xtrans_test gtest gtest_main gmock gmock_main)
+
+# link with xtrans library
+TARGET_LINK_LIBRARIES (xtrans_test xtrans_lib)
