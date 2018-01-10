@@ -61,12 +61,12 @@ DEAL_II_INVOKE_AUTOPILOT()
 
 # separating source files (excluding main.cc) to make a library
 ADD_LIBRARY (xtrans_lib src/*/*.cc)
-ADD_EXECUTABLE (xtrans src/main.cc)
+# ADD_EXECUTABLE (${TARGET} src/main.cc)
 
 # enable the testing
 ENABLE_TESTING ()
 FIND_PACKAGE (gtest REQUIRED)
-FIND_PACKAGE (gmock REQUIRED)
+SET (GMOCK_LIBS "/usr/local/lib/libgmock.a" "/usr/local/lib/libgmock_main.a")
 
 FILE (GLOB TESTING_SRCS "src/*/tests/*.cc")
 SET (TESTING_SRC_FILES ${TESTING_SRCS})
