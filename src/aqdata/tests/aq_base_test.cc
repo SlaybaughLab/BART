@@ -1,7 +1,10 @@
 #include "../aq_base.h"
 
-#include "gmock/"
+// include gtest for basic testing functions
 #include "gtest/gtest.h"
+
+// include gmock for testing functions for STL containers
+#include "gmock/gmock.h"
 
 using ::testing:::ElementsAre;
 
