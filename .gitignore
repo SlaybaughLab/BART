@@ -21,3 +21,4 @@ quadr.txt
 *.gz
 src/original*
 *matrix*txt
+lib*.*
