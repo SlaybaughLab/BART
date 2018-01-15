@@ -1,4 +1,29 @@
-# top level CMakeLists.txt
+##
+#  Demo for separating CMakeLists.txt
+##
+
+# Set the name of the project and target:
+# SET(TARGET xtrans)
+
+# Declare all source files the target consists of. Here, this is only
+# the one step-X.cc file, but as you expand your project you may wish
+# to add other source files as well. If your project becomes much larger,
+# you may want to either replace the following statement by something like
+#  FILE(GLOB_RECURSE TARGET_SRC  "source/*.cc")
+#  FILE(GLOB_RECURSE TARGET_INC  "include/*.h")
+#  SET(TARGET_SRC ${TARGET_SRC}  ${TARGET_INC})
+# or switch altogether to the large project CMakeLists.txt file discussed
+# in the "CMake in user projects" page accessible from the "User info"
+# page of the documentation.
+# SET(TARGET_SRC
+#  ${TARGET}.cc
+#  )
+# FILE(GLOB TARGET_SRC "src/*/*.cc")
+# FILE(GLOB TARGET_INC "src/*/*.h")
+# SET(TARGET_SRC ${TARGET_SRC})
+# SET(TARGET_INC ${TARGET_INC})
+
+# Usually, you will not need to modify anything beyond this point...
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
 
@@ -31,10 +56,17 @@ ENDIF()
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
 SET(CLEAN_UP_FILES *.log *.gmv *.gnuplot *.gpl *.eps *.pov *.vtk *.ucd *.d2 *.vtu *.pvtu)
 PROJECT(xtrans)
+ENABLE_TESTING()
 
-# enable the testing
-# NOTE: everytime we have a new folder in src directory, add the corresponding
-# subdirectory below.
-# ENABLE_TESTING ()
-ADD_SUBDIRECTORY (src)
-# ADD_SUBDIRECTORY (tests/aqdata)
+ADD_SUBDIRECTORY(src/aqdata)
+#ADD_EXECUTABLE(xtrans src/main.cc)
+#DEAL_II_SETUP_TARGET(xtrans)
+SET(TARGET "xtrans")
+SET(TARGET_SRC src/main.cc)
+
+ADD_SUBDIRECTORY(tests/aqdata)
+
+DEAL_II_INVOKE_AUTOPILOT()
+TARGET_LINK_LIBRARIES(xtrans
+_aqdata
+)

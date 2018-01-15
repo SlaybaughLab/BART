@@ -22,3 +22,6 @@ quadr.txt
 src/original*
 *matrix*txt
 lib*.*
+*_exe
+*.debug/
+Testing/

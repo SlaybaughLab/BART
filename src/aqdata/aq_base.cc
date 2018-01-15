@@ -36,14 +36,14 @@ void AQBase<dim>::make_aq ()
 }
 
 template <int dim>
-void AQBase<dim>::initialize_ref_bc_index () 
+void AQBase<dim>::initialize_ref_bc_index ()
 {
   // Note: here we assume square domain and assume user either
   // uses deal.II generated mesh or mesh from gmsh with proper
   // boundary IDs setup: {0,1,2,3,4,5} for {xmin,xmax,ymin,ymax,zmin,zmax}
   if (have_reflective_bc_) {
-    dealii::Assert (dim>1,
-                    dealii::ExcNotImplemented());
+    Assert (dim>1,
+            dealii::ExcNotImplemented());
     std::vector<dealii::Tensor<1, dim>> bnv;
     bnv.resize (2*dim);
     // All boundary normal vectors are assume to be parallel to axes
@@ -65,13 +65,13 @@ void AQBase<dim>::initialize_ref_bc_index ()
       bnv[5][2] = 1.0;
     }
     for (int i=0; i<2*dim; ++i)
-      for (int i_dir=0; i_dir<n_dir; ++i_dir)
+      for (int i_dir=0; i_dir<n_dir_; ++i_dir)
       {
-        dealii::Tensor<1, dim> out_angle = (omega_i_[i_dir] - 
+        dealii::Tensor<1, dim> out_angle = (omega_i_[i_dir] -
                                             2.0 * (bnv[i] * omega_i_[i_dir]) * bnv[i]);
         //(omega_i_[i_dir] *
         // (1.0 - 2.0 * (bnv[i] * omega_i_[i_dir])));
-        for (int r_dir=0; r_dir<n_dir; ++r_dir)
+        for (int r_dir=0; r_dir<n_dir_; ++r_dir)
         {
           dealii::Tensor<1, dim> d_dir = out_angle;
           dealii::Tensor<1, dim> d_minus_dir = out_angle;
@@ -100,7 +100,7 @@ void AQBase<dim>::initialize_component_index ()
     for (int i_dir=0; i_dir<n_dir_; ++i_dir)
     {
       std::pair<int, int> key (g, i_dir);
-      component_index[key] = ind;
+      component_index_[key] = ind;
       inverse_component_index_[ind] = key;
       ind += 1;
     }
@@ -109,8 +109,8 @@ void AQBase<dim>::initialize_component_index ()
 template <int dim>
 void AQBase<dim>::print_angular_quad ()
 {
-  dealii::Assert (dim>=2,
-                  dealii::ExcNotImplemented());
+  Assert (dim>=2,
+          dealii::ExcNotImplemented());
   std::ofstream quadr;
   quadr.open("aq.txt");
   quadr << "transport model: " << transport_model_name_
@@ -132,8 +132,8 @@ void AQBase<dim>::print_angular_quad ()
 template <int dim>
 std::string AQBase<dim>::produce_quadrature_name ()
 {
-  dealii::AssertThrow (aq_name_.size()>0,
-                       dealii::ExcMessage("aq name has to be assigned"));
+  AssertThrow (aq_name_.size()>0,
+               dealii::ExcMessage("aq name has to be assigned"));
   // ToDo: more quadrature name producers
   if (aq_name_=="lsgc")
     return "Level Symmetric Gauss Chebyshev";
