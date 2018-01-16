@@ -5,6 +5,7 @@ file(GLOB ALL_SRCS "*.cc")
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
+# change the library names correspondingly for new folders
 ADD_LIBRARY(_aqdata ${ALL_SRCS})
 
 DEAL_II_SETUP_TARGET(_aqdata)
