@@ -64,14 +64,14 @@ void AQBase<dim>::initialize_ref_bc_index ()
       bnv[4][2] = -1.0;
       bnv[5][2] = 1.0;
     }
-    for (int i=0; i<2*dim; ++i)
-      for (int i_dir=0; i_dir<n_dir_; ++i_dir)
+    for (unsigned int i=0; i<2*dim; ++i)
+      for (unsigned int i_dir=0; i_dir<n_dir_; ++i_dir)
       {
         dealii::Tensor<1, dim> out_angle = (omega_i_[i_dir] -
                                             2.0 * (bnv[i] * omega_i_[i_dir]) * bnv[i]);
         //(omega_i_[i_dir] *
         // (1.0 - 2.0 * (bnv[i] * omega_i_[i_dir])));
-        for (int r_dir=0; r_dir<n_dir_; ++r_dir)
+        for (unsigned int r_dir=0; r_dir<n_dir_; ++r_dir)
         {
           dealii::Tensor<1, dim> d_dir = out_angle;
           dealii::Tensor<1, dim> d_minus_dir = out_angle;
@@ -96,8 +96,8 @@ void AQBase<dim>::initialize_component_index ()
 {
   // initialize the map from (group, direction) to component indices
   int ind = 0;
-  for (int g=0; g<n_group_; ++g)
-    for (int i_dir=0; i_dir<n_dir_; ++i_dir)
+  for (unsigned int g=0; g<n_group_; ++g)
+    for (unsigned int i_dir=0; i_dir<n_dir_; ++i_dir)
     {
       std::pair<int, int> key (g, i_dir);
       component_index_[key] = ind;
@@ -117,7 +117,7 @@ void AQBase<dim>::print_angular_quad ()
         << "; quadrature name: " << produce_quadrature_name () << std::endl;
   quadr << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
   quadr << "Weights | Omega_x | Omega_y | mu" << std::endl;
-  for (int i=0; i<omega_i_.size(); ++i)
+  for (unsigned int i=0; i<omega_i_.size(); ++i)
   {
     double mu = std::sqrt (1.-(std::pow(omega_i_[i][0],2.)+std::pow(omega_i_[i][1],2)));
     quadr << std::fixed << std::setprecision (15);
