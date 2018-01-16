@@ -1,3 +1,5 @@
+#include "../../src/aqdata/aq_base.h"
+
 #include <iostream>
 #include <fstream>
 

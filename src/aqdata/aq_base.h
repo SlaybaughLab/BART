@@ -39,7 +39,7 @@ public:
    
    \param prm ParameterHandler object.
    */
-  AQBase<dim> (dealii::ParameterHandler &prm);
+  AQBase (dealii::ParameterHandler &prm);
   
   //! Virtual destructor.
   virtual ~AQBase ();
@@ -52,7 +52,7 @@ public:
    \note One has to override this function in derived classes.
    \return Void.
    */
-  virtual void produce_angular_quad () = 0;
+  virtual void produce_angular_quad ();
   
   /*!
    A virtual function to initialize component index given group and direction 
@@ -167,8 +167,7 @@ protected:
    A std::map using pair of boundary id and current direction index as key and
    reflective direction index as value.
    */
-  std::map<std::pair<int, int>, int>
-  reflective_direction_index_;
+  std::map<std::pair<int, int>, int> reflective_direction_index_;
   
 private:
   /*!
