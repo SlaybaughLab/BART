@@ -1,0 +1,164 @@
+\hypertarget{class_iterations}{}\section{Iterations$<$ dim $>$ Class Template Reference}
+\label{class_iterations}\index{Iterations$<$ dim $>$@{Iterations$<$ dim $>$}}
+
+
+This class provide an interface between Bart\+Driver and specific iteration schemes.  
+
+
+
+
+{\ttfamily \#include $<$iterations.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_iterations_a0355678383cd174840beb772ce7e9e8d}{Iterations} (const Parameter\+Handler \&prm)
+\item 
+\hyperlink{class_iterations_ae6ea082615afe8919000b4ea1465f9cf}{$\sim$\+Iterations} ()
+\begin{DoxyCompactList}\small\item\em Class destructor. \end{DoxyCompactList}\item 
+void \hyperlink{class_iterations_ae41347e35b05b6f0fd3cb2a03ab60341}{solve\+\_\+problems} (std\+::vector$<$ Vector$<$ double $>$ $>$ \&sflxes\+\_\+proc, std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&equ\+\_\+ptrs, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$ ig\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$ mg\+\_\+ptr, std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$ $>$ eig\+\_\+ptr)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const std\+::string \hyperlink{class_iterations_a3a29339b09351ffa95e9c99be5d5e575}{transport\+\_\+name}
+\begin{DoxyCompactList}\small\item\em HO equation name. \end{DoxyCompactList}\item 
+double \hyperlink{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}{keff}
+\begin{DoxyCompactList}\small\item\em keff living in current class. \end{DoxyCompactList}\item 
+bool \hyperlink{class_iterations_acfd49ecddab96b70fc271942b3173ad7}{is\+\_\+eigen\+\_\+problem}
+\begin{DoxyCompactList}\small\item\em Boolean to determine if the problem is eigenvalue problem. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$int dim$>$\newline
+class Iterations$<$ dim $>$}
+
+This class provide an interface between Bart\+Driver and specific iteration schemes. 
+
+This class implements an interface between Bart\+Driver$<$dim$>$ and iteration schemes. The main purpose is such that one would not need to develop different functions according to different problem types. 
+
+Definition at line 23 of file iterations.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_iterations_a0355678383cd174840beb772ce7e9e8d}\label{class_iterations_a0355678383cd174840beb772ce7e9e8d}} 
+\index{Iterations@{Iterations}!Iterations@{Iterations}}
+\index{Iterations@{Iterations}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{Iterations()}{Iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::\hyperlink{class_iterations}{Iterations} (\begin{DoxyParamCaption}\item[{const Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+Class constructor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em prm} & const Parameter\+Handler object. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 7 of file iterations.\+cc.
+
+\mbox{\Hypertarget{class_iterations_ae6ea082615afe8919000b4ea1465f9cf}\label{class_iterations_ae6ea082615afe8919000b4ea1465f9cf}} 
+\index{Iterations@{Iterations}!````~Iterations@{$\sim$\+Iterations}}
+\index{````~Iterations@{$\sim$\+Iterations}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{$\sim$\+Iterations()}{~Iterations()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+\hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::$\sim$\hyperlink{class_iterations}{Iterations} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Class destructor. 
+
+
+
+Definition at line 15 of file iterations.\+cc.
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_iterations_ae41347e35b05b6f0fd3cb2a03ab60341}\label{class_iterations_ae41347e35b05b6f0fd3cb2a03ab60341}} 
+\index{Iterations@{Iterations}!solve\+\_\+problems@{solve\+\_\+problems}}
+\index{solve\+\_\+problems@{solve\+\_\+problems}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{solve\+\_\+problems()}{solve\_problems()}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+void \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::solve\+\_\+problems (\begin{DoxyParamCaption}\item[{std\+::vector$<$ Vector$<$ double $>$ $>$ \&}]{sflxes\+\_\+proc,  }\item[{std\+::vector$<$ std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_equation_base}{Equation\+Base}$<$ dim $>$ $>$ $>$ \&}]{equ\+\_\+ptrs,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_i_g_base}{I\+G\+Base}$<$ dim $>$ $>$}]{ig\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_m_g_base}{M\+G\+Base}$<$ dim $>$ $>$}]{mg\+\_\+ptr,  }\item[{std\+\_\+cxx11\+::shared\+\_\+ptr$<$ \hyperlink{class_eigen_base}{Eigen\+Base}$<$ dim $>$ $>$}]{eig\+\_\+ptr }\end{DoxyParamCaption})}
+
+A generic function to solve the problem for both eigenvalue and fixed-\/source problems. Inside this function, solving methods will be specified according to Iterations$<$dim$>$\+::is\+\_\+eigen\+\_\+problem the boolean.
+
+\begin{DoxyNote}{Note}
+In fixed-\/source problems, eig\+\_\+ptr points to a null pointer and will do nothing.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em equ\+\_\+ptrs} & A vector of shared\+\_\+ptr\textquotesingle{}s of Equation\+Base objects. \\
+\hline
+{\em ig\+\_\+ptr} & A shared\+\_\+ptr of downcast I\+G\+Base object. \\
+\hline
+{\em mg\+\_\+ptr} & A shared\+\_\+ptr of downcast M\+G\+Base object. \\
+\hline
+{\em eig\+\_\+ptr} & A shared\+\_\+ptr of downcast Eigen\+Base object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Definition at line 21 of file iterations.\+cc.
+
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_iterations_acfd49ecddab96b70fc271942b3173ad7}\label{class_iterations_acfd49ecddab96b70fc271942b3173ad7}} 
+\index{Iterations@{Iterations}!is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}}
+\index{is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{is\+\_\+eigen\+\_\+problem}{is\_eigen\_problem}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+bool \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::is\+\_\+eigen\+\_\+problem\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Boolean to determine if the problem is eigenvalue problem. 
+
+
+
+Definition at line 61 of file iterations.\+h.
+
+\mbox{\Hypertarget{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}\label{class_iterations_a4c36c8bdd6775be8015ef113c68a1e66}} 
+\index{Iterations@{Iterations}!keff@{keff}}
+\index{keff@{keff}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{keff}{keff}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+double \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::keff\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+keff living in current class. 
+
+
+
+Definition at line 60 of file iterations.\+h.
+
+\mbox{\Hypertarget{class_iterations_a3a29339b09351ffa95e9c99be5d5e575}\label{class_iterations_a3a29339b09351ffa95e9c99be5d5e575}} 
+\index{Iterations@{Iterations}!transport\+\_\+name@{transport\+\_\+name}}
+\index{transport\+\_\+name@{transport\+\_\+name}!Iterations@{Iterations}}
+\subsubsection{\texorpdfstring{transport\+\_\+name}{transport\_name}}
+{\footnotesize\ttfamily template$<$int dim$>$ \\
+const std\+::string \hyperlink{class_iterations}{Iterations}$<$ dim $>$\+::transport\+\_\+name\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+HO equation name. 
+
+
+
+Definition at line 58 of file iterations.\+h.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/iteration/\hyperlink{iterations_8h}{iterations.\+h}\item 
+src/iteration/\hyperlink{iterations_8cc}{iterations.\+cc}\end{DoxyCompactItemize}

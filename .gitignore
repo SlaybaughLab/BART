@@ -21,3 +21,9 @@ quadr.txt
 *.gz
 src/original*
 *matrix*txt
+lib*.*
+*_exe
+*.debug/
+Testing/
+*.json
+*.release

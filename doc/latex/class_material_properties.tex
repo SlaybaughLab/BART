@@ -1,0 +1,563 @@
+\hypertarget{class_material_properties}{}\section{Material\+Properties Class Reference}
+\label{class_material_properties}\index{Material\+Properties@{Material\+Properties}}
+
+
+This class read in and pre-\/process material properties.  
+
+
+
+
+{\ttfamily \#include $<$material\+\_\+properties.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81}{Material\+Properties} (Parameter\+Handler \&prm)
+\item 
+\hyperlink{class_material_properties_aab94335e9db402f624b88603b233bcab}{$\sim$\+Material\+Properties} ()
+\begin{DoxyCompactList}\small\item\em Class destructor. \end{DoxyCompactList}\item 
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_material_properties_ae04d6676e685d374cb82a15a6b45d96b}{get\+\_\+fissile\+\_\+id\+\_\+map} ()
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ada6ea8094dfc4b5c9610c6dc8d54a47a}{get\+\_\+sigma\+\_\+t} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all $\sigma_\mathrm{t}$ for all groups. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a319b2dd1caaa13cc9b1afc9ace17e218}{get\+\_\+inv\+\_\+sigma\+\_\+t} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all $1/\sigma_\mathrm{t}$ for all groups. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a0bbf8a7d69c73288b015b4247ab0451c}{get\+\_\+q} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all fixed source value $Q$\textquotesingle{}s for all groups. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a3903e07c80bfe939a3a70be59c74bc53}{get\+\_\+q\+\_\+per\+\_\+ster} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all $Q/(4\pi)$\textquotesingle{}s for all groups. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a75afcc7707f4d77aedf439bacacbfb51}{get\+\_\+nusigf} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all $\nu\sigma_\mathrm{f}$\textquotesingle{}s. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a25c7a9ed0b651758dab132bf627c6269}{get\+\_\+sigma\+\_\+s} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all scattering transfer matrices. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a9dbfb1ca140d3b5de3dff2994899182f}{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all scattering transfer matrices scaled by $4\pi$. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a85d99311c0e1ed1991e79cc6115f0403}{get\+\_\+chi\+\_\+nusigf} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all $\chi\nu\sigma_\mathrm{f}$. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a262e19465017da2dcd8acb02a2bcd5df}{get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster} ()
+\begin{DoxyCompactList}\small\item\em A function to retrieve all $\chi\nu\sigma_\mathrm{f}/(4\pi)$. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{class_material_properties_a83121d60325c02dbce98968b45134993}{process\+\_\+material\+\_\+properties} (Parameter\+Handler \&prm)
+\item 
+void \hyperlink{class_material_properties_a2a25d8392fb1002f27e048d40f37d627}{process\+\_\+eigen\+\_\+material\+\_\+properties} (Parameter\+Handler \&prm)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const double \hyperlink{class_material_properties_a28173c461cf9a74c3b0ebe0f51c386d3}{pi}
+\begin{DoxyCompactList}\small\item\em 3.\+14159... \end{DoxyCompactList}\item 
+bool \hyperlink{class_material_properties_a2193d0f80fcfbba74a2e84fae0518097}{is\+\_\+eigen\+\_\+problem}
+\begin{DoxyCompactList}\small\item\em Boolean to determine if it\textquotesingle{}s eigenvalue problem. \end{DoxyCompactList}\item 
+bool \hyperlink{class_material_properties_a911d589ba4b11eee87ce5748b760437a}{do\+\_\+nda}
+\begin{DoxyCompactList}\small\item\em Boolean to determine if N\+DA is used. \end{DoxyCompactList}\item 
+unsigned int \hyperlink{class_material_properties_a4cae7eee21ea5ed5246765c049caf58b}{n\+\_\+group}
+\begin{DoxyCompactList}\small\item\em Number of groups. \end{DoxyCompactList}\item 
+unsigned int \hyperlink{class_material_properties_a3bc9713ea94f32fb93d60f2a726e4f2d}{n\+\_\+material}
+\begin{DoxyCompactList}\small\item\em Number of materials. \end{DoxyCompactList}\item 
+std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ \hyperlink{class_material_properties_a232e0fa7b96e2d93597e4dd6839b5223}{is\+\_\+material\+\_\+fissile}
+\begin{DoxyCompactList}\small\item\em Hash table to determine if a material is fissile. \end{DoxyCompactList}\item 
+std\+::unordered\+\_\+set$<$ unsigned int $>$ \hyperlink{class_material_properties_a43cff88edebbd4e4f2a012c6639e0b89}{fissile\+\_\+ids}
+\begin{DoxyCompactList}\small\item\em Set of fissile material I\+Ds. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ac2a59b00e3be0e775249354182ae08a4}{all\+\_\+sigt}
+\begin{DoxyCompactList}\small\item\em $\sigma_\mathrm{t}$ of all groups for all materials. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a9cf448a469e554386e3313d7db0ed4b5}{all\+\_\+inv\+\_\+sigt}
+\begin{DoxyCompactList}\small\item\em $1/\sigma_\mathrm{t}$ of all groups for all materials \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_afb25f14545f97c91dacfffcae9d0dcf3}{all\+\_\+chi}
+\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_ac20f8acc8fb9dd7ef9805eff006f4710}{all\+\_\+nusigf}
+\begin{DoxyCompactList}\small\item\em $\nu\sigma_\mathrm{f}$ of all groups for all materials. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a63087272811561aa476e594b6aa6f4a9}{all\+\_\+q}
+\begin{DoxyCompactList}\small\item\em Fixed source value $Q$\textquotesingle{}s of all groups for all materials. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ double $>$ $>$ \hyperlink{class_material_properties_a6ca548f222ef27140c7fc1876c97e6aa}{all\+\_\+q\+\_\+per\+\_\+ster}
+\begin{DoxyCompactList}\small\item\em Fixed source value $Q/(4\pi)$\textquotesingle{}s of all groups for all materials. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a786a421a5a5c61a203b7517e7bafa829}{all\+\_\+sigs}
+\begin{DoxyCompactList}\small\item\em Scattering transfer matrices for all materials. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a206fc7b81483c3430de643b4dc6598a4}{all\+\_\+sigs\+\_\+per\+\_\+ster}
+\begin{DoxyCompactList}\small\item\em Scattering transfer matrices scaled by $4\pi$. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a77cac1147aa82a264d5d7f8782c6bd26}{all\+\_\+chi\+\_\+nusigf}
+\begin{DoxyCompactList}\small\item\em $\chi\nu\sigma_\mathrm{f}$ for all materials. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ \hyperlink{class_material_properties_a05f7647f245433d8dd164b8538b868fb}{all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster}
+\begin{DoxyCompactList}\small\item\em $\chi\nu\sigma_\mathrm{f}/(4\pi)$ for all materials. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class read in and pre-\/process material properties. 
+
+\begin{DoxyAuthor}{Author}
+Weixiong Zheng 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2017/04$\sim$06
+\end{DoxyDate}
+\begin{DoxyRefDesc}{Todo}
+\item[\hyperlink{todo__todo000007}{Todo}]Change scattering data from std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ to std\+::vector$<$Vector$<$double$>$ $>$ for scattering matrix eigenvalue decomposition. 
+
+Add functionality to perform eigenvalue decomposition. \end{DoxyRefDesc}
+
+
+Definition at line 23 of file material\+\_\+properties.\+h.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81}\label{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81}} 
+\index{Material\+Properties@{Material\+Properties}!Material\+Properties@{Material\+Properties}}
+\index{Material\+Properties@{Material\+Properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{Material\+Properties()}{MaterialProperties()}}
+{\footnotesize\ttfamily Material\+Properties\+::\+Material\+Properties (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})}
+
+Class constructor. 
+
+Definition at line 6 of file material\+\_\+properties.\+cc.
+
+Here is the call graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_material_properties_a9c1a2ff5f7cfaacd4b992e96186fbf81_cgraph}
+\end{center}
+\end{figure}
+\mbox{\Hypertarget{class_material_properties_aab94335e9db402f624b88603b233bcab}\label{class_material_properties_aab94335e9db402f624b88603b233bcab}} 
+\index{Material\+Properties@{Material\+Properties}!````~Material\+Properties@{$\sim$\+Material\+Properties}}
+\index{````~Material\+Properties@{$\sim$\+Material\+Properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{$\sim$\+Material\+Properties()}{~MaterialProperties()}}
+{\footnotesize\ttfamily Material\+Properties\+::$\sim$\+Material\+Properties (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Class destructor. 
+
+
+
+Definition at line 17 of file material\+\_\+properties.\+cc.
+
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_material_properties_a85d99311c0e1ed1991e79cc6115f0403}\label{class_material_properties_a85d99311c0e1ed1991e79cc6115f0403}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+chi\+\_\+nusigf@{get\+\_\+chi\+\_\+nusigf}}
+\index{get\+\_\+chi\+\_\+nusigf@{get\+\_\+chi\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+chi\+\_\+nusigf()}{get\_chi\_nusigf()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+chi\+\_\+nusigf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all $\chi\nu\sigma_\mathrm{f}$. 
+
+
+
+Definition at line 313 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a262e19465017da2dcd8acb02a2bcd5df}\label{class_material_properties_a262e19465017da2dcd8acb02a2bcd5df}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster@{get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster}}
+\index{get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster@{get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster()}{get\_chi\_nusigf\_per\_ster()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all $\chi\nu\sigma_\mathrm{f}/(4\pi)$. 
+
+
+
+Definition at line 318 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_ae04d6676e685d374cb82a15a6b45d96b}\label{class_material_properties_ae04d6676e685d374cb82a15a6b45d96b}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+fissile\+\_\+id\+\_\+map@{get\+\_\+fissile\+\_\+id\+\_\+map}}
+\index{get\+\_\+fissile\+\_\+id\+\_\+map@{get\+\_\+fissile\+\_\+id\+\_\+map}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+fissile\+\_\+id\+\_\+map()}{get\_fissile\_id\_map()}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$ unsigned int, bool $>$ Material\+Properties\+::get\+\_\+fissile\+\_\+id\+\_\+map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+A function to retrieve mapping\+: material id-\/$>$if material is fissile boolean.
+
+\begin{DoxyReturn}{Returns}
+A Hash table representing the desirable mapping. 
+\end{DoxyReturn}
+
+
+Definition at line 329 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a319b2dd1caaa13cc9b1afc9ace17e218}\label{class_material_properties_a319b2dd1caaa13cc9b1afc9ace17e218}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+inv\+\_\+sigma\+\_\+t@{get\+\_\+inv\+\_\+sigma\+\_\+t}}
+\index{get\+\_\+inv\+\_\+sigma\+\_\+t@{get\+\_\+inv\+\_\+sigma\+\_\+t}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+inv\+\_\+sigma\+\_\+t()}{get\_inv\_sigma\_t()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+inv\+\_\+sigma\+\_\+t (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all $1/\sigma_\mathrm{t}$ for all groups. 
+
+
+
+Definition at line 288 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a75afcc7707f4d77aedf439bacacbfb51}\label{class_material_properties_a75afcc7707f4d77aedf439bacacbfb51}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+nusigf@{get\+\_\+nusigf}}
+\index{get\+\_\+nusigf@{get\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+nusigf()}{get\_nusigf()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+nusigf (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all $\nu\sigma_\mathrm{f}$\textquotesingle{}s. 
+
+
+
+Definition at line 323 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a0bbf8a7d69c73288b015b4247ab0451c}\label{class_material_properties_a0bbf8a7d69c73288b015b4247ab0451c}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+q@{get\+\_\+q}}
+\index{get\+\_\+q@{get\+\_\+q}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+q()}{get\_q()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+q (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all fixed source value $Q$\textquotesingle{}s for all groups. 
+
+
+
+Definition at line 293 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a3903e07c80bfe939a3a70be59c74bc53}\label{class_material_properties_a3903e07c80bfe939a3a70be59c74bc53}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+q\+\_\+per\+\_\+ster@{get\+\_\+q\+\_\+per\+\_\+ster}}
+\index{get\+\_\+q\+\_\+per\+\_\+ster@{get\+\_\+q\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+q\+\_\+per\+\_\+ster()}{get\_q\_per\_ster()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+q\+\_\+per\+\_\+ster (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all $Q/(4\pi)$\textquotesingle{}s for all groups. 
+
+
+
+Definition at line 298 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a25c7a9ed0b651758dab132bf627c6269}\label{class_material_properties_a25c7a9ed0b651758dab132bf627c6269}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+sigma\+\_\+s@{get\+\_\+sigma\+\_\+s}}
+\index{get\+\_\+sigma\+\_\+s@{get\+\_\+sigma\+\_\+s}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+sigma\+\_\+s()}{get\_sigma\_s()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+sigma\+\_\+s (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all scattering transfer matrices. 
+
+
+
+Definition at line 303 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a9dbfb1ca140d3b5de3dff2994899182f}\label{class_material_properties_a9dbfb1ca140d3b5de3dff2994899182f}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster@{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster}}
+\index{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster@{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster()}{get\_sigma\_s\_per\_ster()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ std\+::vector$<$ double $>$ $>$ $>$ Material\+Properties\+::get\+\_\+sigma\+\_\+s\+\_\+per\+\_\+ster (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all scattering transfer matrices scaled by $4\pi$. 
+
+
+
+Definition at line 308 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_ada6ea8094dfc4b5c9610c6dc8d54a47a}\label{class_material_properties_ada6ea8094dfc4b5c9610c6dc8d54a47a}} 
+\index{Material\+Properties@{Material\+Properties}!get\+\_\+sigma\+\_\+t@{get\+\_\+sigma\+\_\+t}}
+\index{get\+\_\+sigma\+\_\+t@{get\+\_\+sigma\+\_\+t}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{get\+\_\+sigma\+\_\+t()}{get\_sigma\_t()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::vector$<$ double $>$ $>$ Material\+Properties\+::get\+\_\+sigma\+\_\+t (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A function to retrieve all $\sigma_\mathrm{t}$ for all groups. 
+
+
+
+Definition at line 283 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a2a25d8392fb1002f27e048d40f37d627}\label{class_material_properties_a2a25d8392fb1002f27e048d40f37d627}} 
+\index{Material\+Properties@{Material\+Properties}!process\+\_\+eigen\+\_\+material\+\_\+properties@{process\+\_\+eigen\+\_\+material\+\_\+properties}}
+\index{process\+\_\+eigen\+\_\+material\+\_\+properties@{process\+\_\+eigen\+\_\+material\+\_\+properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{process\+\_\+eigen\+\_\+material\+\_\+properties()}{process\_eigen\_material\_properties()}}
+{\footnotesize\ttfamily void Material\+Properties\+::process\+\_\+eigen\+\_\+material\+\_\+properties (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Function to process eigenvalue problem specific material properties such as 
+
+Definition at line 165 of file material\+\_\+properties.\+cc.
+
+\mbox{\Hypertarget{class_material_properties_a83121d60325c02dbce98968b45134993}\label{class_material_properties_a83121d60325c02dbce98968b45134993}} 
+\index{Material\+Properties@{Material\+Properties}!process\+\_\+material\+\_\+properties@{process\+\_\+material\+\_\+properties}}
+\index{process\+\_\+material\+\_\+properties@{process\+\_\+material\+\_\+properties}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{process\+\_\+material\+\_\+properties()}{process\_material\_properties()}}
+{\footnotesize\ttfamily void Material\+Properties\+::process\+\_\+material\+\_\+properties (\begin{DoxyParamCaption}\item[{Parameter\+Handler \&}]{prm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Function to process all material properties. For eigenvalue problems, it will call this-\/$>$process\+\_\+eigen\+\_\+material\+\_\+properties to process fission-\/related properties.
+
+
+\begin{DoxyParams}{Parameters}
+{\em prm} & Parameter\+Handler object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Void. 
+\end{DoxyReturn}
+
+
+Definition at line 22 of file material\+\_\+properties.\+cc.
+
+Here is the caller graph for this function\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{class_material_properties_a83121d60325c02dbce98968b45134993_icgraph}
+\end{center}
+\end{figure}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{class_material_properties_afb25f14545f97c91dacfffcae9d0dcf3}\label{class_material_properties_afb25f14545f97c91dacfffcae9d0dcf3}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+chi@{all\+\_\+chi}}
+\index{all\+\_\+chi@{all\+\_\+chi}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+chi}{all\_chi}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+chi\hspace{0.3cm}{\ttfamily [private]}}
+
+$\chi$ for all materials. A mistake when designing this is that it was treated as other properties. Yet, it is group independent.
+
+\begin{DoxyRefDesc}{Todo}
+\item[\hyperlink{todo__todo000008}{Todo}]Change this to std\+::vector$<$double$>$ chi, or using Hash table. \end{DoxyRefDesc}
+
+
+Definition at line 109 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a77cac1147aa82a264d5d7f8782c6bd26}\label{class_material_properties_a77cac1147aa82a264d5d7f8782c6bd26}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+chi\+\_\+nusigf@{all\+\_\+chi\+\_\+nusigf}}
+\index{all\+\_\+chi\+\_\+nusigf@{all\+\_\+chi\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+chi\+\_\+nusigf}{all\_chi\_nusigf}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+chi\+\_\+nusigf\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+$\chi\nu\sigma_\mathrm{f}$ for all materials. 
+
+It is pre-\/computed and transformed into a form of transfer matrix for saving computations. 
+
+Definition at line 131 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a05f7647f245433d8dd164b8538b868fb}\label{class_material_properties_a05f7647f245433d8dd164b8538b868fb}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster@{all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster}}
+\index{all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster@{all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster}{all\_chi\_nusigf\_per\_ster}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+chi\+\_\+nusigf\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+$\chi\nu\sigma_\mathrm{f}/(4\pi)$ for all materials. 
+
+
+
+Definition at line 134 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a9cf448a469e554386e3313d7db0ed4b5}\label{class_material_properties_a9cf448a469e554386e3313d7db0ed4b5}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+inv\+\_\+sigt@{all\+\_\+inv\+\_\+sigt}}
+\index{all\+\_\+inv\+\_\+sigt@{all\+\_\+inv\+\_\+sigt}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+inv\+\_\+sigt}{all\_inv\_sigt}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+inv\+\_\+sigt\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+$1/\sigma_\mathrm{t}$ of all groups for all materials 
+
+
+
+Definition at line 101 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_ac20f8acc8fb9dd7ef9805eff006f4710}\label{class_material_properties_ac20f8acc8fb9dd7ef9805eff006f4710}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+nusigf@{all\+\_\+nusigf}}
+\index{all\+\_\+nusigf@{all\+\_\+nusigf}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+nusigf}{all\_nusigf}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+nusigf\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+$\nu\sigma_\mathrm{f}$ of all groups for all materials. 
+
+
+
+Definition at line 112 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a63087272811561aa476e594b6aa6f4a9}\label{class_material_properties_a63087272811561aa476e594b6aa6f4a9}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+q@{all\+\_\+q}}
+\index{all\+\_\+q@{all\+\_\+q}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+q}{all\_q}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+q\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Fixed source value $Q$\textquotesingle{}s of all groups for all materials. 
+
+
+
+Definition at line 115 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a6ca548f222ef27140c7fc1876c97e6aa}\label{class_material_properties_a6ca548f222ef27140c7fc1876c97e6aa}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+q\+\_\+per\+\_\+ster@{all\+\_\+q\+\_\+per\+\_\+ster}}
+\index{all\+\_\+q\+\_\+per\+\_\+ster@{all\+\_\+q\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+q\+\_\+per\+\_\+ster}{all\_q\_per\_ster}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+q\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Fixed source value $Q/(4\pi)$\textquotesingle{}s of all groups for all materials. 
+
+
+
+Definition at line 118 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a786a421a5a5c61a203b7517e7bafa829}\label{class_material_properties_a786a421a5a5c61a203b7517e7bafa829}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+sigs@{all\+\_\+sigs}}
+\index{all\+\_\+sigs@{all\+\_\+sigs}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+sigs}{all\_sigs}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+sigs\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Scattering transfer matrices for all materials. 
+
+
+
+Definition at line 121 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a206fc7b81483c3430de643b4dc6598a4}\label{class_material_properties_a206fc7b81483c3430de643b4dc6598a4}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+sigs\+\_\+per\+\_\+ster@{all\+\_\+sigs\+\_\+per\+\_\+ster}}
+\index{all\+\_\+sigs\+\_\+per\+\_\+ster@{all\+\_\+sigs\+\_\+per\+\_\+ster}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+sigs\+\_\+per\+\_\+ster}{all\_sigs\_per\_ster}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$std\+::vector$<$double$>$ $>$ $>$ Material\+Properties\+::all\+\_\+sigs\+\_\+per\+\_\+ster\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Scattering transfer matrices scaled by $4\pi$. 
+
+
+
+Definition at line 124 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_ac2a59b00e3be0e775249354182ae08a4}\label{class_material_properties_ac2a59b00e3be0e775249354182ae08a4}} 
+\index{Material\+Properties@{Material\+Properties}!all\+\_\+sigt@{all\+\_\+sigt}}
+\index{all\+\_\+sigt@{all\+\_\+sigt}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{all\+\_\+sigt}{all\_sigt}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::vector$<$double$>$ $>$ Material\+Properties\+::all\+\_\+sigt\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+$\sigma_\mathrm{t}$ of all groups for all materials. 
+
+
+
+Definition at line 98 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a911d589ba4b11eee87ce5748b760437a}\label{class_material_properties_a911d589ba4b11eee87ce5748b760437a}} 
+\index{Material\+Properties@{Material\+Properties}!do\+\_\+nda@{do\+\_\+nda}}
+\index{do\+\_\+nda@{do\+\_\+nda}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{do\+\_\+nda}{do\_nda}}
+{\footnotesize\ttfamily bool Material\+Properties\+::do\+\_\+nda\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Boolean to determine if N\+DA is used. 
+
+
+
+Definition at line 88 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a43cff88edebbd4e4f2a012c6639e0b89}\label{class_material_properties_a43cff88edebbd4e4f2a012c6639e0b89}} 
+\index{Material\+Properties@{Material\+Properties}!fissile\+\_\+ids@{fissile\+\_\+ids}}
+\index{fissile\+\_\+ids@{fissile\+\_\+ids}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{fissile\+\_\+ids}{fissile\_ids}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+set$<$unsigned int$>$ Material\+Properties\+::fissile\+\_\+ids\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Set of fissile material I\+Ds. 
+
+
+
+Definition at line 95 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a2193d0f80fcfbba74a2e84fae0518097}\label{class_material_properties_a2193d0f80fcfbba74a2e84fae0518097}} 
+\index{Material\+Properties@{Material\+Properties}!is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}}
+\index{is\+\_\+eigen\+\_\+problem@{is\+\_\+eigen\+\_\+problem}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{is\+\_\+eigen\+\_\+problem}{is\_eigen\_problem}}
+{\footnotesize\ttfamily bool Material\+Properties\+::is\+\_\+eigen\+\_\+problem\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Boolean to determine if it\textquotesingle{}s eigenvalue problem. 
+
+
+
+Definition at line 87 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a232e0fa7b96e2d93597e4dd6839b5223}\label{class_material_properties_a232e0fa7b96e2d93597e4dd6839b5223}} 
+\index{Material\+Properties@{Material\+Properties}!is\+\_\+material\+\_\+fissile@{is\+\_\+material\+\_\+fissile}}
+\index{is\+\_\+material\+\_\+fissile@{is\+\_\+material\+\_\+fissile}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{is\+\_\+material\+\_\+fissile}{is\_material\_fissile}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$unsigned int, bool$>$ Material\+Properties\+::is\+\_\+material\+\_\+fissile\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Hash table to determine if a material is fissile. 
+
+
+
+Definition at line 93 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a4cae7eee21ea5ed5246765c049caf58b}\label{class_material_properties_a4cae7eee21ea5ed5246765c049caf58b}} 
+\index{Material\+Properties@{Material\+Properties}!n\+\_\+group@{n\+\_\+group}}
+\index{n\+\_\+group@{n\+\_\+group}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{n\+\_\+group}{n\_group}}
+{\footnotesize\ttfamily unsigned int Material\+Properties\+::n\+\_\+group\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Number of groups. 
+
+
+
+Definition at line 89 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a3bc9713ea94f32fb93d60f2a726e4f2d}\label{class_material_properties_a3bc9713ea94f32fb93d60f2a726e4f2d}} 
+\index{Material\+Properties@{Material\+Properties}!n\+\_\+material@{n\+\_\+material}}
+\index{n\+\_\+material@{n\+\_\+material}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{n\+\_\+material}{n\_material}}
+{\footnotesize\ttfamily unsigned int Material\+Properties\+::n\+\_\+material\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Number of materials. 
+
+
+
+Definition at line 90 of file material\+\_\+properties.\+h.
+
+\mbox{\Hypertarget{class_material_properties_a28173c461cf9a74c3b0ebe0f51c386d3}\label{class_material_properties_a28173c461cf9a74c3b0ebe0f51c386d3}} 
+\index{Material\+Properties@{Material\+Properties}!pi@{pi}}
+\index{pi@{pi}!Material\+Properties@{Material\+Properties}}
+\subsubsection{\texorpdfstring{pi}{pi}}
+{\footnotesize\ttfamily const double Material\+Properties\+::pi\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+3.\+14159... 
+
+
+
+Definition at line 85 of file material\+\_\+properties.\+h.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/material/\hyperlink{material__properties_8h}{material\+\_\+properties.\+h}\item 
+src/material/\hyperlink{material__properties_8cc}{material\+\_\+properties.\+cc}\end{DoxyCompactItemize}
