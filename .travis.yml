@@ -4,6 +4,7 @@ branches:
   only:
   - master
   - dev
+  - restart
 
 notifications:
   email: false
@@ -29,4 +30,4 @@ install:
  - sudo docker commit $id dealii/dealii-bart
 
 script:
- - sudo docker run dealii/dealii-bart /bin/sh -c "cmake BART/; make"
+ - sudo docker run dealii/dealii-bart /bin/sh -c "cmake BART/; make; ctest -j4"
