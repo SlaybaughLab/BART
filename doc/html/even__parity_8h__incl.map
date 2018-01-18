@@ -1,8 +1,0 @@
-<map id="src/equation/even_parity.h" name="src/equation/even_parity.h">
-<area shape="rect" id="node2" href="$equation__base_8h.html" title="equation_base.h" alt="" coords="1215,80,1335,107"/>
-<area shape="rect" id="node17" href="$problem__definition_8h.html" title="../common/problem_definition.h" alt="" coords="1030,162,1238,189"/>
-<area shape="rect" id="node21" href="$preconditioner__solver_8h.html" title="../common/preconditioner\l_solver.h" alt="" coords="1572,155,1744,196"/>
-<area shape="rect" id="node27" href="$mesh__generator_8h.html" title="../mesh/mesh_generator.h" alt="" coords="613,162,791,189"/>
-<area shape="rect" id="node29" href="$material__properties_8h.html" title="../material/material\l_properties.h" alt="" coords="1313,155,1445,196"/>
-<area shape="rect" id="node31" href="$aq__base_8h.html" title="../aqdata/aq_base.h" alt="" coords="815,162,955,189"/>
-</map>

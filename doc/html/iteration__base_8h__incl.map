@@ -1,8 +1,0 @@
-<map id="src/iteration/iteration_base.h" name="src/iteration/iteration_base.h">
-<area shape="rect" id="node3" href="$equation__base_8h.html" title="../equation/equation\l_base.h" alt="" coords="1157,95,1296,136"/>
-<area shape="rect" id="node17" href="$problem__definition_8h.html" title="../common/problem_definition.h" alt="" coords="949,191,1157,218"/>
-<area shape="rect" id="node21" href="$preconditioner__solver_8h.html" title="../common/preconditioner\l_solver.h" alt="" coords="2217,184,2389,225"/>
-<area shape="rect" id="node27" href="$mesh__generator_8h.html" title="../mesh/mesh_generator.h" alt="" coords="1681,191,1858,218"/>
-<area shape="rect" id="node29" href="$material__properties_8h.html" title="../material/material\l_properties.h" alt="" coords="1525,184,1657,225"/>
-<area shape="rect" id="node31" href="$aq__base_8h.html" title="../aqdata/aq_base.h" alt="" coords="1309,191,1449,218"/>
-</map>
