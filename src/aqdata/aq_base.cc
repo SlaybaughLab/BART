@@ -7,7 +7,7 @@
  STL header files
  */
 #include <fstream>
-
+#include <iomanip>
 /*
  deal.II header files
  */
@@ -120,7 +120,7 @@ void AQBase<dim>::print_angular_quad ()
   for (unsigned int i=0; i<omega_i_.size(); ++i)
   {
     double mu = std::sqrt (1.-(std::pow(omega_i_[i][0],2.)+std::pow(omega_i_[i][1],2)));
-    quadr << std::fixed << std::setprecision (15);
+    quadr << std::fixed << std::setprecision(15);
     quadr << wi_[i] << ", ";
     quadr << omega_i_[i][0] << ", ";
     quadr << omega_i_[i][1] << ", ";
