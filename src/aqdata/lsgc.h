@@ -26,6 +26,7 @@ public:
    
    \param prm ParameterHandler object.
    */
+  LSGC ();
   LSGC (ParameterHandler &prm);
   
   //!< Destructor.
