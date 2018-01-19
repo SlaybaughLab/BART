@@ -25,8 +25,11 @@
 
 # Usually, you will not need to modify anything beyond this point...
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+PROJECT(xtrans)
 
+### DEPENDENCIES #####################################################
+# Check that DEAL II is installed
 FIND_PACKAGE(deal.II 8.4 QUIET
   HINTS ${deal.II_DIR} ${DEAL_II_DIR} ../ ../../ $ENV{DEAL_II_DIR}
   )
@@ -53,25 +56,33 @@ One or both of these combinations are OFF in your installation but at least one 
     )
 ENDIF()
 
+### GTEST ############################################################
+
+find_package(GTest REQUIRED)
+set(GMOCK_BOTH_LIBRARIES "/usr/lib/libgmock.so;/usr/lib/libgmock_main.so")
+include_directories(${GTEST_INCLUDE_DIRS})
+
+######################################################################
+
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
-SET(CLEAN_UP_FILES *.log *.gmv *.gnuplot *.gpl *.eps *.pov *.vtk *.ucd *.d2 *.vtu *.pvtu)
-PROJECT(xtrans)
-ENABLE_TESTING()
+SET(CLEAN_UP_FILES *.log *.gmv *.gnuplot *.gpl *.eps *.pov *.vtk *.ucd
+  *.d2 *.vtu *.pvtu)
+  
+### EXECUTABLES AND SOURCES ##########################################
 
-ADD_SUBDIRECTORY(src/aqdata)
-ADD_SUBDIRECTORY(src/common)
-ADD_SUBDIRECTORY(src/mesh)
-SET(TARGET "xtrans")
-SET(TARGET_SRC src/main.cc)
+# Recursively find source files
 
-# Add unit testing subdirectories
-ADD_SUBDIRECTORY(tests/aqdata)
-ADD_SUBDIRECTORY(tests/common)
-ADD_SUBDIRECTORY(tests/mesh)
+file(GLOB_RECURSE sources "src/*.cpp" "src/*.cc")
+set(testing_sources ${sources})
+list(FILTER sources EXCLUDE REGEX ".(/tests/).")
 
-DEAL_II_INVOKE_AUTOPILOT()
-TARGET_LINK_LIBRARIES(xtrans
-_aqdata
-_common
-_mesh
-)
+# Add xtrans executables
+ADD_EXECUTABLE(xtrans ${sources})
+ADD_EXECUTABLE(xtrans_test ${testing_sources})
+
+# Add testing definition and library to xtrans_test
+target_compile_definitions(xtrans_test PUBLIC -DTEST)
+target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES})
+
+DEAL_II_SETUP_TARGET(xtrans)
+DEAL_II_SETUP_TARGET(xtrans_test)
