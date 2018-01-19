@@ -1,33 +1,29 @@
 sudo: required
 
-branches:
-  only:
-  - master
-  - dev
-  - restart
-
 notifications:
   email: false
 
 language: cpp
 
-matrix:
- include:
- - env: DEALII=dealii/dealii:v8.4.2-gcc-mpi-fulldepsmanual-debugrelease
- - env: DEALII=dealii/dealii:v8.5.0-gcc-mpi-fulldepscandi-debugrelease
-
 services:
  - docker
 
 before_install:
- - sudo docker pull $DEALII
+ - sudo docker pull jsrehak/bart-gtest
+ - ci_env=`bash <(curl -s https://codecov.io/env)`
 
 install:
- - sudo docker run $DEALII
+ - sudo docker run jsrehak/bart-gtest
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker cp ../BART $id:/home/dealii
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker commit $id dealii/dealii-bart
+ - sudo docker commit $id jsrehak/bart-gtest
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" --name bart jsrehak/bart-gtest
 
 script:
- - sudo docker run dealii/dealii-bart /bin/sh -c "cmake BART/; make; ctest -j4"
+ - docker exec bart cmake .
+ - docker exec bart make
+ - docker exec bart bash -c "./xtrans_test"
+
+after_success:
+ - sudo docker exec bart bash -c "./coverage.sh"
