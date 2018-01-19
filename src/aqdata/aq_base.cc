@@ -137,6 +137,8 @@ std::string AQBase<dim>::ProduceAQName () {
   // ToDo: more quadrature name producers
   if (aq_name_=="lsgc")
     return "Level Symmetric Gauss Chebyshev";
+  else
+    return "None";
 }
 
 //public member functions to retrieve private and protected variables
