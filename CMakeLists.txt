@@ -86,4 +86,15 @@ target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES})
 
 DEAL_II_SETUP_TARGET(xtrans)
 DEAL_II_SETUP_TARGET(xtrans_test)
-      
+
+### COPY TEST FILES ##################################################
+
+file(GLOB_RECURSE test_files "src/*.golden")
+foreach(test_file ${test_files})
+  MESSAGE(${test_file})
+  get_filename_component(file_name ${test_file} NAME)
+  add_custom_command(
+    TARGET xtrans_test POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${test_file}
+            ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
+endforeach()  
