@@ -59,14 +59,17 @@ PROJECT(xtrans)
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/aqdata)
+ADD_SUBDIRECTORY(src/common)
 #ADD_EXECUTABLE(xtrans src/main.cc)
 #DEAL_II_SETUP_TARGET(xtrans)
 SET(TARGET "xtrans")
 SET(TARGET_SRC src/main.cc)
 
 ADD_SUBDIRECTORY(tests/aqdata)
+ADD_SUBDIRECTORY(tests/common)
 
 DEAL_II_INVOKE_AUTOPILOT()
 TARGET_LINK_LIBRARIES(xtrans
 _aqdata
+_common
 )
