@@ -9,6 +9,7 @@ services:
  - docker
 
 before_install:
+ - mkdir shared
  - sudo docker pull jsrehak/bart-gtest
  - ci_env=`bash <(curl -s https://codecov.io/env)`
 
@@ -18,7 +19,7 @@ install:
  - sudo docker cp ../BART $id:/home/dealii
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker commit $id jsrehak/bart-gtest
- - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" --name bart jsrehak/bart-gtest
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" -v "$PWD/shared:/home/dealii/shared" --name bart jsrehak/bart-gtest
 
 script:
  - docker exec bart cmake .
@@ -26,4 +27,6 @@ script:
  - docker exec bart bash -c "./xtrans_test"
 
 after_success:
- - sudo docker exec bart bash -c "./coverage.sh"
+ - docker exec bart bash -c "./coverage.sh"
+ - docker cp bart:/home/dealii/BART/coverage.info .
+ - bash <(curl -s https://codecov.io/bash)
