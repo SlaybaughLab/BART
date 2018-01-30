@@ -56,18 +56,28 @@ One or both of these combinations are OFF in your installation but at least one 
     )
 ENDIF()
 
-### GTEST ############################################################
+### GTEST/GMOCK  ######################################################
 
-find_package(GTest REQUIRED)
-set(GMOCK_BOTH_LIBRARIES "/usr/lib/libgmock.so;/usr/lib/libgmock_main.so")
-include_directories(${GTEST_INCLUDE_DIRS})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
+
+set(GTEST_ROOT "/usr")
+find_package(GTest REQUIRED 1.8.0)
+find_package(GMock REQUIRED)
+#set(GTEST_INCLUDE_DIRS "/usr/include")
+#set(GTEST_BOTH_LIBRARIES "/usr/lib/libgtest_main.so;/usr/lib/libgtest.so")
+#set(GMOCK_BOTH_LIBRARIES "/usr/lib/libgmock.a;/usr/lib/libgmock_main.a")
+
+### COMPILE AND LINKER FLAGS #########################################
+
+SET(DEAL_II_CXX_FLAGS_DEBUG "${DEAL_II_CXX_FLAGS_DEBUG} -g -O0 --coverage")
+SET(DEAL_II_LINKER_FLAGS_DEBUG "${DEAL_II_LINKER_FLAGS_DEBUG} --coverage")
 
 ######################################################################
 
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
 SET(CLEAN_UP_FILES *.log *.gmv *.gnuplot *.gpl *.eps *.pov *.vtk *.ucd
   *.d2 *.vtu *.pvtu)
-  
+
 ### EXECUTABLES AND SOURCES ##########################################
 
 # Recursively find source files
@@ -75,6 +85,11 @@ SET(CLEAN_UP_FILES *.log *.gmv *.gnuplot *.gpl *.eps *.pov *.vtk *.ucd
 file(GLOB_RECURSE sources "src/*.cpp" "src/*.cc")
 set(testing_sources ${sources})
 list(FILTER sources EXCLUDE REGEX ".(/tests/).")
+list(FILTER sources EXCLUDE REGEX ".(/test_helpers/).")
+
+# Include directories
+include_directories(${GTEST_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/inc)
 
 # Add xtrans executables
 ADD_EXECUTABLE(xtrans ${sources})
@@ -82,14 +97,16 @@ ADD_EXECUTABLE(xtrans_test ${testing_sources})
 
 # Add testing definition and library to xtrans_test
 target_compile_definitions(xtrans_test PUBLIC -DTEST)
-target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES})
+
+target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES}
+  ${GMOCK_BOTH_LIBRARIES})
 
 DEAL_II_SETUP_TARGET(xtrans)
 DEAL_II_SETUP_TARGET(xtrans_test)
 
 ### COPY TEST FILES ##################################################
 
-file(GLOB_RECURSE test_files "src/*.golden")
+file(GLOB_RECURSE test_files "src/*.gold")
 foreach(test_file ${test_files})
   MESSAGE(${test_file})
   get_filename_component(file_name ${test_file} NAME)
