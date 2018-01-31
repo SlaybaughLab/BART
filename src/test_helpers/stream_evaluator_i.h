@@ -7,11 +7,11 @@ namespace btest {
 
 class StreamEvaluatorI {
  public:
-  //virtual ~StreamEvaluatorI() = 0;
-  //virtual bool Compare() = 0;
-  //virtual std::string GetDiff() = 0;
-  //virtual bool GoldIsGood() = 0;
-  //virtual bool TempIsGood() = 0;
+  virtual ~StreamEvaluatorI() {};
+  virtual bool Compare() = 0;
+  virtual std::string GetDiff() = 0;
+  virtual bool GoldGood() = 0;
+  virtual bool TempGood() = 0;
 };
 
 

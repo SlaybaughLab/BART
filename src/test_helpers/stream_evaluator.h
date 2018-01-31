@@ -14,10 +14,13 @@ class StreamEvaluator : public StreamEvaluatorI {
   ~StreamEvaluator() {};
   void AdoptStreams(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> temp_stream);
+  bool Compare();
+  std::string GetDiff();
   bool GoldGood() { return gold_good_; };
   bool TempGood() { return temp_good_; };
    
  private:
+  void ResetStreams();
   bool gold_good_ = false;
   bool temp_good_ = false;
   std::unique_ptr<std::istream> gold_stream_;
