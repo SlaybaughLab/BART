@@ -15,7 +15,7 @@ void StreamEvaluator::AdoptStreams(std::unique_ptr<std::istream> gold_stream,
 }
 
 bool StreamEvaluator::Compare() {
-  if (!gold_good_ | !temp_good_)
+  if (!gold_good_ || !temp_good_)
     throw std::runtime_error("Cannot compare bad streams");
 
   ResetStreams();
@@ -34,7 +34,7 @@ bool StreamEvaluator::Compare() {
     }
   }
 
-  if (!gold_stream_->eof() | !temp_stream_->eof())
+  if (!gold_stream_->eof() || !temp_stream_->eof())
   {
     //One file longer than the other
     same = false;
@@ -45,7 +45,7 @@ bool StreamEvaluator::Compare() {
 }
 
 std::string StreamEvaluator::GetDiff() {
-  if (!gold_good_ | !temp_good_)
+  if (!gold_good_ || !temp_good_)
     throw std::runtime_error("Cannot diff bad streams");
   
   //Generate diff and return output stream with it
