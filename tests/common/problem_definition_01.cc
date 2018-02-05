@@ -1,8 +1,5 @@
 #include "../../src/common/problem_definition.h"
-
-#include <fstream>
-
-#include <deal.II/base/logstream.h>
+#include "../test_utilities.h"
 
 void setup_parameters (dealii::ParameterHandler &prm)
 {
@@ -72,10 +69,6 @@ void test (dealii::ParameterHandler &prm)
 {
   // purpose of this test is to see whether parameters
   // are parsed correctly
-  const std::string logname = "output";
-  std::ofstream logfile (logname.c_str());
-  dealii::deallog.attach (logfile, false);
-
   ProblemDefinition::declare_parameters (prm);
   setup_parameters (prm);
   find_errors (prm);
@@ -85,6 +78,9 @@ void test (dealii::ParameterHandler &prm)
 int main ()
 {
   dealii::ParameterHandler prm;
+  
+  testing::init_log ();
+  
   test (prm);
   return 0;
 }

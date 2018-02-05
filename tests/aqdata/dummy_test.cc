@@ -8,8 +8,8 @@ void test(int dummy_num)
 
 int main()
 {
-  testing::init_log ()
-  
+  testing::init_log ();
+
   dealii::deallog.push("test test");
   test(31415926);
   dealii::deallog.pop();
