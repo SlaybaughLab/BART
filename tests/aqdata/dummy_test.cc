@@ -1,9 +1,5 @@
 #include "../../src/aqdata/aq_base.h"
-
-#include <iostream>
-#include <fstream>
-
-#include <deal.II/base/logstream.h>
+#include "../test_utilities.h"
 
 void test(int dummy_num)
 {
@@ -12,9 +8,8 @@ void test(int dummy_num)
 
 int main()
 {
-  const std::string logname = "output";
-  std::ofstream logfile(logname.c_str());
-  dealii::deallog.attach(logfile, false);
+  testing::init_log ()
+  
   dealii::deallog.push("test test");
   test(31415926);
   dealii::deallog.pop();

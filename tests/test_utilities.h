@@ -11,7 +11,7 @@ namespace testing {
 std::ofstream deallogfile;
 std::string deallogname;
 
-void initlog ()
+void init_log ()
 {
   deallogname = "output";
   deallogfile.open(deallogname.c_str());

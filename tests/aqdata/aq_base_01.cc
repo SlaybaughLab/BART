@@ -1,8 +1,5 @@
 #include "../../src/aqdata/aq_base.h"
-
-#include <fstream>
-
-#include <deal.II/base/logstream.h>
+#include "../test_utilities.h"
 
 template <int dim>
 class AQDerivedMock : public AQBase<dim>
@@ -75,9 +72,7 @@ void test()
 
 int main ()
 {
-  const std::string logname = "output";
-  std::ofstream logfile (logname.c_str());
-  dealii::deallog.attach (logfile, false);
+  testing::init_log ();
 
   // put the test code here
   dealii::deallog.push ("2D");
