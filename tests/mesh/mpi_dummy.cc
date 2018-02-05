@@ -11,7 +11,7 @@ int main (int argc, char *argv[])
 {
   dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization (argc, argv, 1);
 
-  MPILogInit init;
+  testing::MPILogInit init;
   dealii::deallog.push ("MPI Demo");
   test ();
   dealii::deallog.pop ();
