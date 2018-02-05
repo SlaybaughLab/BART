@@ -6,8 +6,17 @@
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/logstream.h>
 
+namespace testing {
+
 std::ofstream deallogfile;
 std::string deallogname;
+
+void initlog ()
+{
+  deallogname = "output";
+  deallogfile.open(deallogname.c_str());
+  dealii::deallog.attach(deallogfile, false);
+}
 
 void collect_file (const char *filename)
 {
@@ -81,5 +90,7 @@ struct MPILogInit
     MPI_Barrier (MPI_COMM_WORLD);
   }
 };
+
+}
 
 #endif //BART_TESTS_TEST_UTILITIES_H__
