@@ -1,5 +1,5 @@
-#ifndef BART_AQDATA_LSGC_H__
-#define BART_AQDATA_LSGC_H__
+#ifndef BART_SRC_AQDATA_LSGC_H__
+#define BART_SRC_AQDATA_LSGC_H__
 
 #include "aq_base.h"
 
@@ -40,4 +40,4 @@ public:
   void produce_angular_quad ();
 };
 
-#endif// BART_AQDATA_LSGC_H__
+#endif// BART_SRC_AQDATA_LSGC_H__

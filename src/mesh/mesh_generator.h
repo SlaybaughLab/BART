@@ -1,5 +1,5 @@
-#ifndef __mesh_generator_h__
-#define __mesh_generator_h__
+#ifndef BART_SRC_MESH_MESH_GENERATOR_H__
+#define BART_SRC_MESH_MESH_GENERATOR_H__
 
 #include <deal.II/distributed/tria.h>
 #include <deal.II/base/parameter_handler.h>
@@ -166,4 +166,4 @@ private:
   std::vector<unsigned int> ncell_per_dir_;//!< Initial number of cells per axis on the coarse mesh.
 };
 
-#endif //__mesh_generator_h__
+#endif //BART_SRC_MESH_MESH_GENERATOR_H__
