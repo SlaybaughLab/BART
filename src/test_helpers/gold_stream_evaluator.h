@@ -14,18 +14,18 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
   ~GoldStreamEvaluator() {};
   void AdoptStreams(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> actual_stream);
-  bool Compare();
-  std::string GetDiff();
-  bool RunGoldTest();
-  bool GoldGood() { return gold_good_; };
-  bool ActualGood() { return actual_good_; };
+  bool Compare() const;
+  std::string GetDiff() const;
+  bool RunGoldTest() const;
+  bool GoldGood() const { return gold_good_; };
+  bool ActualGood() const { return actual_good_; };
    
  private:
-  void ResetStreams();
+  void ResetStreams() const;
   bool gold_good_ = false;
   bool actual_good_ = false;
-  std::unique_ptr<std::istream> gold_stream_;
-  std::unique_ptr<std::istream> actual_stream_;
+  mutable std::unique_ptr<std::istream> gold_stream_;
+  mutable std::unique_ptr<std::istream> actual_stream_;
     
 };
 
