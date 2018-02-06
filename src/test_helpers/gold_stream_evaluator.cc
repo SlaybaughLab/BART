@@ -14,7 +14,7 @@ void GoldStreamEvaluator::AdoptStreams(std::unique_ptr<std::istream> gold_stream
   actual_good_ = actual_stream_->good();
 }
 
-bool GoldStreamEvaluator::Compare() {
+bool GoldStreamEvaluator::Compare() const {
   if (!gold_good_ || !actual_good_)
     throw std::runtime_error("Cannot compare bad streams");
 
@@ -44,7 +44,7 @@ bool GoldStreamEvaluator::Compare() {
   return same;
 }
 
-std::string GoldStreamEvaluator::GetDiff() {
+std::string GoldStreamEvaluator::GetDiff() const {
   if (!gold_good_ || !actual_good_)
     throw std::runtime_error("Cannot diff bad streams");
   
@@ -69,13 +69,13 @@ std::string GoldStreamEvaluator::GetDiff() {
   return diff_stream.str();
 }
 
-bool GoldStreamEvaluator::RunGoldTest() {
+bool GoldStreamEvaluator::RunGoldTest() const {
   if (!gold_good_ || !actual_good_)
     return false;
   return Compare();    
 }
 
-void GoldStreamEvaluator::ResetStreams() {
+void GoldStreamEvaluator::ResetStreams() const {
   gold_stream_->seekg(0, std::ios::beg);
   actual_stream_->seekg(0, std::ios::beg);
 }
