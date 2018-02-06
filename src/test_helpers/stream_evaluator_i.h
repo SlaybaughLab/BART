@@ -11,7 +11,7 @@ class StreamEvaluatorI {
   virtual bool Compare() = 0;
   virtual std::string GetDiff() = 0;
   virtual bool GoldGood() = 0;
-  virtual bool TempGood() = 0;
+  virtual bool ActualGood() = 0;
 };
 
 
