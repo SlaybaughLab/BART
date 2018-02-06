@@ -5,10 +5,10 @@ namespace btest {
 
 class MockStreamEvaluator : public StreamEvaluatorI {
  public:
-  MOCK_METHOD0(Compare, bool());
-  MOCK_METHOD0(GetDiff, std::string());
-  MOCK_METHOD0(GoldGood, bool());
-  MOCK_METHOD0(TempGood, bool());
+  MOCK_CONST_METHOD0(Compare, bool());
+  MOCK_CONST_METHOD0(GetDiff, std::string());
+  MOCK_CONST_METHOD0(GoldGood, bool());
+  MOCK_CONST_METHOD0(TempGood, bool());
 };
 
 }
