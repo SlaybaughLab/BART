@@ -7,14 +7,14 @@ namespace btest {
 
 class BartTestHelper {
  public:
-  BartTestHelper() : gold_files_directory_("/test_data"),
-                     report_(false) {};
-  BartTestHelper(std::string gold_files_directory, bool report)
-      : gold_files_directory_(gold_files_directory),
-        report_(report) {};
+  BartTestHelper(bool report = false,
+                 std::string gold_files_directory="/test_data");
+  const std::string& GetReportDirectory() const { return report_directory_; };
  private:
-  const std::string gold_files_directory_;
+  void MakeReportDirectory();
   const bool report_;
+  const std::string gold_files_directory_;
+  std::string report_directory_;
 };
 
 }
