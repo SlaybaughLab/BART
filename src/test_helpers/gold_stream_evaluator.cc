@@ -6,8 +6,9 @@
 
 namespace btest {
 
-void GoldStreamEvaluator::AdoptStreams(std::unique_ptr<std::istream> gold_stream,
-                                   std::unique_ptr<std::istream> actual_stream) {
+GoldStreamEvaluator::GoldStreamEvaluator(
+    std::unique_ptr<std::istream> gold_stream,
+    std::unique_ptr<std::istream> actual_stream) {
   gold_stream_ = std::move(gold_stream);
   actual_stream_ = std::move(actual_stream);
   gold_good_ = gold_stream_->good();

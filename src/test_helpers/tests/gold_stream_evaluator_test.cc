@@ -16,15 +16,13 @@ class GoldStreamEvaluatorTest : public ::testing::Test {
 
   std::unique_ptr<std::istringstream> gold_iss;
   std::unique_ptr<std::istringstream> actual_iss;
-
-  btest::GoldStreamEvaluator test_eval;
 };
 
 TEST_F(GoldStreamEvaluatorTest, BadGoldStream)
 {
   actual_iss->setstate(std::ios_base::goodbit);
   gold_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.GoldGood());
   ASSERT_TRUE(test_eval.ActualGood());
 }
@@ -33,7 +31,7 @@ TEST_F(GoldStreamEvaluatorTest, BadActualStream)
 {
   gold_iss->setstate(std::ios_base::goodbit);
   actual_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.ActualGood());
   ASSERT_TRUE(test_eval.GoldGood());
 }
@@ -42,7 +40,7 @@ TEST_F(GoldStreamEvaluatorTest, BadBothStream)
 {
   gold_iss->setstate(std::ios_base::badbit);
   actual_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.ActualGood());
   ASSERT_FALSE(test_eval.GoldGood());
 }
@@ -52,7 +50,7 @@ TEST_F(GoldStreamEvaluatorTest, SameStream)
   std::string input_text = "1\n2\n3\n4\n5";
   gold_iss->str(input_text);
   actual_iss->str(input_text);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_TRUE(test_eval.Compare());
 }
 
@@ -62,7 +60,7 @@ TEST_F(GoldStreamEvaluatorTest, DiffStream)
   std::string actual_text = "1\n2\nX\n4\n5";
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.Compare());
 }
 
@@ -70,7 +68,7 @@ TEST_F(GoldStreamEvaluatorTest, BadGoldStreamCompare)
 {
   actual_iss->setstate(std::ios_base::goodbit);
   gold_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_THROW(test_eval.Compare(), std::runtime_error);
 }
 
@@ -78,7 +76,7 @@ TEST_F(GoldStreamEvaluatorTest, BadActualStreamCompare)
 {
   gold_iss->setstate(std::ios_base::goodbit);
   actual_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_THROW(test_eval.Compare(), std::runtime_error);
 }
 
@@ -88,7 +86,7 @@ TEST_F(GoldStreamEvaluatorTest, CompareLongerGold)
   std::string actual_text = "1\n2\n3\n4";
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.Compare());
 
 }
@@ -99,7 +97,7 @@ TEST_F(GoldStreamEvaluatorTest, CompareLongerActual)
   std::string actual_text = "1\n2\n3\n4\n5";
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.Compare());
 }
 
@@ -111,7 +109,7 @@ TEST_F(GoldStreamEvaluatorTest, DiffWorks)
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
 
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   diff = test_eval.GetDiff();
   ASSERT_EQ(diff,"@@ -1,4 +1,4 @@\n 1\n 2\n-X\n+3\n 4\n");
 }
@@ -124,7 +122,7 @@ TEST_F(GoldStreamEvaluatorTest, DiffWorksSame)
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
 
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   diff = test_eval.GetDiff();
   ASSERT_EQ(diff,"");
 }
@@ -133,7 +131,7 @@ TEST_F(GoldStreamEvaluatorTest, BadGoldStreamDiff)
 {
   actual_iss->setstate(std::ios_base::goodbit);
   gold_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_THROW(test_eval.GetDiff(), std::runtime_error);
 }
 
@@ -141,7 +139,7 @@ TEST_F(GoldStreamEvaluatorTest, BadActualStreamDiff)
 {
   gold_iss->setstate(std::ios_base::goodbit);
   actual_iss->setstate(std::ios_base::badbit);
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_THROW(test_eval.GetDiff(), std::runtime_error);
 }
 
@@ -153,7 +151,7 @@ TEST_F(GoldStreamEvaluatorTest, RunGoldTestFail)
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
 
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_FALSE(test_eval.RunGoldTest());
 }
 
@@ -165,6 +163,6 @@ TEST_F(GoldStreamEvaluatorTest, RunGoldTestPass)
   gold_iss->str(gold_text);
   actual_iss->str(actual_text);
 
-  test_eval.AdoptStreams(std::move(gold_iss), std::move(actual_iss));
+  btest::GoldStreamEvaluator test_eval(std::move(gold_iss), std::move(actual_iss));
   ASSERT_TRUE(test_eval.RunGoldTest());
 }

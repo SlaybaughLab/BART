@@ -10,10 +10,9 @@ namespace btest {
 
 class GoldStreamEvaluator : public StreamEvaluatorI {
  public:
-  GoldStreamEvaluator() {};
-  ~GoldStreamEvaluator() {};
-  void AdoptStreams(std::unique_ptr<std::istream> gold_stream,
+  GoldStreamEvaluator(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> actual_stream);
+  ~GoldStreamEvaluator() {};
   bool Compare() const;
   std::string GetDiff() const;
   bool RunGoldTest() const;
