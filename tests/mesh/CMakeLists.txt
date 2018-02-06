@@ -1,5 +1,5 @@
 # Add a new executable for every single new test
-ADD_DEFINITIONS(-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR})
+ADD_DEFINITIONS(-DSOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 ADD_EXECUTABLE(mpi_dummy_exe mpi_dummy.cc)
 DEAL_II_SETUP_TARGET(mpi_dummy_exe)

@@ -1,8 +1,6 @@
 #include "../../src/mesh/mesh_generator.h"
 #include "../test_utilities.h"
 
-#include <boost/preprocessor/stringize.hpp>
-
 #include <deal.II/base/types.h>
 
 void setup_parameters (dealii::ParameterHandler &prm)
@@ -21,7 +19,7 @@ void setup_parameters (dealii::ParameterHandler &prm)
                      dealii::Patterns::List(dealii::Patterns::Anything ()), "");
   prm.enter_subsection ("material ID map");
   {
-    std::string id_fname = BOOST_PP_STRINGIZE(SOURCE_DIR) + std::string("/mesh_generator_01.matid");
+    std::string id_fname = SOURCE_DIR + std::string ("/mesh_generator_01.matid");
     prm.declare_entry ("material id file name", id_fname,
                        dealii::Patterns::FileName(), "file name for material id map");
   }
