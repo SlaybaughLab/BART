@@ -1,14 +1,13 @@
 #ifndef BART_SRC_MESH_MESH_GENERATOR_H__
 #define BART_SRC_MESH_MESH_GENERATOR_H__
 
-#include <deal.II/distributed/tria.h>
-#include <deal.II/base/parameter_handler.h>
-
 #include <unordered_map>
 #include <map>
 #include <vector>
 
-using namespace dealii;
+#include <deal.II/distributed/tria.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/base/parameter_handler.h>
 
 //! This class provides functionalities to generate a distributed mesh.
 /*!
@@ -33,7 +32,7 @@ public:
    
    \param prm ParameterHandler object.
    */
-  MeshGenerator (ParameterHandler &prm);
+  MeshGenerator (dealii::ParameterHandler &prm);
   
   //! Class destructor.
   ~MeshGenerator ();
@@ -50,7 +49,7 @@ public:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void make_grid (parallel::distributed::Triangulation<dim> &tria);
+  void make_grid (dealii::parallel::distributed::Triangulation<dim> &tria);
   
   /*!
    This function initializes iterators for cells on current processor.
@@ -61,8 +60,8 @@ public:
    \return Void.
    */
   void get_relevant_cell_iterators
-  (const DoFHandler<dim> &dof_handler,
-   std::vector<typename DoFHandler<dim>::active_cell_iterator> &local_cells);
+  (const dealii::DoFHandler<dim> &dof_handler,
+   std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> &local_cells);
   
   /*!
    Public member function to get total number of global refinements.
@@ -89,7 +88,7 @@ private:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void generate_initial_grid (parallel::distributed::Triangulation<dim> &tria);
+  void generate_initial_grid (dealii::parallel::distributed::Triangulation<dim> &tria);
   
   /*!
    This member function set up material IDs to the cells belonging to current
@@ -98,7 +97,7 @@ private:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void initialize_material_id (parallel::distributed::Triangulation<dim> &tria);
+  void initialize_material_id (dealii::parallel::distributed::Triangulation<dim> &tria);
   
   /*!
    This function set up boundary IDs. The naming philosophy is xmin->0, xmax->1,
@@ -107,7 +106,7 @@ private:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void setup_boundary_ids (parallel::distributed::Triangulation<dim> &tria);
+  void setup_boundary_ids (dealii::parallel::distributed::Triangulation<dim> &tria);
   
   /*!
    Function to initialize the mapping: cell relative pos.->material ID on initial
@@ -116,14 +115,14 @@ private:
    \param prm ParameterHandler object.
    \return Void.
    */
-  void initialize_relative_position_to_id_map (ParameterHandler &prm);
+  void initialize_relative_position_to_id_map (dealii::ParameterHandler &prm);
   
   /*!
    A function to establish the mapping: boundary id->refl. BC or not.
    
    \param prm ParameterHandler object.
    */
-  void preprocess_reflective_bc (ParameterHandler &prm);
+  void preprocess_reflective_bc (dealii::ParameterHandler &prm);
   
   /*!
    A function to process coordinate info such as axis lengths, cell number per
@@ -132,7 +131,7 @@ private:
    \param prm ParameterHandler object.
    \return Void.
    */
-  void process_coordinate_information (ParameterHandler &prm);
+  void process_coordinate_information (dealii::ParameterHandler &prm);
   
   /*!
    Get relative position of a cell by providing its center.
@@ -144,7 +143,7 @@ private:
    \return Void.
    */
   void get_cell_relative_position
-  (Point<dim> &position, std::vector<unsigned int> &relative_position);
+  (dealii::Point<dim> &position, std::vector<unsigned int> &relative_position);
   
   /*!
    Boolean to determine if mesh needs to be generated or read-in. Currently, BART
