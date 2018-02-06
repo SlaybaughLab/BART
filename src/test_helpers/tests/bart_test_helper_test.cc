@@ -36,4 +36,3 @@ TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
   ASSERT_THROW(btest::BartTestHelper test_helper(true, bad_directory),
                std::runtime_error);
 }
-  

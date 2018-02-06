@@ -10,6 +10,7 @@ class BartTestHelper {
   BartTestHelper(bool report = false,
                  std::string gold_files_directory="/test_data");
   const std::string& GetReportDirectory() const { return report_directory_; };
+  bool GoldTest(std::string filename);
  private:
   void MakeReportDirectory();
   const bool report_;
