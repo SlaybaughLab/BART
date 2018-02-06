@@ -17,8 +17,8 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
   bool Compare() const;
   std::string GetDiff() const;
   bool RunGoldTest() const;
-  bool GoldGood() const { return gold_good_; };
-  bool ActualGood() const { return actual_good_; };
+  const bool& GoldGood() const { return gold_good_; };
+  const bool& ActualGood() const { return actual_good_; };
    
  private:
   void ResetStreams() const;
