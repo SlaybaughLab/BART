@@ -16,6 +16,7 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
                     std::unique_ptr<std::istream> actual_stream);
   bool Compare();
   std::string GetDiff();
+  bool RunGoldTest();
   bool GoldGood() { return gold_good_; };
   bool ActualGood() { return actual_good_; };
    

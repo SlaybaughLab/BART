@@ -69,6 +69,12 @@ std::string GoldStreamEvaluator::GetDiff() {
   return diff_stream.str();
 }
 
+bool GoldStreamEvaluator::RunGoldTest() {
+  if (!gold_good_ || !actual_good_)
+    return false;
+  return Compare();    
+}
+
 void GoldStreamEvaluator::ResetStreams() {
   gold_stream_->seekg(0, std::ios::beg);
   actual_stream_->seekg(0, std::ios::beg);
