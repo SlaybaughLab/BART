@@ -1,5 +1,7 @@
 #include "bart_test_helper.h"
+#include "gold_stream_evaluator.h"
 #include <sys/stat.h>
+#include <memory>
 #include <ctime>
 #include <iomanip>
 #include <fstream>
@@ -15,7 +17,13 @@ BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory)
 }
 
 bool BartTestHelper::GoldTest(std::string filename) {
-  return true;
+  auto actual_file_stream = std::make_unique<std::ifstream>(filename);
+  auto gold_file_stream = std::make_unique<std::ifstream>
+                          (gold_files_directory_ + filename);
+  GoldStreamEvaluator evaluator(std::move(gold_file_stream),
+                                std::move(actual_file_stream));
+  
+  return evaluator.RunGoldTest();
 }
 
 void BartTestHelper::MakeReportDirectory() {
