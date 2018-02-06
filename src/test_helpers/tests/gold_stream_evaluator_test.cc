@@ -5,9 +5,9 @@
 #include <string>
 #include <exception>
 
-#include "../stream_evaluator.h"
+#include "../gold_stream_evaluator.h"
 
-class StreamEvaluatorTest : public ::testing::Test {
+class GoldStreamEvaluatorTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     gold_iss = std::make_unique<std::istringstream>();
@@ -17,10 +17,10 @@ class StreamEvaluatorTest : public ::testing::Test {
   std::unique_ptr<std::istringstream> gold_iss;
   std::unique_ptr<std::istringstream> temp_iss;
 
-  btest::StreamEvaluator test_eval;
+  btest::GoldStreamEvaluator test_eval;
 };
 
-TEST_F(StreamEvaluatorTest, BadGoldStream)
+TEST_F(GoldStreamEvaluatorTest, BadGoldStream)
 {
   temp_iss->setstate(std::ios_base::goodbit);
   gold_iss->setstate(std::ios_base::badbit);
@@ -29,7 +29,7 @@ TEST_F(StreamEvaluatorTest, BadGoldStream)
   ASSERT_TRUE(test_eval.TempGood());
 }
 
-TEST_F(StreamEvaluatorTest, BadTempStream)
+TEST_F(GoldStreamEvaluatorTest, BadTempStream)
 {
   gold_iss->setstate(std::ios_base::goodbit);
   temp_iss->setstate(std::ios_base::badbit);
@@ -38,7 +38,7 @@ TEST_F(StreamEvaluatorTest, BadTempStream)
   ASSERT_TRUE(test_eval.GoldGood());
 }
 
-TEST_F(StreamEvaluatorTest, BadBothStream)
+TEST_F(GoldStreamEvaluatorTest, BadBothStream)
 {
   gold_iss->setstate(std::ios_base::badbit);
   temp_iss->setstate(std::ios_base::badbit);
@@ -47,7 +47,7 @@ TEST_F(StreamEvaluatorTest, BadBothStream)
   ASSERT_FALSE(test_eval.GoldGood());
 }
 
-TEST_F(StreamEvaluatorTest, SameStream)
+TEST_F(GoldStreamEvaluatorTest, SameStream)
 {
   std::string input_text = "1\n2\n3\n4\n5";
   gold_iss->str(input_text);
@@ -56,7 +56,7 @@ TEST_F(StreamEvaluatorTest, SameStream)
   ASSERT_TRUE(test_eval.Compare());
 }
 
-TEST_F(StreamEvaluatorTest, DiffStream)
+TEST_F(GoldStreamEvaluatorTest, DiffStream)
 {
   std::string gold_text = "1\n2\n3\n4\n5";
   std::string temp_text = "1\n2\nX\n4\n5";
@@ -66,7 +66,7 @@ TEST_F(StreamEvaluatorTest, DiffStream)
   ASSERT_FALSE(test_eval.Compare());
 }
 
-TEST_F(StreamEvaluatorTest, BadGoldStreamCompare)
+TEST_F(GoldStreamEvaluatorTest, BadGoldStreamCompare)
 {
   temp_iss->setstate(std::ios_base::goodbit);
   gold_iss->setstate(std::ios_base::badbit);
@@ -74,7 +74,7 @@ TEST_F(StreamEvaluatorTest, BadGoldStreamCompare)
   ASSERT_THROW(test_eval.Compare(), std::runtime_error);
 }
 
-TEST_F(StreamEvaluatorTest, BadTempStreamCompare)
+TEST_F(GoldStreamEvaluatorTest, BadTempStreamCompare)
 {
   gold_iss->setstate(std::ios_base::goodbit);
   temp_iss->setstate(std::ios_base::badbit);
@@ -82,7 +82,7 @@ TEST_F(StreamEvaluatorTest, BadTempStreamCompare)
   ASSERT_THROW(test_eval.Compare(), std::runtime_error);
 }
 
-TEST_F(StreamEvaluatorTest, CompareLongerGold)
+TEST_F(GoldStreamEvaluatorTest, CompareLongerGold)
 {
   std::string gold_text = "1\n2\n3\n4\n5";
   std::string temp_text = "1\n2\n3\n4";
@@ -93,7 +93,7 @@ TEST_F(StreamEvaluatorTest, CompareLongerGold)
 
 }
 
-TEST_F(StreamEvaluatorTest, CompareLongerTemp)
+TEST_F(GoldStreamEvaluatorTest, CompareLongerTemp)
 {
   std::string gold_text = "1\n2\n3\n4";
   std::string temp_text = "1\n2\n3\n4\n5";
@@ -103,7 +103,7 @@ TEST_F(StreamEvaluatorTest, CompareLongerTemp)
   ASSERT_FALSE(test_eval.Compare());
 }
 
-TEST_F(StreamEvaluatorTest, DiffWorks)
+TEST_F(GoldStreamEvaluatorTest, DiffWorks)
 {
   std::string gold_text = "1\n2\nX\n4";
   std::string temp_text = "1\n2\n3\n4";
@@ -116,7 +116,7 @@ TEST_F(StreamEvaluatorTest, DiffWorks)
   ASSERT_EQ(diff,"@@ -1,4 +1,4 @@\n 1\n 2\n-X\n+3\n 4\n");
 }
 
-TEST_F(StreamEvaluatorTest, BadGoldStreamDiff)
+TEST_F(GoldStreamEvaluatorTest, BadGoldStreamDiff)
 {
   temp_iss->setstate(std::ios_base::goodbit);
   gold_iss->setstate(std::ios_base::badbit);
@@ -124,7 +124,7 @@ TEST_F(StreamEvaluatorTest, BadGoldStreamDiff)
   ASSERT_THROW(test_eval.GetDiff(), std::runtime_error);
 }
 
-TEST_F(StreamEvaluatorTest, BadTempStreamDiff)
+TEST_F(GoldStreamEvaluatorTest, BadTempStreamDiff)
 {
   gold_iss->setstate(std::ios_base::goodbit);
   temp_iss->setstate(std::ios_base::badbit);

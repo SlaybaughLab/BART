@@ -1,5 +1,5 @@
-#ifndef STREAM_EVALUATOR_H_
-#define STREAM_EVALUATOR_H_
+#ifndef GOLD_STREAM_EVALUATOR_H_
+#define GOLD_STREAM_EVALUATOR_H_
 
 #include <memory>
 #include <iostream>
@@ -8,10 +8,10 @@
 
 namespace btest {
 
-class StreamEvaluator : public StreamEvaluatorI {
+class GoldStreamEvaluator : public StreamEvaluatorI {
  public:
-  StreamEvaluator() {};
-  ~StreamEvaluator() {};
+  GoldStreamEvaluator() {};
+  ~GoldStreamEvaluator() {};
   void AdoptStreams(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> temp_stream);
   bool Compare();

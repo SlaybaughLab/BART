@@ -1,4 +1,4 @@
-#include "stream_evaluator.h"
+#include "gold_stream_evaluator.h"
 #include "dtl/dtl.hpp"
 
 #include <sstream>
@@ -6,7 +6,7 @@
 
 namespace btest {
 
-void StreamEvaluator::AdoptStreams(std::unique_ptr<std::istream> gold_stream,
+void GoldStreamEvaluator::AdoptStreams(std::unique_ptr<std::istream> gold_stream,
                                    std::unique_ptr<std::istream> temp_stream) {
   gold_stream_ = std::move(gold_stream);
   temp_stream_ = std::move(temp_stream);
@@ -14,7 +14,7 @@ void StreamEvaluator::AdoptStreams(std::unique_ptr<std::istream> gold_stream,
   temp_good_ = temp_stream_->good();
 }
 
-bool StreamEvaluator::Compare() {
+bool GoldStreamEvaluator::Compare() {
   if (!gold_good_ || !temp_good_)
     throw std::runtime_error("Cannot compare bad streams");
 
@@ -44,7 +44,7 @@ bool StreamEvaluator::Compare() {
   return same;
 }
 
-std::string StreamEvaluator::GetDiff() {
+std::string GoldStreamEvaluator::GetDiff() {
   if (!gold_good_ || !temp_good_)
     throw std::runtime_error("Cannot diff bad streams");
   
@@ -69,7 +69,7 @@ std::string StreamEvaluator::GetDiff() {
   return diff_stream.str();
 }
 
-void StreamEvaluator::ResetStreams() {
+void GoldStreamEvaluator::ResetStreams() {
   gold_stream_->seekg(0, std::ios::beg);
   temp_stream_->seekg(0, std::ios::beg);
 }
