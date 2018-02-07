@@ -29,7 +29,20 @@ bool BartTestHelper::GoldTest(std::string filename) {
 
 void BartTestHelper::CleanupGold(std::string filename,
                                  bool result, bool actual_good) {
-  
+  if (actual_good && (result || !report_)) {
+    // Delete file
+    const int remove_err = remove(filename.c_str());
+    if (remove_err != 0)
+      throw std::runtime_error(("Failed to delete actual test file: " +
+                                filename).c_str());
+  } else {
+    const int rename_err = rename(filename.c_str(),
+                                  (report_directory_ + "/" + filename).c_str());
+    if (rename_err != 0)
+      throw std::runtime_error(("Failed to move actual test file: " +
+                                filename + " to " +
+                                report_directory_ + filename).c_str());
+  }
 }
 
 void BartTestHelper::MakeReportDirectory() {
