@@ -3,6 +3,7 @@
 
 #include <sys/stat.h>
 #include <exception>
+#include <fstream>
 
 #include "../bart_test_helper.h"
 
@@ -35,4 +36,14 @@ TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
   std::string bad_directory = "testing_data/";
   ASSERT_THROW(btest::BartTestHelper test_helper(true, bad_directory),
                std::runtime_error);
+}
+
+TEST_F(BartTestHelperTest, CleanupSuccess) {
+  btest::BartTestHelper test_helper;
+  std::string filename = "actual.temp";
+  std::ofstream actual_stream(filename, std::ios_base::out);
+  actual_stream << "actual data";
+  actual_stream.close();
+  struct stat sb;  
+  ASSERT_TRUE(stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
 }

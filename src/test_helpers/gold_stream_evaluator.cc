@@ -81,4 +81,9 @@ void GoldStreamEvaluator::ResetStreams() const {
   actual_stream_->seekg(0, std::ios::beg);
 }
 
+void GoldStreamEvaluator::CloseStreams() {
+  gold_stream_.reset();
+  actual_stream_.reset();
+}
+
 }
