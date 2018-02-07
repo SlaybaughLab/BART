@@ -46,4 +46,51 @@ TEST_F(BartTestHelperTest, CleanupSuccess) {
   actual_stream.close();
   struct stat sb;  
   ASSERT_TRUE(stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
+  test_helper.CleanupGold(filename, true, true);
+  ASSERT_FALSE(stat(filename.c_str(), &sb) == 0);
+}
+
+TEST_F(BartTestHelperTest, CleanupFail) {
+  btest::BartTestHelper test_helper;
+  std::string filename = "actual.temp";
+  std::ofstream actual_stream(filename, std::ios_base::out);
+  actual_stream << "actual data";
+  actual_stream.close();
+  struct stat sb;  
+  ASSERT_TRUE(stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
+  test_helper.CleanupGold(filename, false, true);
+  ASSERT_FALSE(stat(filename.c_str(), &sb) == 0);
+}
+
+TEST_F(BartTestHelperTest, CleanupSuccessReport) {
+  btest::BartTestHelper test_helper(true, gold_files_directory);
+  std::string report_directory = test_helper.GetReportDirectory();
+  std::string filename = "actual.temp";
+  std::ofstream actual_stream(filename, std::ios_base::out);
+  actual_stream << "actual data";
+  actual_stream.close();
+  struct stat sb;
+  ASSERT_TRUE(stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
+  test_helper.CleanupGold(filename, true, true);
+  ASSERT_FALSE(stat(filename.c_str(), &sb) == 0);
+  rmdir(report_directory.c_str());
+}
+
+TEST_F(BartTestHelperTest, CleanupFailReport) {
+  btest::BartTestHelper test_helper(true, gold_files_directory);
+  std::string report_directory = test_helper.GetReportDirectory();
+  std::string filename = "actual.temp";
+  std::ofstream actual_stream(filename, std::ios_base::out);
+  actual_stream << "actual data";
+  actual_stream.close();
+  struct stat sb;
+  ASSERT_TRUE(stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
+  test_helper.CleanupGold(filename, false, true);
+  ASSERT_FALSE(stat(filename.c_str(), &sb) == 0);
+  std::string new_name(report_directory + "/" + filename);
+  ASSERT_TRUE(
+      stat(new_name.c_str(), &sb) == 0 &&
+      S_ISREG(sb.st_mode));
+  remove(new_name.c_str());
+  rmdir(report_directory.c_str());
 }
