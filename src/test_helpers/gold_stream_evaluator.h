@@ -18,7 +18,7 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
   bool RunGoldTest() const;
   const bool& GoldGood() const { return gold_good_; };
   const bool& ActualGood() const { return actual_good_; };
-   
+  void CloseStreams();
  private:
   void ResetStreams() const;
   bool gold_good_ = false;

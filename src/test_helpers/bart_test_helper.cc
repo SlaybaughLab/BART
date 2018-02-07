@@ -22,8 +22,14 @@ bool BartTestHelper::GoldTest(std::string filename) {
                           (gold_files_directory_ + filename);
   GoldStreamEvaluator evaluator(std::move(gold_file_stream),
                                 std::move(actual_file_stream));
+  bool result = evaluator.RunGoldTest();
+  evaluator.CloseStreams();
+  CleanupGold(filename, result, evaluator.ActualGood());
+}
+
+void BartTestHelper::CleanupGold(std::string filename,
+                                 bool result, bool actual_good) {
   
-  return evaluator.RunGoldTest();
 }
 
 void BartTestHelper::MakeReportDirectory() {
