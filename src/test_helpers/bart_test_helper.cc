@@ -36,7 +36,7 @@ void BartTestHelper::CleanupGold(std::string filename,
     if (remove_err != 0)
       throw std::runtime_error(("Failed to delete actual test file: " +
                                 filename).c_str());
-  } else {
+  } else if (actual_good) {
     const int rename_err = rename(filename.c_str(),
                                   (report_directory_ + "/" + filename).c_str());
     if (rename_err != 0)

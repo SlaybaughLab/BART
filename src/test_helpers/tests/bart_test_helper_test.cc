@@ -94,3 +94,15 @@ TEST_F(BartTestHelperTest, CleanupFailReport) {
   remove(new_name.c_str());
   rmdir(report_directory.c_str());
 }
+
+TEST_F(BartTestHelperTest, CleanupBadFileDelete) {
+  btest::BartTestHelper test_helper(false, gold_files_directory);
+  ASSERT_THROW(test_helper.CleanupGold("bad_file", true, true),
+               std::runtime_error);
+}
+
+TEST_F(BartTestHelperTest, CleanupBadFileRename) {
+  btest::BartTestHelper test_helper(false, gold_files_directory);
+  ASSERT_THROW(test_helper.CleanupGold("bad_file", false, true),
+               std::runtime_error);
+}
