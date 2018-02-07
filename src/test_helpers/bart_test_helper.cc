@@ -18,13 +18,21 @@ BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory)
 
 bool BartTestHelper::GoldTest(std::string filename) {
   auto actual_file_stream = std::make_unique<std::ifstream>(filename);
-  auto gold_file_stream = std::make_unique<std::ifstream>
-                          (gold_files_directory_ + "/" + filename + ".gold");
+  auto gold_file_stream =
+      std::make_unique<std::ifstream>(gold_files_directory_ + filename + ".gold");
+  
   GoldStreamEvaluator evaluator(std::move(gold_file_stream),
                                 std::move(actual_file_stream));
   bool result = evaluator.RunGoldTest();
+  
+  // Make diff if required and possible
+  if (!result && evaluator.ActualGood() && evaluator.GoldGood())
+    MakeDiff(filename, evaluator.GetDiff());
+    
   evaluator.CloseStreams();
   CleanupGold(filename, result, evaluator.ActualGood());
+  
+  // Messages about test failure
   if (!evaluator.GoldGood())
     printf("BartTestHelper: GoldTest Failed: Bad gold file\n");
   else if(!evaluator.ActualGood())
@@ -51,6 +59,13 @@ void BartTestHelper::CleanupGold(std::string filename,
                                 filename + " to " +
                                 report_directory_ + filename).c_str());
   }
+}
+
+void BartTestHelper::MakeDiff(std::string filename, std::string diff) {
+  std::string diff_filename = report_directory_ + "/" + filename + ".diff";
+  std::ofstream diff_stream(diff_filename, std::ios_base::out);
+  diff_stream << diff;
+  diff_stream.close();
 }
 
 void BartTestHelper::MakeReportDirectory() {

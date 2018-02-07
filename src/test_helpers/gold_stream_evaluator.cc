@@ -56,7 +56,7 @@ std::string GoldStreamEvaluator::GetDiff() const {
 
   ResetStreams();
 
-  while(getline(*gold_stream_, line_buffer))
+  while(getline(*gold_stream_, line_buffer)) 
     gold_lines.push_back(line_buffer);
   while(getline(*actual_stream_, line_buffer))
     actual_lines.push_back(line_buffer);
@@ -77,6 +77,8 @@ bool GoldStreamEvaluator::RunGoldTest() const {
 }
 
 void GoldStreamEvaluator::ResetStreams() const {
+  gold_stream_->clear();
+  actual_stream_->clear();
   gold_stream_->seekg(0, std::ios::beg);
   actual_stream_->seekg(0, std::ios::beg);
 }
