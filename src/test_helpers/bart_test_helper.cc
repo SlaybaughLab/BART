@@ -25,6 +25,7 @@ bool BartTestHelper::GoldTest(std::string filename) {
   bool result = evaluator.RunGoldTest();
   evaluator.CloseStreams();
   CleanupGold(filename, result, evaluator.ActualGood());
+  return result;
 }
 
 void BartTestHelper::CleanupGold(std::string filename,
