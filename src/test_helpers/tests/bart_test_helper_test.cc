@@ -106,16 +106,3 @@ TEST_F(BartTestHelperTest, CleanupBadFileRename) {
   ASSERT_THROW(test_helper.CleanupGold("bad_file", false, true),
                std::runtime_error);
 }
-
-TEST_F(BartTestHelperTest, IntegrationTestGoldTest) {
-  btest::BartTestHelper test_helper(false, gold_files_directory);
-  // Make actual file
-  std::string filename = "bart_test_helper";
-  std::ofstream actual_stream(filename, std::ios_base::out);
-  actual_stream << "1234";
-  actual_stream.close();
-  ASSERT_TRUE(test_helper.GoldTest(filename));
-  // Check deleted
-  struct stat sb;
-  ASSERT_FALSE(stat(filename.c_str(), &sb) == 0);
-}
