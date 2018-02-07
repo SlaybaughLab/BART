@@ -19,12 +19,19 @@ BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory)
 bool BartTestHelper::GoldTest(std::string filename) {
   auto actual_file_stream = std::make_unique<std::ifstream>(filename);
   auto gold_file_stream = std::make_unique<std::ifstream>
-                          (gold_files_directory_ + filename);
+                          (gold_files_directory_ + "/" + filename + ".gold");
   GoldStreamEvaluator evaluator(std::move(gold_file_stream),
                                 std::move(actual_file_stream));
   bool result = evaluator.RunGoldTest();
   evaluator.CloseStreams();
   CleanupGold(filename, result, evaluator.ActualGood());
+  if (!evaluator.GoldGood())
+    printf("BartTestHelper: GoldTest Failed: Bad gold file\n");
+  else if(!evaluator.ActualGood())
+    printf("BartTestHelper: GoldTest Failed: No actual file\n");
+  else if(!result)
+    printf("BartTestHelper: GoldTest Failed, Actual/Gold not identical\n");
+
   return result;
 }
 
