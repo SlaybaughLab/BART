@@ -11,7 +11,7 @@ class BartTestHelper {
   BartTestHelper(bool report, std::string gold_files_directory);
   void ReInit(bool report, std::string gold_files_directory);
   const std::string& GetReportDirectory() const { return report_directory_; };
-  bool GoldTest(std::string filename);
+  bool GoldTest(std::string filename) const;
   void CleanupGold(std::string filename, bool result, bool actual_good) const;
   void MakeDiff(std::string filename, std::string diff) const;
  private:
