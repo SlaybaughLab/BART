@@ -11,12 +11,8 @@ namespace btest {
 BartTestHelper::BartTestHelper()
     : BartTestHelper(false, "test_data/") {}
 
-BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory)
-    : report_(report),
-      gold_files_directory_(gold_files_directory),
-      report_directory_("") {
-  if (report)
-     MakeReportDirectory();
+BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory) {
+  ReInit(report, gold_files_directory);
 }
 
 void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {

@@ -21,6 +21,11 @@ class BartTestHelper {
   std::string report_directory_;
 };
 
+// BartTestHelper& GlobalBartTestHelper() {
+//   static BartTestHelper global_bth;
+//   return global_bth;
+// }
+
 }
 
 #endif
