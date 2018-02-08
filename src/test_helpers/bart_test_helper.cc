@@ -97,4 +97,9 @@ void BartTestHelper::MakeReportDirectory() {
                               report_directory_).c_str());
 }
 
+BartTestHelper& GlobalBartTestHelper() {
+  static BartTestHelper global_bth;
+  return global_bth;
+}
+
 }

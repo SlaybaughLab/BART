@@ -20,11 +20,8 @@ class BartTestHelper {
   std::string gold_files_directory_;
   std::string report_directory_;
 };
-
-// BartTestHelper& GlobalBartTestHelper() {
-//   static BartTestHelper global_bth;
-//   return global_bth;
-// }
+// This is a Global Bart Test Helper used for tests
+BartTestHelper& GlobalBartTestHelper();
 
 }
 
