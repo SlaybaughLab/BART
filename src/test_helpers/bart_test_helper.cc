@@ -8,12 +8,21 @@
 
 namespace btest {
 
+BartTestHelper::BartTestHelper()
+    : BartTestHelper(false, "test_data/") {}
+
 BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory)
     : report_(report),
       gold_files_directory_(gold_files_directory),
       report_directory_("") {
   if (report)
      MakeReportDirectory();
+}
+
+void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {
+  report_ = report;
+  gold_files_directory_ = gold_files_directory;
+  report_directory_ = "";
 }
 
 bool BartTestHelper::GoldTest(std::string filename) {
@@ -61,7 +70,7 @@ void BartTestHelper::CleanupGold(std::string filename,
   }
 }
 
-void BartTestHelper::MakeDiff(std::string filename, std::string diff) {
+void BartTestHelper::MakeDiff(std::string filename, std::string diff){
   std::string diff_filename = report_directory_ + "/" + filename + ".diff";
   std::ofstream diff_stream(diff_filename, std::ios_base::out);
   diff_stream << diff;
