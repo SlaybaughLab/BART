@@ -1,5 +1,0 @@
-<map id="MeshGenerator::MeshGenerator" name="MeshGenerator::MeshGenerator">
-<area shape="rect" id="node2" href="$class_mesh_generator.html#a253330ef901e2a915576f6d6cd4262b5" title="MeshGenerator::process\l_coordinate_information" alt="" coords="281,5,451,47"/>
-<area shape="rect" id="node3" href="$class_mesh_generator.html#a6d216567b5b599cee526f33d435e6655" title="MeshGenerator::initialize\l_relative_position_to_id_map" alt="" coords="268,71,464,112"/>
-<area shape="rect" id="node4" href="$class_mesh_generator.html#a93d10aa06b5b638a859e2fc53dbea5e0" title="MeshGenerator::preprocess\l_reflective_bc" alt="" coords="272,136,460,177"/>
-</map>

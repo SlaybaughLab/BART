@@ -1,8 +1,5 @@
 #include "../../src/aqdata/lsgc.h"
-
-#include <fstream>
-
-#include <deal.II/base/logstream.h>
+#include "../test_utilities.h"
 
 template <int dim>
 void test (dealii::ParameterHandler &prm)
@@ -35,9 +32,9 @@ int main ()
 {
   dealii::ParameterHandler prm;
   setup_parameters (prm);
-  std::string deallogname = "output";
-  std::ofstream deallogfile (deallogname.c_str());
-  dealii::deallog.attach (deallogfile, false);
+
+  testing::init_log ();
+
   dealii::deallog << "AQ for Even-Parity S4" << std::endl;
   // 2D test
   dealii::deallog.push ("2D");

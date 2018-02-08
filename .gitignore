@@ -27,3 +27,5 @@ lib*.*
 Testing/
 *.json
 *.release
+html/
+latex/

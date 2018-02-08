@@ -1,8 +1,5 @@
 #include "../../src/aqdata/aq_base.h"
-
-#include <fstream>
-
-#include <deal.II/base/logstream.h>
+#include "../test_utilities.h"
 
 template <int dim>
 class AQDerivedMock : public AQBase<dim>
@@ -50,25 +47,11 @@ void test()
 {
   dealii::ParameterHandler prm;
 
-  // mock relevant input strings
-  std::string ref_bc = "true";
-  std::string transport_model = "mock";
-  std::string num_grp = "2";
-  std::string n_azi_angle = "2";
-  std::string aq_name = "mock";
-
-  prm.declare_entry ("have reflective BC", "true", dealii::Patterns::Bool (), "");
+  prm.declare_entry ("have reflective BC", "false", dealii::Patterns::Bool (), "");
   prm.declare_entry ("transport model", "mock", dealii::Patterns::Anything (), "");
   prm.declare_entry ("angular quadrature order", "2", dealii::Patterns::Integer (), "");
   prm.declare_entry ("angular quadrature name", "mock", dealii::Patterns::Anything (), "");
-  prm.declare_entry ("number of groups", "1", dealii::Patterns::Integer (), "");
-
-  // set parameter handler entries with mocking values
-  prm.set ("have reflective BC", ref_bc);
-  prm.set ("transport model", transport_model);
-  prm.set ("angular quadrature order", n_azi_angle);
-  prm.set ("number of groups", num_grp);
-  prm.set ("angular quadrature name", aq_name);
+  prm.declare_entry ("number of groups", "2", dealii::Patterns::Integer (), "");
 
   std::unique_ptr<AQBase<dim>> aq_mock =
       std::unique_ptr<AQBase<dim>>(new AQDerivedMock<dim>(prm));
@@ -89,9 +72,7 @@ void test()
 
 int main ()
 {
-  const std::string logname = "output";
-  std::ofstream logfile (logname.c_str());
-  dealii::deallog.attach (logfile, false);
+  testing::init_log ();
 
   // put the test code here
   dealii::deallog.push ("2D");

@@ -59,14 +59,19 @@ PROJECT(xtrans)
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/aqdata)
-#ADD_EXECUTABLE(xtrans src/main.cc)
-#DEAL_II_SETUP_TARGET(xtrans)
+ADD_SUBDIRECTORY(src/common)
+ADD_SUBDIRECTORY(src/mesh)
 SET(TARGET "xtrans")
 SET(TARGET_SRC src/main.cc)
 
+# Add unit testing subdirectories
 ADD_SUBDIRECTORY(tests/aqdata)
+ADD_SUBDIRECTORY(tests/common)
+ADD_SUBDIRECTORY(tests/mesh)
 
 DEAL_II_INVOKE_AUTOPILOT()
 TARGET_LINK_LIBRARIES(xtrans
 _aqdata
+_common
+_mesh
 )
