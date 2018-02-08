@@ -25,7 +25,7 @@ void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {
   report_directory_ = "";
 }
 
-bool BartTestHelper::GoldTest(std::string filename) {
+bool BartTestHelper::GoldTest(std::string filename) const {
   auto actual_file_stream = std::make_unique<std::ifstream>(filename);
   auto gold_file_stream =
       std::make_unique<std::ifstream>(gold_files_directory_ + filename + ".gold");
