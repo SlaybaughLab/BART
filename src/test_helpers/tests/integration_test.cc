@@ -16,7 +16,8 @@ class TestHelperIntTest : public ::testing::Test {
   btest::BartTestHelper test_helper;
   virtual void TearDown() {
     std::string report_directory = test_helper.GetReportDirectory();
-    if (report_directory != "")
+    if (report_directory != "" &&
+        (btest::GlobalBartTestHelper().GetReportDirectory() != report_directory))
       rmdir(test_helper.GetReportDirectory().c_str());
   }
 };
