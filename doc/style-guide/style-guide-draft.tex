@@ -19,8 +19,8 @@
 %	PACKAGES AND DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
 
-\documentclass{article}
-\usepackage[margin=1in]{geometry}
+\documentclass[openany]{book}
+\usepackage[margin=1.2in]{geometry}
 \usepackage[lighttt]{lmodern}
 \usepackage{hyperref}
 \usepackage[version=3]{mhchem} % Package for chemical equation typesetting
@@ -75,6 +75,7 @@
 	keywordstyle=[3]{\color{olive}},
 	keywordstyle=[5]{\color{magenta}}}
 \maketitle % Insert the title, author and date
+\tableofcontents
 % If you wish to include an abstract, uncomment the lines below
 % \begin{abstract}
 % Abstract text
@@ -82,15 +83,16 @@
 %----------------------------------------------------------------------------------------
 %	SECTION 0
 %----------------------------------------------------------------------------------------
-\section{Why I want to write this down}
-\textcolor{black}{After reading style guide from Google, I feel excited as well as upset at the same time. For most part, Google style gives a clear way to present the code to readers (essentially, the developers). Yet following Google style guide without thinking about it would also occasionally lead us to inconvenience or poor readability}.
+\chapter{Introductions}
+\textcolor{black}{After reading style guide from Google, I feel excited as well as upset at the same time. For most part, Google style gives a clear way to present the code to readers (essentially, the developers). Yet following Google style guide without thinking about it would also occasionally lead us to inconvenience or poor readability}. Therefore, I would like to combine Google style guide with conventions seen in {\tt deal.II} and {\tt Libmesh} (they might follow some self-consistent style) so future coding would have a consistent style easy to maintain.
 
-In conclusion, I would like to combine Google style guide with conventions seen in {\tt deal.II} and {\tt Libmesh} (they might follow some self-consistent style).
+Nevertheless, coding style is not the only purpose of this document. It is rather written to provide demos about specifics in developing \bart, such as how to write doxygen documentation, how to do unit testing, etc.
 
-The purpose is not only guiding myself when restarting {\tt BART}, but also serving as an agreement for future student involving in development. Last but not least, as this is a draft, it serves for the purpose of raising a discussion as well.
+The rest of the file is arranged as follows: Chapter\ \ref{ch:style-guide}\ introduces the coding style guide used in \bart\ development; Chapter\ \ref{ch:doxygen}\ introduces how doxygen is employed in documenting \bart; Chapter\ \ref{ch: unit-tests}\ introduces how unit tests can be developed along with the code development; Chapter\ \ref{ch: other-suggestions}\ gives other suggestions that are not covered by all other chapters.
 %----------------------------------------------------------------------------------------
 %	SECTION 1
 %----------------------------------------------------------------------------------------
+\chapter{Coding style}\label{ch:style-guide}
 \section{Briefs on what we follow with Google styles}
 Most of the coding style follow Google styles. Some highlights are:
 \begin{itemize}
@@ -263,13 +265,15 @@ would be more readable if it's changed to
 if ((a_expr && b_expr) || (c_expr && d_expr) || e_expr)
 {...}
 \end{lstlisting}
+\section{What's not covered}
+Rest part that is not yet covered but being used in practice would follow the Google style guide \url{https://google.github.io/styleguide/cppguide.html}.
 
-\section{About documentation}
-\subsection{General information}
+\chapter{Doxygen documentation introductions}\label{ch:doxygen}
+\section{General information}
 A default configuration file has been provided ``doxygen\_config". To produce documentation, run {\tt doxygen doxygen\_config}. The documentation is then generated as {\tt doc/html/annotated.html}.
 
-\subsection{General rule}
-Use Qt style for doxygen documentation. All the documentation should live in header files. Note that intermediate asterisks are not used.
+In \bart, we use Qt style for doxygen documentation. All the documentation should live in header files. Note that intermediate asterisks are not used.
+\section{Documentation}
 \subsection{Class method (aka member function) documentation}
 Generally it looks like
 \begin{lstlisting}
@@ -362,13 +366,20 @@ Here's an example
 double calculate_k_diff ();
 \end{lstlisting}
 
+\chapter{Unit testings}\label{ch: unit-tests}
+\section{Unit testing in \bart}
+Current \bart\ implementation utilize CTest to establish test suites. 
+
+In addition, a GTest-based methodology is under development in parallel.
 
 %----------------------------------------------------------------------------------------
-\section{Other suggestions}
+\chapter{Other suggestions}\label{ch: other-suggestions}
+\section{General suggestions}
 \begin{itemize}
 	\item Use caution when using auto. If you know the type, spell it out; if you don't, get to know it and spell it out. At least it would not correctly refer to {\tt \blue{active\_cell\_iterator}}.
 	\item Never use {\tt \blue{size\_t}} unless the intension is for retrieving memory usage. For loops, use {\tt \blue{int}}.
-	\item Maybe it's time to migrate from {\tt \blue{std\_cxx11::shared\_ptr}} to {\tt std}. Necessity of using {\tt \blue{shared\_ptr}} instead of {\tt \blue{unique\_ptr}} is questionable. But as we don't have very many objects to contain, this effects on global performance is trivial.
+	\item Maybe it's time to migrate from {\tt \blue{std\_cxx11}} to {\tt std}.
+	\item Use {\tt \blue{std::unique\_ptr}}\ instead of {\tt \blue{std::shared\_ptr}} unless necessary.
 	\item Every class, member function and member variable should have proper documentation using doxygen in Qt style.
 \end{itemize}
 \subsection{What about really long lines?}
@@ -394,7 +405,7 @@ pcout << "This is the first line showing breaking a long line"
       << "We come to the second line" << std::endl;
 \end{lstlisting}
 
-\subsection{Useful things (maybe) for used-to-Python developers}
+\section{Useful things (maybe) for used-to-Python developers}
 \cpp 11\ and later simplifies a lot of things from old standards.
 
 {\bf Lambda expression.} Take the following example sorting a series of pairs of integers. We sort the pairs according to the {\tt std::pair<T, T>::second}
@@ -426,8 +437,6 @@ or even more Pythonic if \cpp\ 17\ is supported
 for (auto &[key, val] : mymap)
 {...}
 \end{lstlisting}
-\section{What's not covered}
-Rest part that is not yet covered but being used in practice would follow the Google style guide \url{https://google.github.io/styleguide/cppguide.html}.
 
 %----------------------------------------------------------------------------------------
 \end{document}
