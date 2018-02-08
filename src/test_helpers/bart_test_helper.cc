@@ -53,7 +53,7 @@ bool BartTestHelper::GoldTest(std::string filename) {
 }
 
 void BartTestHelper::CleanupGold(std::string filename,
-                                 bool result, bool actual_good) {
+                                 bool result, bool actual_good) const {
   if (actual_good && (result || !report_)) {
     // Delete file
     const int remove_err = remove(filename.c_str());
@@ -70,7 +70,7 @@ void BartTestHelper::CleanupGold(std::string filename,
   }
 }
 
-void BartTestHelper::MakeDiff(std::string filename, std::string diff){
+void BartTestHelper::MakeDiff(std::string filename, std::string diff) const{
   std::string diff_filename = report_directory_ + "/" + filename + ".diff";
   std::ofstream diff_stream(diff_filename, std::ios_base::out);
   diff_stream << diff;
