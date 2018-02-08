@@ -23,6 +23,8 @@ void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {
   report_ = report;
   gold_files_directory_ = gold_files_directory;
   report_directory_ = "";
+  if (report)
+    MakeReportDirectory();
 }
 
 bool BartTestHelper::GoldTest(std::string filename) const {
