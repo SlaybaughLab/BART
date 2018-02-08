@@ -13,10 +13,16 @@ class TestHelperIntTest : public ::testing::Test {
  protected:
   virtual void SetUp() {}
   std::string gold_files_directory = "test_data/";
+  btest::BartTestHelper test_helper;
+  virtual void TearDown() {
+    std::string report_directory = test_helper.GetReportDirectory();
+    if (report_directory != "")
+      rmdir(test_helper.GetReportDirectory().c_str());
+  }
 };
 
 TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
-  btest::BartTestHelper test_helper(false, gold_files_directory);
+  //btest::BartTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -29,7 +35,7 @@ TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
-  btest::BartTestHelper test_helper(false, gold_files_directory);
+  //btest::BartTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -42,7 +48,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestNoActual) {
-  btest::BartTestHelper test_helper(false, gold_files_directory);
+  //btest::BartTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   EXPECT_FALSE(test_helper.GoldTest(filename));
@@ -50,7 +56,7 @@ TEST_F(TestHelperIntTest, IntegrationTestNoActual) {
 
 TEST_F(TestHelperIntTest, IntegrationTestBadGoldFileNoReport) {
   std::string bad_gold_dir = "/testing_files";
-  btest::BartTestHelper test_helper(false, bad_gold_dir);
+  test_helper.ReInit(false, bad_gold_dir);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -63,7 +69,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadGoldFileNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadGoldReport) {
-  btest::BartTestHelper test_helper(true, gold_files_directory);
+  test_helper.ReInit(true, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper_2";
   std::string report_directory = test_helper.GetReportDirectory();
@@ -83,11 +89,11 @@ TEST_F(TestHelperIntTest, IntegrationTestBadGoldReport) {
       stat((new_name + ".diff").c_str(), &sb) == 0 &&
       S_ISREG(sb.st_mode));
   remove(new_name.c_str());
-  rmdir(report_directory.c_str());
+  //rmdir(report_directory.c_str());
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadReport) {
-  btest::BartTestHelper test_helper(true, gold_files_directory);
+  test_helper.ReInit(true, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::string report_directory = test_helper.GetReportDirectory();
@@ -112,5 +118,5 @@ TEST_F(TestHelperIntTest, IntegrationTestBadReport) {
   // Cleanup
   remove(new_name.c_str());
   remove(diff_name.c_str());
-  rmdir(report_directory.c_str());
+  //rmdir(report_directory.c_str());
 }
