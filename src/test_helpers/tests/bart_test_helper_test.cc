@@ -32,6 +32,19 @@ TEST_F(BartTestHelperTest, InitalizeReport) {
   rmdir(report_directory.c_str());
 }
 
+TEST_F(BartTestHelperTest, ReInitalizeReport) {
+  btest::BartTestHelper test_helper;
+  test_helper.ReInit(true, gold_files_directory);
+  std::string report_directory = test_helper.GetReportDirectory();
+  // Verify report directory name
+  EXPECT_THAT(report_directory,
+              MatchesRegex(gold_files_directory + "........_...._fail"));
+  // Verify report directory existence
+  struct stat sb;
+  ASSERT_TRUE(stat(report_directory.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
+  rmdir(report_directory.c_str());
+}
+
 TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
   std::string bad_directory = "testing_data/";
   ASSERT_THROW(btest::BartTestHelper test_helper(true, bad_directory),
