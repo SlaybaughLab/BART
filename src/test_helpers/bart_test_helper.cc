@@ -76,7 +76,7 @@ void BartTestHelper::MakeDiff(std::string filename, std::string diff) const{
 }
 
 void BartTestHelper::MakeReportDirectory() {
-  //Generate directory name
+  //Generate directory if it isn't already made
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);
   std::string directory_name;
@@ -90,11 +90,14 @@ void BartTestHelper::MakeReportDirectory() {
   report_directory_ = gold_files_directory_ + time + "_fail";
 
   //Make directory
-  const int dir_err = mkdir(report_directory_.c_str(),
-                            S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  if (-1 == dir_err)
-    throw std::runtime_error(("Failed to create report directory " +
-                              report_directory_).c_str());
+  struct stat sb;
+  if (!(stat(report_directory_.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
+    const int dir_err = mkdir(report_directory_.c_str(),
+                              S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (-1 == dir_err)
+      throw std::runtime_error(("Failed to create report directory " +
+                                report_directory_).c_str());
+  }
 }
 
 BartTestHelper& GlobalBartTestHelper() {
