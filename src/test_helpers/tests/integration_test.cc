@@ -121,3 +121,4 @@ TEST_F(TestHelperIntTest, IntegrationTestBadReport) {
   remove(diff_name.c_str());
   //rmdir(report_directory.c_str());
 }
+

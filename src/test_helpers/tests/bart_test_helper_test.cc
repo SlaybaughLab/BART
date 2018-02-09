@@ -118,7 +118,7 @@ TEST_F(BartTestHelperTest, CleanupBadFileDelete) {
 }
 
 TEST_F(BartTestHelperTest, CleanupBadFileRename) {
-  //btest::BartTestHelper test_helper(false, gold_files_directory);
+  test_helper.ReInit(true, gold_files_directory);
   ASSERT_THROW(test_helper.CleanupGold("bad_file", false, true),
                std::runtime_error);
 }
