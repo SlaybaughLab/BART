@@ -91,7 +91,7 @@ void BartTestHelper::MakeReportDirectory() {
 
   //Make directory
   const int dir_err = mkdir(report_directory_.c_str(),
-                              S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+                            S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   if (-1 == dir_err)
     throw std::runtime_error(("Failed to create report directory " +
                               report_directory_).c_str());
