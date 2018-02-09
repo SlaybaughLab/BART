@@ -43,10 +43,6 @@ TEST_F(BartTestHelperTest, ReInitalizeReport) {
   // Verify report directory name
   EXPECT_THAT(report_directory,
               MatchesRegex(gold_files_directory + "........_...._fail"));
-  // Verify report directory existence
-  struct stat sb;
-  ASSERT_TRUE(stat(report_directory.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
-  //rmdir(report_directory.c_str());
 }
 
 TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
