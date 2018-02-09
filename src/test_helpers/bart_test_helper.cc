@@ -82,12 +82,12 @@ void BartTestHelper::MakeReportDirectory() {
   std::string directory_name;
 
   std::ostringstream oss;
-  oss << std::put_time(&tm, "%Y%m%d_%H%M");
+  oss << std::put_time(&tm, "%Y%m%d_%H%M_%S");
 
   std::string time = oss.str();
 
   // Name and create directory for failed tests
-  report_directory_ = gold_files_directory_ + time + "_fail";
+  report_directory_ = gold_files_directory_ + time + "_report";
 
   //Make directory
   struct stat sb;
