@@ -10,8 +10,8 @@
 
 //#include "aqdata/aq_base.h"
 
-int main(int argc, char* argv[]) {
 #ifdef TEST
+int main(int argc, char* argv[]) {
   // Parse optional arguments
   int c;
   while ((c = getopt (argc, argv, "r")) != -1)
@@ -19,11 +19,12 @@ int main(int argc, char* argv[]) {
       case 'r':
         btest::GlobalBartTestHelper().ReInit(true, "test_data/");
     }
-        
+  
   // // Testing
   ::testing::InitGoogleMock(&argc, argv);
   return RUN_ALL_TESTS();
-#else  
+#else
+int main() {
   return 0;
 #endif
 }
