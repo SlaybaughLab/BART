@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include <deal.II/base/utilities.h>
+#include <deal.II/base/logstream.h>
 
 #include <sys/stat.h>
 #include <exception>
@@ -50,6 +52,22 @@ TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
   ASSERT_THROW(btest::BartTestHelper new_test_helper(true, bad_directory),
                std::runtime_error);
 }
+
+TEST_F(BartTestHelperTest, LogTest) {
+  std::string filename = "test_log_file";
+  test_helper.OpenLog("test_log_file");
+  dealii::deallog << "test" << std::endl;
+  EXPECT_TRUE(test_helper.IsLogging());
+  test_helper.CloseLog();
+  EXPECT_FALSE(test_helper.IsLogging());
+  std::ifstream input_log_file(filename);
+  std::string line;
+  ASSERT_TRUE(input_log_file);
+  std::getline(input_log_file, line);
+  EXPECT_EQ(line, "DEAL::test");
+  remove(filename.c_str());
+}
+
 
 // TEST_F(BartTestHelperTest, CleanupSuccess) {
 //   //btest::BartTestHelper test_helper;
