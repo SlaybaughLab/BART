@@ -9,11 +9,11 @@ class BartTestHelper {
  public:
   BartTestHelper();
   BartTestHelper(bool report, std::string gold_files_directory);
+  
   void ReInit(bool report, std::string gold_files_directory);
   bool GoldTest(std::string filename) const;
-  
-  
   const std::string& GetReportDirectory() const { return report_directory_; };
+  void OpenLog(std::string filename);
   
  private:
   void CleanupGold(std::string filename, bool result, bool actual_good) const;
