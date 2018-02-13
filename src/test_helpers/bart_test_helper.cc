@@ -1,10 +1,12 @@
-#include "bart_test_helper.h"
-#include "gold_stream_evaluator.h"
 #include <sys/stat.h>
-#include <memory>
 #include <ctime>
 #include <iomanip>
-#include <fstream>
+
+#include <deal.II/base/logstream.h>
+#include <deal.II/base/utilities.h>
+
+#include "bart_test_helper.h"
+#include "gold_stream_evaluator.h"
 
 namespace btest {
 
@@ -48,6 +50,15 @@ bool BartTestHelper::GoldTest(std::string filename) const {
     printf("BartTestHelper: GoldTest Failed, Actual/Gold not identical\n");
 
   return result;
+
+}
+
+void BartTestHelper::OpenLog(std::string filename) {
+  if (log_stream_ == nullptr) {
+    log_stream_ = std::make_unique<std::ofstream>(filename);
+    dealii::deallog.attach(*log_stream_, false);
+  } else
+    throw std::runtime_error("BartTestHelper: Log is already open");
 }
 
 void BartTestHelper::CleanupGold(std::string filename,
