@@ -6,11 +6,9 @@
 #include <fstream>
 #include <string>
 
-#include "log_handler_i.h"
-
 namespace btest {
 
-class LogHandler : LogHandlerI{
+class LogHandler{
  public:
   LogHandler() {};
   
