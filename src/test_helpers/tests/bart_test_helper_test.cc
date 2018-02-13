@@ -68,6 +68,14 @@ TEST_F(BartTestHelperTest, LogTest) {
   remove(filename.c_str());
 }
 
+TEST_F(BartTestHelperTest, LogTestThrow) {
+  std::string filename = "test_log_file";
+  test_helper.OpenLog(filename);
+  EXPECT_THROW(test_helper.OpenLog("other_log"), std::runtime_error);
+  test_helper.CloseLog();
+  remove(filename.c_str());
+}
+
 
 // TEST_F(BartTestHelperTest, CleanupSuccess) {
 //   //btest::BartTestHelper test_helper;
