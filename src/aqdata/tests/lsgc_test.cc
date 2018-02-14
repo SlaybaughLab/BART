@@ -20,7 +20,7 @@ class LSGCTest : public ::testing::Test {
   template <int dim>
   void AQDataTest() {
     std::unique_ptr<AQBase<dim>> lsgc_ptr =
-        std::unique_ptr<AQBase<dim>> (new LSGC<2>(prm));
+        std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
     lsgc_ptr->make_aq ();
     auto wi = lsgc_ptr->get_angular_weights ();
     auto omega_i = lsgc_ptr->get_all_directions ();
@@ -41,6 +41,16 @@ TEST_F(LSGCTest, 2DLSGCTest) {
   btest::GlobalBartTestHelper().OpenLog(filename);
   
   AQDataTest<2>();
+  
+  btest::GlobalBartTestHelper().CloseLog();
+  ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
+}
+
+TEST_F(LSGCTest, 3DLSGCTest) {
+  std::string filename = "3dlsgc";
+  btest::GlobalBartTestHelper().OpenLog(filename);
+  
+  AQDataTest<3>();
   
   btest::GlobalBartTestHelper().CloseLog();
   ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
