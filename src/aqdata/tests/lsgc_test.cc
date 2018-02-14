@@ -55,3 +55,25 @@ TEST_F(LSGCTest, LSGC_3d_EpTest) {
   btest::GlobalBartTestHelper().CloseLog();
   ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
 }
+
+TEST_F(LSGCTest, LSGC_2d_Test) {
+  std::string filename = "lsgc_2d";
+  btest::GlobalBartTestHelper().OpenLog(filename);
+  prm.declare_entry ("transport model", "regular",
+                     dealii::Patterns::Selection("regular"), "");
+  AQDataTest<2>();
+  
+  btest::GlobalBartTestHelper().CloseLog();
+  ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
+}
+
+TEST_F(LSGCTest, LSGC_3d_Test) {
+  std::string filename = "lsgc_3d";
+  btest::GlobalBartTestHelper().OpenLog(filename);
+  prm.declare_entry ("transport model", "regular",
+                     dealii::Patterns::Selection("regular"), "");
+  AQDataTest<3>();
+  
+  btest::GlobalBartTestHelper().CloseLog();
+  ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
+}
