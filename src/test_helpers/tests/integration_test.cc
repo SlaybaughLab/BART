@@ -31,7 +31,7 @@ TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
-  actual_stream << "1234";
+  actual_stream << "1234\n";
   actual_stream.close();
   EXPECT_TRUE(test_helper.GoldTest(filename));
   // Check deleted

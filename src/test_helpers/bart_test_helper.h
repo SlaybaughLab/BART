@@ -4,6 +4,14 @@
 #include <string>
 #include <memory>
 #include <fstream>
+#include <sys/stat.h>
+#include <ctime>
+#include <iomanip>
+
+#include <deal.II/base/logstream.h>
+#include <deal.II/base/utilities.h>
+
+#include "gold_stream_evaluator.h"
 
 namespace btest {
 
