@@ -3,6 +3,7 @@
 #include "gmock/gmock.h"
 #include <unistd.h>
 #include <cstdlib>
+#include <deal.II/base/mpi.h>
 
 #include "test_helpers/bart_test_helper.h"
 
@@ -19,8 +20,8 @@ int main(int argc, char* argv[]) {
       case 'r':
         btest::GlobalBartTestHelper().ReInit(true, "test_data/");
     }
-  
-  // // Testing
+  dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization (argc, argv, 1);
+  // Testing
   ::testing::InitGoogleMock(&argc, argv);
   return RUN_ALL_TESTS();
 #else
