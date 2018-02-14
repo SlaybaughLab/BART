@@ -8,8 +8,6 @@ class LSGCTest : public ::testing::Test {
   virtual void SetUp() {
     prm.declare_entry ("have reflective BC", "false",
                        dealii::Patterns::Bool(), "");
-    prm.declare_entry ("transport model", "ep",
-                       dealii::Patterns::Selection("ep"), "");
     prm.declare_entry ("angular quadrature order", "4",
                        dealii::Patterns::Integer (), "");
     prm.declare_entry ("angular quadrature name", "lsgc",
@@ -36,20 +34,22 @@ class LSGCTest : public ::testing::Test {
   dealii::ParameterHandler prm;
 };
 
-TEST_F(LSGCTest, 2DLSGCTest) {
-  std::string filename = "2dlsgc";
+TEST_F(LSGCTest, LSGC_2d_EpTest) {
+  std::string filename = "lsgc_ep_2d";
   btest::GlobalBartTestHelper().OpenLog(filename);
-  
+  prm.declare_entry ("transport model", "ep",
+                     dealii::Patterns::Selection("ep"), "");
   AQDataTest<2>();
   
   btest::GlobalBartTestHelper().CloseLog();
   ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
 }
 
-TEST_F(LSGCTest, 3DLSGCTest) {
-  std::string filename = "3dlsgc";
+TEST_F(LSGCTest, LSGC_3d_EpTest) {
+  std::string filename = "lsgc_ep_3d";
   btest::GlobalBartTestHelper().OpenLog(filename);
-  
+  prm.declare_entry ("transport model", "ep",
+                     dealii::Patterns::Selection("ep"), "");
   AQDataTest<3>();
   
   btest::GlobalBartTestHelper().CloseLog();
