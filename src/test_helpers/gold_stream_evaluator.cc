@@ -24,24 +24,35 @@ bool GoldStreamEvaluator::Compare() const {
   std::string gold_line;
   std::string actual_line;
   bool same = true;
+  unsigned int c1=0, c2=0;
 
-  while (getline(*gold_stream_, gold_line))
+  while(!gold_stream_->eof())
   {
-    //Check if files are identical
+    getline(*gold_stream_, gold_line);
+    ++c1;
+  }
+  while(!actual_stream_->eof())
+  {
     getline(*actual_stream_, actual_line);
-    if (gold_line != actual_line)
+    ++c2;
+  }
+
+  ResetStreams();
+
+  if (c1 != c2)
+    same = false;
+  else {
+    while (getline(*gold_stream_, gold_line))
     {
-      same = false;
+      //Check if files are identical
+      getline(*actual_stream_, actual_line);
+      if (gold_line != actual_line)
+      {
+        same = false;
+      }
     }
   }
 
-  if (!gold_stream_->eof() || !actual_stream_->eof())
-  {
-    //One file longer than the other
-    same = false;
-    
-  }
-  
   return same;
 }
 
