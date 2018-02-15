@@ -42,7 +42,8 @@ TEST_F(LSGCTest, LSGC_2d_EpTest) {
   AQDataTest<2>();
   
   btest::GlobalBartTestHelper().CloseLog();
-  ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename));  
+  ASSERT_TRUE(btest::GlobalBartTestHelper().GoldTest(filename)) <<
+      btest::GlobalBartTestHelper().GetFailMessage();  
 }
 
 TEST_F(LSGCTest, LSGC_3d_EpTest) {
