@@ -76,6 +76,22 @@ TEST_F(BartTestHelperTest, LogTestThrow) {
   remove(filename.c_str());
 }
 
+TEST_F(BartTestHelperTest, MPILogTest) {
+  std::string filename = "test_mpi_log_file";
+  test_helper.OpenMPILog(filename);
+  dealii::deallog << "Process ID: "
+                  << dealii::Utilities::MPI::this_mpi_process (MPI_COMM_WORLD)
+                  << std::endl;
+  EXPECT_TRUE(test_helper.IsLogging());
+  test_helper.CloseLog();
+  EXPECT_FALSE(test_helper.IsLogging());
+  std::ifstream input_log_file(filename);
+  std::string line;
+  ASSERT_TRUE(input_log_file);
+  std::getline(input_log_file, line);
+  EXPECT_EQ(line, "DEAL::Process ID: 0");
+  //remove(filename.c_str());
+}
 
 // TEST_F(BartTestHelperTest, CleanupSuccess) {
 //   //btest::BartTestHelper test_helper;

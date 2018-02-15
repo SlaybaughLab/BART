@@ -20,9 +20,14 @@ int main(int argc, char* argv[]) {
       case 'r':
         btest::GlobalBartTestHelper().ReInit(true, "test_data/");
     }
+  ::testing::InitGoogleMock(&argc, argv);
   dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization (argc, argv, 1);
   // Testing
-  ::testing::InitGoogleMock(&argc, argv);
+  ::testing::TestEventListeners& listeners =
+        ::testing::UnitTest::GetInstance()->listeners();
+  if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) != 0)
+  //if (world.rank() != 0)
+    delete listeners.Release(listeners.default_result_printer());
   return RUN_ALL_TESTS();
 #else
 int main() {
