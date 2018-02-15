@@ -62,7 +62,9 @@ void BartTestHelper::OpenMPILog(std::string filename) {
   } else {
     OpenLog(filename + dealii::Utilities::int_to_string(process_id));
   }
-} 
+}
+
+
 
 void BartTestHelper::CleanupGold(std::string filename,
                                  bool result, bool actual_good) const {
