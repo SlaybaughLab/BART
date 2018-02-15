@@ -33,7 +33,7 @@ TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
   std::ofstream actual_stream(filename, std::ios_base::out);
   actual_stream << "1234\n";
   actual_stream.close();
-  EXPECT_TRUE(test_helper.GoldTest(filename));
+  EXPECT_TRUE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
   // Check deleted
   struct stat sb;
   EXPECT_FALSE(stat(filename.c_str(), &sb) == 0);
@@ -46,7 +46,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
   std::ofstream actual_stream(filename, std::ios_base::out);
   actual_stream << "1235";
   actual_stream.close();
-  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_FALSE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
   // Check deleted
   struct stat sb;
   EXPECT_FALSE(stat(filename.c_str(), &sb) == 0);
@@ -56,7 +56,7 @@ TEST_F(TestHelperIntTest, IntegrationTestNoActual) {
   //btest::BartTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
-  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_FALSE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadGoldFileNoReport) {
@@ -67,7 +67,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadGoldFileNoReport) {
   std::ofstream actual_stream(filename, std::ios_base::out);
   actual_stream << "1235";
   actual_stream.close();
-  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_FALSE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
   // Check deleted
   struct stat sb;
   EXPECT_FALSE(stat(filename.c_str(), &sb) == 0);
@@ -82,7 +82,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadGoldReport) {
   std::ofstream actual_stream(filename, std::ios_base::out);
   actual_stream << "1235";
   actual_stream.close();
-  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_FALSE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
   // Check deleted
   struct stat sb;
   EXPECT_FALSE(stat(filename.c_str(), &sb) == 0);
@@ -106,7 +106,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadReport) {
   std::ofstream actual_stream(filename, std::ios_base::out);
   actual_stream << "12\n34";
   actual_stream.close();
-  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_FALSE(test_helper.GoldTest(filename))  << test_helper.GetFailMessage();
   // Check deleted
   struct stat sb;
   std::string new_name(report_directory + "/" + filename);

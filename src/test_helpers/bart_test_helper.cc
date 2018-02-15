@@ -29,18 +29,19 @@ bool BartTestHelper::GoldTest(std::string filename) const {
   // Make diff if required and possible
   if (!result && evaluator.ActualGood() && evaluator.GoldGood())
     MakeDiff(filename, evaluator.GetDiff());
-    
+
+  // Make failure message
+  if (!result) {
+    if (!evaluator.ActualGood()) {
+      fail_message_ = "Bad test file";
+    } else if (!evaluator.GoldGood()) {
+      fail_message_ = "Bad gold file";
+    }
+  }
+  
   evaluator.CloseStreams();
   CleanupGold(filename, result, evaluator.ActualGood());
   
-  // Messages about test failure
-  if (!evaluator.GoldGood())
-    printf("BartTestHelper: GoldTest Failed: Bad gold file\n");
-  else if(!evaluator.ActualGood())
-    printf("BartTestHelper: GoldTest Failed: No actual file\n");
-  else if(!result)
-    printf("BartTestHelper: GoldTest Failed, Actual/Gold not identical\n");
-
   return result;
 
 }
@@ -52,6 +53,16 @@ void BartTestHelper::OpenLog(std::string filename) {
   } else
     throw std::runtime_error("BartTestHelper: Log is already open");
 }
+
+void BartTestHelper::OpenMPILog(std::string filename) {
+  const unsigned int process_id = dealii::Utilities::MPI::this_mpi_process (
+        MPI_COMM_WORLD);
+  if (process_id ==0) {
+    OpenLog(filename);
+  } else {
+    OpenLog(filename + dealii::Utilities::int_to_string(process_id));
+  }
+} 
 
 void BartTestHelper::CleanupGold(std::string filename,
                                  bool result, bool actual_good) const {
