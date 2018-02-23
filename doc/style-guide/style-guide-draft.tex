@@ -19,8 +19,8 @@
 %	PACKAGES AND DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
 
-\documentclass{article}
-\usepackage[margin=1in]{geometry}
+\documentclass[openany]{book}
+\usepackage[margin=1.2in]{geometry}
 \usepackage[lighttt]{lmodern}
 \usepackage{hyperref}
 \usepackage[version=3]{mhchem} % Package for chemical equation typesetting
@@ -50,7 +50,7 @@
 %	DOCUMENT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\title{{\tt BART} Coding Style Guide, Discussion and Suggestions (draft)} % Title
+\title{{\tt BART} Coding, Documentation and Testing (draft)} % Title
 
 \author{Weixiong Zheng} % Author name
 
@@ -75,6 +75,7 @@
 	keywordstyle=[3]{\color{olive}},
 	keywordstyle=[5]{\color{magenta}}}
 \maketitle % Insert the title, author and date
+\tableofcontents
 % If you wish to include an abstract, uncomment the lines below
 % \begin{abstract}
 % Abstract text
@@ -82,15 +83,16 @@
 %----------------------------------------------------------------------------------------
 %	SECTION 0
 %----------------------------------------------------------------------------------------
-\section{Why I want to write this down}
-\textcolor{black}{After reading style guide from Google, I feel excited as well as upset at the same time. For most part, Google style gives a clear way to present the code to readers (essentially, the developers). Yet following Google style guide without thinking about it would also occasionally lead us to inconvenience or poor readability}.
+\chapter{Introductions}
+\textcolor{black}{After reading style guide from Google, I feel excited as well as upset at the same time. For most part, Google style gives a clear way to present the code to readers (essentially, the developers). Yet following Google style guide without thinking about it would also occasionally lead us to inconvenience or poor readability}. Therefore, I would like to combine Google style guide with conventions seen in {\tt deal.II} and {\tt Libmesh} (they might follow some self-consistent style) so future coding would have a consistent style easy to maintain.
 
-In conclusion, I would like to combine Google style guide with conventions seen in {\tt deal.II} and {\tt Libmesh} (they might follow some self-consistent style).
+Nevertheless, coding style is not the only purpose of this document. It is rather written to provide demos about specifics in developing \bart, such as how to write doxygen documentation, how to do unit testing, etc.
 
-The purpose is not only guiding myself when restarting {\tt BART}, but also serving as an agreement for future student involving in development. Last but not least, as this is a draft, it serves for the purpose of raising a discussion as well.
+The rest of the file is arranged as follows: Chapter\ \ref{ch:style-guide}\ introduces the coding style guide used in \bart\ development; Chapter\ \ref{ch:doxygen}\ introduces how doxygen is employed in documenting \bart; Chapter\ \ref{ch: unit-tests}\ introduces how unit tests can be developed along with the code development; Chapter\ \ref{ch: other-suggestions}\ gives other suggestions that are not covered by all other chapters.
 %----------------------------------------------------------------------------------------
 %	SECTION 1
 %----------------------------------------------------------------------------------------
+\chapter{Coding style}\label{ch:style-guide}
 \section{Briefs on what we follow with Google styles}
 Most of the coding style follow Google styles. Some highlights are:
 \begin{itemize}
@@ -263,13 +265,15 @@ would be more readable if it's changed to
 if ((a_expr && b_expr) || (c_expr && d_expr) || e_expr)
 {...}
 \end{lstlisting}
+\section{What's not covered}
+Rest part that is not yet covered but being used in practice would follow the Google style guide \url{https://google.github.io/styleguide/cppguide.html}.
 
-\section{About documentation}
-\subsection{General information}
+\chapter{Doxygen documentation introductions}\label{ch:doxygen}
+\section{General information}
 A default configuration file has been provided ``doxygen\_config". To produce documentation, run {\tt doxygen doxygen\_config}. The documentation is then generated as {\tt doc/html/annotated.html}.
 
-\subsection{General rule}
-Use Qt style for doxygen documentation. All the documentation should live in header files. Note that intermediate asterisks are not used.
+In \bart, we use Qt style for doxygen documentation. All the documentation should live in header files. Note that intermediate asterisks are not used.
+\section{Documentation}
 \subsection{Class method (aka member function) documentation}
 Generally it looks like
 \begin{lstlisting}
@@ -361,14 +365,158 @@ Here's an example
 */
 double calculate_k_diff ();
 \end{lstlisting}
-
-
 %----------------------------------------------------------------------------------------
-\section{Other suggestions}
+\chapter{Unit testings}\label{ch: unit-tests}
+\section{Unit testing in \bart}
+Current \bart\ implementation utilize CTest to establish test suites. 
+
+In addition, a GTest-based methodology is under development in parallel.
+\section{CTest based testings}
+\subsection{Introductions}
+CTest based unit testing is to make testing executable generate output
+ files and utilize the comparison file as a reference. Once matched, the
+  testing passes.
+\subsection{Produce a comparison file}
+\subsubsection{Naming convention}
+Generally speaking, for serial running, the comparison file has to be
+ named as the executable name with ``.output" as the appendix. For instance, if the source file is named demo.cc, the comparison file should be named as demo.output. In case many output files
+ exist for the executable, the extension needs to be named in a fashion
+ as ``demo.output",
+``demo.output.2", 
+``demo.output.3" etc. But this is recommended as the
+ last resort with no alternatively viable approach.
+ 
+If the test is run under some specific conditions, one adds conditions as
+middle names using ``." for separation. In pseudo code, it writes as:
+\begin{lstlisting}
+demo.[with_<string>(<=|>=|=|<|>)<on|off|version>.]*
+[mpirun=<x>.][expect=<y>.][binary.][<debug|release>.]output
+\end{lstlisting}
+For instance, a comparison file running with 4 cores using MPI should be named as
+\begin{lstlisting}
+demo.mpirun=4.output
+\end{lstlisting}
+
+This convention gives the flexibility of testing using the same source with different conditions such as adding a serial (just erase the mpirun=4) test for demo.cc besides its MPI test.
+
+For more details, check \url{https://www.dealii.org/8.4.1/developers/testsuite.html#layout}.
+
+Accordingly, naming of output file from the source file has to be fixed as  ``output" s.t. deal.II will be successfully finding the output file for comparison.
+\subsection{dealii::LogStream}
+There are numerous ways to output the result for unit testing. In case of involving stream, one could choose to use stream in STL or {\tt dealii::LogStream} or a combination of both. Specifically, when using dealii::LogStream, one is essentially using a dealii wrapper of STL stream with a user-defined prefix.
+
+In logstream.h, there's an instance, dealii::deallog, of LogStream ready to be used. Similar to std::fstream, one needs to initialize the deallog as
+\begin{lstlisting}
+std::ofstream deallogfile;
+std::string deallogname = "output";
+deallogfile.open (deallogname.c_str());
+dealii::deallog.attach (deallogfile, false);
+\end{lstlisting} 
+
+One of the perks of using dealii::deallog is s.t. one can prepend any string only once and use it until one popes it out:
+\begin{lstlisting}
+dealii::deallog.push ("Demo prefix");
+dealii::deallog << "This is a demo with string" << "\n"
+                << "this is the second line" << std::endl;
+dealii::deallog.pop();
+\end{lstlisting}
+correspondingly, in the output file, you will see
+\begin{verbatim}
+DEAL:Demo prefix:: This is a demo with string
+this is the second line
+\end{verbatim}
+Note that when {\tt std::endl} is used, current line is ended. Next time deallog is invoked, prefix will be added. For new line without prefix, ``\textbackslash n" has to be used instead of {\tt std::endl} without ending deallog.
+
+Here's a complete demo main function in unit test:
+\begin{lstlisting}
+int main ()
+{
+  // Initialize stream
+  std::ofstream deallogfile;
+  std::string deallogname = "output";
+  deallogfile.open (deallogname.c_str());
+  dealii::deallog.attach (deallogfile, false);
+  
+  // Prepare the prefix
+  dealii::deallog.push ("Demo");
+  
+  // Testing section
+  int a = 3;
+  AssertThrow (a==3, dealii::ExcInternalError());
+  
+  // Throw the prefix. For this demo, this step is not 
+  // necessary. But if there are different tests in one source 
+  // file and different prefices are preferred in such a case, 
+  // we need to pop the old prefix out s.t. new prefix can be 
+  // pushed in.
+  dealii::deallog.pop ();
+}
+\end{lstlisting}
+
+\subsection{{\tt test\_utilities.h}}
+Actually a bunch of functionalities has been provided to simplify the usage of {\tt deallog}. Those functionalities are in the {\tt testing} namespace. One of the functionalities is to simplify the stream initialization by invoking {\tt testing::init\_log()}:
+\begin{lstlisting}
+int main ()
+{
+  // Initialize stream using init_log()
+  /* the old code
+  std::ofstream deallogfile;
+  std::string deallogname = "output";
+  deallogfile.open (deallogname.c_str());
+  dealii::deallog.attach (deallogfile, false);
+  */
+  
+  testing::init_log ();
+  
+  /*
+  The rest are the same as last demo
+  */
+}
+\end{lstlisting} 
+That being said, the stream is implicitly initialized by {\tt testing::init\_log()}.
+
+Actually, testing\_utilities.h provides another important functionality, parallel logging, to enable us to do unit testing as easy as in serial case. This will be introduced in section subsection.
+
+\subsection{Testing with MPI}
+Sometimes, MPI is necessary for testing. The good news is we have provided the deallog initialization in MPI, the {\tt struct testing::MPILogInit} so the whole process will be explained by comments in the following demo:
+\begin{lstlisting}[tabsize=2]
+int main (int argc, char *argv[])
+{
+	// Step 1: initialize MPI. MPI will be finalized when the 
+	// program is done.
+	dealii::MPI::MPI_InitFinalize mpi_initialization (argc, argv, 1);
+	
+	// Step 2: initialize deallog in parallel. By default deallog 
+	// will be prefixed with "Process ID#"
+	testing::MPILogInit init ();
+	
+	// Step 3: testing on current processor. This is exactly the 
+	// same as serial testing
+	int mpi_rank;
+	MPI_Comm_rank (MPI_COMM_WORLD, &mpi_rank);
+	dealii::deallog << "On Processor: " << mpi_rank	<< std::endl;
+	
+	// return 0
+	return 0;
+}
+\end{lstlisting}
+
+If running the executable with 2 processors, the output will be like:
+\begin{verbatim}
+DEAL:Process 0::On Processor: 0
+
+DEAL:Process 1::On Processor: 1
+\end{verbatim}
+
+As seen above, the MPI unit testing has been simplified as easy as serial testing. For details about how we deal with deallog in MPI, please refer to {\tt test\_utilities.h}.
+%----------------------------------------------------------------------------------------
+\chapter{Other suggestions}\label{ch: other-suggestions}
+\section{General suggestions}
 \begin{itemize}
 	\item Use caution when using auto. If you know the type, spell it out; if you don't, get to know it and spell it out. At least it would not correctly refer to {\tt \blue{active\_cell\_iterator}}.
 	\item Never use {\tt \blue{size\_t}} unless the intension is for retrieving memory usage. For loops, use {\tt \blue{int}}.
-	\item Maybe it's time to migrate from {\tt \blue{std\_cxx11::shared\_ptr}} to {\tt std}. Necessity of using {\tt \blue{shared\_ptr}} instead of {\tt \blue{unique\_ptr}} is questionable. But as we don't have very many objects to contain, this effects on global performance is trivial.
+	\item Maybe it's time to migrate from {\tt \blue{std\_cxx11}} to {\tt std}.
+	\item Use {\tt \blue{std::unique\_ptr}}\ instead of {\tt \blue{std::shared\_ptr}} unless necessary.
 	\item Every class, member function and member variable should have proper documentation using doxygen in Qt style.
 \end{itemize}
 \subsection{What about really long lines?}
@@ -394,7 +542,7 @@ pcout << "This is the first line showing breaking a long line"
       << "We come to the second line" << std::endl;
 \end{lstlisting}
 
-\subsection{Useful things (maybe) for used-to-Python developers}
+\section{Useful things (maybe) for used-to-Python developers}
 \cpp 11\ and later simplifies a lot of things from old standards.
 
 {\bf Lambda expression.} Take the following example sorting a series of pairs of integers. We sort the pairs according to the {\tt std::pair<T, T>::second}
@@ -426,8 +574,6 @@ or even more Pythonic if \cpp\ 17\ is supported
 for (auto &[key, val] : mymap)
 {...}
 \end{lstlisting}
-\section{What's not covered}
-Rest part that is not yet covered but being used in practice would follow the Google style guide \url{https://google.github.io/styleguide/cppguide.html}.
 
 %----------------------------------------------------------------------------------------
 \end{document}
