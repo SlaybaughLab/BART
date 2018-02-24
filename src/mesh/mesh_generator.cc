@@ -176,8 +176,6 @@ void MeshGenerator<dim>::setup_boundary_ids
 template <int dim>
 void MeshGenerator<dim>::process_coordinate_information (dealii::ParameterHandler &prm)
 {
-  AssertThrow (dim>1,
-               dealii::ExcMessage("1D is not implemented."));
   // max values for all axis
   std::vector<std::string> strings = dealii::Utilities::split_string_list (
       prm.get ("x, y, z max values of boundary locations"));
@@ -295,5 +293,6 @@ unsigned int MeshGenerator<dim>::get_uniform_refinement ()
   return global_refinements_;
 }
 
+template class MeshGenerator<1>;
 template class MeshGenerator<2>;
 template class MeshGenerator<3>;
