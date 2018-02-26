@@ -11,6 +11,7 @@
 #include <deal.II/base/logstream.h>
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
+#include "gtest/gtest.h"
 
 #include "gold_stream_evaluator.h"
 
@@ -46,6 +47,9 @@ class BartTestHelper {
 // This is a Global Bart Test Helper used for tests
 BartTestHelper& GlobalBartTestHelper();
 
+// Non-member helper functions
+void GoldTestInit(std::string filename);
+void GoldTestRun(std::string filename);
 }
 
 #endif

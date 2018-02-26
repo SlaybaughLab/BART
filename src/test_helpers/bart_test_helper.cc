@@ -129,4 +129,14 @@ BartTestHelper& GlobalBartTestHelper() {
   return global_bth;
 }
 
+void GoldTestInit(std::string filename) {
+  GlobalBartTestHelper().OpenLog(filename);
+}
+
+void GoldTestRun(std::string filename) {
+  GlobalBartTestHelper().CloseLog();
+  ASSERT_TRUE(GlobalBartTestHelper().GoldTest(filename)) <<
+      GlobalBartTestHelper().GetFailMessage();
+}
+
 }
