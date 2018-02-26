@@ -124,12 +124,24 @@ DEAL_II_SETUP_TARGET(xtrans_test)
 
 ### COPY TEST FILES ##################################################
 
+add_custom_target(test_symlinks ALL)
+
+add_custom_command(TARGET test_symlinks PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory test_data)
+
 file(GLOB_RECURSE test_files "src/*.gold")
 foreach(test_file ${test_files})
-  MESSAGE(${test_file})
   get_filename_component(file_name ${test_file} NAME)
+  if(UNIX)
   add_custom_command(
-    TARGET xtrans_test POST_BUILD
+    TARGET test_symlinks PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${test_file}
+            ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
+  else()
+  add_custom_command(
+    TARGET test_symlinks PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file}
             ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
-endforeach()  
+  endif()
+endforeach()
+add_dependencies(xtrans_test test_symlinks)
