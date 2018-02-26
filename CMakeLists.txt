@@ -122,7 +122,8 @@ ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/mesh)
 DEAL_II_SETUP_TARGET(xtrans)
 DEAL_II_SETUP_TARGET(xtrans_test)
 
-### COPY TEST FILES ##################################################
+### TEST FILES ##################################################
+# Creates symlinks of files in /test_data/ or copies if on non-UNIX system
 
 add_custom_target(test_symlinks ALL)
 
