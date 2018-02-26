@@ -1,6 +1,7 @@
 #include "../../src/aqdata/aq_base.h"
 #include "../test_utilities.h"
 
+
 template <int dim>
 class AQDerivedMock : public AQBase<dim>
 {

@@ -144,10 +144,10 @@ protected:
   bool have_reflective_bc_;//!< Boolean about if there is any reflective boundary.
   std::string transport_model_name_;//!< Transport model name in string.
   std::string discretization_;//!< Spatial discretization method in string.
-  int n_azi_;//!< Total number of azimuthal angles.
-  int n_group_;//!< Total number of groups.
-  int n_dir_;//!< Total number of directions in the quadrature.
-  int n_total_ho_vars_;//!< Total number of components in HO equation.
+  unsigned int n_azi_;//!< Total number of azimuthal angles.
+  unsigned int n_group_;//!< Total number of groups.
+  unsigned int n_dir_;//!< Total number of directions in the quadrature.
+  unsigned int n_total_ho_vars_;//!< Total number of components in HO equation.
   std::vector<dealii::Tensor<1, dim>> omega_i_;//!< All directions in Tensor<1, dim>
   std::vector<double> wi_;//!< All angular weights
   
