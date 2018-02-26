@@ -24,7 +24,9 @@ class BartTestHelper {
   void ReInit(bool report, std::string gold_files_directory);
   bool GoldTest(std::string filename) const;
   const std::string& GetReportDirectory() const { return report_directory_; };
-  std::string GetFailMessage() const { return fail_message_; }; 
+  std::string GetFailMessage() const { return fail_message_; };
+  void SetReport(bool report);
+  void SetGoldFilesDirectory(std::string gold_files_directory);
   
   void OpenLog(std::string filename);
   void OpenMPILog(std::string filename);

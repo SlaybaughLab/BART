@@ -9,6 +9,14 @@ BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory) {
   ReInit(report, gold_files_directory);
 }
 
+void BartTestHelper::SetReport(bool report) {
+  ReInit(report, gold_files_directory_);
+}
+
+void BartTestHelper::SetGoldFilesDirectory(std::string gold_files_directory) {
+  ReInit(report_, gold_files_directory);
+}
+
 void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {
   report_ = report;
   gold_files_directory_ = gold_files_directory;

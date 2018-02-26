@@ -47,6 +47,26 @@ TEST_F(BartTestHelperTest, ReInitalizeReport) {
               MatchesRegex(gold_files_directory + "........_...._.._report"));
 }
 
+TEST_F(BartTestHelperTest, SetReport) {
+  ASSERT_EQ(test_helper.GetReportDirectory(), "");
+  test_helper.SetReport(true);
+  std::string report_directory = test_helper.GetReportDirectory();
+  // Verify report directory name
+  EXPECT_THAT(report_directory,
+              MatchesRegex(gold_files_directory + "........_...._.._report"));
+}
+
+TEST_F(BartTestHelperTest, SetGoldFilesDirectory) {
+  test_helper.ReInit(false, "other_directory/");
+  test_helper.SetGoldFilesDirectory(gold_files_directory);
+  test_helper.SetReport(true);
+  std::string report_directory = test_helper.GetReportDirectory();
+  // Verify report directory name
+  EXPECT_THAT(report_directory,
+              MatchesRegex(gold_files_directory + "........_...._.._report"));
+}
+
+
 TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
   std::string bad_directory = "testing_data/";
   ASSERT_THROW(btest::BartTestHelper new_test_helper(true, bad_directory),
