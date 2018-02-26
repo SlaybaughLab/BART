@@ -21,7 +21,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
   // from Colorado State on 05-10-2017
   // The following are the basic parameters we need to define a problem
   {
-    prm.declare_entry ("problem dimension", "2", dealii::Patterns::Integer(), "1D is not implemented");
+    prm.declare_entry ("problem dimension", "2", dealii::Patterns::Integer(), "");
     prm.declare_entry ("transport model", "none", dealii::Patterns::Selection("ep|none"), "valid names such as ep");
     prm.declare_entry ("HO linear solver name", "cg", dealii::Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
     prm.declare_entry ("HO preconditioner name", "amg", dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
