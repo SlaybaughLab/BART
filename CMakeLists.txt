@@ -106,47 +106,33 @@ DEAL_II_SETUP_TARGET(xtrans)
 DEAL_II_SETUP_TARGET(xtrans_test)
 
 ### TEST FILES ##################################################
-# Creates symlinks of files in /test_data/ or copies if on non-UNIX system
+# Create copies of .gold files in the BART/src directory for gtest
 
-add_custom_target(gtest_symlinks ALL)
+add_custom_target(copy_gtest_gold_files ALL)
 
-add_custom_command(TARGET gtest_symlinks PRE_BUILD
+add_custom_command(TARGET copy_gtest_gold_files PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory test_data)
 
 file(GLOB_RECURSE gtest_files "src/*.gold")
 foreach(test_file ${gtest_files})
   get_filename_component(file_name ${test_file} NAME)
-  if(MAKE_SYM)
   add_custom_command(
-    TARGET gtest_symlinks PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${test_file}
-            ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
-  else()
-  add_custom_command(
-    TARGET gtest_symlinks PRE_BUILD
+    TARGET copy_gtest_gold_files PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file}
             ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
-  endif()
 endforeach()
-add_dependencies(xtrans_test gtest_symlinks)
+add_dependencies(xtrans_test copy_gtest_gold_files)
 
-# Creates symlinks for CTEST
+# Creates copies of .output files in the BART/test directory for CTEST
 
-add_custom_target(ctest_symlinks ALL)
+add_custom_target(copy_ctest_output_files ALL)
 
 file(GLOB_RECURSE ctest_files "tests/*.output")
 foreach(test_file ${ctest_files})
   string(REGEX REPLACE ".*BART/tests" "${CMAKE_CURRENT_BINARY_DIR}/tests"
     file_name ${test_file})
-  if(MAKE_SYM)
-  message(STATUS "Making symlink for ${file_name}")
   add_custom_command(
-    TARGET ctest_symlinks PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${test_file} ${file_name})
-  else()
-  add_custom_command(
-    TARGET ctest_symlinks PRE_BUILD
+    TARGET copy_ctest_output_files PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file} ${file_name})
-  endif()
 endforeach()
-add_dependencies(xtrans_test ctest_symlinks)
+add_dependencies(xtrans_test copy_ctest_output_files)
