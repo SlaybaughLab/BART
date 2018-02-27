@@ -62,18 +62,6 @@ void BartTestHelper::OpenLog(std::string filename) {
     throw std::runtime_error("BartTestHelper: Log is already open");
 }
 
-void BartTestHelper::OpenMPILog(std::string filename) {
-  const unsigned int process_id = dealii::Utilities::MPI::this_mpi_process (
-        MPI_COMM_WORLD);
-  if (process_id ==0) {
-    OpenLog(filename);
-  } else {
-    OpenLog(filename + dealii::Utilities::int_to_string(process_id));
-  }
-}
-
-
-
 void BartTestHelper::CleanupGold(std::string filename,
                                  bool result, bool actual_good) const {
   if (actual_good && (result || !report_)) {

@@ -30,7 +30,6 @@ class BartTestHelper {
   void SetGoldFilesDirectory(std::string gold_files_directory);
   
   void OpenLog(std::string filename);
-  void OpenMPILog(std::string filename);
   void CloseLog() { log_stream_.reset();};
   bool IsLogging() const { return log_stream_ != nullptr; };
   
