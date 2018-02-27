@@ -56,7 +56,8 @@ TEST_F(TestHelperIntTest, IntegrationTestNoActual) {
   //btest::BartTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
-  EXPECT_FALSE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
+  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_EQ(test_helper.GetFailMessage(), "Bad test file");
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadGoldFileNoReport) {
@@ -67,7 +68,8 @@ TEST_F(TestHelperIntTest, IntegrationTestBadGoldFileNoReport) {
   std::ofstream actual_stream(filename, std::ios_base::out);
   actual_stream << "1235";
   actual_stream.close();
-  EXPECT_FALSE(test_helper.GoldTest(filename)) << test_helper.GetFailMessage();
+  EXPECT_FALSE(test_helper.GoldTest(filename));
+  EXPECT_EQ(test_helper.GetFailMessage(), "Bad gold file");
   // Check deleted
   struct stat sb;
   EXPECT_FALSE(stat(filename.c_str(), &sb) == 0);
