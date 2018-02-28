@@ -12,6 +12,7 @@
  deal.II header files
  */
 #include <deal.II/base/numbers.h>
+#include <deal.II/base/quadrature_lib.h>
 
 template <int dim>
 AQBase<dim>::AQBase (dealii::ParameterHandler &prm)
@@ -41,37 +42,34 @@ void AQBase<dim>::initialize_ref_bc_index ()
   // Note: here we assume square domain and assume user either
   // uses deal.II generated mesh or mesh from gmsh with proper
   // boundary IDs setup: {0,1,2,3,4,5} for {xmin,xmax,ymin,ymax,zmin,zmax}
-  if (have_reflective_bc_) {
+  if (have_reflective_bc_)
+  {
     Assert (dim>1,
             dealii::ExcNotImplemented());
     std::vector<dealii::Tensor<1, dim>> bnv;
     bnv.resize (2*dim);
     // All boundary normal vectors are assume to be parallel to axes
     // Then, only one component in each normal vector is nonzero
-    if (dim==2)
+    bnv[0][0] = -1.0;
+    bnv[1][0] = 1.0;
+    if (dim>=2)
     {
-      bnv[0][0] = -1.0;
-      bnv[1][0] = 1.0;
       bnv[2][1] = -1.0;
       bnv[3][1] = 1.0;
-    }
-    if (dim==3)
-    {
-      bnv[0][0] = -1.0;
-      bnv[1][0] = 1.0;
-      bnv[2][1] = -1.0;
-      bnv[3][1] = 1.0;
-      bnv[4][2] = -1.0;
-      bnv[5][2] = 1.0;
-    }
-    for (unsigned int i=0; i<2*dim; ++i)
-      for (unsigned int i_dir=0; i_dir<n_dir_; ++i_dir)
+      if (dim>=3)
       {
-        dealii::Tensor<1, dim> out_angle = (omega_i_[i_dir] -
-                                            2.0 * (bnv[i] * omega_i_[i_dir]) * bnv[i]);
+        bnv[4][2] = -1.0;
+        bnv[5][2] = 1.0;
+      }
+    }
+    for ( int i=0; i<2*dim; ++i)
+      for ( int i_dir=0; i_dir<n_dir_; ++i_dir)
+      {
+        dealii::Tensor<1, dim> out_angle =
+            (omega_i_[i_dir] - 2.0 * (bnv[i]*omega_i_[i_dir]) * bnv[i]);
         //(omega_i_[i_dir] *
         // (1.0 - 2.0 * (bnv[i] * omega_i_[i_dir])));
-        for (unsigned int r_dir=0; r_dir<n_dir_; ++r_dir)
+        for ( int r_dir=0; r_dir<n_dir_; ++r_dir)
         {
           dealii::Tensor<1, dim> d_dir = out_angle;
           dealii::Tensor<1, dim> d_minus_dir = out_angle;
@@ -89,15 +87,30 @@ void AQBase<dim>::initialize_ref_bc_index ()
 
 template <int dim>
 void AQBase<dim>::produce_angular_quad ()
-{}
+{
+  // Only provide 1D by default
+  AssertThrow (dim==1,
+               dealii::ExcMessage("Only 1D is implemented in AQBase<dim>"));
+  n_dir_ = n_azi_ / (transport_model_name_=="ep" ? 2 : 1);
+  total_angle_ = transport_model_name_=="ep" ? 4.0 : 2.0;
+  dealii::QGauss<1> mu_quad (n_azi_);
+  for ( int i=0; i<n_dir_; ++i)
+  {
+    dealii::Tensor <1,dim> omega;
+    omega[0] = mu_quad.point(i)[0]*2.0-1.0;
+    omega_i_.push_back (omega);
+    wi_.push_back (mu_quad.weight(i)*total_angle_);
+  }
+  n_total_ho_vars_ = n_dir_ * n_group_;
+}
 
 template <int dim>
 void AQBase<dim>::initialize_component_index ()
 {
   // initialize the map from (group, direction) to component indices
   int ind = 0;
-  for (unsigned int g=0; g<n_group_; ++g)
-    for (unsigned int i_dir=0; i_dir<n_dir_; ++i_dir)
+  for ( int g=0; g<n_group_; ++g)
+    for ( int i_dir=0; i_dir<n_dir_; ++i_dir)
     {
       std::pair<int, int> key (g, i_dir);
       component_index_[key] = ind;
@@ -109,22 +122,25 @@ void AQBase<dim>::initialize_component_index ()
 template <int dim>
 void AQBase<dim>::print_angular_quad ()
 {
-  Assert (dim>=2,
-          dealii::ExcNotImplemented());
   std::ofstream quadr;
   quadr.open("aq.txt");
   quadr << "transport model: " << transport_model_name_
         << "; quadrature name: " << produce_quadrature_name () << std::endl;
   quadr << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
   quadr << "Weights | Omega_x | Omega_y | mu" << std::endl;
-  for (unsigned int i=0; i<omega_i_.size(); ++i)
+  for ( int i=0; i<omega_i_.size(); ++i)
   {
-    double mu = std::sqrt (1.-(std::pow(omega_i_[i][0],2.)+std::pow(omega_i_[i][1],2)));
-    quadr << std::fixed << std::setprecision (15);
-    quadr << wi_[i] << ", ";
-    quadr << omega_i_[i][0] << ", ";
-    quadr << omega_i_[i][1] << ", ";
-    quadr << mu << std::endl;
+    quadr << std::fixed << std::setprecision (15)
+          << wi_[i] << "  " << omega_i_[i][0] << "  ";
+    if (dim>1)
+    {
+      quadr << omega_i_[i][1] << "  ";
+      double mu = dim>2 ? omega_i_[i][2] :
+          std::sqrt(1.-(std::pow(omega_i_[i][0],2.)
+                        +std::pow(omega_i_[i][1],2)));
+      quadr << mu;
+    }
+    quadr << std::endl;
   }
   quadr.close ();
 }
@@ -188,5 +204,6 @@ std::vector<dealii::Tensor<1, dim>> AQBase<dim>::get_all_directions ()
   return omega_i_;
 }
 
+template class AQBase<1>;
 template class AQBase<2>;
 template class AQBase<3>;

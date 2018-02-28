@@ -32,7 +32,7 @@ MeshGenerator<dim>::~MeshGenerator ()
 
 template <int dim>
 void MeshGenerator<dim>::make_grid
-(dealii::parallel::distributed::Triangulation<dim> &tria)
+(dealii::Triangulation<dim> &tria)
 {
   if (is_mesh_generated_)
   {
@@ -52,11 +52,12 @@ void MeshGenerator<dim>::make_grid
 
 template <int dim>
 void MeshGenerator<dim>::generate_initial_grid
-(dealii::parallel::distributed::Triangulation<dim> &tria)
+(dealii::Triangulation<dim> &tria)
 {
   // Note that this function is only suitable to
-  // generate a hyper rectangle, which is a rectangle
-  // in 2D and rectangular cuboid in 3D
+  // generate a hyper rectangle, which is a line
+  // in 1D, a rectangle in 2D and a rectangular
+  // cuboid in 3D
 
   // Construction of such a rectangle requires
   dealii::Point<dim> origin;
@@ -93,7 +94,7 @@ void MeshGenerator<dim>::generate_initial_grid
 
 template <int dim>
 void MeshGenerator<dim>::initialize_material_id
-(dealii::parallel::distributed::Triangulation<dim> &tria)
+(dealii::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated_==true,
                dealii::ExcMessage("mesh read in have to have boundary ids associated"));
@@ -132,7 +133,7 @@ void MeshGenerator<dim>::get_cell_relative_position (dealii::Point<dim> &center,
 
 template <int dim>
 void MeshGenerator<dim>::setup_boundary_ids
-(dealii::parallel::distributed::Triangulation<dim> &tria)
+(dealii::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated_==true,
                dealii::ExcMessage("mesh read in have to have boundary ids associated"));
@@ -176,8 +177,6 @@ void MeshGenerator<dim>::setup_boundary_ids
 template <int dim>
 void MeshGenerator<dim>::process_coordinate_information (dealii::ParameterHandler &prm)
 {
-  AssertThrow (dim>1,
-               dealii::ExcMessage("1D is not implemented."));
   // max values for all axis
   std::vector<std::string> strings = dealii::Utilities::split_string_list (
       prm.get ("x, y, z max values of boundary locations"));
@@ -242,8 +241,8 @@ void MeshGenerator<dim>::get_relevant_cell_iterators
   for (typename dealii::DoFHandler<dim>::active_cell_iterator
        cell=dof_handler.begin_active();
        cell!=dof_handler.end(); ++cell)
-    if (cell->is_locally_owned())
-      local_cells.push_back (cell);
+    local_cells.push_back (cell);
+
 }
 
 template <int dim>
@@ -295,5 +294,6 @@ unsigned int MeshGenerator<dim>::get_uniform_refinement ()
   return global_refinements_;
 }
 
+template class MeshGenerator<1>;
 template class MeshGenerator<2>;
 template class MeshGenerator<3>;

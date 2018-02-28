@@ -3,8 +3,6 @@
 
 #include "aq_base.h"
 
-using namespace dealii;
-
 //! This class produces level-symmetric Gauss-Chebyshev quadrature.
 /*!
  This class is derived from AQBase<dim> with LSGC rule. The polar angular points
@@ -26,7 +24,7 @@ public:
    
    \param prm ParameterHandler object.
    */
-  LSGC (ParameterHandler &prm);
+  LSGC (dealii::ParameterHandler &prm);
   
   //!< Destructor.
   ~LSGC ();

@@ -8,14 +8,14 @@
 
 namespace testing {
 
-std::ofstream deallogfile;
+std::ofstream deallogstream;
 std::string deallogname;
 
 void init_log ()
 {
   deallogname = "output";
-  deallogfile.open(deallogname.c_str());
-  dealii::deallog.attach(deallogfile, false);
+  deallogstream.open(deallogname.c_str());
+  dealii::deallog.attach(deallogstream, false);
 }
 
 void collect_file (const char *filename)
@@ -43,15 +43,15 @@ struct MPILogInit
     {
       if (!dealii::deallog.has_file())
       {
-        deallogfile.open ("output");
-        dealii::deallog.attach (deallogfile, false);
+        deallogstream.open ("output");
+        dealii::deallog.attach (deallogstream, false);
       }
     }
     else
     {
       deallogname = "output" + dealii::Utilities::int_to_string (process_id);
-      deallogfile.open (deallogname.c_str());
-      dealii::deallog.attach (deallogfile, false);
+      deallogstream.open (deallogname.c_str());
+      dealii::deallog.attach (deallogstream, false);
     }
     dealii::deallog.push ("Process "+
                           dealii::Utilities::int_to_string (process_id));
@@ -69,7 +69,7 @@ struct MPILogInit
     if (process_id!=0)
     {
       dealii::deallog.detach ();
-      deallogfile.close ();
+      deallogstream.close ();
     }
 
     // wait until all the calls finish
@@ -77,7 +77,7 @@ struct MPILogInit
     if (process_id==0)
     {
       // The following is a temporary fix for missing empty line for 0th output.
-      deallogfile << std::endl;
+      deallogstream << std::endl;
 
       // The following block is to copy contents from output files from other
       // processors and paste them by the end of 0th output.

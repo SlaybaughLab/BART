@@ -47,17 +47,18 @@ public:
   /*!
    A pure virtual function to produce angular quadrature.
    
-   A overriding has to be provided per derived class.
+   Only 1D Gauss-Legendre is implemented in base class. For multi-D, an
+   overriding has to be provided per derived class.
    
-   \note One has to override this function in derived classes.
+   \note One has to override this function in derived classes for multi-D or 
+   non-Gauss-Legendre 1D angular quadratures.
    \return Void.
    */
   virtual void produce_angular_quad ();
   
   /*!
    A virtual function to initialize component index given group and direction 
-   index. By default, this indexing is for SN method. For other angular
-   discretizations, please refer to
+   index. By default, this indexing is for SN method.
    */
   virtual void initialize_component_index ();
   

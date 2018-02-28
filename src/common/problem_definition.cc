@@ -21,7 +21,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
   // from Colorado State on 05-10-2017
   // The following are the basic parameters we need to define a problem
   {
-    prm.declare_entry ("problem dimension", "2", dealii::Patterns::Integer(), "1D is not implemented");
+    prm.declare_entry ("problem dimension", "2", dealii::Patterns::Integer(), "");
     prm.declare_entry ("transport model", "none", dealii::Patterns::Selection("ep|none"), "valid names such as ep");
     prm.declare_entry ("HO linear solver name", "cg", dealii::Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
     prm.declare_entry ("HO preconditioner name", "amg", dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
@@ -29,7 +29,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
     prm.declare_entry ("NDA linear solver name", "none", dealii::Patterns::Selection("none|gmres|bicgstab|direct"), "NDA linear solers");
     prm.declare_entry ("NDA preconditioner name", "none", dealii::Patterns::Selection("none|amg|parasails|bjacobi|jacobi|bssor"), "precond names");
     prm.declare_entry ("NDA ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for NDA");
-    prm.declare_entry ("angular quadrature name", "none", dealii::Patterns::Selection ("lsgc|none"), "angular quadrature types. only LS-GC implemented for now.");
+    prm.declare_entry ("angular quadrature name", "none", dealii::Patterns::Selection ("lsgc|gl|none"), "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", dealii::Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", dealii::Patterns::Integer (), "Number of groups in MG calculations");
     prm.declare_entry ("thermal group boundary", "0", dealii::Patterns::Integer (), "group number for the first thermal group");
