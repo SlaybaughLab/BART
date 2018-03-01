@@ -46,7 +46,7 @@ bool BartTestHelper::GoldTest(std::string filename) const {
       fail_message_ = "Bad gold file";
     }
   }
-  
+  //Close streams and clean up files
   evaluator.CloseStreams();
   CleanupGold(filename, result, evaluator.ActualGood());
   
@@ -55,6 +55,8 @@ bool BartTestHelper::GoldTest(std::string filename) const {
 }
 
 void BartTestHelper::OpenLog(std::string filename) {
+  // Make an ofstream targeting filename and attach to the dealii log, or return
+  // an error if a log is already open
   if (log_stream_ == nullptr) {
     log_stream_ = std::make_unique<std::ofstream>(filename);
     dealii::deallog.attach(*log_stream_, false);
@@ -64,13 +66,15 @@ void BartTestHelper::OpenLog(std::string filename) {
 
 void BartTestHelper::CleanupGold(std::string filename,
                                  bool result, bool actual_good) const {
+  // If the actual file is good, and the test passes or there is no report to
+  // generate, delete the actual file
   if (actual_good && (result || !report_)) {
-    // Delete file
     const int remove_err = remove(filename.c_str());
     if (remove_err != 0)
       throw std::runtime_error(("Failed to delete actual test file: " +
                                 filename).c_str());
   } else if (actual_good) {
+    // Otherwise, if the actual file is good, move it to the report directory
     const int rename_err = rename(filename.c_str(),
                                   (report_directory_ + "/" + filename).c_str());
     if (rename_err != 0)
@@ -81,6 +85,7 @@ void BartTestHelper::CleanupGold(std::string filename,
 }
 
 void BartTestHelper::MakeDiff(std::string filename, std::string diff) const{
+  // Generate the diff file
   std::string diff_filename = report_directory_ + "/" + filename + ".diff";
   std::ofstream diff_stream(diff_filename, std::ios_base::out);
   diff_stream << diff;
@@ -93,6 +98,7 @@ void BartTestHelper::MakeReportDirectory() {
   auto tm = *std::localtime(&t);
   std::string directory_name;
 
+  // Get the current time and date
   std::ostringstream oss;
   oss << std::put_time(&tm, "%Y%m%d_%H%M_%S");
 
