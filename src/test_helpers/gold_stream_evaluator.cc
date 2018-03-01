@@ -9,6 +9,7 @@ namespace btest {
 GoldStreamEvaluator::GoldStreamEvaluator(
     std::unique_ptr<std::istream> gold_stream,
     std::unique_ptr<std::istream> actual_stream) {
+  // Take ownership of the streams and verify they are good
   gold_stream_ = std::move(gold_stream);
   actual_stream_ = std::move(actual_stream);
   gold_good_ = gold_stream_->good();
@@ -25,7 +26,8 @@ bool GoldStreamEvaluator::Compare() const {
   std::string actual_line;
   bool same = true;
   unsigned int c1=0, c2=0;
-
+  
+  // Count the lines of each stream
   while(!gold_stream_->eof())
   {
     getline(*gold_stream_, gold_line);
@@ -36,9 +38,11 @@ bool GoldStreamEvaluator::Compare() const {
     getline(*actual_stream_, actual_line);
     ++c2;
   }
-
+  //Return to the beginning of the stream
   ResetStreams();
 
+  // Do a line-by-line comparison of the streams if they have the same number
+  // of lines
   if (c1 != c2)
     same = false;
   else {
@@ -88,6 +92,7 @@ bool GoldStreamEvaluator::RunGoldTest() const {
 }
 
 void GoldStreamEvaluator::ResetStreams() const {
+  // Clear any eof flags from the streams and return to the start of the stream
   gold_stream_->clear();
   actual_stream_->clear();
   gold_stream_->seekg(0, std::ios::beg);
@@ -95,6 +100,7 @@ void GoldStreamEvaluator::ResetStreams() const {
 }
 
 void GoldStreamEvaluator::CloseStreams() {
+  // Release the streams
   gold_stream_.reset();
   actual_stream_.reset();
 }
