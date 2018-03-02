@@ -31,3 +31,6 @@ Testing/
 html/
 latex/
 build/
+GPATH
+GRTAGS
+GTAGS
