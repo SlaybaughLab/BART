@@ -19,9 +19,9 @@ global_refinements_(prm.get_integer("uniform refinements"))
     mesh_filename_ = prm.get ("mesh file name");
   else
   {
-    process_coordinate_information (prm);
-    initialize_relative_position_to_id_map (prm);
-    preprocess_reflective_bc (prm);
+    ProcessCoordinateInformation (prm);
+    InitializeRelativePositionToIDMap (prm);
+    PreprocessReflectiveBC (prm);
   }
 }
 
@@ -31,14 +31,14 @@ MeshGenerator<dim>::~MeshGenerator ()
 }
 
 template <int dim>
-void MeshGenerator<dim>::make_grid
+void MeshGenerator<dim>::MakeGrid
 (dealii::Triangulation<dim> &tria)
 {
   if (is_mesh_generated_)
   {
-    generate_initial_grid (tria);
-    initialize_material_id (tria);
-    setup_boundary_ids (tria);
+    GenerateInitialGrid (tria);
+    InitializeMaterialID (tria);
+    SetupBoundaryIDs (tria);
     tria.refine_global (global_refinements_);
   }
   else
@@ -51,7 +51,7 @@ void MeshGenerator<dim>::make_grid
 }
 
 template <int dim>
-void MeshGenerator<dim>::generate_initial_grid
+void MeshGenerator<dim>::GenerateInitialGrid
 (dealii::Triangulation<dim> &tria)
 {
   // Note that this function is only suitable to
@@ -93,7 +93,7 @@ void MeshGenerator<dim>::generate_initial_grid
 }
 
 template <int dim>
-void MeshGenerator<dim>::initialize_material_id
+void MeshGenerator<dim>::InitializeMaterialID
 (dealii::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated_==true,
@@ -104,15 +104,16 @@ void MeshGenerator<dim>::initialize_material_id
     {
       dealii::Point<dim> center = cell->center ();
       std::vector<unsigned int> relative_position (3);
-      get_cell_relative_position (center, relative_position);
+      GetCellRelativePosition (center, relative_position);
       unsigned int material_id = relative_position_to_id_[relative_position];
       cell->set_material_id (material_id);
     }
 }
 
 template <int dim>
-void MeshGenerator<dim>::get_cell_relative_position (dealii::Point<dim> &center,
-                                                     std::vector<unsigned int> &relative_position)
+void MeshGenerator<dim>::GetCellRelativePosition (
+    dealii::Point<dim> &center,
+    std::vector<unsigned int> &relative_position)
 {
   AssertThrow (relative_position.size()==3,
                dealii::ExcMessage("relative position should be size 3 for any dimension"));
@@ -132,7 +133,7 @@ void MeshGenerator<dim>::get_cell_relative_position (dealii::Point<dim> &center,
 }
 
 template <int dim>
-void MeshGenerator<dim>::setup_boundary_ids
+void MeshGenerator<dim>::SetupBoundaryIDs
 (dealii::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated_==true,
@@ -175,7 +176,7 @@ void MeshGenerator<dim>::setup_boundary_ids
 }
 
 template <int dim>
-void MeshGenerator<dim>::process_coordinate_information (dealii::ParameterHandler &prm)
+void MeshGenerator<dim>::ProcessCoordinateInformation (dealii::ParameterHandler &prm)
 {
   // max values for all axis
   std::vector<std::string> strings = dealii::Utilities::split_string_list (
@@ -200,7 +201,7 @@ void MeshGenerator<dim>::process_coordinate_information (dealii::ParameterHandle
 }
 
 template <int dim>
-void MeshGenerator<dim>::preprocess_reflective_bc (dealii::ParameterHandler &prm)
+void MeshGenerator<dim>::PreprocessReflectiveBC (dealii::ParameterHandler &prm)
 {
   if (have_reflective_bc_)
   {
@@ -234,9 +235,9 @@ void MeshGenerator<dim>::preprocess_reflective_bc (dealii::ParameterHandler &prm
 }
 
 template <int dim>
-void MeshGenerator<dim>::get_relevant_cell_iterators
-(const dealii::DoFHandler<dim> &dof_handler,
- std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> &local_cells)
+void MeshGenerator<dim>::GetRelevantCellIterators (
+  const dealii::DoFHandler<dim> &dof_handler,
+  std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> &local_cells)
 {
   for (typename dealii::DoFHandler<dim>::active_cell_iterator
        cell=dof_handler.begin_active();
@@ -246,7 +247,7 @@ void MeshGenerator<dim>::get_relevant_cell_iterators
 }
 
 template <int dim>
-void MeshGenerator<dim>::initialize_relative_position_to_id_map (dealii::ParameterHandler &prm)
+void MeshGenerator<dim>::InitializeRelativePositionToIDMap (dealii::ParameterHandler &prm)
 {
   prm.enter_subsection ("material ID map");
   {
@@ -283,13 +284,13 @@ void MeshGenerator<dim>::initialize_relative_position_to_id_map (dealii::Paramet
 
 template <int dim>
 std::unordered_map<unsigned int, bool>
-MeshGenerator<dim>::get_reflective_bc_map ()
+MeshGenerator<dim>::GetReflectiveBCMap ()
 {
   return is_reflective_bc_;
 }
 
 template <int dim>
-unsigned int MeshGenerator<dim>::get_uniform_refinement ()
+unsigned int MeshGenerator<dim>::GetUniformRefinement ()
 {
   return global_refinements_;
 }

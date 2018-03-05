@@ -49,7 +49,7 @@ public:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void make_grid (dealii::Triangulation<dim> &tria);
+  void MakeGrid (dealii::Triangulation<dim> &tria);
   /*!
    This function initializes iterators for cells on current processor.
 
@@ -58,7 +58,7 @@ public:
    processor.
    \return Void.
    */
-  void get_relevant_cell_iterators
+  void GetRelevantCellIterators
   (const dealii::DoFHandler<dim> &dof_handler,
    std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> &local_cells);
 
@@ -67,7 +67,7 @@ public:
 
    \return Total number of global refinements.
    */
-  unsigned int get_uniform_refinement ();
+  unsigned int GetUniformRefinement ();
 
   /*!
    Public member function to get Hash table showing if a boundary is reflective.
@@ -75,7 +75,7 @@ public:
    \return std::unordered_map with key as the boundary_id (integer) and value as
    the boolean.
    */
-  std::unordered_map<unsigned int, bool> get_reflective_bc_map ();
+  std::unordered_map<unsigned int, bool> GetReflectiveBCMap ();
 
 private:
 
@@ -87,7 +87,7 @@ private:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void generate_initial_grid (dealii::Triangulation<dim> &tria);
+  void GenerateInitialGrid (dealii::Triangulation<dim> &tria);
 
   /*!
    This member function set up material IDs to the cells belonging to current
@@ -96,7 +96,7 @@ private:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void initialize_material_id (dealii::Triangulation<dim> &tria);
+  void InitializeMaterialID (dealii::Triangulation<dim> &tria);
 
   /*!
    This function set up boundary IDs. The naming philosophy is xmin->0, xmax->1,
@@ -105,7 +105,7 @@ private:
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void setup_boundary_ids (dealii::Triangulation<dim> &tria);
+  void SetupBoundaryIDs (dealii::Triangulation<dim> &tria);
 
   /*!
    Function to initialize the mapping: cell relative pos.->material ID on initial
@@ -114,14 +114,14 @@ private:
    \param prm ParameterHandler object.
    \return Void.
    */
-  void initialize_relative_position_to_id_map (dealii::ParameterHandler &prm);
+  void InitializeRelativePositionToIDMap (dealii::ParameterHandler &prm);
 
   /*!
    A function to establish the mapping: boundary id->refl. BC or not.
 
    \param prm ParameterHandler object.
    */
-  void preprocess_reflective_bc (dealii::ParameterHandler &prm);
+  void PreprocessReflectiveBC (dealii::ParameterHandler &prm);
 
   /*!
    A function to process coordinate info such as axis lengths, cell number per
@@ -130,7 +130,7 @@ private:
    \param prm ParameterHandler object.
    \return Void.
    */
-  void process_coordinate_information (dealii::ParameterHandler &prm);
+  void ProcessCoordinateInformation (dealii::ParameterHandler &prm);
 
   /*!
    Get relative position of a cell by providing its center.
@@ -141,7 +141,7 @@ private:
    \param relateive_position Relative position of a cell on initial coarse mesh.
    \return Void.
    */
-  void get_cell_relative_position
+  void GetCellRelativePosition
   (dealii::Point<dim> &position, std::vector<unsigned int> &relative_position);
 
   /*!
