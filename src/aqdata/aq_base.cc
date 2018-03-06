@@ -29,15 +29,15 @@ AQBase<dim>::~AQBase ()
 {}
 
 template <int dim>
-void AQBase<dim>::make_aq ()
+void AQBase<dim>::MakeAQ ()
 {
-  produce_angular_quad ();
-  initialize_component_index ();
-  initialize_ref_bc_index ();
+  ProduceAQ ();
+  InitCompInd ();
+  InitRefBCIndex ();
 }
 
 template <int dim>
-void AQBase<dim>::initialize_ref_bc_index ()
+void AQBase<dim>::InitRefBCIndex ()
 {
   // Note: here we assume square domain and assume user either
   // uses deal.II generated mesh or mesh from gmsh with proper
@@ -86,7 +86,7 @@ void AQBase<dim>::initialize_ref_bc_index ()
 }
 
 template <int dim>
-void AQBase<dim>::produce_angular_quad ()
+void AQBase<dim>::ProduceAQ ()
 {
   // Only provide 1D by default
   AssertThrow (dim==1,
@@ -105,7 +105,7 @@ void AQBase<dim>::produce_angular_quad ()
 }
 
 template <int dim>
-void AQBase<dim>::initialize_component_index ()
+void AQBase<dim>::InitCompInd ()
 {
   // initialize the map from (group, direction) to component indices
   int ind = 0;
@@ -120,12 +120,12 @@ void AQBase<dim>::initialize_component_index ()
 }
 
 template <int dim>
-void AQBase<dim>::print_angular_quad ()
+void AQBase<dim>::PrintAQ ()
 {
   std::ofstream quadr;
   quadr.open("aq.txt");
   quadr << "transport model: " << transport_model_name_
-        << "; quadrature name: " << produce_quadrature_name () << std::endl;
+        << "; quadrature name: " << ProduceAQName () << std::endl;
   quadr << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
   quadr << "Weights | Omega_x | Omega_y | mu" << std::endl;
   for ( int i=0; i<omega_i_.size(); ++i)
@@ -146,7 +146,7 @@ void AQBase<dim>::print_angular_quad ()
 }
 
 template <int dim>
-std::string AQBase<dim>::produce_quadrature_name ()
+std::string AQBase<dim>::ProduceAQName ()
 {
   AssertThrow (aq_name_.size()>0,
                dealii::ExcMessage("aq name has to be assigned"));
@@ -157,49 +157,49 @@ std::string AQBase<dim>::produce_quadrature_name ()
 
 //public member functions to retrieve private and protected variables
 template <int dim>
-std::map<std::pair<int, int>, int> AQBase<dim>::get_component_index_map ()
+std::map<std::pair<int, int>, int> AQBase<dim>::GetCompInd ()
 {
   return component_index_;
 }
 
 template <int dim>
-std::unordered_map<int, std::pair<int, int>> AQBase<dim>::get_inv_component_map ()
+std::unordered_map<int, std::pair<int, int>> AQBase<dim>::GetInvCompInd ()
 {
   return inverse_component_index_;
 }
 
 template <int dim>
-std::map<std::pair<int, int>, int> AQBase<dim>::get_reflective_direction_index_map ()
+std::map<std::pair<int, int>, int> AQBase<dim>::GetRefDirInd ()
 {
   return reflective_direction_index_;
 }
 
 template <int dim>
-int AQBase<dim>::get_sn_order ()
+int AQBase<dim>::GetSnOrder ()
 {
   return n_azi_;
 }
 
 template <int dim>
-int AQBase<dim>::get_n_dir ()
+int AQBase<dim>::GetNDir ()
 {
   return n_dir_;
 }
 
 template <int dim>
-int AQBase<dim>::get_n_total_ho_vars ()
+int AQBase<dim>::GetNTotalHOVars ()
 {
   return n_total_ho_vars_;
 }
 
 template <int dim>
-std::vector<double> AQBase<dim>::get_angular_weights ()
+std::vector<double> AQBase<dim>::GetAQWeights ()
 {
   return wi_;
 }
 
 template <int dim>
-std::vector<dealii::Tensor<1, dim>> AQBase<dim>::get_all_directions ()
+std::vector<dealii::Tensor<1, dim>> AQBase<dim>::GetAQDirs ()
 {
   return omega_i_;
 }
