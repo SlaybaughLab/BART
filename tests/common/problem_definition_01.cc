@@ -1,16 +1,14 @@
 #include "../../src/common/problem_definition.h"
 #include "../test_utilities.h"
 
-void SetupParameters (dealii::ParameterHandler &prm)
-{
+void SetupParameters (dealii::ParameterHandler &prm) {
   // set entry values for those without default input
   prm.set ("reflective boundary names", "xmin");
   prm.set ("x, y, z max values of boundary locations", "1.0, 2.0");
   prm.set ("number of cells for x, y, z directions", "1, 3");
 }
 
-void FindErrors (dealii::ParameterHandler &prm)
-{
+void FindErrors (dealii::ParameterHandler &prm) {
   // dealii::ExcInternalError() is used to indicate expected
   // condition is not satisfied.
   AssertThrow (prm.get_integer("problem dimension")==2,
@@ -65,8 +63,7 @@ void FindErrors (dealii::ParameterHandler &prm)
                dealii::ExcInternalError());
 }
 
-void Test (dealii::ParameterHandler &prm)
-{
+void Test (dealii::ParameterHandler &prm) {
   // purpose of this test is to see whether parameters
   // are parsed correctly
   ProblemDefinition::DeclareParameters (prm);
@@ -75,8 +72,7 @@ void Test (dealii::ParameterHandler &prm)
   dealii::deallog << "OK" << std::endl;
 }
 
-int main ()
-{
+int main () {
   dealii::ParameterHandler prm;
 
   testing::InitLog ();

@@ -2,8 +2,7 @@
 #include "../test_utilities.h"
 
 template <int dim>
-class AQDerivedMock : public AQBase<dim>
-{
+class AQDerivedMock : public AQBase<dim> {
 public:
   AQDerivedMock (dealii::ParameterHandler &prm);
   ~AQDerivedMock ();
