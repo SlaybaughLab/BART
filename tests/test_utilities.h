@@ -1,5 +1,5 @@
-#ifndef BART_TESTS_TEST_UTILITIES_H__
-#define BART_TESTS_TEST_UTILITIES_H__
+#ifndef BART_TESTS_TEST_UTILITIES_H_
+#define BART_TESTS_TEST_UTILITIES_H_
 
 #include <fstream>
 
@@ -79,4 +79,4 @@ struct MPILogInit {
 
 }
 
-#endif //BART_TESTS_TEST_UTILITIES_H__
+#endif //BART_TESTS_TEST_UTILITIES_H_

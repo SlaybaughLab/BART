@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MESH_MESH_GENERATOR_H__
-#define BART_SRC_MESH_MESH_GENERATOR_H__
+#ifndef BART_SRC_MESH_MESH_GENERATOR_H_
+#define BART_SRC_MESH_MESH_GENERATOR_H_
 
 #include <unordered_map>
 #include <map>
@@ -163,4 +163,4 @@ class MeshGenerator {
   std::vector<unsigned int> ncell_per_dir_;//!< Initial number of cells per axis on the coarse mesh.
 };
 
-#endif //BART_SRC_MESH_MESH_GENERATOR_H__
+#endif //BART_SRC_MESH_MESH_GENERATOR_H_

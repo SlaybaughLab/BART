@@ -1,5 +1,5 @@
-#ifndef BART_SRC_COMMON_PROBLEM_DEFINITION_H__
-#define BART_SRC_COMMON_PROBLEM_DEFINITION_H__
+#ifndef BART_SRC_COMMON_PROBLEM_DEFINITION_H_
+#define BART_SRC_COMMON_PROBLEM_DEFINITION_H_
 
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/tensor.h>
@@ -47,4 +47,4 @@ class ProblemDefinition {
 };
 
 
-#endif  // BART_SRC_COMMON_PROBLEM_DEFINITION_H__
+#endif  // BART_SRC_COMMON_PROBLEM_DEFINITION_H_

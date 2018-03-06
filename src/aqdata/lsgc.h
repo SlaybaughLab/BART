@@ -1,5 +1,5 @@
-#ifndef BART_SRC_AQDATA_LSGC_H__
-#define BART_SRC_AQDATA_LSGC_H__
+#ifndef BART_SRC_AQDATA_LSGC_H_
+#define BART_SRC_AQDATA_LSGC_H_
 
 #include "aq_base.h"
 
@@ -37,4 +37,4 @@ class LSGC : public AQBase<dim> {
   void ProduceAQ ();
 };
 
-#endif// BART_SRC_AQDATA_LSGC_H__
+#endif// BART_SRC_AQDATA_LSGC_H_

@@ -1,5 +1,5 @@
-#ifndef BART_SRC_AQDATA_AQ_BASE_H__
-#define BART_SRC_AQDATA_AQ_BASE_H__
+#ifndef BART_SRC_AQDATA_AQ_BASE_H_
+#define BART_SRC_AQDATA_AQ_BASE_H_
 
 #include <vector>
 #include <map>
@@ -191,4 +191,4 @@ protected:
   std::string aq_name_;//! Abbreviated lower-case name of AQ in string.
 };
 
-#endif //BART_SRC_AQDATA_AQ_BASE_H__
+#endif //BART_SRC_AQDATA_AQ_BASE_H_
