@@ -8,22 +8,19 @@ public:
   AQDerivedMock (dealii::ParameterHandler &prm);
   ~AQDerivedMock ();
 
-  void produce_angular_quad ();
-  void initialize_component_index ();
+  void ProduceAQ ();
+  void InitCompInd ();
 };
 
 template <int dim>
 AQDerivedMock<dim>::AQDerivedMock (dealii::ParameterHandler &prm)
-    : AQBase<dim> (prm)
-{}
+    : AQBase<dim> (prm) {}
 
 template <int dim>
-AQDerivedMock<dim>::~AQDerivedMock ()
-{}
+AQDerivedMock<dim>::~AQDerivedMock () {}
 
 template <int dim>
-void AQDerivedMock<dim>::produce_angular_quad ()
-{
+void AQDerivedMock<dim>::ProduceAQ () {
   dealii::deallog << "Mocking producing angular quadrature" << std::endl;
 
   this->wi_ = (dim==2 ? std::vector<double> (4, this->k_pi) :
@@ -37,14 +34,12 @@ void AQDerivedMock<dim>::produce_angular_quad ()
 }
 
 template <int dim>
-void AQDerivedMock<dim>::initialize_component_index ()
-{
+void AQDerivedMock<dim>::InitCompInd () {
   dealii::deallog << "Mocking initializing component index" << std::endl;
 }
 
 template <int dim>
-void test()
-{
+void Test () {
   dealii::ParameterHandler prm;
 
   prm.declare_entry ("have reflective BC", "false", dealii::Patterns::Bool (), "");
@@ -55,14 +50,13 @@ void test()
 
   std::unique_ptr<AQBase<dim>> aq_mock =
       std::unique_ptr<AQBase<dim>>(new AQDerivedMock<dim>(prm));
-  aq_mock->make_aq ();
-  auto omega_i = aq_mock->get_all_directions ();
-  auto wi = aq_mock->get_angular_weights ();
-  dealii::deallog << "SN order: " << aq_mock->get_sn_order () << "; ";
-  dealii::deallog << "Total components: " << aq_mock->get_n_total_ho_vars() << std::endl;
+  aq_mock->MakeAQ ();
+  auto omega_i = aq_mock->GetAQDirs ();
+  auto wi = aq_mock->GetAQWeights ();
+  dealii::deallog << "SN order: " << aq_mock->GetSnOrder () << "; ";
+  dealii::deallog << "Total components: " << aq_mock->GetNTotalHOVars() << std::endl;
   // the first part is get_xxx functionality
-  for (int i=0; i<wi.size(); ++i)
-  {
+  for (int i=0; i<wi.size(); ++i) {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
     for (int j=0; j<dim; ++j)
       dealii::deallog << omega_i[i][j] << " ";
@@ -70,19 +64,18 @@ void test()
   }
 }
 
-int main ()
-{
+int main () {
   testing::init_log ();
 
   // put the test code here
   dealii::deallog.push ("2D");
-  test<2> ();
+  Test<2> ();
   dealii::deallog.pop ();
   dealii::deallog << std::endl
                   << "++++++++++++++++++++++++++++++++++++++++++"
                   << std::endl << std::endl;
   dealii::deallog.push ("3D");
-  test<3> ();
+  Test<3> ();
   dealii::deallog.pop ();
 
   return 0;

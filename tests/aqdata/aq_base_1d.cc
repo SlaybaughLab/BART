@@ -1,8 +1,7 @@
 #include "../../src/aqdata/aq_base.h"
 #include "../test_utilities.h"
 
-void setup_parameters (dealii::ParameterHandler &prm)
-{
+void SetupParameters (dealii::ParameterHandler &prm) {
   prm.declare_entry ("have reflective BC", "false", dealii::Patterns::Bool(), "");
   prm.declare_entry ("transport model", "regular", dealii::Patterns::Selection("regular|ep"), "");
   prm.declare_entry ("angular quadrature order", "4", dealii::Patterns::Integer (), "");
@@ -12,13 +11,12 @@ void setup_parameters (dealii::ParameterHandler &prm)
 }
 
 template<int dim>
-void test (dealii::ParameterHandler &prm)
-{
+void Test (dealii::ParameterHandler &prm) {
   std::unique_ptr<AQBase<dim>> gl_ptr =
   	  std::unique_ptr<AQBase<dim>> (new AQBase<dim>(prm));
-  gl_ptr->make_aq ();
-  auto wi = gl_ptr->get_angular_weights ();
-  auto omega_i = gl_ptr->get_all_directions ();
+  gl_ptr->MakeAQ ();
+  auto wi = gl_ptr->GetAQWeights ();
+  auto omega_i = gl_ptr->GetAQDirs ();
   for (int i=0; i<wi.size(); ++i)
   {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
@@ -28,22 +26,21 @@ void test (dealii::ParameterHandler &prm)
   }
 }
 
-int main ()
-{
+int main () {
   dealii::ParameterHandler prm;
-  setup_parameters (prm);
+  SetupParameters (prm);
   testing::init_log ();
   dealii::deallog << "AQ for Gauss-Legendre S4 (1D)" << std::endl;
   // 1D test for non-ep equations
   dealii::deallog.push ("1D");
-  test<1> (prm);
+  Test<1> (prm);
   dealii::deallog.pop ();
-  
+
   dealii::deallog << std::endl << std::endl << std::endl;
-  
+
   prm.set ("transport model", "ep");
   dealii::deallog.push ("1D EP");
-  test<1> (prm);
+  Test<1> (prm);
   dealii::deallog.pop ();
 
   return 0;
