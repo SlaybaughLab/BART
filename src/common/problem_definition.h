@@ -26,7 +26,7 @@ const int k_ngrp = 30;
  \date 2017/06
  */
 class ProblemDefinition {
-public:
+ public:
   //! Class constructor.
   ProblemDefinition ();
 

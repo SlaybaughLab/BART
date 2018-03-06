@@ -16,9 +16,8 @@
  \date 2017/04
  */
 template <int dim>
-class LSGC : public AQBase<dim>
-{
-public:
+class LSGC : public AQBase<dim> {
+ public:
   /*!
    Class constructor.
 

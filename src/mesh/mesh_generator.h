@@ -24,9 +24,8 @@
  \date 2017/05
  */
 template <int dim>
-class MeshGenerator
-{
-public:
+class MeshGenerator {
+ public:
   /*!
    Class constructor.
 
@@ -77,7 +76,7 @@ public:
    */
   std::unordered_map<unsigned int, bool> GetReflectiveBCMap ();
 
-private:
+ private:
 
   /*!
    Generate initial coarse grid according to user defined parameters. The mesh
@@ -141,8 +140,8 @@ private:
    \param relateive_position Relative position of a cell on initial coarse mesh.
    \return Void.
    */
-  void GetCellRelativePosition
-  (dealii::Point<dim> &position, std::vector<unsigned int> &relative_position);
+  void GetCellRelativePosition (dealii::Point<dim> &position,
+      std::vector<unsigned int> &relative_position);
 
   /*!
    Boolean to determine if mesh needs to be generated or read-in. Currently, BART

@@ -31,9 +31,8 @@
  \date 2017/04
  */
 template <int dim>
-class AQBase
-{
-public:
+class AQBase {
+ public:
   /*!
    Class constructor.
 
@@ -170,7 +169,7 @@ protected:
    */
   std::map<std::pair<int, int>, int> reflective_direction_index_;
 
-private:
+ private:
   /*!
    This function returns full name of the angular quadrature in string based on
    the abbreviated name.
