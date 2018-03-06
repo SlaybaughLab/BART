@@ -15,7 +15,7 @@ LSGC<dim>::~LSGC ()
 }
 
 template <int dim>
-void LSGC<dim>::produce_angular_quad ()
+void LSGC<dim>::ProduceAQ ()
 {
   AssertThrow (this->n_azi_%2==0,
                dealii::ExcMessage("SN order must be even numbers"));
@@ -23,7 +23,7 @@ void LSGC<dim>::produce_angular_quad ()
                dealii::ExcMessage("LSGC only exists in multi-D"));
   
   dealii::QGauss<1> mu_quad (this->n_azi_);
-  
+
   switch (dim)
   {
     case 2:
@@ -44,7 +44,7 @@ void LSGC<dim>::produce_angular_quad ()
     default:
       break;
   }
-  
+
   unsigned int n_total_azi = ((dim==3 && this->transport_model_name_!="ep")?
                               this->n_azi_ : this->n_azi_ / 2);
   for (unsigned int i=0; i<n_total_azi; ++i)
