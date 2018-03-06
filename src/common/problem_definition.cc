@@ -6,16 +6,11 @@
 
 #include "problem_definition.h"
 
-ProblemDefinition::ProblemDefinition ()
-{
-}
+ProblemDefinition::ProblemDefinition () {}
 
-ProblemDefinition::~ProblemDefinition()
-{
-}
+ProblemDefinition::~ProblemDefinition() {}
 
-void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
-{
+void ProblemDefinition::DeclareParameters (dealii::ParameterHandler &prm) {
   // our final strategy is to declare all possible entries
   // and then ignore some of them suggested by Wolfgang Bangerth
   // from Colorado State on 05-10-2017
@@ -64,8 +59,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
 
   prm.enter_subsection ("sigma_t, group=1 to G");
   {
-    for (int m=0; m<k_nmat; ++m)
-    {
+    for (int m=0; m<k_nmat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
       prm.declare_entry (os.str (), "", dealii::Patterns::List (dealii::Patterns::Double ()), "");
@@ -73,14 +67,12 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
   }
   prm.leave_subsection ();
 
-  for (int m=0; m<k_nmat; ++m)
-  {
+  for (int m=0; m<k_nmat; ++m) {
     std::ostringstream os;
     os << "sigma_s, material " << m + 1;
     prm.enter_subsection (os.str());
     {
-      for (int gin=0; gin<k_ngrp; ++gin)
-      {
+      for (int gin=0; gin<k_ngrp; ++gin) {
         std::ostringstream osm;
         osm << "g_in=" << gin + 1;
         prm.declare_entry (osm.str(), "", dealii::Patterns::List(dealii::Patterns::Double()), "multigroup sigma_s");
@@ -121,8 +113,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
 
   prm.enter_subsection ("Q, group=1 to G");
   {
-    for (int m=0; m<k_nmat; ++m)
-    {
+    for (int m=0; m<k_nmat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
       prm.declare_entry (os.str (), "", dealii::Patterns::List (dealii::Patterns::Double ()), "");
@@ -139,8 +130,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
 
   prm.enter_subsection ("chi, group=1 to G");
   {
-    for (int m=0; m<k_nmat; ++m)
-    {
+    for (int m=0; m<k_nmat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
       prm.declare_entry(os.str(), "", dealii::Patterns::List(dealii::Patterns::Double()), "");
@@ -150,8 +140,7 @@ void ProblemDefinition::declare_parameters (dealii::ParameterHandler &prm)
 
   prm.enter_subsection ("nu_sigf, group=1 to G");
   {
-    for (int m=0; m<k_nmat; ++m)
-    {
+    for (int m=0; m<k_nmat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
       prm.declare_entry(os.str(), "", dealii::Patterns::List(dealii::Patterns::Double()), "");

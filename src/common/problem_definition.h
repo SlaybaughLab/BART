@@ -25,8 +25,7 @@ const int k_ngrp = 30;
  \author Weixiong Zheng
  \date 2017/06
  */
-class ProblemDefinition
-{
+class ProblemDefinition {
 public:
   //! Class constructor.
   ProblemDefinition ();
@@ -44,7 +43,7 @@ public:
    \param prm ParameterHandler object.
    \return Void.
    */
-  static void declare_parameters (dealii::ParameterHandler &prm);
+  static void DeclareParameters (dealii::ParameterHandler &prm);
 };
 
 
