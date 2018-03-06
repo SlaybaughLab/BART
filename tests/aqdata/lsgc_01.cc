@@ -29,7 +29,7 @@ int main () {
   dealii::ParameterHandler prm;
   SetupParameters (prm);
 
-  testing::init_log ();
+  testing::InitLog ();
 
   dealii::deallog << "AQ for Even-Parity S4" << std::endl;
   // 2D test

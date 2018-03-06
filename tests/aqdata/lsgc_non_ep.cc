@@ -28,7 +28,7 @@ void SetupParameters (dealii::ParameterHandler &prm) {
 int main () {
   dealii::ParameterHandler prm;
   SetupParameters (prm);
-  testing::init_log ();
+  testing::InitLog ();
   dealii::deallog << "AQ for Regular S4" << std::endl;
   // 2D test
   dealii::deallog.push ("2D");

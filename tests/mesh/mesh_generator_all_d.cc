@@ -32,61 +32,61 @@ template <int dim>
 void Test (dealii::ParameterHandler &prm)
 {
   dealii::deallog.push (dealii::Utilities::int_to_string(dim)+"D");
-  
+
   // triangulation for the grid in the scope of the test function
   dealii::Triangulation<dim> tria;
-  
+
   // make grid
   std::unique_ptr<MeshGenerator<dim>> msh_ptr =
       std::unique_ptr<MeshGenerator<dim>> (new MeshGenerator<dim>(prm));
   msh_ptr->MakeGrid (tria);
-  
+
   AssertThrow (tria.n_active_cells()==std::pow(2, 2*dim),
                dealii::ExcInternalError());
-  
+
   tria.refine_global (2);
-  
+
   AssertThrow (tria.n_active_cells()==std::pow(2, 4*dim),
                dealii::ExcInternalError());
-  
+
   dealii::deallog << "Global refinements check OK." << std::endl;
-  
+
   for (typename dealii::Triangulation<dim>::active_cell_iterator
        cell=tria.begin_active(); cell!=tria.end(); ++cell)
     // material ID should be input - 1 = 111 - 1 = 110
     AssertThrow (cell->material_id()==110, dealii::ExcInternalError());
-  
+
   dealii::deallog << "Material ID check OK." << std::endl;
-  
+
   dealii::deallog.pop ();
 }
 
 int main ()
 {
   // initialize log and declare ParameterHandler object
-  testing::init_log ();
+  testing::InitLog ();
   dealii::ParameterHandler prm;
-  
+
   // parameter processing
   SetupParameters<1> (prm);
-  
+
   // testing 2D
   Test<1> (prm);
-  
+
   // clearing prm so new parameters can be set for other dimensions if needed
   prm.clear ();
   testing::deallogstream << std::endl;
-  
+
   // 2D testing section
   SetupParameters<2> (prm);
   Test<2> (prm);
   prm.clear ();
   testing::deallogstream << std::endl;
-  
+
   // 3D testing section
   SetupParameters<3> (prm);
   Test<3> (prm);
   prm.clear ();
-  
+
   return 0;
 }

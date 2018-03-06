@@ -79,7 +79,7 @@ int main ()
 {
   dealii::ParameterHandler prm;
 
-  testing::init_log ();
+  testing::InitLog ();
 
   Test (prm);
   return 0;

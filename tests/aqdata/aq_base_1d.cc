@@ -29,7 +29,7 @@ void Test (dealii::ParameterHandler &prm) {
 int main () {
   dealii::ParameterHandler prm;
   SetupParameters (prm);
-  testing::init_log ();
+  testing::InitLog ();
   dealii::deallog << "AQ for Gauss-Legendre S4 (1D)" << std::endl;
   // 1D test for non-ep equations
   dealii::deallog.push ("1D");

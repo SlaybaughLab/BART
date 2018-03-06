@@ -6,7 +6,7 @@ void Test (int dummy_num) {
 }
 
 int main () {
-  testing::init_log ();
+  testing::InitLog ();
 
   dealii::deallog.push("test test");
   Test(31415926);

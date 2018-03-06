@@ -65,7 +65,7 @@ void Test () {
 }
 
 int main () {
-  testing::init_log ();
+  testing::InitLog ();
 
   // put the test code here
   dealii::deallog.push ("2D");
