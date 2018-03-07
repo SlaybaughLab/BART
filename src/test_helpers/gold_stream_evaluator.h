@@ -16,7 +16,7 @@ namespace btest {
  \date 2018/2
  */
 class GoldStreamEvaluator : public StreamEvaluatorI {
- public:
+public:
   //! Constructor, takes ownership of two streams for comparison
   GoldStreamEvaluator(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> actual_stream);

@@ -40,22 +40,31 @@ class BartTestHelper {
     gold files to be tested in the form `"dir/"`
   */
   BartTestHelper(bool report, std::string gold_files_directory);
+  
   //! Reinitializes the class
   void ReInit(bool report, std::string gold_files_directory);
+  
   //! Runs a gold test, comparing `./filename` to `gold_files_directory/filename.gold`
   bool GoldTest(std::string filename) const;
+  
   //! Returns the name of the report directory
   const std::string& GetReportDirectory() const { return report_directory_; };
+  
   //! Returns a fail message if a gold test fails, or ""
   std::string GetFailMessage() const { return fail_message_; };
+  
   //! Set the value of `report`
   void SetReport(bool report);
+  
   //! Set the location of the gold files
   void SetGoldFilesDirectory(std::string gold_files_directory);
+  
   //! Open attach an ofstream for ./filename to the deallii log
   void OpenLog(std::string filename);
+  
   //! Detaches and closes the ofstream attached to the dealiilog
   void CloseLog() { log_stream_.reset();};
+  
   //! Returns the status of the dealii log
   bool IsLogging() const { return log_stream_ != nullptr; };
   
@@ -90,6 +99,7 @@ void GoldTestInit(std::string filename);
   stream to `filename`, and then compares it to `filename.gold` and then cleans up.
 */
 void GoldTestRun(std::string filename);
-} // namespace btest
+
+} // namespace btest 
 
 #endif // BART_TEST_HELPERS_BART_TEST_HELPER_H_
