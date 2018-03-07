@@ -28,13 +28,11 @@ bool GoldStreamEvaluator::Compare() const {
   unsigned int c1=0, c2=0;
 
   // Count the lines of each stream
-  while(!gold_stream_->eof())
-  {
+  while(!gold_stream_->eof())  {
     getline(*gold_stream_, gold_line);
     ++c1;
   }
-  while(!actual_stream_->eof())
-  {
+  while(!actual_stream_->eof())  {
     getline(*actual_stream_, actual_line);
     ++c2;
   }
@@ -90,18 +88,19 @@ bool GoldStreamEvaluator::RunGoldTest() const {
   return Compare();    
 }
 
+
+void GoldStreamEvaluator::CloseStreams() {
+  // Release the streams
+  gold_stream_.reset();
+  actual_stream_.reset();
+}
+
 void GoldStreamEvaluator::ResetStreams() const {
   // Clear any eof flags from the streams and return to the start of the stream
   gold_stream_->clear();
   actual_stream_->clear();
   gold_stream_->seekg(0, std::ios::beg);
   actual_stream_->seekg(0, std::ios::beg);
-}
-
-void GoldStreamEvaluator::CloseStreams() {
-  // Release the streams
-  gold_stream_.reset();
-  actual_stream_.reset();
 }
 
 } // namespace btest
