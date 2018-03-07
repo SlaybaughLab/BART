@@ -133,4 +133,4 @@ void GoldTestRun(std::string filename) {
       GlobalBartTestHelper().GetFailMessage();
 }
 
-}
+} // namespace btest

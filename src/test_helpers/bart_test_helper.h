@@ -1,5 +1,5 @@
-#ifndef BART_TEST_HELPER_H_
-#define BART_TEST_HELPER_H_
+#ifndef BART_TEST_HELPERS_BART_TEST_HELPER_H_
+#define BART_TEST_HELPERS_BART_TEST_HELPER_H_
 
 #include <string>
 #include <memory>
@@ -90,6 +90,6 @@ void GoldTestInit(std::string filename);
   stream to `filename`, and then compares it to `filename.gold` and then cleans up.
 */
 void GoldTestRun(std::string filename);
-}
+} // namespace btest
 
-#endif
+#endif // BART_TEST_HELPERS_BART_TEST_HELPER_H_
