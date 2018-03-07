@@ -31,6 +31,11 @@ Testing/
 html/
 latex/
 build/
+
+# For ggtags
 GPATH
 GRTAGS
 GTAGS
+
+# For emacs users
+.dir-locals.el
