@@ -102,9 +102,11 @@ target_compile_definitions(xtrans_test PUBLIC -DTEST)
 target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES}
   ${GMOCK_BOTH_LIBRARIES})
 
+# Add subdirectory builds to build libraries for CTEST
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/aqdata)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/common)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/mesh)
+
 SET(TARGET "xtrans")
 SET(TARGET_SRC ${CMAKE_SOURCE_DIR}/src/main.cc)
 
@@ -112,13 +114,6 @@ SET(TARGET_SRC ${CMAKE_SOURCE_DIR}/src/main.cc)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/aqdata)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/common)
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/mesh)
-
-#DEAL_II_INVOKE_AUTOPILOT()
-#TARGET_LINK_LIBRARIES(xtrans
-#_aqdata
-#_common
-#_mesh
-#)
 
 DEAL_II_SETUP_TARGET(xtrans)
 DEAL_II_SETUP_TARGET(xtrans_test)
