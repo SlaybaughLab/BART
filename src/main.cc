@@ -20,11 +20,11 @@ int main(int argc, char* argv[]) {
   
   const struct option longopts[] =
   {
-    {"report", no_argument, 0, 'r'}
+    {"report", no_argument, nullptr, 'r'}
   };
   
   int c;
-  while ((c = getopt_long (argc, argv, "rd:", longopts, &option_index)) != -1)
+  while ((c = getopt_long (argc, argv, "rd:", longopts, &option_index)) != -1) {
     switch(c) {
       case 'r':
         btest::GlobalBartTestHelper().SetReport(true);
@@ -32,7 +32,10 @@ int main(int argc, char* argv[]) {
       case 'd':
         btest::GlobalBartTestHelper().SetGoldFilesDirectory(optarg);
         break;
+      default:
+        break;
     }
+  }
   //dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization (argc, argv, 1);
   // Testing
   //::testing::TestEventListeners& listeners =
