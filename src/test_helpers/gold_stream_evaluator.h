@@ -1,5 +1,5 @@
-#ifndef BART_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_
-#define BART_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_
+#ifndef BART_SRC_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_
+#define BART_SRC_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_
 
 #include <memory>
 #include <iostream>
@@ -16,34 +16,54 @@ namespace btest {
  \date 2018/2
  */
 class GoldStreamEvaluator : public StreamEvaluatorI {
-public:
+ public:
   //! Constructor, takes ownership of two streams for comparison
   GoldStreamEvaluator(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> actual_stream);
+  
   ~GoldStreamEvaluator() override = default;
+  
   //! Returns a bool indicating if the streams are line-by-line identical
   bool Compare() const override;
+  
   //! Returns a diff string in unified format if the streams are different
   std::string GetDiff() const override;
+  
   /*! Returns the result of a "Gold" test, `true` if both streams are good
     and identical, `false` otherwise
   */
   bool RunGoldTest() const override;
+  
   //! Returns the status of the gold_stream
-  const bool& GoldGood() const override { return gold_good_; };
+  const bool& GoldGood() const override;
+  
   //! Returns the status of the actual_stream
-  const bool& ActualGood() const override { return actual_good_; };
+  const bool& ActualGood() const override;
+  
   //! Closes both stream
   void CloseStreams();
+  
  private:
   //! Resets the streams to `bof`
   void ResetStreams() const;
+  
   bool gold_good_ = false;
+  
   bool actual_good_ = false;
+  
   mutable std::unique_ptr<std::istream> gold_stream_;
+  
   mutable std::unique_ptr<std::istream> actual_stream_;   
 };
 
+inline const bool& GoldStreamEvaluator::GoldGood() const {
+  return gold_good_;
+}
+
+inline const bool& GoldStreamEvaluator::ActualGood() const {
+  return actual_good_;
+}
+
 } // namespace btest
 
-#endif // BART_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_
+#endif // BART_SRC_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_
