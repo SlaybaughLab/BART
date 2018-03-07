@@ -26,7 +26,7 @@ bool GoldStreamEvaluator::Compare() const {
   std::string actual_line;
   bool same = true;
   unsigned int c1=0, c2=0;
-  
+
   // Count the lines of each stream
   while(!gold_stream_->eof())
   {
@@ -43,11 +43,10 @@ bool GoldStreamEvaluator::Compare() const {
 
   // Do a line-by-line comparison of the streams if they have the same number
   // of lines
-  if (c1 != c2)
+  if (c1 != c2) {
     same = false;
-  else {
-    while (getline(*gold_stream_, gold_line))
-    {
+  } else {
+    while (getline(*gold_stream_, gold_line)) {
       //Check if files are identical
       getline(*actual_stream_, actual_line);
       if (gold_line != actual_line)
@@ -105,4 +104,4 @@ void GoldStreamEvaluator::CloseStreams() {
   actual_stream_.reset();
 }
 
-}
+} // namespace btest
