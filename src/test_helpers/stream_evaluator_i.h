@@ -1,5 +1,5 @@
-#ifndef STREAM_EVALUATOR_I_H_
-#define STREAM_EVALUATOR_I_H_
+#ifndef BART_SRC_TEST_HELPERS_STREAM_EVALUATOR_I_H_
+#define BART_SRC_TEST_HELPERS_STREAM_EVALUATOR_I_H_
 
 #include <string>
 
@@ -13,7 +13,7 @@ namespace btest {
 */
 class StreamEvaluatorI {
  public:
-  virtual ~StreamEvaluatorI() {};
+  virtual ~StreamEvaluatorI() = default;
   //! Returns the result of the comparison
   virtual bool Compare() const = 0;
   //! Returns the difference between the two streams
@@ -27,6 +27,6 @@ class StreamEvaluatorI {
 };
 
 
-}
+} // namespace btest
 
-#endif
+#endif // BART_SRC_TEST_HELPERS_STREAM_EVALUATOR_I_H_
