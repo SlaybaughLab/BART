@@ -14,18 +14,22 @@ namespace btest {
 class StreamEvaluatorI {
  public:
   virtual ~StreamEvaluatorI() = default;
+  
   //! Returns the result of the comparison
   virtual bool Compare() const = 0;
+  
   //! Returns the difference between the two streams
   virtual std::string GetDiff() const = 0;
+  
   //! Returns the result of a gold test on the two stream
   virtual bool RunGoldTest() const = 0;
+  
   //! Returns the status of the gold stream
   virtual const bool& GoldGood() const = 0;
+  
   //! Returns the status of the actual stream
   virtual const bool& ActualGood() const = 0;
 };
-
 
 } // namespace btest
 
