@@ -1,5 +1,5 @@
-#ifndef BART_SRC_COMMON_PROBLEM_DEFINITION_H__
-#define BART_SRC_COMMON_PROBLEM_DEFINITION_H__
+#ifndef BART_SRC_COMMON_PROBLEM_DEFINITION_H_
+#define BART_SRC_COMMON_PROBLEM_DEFINITION_H_
 
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/tensor.h>
@@ -25,9 +25,8 @@ const int k_ngrp = 30;
  \author Weixiong Zheng
  \date 2017/06
  */
-class ProblemDefinition
-{
-public:
+class ProblemDefinition {
+ public:
   //! Class constructor.
   ProblemDefinition ();
 
@@ -44,8 +43,8 @@ public:
    \param prm ParameterHandler object.
    \return Void.
    */
-  static void declare_parameters (dealii::ParameterHandler &prm);
+  static void DeclareParameters (dealii::ParameterHandler &prm);
 };
 
 
-#endif  // BART_SRC_COMMON_PROBLEM_DEFINITION_H__
+#endif  // BART_SRC_COMMON_PROBLEM_DEFINITION_H_
