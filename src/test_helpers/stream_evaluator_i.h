@@ -25,10 +25,10 @@ class StreamEvaluatorI {
   virtual bool RunGoldTest() const = 0;
   
   //! Returns the status of the gold stream
-  virtual const bool& GoldGood() const = 0;
+  virtual bool GoldGood() const = 0;
   
   //! Returns the status of the actual stream
-  virtual const bool& ActualGood() const = 0;
+  virtual bool ActualGood() const = 0;
 };
 
 } // namespace btest
