@@ -40,7 +40,6 @@ void BARTBuilder<dim>::BuildFESpaces (
       fe_ptrs.front () = new dealii::FE_DGQ<dim> (p_order_);
       break;
 
-    // by default, it's "cfem"
     default:
       AssertThrow (false,
           dealii::ExcMessage("Invalid HO discretization name"));
@@ -65,7 +64,6 @@ void BARTBuilder<dim>::BuildFESpaces (
         fe_ptrs.back () = new dealii::FE_RaviartThomas<dim> (p_order_);
         break;
 
-      // by default, it's "cfem"
       default:
         AssertThrow (false,
             dealii::ExcMessage("Invalid NDA discretization name"));
