@@ -28,10 +28,10 @@ Functionality includes:
  \author Joshua Rehak
  \date 2018/2
  */
-class BartTestHelper {
+class BARTTestHelper {
  public:
   //! Default constructor, default values `report = true`, `gold_files_directory = "test_data/"`
-  BartTestHelper();
+  BARTTestHelper();
   //! Constructor specifying if a report will be generated and location of gold files.
   /*!
     \param report a \ref bool indicating if a report will be generated. A value
@@ -39,7 +39,7 @@ class BartTestHelper {
     \param gold_files_directory a std::string specifying the location of the
     gold files to be tested in the form `"dir/"`
   */
-  BartTestHelper(bool report, std::string gold_files_directory);
+  BARTTestHelper(bool report, std::string gold_files_directory);
   
   //! Reinitializes the class
   void ReInit(bool report, std::string gold_files_directory);
@@ -83,35 +83,35 @@ class BartTestHelper {
   mutable std::string fail_message_ = "";
 };
 
-inline std::string BartTestHelper::GetReportDirectory() const {
+inline std::string BARTTestHelper::GetReportDirectory() const {
   return report_directory_;
 }
 
-inline std::string BartTestHelper::GetFailMessage() const {
+inline std::string BARTTestHelper::GetFailMessage() const {
   return fail_message_;
 }
 
-inline void BartTestHelper::CloseLog() {
+inline void BARTTestHelper::CloseLog() {
   log_stream_.reset();
 }
 
-inline bool BartTestHelper::IsLogging() const {
+inline bool BARTTestHelper::IsLogging() const {
   return log_stream_ != nullptr;
 }
 
-/*! \relates BartTestHelper
-  This is the localstatic BartTestHelper that is used by all gold file comparison tests
+/*! \relates BARTTestHelper
+  This is the localstatic BARTTestHelper that is used by all gold file comparison tests
 */
 
-BartTestHelper& GlobalBartTestHelper();
+BARTTestHelper& GlobalBARTTestHelper();
 
 // Non-member helper functions
-/*! \relates BartTestHelper
-  Use the global BartTestHelper to initialize a gold test for a file,
+/*! \relates BARTTestHelper
+  Use the global BARTTestHelper to initialize a gold test for a file,
   opens the dealii log outputting to `filename`
 */
 void GoldTestInit(std::string filename);
-/*! \relates BartTestHelper
+/*! \relates BARTTestHelper
   Run the gold test for a file `filename`. This function closes the current
   stream to `filename`, and then compares it to `filename.gold` and then cleans up.
 */

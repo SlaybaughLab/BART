@@ -2,22 +2,22 @@
 
 namespace btest {
 
-BartTestHelper::BartTestHelper()
-    : BartTestHelper(false, "test_data/") {}
+BARTTestHelper::BARTTestHelper()
+    : BARTTestHelper(false, "test_data/") {}
 
-BartTestHelper::BartTestHelper(bool report, std::string gold_files_directory) {
+BARTTestHelper::BARTTestHelper(bool report, std::string gold_files_directory) {
   ReInit(report, gold_files_directory);
 }
 
-void BartTestHelper::SetReport(bool report) {
+void BARTTestHelper::SetReport(bool report) {
   ReInit(report, gold_files_directory_);
 }
 
-void BartTestHelper::SetGoldFilesDirectory(std::string gold_files_directory) {
+void BARTTestHelper::SetGoldFilesDirectory(std::string gold_files_directory) {
   ReInit(report_, gold_files_directory);
 }
 
-void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {
+void BARTTestHelper::ReInit(bool report, std::string gold_files_directory) {
   report_ = report;
   gold_files_directory_ = gold_files_directory;
   report_directory_ = "";
@@ -25,7 +25,7 @@ void BartTestHelper::ReInit(bool report, std::string gold_files_directory) {
     MakeReportDirectory();
 }
 
-bool BartTestHelper::GoldTest(std::string filename) const {
+bool BARTTestHelper::GoldTest(std::string filename) const {
   auto actual_file_stream = std::make_unique<std::ifstream>(filename);
   auto gold_file_stream =
       std::make_unique<std::ifstream>(gold_files_directory_ + filename + ".gold");
@@ -54,17 +54,17 @@ bool BartTestHelper::GoldTest(std::string filename) const {
 
 }
 
-void BartTestHelper::OpenLog(std::string filename) {
+void BARTTestHelper::OpenLog(std::string filename) {
   // Make an ofstream targeting filename and attach to the dealii log, or return
   // an error if a log is already open
   if (log_stream_ == nullptr) {
     log_stream_ = std::make_unique<std::ofstream>(filename);
     dealii::deallog.attach(*log_stream_, false);
   } else
-    throw std::runtime_error("BartTestHelper: Log is already open");
+    throw std::runtime_error("BARTTestHelper: Log is already open");
 }
 
-void BartTestHelper::CleanupGold(std::string filename,
+void BARTTestHelper::CleanupGold(std::string filename,
                                  bool result, bool actual_good) const {
   // If the actual file is good, and the test passes or there is no report to
   // generate, delete the actual file
@@ -84,7 +84,7 @@ void BartTestHelper::CleanupGold(std::string filename,
   }
 }
 
-void BartTestHelper::MakeDiff(std::string filename, std::string diff) const{
+void BARTTestHelper::MakeDiff(std::string filename, std::string diff) const{
   // Generate the diff file
   std::string diff_filename = report_directory_ + "/" + filename + ".diff";
   std::ofstream diff_stream(diff_filename, std::ios_base::out);
@@ -92,7 +92,7 @@ void BartTestHelper::MakeDiff(std::string filename, std::string diff) const{
   diff_stream.close();
 }
 
-void BartTestHelper::MakeReportDirectory() {
+void BARTTestHelper::MakeReportDirectory() {
   //Generate directory if it isn't already made
   auto t = std::time(nullptr);
   auto tm = *std::localtime(&t);
@@ -118,19 +118,19 @@ void BartTestHelper::MakeReportDirectory() {
   }
 }
 
-BartTestHelper& GlobalBartTestHelper() {
-  static BartTestHelper global_bth;
+BARTTestHelper& GlobalBARTTestHelper() {
+  static BARTTestHelper global_bth;
   return global_bth;
 }
 
 void GoldTestInit(std::string filename) {
-  GlobalBartTestHelper().OpenLog(filename);
+  GlobalBARTTestHelper().OpenLog(filename);
 }
 
 void GoldTestRun(std::string filename) {
-  GlobalBartTestHelper().CloseLog();
-  ASSERT_TRUE(GlobalBartTestHelper().GoldTest(filename)) <<
-      GlobalBartTestHelper().GetFailMessage();
+  GlobalBARTTestHelper().CloseLog();
+  ASSERT_TRUE(GlobalBARTTestHelper().GoldTest(filename)) <<
+      GlobalBARTTestHelper().GetFailMessage();
 }
 
 } // namespace btest

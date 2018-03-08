@@ -27,10 +27,10 @@ int main(int argc, char* argv[]) {
   while ((c = getopt_long (argc, argv, "rd:", longopts, &option_index)) != -1) {
     switch(c) {
       case 'r':
-        btest::GlobalBartTestHelper().SetReport(true);
+        btest::GlobalBARTTestHelper().SetReport(true);
         break;
       case 'd':
-        btest::GlobalBartTestHelper().SetGoldFilesDirectory(optarg);
+        btest::GlobalBARTTestHelper().SetGoldFilesDirectory(optarg);
         break;
       default:
         break;
