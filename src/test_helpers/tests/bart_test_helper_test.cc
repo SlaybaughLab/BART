@@ -9,19 +9,18 @@
 
 #include "../bart_test_helper.h"
 
-using ::testing::MatchesRegex;
-
 class BartTestHelperTest : public ::testing::Test {
  protected:
-  virtual void SetUp() {}
+  virtual void TearDown() override;
   std::string gold_files_directory = "test_data/";
   btest::BartTestHelper test_helper;
-  virtual void TearDown() {
+};
+
+void BartTestHelperTest::TearDown() {
     std::string report_directory = test_helper.GetReportDirectory();
     if (report_directory != "")
       rmdir(test_helper.GetReportDirectory().c_str());
-  }
-};
+}
 
 TEST_F(BartTestHelperTest, InitializationNoReport) {
   ASSERT_EQ(test_helper.GetReportDirectory(), "");
@@ -32,7 +31,7 @@ TEST_F(BartTestHelperTest, ConstructorReport) {
   std::string report_directory = test_helper2.GetReportDirectory();
   // Verify report directory name
   EXPECT_THAT(report_directory,
-              MatchesRegex(gold_files_directory + "........_...._.._report"));
+              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
   // Verify report directory existence
   struct stat sb;
   ASSERT_TRUE(stat(report_directory.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
@@ -44,7 +43,7 @@ TEST_F(BartTestHelperTest, ReInitalizeReport) {
   std::string report_directory = test_helper.GetReportDirectory();
   // Verify report directory name
   EXPECT_THAT(report_directory,
-              MatchesRegex(gold_files_directory + "........_...._.._report"));
+              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
 }
 
 TEST_F(BartTestHelperTest, SetReport) {
@@ -53,7 +52,7 @@ TEST_F(BartTestHelperTest, SetReport) {
   std::string report_directory = test_helper.GetReportDirectory();
   // Verify report directory name
   EXPECT_THAT(report_directory,
-              MatchesRegex(gold_files_directory + "........_...._.._report"));
+              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
 }
 
 TEST_F(BartTestHelperTest, SetGoldFilesDirectory) {
@@ -63,7 +62,7 @@ TEST_F(BartTestHelperTest, SetGoldFilesDirectory) {
   std::string report_directory = test_helper.GetReportDirectory();
   // Verify report directory name
   EXPECT_THAT(report_directory,
-              MatchesRegex(gold_files_directory + "........_...._.._report"));
+              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
 }
 
 
