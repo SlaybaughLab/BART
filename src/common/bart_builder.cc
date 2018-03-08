@@ -7,16 +7,16 @@
 #include <deal.II/fe/fe_raviart_thomas.h>
 
 template <int dim>
-BartBuilder<dim>::BartBuilder (dealii::ParameterHandler &prm) {
+BARTBuilder<dim>::BARTBuilder (dealii::ParameterHandler &prm) {
   SetParams (prm);
 }
 
 template <int dim>
-BartBuilder<dim>::~BartBuilder () {
+BARTBuilder<dim>::~BARTBuilder () {
 }
 
 template <int dim>
-void BartBuilder<dim>::SetParams (dealii::ParameterHandler &prm) {
+void BARTBuilder<dim>::SetParams (dealii::ParameterHandler &prm) {
   do_nda_ = prm.get_bool ("do nda");
   p_order_ = prm.get_integer("finite element polynomial degree");
   ho_discretization_ = prm.get ("ho spatial discretization");
@@ -24,7 +24,7 @@ void BartBuilder<dim>::SetParams (dealii::ParameterHandler &prm) {
 }
 
 template <int dim>
-void BartBuilder<dim>::BuildFESpaces (
+void BARTBuilder<dim>::BuildFESpaces (
     std::vector<dealii::FiniteElement<dim, dim>*> &fe_ptrs) {
   fe_ptrs.resize (do_nda_ ? 2 : 1);
 
@@ -74,6 +74,6 @@ void BartBuilder<dim>::BuildFESpaces (
   }
 }
 
-template class BartBuilder<1>;
-template class BartBuilder<2>;
-template class BartBuilder<3>;
+template class BARTBuilder<1>;
+template class BARTBuilder<2>;
+template class BARTBuilder<3>;

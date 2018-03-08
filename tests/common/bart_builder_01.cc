@@ -14,7 +14,7 @@ void DeclareParams (dealii::ParameterHandler &prm) {
 template <int dim>
 void Test (dealii::ParameterHandler &prm) {
   dealii::deallog.push (dealii::Utilities::int_to_string(dim)+"D");
-  BartBuilder<dim> builders (prm);
+  BARTBuilder<dim> builders (prm);
 
   prm.set ("ho spatial discretization", "cfem");
   prm.set ("nda spatial discretization", "cfem");

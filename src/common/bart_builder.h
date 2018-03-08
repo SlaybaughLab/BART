@@ -7,11 +7,11 @@
 #include <deal.II/fe/fe.h>
 
 template<int dim>
-class BartBuilder {
+class BARTBuilder {
  public:
-  BartBuilder (dealii::ParameterHandler &prm);
+  BARTBuilder (dealii::ParameterHandler &prm);
 
-  ~BartBuilder ();
+  ~BARTBuilder ();
 
   //! Function used to initialize all the parameters from user input.
   /*!
