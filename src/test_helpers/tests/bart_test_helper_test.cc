@@ -9,25 +9,25 @@
 
 #include "../bart_test_helper.h"
 
-class BartTestHelperTest : public ::testing::Test {
+class BARTTestHelperTest : public ::testing::Test {
  protected:
   virtual void TearDown() override;
   std::string gold_files_directory = "test_data/";
-  btest::BartTestHelper test_helper;
+  btest::BARTTestHelper test_helper;
 };
 
-void BartTestHelperTest::TearDown() {
+void BARTTestHelperTest::TearDown() {
     std::string report_directory = test_helper.GetReportDirectory();
     if (report_directory != "")
       rmdir(test_helper.GetReportDirectory().c_str());
 }
 
-TEST_F(BartTestHelperTest, InitializationNoReport) {
+TEST_F(BARTTestHelperTest, InitializationNoReport) {
   ASSERT_EQ(test_helper.GetReportDirectory(), "");
 }
 
-TEST_F(BartTestHelperTest, ConstructorReport) {
-  btest::BartTestHelper test_helper2(true, gold_files_directory);
+TEST_F(BARTTestHelperTest, ConstructorReport) {
+  btest::BARTTestHelper test_helper2(true, gold_files_directory);
   std::string report_directory = test_helper2.GetReportDirectory();
   // Verify report directory name
   EXPECT_THAT(report_directory,
@@ -38,7 +38,7 @@ TEST_F(BartTestHelperTest, ConstructorReport) {
   rmdir(report_directory.c_str());
 }
 
-TEST_F(BartTestHelperTest, ReInitalizeReport) {
+TEST_F(BARTTestHelperTest, ReInitalizeReport) {
   test_helper.ReInit(true, gold_files_directory);
   std::string report_directory = test_helper.GetReportDirectory();
   // Verify report directory name
@@ -46,7 +46,7 @@ TEST_F(BartTestHelperTest, ReInitalizeReport) {
               ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
 }
 
-TEST_F(BartTestHelperTest, SetReport) {
+TEST_F(BARTTestHelperTest, SetReport) {
   ASSERT_EQ(test_helper.GetReportDirectory(), "");
   test_helper.SetReport(true);
   std::string report_directory = test_helper.GetReportDirectory();
@@ -55,7 +55,7 @@ TEST_F(BartTestHelperTest, SetReport) {
               ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
 }
 
-TEST_F(BartTestHelperTest, SetGoldFilesDirectory) {
+TEST_F(BARTTestHelperTest, SetGoldFilesDirectory) {
   test_helper.ReInit(false, "other_directory/");
   test_helper.SetGoldFilesDirectory(gold_files_directory);
   test_helper.SetReport(true);
@@ -66,13 +66,13 @@ TEST_F(BartTestHelperTest, SetGoldFilesDirectory) {
 }
 
 
-TEST_F(BartTestHelperTest, InitalizeBadDirectory) {
+TEST_F(BARTTestHelperTest, InitalizeBadDirectory) {
   std::string bad_directory = "testing_data/";
-  ASSERT_THROW(btest::BartTestHelper new_test_helper(true, bad_directory),
+  ASSERT_THROW(btest::BARTTestHelper new_test_helper(true, bad_directory),
                std::runtime_error);
 }
 
-TEST_F(BartTestHelperTest, LogTest) {
+TEST_F(BARTTestHelperTest, LogTest) {
   std::string filename = "test_log_file";
   test_helper.OpenLog("test_log_file");
   dealii::deallog << "test" << std::endl;
@@ -87,7 +87,7 @@ TEST_F(BartTestHelperTest, LogTest) {
   remove(filename.c_str());
 }
 
-TEST_F(BartTestHelperTest, LogTestThrow) {
+TEST_F(BARTTestHelperTest, LogTestThrow) {
   std::string filename = "test_log_file";
   test_helper.OpenLog(filename);
   EXPECT_THROW(test_helper.OpenLog("other_log"), std::runtime_error);

@@ -12,19 +12,19 @@
 class TestHelperIntTest : public ::testing::Test {
  protected:
   std::string gold_files_directory = "test_data/";
-  btest::BartTestHelper test_helper;
+  btest::BARTTestHelper test_helper;
   void TearDown() override;
 };
 
 void TestHelperIntTest::TearDown() {
   std::string report_directory = test_helper.GetReportDirectory();
   if (report_directory.empty() &&
-      (btest::GlobalBartTestHelper().GetReportDirectory() != report_directory))
+      (btest::GlobalBARTTestHelper().GetReportDirectory() != report_directory))
     rmdir(test_helper.GetReportDirectory().c_str());
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
-  //btest::BartTestHelper test_helper(false, gold_files_directory);
+  //btest::BARTTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -37,7 +37,7 @@ TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
-  //btest::BartTestHelper test_helper(false, gold_files_directory);
+  //btest::BARTTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -50,7 +50,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestNoActual) {
-  //btest::BartTestHelper test_helper(false, gold_files_directory);
+  //btest::BARTTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   EXPECT_FALSE(test_helper.GoldTest(filename));
