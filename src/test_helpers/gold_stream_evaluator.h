@@ -21,8 +21,6 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
   GoldStreamEvaluator(std::unique_ptr<std::istream> gold_stream,
                     std::unique_ptr<std::istream> actual_stream);
   
-  ~GoldStreamEvaluator() override = default;
-  
   //! Returns a bool indicating if the streams are line-by-line identical
   bool Compare() const override;
   
