@@ -6,6 +6,15 @@
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/fe/fe.h>
 
+//! This class provides builders to build objects in BART.
+/*!
+ This class provides functionalities to build objects used in BART, e.g. FE
+ spaces. The motivation is s.t. builder functions originally living in
+ BARTDriver will be separated to increase the clearness. And it will also
+ benifit the unit testing.
+ \author Weixiong Zheng
+ \date 2018/03
+ */
 template<int dim>
 class BARTBuilder {
  public:
