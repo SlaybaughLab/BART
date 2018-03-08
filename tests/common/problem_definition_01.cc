@@ -14,17 +14,17 @@ void FindErrors (dealii::ParameterHandler &prm) {
   AssertThrow (prm.get_integer("problem dimension")==2,
                dealii::ExcInternalError());
   AssertThrow (prm.get("transport model")=="none", dealii::ExcInternalError());
-  AssertThrow (prm.get("HO linear solver name")=="cg",
+  AssertThrow (prm.get("ho linear solver name")=="cg",
                dealii::ExcInternalError());
-  AssertThrow (prm.get("HO preconditioner name")=="amg",
+  AssertThrow (prm.get("ho preconditioner name")=="amg",
                dealii::ExcInternalError());
-  AssertThrow (prm.get_double("HO ssor factor")==1.0,
+  AssertThrow (prm.get_double("ho ssor factor")==1.0,
                dealii::ExcInternalError());
-  AssertThrow (prm.get("NDA linear solver name")=="none",
+  AssertThrow (prm.get("nda linear solver name")=="none",
                dealii::ExcInternalError());
-  AssertThrow (prm.get("NDA preconditioner name")=="none",
+  AssertThrow (prm.get("nda preconditioner name")=="none",
                dealii::ExcInternalError());
-  AssertThrow (prm.get_double("NDA ssor factor")==1.0,
+  AssertThrow (prm.get_double("nda ssor factor")==1.0,
                dealii::ExcInternalError());
   AssertThrow (prm.get("angular quadrature name")=="none",
                dealii::ExcInternalError());
@@ -34,11 +34,13 @@ void FindErrors (dealii::ParameterHandler &prm) {
                dealii::ExcInternalError());
   AssertThrow (prm.get_integer("thermal group boundary")==0,
                dealii::ExcInternalError());
-  AssertThrow (prm.get("spatial discretization")=="cfem",
+  AssertThrow (prm.get("ho spatial discretization")=="cfem",
+               dealii::ExcInternalError());
+  AssertThrow (prm.get("nda spatial discretization")=="cfem",
                dealii::ExcInternalError());
   AssertThrow (prm.get_bool("do eigenvalue calculations")==false,
                dealii::ExcInternalError());
-  AssertThrow (prm.get_bool("do NDA")==false, dealii::ExcInternalError());
+  AssertThrow (prm.get_bool("do nda")==false, dealii::ExcInternalError());
   AssertThrow (prm.get_bool("have reflective BC")==false,
                dealii::ExcInternalError());
   AssertThrow (prm.get("reflective boundary names")=="xmin",
