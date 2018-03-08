@@ -7,24 +7,21 @@
 #include <exception>
 #include <fstream>
 
-
-
 #include "../bart_test_helper.h"
-
-using ::testing::MatchesRegex;
 
 class TestHelperIntTest : public ::testing::Test {
  protected:
-  virtual void SetUp() {}
   std::string gold_files_directory = "test_data/";
   btest::BartTestHelper test_helper;
-  virtual void TearDown() {
-    std::string report_directory = test_helper.GetReportDirectory();
-    if (report_directory != "" &&
-        (btest::GlobalBartTestHelper().GetReportDirectory() != report_directory))
-      rmdir(test_helper.GetReportDirectory().c_str());
-  }
+  void TearDown() override;
 };
+
+void TestHelperIntTest::TearDown() {
+  std::string report_directory = test_helper.GetReportDirectory();
+  if (report_directory.empty() &&
+      (btest::GlobalBartTestHelper().GetReportDirectory() != report_directory))
+    rmdir(test_helper.GetReportDirectory().c_str());
+}
 
 TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
   //btest::BartTestHelper test_helper(false, gold_files_directory);
