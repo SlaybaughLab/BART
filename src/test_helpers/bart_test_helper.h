@@ -1,18 +1,17 @@
 #ifndef BART_TEST_HELPERS_BART_TEST_HELPER_H_
 #define BART_TEST_HELPERS_BART_TEST_HELPER_H_
 
-#include <string>
-#include <memory>
-#include <fstream>
-#include <sys/stat.h>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
+#include <memory>
+#include <string>
+#include <sys/stat.h>
 
 #include <deal.II/base/logstream.h>
-#include <deal.II/base/utilities.h>
 #include <deal.II/base/mpi.h>
+#include <deal.II/base/utilities.h>
 #include "gtest/gtest.h"
-
 #include "gold_stream_evaluator.h"
 
 namespace btest {
@@ -32,6 +31,7 @@ class BARTTestHelper {
  public:
   //! Default constructor, default values `report = true`, `gold_files_directory = "test_data/"`
   BARTTestHelper();
+  
   //! Constructor specifying if a report will be generated and location of gold files.
   /*!
     \param report a \ref bool indicating if a report will be generated. A value
@@ -71,15 +71,22 @@ class BARTTestHelper {
  private:
   //! Used to clean up files following a gold test
   void CleanupGold(std::string filename, bool result, bool actual_good) const;
+  
   //! Generates the diff file between two files in unified format
   void MakeDiff(std::string filename, std::string diff) const;
+  
   //! Creates the report directory
   void MakeReportDirectory();
+  
   bool report_;
+  
   std::string gold_files_directory_;
+  
   std::string report_directory_;
+  
   //! Stream that will be attached to the deallii log
   std::unique_ptr<std::ofstream> log_stream_;
+  
   mutable std::string fail_message_ = "";
 };
 

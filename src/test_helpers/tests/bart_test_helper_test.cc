@@ -1,13 +1,13 @@
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <deal.II/base/utilities.h>
-#include <deal.II/base/logstream.h>
+#include "../bart_test_helper.h"
 
 #include <sys/stat.h>
 #include <exception>
 #include <fstream>
 
-#include "../bart_test_helper.h"
+#include <deal.II/base/logstream.h>
+#include <deal.II/base/utilities.h>
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 class BARTTestHelperTest : public ::testing::Test {
  protected:
@@ -34,7 +34,7 @@ TEST_F(BARTTestHelperTest, ConstructorReport) {
               ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
   // Verify report directory existence
   struct stat sb;
-  ASSERT_TRUE(stat(report_directory.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
+  ASSERT_TRUE((stat(report_directory.c_str(), &sb) == 0) && S_ISDIR(sb.st_mode));
   rmdir(report_directory.c_str());
 }
 

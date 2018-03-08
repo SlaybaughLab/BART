@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-
 #include "../lsgc.h"
+
+#include "gtest/gtest.h"
 #include "../../test_helpers/bart_test_helper.h"
 
 class LSGCTest : public ::testing::Test {
