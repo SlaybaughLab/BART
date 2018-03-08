@@ -35,10 +35,10 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
   bool RunGoldTest() const override;
   
   //! Returns the status of the gold_stream
-  const bool& GoldGood() const override;
+  bool GoldGood() const override;
   
   //! Returns the status of the actual_stream
-  const bool& ActualGood() const override;
+  bool ActualGood() const override;
   
   //! Closes both stream
   void CloseStreams();
@@ -56,11 +56,11 @@ class GoldStreamEvaluator : public StreamEvaluatorI {
   mutable std::unique_ptr<std::istream> actual_stream_;   
 };
 
-inline const bool& GoldStreamEvaluator::GoldGood() const {
+inline bool GoldStreamEvaluator::GoldGood() const {
   return gold_good_;
 }
 
-inline const bool& GoldStreamEvaluator::ActualGood() const {
+inline bool GoldStreamEvaluator::ActualGood() const {
   return actual_good_;
 }
 
