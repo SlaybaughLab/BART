@@ -15,24 +15,28 @@ class LSGCTest : public ::testing::Test {
     prm.declare_entry ("number of groups", "1",
                        dealii::Patterns::Integer (), "");
   }
+
   template <int dim>
-  void AQDataTest() {
-    std::unique_ptr<AQBase<dim>> lsgc_ptr =
-        std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
-    lsgc_ptr->make_aq ();
-    auto wi = lsgc_ptr->get_angular_weights ();
-    auto omega_i = lsgc_ptr->get_all_directions ();
-    for (unsigned int i=0; i<wi.size(); ++i)
-    {
-      dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
-      for (int j=0; j<dim; ++j)
-        dealii::deallog << omega_i[i][j] << " ";
-      dealii::deallog << std::endl;
-    }
-  }
+  void AQDataTest();
   
   dealii::ParameterHandler prm;
 };
+
+template <int dim>
+void LSGCTest::AQDataTest() {
+  std::unique_ptr<AQBase<dim>> lsgc_ptr =
+      std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
+  lsgc_ptr->MakeAQ();
+  auto wi = lsgc_ptr->GetAQWeights();
+  auto omega_i = lsgc_ptr->GetAQDirs();
+  for (unsigned int i=0; i<wi.size(); ++i)
+  {
+    dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
+    for (int j=0; j<dim; ++j)
+      dealii::deallog << omega_i[i][j] << " ";
+    dealii::deallog << std::endl;
+  }
+}
 
 TEST_F(LSGCTest, LSGC_2d_EpTest) {
   std::string filename = "lsgc_ep_2d";
