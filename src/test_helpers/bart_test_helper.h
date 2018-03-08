@@ -48,10 +48,10 @@ class BartTestHelper {
   bool GoldTest(std::string filename) const;
   
   //! Returns the name of the report directory
-  const std::string& GetReportDirectory() const { return report_directory_; };
+  std::string GetReportDirectory() const;
   
   //! Returns a fail message if a gold test fails, or ""
-  std::string GetFailMessage() const { return fail_message_; };
+  std::string GetFailMessage() const;
   
   //! Set the value of `report`
   void SetReport(bool report);
@@ -63,10 +63,10 @@ class BartTestHelper {
   void OpenLog(std::string filename);
   
   //! Detaches and closes the ofstream attached to the dealiilog
-  void CloseLog() { log_stream_.reset();};
+  void CloseLog();
   
   //! Returns the status of the dealii log
-  bool IsLogging() const { return log_stream_ != nullptr; };
+  bool IsLogging() const;
   
  private:
   //! Used to clean up files following a gold test
@@ -82,6 +82,23 @@ class BartTestHelper {
   std::unique_ptr<std::ofstream> log_stream_;
   mutable std::string fail_message_ = "";
 };
+
+inline std::string BartTestHelper::GetReportDirectory() const {
+  return report_directory_;
+}
+
+inline std::string BartTestHelper::GetFailMessage() const {
+  return fail_message_;
+}
+
+inline void BartTestHelper::CloseLog() {
+  log_stream_.reset();
+}
+
+inline bool BartTestHelper::IsLogging() const {
+  return log_stream_ != nullptr;
+}
+
 /*! \relates BartTestHelper
   This is the localstatic BartTestHelper that is used by all gold file comparison tests
 */
