@@ -9,6 +9,7 @@ Makefile
 CMakeFiles/
 *Ca*
 xtrans
+xtrans_test
 dg-ep*
 *cg*.txt
 *dg*.txt
@@ -31,6 +32,7 @@ Testing/
 html/
 latex/
 build/
+test_data/
 
 # For ggtags
 GPATH
