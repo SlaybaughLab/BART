@@ -135,10 +135,10 @@ std::string AQBase<dim>::ProduceAQName () const {
   AssertThrow (aq_name_.size()>0,
                dealii::ExcMessage("aq name has to be assigned"));
   // ToDo: more quadrature name producers
-  if (aq_name_=="lsgc")
+  if (aq_name_== "lsgc")
     return "Level Symmetric Gauss Chebyshev";
-  else
-    return "None";
+
+  return "None";
 }
 
 //public member functions to retrieve private and protected variables
