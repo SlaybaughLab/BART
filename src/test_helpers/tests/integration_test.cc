@@ -1,9 +1,9 @@
 #include <gmock/gmock.h>
 #include "../bart_test_helper.h"
 
-#include <sys/stat.h>
 #include <exception>
 #include <fstream>
+#include <sys/stat.h>
 
 #include <gtest/gtest.h>
 
