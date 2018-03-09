@@ -131,7 +131,7 @@ void AQBase<dim>::PrintAQ () {
 }
 
 template <int dim>
-std::string AQBase<dim>::ProduceAQName () {
+std::string AQBase<dim>::ProduceAQName () const {
   AssertThrow (aq_name_.size()>0,
                dealii::ExcMessage("aq name has to be assigned"));
   // ToDo: more quadrature name producers
@@ -143,42 +143,42 @@ std::string AQBase<dim>::ProduceAQName () {
 
 //public member functions to retrieve private and protected variables
 template <int dim>
-std::map<std::pair<int, int>, int> AQBase<dim>::GetCompInd () {
+std::map<std::pair<int, int>, int> AQBase<dim>::GetCompInd () const {
   return component_index_;
 }
 
 template <int dim>
-std::unordered_map<int, std::pair<int, int>> AQBase<dim>::GetInvCompInd () {
+std::unordered_map<int, std::pair<int, int>> AQBase<dim>::GetInvCompInd () const {
   return inverse_component_index_;
 }
 
 template <int dim>
-std::map<std::pair<int, int>, int> AQBase<dim>::GetRefDirInd () {
+std::map<std::pair<int, int>, int> AQBase<dim>::GetRefDirInd () const {
   return reflective_direction_index_;
 }
 
 template <int dim>
-int AQBase<dim>::GetSnOrder () {
+int AQBase<dim>::GetSnOrder () const {
   return n_azi_;
 }
 
 template <int dim>
-int AQBase<dim>::GetNDir () {
+int AQBase<dim>::GetNDir () const {
   return n_dir_;
 }
 
 template <int dim>
-int AQBase<dim>::GetNTotalHOVars () {
+int AQBase<dim>::GetNTotalHOVars () const {
   return n_total_ho_vars_;
 }
 
 template <int dim>
-std::vector<double> AQBase<dim>::GetAQWeights () {
+std::vector<double> AQBase<dim>::GetAQWeights () const {
   return wi_;
 }
 
 template <int dim>
-std::vector<dealii::Tensor<1, dim>> AQBase<dim>::GetAQDirs () {
+std::vector<dealii::Tensor<1, dim>> AQBase<dim>::GetAQDirs () const {
   return omega_i_;
 }
 
