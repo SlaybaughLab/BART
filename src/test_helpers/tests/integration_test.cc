@@ -11,14 +11,15 @@ class TestHelperIntTest : public ::testing::Test {
  protected:
   std::string gold_files_directory = "test_data/";
   btest::BARTTestHelper test_helper;
-  void TearDown() override;
+  void TearDown();
 };
 
 void TestHelperIntTest::TearDown() {
   std::string report_directory = test_helper.GetReportDirectory();
-  if (report_directory.empty() &&
-      (btest::GlobalBARTTestHelper().GetReportDirectory() != report_directory))
+  if (!report_directory.empty() &&
+      (btest::GlobalBARTTestHelper().GetReportDirectory() != report_directory)) {
     rmdir(test_helper.GetReportDirectory().c_str());
+  }
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {

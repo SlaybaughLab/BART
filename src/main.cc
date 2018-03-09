@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   //dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization (argc, argv, 1);
   // Testing
   //::testing::TestEventListeners& listeners =
-        ::testing::UnitTest::GetInstance()->listeners();
+  //::testing::UnitTest::GetInstance()->listeners();
   //if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) != 0)
   //if (world.rank() != 0)
   //delete listeners.Release(listeners.default_result_printer());
