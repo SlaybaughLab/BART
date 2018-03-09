@@ -49,6 +49,15 @@ TEST_F (AQBaseTest, AQBase1DTest) {
   btest::GoldTestRun(filename); // Closes deal log
 }
 
+TEST_F (AQBaseTest, AQBase1DEpTest) {
+  std::string filename = "aq_base_1d_ep";
+  prm.set ("transport model", "ep");
+  btest::GoldTestInit(filename); // Opens deal log
+  OutputAQ<1>();
+
+  btest::GoldTestRun(filename); // Closes deal log
+}
+
 TEST_F (AQBaseTest, AQBaseBadDim) {
   AQBase<2> test_AQ(prm);
   ASSERT_THROW(test_AQ.ProduceAQ(), dealii::ExcMessage);
