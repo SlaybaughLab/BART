@@ -1,13 +1,11 @@
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <deal.II/base/utilities.h>
-#include <deal.II/base/logstream.h>
+#include <gmock/gmock.h>
+#include "../bart_test_helper.h"
 
 #include <sys/stat.h>
 #include <exception>
 #include <fstream>
 
-#include "../bart_test_helper.h"
+#include <gtest/gtest.h>
 
 class TestHelperIntTest : public ::testing::Test {
  protected:
