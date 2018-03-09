@@ -1,13 +1,11 @@
+#include <gmock/gmock.h>
 #include "../bart_test_helper.h"
 
-#include <sys/stat.h>
 #include <exception>
 #include <fstream>
+#include <sys/stat.h>
 
-#include <deal.II/base/logstream.h>
-#include <deal.II/base/utilities.h>
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 class BARTTestHelperTest : public ::testing::Test {
  protected:
@@ -23,36 +21,38 @@ void BARTTestHelperTest::TearDown() {
 }
 
 TEST_F(BARTTestHelperTest, InitializationNoReport) {
-  ASSERT_EQ(test_helper.GetReportDirectory(), "");
+  std::string directory_name = test_helper.GetReportDirectory();
+  ASSERT_TRUE(directory_name.empty());
 }
 
 TEST_F(BARTTestHelperTest, ConstructorReport) {
   btest::BARTTestHelper test_helper2(true, gold_files_directory);
   std::string report_directory = test_helper2.GetReportDirectory();
   // Verify report directory name
-  EXPECT_THAT(report_directory,
-              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
+  std::string regex = gold_files_directory + "........_...._.._report";
+  EXPECT_THAT(report_directory, ::testing::MatchesRegex(regex));
   // Verify report directory existence
   struct stat sb;
-  ASSERT_TRUE((stat(report_directory.c_str(), &sb) == 0) && S_ISDIR(sb.st_mode));
+  bool status = (stat(report_directory.c_str(), &sb) == 0) && S_ISDIR(sb.st_mode);  
+  ASSERT_TRUE(status);
   rmdir(report_directory.c_str());
 }
 
 TEST_F(BARTTestHelperTest, ReInitalizeReport) {
   test_helper.ReInit(true, gold_files_directory);
   std::string report_directory = test_helper.GetReportDirectory();
+  std::string regex = gold_files_directory + "........_...._.._report";
   // Verify report directory name
-  EXPECT_THAT(report_directory,
-              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
+  EXPECT_THAT(report_directory, ::testing::MatchesRegex(regex));
 }
 
 TEST_F(BARTTestHelperTest, SetReport) {
   ASSERT_EQ(test_helper.GetReportDirectory(), "");
   test_helper.SetReport(true);
   std::string report_directory = test_helper.GetReportDirectory();
+  std::string regex = gold_files_directory + "........_...._.._report";
   // Verify report directory name
-  EXPECT_THAT(report_directory,
-              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
+  EXPECT_THAT(report_directory, ::testing::MatchesRegex(regex));
 }
 
 TEST_F(BARTTestHelperTest, SetGoldFilesDirectory) {
@@ -60,9 +60,9 @@ TEST_F(BARTTestHelperTest, SetGoldFilesDirectory) {
   test_helper.SetGoldFilesDirectory(gold_files_directory);
   test_helper.SetReport(true);
   std::string report_directory = test_helper.GetReportDirectory();
+  std::string regex = gold_files_directory + "........_...._.._report";
   // Verify report directory name
-  EXPECT_THAT(report_directory,
-              ::testing::MatchesRegex(gold_files_directory + "........_...._.._report"));
+  EXPECT_THAT(report_directory,::testing::MatchesRegex(regex));
 }
 
 
