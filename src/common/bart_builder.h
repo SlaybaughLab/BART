@@ -18,6 +18,12 @@
 template<int dim>
 class BARTBuilder {
  public:
+  //! Constructor.
+  /*!
+  SetParams will be invoked to set up parameters.
+
+  \param prm dealii::ParameterHandler object.
+  */
   BARTBuilder (dealii::ParameterHandler &prm);
 
   ~BARTBuilder ();
