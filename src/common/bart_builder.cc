@@ -12,8 +12,7 @@ BARTBuilder<dim>::BARTBuilder (dealii::ParameterHandler &prm) {
 }
 
 template <int dim>
-BARTBuilder<dim>::~BARTBuilder () {
-}
+BARTBuilder<dim>::~BARTBuilder () {}
 
 template <int dim>
 void BARTBuilder<dim>::SetParams (dealii::ParameterHandler &prm) {
