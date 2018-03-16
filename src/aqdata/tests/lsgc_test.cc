@@ -23,6 +23,9 @@ class LSGCTest : public ::testing::Test {
 
   template<int dim>
   void InitRefBCAndOutput();
+
+  template<int dim>
+  void InitRefBCAndCheck();
   
   dealii::ParameterHandler prm;
 };
@@ -44,20 +47,38 @@ void LSGCTest::AQDataTest() {
 }
 
 template<int dim>
-void LSGCTest::InitRefBCAndOutput () {
-  // Initializes BC reflection directions and outputs them to the deallog
+void LSGCTest::InitRefBCAndCheck() {
+
   std::unique_ptr<AQBase<dim>> aq_base_ptr =
       std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
   aq_base_ptr->MakeAQ();
-  std::map<std::pair<int, int>, int > reflection_dirs =
+  // Get omegas and reflection map
+  std::vector<dealii::Tensor<1, dim>> omegas = aq_base_ptr->GetAQDirs();
+  std::map<std::pair<int, int>, int > reflection_map =
       aq_base_ptr->GetRefDirInd();
 
-  // Print values to the deallog:
-  for (auto const& entry : reflection_dirs) {
-    dealii::deallog << "Boundary ID: " << entry.first.first
-                    << ";Current dir: " << entry.first.second
-                    << ";Reflect dir: " << entry.second
-                    << std::endl;
+  for (auto const& mapping : reflection_map) {
+    // Unroll this data structure
+    int boundary = mapping.first.first;
+    int direction = mapping.first.second;
+    int reflection = mapping.second;
+
+    switch (boundary / 2) {
+      case 0:
+        //x-direction
+        EXPECT_FLOAT_EQ(omegas[direction][0], -omegas[reflection][0]);
+        break;
+      case 1:
+        //y-direction
+        EXPECT_FLOAT_EQ(omegas[direction][1], -omegas[reflection][1]);
+        break;
+      case 2:
+        //z-direction
+        EXPECT_FLOAT_EQ(omegas[direction][2], -omegas[reflection][2]);
+        break;              
+      default:
+        break;
+    }
   } 
 }
 
@@ -98,12 +119,13 @@ TEST_F (LSGCTest, LSGC_3d_Test) {
 }
 
 TEST_F (LSGCTest, AQBase2DReflDir) {
-  std::string filename = "lsgc_2d_refl";
   prm.set("have reflective BC", "true");
+ 
+  InitRefBCAndCheck<2>();
+}
 
-  btest::GoldTestInit(filename);
+TEST_F (LSGCTest, AQBase3DReflDir) {
+  prm.set("have reflective BC", "true");
   
-  InitRefBCAndOutput<2>();
-  
-  btest::GoldTestRun(filename);
+  InitRefBCAndCheck<3>();
 }
