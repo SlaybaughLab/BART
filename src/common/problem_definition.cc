@@ -18,19 +18,20 @@ void ProblemDefinition::DeclareParameters (dealii::ParameterHandler &prm) {
   {
     prm.declare_entry ("problem dimension", "2", dealii::Patterns::Integer(), "");
     prm.declare_entry ("transport model", "none", dealii::Patterns::Selection("ep|none"), "valid names such as ep");
-    prm.declare_entry ("HO linear solver name", "cg", dealii::Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
-    prm.declare_entry ("HO preconditioner name", "amg", dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
-    prm.declare_entry ("HO ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for HO");
-    prm.declare_entry ("NDA linear solver name", "none", dealii::Patterns::Selection("none|gmres|bicgstab|direct"), "NDA linear solers");
-    prm.declare_entry ("NDA preconditioner name", "none", dealii::Patterns::Selection("none|amg|parasails|bjacobi|jacobi|bssor"), "precond names");
-    prm.declare_entry ("NDA ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for NDA");
+    prm.declare_entry ("ho linear solver name", "cg", dealii::Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
+    prm.declare_entry ("ho preconditioner name", "amg", dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
+    prm.declare_entry ("ho ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for HO");
+    prm.declare_entry ("nda linear solver name", "none", dealii::Patterns::Selection("none|gmres|bicgstab|direct"), "NDA linear solers");
+    prm.declare_entry ("nda preconditioner name", "none", dealii::Patterns::Selection("none|amg|parasails|bjacobi|jacobi|bssor"), "precond names");
+    prm.declare_entry ("nda ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for NDA");
     prm.declare_entry ("angular quadrature name", "none", dealii::Patterns::Selection ("lsgc|gl|none"), "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
     prm.declare_entry ("angular quadrature order", "4", dealii::Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
     prm.declare_entry ("number of groups", "1", dealii::Patterns::Integer (), "Number of groups in MG calculations");
     prm.declare_entry ("thermal group boundary", "0", dealii::Patterns::Integer (), "group number for the first thermal group");
-    prm.declare_entry ("spatial discretization", "cfem", dealii::Patterns::Selection("dfem|cfem"), "USE DFEM or CFEM for spatial discretization");
+    prm.declare_entry ("ho spatial discretization", "cfem", dealii::Patterns::Selection("dfem|cfem"), "HO equation spatial discretization");
+    prm.declare_entry ("nda spatial discretization", "cfem", dealii::Patterns::Selection("dfem|cfem|cmfd|rtk"), "NDA equation spatial discretization");
     prm.declare_entry ("do eigenvalue calculations", "false", dealii::Patterns::Bool(), "Boolean to determine problem type");
-    prm.declare_entry ("do NDA", "false", dealii::Patterns::Bool(), "Boolean to determine NDA or not");
+    prm.declare_entry ("do nda", "false", dealii::Patterns::Bool(), "Boolean to determine NDA or not");
     prm.declare_entry ("have reflective BC", "false", dealii::Patterns::Bool(), "");
     prm.declare_entry ("reflective boundary names", "", dealii::Patterns::List (dealii::Patterns::Anything ()), "must be lower cases of xmin,xmax,ymin,ymax,zmin,zmax");
     prm.declare_entry ("finite element polynomial degree", "1", dealii::Patterns::Integer(), "polynomial degree p for finite element");
