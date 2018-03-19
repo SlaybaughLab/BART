@@ -1,5 +1,6 @@
 #include "../aq_base.h"
 
+#include <sstream>
 #include <string>
 
 #include "gtest/gtest.h"
@@ -36,7 +37,7 @@ void AQBaseTest::OutputAQ() {
   gl_ptr->ProduceAQ();
   auto wi = gl_ptr->GetAQWeights();
   auto omega_i = gl_ptr->GetAQDirs();
-  for (int i=0; i<wi.size(); ++i) {
+  for (size_t i=0; i<wi.size(); ++i) {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
     for (int j=0; j<dim; ++j)
       dealii::deallog << omega_i[i][j] << " ";
@@ -101,5 +102,22 @@ TEST_F(AQBaseTest, AQBaseGetTotalHOVarsEq) {
   AQBase<1> test_AQ(prm);
   test_AQ.MakeAQ();
   ASSERT_EQ(test_AQ.GetNTotalHOVars(), 2);
+}
+
+TEST_F(AQBaseTest, PrintAQ) {  
+  AQBase<1> test_AQ(prm);
+  test_AQ.MakeAQ();
+
+  std::ostringstream output_string_stream;
+  test_AQ.PrintAQ(&output_string_stream);
+
+  std::string output = "transport model: regular; output_streamature name: None\n"
+                       "Dim = 1, SN order = 4\n"
+                       "Weights | Omega_x | Omega_y | mu\n"
+                       "0.347854845137454  -0.861136311594053  \n"
+                       "0.652145154862546  -0.339981043584856  \n"
+                       "0.652145154862546  0.339981043584856  \n"
+                       "0.347854845137454  0.861136311594052  \n"; 
+  EXPECT_EQ(output, output_string_stream.str());
 }
   

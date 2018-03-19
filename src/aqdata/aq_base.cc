@@ -111,23 +111,28 @@ template <int dim>
 void AQBase<dim>::PrintAQ () {
   std::ofstream quadr;
   quadr.open("aq.txt");
-  quadr << "transport model: " << transport_model_name_
-        << "; quadrature name: " << ProduceAQName () << std::endl;
-  quadr << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
-  quadr << "Weights | Omega_x | Omega_y | mu" << std::endl;
-  for (int i=0; i<omega_i_.size(); ++i) {
-    quadr << std::fixed << std::setprecision (15)
+  PrintAQ(&quadr);
+  quadr.close ();
+}
+
+template <int dim>
+void AQBase<dim>::PrintAQ (std::ostream *output_stream) {
+  *output_stream << "transport model: " << transport_model_name_
+        << "; output_streamature name: " << ProduceAQName () << std::endl;
+  *output_stream << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
+  *output_stream << "Weights | Omega_x | Omega_y | mu" << std::endl;
+  for (size_t i=0; i<omega_i_.size(); ++i) {
+    *output_stream << std::fixed << std::setprecision (15)
           << wi_[i] << "  " << omega_i_[i][0] << "  ";
     if (dim>1) {
-      quadr << omega_i_[i][1] << "  ";
+      *output_stream << omega_i_[i][1] << "  ";
       double mu = dim>2 ? omega_i_[i][2] :
           std::sqrt(1.-(std::pow(omega_i_[i][0],2.)
                         +std::pow(omega_i_[i][1],2)));
-      quadr << mu;
+      *output_stream << mu;
     }
-    quadr << std::endl;
+    *output_stream << std::endl;
   }
-  quadr.close ();
 }
 
 template <int dim>

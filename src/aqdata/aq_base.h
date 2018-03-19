@@ -84,6 +84,11 @@ class AQBase {
   void PrintAQ ();
 
   /*!
+    Overload of PrintAQ that will print to a given istream object
+  */
+  void PrintAQ(std::ostream *output_stream); 
+
+  /*!
    A function to return SN order in integer.
 
    \return SN order.
