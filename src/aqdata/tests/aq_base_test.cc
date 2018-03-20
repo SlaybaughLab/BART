@@ -121,3 +121,25 @@ TEST_F(AQBaseTest, PrintAQ) {
   EXPECT_EQ(output, output_string_stream.str());
 }
   
+TEST_F(AQBaseTest, RefDirInt) {
+  AQBase<1> test_AQ(prm);
+  test_AQ.MakeAQ();
+  std::map<std::pair<int, int>, int> component_index_map(test_AQ.GetCompInd());
+
+  for (auto const& mapping : component_index_map) {
+    EXPECT_EQ(mapping.first.first, 0);
+    EXPECT_EQ(mapping.first.second, mapping.second);
+  }
+
+}
+
+TEST_F(AQBaseTest, InvDirInd) {
+  AQBase<1> test_AQ(prm);
+  std::unordered_map<int, std::pair<int, int>>
+      inv_component_map(test_AQ.GetInvCompInd());
+
+  for (size_t i; i < inv_component_map.size(); ++i) {
+    EXPECT_EQ(inv_component_map[i].first, 0);
+    EXPECT_EQ(inv_component_map[i].second, i);
+  } 
+}
