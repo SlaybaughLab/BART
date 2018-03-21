@@ -84,7 +84,7 @@ class AQBase {
   void PrintAQ ();
 
   /*!
-    Overload of PrintAQ that will print to a given istream object
+    Overload of PrintAQ that will print to a given ostream object.
   */
   void PrintAQ(std::ostream *output_stream); 
 
