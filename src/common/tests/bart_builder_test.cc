@@ -63,10 +63,10 @@ void BARTBuilderTest::FEBuilderTest () {
       "FE_RaviartThomas<"+dealii::Utilities::int_to_string(dim)+">(1)");
 }
 
-TEST_F (BARTBuilderTest, FEBuilder_2D_Test) {
+TEST_F (BARTBuilderTest, FEBuilder2DTest) {
   FEBuilderTest<2> ();
 }
 
-TEST_F (BARTBuilderTest, FEBuilder_3D_Test) {
+TEST_F (BARTBuilderTest, FEBuilder3DTest) {
   FEBuilderTest<3> ();
 }
