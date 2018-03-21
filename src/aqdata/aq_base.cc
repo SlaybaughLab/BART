@@ -137,10 +137,10 @@ void AQBase<dim>::PrintAQ (std::ostream *output_stream) {
 
 template <int dim>
 std::string AQBase<dim>::ProduceAQName () const {
-  AssertThrow (aq_name_.size()>0,
-               dealii::ExcMessage("aq name has to be assigned"));
+  AssertThrow(aq_name_.size()>0,
+              dealii::ExcMessage("aq name has to be assigned"));
   // ToDo: more quadrature name producers
-  if (aq_name_== "lsgc")
+  if (aq_name_ == "lsgc")
     return "Level Symmetric Gauss Chebyshev";
 
   return "None";

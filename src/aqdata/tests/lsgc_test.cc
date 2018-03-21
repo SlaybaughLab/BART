@@ -31,7 +31,7 @@ void LSGCTest::SetUp() {
     prm.declare_entry ("number of groups", "1",
                        dealii::Patterns::Integer (), "");
     prm.declare_entry ("transport model", "regular",
-                     dealii::Patterns::Selection("regular|ep"), "");
+                       dealii::Patterns::Selection("regular|ep"), "");
 }
 
 template <int dim>
