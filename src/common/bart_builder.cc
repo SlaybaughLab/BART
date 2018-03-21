@@ -79,7 +79,7 @@ void BARTBuilder<dim>::BuildFESpaces (
 
 template <int dim>
 void BARTBuilder<dim>::BuildAQ (dealii::ParameterHandler &prm,
-    std::unique_ptr<AQBase<dim>> aq_ptr) {
+    std::unique_ptr<AQBase<dim>>& aq_ptr) {
   if (dim==1) {
     // AQBase implements 1D quadrature
     aq_ptr = std::unique_ptr<AQBase<dim>> (new AQBase<dim>(prm));

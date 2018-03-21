@@ -61,7 +61,7 @@ class BARTBuilder {
   \return Void.
   */
   void BuildAQ (dealii::ParameterHandler &prm,
-      std::unique_ptr<AQBase<dim>> aq_ptr);
+      std::unique_ptr<AQBase<dim>>& aq_ptr);
 
  private:
   bool do_nda_;//!< Boolean to determine if NDA is to be used for accelerations.
