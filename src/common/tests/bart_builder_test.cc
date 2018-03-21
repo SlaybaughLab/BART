@@ -1,24 +1,22 @@
 #include "../bart_builder.h"
+#include "../problem_definition.h"
 
 #include "gtest/gtest.h"
 
 class BARTBuilderTest : public ::testing::Test {
  protected:
-  void SetUp () {
-    prm.declare_entry ("do nda", "true", dealii::Patterns::Bool(), "");
-    prm.declare_entry ("finite element polynomial degree", "1",
-                       dealii::Patterns::Integer(), "");
-    prm.declare_entry ("ho spatial discretization", "",
-                       dealii::Patterns::Anything(), "");
-    prm.declare_entry ("nda spatial discretization", "",
-                       dealii::Patterns::Anything(), "");
-  }
+  void SetUp ();
 
   template <int dim>
   void FEBuilderTest ();
 
   dealii::ParameterHandler prm;
 };
+
+void BARTBuilderTest::SetUp () {
+  ProblemDefinition::DeclareParameters(prm);
+  prm.set("do nda", "true");
+}
 
 template <int dim>
 void BARTBuilderTest::FEBuilderTest () {
