@@ -22,7 +22,6 @@ void BARTBuilder<dim>::SetParams (dealii::ParameterHandler &prm) {
   ho_discretization_ = prm.get ("ho spatial discretization");
   nda_discretization_ = prm.get ("nda spatial discretization");
 
-
   // for AQ builder
   aq_name_ = prm.get ("angular quadrature name");
   aq_order_ = prm.get_integer ("angular quadrature order");
@@ -79,7 +78,7 @@ void BARTBuilder<dim>::BuildFESpaces (
 
 template <int dim>
 void BARTBuilder<dim>::BuildAQ (dealii::ParameterHandler &prm,
-    std::unique_ptr<AQBase<dim>>& aq_ptr) {
+    std::unique_ptr<AQBase<dim>> &aq_ptr) {
   if (dim==1) {
     // AQBase implements 1D quadrature
     aq_ptr = std::unique_ptr<AQBase<dim>> (new AQBase<dim>(prm));
