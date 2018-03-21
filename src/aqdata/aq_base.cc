@@ -39,8 +39,6 @@ void AQBase<dim>::InitRefBCInd () {
   // uses deal.II generated mesh or mesh from gmsh with proper
   // boundary IDs setup: {0,1,2,3,4,5} for {xmin,xmax,ymin,ymax,zmin,zmax}
   if (have_reflective_bc_) {
-    Assert (dim>1,
-            dealii::ExcNotImplemented());
     std::vector<dealii::Tensor<1, dim>> bnv;
     bnv.resize (2*dim);
     // All boundary normal vectors are assume to be parallel to axes
@@ -111,74 +109,79 @@ template <int dim>
 void AQBase<dim>::PrintAQ () {
   std::ofstream quadr;
   quadr.open("aq.txt");
-  quadr << "transport model: " << transport_model_name_
-        << "; quadrature name: " << ProduceAQName () << std::endl;
-  quadr << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
-  quadr << "Weights | Omega_x | Omega_y | mu" << std::endl;
-  for (int i=0; i<omega_i_.size(); ++i) {
-    quadr << std::fixed << std::setprecision (15)
-          << wi_[i] << "  " << omega_i_[i][0] << "  ";
-    if (dim>1) {
-      quadr << omega_i_[i][1] << "  ";
-      double mu = dim>2 ? omega_i_[i][2] :
-          std::sqrt(1.-(std::pow(omega_i_[i][0],2.)
-                        +std::pow(omega_i_[i][1],2)));
-      quadr << mu;
-    }
-    quadr << std::endl;
-  }
+  PrintAQ(&quadr);
   quadr.close ();
 }
 
 template <int dim>
-std::string AQBase<dim>::ProduceAQName () {
-  AssertThrow (aq_name_.size()>0,
-               dealii::ExcMessage("aq name has to be assigned"));
+void AQBase<dim>::PrintAQ (std::ostream *output_stream) {
+  *output_stream << "transport model: " << transport_model_name_
+        << "; output_streamature name: " << ProduceAQName () << std::endl;
+  *output_stream << "Dim = " << dim << ", SN order = " << n_azi_ << std::endl;
+  *output_stream << "Weights | Omega_x | Omega_y | mu" << std::endl;
+  for (size_t i=0; i<omega_i_.size(); ++i) {
+    *output_stream << std::fixed << std::setprecision (15)
+          << wi_[i] << "  " << omega_i_[i][0] << "  ";
+    if (dim>1) {
+      *output_stream << omega_i_[i][1] << "  ";
+      double mu = dim>2 ? omega_i_[i][2] :
+          std::sqrt(1.-(std::pow(omega_i_[i][0],2.)
+                        +std::pow(omega_i_[i][1],2)));
+      *output_stream << mu;
+    }
+    *output_stream << std::endl;
+  }
+}
+
+template <int dim>
+std::string AQBase<dim>::ProduceAQName () const {
+  AssertThrow(aq_name_.size()>0,
+              dealii::ExcMessage("aq name has to be assigned"));
   // ToDo: more quadrature name producers
-  if (aq_name_=="lsgc")
+  if (aq_name_ == "lsgc")
     return "Level Symmetric Gauss Chebyshev";
-  else
-    return "None";
+
+  return "None";
 }
 
 //public member functions to retrieve private and protected variables
 template <int dim>
-std::map<std::pair<int, int>, int> AQBase<dim>::GetCompInd () {
+std::map<std::pair<int, int>, int> AQBase<dim>::GetCompInd () const {
   return component_index_;
 }
 
 template <int dim>
-std::unordered_map<int, std::pair<int, int>> AQBase<dim>::GetInvCompInd () {
+std::unordered_map<int, std::pair<int, int>> AQBase<dim>::GetInvCompInd () const {
   return inverse_component_index_;
 }
 
 template <int dim>
-std::map<std::pair<int, int>, int> AQBase<dim>::GetRefDirInd () {
+std::map<std::pair<int, int>, int> AQBase<dim>::GetRefDirInd () const {
   return reflective_direction_index_;
 }
 
 template <int dim>
-int AQBase<dim>::GetSnOrder () {
+int AQBase<dim>::GetSnOrder () const {
   return n_azi_;
 }
 
 template <int dim>
-int AQBase<dim>::GetNDir () {
+int AQBase<dim>::GetNDir () const {
   return n_dir_;
 }
 
 template <int dim>
-int AQBase<dim>::GetNTotalHOVars () {
+int AQBase<dim>::GetNTotalHOVars () const {
   return n_total_ho_vars_;
 }
 
 template <int dim>
-std::vector<double> AQBase<dim>::GetAQWeights () {
+std::vector<double> AQBase<dim>::GetAQWeights () const {
   return wi_;
 }
 
 template <int dim>
-std::vector<dealii::Tensor<1, dim>> AQBase<dim>::GetAQDirs () {
+std::vector<dealii::Tensor<1, dim>> AQBase<dim>::GetAQDirs () const {
   return omega_i_;
 }
 

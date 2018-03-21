@@ -84,60 +84,65 @@ class AQBase {
   void PrintAQ ();
 
   /*!
+    Overload of PrintAQ that will print to a given ostream object.
+  */
+  void PrintAQ(std::ostream *output_stream); 
+
+  /*!
    A function to return SN order in integer.
 
    \return SN order.
    */
-  int GetSnOrder ();
+  int GetSnOrder () const;
 
   /*!
    A function to return total number of directions.
 
    \return Total number of directions in integer.
    */
-  int GetNDir ();
+  int GetNDir () const;
 
   /*!
    A function to return total number of components in HO equation.
 
    \return Total number of components in HO equation.
    */
-  int GetNTotalHOVars ();
+  int GetNTotalHOVars () const;
 
   /*!
    A function to return AQBase<dim>::wi.
 
    \return A vector of all angular weights.
    */
-  std::vector<double> GetAQWeights ();
+  std::vector<double> GetAQWeights () const;
 
   /*!
    A function to return all the directions.
 
    \return A vector of dealii::Tensor<1, dim> representing directions.
    */
-  std::vector<dealii::Tensor<1, dim>> GetAQDirs ();
+  std::vector<dealii::Tensor<1, dim>> GetAQDirs () const;
 
   /*!
    A function to return HO component indices, AQBase<dim>::component_index.
 
    \return A std::map for (group_idx, dir_idx)->component_idx.
    */
-  std::map<std::pair<int, int>, int> GetCompInd ();
+  std::map<std::pair<int, int>, int> GetCompInd () const;
 
   /*!
    A function to return AQBase<dim>::inverse_component_index_.
 
    \return A Hash table for component_idx->(group_idx, dir_idx).
    */
-  std::unordered_map<int, std::pair<int, int>> GetInvCompInd ();
+  std::unordered_map<int, std::pair<int, int>> GetInvCompInd () const;
 
   /*!
    A function to return AQBase<dim>::reflective_direction_index.
 
    \return std::map for the mapping: (boundary_id, current_dir)->refl_dir.
    */
-  std::map<std::pair<int, int>, int> GetRefDirInd ();
+  std::map<std::pair<int, int>, int> GetRefDirInd () const;
 
 protected:
   const double k_pi;//!< Constant PI, 3.14159...
@@ -177,7 +182,7 @@ protected:
 
    \return Full AQ name in string.
    */
-  std::string ProduceAQName ();
+  std::string ProduceAQName () const;
 
   /*!
    This function initialize reflective direction indices on all boundaries. If
