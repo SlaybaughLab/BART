@@ -1,6 +1,10 @@
 #ifndef BART_SRC_COMMON_BART_BUILDER_H_
 #define BART_SRC_COMMON_BART_BUILDER_H_
 
+// aq data
+#include "../aqdata/aq_base.h"
+#include "../aqdata/lsgc.h"
+
 #include <vector>
 
 #include <deal.II/base/parameter_handler.h>
@@ -48,13 +52,27 @@ class BARTBuilder {
   */
   void BuildFESpaces (std::vector<dealii::FiniteElement<dim, dim>*> &fe_ptrs);
 
+  //! Function used to build AQ data.
+  /*!
+  The main functionality is to build angular quadrature data. For 1D, Gauss-Legendre
+  quadrature will be built while in multi-D, AQBase will be cast to specific model.
+
+  \param aq_ptr Angular quadrature pointer that needs to be built.
+  \return Void.
+  */
+  void BuildAQ (dealii::ParameterHandler &prm,
+      std::unique_ptr<AQBase<dim>> aq_ptr);
+
  private:
   bool do_nda_;//!< Boolean to determine if NDA is to be used for accelerations.
 
   unsigned int p_order_;//!< FE polynomial order.
 
+  int aq_order_;//!< SN order.
+
   std::string ho_discretization_;//!< Spatial discretization for HO equation.
   std::string nda_discretization_;//!< Spatial discretization for NDA equation.
+  std::string aq_name_;//!< Angular quadrature name.
 };
 
 #endif // BART_SRC_COMMON_BART_BUILDER_H_
