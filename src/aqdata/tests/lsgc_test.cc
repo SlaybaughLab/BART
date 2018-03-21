@@ -7,18 +7,7 @@
 
 class LSGCTest : public ::testing::Test {
  protected:
-  virtual void SetUp() {
-    prm.declare_entry ("have reflective BC", "false",
-                       dealii::Patterns::Bool(), "");
-    prm.declare_entry ("angular quadrature order", "4",
-                       dealii::Patterns::Integer (), "");
-    prm.declare_entry ("angular quadrature name", "lsgc",
-                       dealii::Patterns::Selection ("lsgc"), "");
-    prm.declare_entry ("number of groups", "1",
-                       dealii::Patterns::Integer (), "");
-    prm.declare_entry ("transport model", "regular",
-                     dealii::Patterns::Selection("regular|ep"), "");
-  }
+  void SetUp() override;
 
   template <int dim>
   void AQDataTest();
@@ -32,10 +21,22 @@ class LSGCTest : public ::testing::Test {
   dealii::ParameterHandler prm;
 };
 
+void LSGCTest::SetUp() {
+    prm.declare_entry ("have reflective BC", "false",
+                       dealii::Patterns::Bool(), "");
+    prm.declare_entry ("angular quadrature order", "4",
+                       dealii::Patterns::Integer (), "");
+    prm.declare_entry ("angular quadrature name", "lsgc",
+                       dealii::Patterns::Selection ("lsgc"), "");
+    prm.declare_entry ("number of groups", "1",
+                       dealii::Patterns::Integer (), "");
+    prm.declare_entry ("transport model", "regular",
+                     dealii::Patterns::Selection("regular|ep"), "");
+}
+
 template <int dim>
 void LSGCTest::AQDataTest() {
-  std::unique_ptr<AQBase<dim>> lsgc_ptr =
-      std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
+  std::unique_ptr<LSGC<dim>> lsgc_ptr = std::make_unique<LSGC<dim>>(prm);
   lsgc_ptr->MakeAQ();
   auto wi = lsgc_ptr->GetAQWeights();
   auto omega_i = lsgc_ptr->GetAQDirs();
@@ -50,9 +51,7 @@ void LSGCTest::AQDataTest() {
 
 template<int dim>
 void LSGCTest::InitRefBCAndCheck() {
-
-  std::unique_ptr<AQBase<dim>> aq_base_ptr =
-      std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
+  std::unique_ptr<LSGC<dim>> aq_base_ptr = std::make_unique<LSGC<dim>>(prm);
   aq_base_ptr->MakeAQ();
   // Get omegas and reflection map
   std::vector<dealii::Tensor<1, dim>> omegas = aq_base_ptr->GetAQDirs();
@@ -66,20 +65,24 @@ void LSGCTest::InitRefBCAndCheck() {
     int reflection = mapping.second;
 
     switch (boundary / 2) {
-      case 0:
+      case 0: {
         //x-direction
         EXPECT_FLOAT_EQ(omegas[direction][0], -omegas[reflection][0]);
         break;
-      case 1:
+      }
+      case 1: {
         //y-direction
         EXPECT_FLOAT_EQ(omegas[direction][1], -omegas[reflection][1]);
         break;
-      case 2:
+      }
+      case 2: {
         //z-direction
         EXPECT_FLOAT_EQ(omegas[direction][2], -omegas[reflection][2]);
-        break;              
-      default:
         break;
+      }
+      default: {
+        assert(false);
+      }
     }
   } 
 }
@@ -87,10 +90,8 @@ void LSGCTest::InitRefBCAndCheck() {
 TEST_F (LSGCTest, LSGC_2d_EpTest) {
   std::string filename = "lsgc_ep_2d";
   btest::GoldTestInit(filename);
-  prm.set ("transport model", "ep");
-  
+  prm.set ("transport model", "ep"); 
   AQDataTest<2>();
-
   btest::GoldTestRun(filename);
 }
 
@@ -98,16 +99,13 @@ TEST_F (LSGCTest, LSGC_3d_EpTest) {
   std::string filename = "lsgc_ep_3d";
   btest::GoldTestInit(filename);
   prm.set ("transport model", "ep");
-
-  AQDataTest<3>();
-  
+  AQDataTest<3>(); 
   btest::GoldTestRun(filename);
 }
 
 TEST_F (LSGCTest, LSGC_2d_Test) {
   std::string filename = "lsgc_2d";
   btest::GoldTestInit(filename);
-
   AQDataTest<2>();
   btest::GoldTestRun(filename);
 }
@@ -115,28 +113,24 @@ TEST_F (LSGCTest, LSGC_2d_Test) {
 TEST_F (LSGCTest, LSGC_3d_Test) {
   std::string filename = "lsgc_3d";
   btest::GoldTestInit(filename);
-
   AQDataTest<3>();
   btest::GoldTestRun(filename);
 }
 
 TEST_F (LSGCTest, AQBase2DReflDir) {
   prm.set("have reflective BC", "true");
- 
   InitRefBCAndCheck<2>();
 }
 
 TEST_F (LSGCTest, AQBase3DReflDir) {
   prm.set("have reflective BC", "true");
-  
   InitRefBCAndCheck<3>();
 }
 
 TEST_F (LSGCTest, LSGC_2d_PrintAQ) {
-
   LSGC<2> test_lsgc(prm);
   test_lsgc.MakeAQ();
-
+  
   std::ostringstream output_string_stream;
   test_lsgc.PrintAQ(&output_string_stream);
   

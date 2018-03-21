@@ -48,7 +48,6 @@ TEST_F(AQBaseTest, AQBase1DProduceAQ) {
   std::string filename = "aq_base_1d";
   btest::GoldTestInit(filename); // Opens deal log
   OutputAQ<1>();
-
   btest::GoldTestRun(filename); // Closes deal log
 }
 
@@ -57,7 +56,6 @@ TEST_F(AQBaseTest, AQBase1DEpProduceAQ) {
   prm.set("transport model", "ep");
   btest::GoldTestInit(filename); // Opens deal log
   OutputAQ<1>();
-
   btest::GoldTestRun(filename); // Closes deal log
 }
 
@@ -129,7 +127,6 @@ TEST_F(AQBaseTest, RefDirInt) {
     EXPECT_EQ(mapping.first.first, 0);
     EXPECT_EQ(mapping.first.second, mapping.second);
   }
-
 }
 
 TEST_F(AQBaseTest, InvDirInd) {
