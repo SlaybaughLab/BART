@@ -39,8 +39,6 @@ void AQBase<dim>::InitRefBCInd () {
   // uses deal.II generated mesh or mesh from gmsh with proper
   // boundary IDs setup: {0,1,2,3,4,5} for {xmin,xmax,ymin,ymax,zmin,zmax}
   if (have_reflective_bc_) {
-    AssertThrow (dim>1,
-                 dealii::ExcMessage("Reflective BCs are not implemented in 1D"));
     std::vector<dealii::Tensor<1, dim>> bnv;
     bnv.resize (2*dim);
     // All boundary normal vectors are assume to be parallel to axes

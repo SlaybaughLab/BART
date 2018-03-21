@@ -12,6 +12,9 @@ class AQBaseTest : public ::testing::Test {
 
   template<int dim>
   void OutputAQ();
+
+  template<int dim>
+  void InitRefBCAndCheck();
   
   dealii::ParameterHandler prm;
 };
@@ -45,6 +48,25 @@ void AQBaseTest::OutputAQ() {
   }
 }
 
+template<int dim>
+void AQBaseTest::InitRefBCAndCheck() {
+  std::unique_ptr<AQBase<dim>> aq_base_ptr = std::make_unique<AQBase<dim>>(prm);
+  aq_base_ptr->MakeAQ();
+  // Get omegas and reflection map
+  std::vector<dealii::Tensor<1, dim>> omegas = aq_base_ptr->GetAQDirs();
+  std::map<std::pair<int, int>, int > reflection_map =
+      aq_base_ptr->GetRefDirInd();
+
+  for (auto const& mapping : reflection_map) {
+    // Unroll this data structure
+    int direction = mapping.first.second;
+    int reflection = mapping.second;
+
+    //x-direction
+    EXPECT_FLOAT_EQ(omegas[direction][0], -omegas[reflection][0]);
+  } 
+}
+
 TEST_F(AQBaseTest, AQBase1DProduceAQ) {
   std::string filename = "aq_base_1d";
   btest::GoldTestInit(filename);
@@ -67,8 +89,7 @@ TEST_F(AQBaseTest, AQBaseBadDimProduceAQ) {
 
 TEST_F(AQBaseTest, AQBaseBadDimReflectiveBC) {
   prm.set("have reflective BC", "true");
-  AQBase<1> test_AQ(prm);
-  ASSERT_THROW(test_AQ.MakeAQ(), dealii::ExcMessage);
+  InitRefBCAndCheck<1>();
 }
 
 TEST_F(AQBaseTest, AQBaseSNOrderGetter) {
