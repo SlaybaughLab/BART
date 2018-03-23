@@ -20,7 +20,7 @@ class BARTBuilderTest : public ::testing::Test {
 };
 
 void BARTBuilderTest::SetUp () {
-  ProblemDefinition::DeclareParameters(prm);
+  bparams::DeclareParameters(prm);
   prm.set("do nda", "true");
 }
 
