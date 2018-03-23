@@ -33,7 +33,7 @@ void DeclareParameters (dealii::ParameterHandler &local_prm);
 
 /*!
  This function will call the previous function to declare parameter entries in
- bparams::prm.
+ bparams::GlobPrm.
 
  \return Void.
 */
