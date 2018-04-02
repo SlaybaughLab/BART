@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include <deal.II/grid/manifold_lib.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/grid_tools.h>
 #include <deal.II/grid/tria_accessor.h>
@@ -31,9 +32,8 @@ void MeshGenerator<dim>::MakeGrid (dealii::Triangulation<dim> &tria) {
     GenerateInitialGrid (tria);
     InitializeMaterialID (tria);
     SetupBoundaryIDs (tria);
-    tria.refine_global (global_refinements_);
-  }
-  else {
+    GlobalRefine (tria);
+  } else {
     dealii::GridIn<dim> gi;
     gi.attach_triangulation (tria);
     std::ifstream f(mesh_filename_);
@@ -254,6 +254,23 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
     }
   }
   prm.leave_subsection ();
+}
+
+template <int dim>
+void MeshGenerator<dim> GlobalRefine (dealii::Triangulation<dim>& tria) {
+  if (is_mesh_unstructed_) {
+    // declare manifold as cylinder surfaces around axis parallel to z-axis
+    const CylindericalManifold<dim> curved_surfaces (2);
+    tria.set_manifold (200, curved_surfaces);
+    // set manifolds for fuel surfaces
+    SetPinManifolds (tria, 200);
+    // perform the refinement
+    tria.refine_global (global_refinements_);
+    // destroy the manifolds to avoid error
+    tria.set_manifold (201, curved_surfaces);
+  } else {
+    tria.refine_global (global_refinements_);
+  }
 }
 
 template <int dim>

@@ -107,6 +107,19 @@ class MeshGenerator {
   void SetupBoundaryIDs (dealii::Triangulation<dim> &tria);
 
   /*!
+   Function to perform global refinement to the mesh.
+
+   For structured mesh, it acts as a wrapper invoking 
+   dealii::Triangulation<dim>::refine_global. For unstructured mesh, in addition,
+   manifolds will first be set for cylinders in fuel pins and global refinement
+   will be performed thereafter.
+
+   \param prm ParameterHandler object.
+   \return Void.
+  */
+  void GlobalRefine (dealii::Triangulation<dim> &tria);
+
+  /*!
    Function to initialize the mapping: cell relative pos.->material ID on initial
    mesh.
 
