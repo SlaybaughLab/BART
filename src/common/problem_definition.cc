@@ -15,45 +15,101 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
   // from Colorado State on 05-10-2017
   // The following are the basic parameters we need to define a problem
   {
-    local_prm.declare_entry ("problem dimension", "2", dealii::Patterns::Integer(), "");
-    local_prm.declare_entry ("transport model", "none", dealii::Patterns::Selection("ep|none"), "valid names such as ep");
-    local_prm.declare_entry ("ho linear solver name", "cg", dealii::Patterns::Selection("cg|gmres|bicgstab|direct"), "solers");
-    local_prm.declare_entry ("ho preconditioner name", "amg", dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), "precond names");
-    local_prm.declare_entry ("ho ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for HO");
-    local_prm.declare_entry ("nda linear solver name", "none", dealii::Patterns::Selection("none|gmres|bicgstab|direct"), "NDA linear solers");
-    local_prm.declare_entry ("nda preconditioner name", "none", dealii::Patterns::Selection("none|amg|parasails|bjacobi|jacobi|bssor"), "precond names");
-    local_prm.declare_entry ("nda ssor factor", "1.0", dealii::Patterns::Double (), "damping factor of Block SSOR for NDA");
-    local_prm.declare_entry ("angular quadrature name", "none", dealii::Patterns::Selection ("lsgc|gl|none"), "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
-    local_prm.declare_entry ("angular quadrature order", "4", dealii::Patterns::Integer (), "Gauss-Chebyshev level-symmetric-like quadrature");
-    local_prm.declare_entry ("number of groups", "1", dealii::Patterns::Integer (), "Number of groups in MG calculations");
-    local_prm.declare_entry ("thermal group boundary", "0", dealii::Patterns::Integer (), "group number for the first thermal group");
-    local_prm.declare_entry ("ho spatial discretization", "cfem", dealii::Patterns::Selection("dfem|cfem"), "HO equation spatial discretization");
-    local_prm.declare_entry ("nda spatial discretization", "cfem", dealii::Patterns::Selection("dfem|cfem|cmfd|rtk"), "NDA equation spatial discretization");
-    local_prm.declare_entry ("do eigenvalue calculations", "false", dealii::Patterns::Bool(), "Boolean to determine problem type");
-    local_prm.declare_entry ("do nda", "false", dealii::Patterns::Bool(), "Boolean to determine NDA or not");
-    local_prm.declare_entry ("have reflective BC", "false", dealii::Patterns::Bool(), "");
-    local_prm.declare_entry ("reflective boundary names", "", dealii::Patterns::List (dealii::Patterns::Anything ()), "must be lower cases of xmin,xmax,ymin,ymax,zmin,zmax");
-    local_prm.declare_entry ("finite element polynomial degree", "1", dealii::Patterns::Integer(), "polynomial degree p for finite element");
-    local_prm.declare_entry ("uniform refinements", "0", dealii::Patterns::Integer(), "number of uniform refinements desired");
-    local_prm.declare_entry ("x, y, z max values of boundary locations", "", dealii::Patterns::List (dealii::Patterns::Double ()), "xmax, ymax, zmax of the boundaries, mins are zero");
-    local_prm.declare_entry ("number of cells for x, y, z directions", "", dealii::Patterns::List (dealii::Patterns::Integer ()), "Geotry is hyper rectangle defined by how many cells exist per direction");
-    local_prm.declare_entry ("number of materials", "1", dealii::Patterns::Integer (), "must be a positive integer");
-    local_prm.declare_entry ("do print angular quadrature info", "true", dealii::Patterns::Bool(), "Boolean to determine if printing angular quadrature information");
+    local_prm.declare_entry ("problem dimension", "2", 
+        dealii::Patterns::Integer(), "");
+    local_prm.declare_entry ("transport model", "none", 
+        dealii::Patterns::Selection("ep|none"), 
+        "valid names such as ep");
+    local_prm.declare_entry ("ho linear solver name", "cg", 
+        dealii::Patterns::Selection("cg|gmres|bicgstab|direct"), 
+        "solers");
+    local_prm.declare_entry ("ho preconditioner name", "amg", 
+        dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), 
+        "precond names");
+    local_prm.declare_entry ("ho ssor factor", "1.0", 
+        dealii::Patterns::Double (), 
+        "damping factor of Block SSOR for HO");
+    local_prm.declare_entry ("nda linear solver name", "none", 
+        dealii::Patterns::Selection("none|gmres|bicgstab|direct"), 
+        "NDA linear solers");
+    local_prm.declare_entry ("nda preconditioner name", "jacobi", 
+        dealii::Patterns::Selection("amg|parasails|bjacobi|jacobi|bssor"), 
+        "precond names");
+    local_prm.declare_entry ("nda ssor factor", "1.0", 
+        dealii::Patterns::Double (), 
+        "damping factor of Block SSOR for NDA");
+    local_prm.declare_entry ("angular quadrature name", "none", 
+        dealii::Patterns::Selection ("lsgc|gl|none"), 
+        "angular quadrature types. only LS-GC for multi-D and GL for 1D 
+        implemented for now.");
+    local_prm.declare_entry ("angular quadrature order", "4", 
+        dealii::Patterns::Integer (), 
+        "Gauss-Chebyshev level-symmetric-like quadrature");
+    local_prm.declare_entry ("number of groups", "1", 
+        dealii::Patterns::Integer (), "Number of groups in MG calculations");
+    local_prm.declare_entry ("thermal group boundary", "0", 
+        dealii::Patterns::Integer (), 
+        "group number for the first thermal group");
+    local_prm.declare_entry ("ho spatial discretization", "cfem", 
+        dealii::Patterns::Selection("dfem|cfem"), 
+        "HO equation spatial discretization");
+    local_prm.declare_entry ("nda spatial discretization", "cfem", 
+        dealii::Patterns::Selection("dfem|cfem|cmfd|rtk"), 
+        "NDA equation spatial discretization");
+    local_prm.declare_entry ("do eigenvalue calculations", "false", 
+        dealii::Patterns::Bool(), 
+        "Boolean to determine problem type");
+    local_prm.declare_entry ("do nda", "false", 
+        dealii::Patterns::Bool(), 
+        "Boolean to determine NDA or not");
+    local_prm.declare_entry ("have reflective BC", "false", 
+        dealii::Patterns::Bool(), "");
+    local_prm.declare_entry ("reflective boundary names", "", 
+        dealii::Patterns::List (dealii::Patterns::Anything ()), 
+        "must be lower cases of xmin,xmax,ymin,ymax,zmin,zmax");
+    local_prm.declare_entry ("finite element polynomial degree", "1", 
+        dealii::Patterns::Integer(), 
+        "polynomial degree p for finite element");
+    local_prm.declare_entry ("uniform refinements", "0", 
+        dealii::Patterns::Integer(), 
+        "number of uniform refinements desired");
+    local_prm.declare_entry ("x, y, z max values of boundary locations", "", 
+        dealii::Patterns::List (dealii::Patterns::Double ()), 
+        "xmax, ymax, zmax of the boundaries, mins are zero");
+    local_prm.declare_entry ("number of cells for x, y, z directions", "", 
+        dealii::Patterns::List (dealii::Patterns::Integer ()), 
+        "Geometry is hyper rectangle defined by how many cells exist per direction");
+    local_prm.declare_entry ("number of materials", "1", 
+        dealii::Patterns::Integer (), 
+        "must be a positive integer");
+    local_prm.declare_entry ("do print angular quadrature info", "true", 
+        dealii::Patterns::Bool(), 
+        "Boolean to determine if printing angular quadrature information");
     local_prm.declare_entry ("is mesh generated by deal.II", "true",
-                       dealii::Patterns::Bool(),
-                       "Boolean to determine if generating mesh in dealii or read in mesh");
-    //local_prm.declare_entry ("use explicit reflective boundary condition or not", "true", dealii::Patterns::Bool(), "");
-    local_prm.declare_entry ("output file name base", "solu", dealii::Patterns::Anything(), "name base of the output file");
-    local_prm.declare_entry ("mesh file name", "mesh.msh", dealii::Patterns::Anything(), ".msh file name for read-in mesh");
+        dealii::Patterns::Bool(),
+        "Boolean to determine if generating mesh in dealii or read in mesh");
+    local_prm.declare_entry ("is mesh pin-resolved", "false", 
+        dealii::Patterns::Bool(), 
+        "Boolean to determine if producing pin-resolved mesh");
+    local_prm.declare_entry ("output file name base", "solu", 
+        dealii::Patterns::Anything(), 
+        "name base of the output file");
+    local_prm.declare_entry ("mesh file name", "mesh.msh", 
+        dealii::Patterns::Anything(), 
+        ".msh file name for read-in mesh");
   }
-  // FixIt: for current deal.II code, we don't consider reading mesh
 
   // Explanation: we brute-forcely declare as many entries as possible without read-in problem-definition
   // parameters. kNMat and ngrp should both be large enough s.t. when reading starts, the real setting will
   // have entry-declaration
   local_prm.enter_subsection ("material ID map");
   {
-    local_prm.declare_entry ("material id file name", "mid.txt", dealii::Patterns::FileName(), "file name for material id map");
+    local_prm.declare_entry ("material id file name", "mid.txt", 
+        dealii::Patterns::FileName(), 
+        "file name for material id map");
+    local_prm.declare_entry ("fuel pin material id file name", "pin_id.txt",
+        dealii::Patterns::FileName(),
+        "file name for pin material id map for pin-resolved calculations");
   }
   local_prm.leave_subsection ();
 
@@ -62,7 +118,8 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     for (int m=0; m<kNMat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
-      local_prm.declare_entry (os.str (), "", dealii::Patterns::List (dealii::Patterns::Double ()), "");
+      local_prm.declare_entry (os.str (), "", 
+          dealii::Patterns::List (dealii::Patterns::Double ()), "");
     }
   }
   local_prm.leave_subsection ();
@@ -75,7 +132,9 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
       for (int gin=0; gin<kNGrp; ++gin) {
         std::ostringstream osm;
         osm << "g_in=" << gin + 1;
-        local_prm.declare_entry (osm.str(), "", dealii::Patterns::List(dealii::Patterns::Double()), "multigroup sigma_s");
+        local_prm.declare_entry (osm.str(), "", 
+            dealii::Patterns::List(dealii::Patterns::Double()), 
+            "multigroup sigma_s");
       }
     }
     local_prm.leave_subsection ();
@@ -83,31 +142,36 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
 
   local_prm.enter_subsection ("one-group sigma_t");
   {
-    local_prm.declare_entry ("values", "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+    local_prm.declare_entry ("values", "", 
+        dealii::Patterns::List(dealii::Patterns::Double()), "");
   }
   local_prm.leave_subsection ();
 
   local_prm.enter_subsection ("one-group sigma_s");
   {
-    local_prm.declare_entry ("values", "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+    local_prm.declare_entry ("values", "", 
+        dealii::Patterns::List(dealii::Patterns::Double()), "");
   }
   local_prm.leave_subsection ();
 
   local_prm.enter_subsection ("one-group Q");
   {
-    local_prm.declare_entry ("values", "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+    local_prm.declare_entry ("values", "", 
+        dealii::Patterns::List(dealii::Patterns::Double()), "");
   }
   local_prm.leave_subsection ();
 
   local_prm.enter_subsection ("one-group chi");
   {
-    local_prm.declare_entry ("values", "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+    local_prm.declare_entry ("values", "", 
+        dealii::Patterns::List(dealii::Patterns::Double()), "");
   }
   local_prm.leave_subsection ();
 
   local_prm.enter_subsection ("one-group nu_sigf");
   {
-    local_prm.declare_entry ("values", "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+    local_prm.declare_entry ("values", "", 
+        dealii::Patterns::List(dealii::Patterns::Double()), "");
   }
   local_prm.leave_subsection ();
 
@@ -116,7 +180,8 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     for (int m=0; m<kNMat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
-      local_prm.declare_entry (os.str (), "", dealii::Patterns::List (dealii::Patterns::Double ()), "");
+      local_prm.declare_entry (os.str (), "", 
+         dealii::Patterns::List (dealii::Patterns::Double ()), "");
     }
   }
   local_prm.leave_subsection ();
@@ -124,7 +189,8 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
   // the following is for eigen problems
   local_prm.enter_subsection ("fissile material IDs");
   {
-    local_prm.declare_entry ("fissile material ids", "", dealii::Patterns::List (dealii::Patterns::Integer ()), "");
+    local_prm.declare_entry ("fissile material ids", "", 
+        dealii::Patterns::List (dealii::Patterns::Integer ()), "");
   }
   local_prm.leave_subsection ();
 
@@ -133,7 +199,8 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     for (int m=0; m<kNMat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
-      local_prm.declare_entry(os.str(), "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+      local_prm.declare_entry(os.str(), "", 
+          dealii::Patterns::List(dealii::Patterns::Double()), "");
     }
   }
   local_prm.leave_subsection ();
@@ -143,7 +210,8 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     for (int m=0; m<kNMat; ++m) {
       std::ostringstream os;
       os << "material " << m + 1;
-      local_prm.declare_entry(os.str(), "", dealii::Patterns::List(dealii::Patterns::Double()), "");
+      local_prm.declare_entry(os.str(), "", 
+          dealii::Patterns::List(dealii::Patterns::Double()), "");
     }
   }
   local_prm.leave_subsection ();
