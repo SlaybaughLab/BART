@@ -73,6 +73,9 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     local_prm.declare_entry ("uniform refinements", "0", 
         dealii::Patterns::Integer(), 
         "number of uniform refinements desired");
+    local_prm.declare_entry ("fuel rod radius", "",
+        dealii::Patterns::Double(),
+        "radius of fuel rod");
     local_prm.declare_entry ("x, y, z max values of boundary locations", "", 
         dealii::Patterns::List (dealii::Patterns::Double ()), 
         "xmax, ymax, zmax of the boundaries, mins are zero");

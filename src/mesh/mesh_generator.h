@@ -49,6 +49,7 @@ class MeshGenerator {
    \return Void. Modify tria in place.
    */
   void MakeGrid (dealii::Triangulation<dim> &tria);
+  
   /*!
    This function initializes iterators for cells on current processor.
 
@@ -77,7 +78,6 @@ class MeshGenerator {
   std::unordered_map<unsigned int, bool> GetReflectiveBCMap ();
 
  private:
-
   /*!
    Generate initial coarse grid according to user defined parameters. The mesh
    is a hyer rectangle. In 2D, it is a rectangle. In 3D it is a cuboid. Defining
@@ -114,10 +114,30 @@ class MeshGenerator {
    manifolds will first be set for cylinders in fuel pins and global refinement
    will be performed thereafter.
 
-   \param prm ParameterHandler object.
+   \param tria Triangulation object.
    \return Void.
   */
   void GlobalRefine (dealii::Triangulation<dim> &tria);
+
+  /*!
+   This function set manifold id to all pin surfaces.
+
+   \param tria Triangulation object.
+   \param manifold_id Manifold id.
+   \return void.
+  */
+  void SetManifolds (dealii::Triangulation<dim> &tria, 
+      unsigned int manifold_id);
+
+  /*!
+   This function set manifold id to all pin surfaces.
+
+   \param tria Triangulation object.
+   \param manifold_id Manifold id.
+   \return void.
+  */
+  void SetPinManifold (typename dealii::Triangulation<dim>::cell_iterator &cell,
+      unsigned int manifold_id);
 
   /*!
    Function to initialize the mapping: cell relative pos.->material ID on initial
@@ -154,26 +174,31 @@ class MeshGenerator {
    \return Void.
    */
   void GetCellRelativePosition (dealii::Point<dim> &position,
-      std::vector<unsigned int> &relative_position);
+      std::vector<int> &relative_position);
 
   /*!
    Boolean to determine if mesh needs to be generated or read-in. Currently, BART
    can only use generated mesh and read-in functionality is not fully developed.
    */
   bool is_mesh_generated_;
+  bool is_mesh_unstructed_;//!< Boolean to determine if mesh is unstructed.
   bool have_reflective_bc_;//!< Boolean to determine if reflective BC is used.
   std::string mesh_filename_;//!< Mesh filename if mesh is read in.
-  unsigned int global_refinements_;//!< Number of global refinements to perform.
+  int global_refinements_;//!< Number of global refinements to perform.
+  double pin_radius_;//!< Fuel pin radius
 
   //! Mapping: cell relative position->material ID.
-  std::map<std::vector<unsigned int>, unsigned int> relative_position_to_id_;
+  std::map<std::vector<int>, int> relative_position_to_id_;
+
+  //! Mapping: cell relative position->fuel material ID.
+  std::map<std::vector<int>, int> relative_position_to_fuel_id_;
 
   //! Hash table for the mapping: boundary ID->refl. boundary or not.
-  std::unordered_map<unsigned int, bool> is_reflective_bc_;
+  std::unordered_map<int, bool> is_reflective_bc_;
 
   std::vector<double> axis_max_values_;//!< Max values per axis in the mesh.
   std::vector<double> cell_size_all_dir_;//!< Cell length per direction on the coarse mesh.
-  std::vector<unsigned int> ncell_per_dir_;//!< Initial number of cells per axis on the coarse mesh.
+  std::vector<int> ncell_per_dir_;//!< Initial number of cells per axis on the coarse mesh.
 };
 
 #endif //BART_SRC_MESH_MESH_GENERATOR_H_
