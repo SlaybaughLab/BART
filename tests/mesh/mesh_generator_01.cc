@@ -58,8 +58,7 @@ void Test (dealii::ParameterHandler &prm) {
   for (typename dealii::Triangulation<dim>::active_cell_iterator
        cell=tria.begin_active(); cell!=tria.end(); ++cell)
     if (cell->is_locally_owned())
-      // material ID should be input - 1 = 111 - 1 = 110
-      AssertThrow (cell->material_id()==110, dealii::ExcInternalError());
+      AssertThrow (cell->material_id()==111, dealii::ExcInternalError());
 
   dealii::deallog << "Material ID check OK." << std::endl;
 
