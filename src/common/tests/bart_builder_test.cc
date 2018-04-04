@@ -20,8 +20,25 @@ class BARTBuilderTest : public ::testing::Test {
 };
 
 void BARTBuilderTest::SetUp () {
-  bparams::DeclareParameters(prm);
-  prm.set("do nda", "true");
+  prm.declare_entry("have reflective BC", "false",
+                     dealii::Patterns::Bool(), "");
+  prm.declare_entry("angular quadrature order", "4",
+                     dealii::Patterns::Integer(), "");
+  prm.declare_entry("angular quadrature name", "gl",
+                     dealii::Patterns::Selection("gl"), "");
+  prm.declare_entry("number of groups", "1", dealii::Patterns::Integer(), "");
+  prm.declare_entry("transport model", "regular",
+                     dealii::Patterns::Selection("regular|ep"), "");
+
+  prm.declare_entry("finite element polynomial degree", "1",
+                    dealii::Patterns::Integer(), "");
+  prm.declare_entry("do nda", "true",
+                    dealii::Patterns::Bool(), "");
+  prm.declare_entry("ho spatial discretization", "",
+                    dealii::Patterns::Anything(), "");
+  prm.declare_entry("nda spatial discretization", "",
+                    dealii::Patterns::Anything(), "");
+
 }
 
 template <int dim>

@@ -18,13 +18,13 @@ void ProblemDefinitionTest::SetUp () {
   // setup parameters without default values
   local_prm_.set ("reflective boundary names", "xmin");
   local_prm_.set ("x, y, z max values of boundary locations", "1.0, 2.0");
-  local_prm_.set ("number of cells for x, y, z directions", "1, 3");
+  local_prm_.set ("number of cells for x, y, z directions", "1, 3, 2");
 
   // setup global prm
   bparams::DeclareParameters ();
   bparams::GlobPrm.set ("reflective boundary names", "xmin");
-  bparams::GlobPrm.set ("x, y, z max values of boundary locations", "1.0, 2.0");
-  bparams::GlobPrm.set ("number of cells for x, y, z directions", "1, 3");
+  bparams::GlobPrm.set ("x, y, z max values of boundary locations", "1.0, 2.0, 1.");
+  bparams::GlobPrm.set ("number of cells for x, y, z directions", "1, 3, 2");
 }
 
 void ProblemDefinitionTest::DeclareParamsTestLocalPrm () {
@@ -34,7 +34,7 @@ void ProblemDefinitionTest::DeclareParamsTestLocalPrm () {
   EXPECT_EQ (local_prm_.get("ho preconditioner name"), "amg");
   EXPECT_EQ (local_prm_.get_double("ho ssor factor"), 1.0);
   EXPECT_EQ (local_prm_.get("nda linear solver name"), "none");
-  EXPECT_EQ (local_prm_.get("nda preconditioner name"), "none");
+  EXPECT_EQ (local_prm_.get("nda preconditioner name"), "jacobi");
   EXPECT_EQ (local_prm_.get_double("nda ssor factor"), 1.0);
   EXPECT_EQ (local_prm_.get("angular quadrature name"), "none");
   EXPECT_EQ (local_prm_.get_integer("angular quadrature order"), 4);
@@ -64,7 +64,7 @@ void ProblemDefinitionTest::DeclareParamsTestGlobalPrm () {
   EXPECT_EQ (bparams::GlobPrm.get("ho preconditioner name"), "amg");
   EXPECT_EQ (bparams::GlobPrm.get_double("ho ssor factor"), 1.0);
   EXPECT_EQ (bparams::GlobPrm.get("nda linear solver name"), "none");
-  EXPECT_EQ (bparams::GlobPrm.get("nda preconditioner name"), "none");
+  EXPECT_EQ (bparams::GlobPrm.get("nda preconditioner name"), "jacobi");
   EXPECT_EQ (bparams::GlobPrm.get_double("nda ssor factor"), 1.0);
   EXPECT_EQ (bparams::GlobPrm.get("angular quadrature name"), "none");
   EXPECT_EQ (bparams::GlobPrm.get_integer("angular quadrature order"), 4);
