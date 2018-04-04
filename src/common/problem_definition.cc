@@ -72,7 +72,7 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     local_prm.declare_entry ("uniform refinements", "0", 
         dealii::Patterns::Integer(), 
         "number of uniform refinements desired");
-    local_prm.declare_entry ("fuel rod radius", "",
+    local_prm.declare_entry ("fuel rod radius", "0.5",
         dealii::Patterns::Double(),
         "radius of fuel rod");
     local_prm.declare_entry ("fuel rod triangulation type", "simple",
