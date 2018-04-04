@@ -13,6 +13,9 @@ void SetupParameters (dealii::ParameterHandler &prm) {
                      dealii::Patterns::Integer(), "");
   prm.declare_entry ("x, y, z max values of boundary locations", "1.0,1.0,1.0",
                      dealii::Patterns::List (dealii::Patterns::Double ()), "");
+  prm.declare_entry ("is mesh pin-resolved", "false", 
+                     dealii::Patterns::Bool(), 
+                     "Boolean to determine if producing pin-resolved mesh");
   prm.declare_entry ("number of cells for x, y, z directions", "2,2,2",
                      dealii::Patterns::List (dealii::Patterns::Integer ()), "");
   prm.declare_entry ("reflective boundary names", "xmin, ymax",

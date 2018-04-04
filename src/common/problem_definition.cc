@@ -40,8 +40,7 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
         "damping factor of Block SSOR for NDA");
     local_prm.declare_entry ("angular quadrature name", "none", 
         dealii::Patterns::Selection ("lsgc|gl|none"), 
-        "angular quadrature types. only LS-GC for multi-D and GL for 1D 
-        implemented for now.");
+        "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
     local_prm.declare_entry ("angular quadrature order", "4", 
         dealii::Patterns::Integer (), 
         "Gauss-Chebyshev level-symmetric-like quadrature");
@@ -76,6 +75,9 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     local_prm.declare_entry ("fuel rod radius", "",
         dealii::Patterns::Double(),
         "radius of fuel rod");
+    local_prm.declare_entry ("fuel rod triangulation type", "simple",
+        dealii::Patterns::Selection("simple|composite"),
+        "triangulation type of fuel rod");
     local_prm.declare_entry ("x, y, z max values of boundary locations", "", 
         dealii::Patterns::List (dealii::Patterns::Double ()), 
         "xmax, ymax, zmax of the boundaries, mins are zero");

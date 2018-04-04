@@ -17,6 +17,9 @@ void SetupParameters (dealii::ParameterHandler &prm) {
                      dealii::Patterns::List (dealii::Patterns::Integer ()), "");
   prm.declare_entry ("reflective boundary names", "xmin, ymax",
                      dealii::Patterns::List(dealii::Patterns::Anything ()), "");
+  prm.declare_entry ("is mesh pin-resolved", "false",
+                     dealii::Patterns::Bool(),
+                     "Boolean to determine if producing pin-resolved mesh");
   prm.enter_subsection ("material ID map");
   {
     std::string id_fname = SOURCE_DIR + std::string ("/matid.homogeneous.")

@@ -12,6 +12,10 @@ DEAL_II_SETUP_TARGET(mesh_generator_all_d_exe)
 
 ADD_EXECUTABLE(unstruct_mesh_2d_exe unstruct_mesh_2d.cc)
 DEAL_II_SETUP_TARGET(unstruct_mesh_2d_exe)
+
+ADD_EXECUTABLE(unstruct_mesh_3d_exe unstruct_mesh_3d.cc)
+DEAL_II_SETUP_TARGET(unstruct_mesh_3d_exe)
+
 # Set the libraries we wanna test
 SET(TEST_LIBRARIES _mesh)
 
@@ -20,4 +24,5 @@ TARGET_LINK_LIBRARIES(mpi_dummy_exe ${TEST_LIBRARIES})
 TARGET_LINK_LIBRARIES(mesh_generator_01_exe ${TEST_LIBRARIES})
 TARGET_LINK_LIBRARIES(mesh_generator_all_d_exe ${TEST_LIBRARIES})
 TARGET_LINK_LIBRARIES(unstruct_mesh_2d_exe ${TEST_LIBRARIES})
+TARGET_LINK_LIBRARIES(unstruct_mesh_3d_exe ${TEST_LIBRARIES})
 DEAL_II_PICKUP_TESTS()

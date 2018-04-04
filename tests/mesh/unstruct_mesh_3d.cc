@@ -18,9 +18,9 @@ void SetupParameters (dealii::ParameterHandler &prm) {
                      dealii::Patterns::Selection("simple|composite"), "");
   prm.declare_entry ("uniform refinements", "0",
                      dealii::Patterns::Integer(), "");
-  prm.declare_entry ("x, y, z max values of boundary locations", "3.0,3.0,3.0",
+  prm.declare_entry ("x, y, z max values of boundary locations", "2.0,2.0,2.0",
                      dealii::Patterns::List (dealii::Patterns::Double ()), "");
-  prm.declare_entry ("number of cells for x, y, z directions", "3,3,3",
+  prm.declare_entry ("number of cells for x, y, z directions", "2,2,2",
                      dealii::Patterns::List (dealii::Patterns::Integer ()), "");
   prm.declare_entry ("reflective boundary names", "xmin, ymax",
                      dealii::Patterns::List(dealii::Patterns::Anything ()), "");
@@ -54,10 +54,10 @@ void Test (dealii::ParameterHandler &prm) {
     dealii::deallog << "cell ID: " << cell->id() 
                     << ":material ID::" << static_cast<int>(cell->material_id())
                     << "::center x::" << cell->center()[0] 
-                    << "::center y::" << cell->center()[1] << std::endl;
+                    << "::center y::" << cell->center()[1] 
+                    << "::center z::" << cell->center()[2] << std::endl;
 
-
-  std::ofstream out("unstruct_mesh_2d.vtk");
+  std::ofstream out("unstruct_mesh_3d.vtk");
   dealii::GridOut grid_out;
   grid_out.write_vtk (tria, out);
 }
@@ -68,13 +68,11 @@ int main (int argc, char *argv[]) {
   testing::MPILogInit init;
   dealii::ParameterHandler prm;
 
-  dealii::deallog.push ("2D");
   // parameter processing
-  SetupParameters<2> (prm);
-  dealii::deallog.pop();
+  SetupParameters<3> (prm);
 
-  // testing 2D
-  Test<2> (prm);
+  // testing 3D
+  Test<3> (prm);
 
   return 0;
 }
