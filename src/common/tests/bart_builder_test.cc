@@ -25,7 +25,7 @@ void BARTBuilderTest::SetUp () {
   prm.declare_entry("angular quadrature order", "4",
                      dealii::Patterns::Integer(), "");
   prm.declare_entry("angular quadrature name", "gl",
-                     dealii::Patterns::Selection("gl"), "");
+                     dealii::Patterns::Selection("gl|lsgc"), "");
   prm.declare_entry("number of groups", "1", dealii::Patterns::Integer(), "");
   prm.declare_entry("transport model", "regular",
                      dealii::Patterns::Selection("regular|ep"), "");
