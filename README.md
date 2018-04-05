@@ -14,10 +14,14 @@ BART in the [restart run](https://github.com/SlaybaughLab/BART/tree/restart) is 
 - [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest) for unit testings requiring MPI;
 - [Google Test](https://github.com/google/googletest) for all other serial unit testings.
 
+### Agile management
+We are gradually immersing ourselves in the principle of agile management using (Jira)[https://www.atlassian.com/software/jira?aceid=&adposition=1t1&adgroup=9124375582&campaign=189421462&creative=256725234926&device=c&keyword=jira&matchtype=e&network=g&placement=&ds_kids=p19481846873&gclid=Cj0KCQjwkpfWBRDZARIsAAfeXarkxD2j0JPwTTaH07dxEy8nVbZgK7U_Uj8hDx7j2uyUBXl29zrtoQQaAshhEALw_wcB&gclsrc=aw.ds] to improve our BART development tracking.
+
 ## Who do the hard work?
-The development work is led by -[Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/) and -[Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
+The development work is led by [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/) and [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
 - [Joshua Rehak](https://github.com/jsrehak/)
 - [Marissa Ramirez Zweiger](https://github.com/mzweig/)
+
 In the long term, BART will welcome anyone who has a good idea to participating.
 
 ## What is the rationale behind BART?
@@ -30,10 +34,10 @@ BART is using MPI for parallelism. BART is designed for computation on distribut
 - BART heavily depends on [PETSc](https://www.mcs.anl.gov/petsc/) by utilizing deal.II wrappers of PETSc data structure. Therefore, all the parallel-supported functionalities in PETSc (if wrapped by deal.II) can be invoked by BART. This includes parallel sparse matrix, parallel vectors and parallel preconditioners/algebraic solvers.
 
 ### General dimensionality
-BART was initially implemented for 2D and 3D for parallel computation. In the -[restart branch](https://github.com/SlaybaughLab/BART/tree/restart), the functionality is generalized to 1D with serial settings.
+BART was initially implemented for 2D and 3D for parallel computation. In the [restart branch](https://github.com/SlaybaughLab/BART/tree/restart), the functionality is generalized to 1D with serial settings.
 
 ### Meshing capability
-Originally, BART was implemented for homogenized mesh using rectangle mesh in 2D and regular cubois mesh in 3D. In the -[restart branch](https://github.com/SlaybaughLab/BART/tree/restart), some thrilling new features are implemented. Overall, we have:
+Originally, BART was implemented for homogenized mesh using rectangle mesh in 2D and regular cubois mesh in 3D. In the [restart branch](https://github.com/SlaybaughLab/BART/tree/restart), some thrilling new features are implemented. Overall, we have:
 - Hyper-rectangular mesh in 1/2/3D;
 - Fuel pin-resolved curvilinear mesh in 2D;
 - Fuel pin-resolved curvilinear mesh in 3D based on extrusion.
