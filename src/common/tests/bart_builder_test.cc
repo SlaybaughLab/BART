@@ -43,11 +43,14 @@ void BARTBuilderTest::SetUp () {
 
 template <int dim>
 void BARTBuilderTest::FEBuilderTest () {
+  BARTBuilder<dim> builders (prm);
+
   // set values to parameters
   prm.set ("ho spatial discretization", "cfem");
   prm.set ("nda spatial discretization", "cfem");
+  builders.SetParams (prm);
   std::vector<dealii::FiniteElement<dim, dim>*> fe_ptrs;
-  bbuilders::BuildFESpaces (prm, fe_ptrs);
+  builders.BuildFESpaces (fe_ptrs);
 
   // testing for FE names
   EXPECT_EQ (fe_ptrs.front()->get_name(),
@@ -58,8 +61,9 @@ void BARTBuilderTest::FEBuilderTest () {
   // changing FE types
   prm.set ("ho spatial discretization", "dfem");
   prm.set ("nda spatial discretization", "dfem");
+  builders.SetParams (prm);
   fe_ptrs.clear ();
-  bbuilders::BuildFESpaces (prm, fe_ptrs);
+  builders.BuildFESpaces (fe_ptrs);
   EXPECT_EQ (fe_ptrs.front()->get_name(),
       "FE_DGQ<"+dealii::Utilities::int_to_string(dim)+">(1)");
   EXPECT_EQ (fe_ptrs.back()->get_name(),
@@ -67,15 +71,17 @@ void BARTBuilderTest::FEBuilderTest () {
 
   // changing NDA FE type
   prm.set ("nda spatial discretization", "cmfd");
+  builders.SetParams (prm);
   fe_ptrs.clear ();
-  bbuilders::BuildFESpaces (prm, fe_ptrs);
+  builders.BuildFESpaces (fe_ptrs);
   EXPECT_EQ (fe_ptrs.back()->get_name(),
       "FE_DGQ<"+dealii::Utilities::int_to_string(dim)+">(0)");
 
   // changing NDA FE type
   prm.set ("nda spatial discretization", "rtk");
+  builders.SetParams (prm);
   fe_ptrs.clear ();
-  bbuilders::BuildFESpaces (prm, fe_ptrs);
+  builders.BuildFESpaces (fe_ptrs);
   EXPECT_EQ (fe_ptrs.back()->get_name(),
       "FE_RaviartThomas<"+dealii::Utilities::int_to_string(dim)+">(1)");
 }
@@ -90,13 +96,14 @@ TEST_F (BARTBuilderTest, FEBuilder3DTest) {
 
 template <int dim>
 void BARTBuilderTest::AQBuilderTest () {
+  BARTBuilder<dim> builders (prm);
   std::unique_ptr<AQBase<dim>> aq_ptr;
   std::string aq_name = (dim==1) ? "gl" : "lsgc";
   prm.set ("angular quadrature name", aq_name);
   prm.set ("angular quadrature order", "4");
 
   // call builder function to build aq
-  bbuilders::BuildAQ (prm, aq_ptr);
+  builders.BuildAQ (prm, aq_ptr);
   aq_ptr->MakeAQ();
   auto wi = aq_ptr->GetAQWeights();
   auto omega_i = aq_ptr->GetAQDirs();

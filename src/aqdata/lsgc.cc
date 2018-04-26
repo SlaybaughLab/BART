@@ -3,7 +3,7 @@
 #include <deal.II/base/quadrature_lib.h>
 
 template <int dim>
-LSGC<dim>::LSGC (const dealii::ParameterHandler &prm)
+LSGC<dim>::LSGC (dealii::ParameterHandler &prm)
 :
 AQBase<dim> (prm) {}
 
