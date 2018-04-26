@@ -15,7 +15,7 @@
 #include <deal.II/base/quadrature_lib.h>
 
 template <int dim>
-AQBase<dim>::AQBase (const dealii::ParameterHandler &prm)
+AQBase<dim>::AQBase (dealii::ParameterHandler &prm)
     : k_pi(dealii::numbers::PI),
       have_reflective_bc_(prm.get_bool("have reflective BC")),
       transport_model_name_(prm.get("transport model")),

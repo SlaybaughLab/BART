@@ -23,7 +23,7 @@ class LSGC : public AQBase<dim> {
 
    \param prm ParameterHandler object.
    */
-  LSGC (const dealii::ParameterHandler &prm);
+  LSGC (dealii::ParameterHandler &prm);
 
   //!< Destructor.
   ~LSGC ();

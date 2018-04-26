@@ -39,7 +39,7 @@ class AQBase {
 
    \param prm ParameterHandler object.
    */
-  AQBase (const dealii::ParameterHandler &prm);
+  AQBase (dealii::ParameterHandler &prm);
 
   //! Virtual destructor.
   virtual ~AQBase ();
@@ -86,7 +86,7 @@ class AQBase {
   /*!
     Overload of PrintAQ that will print to a given ostream object.
   */
-  void PrintAQ(std::ostream *output_stream);
+  void PrintAQ(std::ostream *output_stream); 
 
   /*!
    A function to return SN order in integer.
