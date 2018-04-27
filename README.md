@@ -15,7 +15,7 @@ BART in the [restart run](https://github.com/SlaybaughLab/BART/tree/restart) is 
 - [Google Test](https://github.com/google/googletest) for all other serial unit testings.
 
 ### Agile management
-We are gradually immersing ourselves in the principle of agile management using (Jira)[https://www.atlassian.com/software/jira?aceid=&adposition=1t1&adgroup=9124375582&campaign=189421462&creative=256725234926&device=c&keyword=jira&matchtype=e&network=g&placement=&ds_kids=p19481846873&gclid=Cj0KCQjwkpfWBRDZARIsAAfeXarkxD2j0JPwTTaH07dxEy8nVbZgK7U_Uj8hDx7j2uyUBXl29zrtoQQaAshhEALw_wcB&gclsrc=aw.ds] to improve our BART development tracking.
+We are gradually immersing ourselves in the principle of agile management using [Jira](https://www.atlassian.com/software/jira?aceid=&adposition=1t1&adgroup=9124375582&campaign=189421462&creative=256725234926&device=c&keyword=jira&matchtype=e&network=g&placement=&ds_kids=p19481846873&gclid=Cj0KCQjwkpfWBRDZARIsAAfeXarkxD2j0JPwTTaH07dxEy8nVbZgK7U_Uj8hDx7j2uyUBXl29zrtoQQaAshhEALw_wcB&gclsrc=aw.ds) to improve our BART development tracking.
 
 ## Who do the hard work?
 The development work is led by [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/) and [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
