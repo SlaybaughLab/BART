@@ -173,7 +173,7 @@ class MeshGenerator {
 
    \param prm ParameterHandler object.
    */
-  void PreprocessReflectiveBC (dealii::ParameterHandler &prm);
+  void PreprocessReflectiveBC (const dealii::ParameterHandler &prm);
 
   /*!
    A function to process coordinate info such as axis lengths, cell number per
@@ -182,7 +182,7 @@ class MeshGenerator {
    \param prm ParameterHandler object.
    \return Void.
    */
-  void ProcessCoordinateInformation (dealii::ParameterHandler &prm);
+  void ProcessCoordinateInformation (const dealii::ParameterHandler &prm);
 
   /*!
    Get relative position of a cell by providing its center.
