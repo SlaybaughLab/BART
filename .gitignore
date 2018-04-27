@@ -2,6 +2,7 @@
 serial/
 work_log.txt
 original*/
+*.vtk
 *.vtu
 *.pvtu
 *.cmake
