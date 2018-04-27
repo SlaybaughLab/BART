@@ -201,7 +201,7 @@ class MeshGenerator {
    can only use generated mesh and read-in functionality is not fully developed.
    */
   bool is_mesh_generated_;
-  bool is_mesh_unstructured_;//!< Boolean to determine if mesh is unstructed.
+  bool is_mesh_pin_resolved_;//!< Boolean to determine if mesh is pin-resolved.
   bool have_reflective_bc_;//!< Boolean to determine if reflective BC is used.
   std::string mesh_filename_;//!< Mesh filename if mesh is read in.
   std::string rod_type_;//!< Fuel rod triangulation method.
