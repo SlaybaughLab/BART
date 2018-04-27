@@ -67,7 +67,6 @@ void BuildAQ (const dealii::ParameterHandler &prm,
     std::unique_ptr<AQBase<dim>> &aq_ptr) {
   // getting parameter values
   const std::string aq_name = prm.get ("angular quadrature name");
-  const int aq_order = prm.get_integer ("angular quadrature order");
   if (dim==1) {
     // AQBase implements 1D quadrature
     aq_ptr = std::unique_ptr<AQBase<dim>> (new AQBase<dim>(prm));
