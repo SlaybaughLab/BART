@@ -39,7 +39,7 @@ void MeshGenerator<dim>::MakeGrid (dealii::Triangulation<dim> &tria) {
     GenerateInitialGrid (tria);
     InitializeMaterialID (tria);
     SetupBoundaryIDs (tria);
-    if (global_refinements_>0) 
+    if (global_refinements_>0)
       GlobalRefine (tria);
   } else {
     dealii::GridIn<dim> gi;
@@ -121,7 +121,7 @@ void MeshGenerator<dim>::NonFuelPin2DGrid (dealii::Triangulation<2> &tria,
       {dealii::Point<2>(0,-r), dealii::Point<2>(r,0)}
   };
   // generate the first subcell
-  dealii::GridGenerator::hyper_rectangle (tria, 
+  dealii::GridGenerator::hyper_rectangle (tria,
       diags[0].first, diags[0].second);
   // generate the rest and merge together
   for (int i=1; i<4; ++i) {
@@ -146,10 +146,10 @@ void MeshGenerator<2>::GenerateInitialUnstructGrid (
   double length = cell_size_all_dir_[0];
   FuelPin2DGrid (t_fuel, dealii::Point<2>(0.5*length, 0.5*length));
   NonFuelPin2DGrid (t_moderator, dealii::Point<2>(0.5*length, 0.5*length));
-  
+
   // create a local triangulation and modify it for the first time
   dealii::Triangulation<2> t_loc;
-  
+
   // modify the rest of the domain
   for (int ix=0; ix<ncell_per_dir_[0]; ++ix)
     for (int iy=0; iy<ncell_per_dir_[1]; ++iy) {
@@ -167,7 +167,7 @@ void MeshGenerator<2>::GenerateInitialUnstructGrid (
           t_tmp.copy_triangulation (t_moderator);
         else
           t_tmp.copy_triangulation (t_fuel);
-        
+
         dealii::GridTools::shift (
             dealii::Tensor<1, 2>(dealii::Point<2>(ix*length, iy*length)), t_tmp);
         dealii::GridGenerator::merge_triangulations (t_loc, t_tmp, t_loc);
@@ -184,7 +184,7 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
   double length = cell_size_all_dir_[0];
   FuelPin2DGrid (t_fuel, dealii::Point<2>(0.5*length, 0.5*length));
   NonFuelPin2DGrid (t_moderator, dealii::Point<2>(0.5*length, 0.5*length));
-  
+
   // create a local triangulation and modify it for the first time
   dealii::Triangulation<2> t_loc;
   // modify the rest of the domain
@@ -211,7 +211,7 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
           t_tmp.copy_triangulation (t_moderator);
         else
           t_tmp.copy_triangulation (t_fuel);
-        
+
         dealii::GridTools::shift (
             dealii::Tensor<1, 2>(dealii::Point<2>(ix*length, iy*length)), t_tmp);
         dealii::GridGenerator::merge_triangulations (t_loc, t_tmp, t_loc);
@@ -425,18 +425,6 @@ void MeshGenerator<dim>::PreprocessReflectiveBC (dealii::ParameterHandler &prm)
 }
 
 template <int dim>
-void MeshGenerator<dim>::GetRelevantCellIterators (
-  const dealii::DoFHandler<dim> &dof_handler,
-  std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> &local_cells)
-{
-  for (typename dealii::DoFHandler<dim>::active_cell_iterator
-       cell=dof_handler.begin_active();
-       cell!=dof_handler.end(); ++cell)
-    local_cells.push_back (cell);
-
-}
-
-template <int dim>
 void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
     dealii::ParameterHandler &prm) {
   prm.enter_subsection ("material ID map");
@@ -452,7 +440,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
       while (std::getline (in, line)) {
         int y = ct % ncell_y;
         int z = ct / ncell_y;
-        std::vector<std::string> strings = 
+        std::vector<std::string> strings =
             dealii::Utilities::split_string_list (line, ' ');
         AssertThrow (strings.size()==ncell_x,
             dealii::ExcMessage("Entries of material ID per row must be ncell_x"));
@@ -476,7 +464,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
         while (std::getline (in_fuel, line)) {
           int y = ct % ncell_y;
           int z = ct / ncell_y;
-          std::vector<std::string> strings = 
+          std::vector<std::string> strings =
               dealii::Utilities::split_string_list (line, ' ');
           AssertThrow (strings.size()==ncell_x,
               dealii::ExcMessage("Entries of material ID per row must be ncell_x"));
@@ -509,15 +497,15 @@ void MeshGenerator<2>::SetManifoldsAndRefine (dealii::Triangulation<2> &tria) {
       auto fuel_id = relative_position_to_fuel_id_[t];
       if (fuel_id>=0) {
 
-        dealii::Point<2> ctr((0.5+x)*cell_size_all_dir_[0], 
+        dealii::Point<2> ctr((0.5+x)*cell_size_all_dir_[0],
                              (0.5+y)*cell_size_all_dir_[1]);
         rod_surfaces[t] = new dealii::SphericalManifold<2> (ctr);
         tria.set_manifold (10+x+y*ncell_per_dir_[0], *rod_surfaces[t]);
       }
     }
-    
+
   for (typename dealii::Triangulation<2>::active_cell_iterator
-       cell=tria.begin_active(); cell!=tria.end(); ++cell) 
+       cell=tria.begin_active(); cell!=tria.end(); ++cell)
     if (cell->is_locally_owned()) {
       std::vector<int> relative_position;
       GetCellRelativePosition (cell->center(), relative_position);
@@ -541,12 +529,12 @@ void MeshGenerator<2>::SetManifoldsAndRefine (dealii::Triangulation<2> &tria) {
             }
           }
         }
-        
+
       }
     }
   // perform the refinement
   tria.refine_global (global_refinements_);
-  
+
   // reset the manifolds to avoid error from deal.II design defect of manifold
   tria.set_manifold (INT_MAX);
 }
@@ -559,18 +547,18 @@ void MeshGenerator<3>::SetManifoldsAndRefine (dealii::Triangulation<3> &tria) {
     for (int iy=0; iy<ncell_per_dir_[1]; ++iy) {
       std::vector<int> rel_pos = {ix, iy};
       if (curved_blocks.find(rel_pos)!=curved_blocks.end()) {
-        dealii::Point<3> pt_on_axis ((0.5+ix)*cell_size_all_dir_[0], 
+        dealii::Point<3> pt_on_axis ((0.5+ix)*cell_size_all_dir_[0],
             (0.5+iy)*cell_size_all_dir_[1] ,0);
-        curved_surfaces[rel_pos] = 
+        curved_surfaces[rel_pos] =
             new dealii::CylindricalManifold<3> (dealii::Point<3>(0,0,1.),
                 pt_on_axis);
         tria.set_manifold (10+ix+iy*ncell_per_dir_[0],
             *curved_surfaces[rel_pos]);
       }
     }
-    
+
   for (typename dealii::Triangulation<3>::active_cell_iterator
-       cell=tria.begin_active(); cell!=tria.end(); ++cell) 
+       cell=tria.begin_active(); cell!=tria.end(); ++cell)
     if (cell->is_locally_owned()) {
       //bool dist = cell->center().distance(cell->barycenter())>1.0e-15
       if (cell->center().distance(cell->barycenter())>1.0e-15) {
@@ -597,7 +585,7 @@ void MeshGenerator<1>::GlobalRefine (dealii::Triangulation<1>& tria) {
 
 template <>
 void MeshGenerator<2>::GlobalRefine (dealii::Triangulation<2>& tria) {
-  if (is_mesh_unstructured_) 
+  if (is_mesh_unstructured_)
     // set manifolds for fuel rod surfaces and refine
     SetManifoldsAndRefine (tria);
   else
@@ -606,7 +594,7 @@ void MeshGenerator<2>::GlobalRefine (dealii::Triangulation<2>& tria) {
 
 template <>
 void MeshGenerator<3>::GlobalRefine (dealii::Triangulation<3>& tria) {
-  if (is_mesh_unstructured_) 
+  if (is_mesh_unstructured_)
     // set manifolds for fuel rod surfaces and refine
     SetManifoldsAndRefine (tria);
   else
