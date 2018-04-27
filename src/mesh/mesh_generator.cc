@@ -19,8 +19,8 @@ MeshGenerator<dim>::MeshGenerator (dealii::ParameterHandler &prm)
   if (!is_mesh_generated_) {
     mesh_filename_ = prm.get ("mesh file name");
   } else {
-    is_mesh_unstructured_ = prm.get_bool ("is mesh pin-resolved");
-    if (is_mesh_unstructured_) {
+    is_mesh_pin_resolved_ = prm.get_bool ("is mesh pin-resolved");
+    if (is_mesh_pin_resolved_) {
       rod_radius_ = prm.get_double ("fuel rod radius");
       rod_type_ = prm.get ("fuel rod triangulation type");
     }
@@ -226,7 +226,7 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
 
 template <int dim>
 void MeshGenerator<dim>::GenerateInitialGrid (dealii::Triangulation<dim> &tria) {
-  if (is_mesh_unstructured_) {
+  if (is_mesh_pin_resolved_) {
     AssertThrow(dim>1,
         dealii::ExcMessage("unstructured mesh is only valid for multi-D"))
     GenerateInitialUnstructGrid (tria);
@@ -279,7 +279,7 @@ void MeshGenerator<dim>::InitializeMaterialID (
       GetCellRelativePosition(center, relative_position);
       int material_id = relative_position_to_id_[relative_position];
 
-      if (is_mesh_unstructured_) {
+      if (is_mesh_pin_resolved_) {
         AssertThrow(dim>1,
             dealii::ExcMessage("unstructured mesh is not supported in 1D"));
         int fuel_id = relative_position_to_fuel_id_[relative_position];
@@ -456,7 +456,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
           dealii::ExcMessage("Number of y, z ID entries are not correct"));
       in.close ();
     }
-    if (is_mesh_unstructured_) {
+    if (is_mesh_pin_resolved_) {
       std::string fuel_id_name = prm.get ("fuel pin material id file name");
       std::ifstream in_fuel (fuel_id_name);
       ct = 0;
@@ -585,7 +585,7 @@ void MeshGenerator<1>::GlobalRefine (dealii::Triangulation<1>& tria) {
 
 template <>
 void MeshGenerator<2>::GlobalRefine (dealii::Triangulation<2>& tria) {
-  if (is_mesh_unstructured_)
+  if (is_mesh_pin_resolved_)
     // set manifolds for fuel rod surfaces and refine
     SetManifoldsAndRefine (tria);
   else
@@ -594,7 +594,7 @@ void MeshGenerator<2>::GlobalRefine (dealii::Triangulation<2>& tria) {
 
 template <>
 void MeshGenerator<3>::GlobalRefine (dealii::Triangulation<3>& tria) {
-  if (is_mesh_unstructured_)
+  if (is_mesh_pin_resolved_)
     // set manifolds for fuel rod surfaces and refine
     SetManifoldsAndRefine (tria);
   else
