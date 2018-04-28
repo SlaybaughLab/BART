@@ -9,10 +9,14 @@ class BARTBuilderTest : public ::testing::Test {
   void SetUp ();
 
   // FE builder test
+  void SetUpFEBuilderTest ();
+
   template <int dim>
   void FEBuilderTest ();
 
   // AQ builder test
+  void SetUpAQBuilderTest ();
+
   template <int dim>
   void AQBuilderTest ();
 
@@ -20,16 +24,26 @@ class BARTBuilderTest : public ::testing::Test {
 };
 
 void BARTBuilderTest::SetUp () {
+  // Note that setup for different tests
+  // had better be separated for clearness.
+  SetUpAQBuilderTest();
+
+  SetUpFEBuilderTest();
+}
+
+void BARTBuilderTest::SetUpAQBuilderTest () {
   prm.declare_entry("have reflective BC", "false",
-                     dealii::Patterns::Bool(), "");
+                    dealii::Patterns::Bool(), "");
   prm.declare_entry("angular quadrature order", "4",
-                     dealii::Patterns::Integer(), "");
+                    dealii::Patterns::Integer(), "");
   prm.declare_entry("angular quadrature name", "gl",
-                     dealii::Patterns::Selection("gl|lsgc"), "");
+                    dealii::Patterns::Selection("gl|lsgc"), "");
   prm.declare_entry("number of groups", "1", dealii::Patterns::Integer(), "");
   prm.declare_entry("transport model", "regular",
-                     dealii::Patterns::Selection("regular|ep"), "");
+                    dealii::Patterns::Selection("regular|ep"), "");
+}
 
+void BARTBuilderTest::SetUpFEBuilderTest () {
   prm.declare_entry("finite element polynomial degree", "1",
                     dealii::Patterns::Integer(), "");
   prm.declare_entry("do nda", "true",
@@ -38,7 +52,6 @@ void BARTBuilderTest::SetUp () {
                     dealii::Patterns::Anything(), "");
   prm.declare_entry("nda spatial discretization", "",
                     dealii::Patterns::Anything(), "");
-
 }
 
 template <int dim>
