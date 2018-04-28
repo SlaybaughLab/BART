@@ -62,7 +62,7 @@ class MaterialProperties {
   //! A function to retrieve all \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$.
   std::unordered_map<int, dealii::FullMatrix<double>> GetChiNuSigFPerSter () const;
 
-private:
+ private:
   /*!
    Function to process all material properties. For eigenvalue problems, it will
    call this->process_eigen_material_properties to process fission-related
