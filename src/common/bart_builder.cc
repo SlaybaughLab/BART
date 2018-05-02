@@ -85,6 +85,17 @@ void BuildAQ (const dealii::ParameterHandler &prm,
     }
   }
 }
+
+void BuildMaterial (dealii::ParameterHandler &prm,
+    std::unique_ptr<MaterialProperties> &mat_ptr) {
+  mat_ptr = std::unique_ptr<MaterialProperties> (new MaterialProperties(prm));
+}
+
+template <int dim>
+void BuildMesh (dealii::ParameterHandler &prm,
+    std::unique_ptr<MeshGenerator<dim>> &msh_ptr) {
+  msh_ptr = std::unique_ptr<MeshGenerator<dim>> (new MeshGenerator<dim>(prm));
+}
 }
 
 // explicitly instantiate all builders using templates
@@ -103,3 +114,11 @@ template void bbuilders::BuildAQ<2> (const dealii::ParameterHandler&,
     std::unique_ptr<AQBase<2>> &);
 template void bbuilders::BuildAQ<3> (const dealii::ParameterHandler&,
     std::unique_ptr<AQBase<3>> &);
+
+// explicit instantiation for BuildMesh
+template void bbuilders::BuildMesh<1> (dealii::ParameterHandler&,
+    std::unique_ptr<MeshGenerator<1>> &);
+template void bbuilders::BuildMesh<2> (dealii::ParameterHandler&,
+    std::unique_ptr<MeshGenerator<2>> &);
+template void bbuilders::BuildMesh<3> (dealii::ParameterHandler&,
+    std::unique_ptr<MeshGenerator<3>> &);

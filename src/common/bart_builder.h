@@ -22,27 +22,55 @@
 namespace bbuilders {
   //! Function used to build FE spaces for transport equations.
   /*!
-  The main functionality is to produce finite element spaces for transport
-  equation and NDA if required.
+   The main functionality is to produce finite element spaces for transport
+   equation and NDA if required based on parameters specified in prm.
 
-  \param fe_ptrs A vector containing pointers of FE spaces.
-  \return Void.
-  */
+   \param prm dealii::ParameterHandler object.
+   \param fe_ptrs A vector containing pointers of FE spaces.
+   \return Void.
+   */
   template <int dim>
   void BuildFESpaces (const dealii::ParameterHandler &prm,
       std::vector<dealii::FiniteElement<dim, dim>*> &fe_ptrs);
 
   //! Function used to build AQ data.
   /*!
-  The main functionality is to build angular quadrature data. For 1D, Gauss-Legendre
-  quadrature will be built while in multi-D, AQBase will be cast to specific model.
+   The main functionality is to build angular quadrature data based on parameters
+   specified in prm. For 1D, Gauss-Legendre quadrature will be built while in
+   multi-D, AQBase will be cast to specific model.
 
-  \param aq_ptr Angular quadrature pointer that needs to be built.
-  \return Void.
-  */
+   \param prm dealii::ParameterHandler object.
+   \param aq_ptr Angular quadrature pointer that needs to be built.
+   \return Void.
+   */
   template <int dim>
   void BuildAQ (const dealii::ParameterHandler &prm,
       std::unique_ptr<AQBase<dim>> &aq_ptr);
+
+  //! Function used to build material
+  /*!
+   The main functionality is to build pointer to object of MaterialProperties
+   based on parameters specified in prm.
+
+   \param prm dealii::ParameterHandler object.
+   \param mat_ptr MaterialProperties object pointer.
+   \return Void.
+   */
+  void BuildMaterial (dealii::ParameterHandler &prm,
+      std::unique_ptr<MaterialProperties> &mat_ptr);
+
+  //! Function used to build mesh
+  /*!
+   The main functionality is to build pointer to object of MeshGenerator<dim>
+   based on parameters specified in prm.
+
+   \param prm dealii::ParameterHandler object.
+   \param mat_ptr MaterialProperties object pointer.
+   \return Void.
+   */
+  template <int dim>
+  void BuildMesh (dealii::ParameterHandler &prm,
+      std::unique_ptr<MeshGenerator<dim>> &msh_ptr);
 };
 
 #endif // BART_SRC_COMMON_BART_BUILDER_H_
