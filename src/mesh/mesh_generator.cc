@@ -336,9 +336,9 @@ void MeshGenerator<dim>::SetupBoundaryIDs
 (dealii::Triangulation<dim> &tria)
 {
   AssertThrow (is_mesh_generated_==true,
-               dealii::ExcMessage("mesh read in have to have boundary ids associated"));
+      dealii::ExcMessage("mesh read in have to have boundary ids associated"));
   AssertThrow (axis_max_values_.size()==dim,
-               dealii::ExcMessage("number of entries axis max values should be dimension"));
+      dealii::ExcMessage("number of entries axis max values should be dimension"));
 
   for (typename dealii::Triangulation<dim>::active_cell_iterator
        cell=tria.begin_active(); cell!=tria.end(); ++cell)
