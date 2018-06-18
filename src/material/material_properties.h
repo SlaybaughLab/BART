@@ -57,10 +57,10 @@ class MaterialProperties {
   std::unordered_map<int, dealii::FullMatrix<double>> GetSigSPerSter () const;
 
   //! A function to retrieve all \f$\chi\nu\sigma_\mathrm{f}\f$.
-  std::unordered_map<int, dealii::FullMatrix<double>> GetChiNuSigF () const;
+  std::unordered_map<int, dealii::FullMatrix<double>> GetFissTransfer () const;
 
   //! A function to retrieve all \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$.
-  std::unordered_map<int, dealii::FullMatrix<double>> GetChiNuSigFPerSter () const;
+  std::unordered_map<int, dealii::FullMatrix<double>> GetFissTransferPerSter () const;
 
  private:
   /*!
