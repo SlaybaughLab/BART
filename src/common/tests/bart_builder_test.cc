@@ -59,7 +59,7 @@ void BARTBuilderTest::FEBuilderTest () {
   // set values to parameters
   prm.set ("ho spatial discretization", "cfem");
   prm.set ("nda spatial discretization", "cfem");
-  std::vector<dealii::FiniteElement<dim, dim>*> fe_ptrs;
+  std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*> fe_ptrs;
   bbuilders::BuildFESpaces (prm, fe_ptrs);
 
   // testing for FE names
