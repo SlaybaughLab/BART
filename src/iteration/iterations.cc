@@ -1,0 +1,39 @@
+#include "iterations.h"
+
+using namespace dealii;
+
+template <int dim>
+Iterations<dim>::Iterations (const ParameterHandler &prm)
+    :is_eigen_problem_(prm.get_bool("do eigenvalue calculations")) {
+  if (is_eigen_problem_) {
+    eig_ptr_ = bbuilders::BuildEigenIterations (prm);
+  } else {
+    mg_ptr_ = bbuilders::BuildMGIterations (prm);
+  }
+}
+
+template <int dim>
+Iterations<dim>::~Iterations () {}
+
+template <int dim>
+void Iterations<dim>::DoIterations (std::unordered_map<std::string,
+    std::unique_ptr<EquationBase<dim>>> &equ_ptrs) {
+  if (is_eigen_problem_) {
+    eig_ptr_->DoIterations (equ_ptrs);
+    keff_ = eig_ptr->GetKeff ();
+  } else {
+    mg_ptr_->DoIterations (equ_ptrs);
+  }
+}
+
+template <int dim>
+double Iterations<dim>::GetKeff () const {
+  AssertThrow (is_eigen_problem_,
+      dealii::ExcMessage("Problem is not eigenvalue problem"));
+  return keff_;
+}
+
+// explicit instantiation to avoid linking error
+template class Iterations<1>;
+template class Iterations<2>;
+template class Iterations<3>;
