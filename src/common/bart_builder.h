@@ -26,12 +26,11 @@ namespace bbuilders {
    equation and NDA if required based on parameters specified in prm.
 
    \param prm dealii::ParameterHandler object.
-   \param fe_ptrs A vector containing pointers of FE spaces.
-   \return Void.
+   \return A Hash table containing pointers of FE spaces.
    */
   template <int dim>
-  void BuildFESpaces (const dealii::ParameterHandler &prm,
-      std::vector<dealii::FiniteElement<dim, dim>*> &fe_ptrs);
+  std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>
+      BuildFESpaces (const dealii::ParameterHandler &prm);
 
   //! Function used to build AQ data.
   /*!
@@ -47,6 +46,15 @@ namespace bbuilders {
   void BuildAQ (const dealii::ParameterHandler &prm,
       std::unique_ptr<AQBase<dim>> &aq_ptr);
 
+  /*!
+   The same as previous function but returns the pointer to AQ instead.
+
+   \param prm dealii::ParameterHandler object.
+   \return Angular quadrature pointer that needs to be built.
+   */
+  template <int dim>
+  std::unique_ptr<AQBase<dim>> BuildAQ (const dealii::ParameterHandler &prm);
+
   //! Function used to build material
   /*!
    The main functionality is to build pointer to object of MaterialProperties
@@ -59,18 +67,38 @@ namespace bbuilders {
   void BuildMaterial (dealii::ParameterHandler &prm,
       std::unique_ptr<MaterialProperties> &mat_ptr);
 
+  //! Function used to build material
+  /*!
+   The same as previous function but returning pointer to material.
+
+   \param prm dealii::ParameterHandler object.
+   \return MaterialProperties object pointer.
+   */
+  std::unique_ptr<MaterialProperties> BuildMaterial (
+      dealii::ParameterHandler &prm);
+
   //! Function used to build mesh
   /*!
    The main functionality is to build pointer to object of MeshGenerator<dim>
    based on parameters specified in prm.
 
    \param prm dealii::ParameterHandler object.
-   \param mat_ptr MaterialProperties object pointer.
+   \param msh_ptr MeshGenerator object pointer.
    \return Void.
    */
   template <int dim>
   void BuildMesh (dealii::ParameterHandler &prm,
       std::unique_ptr<MeshGenerator<dim>> &msh_ptr);
+
+  /*!
+   The same as previous function but returning mesh pointer.
+
+   \param prm dealii::ParameterHandler object.
+   \return MeshGenerator object pointer.
+   */
+  template <int dim>
+  std::unique_ptr<MeshGenerator<dim>> BuildMesh (
+      dealii::ParameterHandler &prm);
 };
 
 #endif // BART_SRC_COMMON_BART_BUILDER_H_
