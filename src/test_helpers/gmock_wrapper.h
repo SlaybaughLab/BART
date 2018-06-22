@@ -10,7 +10,7 @@
   included after this file.
   
   If Assert is defined, save its value, undefine it, include gmock, and
-  redifine it; Else, simply include gmock.
+  redefine it; Else, simply include gmock.
 */
 
 #ifdef Assert
