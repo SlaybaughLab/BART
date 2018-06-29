@@ -34,11 +34,3 @@ html/
 latex/
 build/
 test_data/
-
-# For ggtags
-GPATH
-GRTAGS
-GTAGS
-
-# For emacs users
-.dir-locals.el
