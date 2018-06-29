@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=master)](https://travis-ci.org/SlaybaughLab/BART)
+| `master` | `dev` | `restart` |
+|----------|-------|-----------|
+|[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=master)](https://travis-ci.org/SlaybaughLab/BART)|[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=dev)](https://travis-ci.org/SlaybaughLab/BART)|[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=restart)](https://travis-ci.org/SlaybaughLab/BART)  [![Codecov](https://codecov.io/gh/SlaybaughLab/BART/branch/restart/graph/badge.svg)](https://codecov.io/gh/SlaybaughLab/BART/branch/restart)|
+
+
 
 # Bay Area Radiation Transport (BART)
 ## What is BART for?
