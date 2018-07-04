@@ -1,8 +1,8 @@
 #ifdef TEST
+
 #include <unistd.h>
 #include <getopt.h>
 
-#include <deal.II/base/mpi.h>
 #include "gtest/gtest.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/bart_test_helper.h"
