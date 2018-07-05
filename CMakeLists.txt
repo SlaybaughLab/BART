@@ -63,9 +63,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 set(GTEST_ROOT "/usr")
 find_package(GTest REQUIRED 1.8.0)
 find_package(GMock REQUIRED)
-#set(GTEST_INCLUDE_DIRS "/usr/include")
-#set(GTEST_BOTH_LIBRARIES "/usr/lib/libgtest_main.so;/usr/lib/libgtest.so")
-#set(GMOCK_BOTH_LIBRARIES "/usr/lib/libgmock.a;/usr/lib/libgmock_main.a")
+
+### PROTOCOL BUFFERS #################################################
+
+#include(FindProtobuf)
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+  "${CMAKE_SOURCE_DIR}/protobuf/material.proto")
 
 ### COMPILE AND LINKER FLAGS #########################################
 
@@ -84,6 +88,7 @@ ENABLE_TESTING()
 # Recursively find source files
 
 file(GLOB_RECURSE sources "src/*.cpp" "src/*.cc")
+list(APPEND sources ${PROTO_SRCS} ${PROTO_HDRS})
 set(testing_sources ${sources})
 list(FILTER sources EXCLUDE REGEX ".(/tests/).")
 list(FILTER sources EXCLUDE REGEX ".(/test_helpers/).")
@@ -99,8 +104,10 @@ ADD_EXECUTABLE(xtrans_test ${testing_sources})
 # Add testing definition and library to xtrans_test
 target_compile_definitions(xtrans_test PUBLIC -DTEST)
 
+
+target_link_libraries(xtrans ${Protobuf_LIBRARIES})
 target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES}
-  ${GMOCK_BOTH_LIBRARIES})
+  ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES})
 
 # Add subdirectory builds to build libraries for CTEST
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/mesh)
