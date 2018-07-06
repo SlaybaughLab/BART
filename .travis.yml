@@ -10,16 +10,16 @@ services:
 
 before_install:
  - mkdir shared
- - sudo docker pull jsrehak/bart-gtest
+ - sudo docker pull jsrehak/bart
  - ci_env=`bash <(curl -s https://codecov.io/env)`
 
 install:
- - sudo docker run jsrehak/bart-gtest
+ - sudo docker run jsrehak/bart
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker cp ../BART $id:/home/dealii
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker commit $id jsrehak/bart-gtest
- - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" -v "$PWD/shared:/home/dealii/shared" --name bart jsrehak/bart-gtest
+ - sudo docker commit $id jsrehak/bart
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" -v "$PWD/shared:/home/dealii/shared" --name bart jsrehak/bart
 
 script:
  - docker exec bart cmake .
