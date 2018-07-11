@@ -25,6 +25,7 @@ message Material {
     SIGMA_A = 4;
     NU_SIG_F = 5;
     KAPPA_SIG_F = 6;
+    Q = 7;
   }
 
   enum MatrixId {
