@@ -22,7 +22,7 @@ class LSGCTest : public ::testing::Test {
 };
 
 void LSGCTest::SetUp() {
-    prm.declare_entry ("have reflective BC", "false",
+    prm.declare_entry ("have reflective boundary", "false",
                        dealii::Patterns::Bool(), "");
     prm.declare_entry ("angular quadrature order", "4",
                        dealii::Patterns::Integer (), "");
@@ -40,7 +40,7 @@ void LSGCTest::AQDataTest() {
   lsgc_ptr->MakeAQ();
   auto wi = lsgc_ptr->GetAQWeights();
   auto omega_i = lsgc_ptr->GetAQDirs();
-  for (unsigned int i=0; i<wi.size(); ++i)
+  for (int i=0; i<wi.size(); ++i)
   {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
     for (int j=0; j<dim; ++j)
@@ -118,12 +118,12 @@ TEST_F (LSGCTest, LSGC_3d_Test) {
 }
 
 TEST_F (LSGCTest, AQBase2DReflDir) {
-  prm.set("have reflective BC", "true");
+  prm.set("have reflective boundary", "true");
   InitRefBCAndCheck<2>();
 }
 
 TEST_F (LSGCTest, AQBase3DReflDir) {
-  prm.set("have reflective BC", "true");
+  prm.set("have reflective boundary", "true");
   InitRefBCAndCheck<3>();
 }
 
