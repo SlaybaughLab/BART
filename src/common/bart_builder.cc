@@ -1,4 +1,9 @@
 #include "bart_builder.h"
+#include "../aqdata/lsgc.h"
+#include "../equation/even_parity.h"
+#include "../iteration/power_iteration.h"
+#include "../iteration/gauss_seidel.h"
+#include "../iteration/source_iteration.h"
 
 #include <unordered_map>
 
@@ -8,10 +13,8 @@
 
 namespace bbuilders {
 template <int dim>
-std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>
-    BuildFESpaces (const dealii::ParameterHandler &prm) {
-  std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*> fe_ptrs;
-
+void BuildFESpaces (const dealii::ParameterHandler &prm,
+    std::unordered_map<std::string, dealii::FiniteElement<dim,dim>*>&fe_ptrs) {
   // getting parameter values
   const bool do_nda = prm.get_bool ("do nda");
   const int p_order = prm.get_integer("finite element polynomial degree");
@@ -19,9 +22,7 @@ std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>
   const std::string nda_discretization = prm.get ("nda spatial discretization");
   const std::string ho_equ_name = prm.get ("transport model");
 
-  fe_ptrs.resize (do_nda ? 2 : 1);
-
-  std::unordered_map<std::string, unsigned int> discretization_ind = {
+  std::unordered_map<std::string, int> discretization_ind = {
       {"cfem", 0}, {"dfem", 1}, {"cmfd", 2}, {"rtk", 3}};
 
   switch (discretization_ind[ho_discretization]) {
@@ -63,8 +64,6 @@ std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>
         break;
     }
   }
-
-  return fe_ptrs;
 }
 
 template <int dim>
@@ -91,40 +90,14 @@ void BuildAQ (const dealii::ParameterHandler &prm,
   }
 }
 
-template <int dim>
-std::unique_ptr<AQBase<dim>> BuildAQ (const dealii::ParameterHandler &prm) {
-  // getting parameter values
-  const std::string aq_name = prm.get ("angular quadrature name");
-  std::unique_ptr<AQBase<dim>> aq_ptr;
-
-  if (dim==1) {
-    // AQBase implements 1D quadrature
-    aq_ptr = std::unique_ptr<AQBase<dim>> (new AQBase<dim>(prm));
-  } else if (dim>1) {
-    std::unordered_map<std::string, int> aq_ind = {{"lsgc", 0}};
-
-    switch (aq_ind[aq_name]) {
-      case 0:
-        aq_ptr = std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
-        break;
-
-      default:
-        AssertThrow (false,
-            dealii::ExcMessage("Proper name is not given for AQ"));
-        break;
-    }
-  }
-  return aq_ptr;
-}
-
 void BuildMaterial (dealii::ParameterHandler &prm,
-    std::unique_ptr<MaterialProperties> &mat_ptr) {
-  mat_ptr = std::unique_ptr<MaterialProperties> (new MaterialProperties(prm));
+    std::unique_ptr<Materials> &mat_ptr) {
+  mat_ptr = std::unique_ptr<Materials> (new Materials(prm));
 }
 
-std::unique_ptr<MaterialProperties> BuildMaterial (
+std::unique_ptr<Materials> BuildMaterial (
     dealii::ParameterHandler &prm) {
-  return std::unique_ptr<MaterialProperties> (new MaterialProperties(prm));
+  return std::unique_ptr<Materials> (new Materials(prm));
 }
 
 template <int dim>
@@ -138,16 +111,94 @@ std::unique_ptr<MeshGenerator<dim>> BuildMesh (
     dealii::ParameterHandler &prm) {
   return std::unique_ptr<MeshGenerator<dim>> (new MeshGenerator<dim>(prm));
 }
+
+template <int dim>
+std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>> BuildEqu (
+    const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+  std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>> equ_ptrs;
+  const std::string ho_equ_name(prm.get("transport model"));
+  std::unordered_map<std::string, int> mp = {{"ep",0}};
+  switch (mp[ho_equ_name]) {
+    case 0:
+      equ_ptrs[ho_equ_name] = std::unique_ptr<EquationBase<dim>>(
+          new EvenParity<dim>(ho_equ_name, prm, dat_ptr));
+    default:
+      break;
+  }
+  bool do_nda = prm.get_bool("do nda");
+  if (do_nda) {
+    AssertThrow(ho_equ_name!="diffusion",
+        dealii::ExcMessage("NDA cannot be used with diffusion"));
+    //TODO:
+    // 1. Fill in NDA part once corresponding class is ready
+    // 2. TG-NDA is needed for future research.
+  }
+  return equ_ptrs;
+}
+
+template <int dim>
+std::unique_ptr<EigenBase<dim>> BuildEigenItr (
+    const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+  const std::string eigen_name(prm.get("eigen solver name"));
+  std::unordered_map<std::string, int> mp = {{"pi", 0}};
+  std::unique_ptr<EigenBase<dim>> eig;
+  switch (mp[eigen_name]) {
+    case 0:
+      eig = std::unique_ptr<EigenBase<dim>>(
+          new PowerIteration<dim>(prm, dat_ptr));
+      break;
+    default:
+      break;
+  }
+  return eig;
+}
+
+template <int dim>
+std::unique_ptr<MGBase<dim>> BuildMGItr (
+    const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+  const std::string mg_name(prm.get("mg solver name"));
+  std::unordered_map<std::string, int> mp = {{"gs", 0}};
+  std::unique_ptr<MGBase<dim>> mg;
+  switch (mp[mg_name]) {
+    case 0:
+      mg = std::unique_ptr<MGBase<dim>>(new GaussSeidel<dim>(prm, dat_ptr));
+      break;
+    default:
+      break;
+  }
+  return mg;
+}
+
+template <int dim>
+std::unique_ptr<IGBase<dim>> BuildIGItr (
+    const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+  const std::string ig_name(prm.get("in group solver name"));
+  std::unordered_map<std::string, int> mp = {{"si", 0}};
+  std::unique_ptr<IGBase<dim>> ig;
+  switch (mp[ig_name]) {
+    case 0:
+      ig = std::unique_ptr<IGBase<dim>>(new SourceIteration<dim>(prm, dat_ptr));
+      break;
+    default:
+      break;
+  }
+  return ig;
+}
 }
 
 // explicitly instantiate all builders using templates
 // explicit instantiation for BuildFESpaces
-template std::unordered_map<std::string, dealii::FiniteElement<1, 1>*>
-    bbuilders::BuildFESpaces<1> (const dealii::ParameterHandler&);
-template std::unordered_map<std::string, dealii::FiniteElement<2, 2>*>
-    bbuilders::BuildFESpaces<2> (const dealii::ParameterHandler&);
-template std::unordered_map<std::string, dealii::FiniteElement<3, 3>*>
-    bbuilders::BuildFESpaces<3> (const dealii::ParameterHandler&);
+template void bbuilders::BuildFESpaces<1> (const dealii::ParameterHandler&,
+    std::unordered_map<std::string, dealii::FiniteElement<1, 1>*>&);
+template void bbuilders::BuildFESpaces<2> (const dealii::ParameterHandler&,
+    std::unordered_map<std::string, dealii::FiniteElement<2, 2>*>&);
+template void bbuilders::BuildFESpaces<3> (const dealii::ParameterHandler&,
+    std::unordered_map<std::string, dealii::FiniteElement<3, 3>*>&);
+
 
 // explicit instantiation for BuildAQ
 template void bbuilders::BuildAQ<1> (const dealii::ParameterHandler&,
@@ -156,13 +207,6 @@ template void bbuilders::BuildAQ<2> (const dealii::ParameterHandler&,
     std::unique_ptr<AQBase<2>> &);
 template void bbuilders::BuildAQ<3> (const dealii::ParameterHandler&,
     std::unique_ptr<AQBase<3>> &);
-
-template std::unique_ptr<AQBase<1>> bbuilders::BuildAQ<1> (
-  const dealii::ParameterHandler&);
-template std::unique_ptr<AQBase<2>> bbuilders::BuildAQ<2> (
-  const dealii::ParameterHandler&);
-template std::unique_ptr<AQBase<3>> bbuilders::BuildAQ<3> (
-  const dealii::ParameterHandler&);
 
 // explicit instantiation for BuildMesh
 template void bbuilders::BuildMesh<1> (dealii::ParameterHandler&,
@@ -178,3 +222,43 @@ template std::unique_ptr<MeshGenerator<2>> bbuilders::BuildMesh<2> (
     dealii::ParameterHandler&);
 template std::unique_ptr<MeshGenerator<3>> bbuilders::BuildMesh<3> (
     dealii::ParameterHandler&);
+
+template std::unique_ptr<IGBase<1>> bbuilders::BuildIGItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<1>> &);
+template std::unique_ptr<IGBase<2>> bbuilders::BuildIGItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<2>> &);
+template std::unique_ptr<IGBase<3>> bbuilders::BuildIGItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<3>> &);
+
+template std::unique_ptr<MGBase<1>> bbuilders::BuildMGItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<1>> &);
+template std::unique_ptr<MGBase<2>> bbuilders::BuildMGItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<2>> &);
+template std::unique_ptr<MGBase<3>> bbuilders::BuildMGItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<3>> &);
+
+template std::unique_ptr<EigenBase<1>> bbuilders::BuildEigenItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<1>> &);
+template std::unique_ptr<EigenBase<2>> bbuilders::BuildEigenItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<2>> &);
+template std::unique_ptr<EigenBase<3>> bbuilders::BuildEigenItr (
+    const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<3>> &);
+
+template std::unordered_map<std::string, std::unique_ptr<EquationBase<1>>>
+    bbuilders::BuildEqu(const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<1>> &);
+template std::unordered_map<std::string, std::unique_ptr<EquationBase<2>>>
+    bbuilders::BuildEqu(const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<2>> &);
+template std::unordered_map<std::string, std::unique_ptr<EquationBase<3>>>
+    bbuilders::BuildEqu(const dealii::ParameterHandler &,
+    std::shared_ptr<FundamentalData<3>> &);

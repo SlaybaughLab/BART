@@ -1,9 +1,13 @@
 #ifndef BART_SRC_COMMON_BART_BUILDER_H_
 #define BART_SRC_COMMON_BART_BUILDER_H_
 
-// aq data
 #include "../aqdata/aq_base.h"
-#include "../aqdata/lsgc.h"
+#include "../mesh/mesh_generator.h"
+#include "../material/materials.h"
+#include "../equation/equation_base.h"
+#include "../iteration/eigen_base.h"
+#include "../iteration/mg_base.h"
+#include "../iteration/ig_base.h"
 
 #include <vector>
 
@@ -26,11 +30,12 @@ namespace bbuilders {
    equation and NDA if required based on parameters specified in prm.
 
    \param prm dealii::ParameterHandler object.
-   \return A Hash table containing pointers of FE spaces.
+   \param fe_ptrs A Hash table containing pointers of FE spaces.
+   \return Void.
    */
   template <int dim>
-  std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>
-      BuildFESpaces (const dealii::ParameterHandler &prm);
+  void BuildFESpaces (const dealii::ParameterHandler &prm,
+      std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>& fe_ptrs);
 
   //! Function used to build AQ data.
   /*!
@@ -46,35 +51,26 @@ namespace bbuilders {
   void BuildAQ (const dealii::ParameterHandler &prm,
       std::unique_ptr<AQBase<dim>> &aq_ptr);
 
-  /*!
-   The same as previous function but returns the pointer to AQ instead.
-
-   \param prm dealii::ParameterHandler object.
-   \return Angular quadrature pointer that needs to be built.
-   */
-  template <int dim>
-  std::unique_ptr<AQBase<dim>> BuildAQ (const dealii::ParameterHandler &prm);
-
   //! Function used to build material
   /*!
-   The main functionality is to build pointer to object of MaterialProperties
+   The main functionality is to build pointer to object of Materials
    based on parameters specified in prm.
 
    \param prm dealii::ParameterHandler object.
-   \param mat_ptr MaterialProperties object pointer.
+   \param mat_ptr Materials object pointer.
    \return Void.
    */
   void BuildMaterial (dealii::ParameterHandler &prm,
-      std::unique_ptr<MaterialProperties> &mat_ptr);
+      std::unique_ptr<Materials> &mat_ptr);
 
   //! Function used to build material
   /*!
    The same as previous function but returning pointer to material.
 
    \param prm dealii::ParameterHandler object.
-   \return MaterialProperties object pointer.
+   \return Materials object pointer.
    */
-  std::unique_ptr<MaterialProperties> BuildMaterial (
+  std::unique_ptr<Materials> BuildMaterial (
       dealii::ParameterHandler &prm);
 
   //! Function used to build mesh
@@ -99,6 +95,31 @@ namespace bbuilders {
   template <int dim>
   std::unique_ptr<MeshGenerator<dim>> BuildMesh (
       dealii::ParameterHandler &prm);
+
+  /*!
+   The main functionality is to return a pointer to newly constructed objects of
+   EquationBase.
+
+   \param prm dealii::ParameterHandler object.
+   \param dat_ptr Resource struct object.
+   */
+  template <int dim>
+  std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>BuildEqu (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+
+  template <int dim>
+  std::unique_ptr<EigenBase<dim>> BuildEigenItr (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+
+  template <int dim>
+  std::unique_ptr<MGBase<dim>> BuildMGItr (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+
+  template <int dim>
+  std::unique_ptr<IGBase<dim>> BuildIGItr (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 };
 
 #endif // BART_SRC_COMMON_BART_BUILDER_H_
