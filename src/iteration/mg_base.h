@@ -20,8 +20,8 @@ class MGBase : public IterationBase<dim> {
 
    \param prm A ParameterHandler object containing all the parameters needed.
    */
-  MGBase (const ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> dat_ptr);
+  MGBase (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! A virtual destructor for MGBase
   virtual ~MGBase ();
@@ -59,7 +59,7 @@ class MGBase : public IterationBase<dim> {
    \param ig_ptr A shared_ptr of IGBase object.
    \return Void.
    */
-  virtual void MGIterations (std::unique_ptr<EquationBase<dim>> equ_ptr);
+  virtual void MGIterations (std::unique_ptr<EquationBase<dim>> &equ_ptr);
 
   /*!
    This virtual function performs energy solves over nonthermal groups.
@@ -71,7 +71,7 @@ class MGBase : public IterationBase<dim> {
    \param equ_ptr Pointer of EquationBase object.
    \return Void.
    */
-  virtual void NonthermalSolves(std::unique_ptr<EquationBase<dim>> equ_ptr);
+  virtual void NonthermalSolves(std::unique_ptr<EquationBase<dim>> &equ_ptr);
 
   /*!
    This virtual function performs iterative energy solves over thermal groups.
@@ -83,10 +83,11 @@ class MGBase : public IterationBase<dim> {
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
    \return Void.
    */
-  virtual void ThermalIterations (std::unique_ptr<EquationBase<dim>> equ_ptr);
+  virtual void ThermalIterations (std::unique_ptr<EquationBase<dim>> &equ_ptr);
 
  protected:
-  unsigned int g_thermal_;//!< Starting group index where upscattering exists.
+  int g_thermal_;//!< Starting group index where upscattering exists.
+  std::unique_ptr<IGBase<dim>> ig_ptr_;
   const double err_phi_tol_;//!< Multigroup iteration tolerance for convergence check.
 };
 
