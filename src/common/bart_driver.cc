@@ -1,37 +1,83 @@
 #include "bart_driver.h"
+#include "bart_builder.h"
 
-template <int dim>
-BARTDriver<dim>::BARTDriver (dealii::ParameterHandler &prm)
+#include <fstream>
+#include <sstream>
+
+#include <deal.II/dofs/dof_tools.h>
+#include <deal.II/lac/sparsity_tools.h>
+#include <deal.II/numerics/data_out.h>
+
+template <>
+BARTDriver<1>::BARTDriver (dealii::ParameterHandler &prm)
     :
-    n_proc_(dealii::Utilities::MPI::n_processors),
-    tria(typename dealii::Triangulation<dim>::MeshSmoothing
-         dealii::Triangulation<dim>::smoothing_on_refinement |
-         dealii::Triangulation<dim>::smoothing_on_coarsening)),
-    distributed_tria(MPI_COMM_WORLD,
-        typename dealii::Triangulation<dim>::MeshSmoothing
-        dealii::Triangulation<dim>::smoothing_on_refinement |
-        dealii::Triangulation<dim>::smoothing_on_coarsening)),
-    is_eigen_problem_(prm.get_bool(prm.get_bool("do eigenvalue calculations"))),
-    do_nda_(prm.get_bool("do NDA")),
+    n_proc_(1),
+    tria(typename dealii::Triangulation<1>::MeshSmoothing(
+        dealii::Triangulation<1>::smoothing_on_refinement |
+        dealii::Triangulation<1>::smoothing_on_coarsening)),
+    distributed_tria(MPI_COMM_WORLD),
+    n_group_(prm.get_integer("number of groups")),
+    is_eigen_problem_(prm.get_bool("do eigenvalue calculations")),
+    do_nda_(prm.get_bool("do nda")),
     ho_equ_name_(prm.get("transport model")),
-    dat_ptr_(std::shared_ptr<FundamentalData<dim>>(
-        new FundamentalData<dim>(prm, n_proc_==1?tria:distributed_tria))),
-    iter_ptr_(std::shared_ptr<Iterations<dim>>(new Iterations<dim>(prm))),
-    equ_ptrs_(bbuilders::BuildEquations(prm, dat_ptr_)) {}
+    ho_discretization_(prm.get("ho spatial discretization")),
+    nda_discretization_(do_nda_?prm.get("nda spatial discretization"):""),
+    dat_ptr_(std::shared_ptr<FundamentalData<1>>(
+        new FundamentalData<1>(prm, tria))),
+    iter_cls_(prm, dat_ptr_),
+    equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
+
+template <>
+BARTDriver<2>::BARTDriver (dealii::ParameterHandler &prm)
+    :
+    n_proc_(dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)),
+    distributed_tria(MPI_COMM_WORLD,
+        typename dealii::Triangulation<2>::MeshSmoothing(
+        dealii::Triangulation<2>::smoothing_on_refinement |
+        dealii::Triangulation<2>::smoothing_on_coarsening)),
+    n_group_(prm.get_integer("number of groups")),
+    is_eigen_problem_(prm.get_bool("do eigenvalue calculations")),
+    do_nda_(prm.get_bool("do nda")),
+    ho_equ_name_(prm.get("transport model")),
+    ho_discretization_(prm.get("ho spatial discretization")),
+    nda_discretization_(do_nda_?prm.get("nda spatial discretization"):""),
+    dat_ptr_(std::shared_ptr<FundamentalData<2>>(
+        new FundamentalData<2>(prm, distributed_tria))),
+    iter_cls_(prm, dat_ptr_),
+    equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
+
+template <>
+BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
+    :
+    n_proc_(dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)),
+    distributed_tria(MPI_COMM_WORLD,
+        typename dealii::Triangulation<3>::MeshSmoothing(
+        dealii::Triangulation<3>::smoothing_on_refinement |
+        dealii::Triangulation<3>::smoothing_on_coarsening)),
+    n_group_(prm.get_integer("number of groups")),
+    is_eigen_problem_(prm.get_bool("do eigenvalue calculations")),
+    do_nda_(prm.get_bool("do nda")),
+    ho_equ_name_(prm.get("transport model")),
+    ho_discretization_(prm.get("ho spatial discretization")),
+    nda_discretization_(do_nda_?prm.get("nda spatial discretization"):""),
+    dat_ptr_(std::shared_ptr<FundamentalData<3>>(
+        new FundamentalData<3>(prm, distributed_tria))),
+    iter_cls_(prm, dat_ptr_),
+    equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
 
 template <int dim>
 BARTDriver<dim>::~BARTDriver () {}
 
 template <int dim>
 void BARTDriver<dim>::MakeGrid() {
-  dat_ptr_->mesh->MakeGrid(n_proc_==1?tria:distributed_tria);
+  dat_ptr_->mesh.MakeGrid(n_proc_==1?tria:distributed_tria);
 }
 
 template <int dim>
 void BARTDriver<dim>::InitMatVec() {
   //TODO: the following is assuming HO and LO are using the same finite elements
   //s.t. only one DoFHandler object is necessary. Fix this in future.
-  dat_ptr_->dof_handler.distribute_dofs (*(dat_ptr_->fe_data->fe[ho_equ_name_]));
+  dat_ptr_->dof_handler.distribute_dofs (*(dat_ptr_->fe_data.fe[ho_equ_name_]));
   local_owned_dofs_ = dat_ptr_->dof_handler.locally_owned_dofs ();
   dealii::DoFTools::extract_locally_relevant_dofs (dat_ptr_->dof_handler,
       local_relevant_dofs_);
@@ -50,7 +96,7 @@ void BARTDriver<dim>::InitMatVec() {
   //This has to be changed when using
   AssertThrow(ho_discretization_==nda_discretization_,
       dealii::ExcMessage("HO and NDA has to be using the same discretization for now"));
-  if (ho_discretization=="dfem")
+  if (ho_discretization_=="dfem")
     dealii::DoFTools::make_flux_sparsity_pattern (dat_ptr_->dof_handler,
         dsp, dummy_constraints_, false);
   else
@@ -62,8 +108,8 @@ void BARTDriver<dim>::InitMatVec() {
       dat_ptr_->dof_handler.n_locally_owned_dofs_per_processor (),
       MPI_COMM_WORLD, local_relevant_dofs_);
 
-  const int n_total_vars = ho_equ_name_=="diffusion"?n_group_:
-      dat_ptr_->aq->GetNTotalVars();
+  int n_total_vars = ho_equ_name_=="diffusion"?n_group_:
+      dat_ptr_->aq->GetNTotalHOVars();
 
   std::shared_ptr<MatrixVector> mv = dat_ptr_->mat_vec;
   std::unordered_map<int, dealii::PETScWrappers::MPI::SparseMatrix*> mp_mat;
@@ -118,12 +164,13 @@ void BARTDriver<dim>::InitMatVec() {
   }
 
   // TODO: fix the following part for Anisotropic scattering
-  std::unordered_set<std::string> nm = do_nda_?{ho_equ_name_,"nda"}:
-      {ho_equ_name_};
+  std::unordered_set<std::string> nm{ho_equ_name_};
+  if (do_nda_) nm.insert("nda");
   for (const auto &name : nm) {
     std::map<std::tuple<int,int,int>, dealii::Vector<double>> mp;
     for (int g=0; g<n_group_; ++g) {
-      mp[std::make_tuple(g,0,0)] = dealii::Vector(*(mv->sys_flxes[ho_equ_name_][0]));
+      mp[std::make_tuple(g,0,0)] =
+          dealii::Vector<double>(*(mv->sys_flxes[ho_equ_name_][0]));
       // set values to be 1.
       mp[std::make_tuple(g,0,0)] = 1.0;
     }
@@ -142,7 +189,7 @@ void BARTDriver<dim>::OutputResults () const {
   dealii::DataOut<dim> data_out;
   data_out.attach_dof_handler (dat_ptr_->dof_handler);
 
-  for (auto &mmts : dat_ptr_->moments) {
+  for (auto &mmts : dat_ptr_->mat_vec->moments) {
     for (int g=0; g<n_group_; ++g) {
       std::ostringstream os;
       os << mmts.first << "-phi-" << g;
@@ -161,7 +208,7 @@ void BARTDriver<dim>::OutputResults () const {
     // add keff to the output file
     dealii::Vector<float> keffs (
         n_proc_==1?tria.n_active_cells ():distributed_tria.n_active_cells());
-    const double keff = iter_ptr_->GetKeff();
+    const double keff = iter_cls_.GetKeff();
     for (int i=0; i<keffs.size(); ++i)
       keffs(i) = keff;
     data_out.add_data_vector (keffs, "keff");
@@ -188,6 +235,7 @@ void BARTDriver<dim>::OutputResults () const {
 template <int dim>
 void BARTDriver<dim>::DriveBART () {
   // produce a grid
+  std::cout << "are we here";
   MakeGrid();
   // initialize PETSc data structures
   InitMatVec();

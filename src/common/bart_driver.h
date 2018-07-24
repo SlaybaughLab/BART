@@ -1,12 +1,21 @@
 #ifndef BART_SRC_COMMON_BART_DRIVER_H_
 #define BART_SRC_COMMON_BART_DRIVER_H_
 
+#include "../iteration/iterations.h"
+#include "computing_data.h"
+
 template <int dim>
 class BARTDriver {
  public:
-  BARTDriver ();
+  BARTDriver (dealii::ParameterHandler &prm);
   ~BARTDriver ();
 
+  /*!
+   The function used to run the BART. This is the only interface expected to be
+   call from exterior.
+
+   \return Void.
+   */
   void DriveBART();
 
  private:
@@ -80,9 +89,12 @@ class BARTDriver {
    */
   dealii::ConstraintMatrix dummy_constraints_;
 
+  const int n_group_;//!< Number of groups.
   const bool is_eigen_problem_;//!< Boolean to determine if it's eigenvalue problem.
   const bool do_nda_;//!< Boolean to determine if NDA is performed.
   const std::string ho_equ_name_;//!< Name of the HO equation.
+  const std::string ho_discretization_;//!< Spatial discretization for HO.
+  const std::string nda_discretization_;//!< Spatial discretization for NDA.
   const std::string output_fname_;//!< Name base for output files.
 
   //! Pointer to FundamentalData object containing all basic data like mesh and aq.
