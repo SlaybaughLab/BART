@@ -1,19 +1,20 @@
 #include "computing_data.h"
-#include "bart_builders.h"
+#include "bart_builder.h"
 
-#include <deal.II/fe/update_flags.h>
+#include <deal.II/fe/fe_update_flags.h>
 
-XSections::XSections (std::unique_ptr<MaterialProperties> material)
+XSections::XSections (Materials& material)
     :
-    sigt(material->GetSigT()),
-    inv_sigt(material->GetInvSigT()),
-    q(material->GetQ()),
-    q_per_ster(material->GetQPerSter()),
-    nu_sigf(material->GetNuSigf()),
-    sigs(material->GetSigS()),
-    sigs_per_ster(material->GetSigSPerSter()),
-    fiss_transfer(material->GetFissTransfer()),
-    fiss_transfer_per_ster(material->GetFissTransferPerSter()) {}
+    sigt(material.GetSigT()),
+    inv_sigt(material.GetInvSigT()),
+    q(material.GetQ()),
+    q_per_ster(material.GetQPerSter()),
+    is_material_fissile(material.GetFissileIDMap()),
+    nu_sigf(material.GetNuSigf()),
+    sigs(material.GetSigS()),
+    sigs_per_ster(material.GetSigSPerSter()),
+    fiss_transfer(material.GetFissTransfer()),
+    fiss_transfer_per_ster(material.GetFissTransferPerSter()) {}
 
 template <int dim>
 FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
@@ -21,29 +22,35 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     :
     pcout(std::cout,
         (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)),
-    aq(bbuilders::BuildAQ(prm)),
-    material(bbuilders::BuildMaterial(prm)),
-    mesh(bbuilders::BuildMesh(prm)),
+    material(prm),
+    mesh(prm),
     mat_vec(std::shared_ptr<MatrixVector> (new MatrixVector())),
-    xsec(std::shared_ptr<XSections> (new XSections(material))),
+    //xsec(std::shared_ptr<XSections> (new XSections(material))),
     fe_data(prm),
-    dof_handler(tria) {}
+    dof_handler(tria) {
+  xsec = std::shared_ptr<XSections> (new XSections(material));
+  bbuilders::BuildAQ<dim>(prm, aq);
+}
 
 template <int dim>
 FundamentalData<dim>::~FundamentalData () {}
 
 template <int dim>
-FEData<dim>::FEData (const dealii::ParameterHandler &prm)
-    :
-    fe(bbuilders::BuildFESpaces(prm)) {
+FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
+  bbuilders::BuildFESpaces(prm, fe);
   const dealii::UpdateFlags update_flags =
-      update_values | update_gradients |
-      update_quadrature_points |
-      update_JxW_values;
-
+      dealii::update_values | dealii::update_gradients |
+      dealii::update_quadrature_points |
+      dealii::update_JxW_values;
   for (auto &f : fe) {
     // f.first is the equation name, f.second is the correspoding FiniteElement
     // object
+    // TODO: all fe use the same finite element for now.
+    if (f.first!="nda" && f.first!="tg_nda")
+      discretization[f.first] = prm.get("ho spatial discretization");
+    else
+      discretization[f.first] = prm.get("nda spatial discretization");
+    p_order[f.first] = prm.get_integer("finite element polynomial degree");
     q_rule[f.first] = std::shared_ptr<dealii::QGauss<dim>>(
         new dealii::QGauss<dim>(p_order[f.first]+1));
     qf_rule[f.first] = std::shared_ptr<dealii::QGauss<dim-1>>(
@@ -91,6 +98,9 @@ FEData<dim>::FEData (const dealii::ParameterHandler &prm)
   }
 }
 
+template <int dim>
+FEData<dim>::~FEData() {}
+
 template struct FundamentalData<1>;
 template struct FundamentalData<2>;
 template struct FundamentalData<3>;
@@ -98,7 +108,3 @@ template struct FundamentalData<3>;
 template struct FEData<1>;
 template struct FEData<2>;
 template struct FEData<3>;
-
-template struct IterationData<1>;
-template struct IterationData<2>;
-template struct IterationData<3>;
