@@ -51,7 +51,7 @@ public:
    \param equation_name An abbreviated name of the equation.
    \param prm ParameterHandler object
    */
-  EvenParity (const std::string &equation_name
+  EvenParity (const std::string &equation_name,
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
@@ -122,11 +122,11 @@ public:
   void IntegrateInterfaceBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       typename dealii::DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
-      unsigned int &fn,/*concerning face number in local cell*/
-      dealii::FullMatrix<double> &vi_ui,
-      dealii::FullMatrix<double> &vi_ue,
-      dealii::FullMatrix<double> &ve_ui,
-      dealii::FullMatrix<double> &ve_ue,
+      const int &fn,/*concerning face number in local cell*/
+      dealii::FullMatrix<double> &vp_up,
+      dealii::FullMatrix<double> &vp_un,
+      dealii::FullMatrix<double> &vn_up,
+      dealii::FullMatrix<double> &vn_un,
       const int &g,
       const int &dir);
 
@@ -164,6 +164,25 @@ public:
    */
   void IntegrateCellFixedLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      dealii::Vector<double> &cell_rhs,
+      const int &g,
+      const int &dir);
+
+  /*!
+   Function to override for boundary linear form from EquationBase. It essentially
+   implemented nothing
+
+   \param cell Active cell iterator containing cell info.
+   \param fn Face index in current cell for current face.
+   \param cell_rhs Local vector to be modified for boundary contribution of RHS
+   of the equation.
+   \param g Group index.
+   \param dir Direction index.
+   \return Void.
+   */
+  void IntegrateBoundaryLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      const int &fn,/*face number*/
       dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir);
