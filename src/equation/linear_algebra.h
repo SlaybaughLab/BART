@@ -1,6 +1,15 @@
 #ifndef BART_SRC_EQUATION_LINEAR_ALGEBRA_H_
 #define BART_SRC_EQUATION_LINEAR_ALGEBRA_H_
 
+#include <unordered_map>
+
+#include <deal.II/lac/petsc_solver.h>
+#include <deal.II/lac/petsc_precondition.h>
+#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
+#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/base/parameter_handler.h>
+
 //! The class provides linear solving functionalities.
 /*!
  This class is a wrapper class aiming to simplifies linear solving process. deal.II
@@ -54,8 +63,9 @@ class LinearAlgebra {
    \param sys_rhses Hash table containing pointers to system right-hand-side vectors of the
           target equation.
    */
-  void InitPrecond (std::vector<dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-      std::vector<dealii::PETScWrappers::MPI::Vector*> &sys_rhses);
+  void InitPrecond (
+      std::unordered_map<int, dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+      std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_rhses);
 
   /*!
    This function provide functionality of performing linear algebraic solve for
@@ -70,10 +80,11 @@ class LinearAlgebra {
    \return Void.
    */
   void LinAlgSolve (
-      std::vector<dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
-      std::vector<dealii::PETScWrappers::MPI::Vector*> &sys_flxes,
-      std::vector<dealii::PETScWrappers::MPI::Vector*> &sys_rhses,
-      std::vector<dealii::ConstraintMatrix*> &constraints,
+      std::unordered_map<int,
+          dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
+      std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_flxes,
+      std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_rhses,
+      std::unordered_map<int, dealii::ConstraintMatrix*> &constraints,
       const int &i);
 
 private:
