@@ -22,8 +22,8 @@ class IGBase : public IterationBase<dim> {
 
    \param prm Const ParameterHandler object.
    */
-  IGBase (const ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> dat_ptr);
+  IGBase (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Class destructor.
   virtual ~IGBase();
@@ -38,7 +38,7 @@ class IGBase : public IterationBase<dim> {
    \param g Group index.
    */
   virtual void IGIterations (
-      std::uniq_ptr<EquationBase<dim>> equ_ptr,
+      std::unique_ptr<EquationBase<dim>> &equ_ptr,
       const int &g);
 
  protected:
