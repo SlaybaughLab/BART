@@ -16,8 +16,8 @@
 template <int dim>
 class EigenBase : public IterationBase<dim> {
  public:
-  EigenBase (const ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> dat_ptr);
+  EigenBase (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
   virtual ~EigenBase ();
 
   /*!
@@ -74,7 +74,7 @@ class EigenBase : public IterationBase<dim> {
    \param sflxes_proc
    \return Void.
    */
-  void CalculateFissSrcKeff (std::unique_ptr<EquationBase<dim>> equ_ptr);
+  void EstimateFissSrcKeff (std::unique_ptr<EquationBase<dim>> &equ_ptr);
 
   /*!
    Function to calculate \f$k_\mathrm{eff}\f$.
@@ -90,6 +90,8 @@ class EigenBase : public IterationBase<dim> {
    \return The relative difference (double type).
    */
   inline double EstimateKDiff ();
+
+  std::unique_ptr<MGBase<dim>> mg_ptr_;
 
   const double err_k_tol_;//!< Tolerance for convergence check on \f$k_\mathrm{eff}\f$
   const double err_phi_tol_;//!< Tolerance for convergence check on \f$\phi\f$

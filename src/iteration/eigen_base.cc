@@ -1,10 +1,12 @@
 #include "eigen_base.h"
+#include "../common/bart_builder.h"
 
 template <int dim>
-EigenBase<dim>::EigenBase (const ParameterHandler &prm,
-    std::shared_ptr<FundamentalData<dim>> dat_ptr)
+EigenBase<dim>::EigenBase (const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
     IterationBase<dim>(prm, dat_ptr),
+    mg_ptr_(bbuilders::BuildMGItr(prm, dat_ptr)),
     err_k_tol_(1.0e-6),
     err_phi_tol_(1.0e-5) {}
 
@@ -35,7 +37,7 @@ void EigenBase<dim>::EigenIterations (
 template <int dim>
 void EigenBase<dim>::UpdatePrevSflxesFissSrcKeff (const std::string &equ_name) {
   // update scalar fluxes from previous eigen iteration
-  for (unsigned int g=0; g<this->n_group_; ++g)
+  for (int g=0; g<this->n_group_; ++g)
     this->moments_prev_[std::make_tuple(g,0,0)] = this->mat_vec_->moments[equ_name][std::make_tuple(g,0,0)];
   // update fission source from previous eigen iteration
   fiss_src_prev_ = fiss_src_;
@@ -44,12 +46,10 @@ void EigenBase<dim>::UpdatePrevSflxesFissSrcKeff (const std::string &equ_name) {
 }
 
 template <int dim>
-void EigenBase<dim>::CalculateFissSrcKeff
-(std::vector<Vector<double> > &sflxes_proc,
- std_cxx11::shared_ptr<EquationBase<dim> > equ_ptr)
-{
-  fiss_src = equ_ptr->estimate_fiss_src (sflxes_proc);
-  keff = EstimateKeff ();
+void EigenBase<dim>::EstimateFissSrcKeff (
+    std::unique_ptr<EquationBase<dim>> &equ_ptr) {
+  fiss_src_ = equ_ptr->EstimateFissSrc ();
+  keff_ = EstimateKeff ();
 }
 
 template <int dim>
