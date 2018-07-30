@@ -25,10 +25,10 @@ class GaussSeidel : public MGBase<dim> {
   /*!
    Class constructor.
 
-   \param prm const ParameterHandler object.
+   \param prm const dealii::ParameterHandler object.
    */
-  GaussSeidel (const ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> dat_ptr);
+  GaussSeidel (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Class destructor.
   ~GaussSeidel ();
@@ -42,7 +42,7 @@ class GaussSeidel : public MGBase<dim> {
    \param equ_ptrs A vector of pointers of EquationBase<dim> object.
    \return Void.
    */
-  void NonthermalSolves (std::unique_ptr<EquationBase<dim>> equ_ptr);
+  void NonthermalSolves (std::unique_ptr<EquationBase<dim>> &equ_ptr);
 
   /*!
    A function overriding MGBase<dim>::thermal_iterations. The function implements
@@ -53,7 +53,7 @@ class GaussSeidel : public MGBase<dim> {
    \param equ_ptrs A vector of pointers of EquationBase<dim> object.
    \return Void.
    */
-  void ThermalIterations (std::unique_ptr<EquationBase<dim>> equ_ptr);
+  void ThermalIterations (std::unique_ptr<EquationBase<dim>> &equ_ptr);
 };
 
 #endif //__gauss_Seidel_h__
