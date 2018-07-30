@@ -1,14 +1,17 @@
 #include "iterations.h"
+#include "../common/bart_builder.h"
 
 using namespace dealii;
 
 template <int dim>
-Iterations<dim>::Iterations (const ParameterHandler &prm)
-    :is_eigen_problem_(prm.get_bool("do eigenvalue calculations")) {
+Iterations<dim>::Iterations (const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr)
+    :
+    is_eigen_problem_(prm.get_bool("do eigenvalue calculations")) {
   if (is_eigen_problem_) {
-    eig_ptr_ = bbuilders::BuildEigenIterations (prm);
+    eig_ptr_ = bbuilders::BuildEigenItr (prm, dat_ptr);
   } else {
-    mg_ptr_ = bbuilders::BuildMGIterations (prm);
+    mg_ptr_ = bbuilders::BuildMGItr (prm, dat_ptr);
   }
 }
 
@@ -20,7 +23,7 @@ void Iterations<dim>::DoIterations (std::unordered_map<std::string,
     std::unique_ptr<EquationBase<dim>>> &equ_ptrs) {
   if (is_eigen_problem_) {
     eig_ptr_->DoIterations (equ_ptrs);
-    keff_ = eig_ptr->GetKeff ();
+    keff_ = eig_ptr_->GetKeff ();
   } else {
     mg_ptr_->DoIterations (equ_ptrs);
   }

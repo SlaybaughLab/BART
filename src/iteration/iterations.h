@@ -1,15 +1,12 @@
 #ifndef BART_SRC_ITERATION_ITERATIONS_H_
 #define BART_SRC_ITERATION_ITERATIONS_H_
 
-#include <iostream>
-#include <utility>
-#include <vector>
-
 #include "eigen_base.h"
 #include "mg_base.h"
 #include "ig_base.h"
 #include "../equation/equation_base.h"
 
+#include <utility>
 
 //! This class provide an interface between BartDriver and specific iteration schemes.
 /*!
@@ -23,9 +20,10 @@ class Iterations {
   /*!
    Class constructor.
 
-   \param prm const ParameterHandler object.
+   \param prm const dealii::ParameterHandler object.
    */
-  Iterations (const ParameterHandler &prm);
+  Iterations (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Class destructor.
   ~Iterations ();
@@ -57,6 +55,8 @@ class Iterations {
  private:
   double keff_;//!< keff living in current class.
   bool is_eigen_problem_;//!< Boolean to determine if the problem is eigenvalue problem.
+  std::unique_ptr<EigenBase<dim>> eig_ptr_;
+  std::unique_ptr<MGBase<dim>> mg_ptr_;
 };
 
 #endif	// BART_SRC_ITERATION_ITERATIONS_H_
