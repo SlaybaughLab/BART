@@ -2,12 +2,16 @@
 #define BART_SRC_EQUATION_EQUATION_BASE_H_
 
 #include "../common/computing_data.h"
+#include "linear_algebra.h"
+
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
 
 template <int dim>
 class EquationBase {
  public:
   EquationBase (
-      const std::string &equation_name
+      const std::string &equation_name,
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
   ~EquationBase ();
@@ -47,7 +51,7 @@ class EquationBase {
    \note Integrator per call only provides integration for one component of an
    equation specified by group and direction index.
    */
-  virtual void IntegrateCellBilinearForms (
+  virtual void IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
@@ -68,27 +72,8 @@ class EquationBase {
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,
       dealii::FullMatrix<double> &cell_matrix,
-      const unsigned int &g,
-      const unsigned int &dir) = 0;
-
-  /*!
-   Virtual function to provide integrator for linear form assembly on boundary.
-   Overriding has to be provided if needed per derived class of EquationBase<dim>.
-
-   \param cell Active cell iterator containing cell info.
-   \param fn Face index in current cell for current face.
-   \param cell_rhs Local vector to be modified for boundary contribution of RHS
-   of the equation.
-   \param g Group index.
-   \param dir Direction index.
-   \return Void.
-   */
-  virtual void IntegrateBoundaryLinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      const int &fn,/*face number*/
-      dealii::Vector<double> &cell_rhs,
       const int &g,
-      const int &dir);
+      const int &dir) = 0;
 
   /*!
    Virtual function for preassembling streaming and collision matrices at all
@@ -169,7 +154,7 @@ class EquationBase {
    equation specified by group and direction index.
    */
   virtual void IntegrateScatteringLinearForm (
-      typename DoFHandler<dim>::active_cell_iterator &cell,
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir) = 0;
@@ -186,11 +171,11 @@ class EquationBase {
    \return Void.
    */
   virtual void IntegrateBoundaryLinearForm (
-      typename DoFHandler<dim>::active_cell_iterator &cell,
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,/*face number*/
-      Vector<double> &cell_rhs,
+      dealii::Vector<double> &cell_rhs,
       const int &g,
-      const int &i_dir) = 0;
+      const int &dir) = 0;
 
   /*!
    Virtual function to assemble fixed source or fission source linear forms.
@@ -240,6 +225,11 @@ class EquationBase {
    */
   virtual void SolveInGroup (const int &g);
 
+  virtual void GenerateMoments (
+      std::map<std::tuple<int,int,int>, dealii::Vector<double>> &moments,
+      std::map<std::tuple<int,int,int>, dealii::Vector<double>> &moments_prev,
+      const int &g);
+
   /*!
    Estimate fission source given scalar fluxes. Given scalar fluxes for all groups
    on current processor, fission source will firstly be calculated on current
@@ -248,7 +238,15 @@ class EquationBase {
 
    \return Global fission source.
    */
-  double CalFissSrc();
+  double EstimateFissSrc();
+
+  /*!
+   Function to scale \f$\chi\nu\sigma_\mathrm{f}\f$ by \f$k_\mathrm{eff}\f$.
+
+   \param keff \f$k_\mathrm{eff}\f$ value.
+   \return Void.
+   */
+  void ScaleFissTransferMatrices(double keff);
 
   /*!
    Virtual function to retrieve component index given group and direction indices.
@@ -258,7 +256,7 @@ class EquationBase {
    \return Component index.
    \note Overriding has to be provided for non-SN systems.
    */
-  int GetCompInd (const int &g, const int &dir);
+  int GetCompInd (const int &g, const int &dir) const;
 
   /*!
    Function to retrieve direction index given component index. For
@@ -291,7 +289,7 @@ class EquationBase {
 
    \return Integer the total number of variables.
    */
-  std::string GetNTotalVars () const;
+  int GetNTotalVars () const;
 
  protected:
   const std::string equ_name_;//!< Name of current equation.
@@ -305,7 +303,6 @@ class EquationBase {
   const bool have_reflective_bc_;//!< Boolean to determine if problem has reflective BC.
 
   const int p_order_;//!< Polynomial order for current equation.
-  const int dofs_per_cell_;//!< Total number of degrees of freedom per cell.
   const int n_dir_;//!< Total number of directions if applicable.
   const int n_group_;//!< Total number of groups.
   const int n_total_vars_;//!< Total number of components in current equation.
@@ -313,7 +310,7 @@ class EquationBase {
   const std::string discretization_;//!< Discretization of current equation.
 
   //! Hash table for mapping: boundary ID->if boundary is reflective.
-  const std::unordered_map<unsigned int, bool> is_reflective_bc_;
+  const std::unordered_map<int, bool> is_reflective_bc_;
 
   //! Pointer of FEValues object.
   /*!
@@ -332,16 +329,16 @@ class EquationBase {
 
   const int n_q_;
   const int n_qf_;
-  const int dofs_per_cell_;
+  const int dofs_per_cell_;//!< Total number of degrees of freedom per cell.
 
   //! Local to global indices for all cells.
-  std::vector<types::global_dof_index> local_dof_indices_;
+  std::vector<dealii::types::global_dof_index> local_dof_indices_;
 
   /*!
    The same as local_dof_indices except this is used for neighboring cells when
    assembling DFEM interface terms.
    */
-  std::vector<types::global_dof_index> neigh_dof_indices_;
+  std::vector<dealii::types::global_dof_index> neigh_dof_indices_;
 
   //! Preassembled streaming matrices at quadrature points
   std::map<std::pair<int,int>, dealii::FullMatrix<double>>
@@ -358,13 +355,9 @@ class EquationBase {
   std::unordered_map<int, dealii::FullMatrix<double>>
       scaled_fiss_transfer_;
 
-  /*!
-   Function to scale \f$\chi\nu\sigma_\mathrm{f}\f$ by \f$k_\mathrm{eff}\f$.
-
-   \param keff \f$k_\mathrm{eff}\f$ value.
-   \return Void.
-   */
-  void ScaleFissTransferMatrices(double keff);
+  std::vector<dealii::Tensor<1, dim>> omega_;//!< All directions in Tensor<1, dim>
+  std::vector<double> w_;//!< All angular weights
+  std::map<std::pair<int, int>, int> ref_dir_ind_;
 
  private:
   /*!
