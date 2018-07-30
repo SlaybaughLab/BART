@@ -5,22 +5,22 @@ set do print angular quadrature info         = true
 set angular quadrature order                 = 8
 set number of groups                         = 1
 set do eigenvalue calculations               = true
-set do NDA                                   = false
-set have reflective BC                       = true
+set do nda                                   = false
+set have reflective boundary                 = true
 set reflective boundary names                =  xmin, ymin
 
 set uniform refinements                      = 3
 
-set HO linear solver name                    = direct
-set HO preconditioner name                   = bssor
-#set HO ssor factor                             = 1.6
+set ho linear solver name                    = direct
+set ho preconditioner name                   = bssor
+#set ho ssor factor                             = 1.6
 
 
 set x, y, z max values of boundary locations = 10.0, 10.0, 1.0
 set number of cells for x, y, z directions   = 3, 2, 2
 set number of materials                      = 2
 
-set spatial discretization                   = cfem
+set ho spatial discretization                = cfem
 
 set finite element polynomial degree         = 1
 
@@ -46,7 +46,7 @@ subsection fissile material IDs
 set fissile material ids                     = 1, 2
 end
 
-subsection one-group ksi
+subsection one-group chi
 set values                                   = 1.0, 1.0
 end
 
