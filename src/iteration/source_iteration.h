@@ -16,8 +16,8 @@ class SourceIteration : public IGBase<dim> {
 
    \param prm Const ParameterHandler object.
    */
-  SourceIteration (const ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> dat_ptr);
+  SourceIteration (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Class destructor.
   ~SourceIteration ();
@@ -29,9 +29,8 @@ class SourceIteration : public IGBase<dim> {
    \param equ_ptr A pointer to the equation of interest.
    \param g Group index.
    */
-  void IGIterations (
-   std::unique_ptr<EquationBase<dim> > equ_ptr,
-   const int &g);
+  void IGIterations ( std::unique_ptr<EquationBase<dim>> &equ_ptr,
+      const int &g);
 };
 
 #endif //BART_SRC_ITERATION_SOURCE_ITERATION_H_

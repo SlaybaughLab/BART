@@ -1,17 +1,17 @@
 #include "source_iteration.h"
 
 template <int dim>
-SourceIteration<dim>::SourceIteration (const ParameterHandler &prm,
-    std::shared_ptr<MatrixVector> mat_vec)
+SourceIteration<dim>::SourceIteration (const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
-    IGBase<dim> (prm, mat_vec) {}
+    IGBase<dim> (prm, dat_ptr) {}
 
 template <int dim>
 SourceIteration<dim>::~SourceIteration () {}
 
 template <int dim>
 void SourceIteration<dim>::IGIterations (
-    std::unique_ptr<EquationBase<dim>> equ_ptr,
+    std::unique_ptr<EquationBase<dim>> &equ_ptr,
     const int &g) {
   double err = 1.0;
   int iter = 0;
