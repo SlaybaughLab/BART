@@ -1,8 +1,8 @@
 #include "power_iteration.h"
 
 template <int dim>
-PowerIteration<dim>::PowerIteration (const ParameterHandler &prm,
-    std::shared_ptr<FundamentalData<dim>> dat_ptr)
+PowerIteration<dim>::PowerIteration (const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
     EigenBase<dim> (prm, dat_ptr) {}
 
@@ -11,7 +11,7 @@ PowerIteration<dim>::~PowerIteration () {}
 
 template <int dim>
 void PowerIteration<dim>::EigenIterations (
-    std::unique_ptr<EquationBase<dim>> equ_ptr) {
+    std::unique_ptr<EquationBase<dim>> &equ_ptr) {
   // TODO: nda requires overriding do_iterations
   const std::string equ_name = equ_ptr->GetEquName();
   double err_k = 1.0;
@@ -27,7 +27,7 @@ void PowerIteration<dim>::EigenIterations (
     // perform multigroup iterations
     this->mg_ptr_->MGIterations (equ_ptr);
     // calculate fission source and keff thereafter
-    this->CalculateFissSrcKeff (equ_ptr);
+    this->EstimateFissSrcKeff (equ_ptr);
     // calculate errors of QoI for convergence check
     err_phi = this->EstimatePhiDiff (this->mat_vec_->moments[equ_name],
         this->moments_prev_);

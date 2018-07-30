@@ -24,8 +24,8 @@ class PowerIteration : public EigenBase<dim> {
 
    \param prm ParameterHandler object.
    */
-  PowerIteration (const ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> dat_ptr);
+  PowerIteration (const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Class destructor.
   ~PowerIteration ();
