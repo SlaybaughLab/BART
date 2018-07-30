@@ -44,7 +44,7 @@ void ProblemDefinitionTest::DeclareParamsTestLocalPrm () {
   EXPECT_EQ (local_prm_.get("nda spatial discretization"), "cfem");
   EXPECT_EQ (local_prm_.get_bool("do eigenvalue calculations"), false);
   EXPECT_EQ (local_prm_.get_bool("do nda"), false);
-  EXPECT_EQ (local_prm_.get_bool("have reflective BC"), false);
+  EXPECT_EQ (local_prm_.get_bool("have reflective boundary"), false);
   EXPECT_EQ (local_prm_.get("reflective boundary names"), "xmin");
   EXPECT_EQ (local_prm_.get_integer("finite element polynomial degree"), 1);
   EXPECT_EQ (local_prm_.get_integer("uniform refinements"), 0);
@@ -76,7 +76,7 @@ void ProblemDefinitionTest::DeclareParamsTestGlobalPrm () {
   EXPECT_EQ (bparams::GlobPrm.get("nda spatial discretization"), "cfem");
   EXPECT_EQ (bparams::GlobPrm.get_bool("do eigenvalue calculations"), false);
   EXPECT_EQ (bparams::GlobPrm.get_bool("do nda"), false);
-  EXPECT_EQ (bparams::GlobPrm.get_bool("have reflective BC"), false);
+  EXPECT_EQ (bparams::GlobPrm.get_bool("have reflective boundary"), false);
   EXPECT_EQ (bparams::GlobPrm.get("reflective boundary names"), "xmin");
   EXPECT_EQ (bparams::GlobPrm.get_integer("finite element polynomial degree"), 1);
   EXPECT_EQ (bparams::GlobPrm.get_integer("uniform refinements"), 0);
