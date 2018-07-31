@@ -83,12 +83,10 @@ void Materials::ProcessMaterials (dealii::ParameterHandler &prm) {
   } else {
     prm.enter_subsection ("one-group sigma_t");
     {
-      std::cout << "are we here1" << std::endl;
       std::vector<std::string> strings =
           dealii::Utilities::split_string_list (prm.get("values"));
       AssertThrow (strings.size()>=n_material_,
           dealii::ExcMessage("One-group sigma_t should have n_material_ entries"));
-      std::cout << "are we here2" << std::endl;
 
       for (int m=0; m<n_material_; ++m) {
         std::vector<double> tmp = {std::atof (strings[m].c_str())};
@@ -96,8 +94,6 @@ void Materials::ProcessMaterials (dealii::ParameterHandler &prm) {
         sigt_[m] = tmp;
         inv_sigt_[m] = inv_tmp;
       }
-      std::cout << "are we here3" << std::endl;
-
     }
     prm.leave_subsection ();
 
@@ -109,13 +105,11 @@ void Materials::ProcessMaterials (dealii::ParameterHandler &prm) {
           dealii::ExcMessage("One-group sigma_s should have n_material_ entries"));
       for (int m=0; m<n_material_; ++m) {
         dealii::FullMatrix<double> tmp(1,1);
-        std::cout << "material" << m << std::endl;
         tmp(0,0) = std::atof(strings[m].c_str());
         sigs_[m] = tmp;
         sigs_per_ster_[m] = tmp;
         sigs_per_ster_[m] *= bconst::kInvFourPi;
       }
-      std::cout << "are we here 9" << std::endl;
     }
     prm.leave_subsection ();
 
@@ -140,7 +134,6 @@ void Materials::ProcessMaterials (dealii::ParameterHandler &prm) {
   // This block is for eigenvalue problems
   if (is_eigen_problem_)
     ProcessEigenMaterials (prm);
-  std::cout << "are we here end1" << std::endl;
 }
 
 void Materials::ProcessEigenMaterials (dealii::ParameterHandler &prm) {
@@ -165,7 +158,6 @@ void Materials::ProcessEigenMaterials (dealii::ParameterHandler &prm) {
   }
   AssertThrow (!is_material_fissile_.empty (),
       dealii::ExcMessage ("Please specify at least one valid ID for fissile materials"));
-  std::cout << "are we here 7" << std::endl;
   if (n_group_>1) {
     prm.enter_subsection ("chi, group=1 to G");
     {
@@ -210,10 +202,8 @@ void Materials::ProcessEigenMaterials (dealii::ParameterHandler &prm) {
     // the following is for one-group
     prm.enter_subsection ("one-group chi");
     {
-      std::cout << "are we here 6" << std::endl;
       std::vector<std::string> strings =
           dealii::Utilities::split_string_list (prm.get("values"));
-      std::cout << "chi size " << strings.size() << " materi " << n_material_ << std::endl;
       AssertThrow (strings.size()==n_material_,
           dealii::ExcMessage("One-group chi should have n_material_ entries"));
       std::vector<double> tmp_sigt (n_material_);
@@ -224,7 +214,6 @@ void Materials::ProcessEigenMaterials (dealii::ParameterHandler &prm) {
       }
     }
     prm.leave_subsection ();
-    std::cout << "are we here 5" << std::endl;
     prm.enter_subsection ("one-group nu_sigf");
     {
       std::vector<std::string> strings = dealii::Utilities::split_string_list (prm.get("values"));
@@ -240,7 +229,6 @@ void Materials::ProcessEigenMaterials (dealii::ParameterHandler &prm) {
     }
     prm.leave_subsection ();
   }
-  std::cout << "are we here 4" << std::endl;
   for (int m=0; m<n_material_; ++m)
   {
     dealii::FullMatrix<double> tmp (n_group_, n_group_);
@@ -253,8 +241,6 @@ void Materials::ProcessEigenMaterials (dealii::ParameterHandler &prm) {
     fiss_transfer_per_ster_[m] = tmp;
     fiss_transfer_per_ster_[m] *= bconst::kInvFourPi;
   }
-  std::cout << "are we here end" << std::endl;
-
 }
 
 std::unordered_map<int, std::vector<double>>
