@@ -21,7 +21,8 @@ BARTDriver<1>::BARTDriver (dealii::ParameterHandler &prm)
     do_nda_(prm.get_bool("do nda")),
     ho_equ_name_(prm.get("transport model")),
     ho_discretization_(prm.get("ho spatial discretization")),
-    nda_discretization_(do_nda_?prm.get("nda spatial discretization"):""),
+    nda_discretization_(do_nda_?
+        prm.get("nda spatial discretization"):ho_discretization_),
     dat_ptr_(std::shared_ptr<FundamentalData<1>>(
         new FundamentalData<1>(prm, tria))),
     iter_cls_(prm, dat_ptr_),
@@ -68,9 +69,19 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
 template <int dim>
 BARTDriver<dim>::~BARTDriver () {}
 
-template <int dim>
-void BARTDriver<dim>::MakeGrid() {
-  dat_ptr_->mesh.MakeGrid(n_proc_==1?tria:distributed_tria);
+template <>
+void BARTDriver<1>::MakeGrid() {
+  dat_ptr_->mesh.MakeGrid(tria);
+}
+
+template <>
+void BARTDriver<2>::MakeGrid() {
+  dat_ptr_->mesh.MakeGrid(distributed_tria);
+}
+
+template <>
+void BARTDriver<3>::MakeGrid() {
+  dat_ptr_->mesh.MakeGrid(distributed_tria);
 }
 
 template <int dim>
@@ -235,7 +246,6 @@ void BARTDriver<dim>::OutputResults () const {
 template <int dim>
 void BARTDriver<dim>::DriveBART () {
   // produce a grid
-  std::cout << "are we here";
   MakeGrid();
   // initialize PETSc data structures
   InitMatVec();
