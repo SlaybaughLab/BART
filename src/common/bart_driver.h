@@ -29,6 +29,13 @@ class BARTDriver {
   void MakeGrid();
 
   /*!
+   The function used to make an angular quadrature rule for SN calculations.
+
+   \return Void.
+   */
+  void MakeAQ();
+
+  /*!
    Function to initialize:
 
    (1) Global matrices (PETSc objects) for all components;

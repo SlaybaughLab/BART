@@ -41,7 +41,8 @@ BARTDriver<2>::BARTDriver (dealii::ParameterHandler &prm)
     do_nda_(prm.get_bool("do nda")),
     ho_equ_name_(prm.get("transport model")),
     ho_discretization_(prm.get("ho spatial discretization")),
-    nda_discretization_(do_nda_?prm.get("nda spatial discretization"):""),
+    nda_discretization_(do_nda_?
+        prm.get("nda spatial discretization"):ho_discretization_),
     dat_ptr_(std::shared_ptr<FundamentalData<2>>(
         new FundamentalData<2>(prm, distributed_tria))),
     iter_cls_(prm, dat_ptr_),
@@ -60,7 +61,8 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
     do_nda_(prm.get_bool("do nda")),
     ho_equ_name_(prm.get("transport model")),
     ho_discretization_(prm.get("ho spatial discretization")),
-    nda_discretization_(do_nda_?prm.get("nda spatial discretization"):""),
+    nda_discretization_(do_nda_?
+        prm.get("nda spatial discretization"):ho_discretization_),
     dat_ptr_(std::shared_ptr<FundamentalData<3>>(
         new FundamentalData<3>(prm, distributed_tria))),
     iter_cls_(prm, dat_ptr_),
@@ -81,13 +83,21 @@ void BARTDriver<2>::MakeGrid() {
 
 template <>
 void BARTDriver<3>::MakeGrid() {
+  dat_ptr_->pcout << "prepare mesh" << std::endl;
   dat_ptr_->mesh.MakeGrid(distributed_tria);
+}
+
+template <int dim>
+void BARTDriver<dim>::MakeAQ() {
+  dat_ptr_->pcout << "prepare angular quadrature" << std::endl;
+  dat_ptr_->aq->MakeAQ();
 }
 
 template <int dim>
 void BARTDriver<dim>::InitMatVec() {
   //TODO: the following is assuming HO and LO are using the same finite elements
   //s.t. only one DoFHandler object is necessary. Fix this in future.
+  dat_ptr_->pcout << "initialize matrices and vectors" << std::endl;
   dat_ptr_->dof_handler.distribute_dofs (*(dat_ptr_->fe_data.fe[ho_equ_name_]));
   local_owned_dofs_ = dat_ptr_->dof_handler.locally_owned_dofs ();
   dealii::DoFTools::extract_locally_relevant_dofs (dat_ptr_->dof_handler,
@@ -169,19 +179,17 @@ void BARTDriver<dim>::InitMatVec() {
     mp_rhs.clear ();
     mv->sys_fixed_rhses["nda"] = mp_fix;
     mp_fix.clear ();
-
-    //TODO: need to add one more equation if two-grid energy acceleration is
     //used for NDA
   }
 
   // TODO: fix the following part for Anisotropic scattering
-  std::unordered_set<std::string> nm{ho_equ_name_};
+  std::unordered_set<std::string> nm {ho_equ_name_};
   if (do_nda_) nm.insert("nda");
   for (const auto &name : nm) {
     std::map<std::tuple<int,int,int>, dealii::Vector<double>> mp;
     for (int g=0; g<n_group_; ++g) {
-      mp[std::make_tuple(g,0,0)] =
-          dealii::Vector<double>(*(mv->sys_flxes[ho_equ_name_][0]));
+      mp[std::make_tuple(g,0,0)] = dealii::Vector<double>(
+          *(mv->sys_flxes[ho_equ_name_][0]));
       // set values to be 1.
       mp[std::make_tuple(g,0,0)] = 1.0;
     }
@@ -191,6 +199,7 @@ void BARTDriver<dim>::InitMatVec() {
 
 template <int dim>
 void BARTDriver<dim>::DoIterations() {
+  dat_ptr_->pcout << "start iterating" << std::endl;
   iter_cls_.DoIterations(equ_ptrs_);
 }
 
@@ -245,6 +254,8 @@ void BARTDriver<dim>::OutputResults () const {
 
 template <int dim>
 void BARTDriver<dim>::DriveBART () {
+  // prepare angular quadrature
+  MakeAQ();
   // produce a grid
   MakeGrid();
   // initialize PETSc data structures
