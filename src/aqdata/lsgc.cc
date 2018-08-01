@@ -4,8 +4,8 @@
 
 template <int dim>
 LSGC<dim>::LSGC (const dealii::ParameterHandler &prm)
-:
-AQBase<dim> (prm) {}
+    :
+    AQBase<dim> (prm) {}
 
 template <int dim>
 LSGC<dim>::~LSGC () {}
