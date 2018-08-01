@@ -23,6 +23,7 @@ BARTDriver<1>::BARTDriver (dealii::ParameterHandler &prm)
     ho_discretization_(prm.get("ho spatial discretization")),
     nda_discretization_(do_nda_?
         prm.get("nda spatial discretization"):ho_discretization_),
+    output_fname_(prm.get("output file name base")),
     dat_ptr_(std::shared_ptr<FundamentalData<1>>(
         new FundamentalData<1>(prm, tria))),
     iter_cls_(prm, dat_ptr_),
@@ -43,6 +44,7 @@ BARTDriver<2>::BARTDriver (dealii::ParameterHandler &prm)
     ho_discretization_(prm.get("ho spatial discretization")),
     nda_discretization_(do_nda_?
         prm.get("nda spatial discretization"):ho_discretization_),
+    output_fname_(prm.get("output file name base")),
     dat_ptr_(std::shared_ptr<FundamentalData<2>>(
         new FundamentalData<2>(prm, distributed_tria))),
     iter_cls_(prm, dat_ptr_),
@@ -63,6 +65,7 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
     ho_discretization_(prm.get("ho spatial discretization")),
     nda_discretization_(do_nda_?
         prm.get("nda spatial discretization"):ho_discretization_),
+    output_fname_(prm.get("output file name base")),
     dat_ptr_(std::shared_ptr<FundamentalData<3>>(
         new FundamentalData<3>(prm, distributed_tria))),
     iter_cls_(prm, dat_ptr_),
@@ -93,7 +96,6 @@ void BARTDriver<dim>::InitMatVec() {
   //s.t. only one DoFHandler object is necessary. Fix this in future.
   dat_ptr_->pcout << "initialize matrices and vectors" << std::endl;
   dat_ptr_->dof_handler.distribute_dofs (*(dat_ptr_->fe_data.fe[ho_equ_name_]));
-  std::cout << dat_ptr_->dof_handler.get_fe().dofs_per_cell << " dof size" << std::endl;
   local_owned_dofs_ = dat_ptr_->dof_handler.locally_owned_dofs ();
   dealii::DoFTools::extract_locally_relevant_dofs (dat_ptr_->dof_handler,
       local_relevant_dofs_);
@@ -190,6 +192,13 @@ void BARTDriver<dim>::InitMatVec() {
     }
     mv->moments[name] = mp;
   }
+
+  // initialize local dof accessors
+  for (typename dealii::DoFHandler<dim>::active_cell_iterator
+       cell=dat_ptr_->dof_handler.begin_active();
+       cell!=dat_ptr_->dof_handler.end(); ++cell)
+    if (cell->is_locally_owned())
+      dat_ptr_->local_cells.push_back (cell);
 }
 
 template <int dim>
@@ -198,36 +207,126 @@ void BARTDriver<dim>::DoIterations() {
   iter_cls_.DoIterations(equ_ptrs_);
 }
 
-template <int dim>
-void BARTDriver<dim>::OutputResults () const {
+template <>
+void BARTDriver<1>::OutputResults () const {
   dat_ptr_->pcout << "output results" << std::endl;
-  dealii::DataOut<dim> data_out;
+  dealii::DataOut<1> data_out;
   data_out.attach_dof_handler (dat_ptr_->dof_handler);
 
   for (auto &mmts : dat_ptr_->mat_vec->moments) {
     for (int g=0; g<n_group_; ++g) {
       std::ostringstream os;
-      os << mmts.first << "-phi-" << g;
+      os << mmts.first << "_phi_" << g;
       data_out.add_data_vector (mmts.second[std::make_tuple(g,0,0)], os.str ());
     }
   }
-
-  dealii::Vector<float> subdomain (
-      n_proc_==1?tria.n_active_cells ():distributed_tria.n_active_cells());
-  const int proc_id = n_proc_==1?0:distributed_tria.locally_owned_subdomain ();
+  dealii::Vector<float> subdomain (tria.n_active_cells ());
   for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = proc_id;
+    subdomain(i) = 0;
   data_out.add_data_vector (subdomain, "subdomain");
 
   if (is_eigen_problem_) {
     // add keff to the output file
-    dealii::Vector<float> keffs (
-        n_proc_==1?tria.n_active_cells ():distributed_tria.n_active_cells());
+    dealii::Vector<float> keffs (tria.n_active_cells ());
     const double keff = iter_cls_.GetKeff();
     for (int i=0; i<keffs.size(); ++i)
       keffs(i) = keff;
     data_out.add_data_vector (keffs, "keff");
   }
+
+  data_out.build_patches ();
+
+  const std::string local_fname = output_fname_ +
+      "-" + dealii::Utilities::int_to_string(0, 4);
+  std::ofstream output ((local_fname + ".vtu").c_str ());
+  data_out.write_vtu (output);
+
+  std::vector<std::string> filenames;
+  for (int i=0; i<n_proc_; ++i)
+    filenames.push_back (local_fname);
+  std::ostringstream os;
+  os << output_fname_ << ".pvtu";
+  std::ofstream master_output ((os.str()).c_str ());
+  data_out.write_pvtu_record (master_output, filenames);
+}
+
+template <>
+void BARTDriver<2>::OutputResults () const {
+  dat_ptr_->pcout << "output results" << std::endl;
+  dealii::DataOut<2> data_out;
+  data_out.attach_dof_handler (dat_ptr_->dof_handler);
+
+  for (auto &mmts : dat_ptr_->mat_vec->moments) {
+    for (int g=0; g<n_group_; ++g) {
+      std::ostringstream os;
+      os << mmts.first << "_phi_" << g;
+      data_out.add_data_vector (mmts.second[std::make_tuple(g,0,0)], os.str ());
+    }
+  }
+  dealii::Vector<float> subdomain (distributed_tria.n_active_cells());
+  const int proc_id = distributed_tria.locally_owned_subdomain ();
+  for (int i=0; i<subdomain.size(); ++i)
+    subdomain(i) = proc_id;
+  data_out.add_data_vector (subdomain, "subdomain");
+  dat_ptr_->pcout << "here112" << std::endl;
+
+  //if (is_eigen_problem_)
+  //{
+    // add keff to the output file
+    dealii::Vector<float> keffs (distributed_tria.n_active_cells());
+    double keff = is_eigen_problem_?iter_cls_.GetKeff():0.0;
+    for (int i=0; i<keffs.size(); ++i)
+      keffs(i) = keff;
+    data_out.add_data_vector (keffs, "keff");
+  //}
+  dat_ptr_->pcout << "here1" << std::endl;
+  data_out.build_patches ();
+
+
+  const std::string local_fname = output_fname_ +
+      "-" + dealii::Utilities::int_to_string(proc_id, 4);
+  std::ofstream output ((local_fname + ".vtu").c_str ());
+  data_out.write_vtu (output);
+  dat_ptr_->pcout << "here11" << std::endl;
+
+  if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0) {
+    std::vector<std::string> filenames;
+    for (int i=0; i<n_proc_; ++i)
+      filenames.push_back (output_fname_ +
+          "-" + dealii::Utilities::int_to_string(i, 4) + ".vtu");
+    std::ostringstream os;
+    os << output_fname_ << ".pvtu";
+    std::ofstream master_output ((os.str()).c_str ());
+    dat_ptr_->pcout << "here12" << std::endl;
+
+    data_out.write_pvtu_record (master_output, filenames);
+  }
+}
+
+template <>
+void BARTDriver<3>::OutputResults () const {
+  dat_ptr_->pcout << "output results" << std::endl;
+  dealii::DataOut<3> data_out;
+  data_out.attach_dof_handler (dat_ptr_->dof_handler);
+
+  for (auto &mmts : dat_ptr_->mat_vec->moments) {
+    for (int g=0; g<n_group_; ++g) {
+      std::ostringstream os;
+      os << mmts.first << "_phi_" << g;
+      data_out.add_data_vector (mmts.second[std::make_tuple(g,0,0)], os.str ());
+    }
+  }
+  dealii::Vector<float> subdomain (distributed_tria.n_active_cells());
+  const int proc_id = distributed_tria.locally_owned_subdomain ();
+  for (int i=0; i<subdomain.size(); ++i)
+    subdomain(i) = proc_id;
+  data_out.add_data_vector (subdomain, "subdomain");
+
+  dealii::Vector<float> keffs (distributed_tria.n_active_cells());
+  double keff = is_eigen_problem_ ? iter_cls_.GetKeff() : 0.0;
+  for (int i=0; i<keffs.size(); ++i)
+  keffs(i) = keff;
+  data_out.add_data_vector (keffs, "keff");
 
   data_out.build_patches ();
 
@@ -239,10 +338,13 @@ void BARTDriver<dim>::OutputResults () const {
   if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0) {
     std::vector<std::string> filenames;
     for (int i=0; i<n_proc_; ++i)
-      filenames.push_back (local_fname);
+      filenames.push_back (output_fname_ +
+          "-" + dealii::Utilities::int_to_string(i, 4) + ".vtu");
     std::ostringstream os;
     os << output_fname_ << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
+    dat_ptr_->pcout << "here12" << std::endl;
+
     data_out.write_pvtu_record (master_output, filenames);
   }
 }
