@@ -141,6 +141,8 @@ struct FundamentalData {
   //! Pointer to finite element related objects of deal::FEValues<dim> etc
   FEData<dim> fe_data;
 
+  std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> local_cells;
+
   //! DoFHandler object
   dealii::DoFHandler<dim> dof_handler;
 };

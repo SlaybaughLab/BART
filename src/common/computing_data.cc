@@ -43,6 +43,11 @@ FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
       dealii::update_values | dealii::update_gradients |
       dealii::update_quadrature_points |
       dealii::update_JxW_values;
+  const dealii::UpdateFlags update_face_flags = dealii::update_normal_vectors |
+      dealii::update_values | dealii::update_gradients |
+      dealii::update_quadrature_points |
+      dealii::update_JxW_values;
+
   for (auto &f : fe) {
     // f.first is the equation name, f.second is the correspoding FiniteElement
     // object
@@ -62,11 +67,11 @@ FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
 
     fvf[f.first] = std::shared_ptr<dealii::FEFaceValues<dim>> (
         new dealii::FEFaceValues<dim>(
-            *f.second, *qf_rule[f.first], update_flags));
+            *f.second, *qf_rule[f.first], update_face_flags));
 
     fvf_nei[f.first] = std::shared_ptr<dealii::FEFaceValues<dim>> (
         new dealii::FEFaceValues<dim>(
-            *f.second, *qf_rule[f.first], update_flags));
+            *f.second, *qf_rule[f.first], update_face_flags));
 
     dofs_per_cell[f.first] = fe[f.first]->dofs_per_cell;
     n_q[f.first] = q_rule[f.first]->size();
@@ -83,15 +88,15 @@ FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
           new dealii::QGauss<dim-1>(p_order[f.first]+3));
 
       fv["corr"] = std::shared_ptr<dealii::FEValues<dim>> (
-          new dealii::FEValues<dim> (*f.second, *q_rule["corr"], update_flags));
+          new dealii::FEValues<dim> (*f.second, *q_rule["corr"], update_face_flags));
 
       fvf["corr"] = std::shared_ptr<dealii::FEFaceValues<dim>> (
           new dealii::FEFaceValues<dim>(
-              *f.second, *qf_rule["corr"], update_flags));
+              *f.second, *qf_rule["corr"], update_face_flags));
 
       fvf_nei["corr"] = std::shared_ptr<dealii::FEFaceValues<dim>> (
           new dealii::FEFaceValues<dim>(
-              *f.second, *qf_rule["corr"], update_flags));
+              *f.second, *qf_rule["corr"], update_face_flags));
 
       n_q["corr"] = q_rule["corr"]->size();
       n_qf["corr"] = qf_rule["corr"]->size();
