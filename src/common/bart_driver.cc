@@ -88,17 +88,12 @@ void BARTDriver<3>::MakeGrid() {
 }
 
 template <int dim>
-void BARTDriver<dim>::MakeAQ() {
-  dat_ptr_->pcout << "prepare angular quadrature" << std::endl;
-  dat_ptr_->aq->MakeAQ();
-}
-
-template <int dim>
 void BARTDriver<dim>::InitMatVec() {
   //TODO: the following is assuming HO and LO are using the same finite elements
   //s.t. only one DoFHandler object is necessary. Fix this in future.
   dat_ptr_->pcout << "initialize matrices and vectors" << std::endl;
   dat_ptr_->dof_handler.distribute_dofs (*(dat_ptr_->fe_data.fe[ho_equ_name_]));
+  std::cout << dat_ptr_->dof_handler.get_fe().dofs_per_cell << " dof size" << std::endl;
   local_owned_dofs_ = dat_ptr_->dof_handler.locally_owned_dofs ();
   dealii::DoFTools::extract_locally_relevant_dofs (dat_ptr_->dof_handler,
       local_relevant_dofs_);
@@ -254,8 +249,6 @@ void BARTDriver<dim>::OutputResults () const {
 
 template <int dim>
 void BARTDriver<dim>::DriveBART () {
-  // prepare angular quadrature
-  MakeAQ();
   // produce a grid
   MakeGrid();
   // initialize PETSc data structures

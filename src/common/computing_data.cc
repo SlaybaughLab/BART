@@ -30,6 +30,7 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     dof_handler(tria) {
   xsec = std::shared_ptr<XSections> (new XSections(material));
   bbuilders::BuildAQ<dim>(prm, aq);
+  aq->MakeAQ();
 }
 
 template <int dim>
