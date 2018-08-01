@@ -89,7 +89,7 @@ class EigenBase : public IterationBase<dim> {
 
    \return The relative difference (double type).
    */
-  inline double EstimateKDiff ();
+  double EstimateKDiff ();
 
   std::unique_ptr<MGBase<dim>> mg_ptr_;
 
