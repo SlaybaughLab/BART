@@ -33,8 +33,11 @@ void PowerIteration<dim>::EigenIterations (
         this->moments_prev_);
     err_k = this->EstimateKDiff ();
     // print on screen about the errors
-    //this->pcout << std::endl << std::endl << "PI iter: " << iter++
-    //<< ", err_k: " << err_k << ", err_phi: " << err_phi << std::endl << std::endl;
+    this->dat_ptr_->pcout << std::endl << std::endl << "PI iter: " << iter++
+        << ", keff: " << this->keff_
+        <<  ", err_k: " << err_k
+        << ", err_phi: " << err_phi
+        << std::endl << std::endl;
   }
 }
 
