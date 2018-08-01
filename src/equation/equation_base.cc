@@ -26,6 +26,10 @@ EquationBase<dim>::EquationBase (
     n_q_(dat_ptr_->fe_data.n_q[equ_name_]),
     n_qf_(dat_ptr_->fe_data.n_qf[equ_name_]),
     dofs_per_cell_(dat_ptr_->fe_data.dofs_per_cell[equ_name_]),
+    local_dof_indices_(
+        std::vector<dealii::types::global_dof_index>(dofs_per_cell_)),
+    neigh_dof_indices_(
+        std::vector<dealii::types::global_dof_index>(dofs_per_cell_)),
     lin_alg_(prm, equ_name_, n_total_vars_) {
   ProcessInput();
 }
@@ -73,7 +77,6 @@ template <int dim>
 void EquationBase<dim>::AssembleVolumeBoundaryBilinearForms () {
   // do the preassembling
   PreassembleCellMatrices();
-
   dealii::FullMatrix<double> local_mat(dofs_per_cell_, dofs_per_cell_);
 
   for (int k=0; k<n_total_vars_; ++k) {
@@ -83,16 +86,13 @@ void EquationBase<dim>::AssembleVolumeBoundaryBilinearForms () {
     dat_ptr_->pcout
         << "Assemble volume and boundary bilinear forms for Direction " << dir
         << " in Group " << g << std::endl;
-    for (typename dealii::DoFHandler<dim>::active_cell_iterator
-         cell=dat_ptr_->dof_handler.begin_active();
-         cell!=dat_ptr_->dof_handler.end(); ++cell) {
+    for (int ic=0; ic<dat_ptr_->local_cells.size(); ++ic) {
+      auto cell = dat_ptr_->local_cells[ic];
       fv_->reinit(cell);
       cell->get_dof_indices(local_dof_indices_);
       local_mat = 0.0;
-
       // integrate cell bilinear form
       IntegrateCellBilinearForm(cell, local_mat, g, dir);
-
       for (int fn=0; fn<dealii::GeometryInfo<dim>::faces_per_cell; ++fn)
         // if cell has face at boundary, do integration
         if (cell->at_boundary(fn)) {
@@ -126,9 +126,8 @@ void EquationBase<dim>::AssembleInterfaceBilinearForms () {
     else
       dat_ptr_->pcout << "Assemble interface bilinear form for " << equ_name_
           << " in Group " << g << ", Direction " << dir << std::endl;
-    for (typename dealii::DoFHandler<dim>::active_cell_iterator
-         cell=dat_ptr_->dof_handler.begin_active();
-         cell!=dat_ptr_->dof_handler.end(); ++cell) {
+    for (int ic=0; ic<dat_ptr_->local_cells.size(); ++ic) {
+      auto cell = dat_ptr_->local_cells[ic];
       cell->get_dof_indices (local_dof_indices_);
       for (int fn=0; fn<dealii::GeometryInfo<dim>::faces_per_cell; ++fn)
         if (!cell->at_boundary(fn) &&
@@ -213,9 +212,8 @@ void EquationBase<dim>::AssembleFixedLinearForms() {
     *(mat_vec_->sys_fixed_rhses[equ_name_][k]) = 0.0;
     dealii::Vector<double> cell_rhs (dofs_per_cell_);
 
-    for (typename dealii::DoFHandler<dim>::active_cell_iterator
-         cell=dat_ptr_->dof_handler.begin_active();
-         cell!=dat_ptr_->dof_handler.end(); ++cell) {
+    for (int ic=0; ic<dat_ptr_->local_cells.size(); ++ic) {
+      auto cell = dat_ptr_->local_cells[ic];
       cell_rhs = 0.0;
       cell->get_dof_indices (local_dof_indices_);
       fv_->reinit (cell);
@@ -248,9 +246,8 @@ void EquationBase<dim>::AssembleLinearForms (const int &g) {
           *(mat_vec_->sys_fixed_rhses[equ_name_][k]);
 
       // cellwise integration
-      for (typename dealii::DoFHandler<dim>::active_cell_iterator
-           cell=dat_ptr_->dof_handler.begin_active();
-           cell!=dat_ptr_->dof_handler.end(); ++cell) {
+      for (int ic=0; ic<dat_ptr_->local_cells.size(); ++ic) {
+        auto cell = dat_ptr_->local_cells[ic];
         cell_rhs = 0.0;
         cell->get_dof_indices (local_dof_indices_);
         fv_->reinit (cell);
@@ -343,9 +340,8 @@ double EquationBase<dim>::EstimateFissSrc () {
   double fiss_src = 0.0;
   for (int g=0; g<n_group_; ++g) {
     // first, estimate local fission source
-    for (typename dealii::DoFHandler<dim>::active_cell_iterator
-         cell=dat_ptr_->dof_handler.begin_active();
-         cell!=dat_ptr_->dof_handler.end(); ++cell) {
+    for (int ic=0; ic<dat_ptr_->local_cells.size(); ++ic) {
+      auto cell = dat_ptr_->local_cells[ic];
       std::vector<std::vector<double>> local_phis (n_group_,
           std::vector<double> (n_q_));
       // do integration in fissile materials

@@ -345,7 +345,7 @@ class EquationBase {
       pre_streaming_;
 
   //! Preassembled collision matrices at quadrature points
-  std::vector<dealii::FullMatrix<double>> pre_collision_;
+  std::unordered_map<int, dealii::FullMatrix<double>> pre_collision_;
 
   //! Hash table containing fission transfer matrix.
   /*!
