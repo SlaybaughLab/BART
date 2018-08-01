@@ -23,7 +23,8 @@ EvenParity<dim>::~EvenParity () {}
 
 template <int dim>
 void EvenParity<dim>::PreassembleCellMatrices () {
-  this->fv_->reinit (this->dat_ptr_->dof_handler.begin_active());
+  auto cell = this->dat_ptr_->local_cells[0];
+  this->fv_->reinit (cell);
 
   for (int qi=0; qi<this->n_q_; ++qi) {
     this->pre_collision_[qi] =
