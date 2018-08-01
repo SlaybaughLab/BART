@@ -6,8 +6,8 @@ set angular quadrature order                 = 8
 set number of groups                         = 1
 set do eigenvalue calculations               = true
 set do nda                                   = false
-set have reflective boundary                 = true
-set reflective boundary names                =  xmin, ymin
+set have reflective boundary                 = false
+#set reflective boundary names                =  xmax, ymax, xmin, ymin
 
 set uniform refinements                      = 3
 
