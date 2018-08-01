@@ -84,6 +84,7 @@ class IterationBase {
 
   //! moments from previou iteration
   std::map<std::tuple<int,int,int>, dealii::Vector<double>> moments_prev_;
+  std::shared_ptr<FundamentalData<dim>> dat_ptr_;
   std::shared_ptr<MatrixVector> mat_vec_;//!< Pointer to MatrixVector object
 };
 

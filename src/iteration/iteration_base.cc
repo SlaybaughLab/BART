@@ -4,6 +4,7 @@ template <int dim>
 IterationBase<dim>::IterationBase (const dealii::ParameterHandler &prm,
     std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
+    dat_ptr_(dat_ptr),
     mat_vec_(dat_ptr->mat_vec),
     n_group_(prm.get_integer("number of groups")),
     is_eigen_problem_(prm.get_bool("do eigenvalue calculations")),
