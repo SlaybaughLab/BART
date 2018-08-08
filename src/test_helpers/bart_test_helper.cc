@@ -1,5 +1,7 @@
 #include "bart_test_helper.h"
 
+#include "gtest/gtest.h"
+
 namespace btest {
 
 BARTTestHelper::BARTTestHelper()
@@ -29,11 +31,11 @@ bool BARTTestHelper::GoldTest(std::string filename) const {
   auto actual_file_stream = std::make_unique<std::ifstream>(filename);
   auto gold_file_stream =
       std::make_unique<std::ifstream>(gold_files_directory_ + filename + ".gold");
-  
+
   GoldStreamEvaluator evaluator(std::move(gold_file_stream),
                                 std::move(actual_file_stream));
   bool result = evaluator.RunGoldTest();
-  
+
   // Make diff if required and possible
   if (!result && evaluator.ActualGood() && evaluator.GoldGood())
     MakeDiff(filename, evaluator.GetDiff());
@@ -49,7 +51,7 @@ bool BARTTestHelper::GoldTest(std::string filename) const {
   //Close streams and clean up files
   evaluator.CloseStreams();
   CleanupGold(filename, result, evaluator.ActualGood());
-  
+
   return result;
 
 }
@@ -131,6 +133,23 @@ void GoldTestRun(std::string filename) {
   GlobalBARTTestHelper().CloseLog();
   ASSERT_TRUE(GlobalBARTTestHelper().GoldTest(filename)) <<
       GlobalBARTTestHelper().GetFailMessage();
+}
+
+BARTParallelEnvironment::BARTParallelEnvironment()
+    : ::testing::Test() {}
+
+BARTParallelEnvironment::~BARTParallelEnvironment() {}
+
+void BARTParallelEnvironment::TearDown() {
+  int err = MPI_Finalize();
+  ASSERT_FALSE(err);
+}
+
+void BARTParallelEnvironment::MPIInit() {
+  char** argv;
+  int argc = 0;
+  int err = MPI_Init (&argc, &argv);
+  ASSERT_FALSE(err);
 }
 
 } // namespace btest
