@@ -140,9 +140,13 @@ BARTParallelEnvironment::BARTParallelEnvironment()
 
 BARTParallelEnvironment::~BARTParallelEnvironment() {}
 
-void BARTParallelEnvironment::TearDown() {
+void BARTParallelEnvironment::MPIFinalize() {
   int err = MPI_Finalize();
   ASSERT_FALSE(err);
+}
+
+void BARTParallelEnvironment::TearDown() {
+  MPIFinalize();
 }
 
 void BARTParallelEnvironment::MPIInit() {
@@ -151,5 +155,4 @@ void BARTParallelEnvironment::MPIInit() {
   int err = MPI_Init (&argc, &argv);
   ASSERT_FALSE(err);
 }
-
 } // namespace btest

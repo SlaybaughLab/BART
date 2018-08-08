@@ -137,6 +137,7 @@ class BARTParallelEnvironment : public ::testing::Test {
   virtual void TearDown();
  protected:
   void MPIInit();
+  void MPIFinalize();
 };
 } // namespace btest
 
