@@ -134,8 +134,7 @@ class BARTParallelEnvironment : public ::testing::Test {
   BARTParallelEnvironment();
   virtual ~BARTParallelEnvironment();
 
-  void TearDown();
-
+  virtual void TearDown();
  protected:
   void MPIInit();
 };
