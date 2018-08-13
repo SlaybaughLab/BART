@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
-#define BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
+#ifndef BART_SRC_MATERIAL_MATERIALS_H_
+#define BART_SRC_MATERIAL_MATERIALS_H_
 
 #include <string>
 #include <unordered_map>
@@ -18,15 +18,15 @@
  to std::vector<Vector<double> > for scattering matrix eigenvalue decomposition.
  \todo Add functionality to perform eigenvalue decomposition.
  */
-class MaterialProperties {
+class Materials {
  public:
   /*!
    Class constructor.
    */
-  MaterialProperties (dealii::ParameterHandler &prm);
+  Materials (dealii::ParameterHandler &prm);
 
   //! Class destructor.
-  ~MaterialProperties ();
+  ~Materials ();
 
   /*!
    A function to retrieve mapping: material id->if material is fissile boolean.
@@ -57,27 +57,27 @@ class MaterialProperties {
   std::unordered_map<int, dealii::FullMatrix<double>> GetSigSPerSter () const;
 
   //! A function to retrieve all \f$\chi\nu\sigma_\mathrm{f}\f$.
-  std::unordered_map<int, dealii::FullMatrix<double>> GetChiNuSigF () const;
+  std::unordered_map<int, dealii::FullMatrix<double>> GetFissTransfer () const;
 
   //! A function to retrieve all \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$.
-  std::unordered_map<int, dealii::FullMatrix<double>> GetChiNuSigFPerSter () const;
+  std::unordered_map<int, dealii::FullMatrix<double>> GetFissTransferPerSter () const;
 
  private:
   /*!
    Function to process all material properties. For eigenvalue problems, it will
-   call this->process_eigen_material_properties to process fission-related
+   call this->process_eigen_MATERIALS to process fission-related
    properties.
 
    \param prm ParameterHandler object.
    \return Void.
    */
-  void ProcessMaterialProperties (dealii::ParameterHandler &prm);
+  void ProcessMaterials (dealii::ParameterHandler &prm);
 
   /*!
    Function to process eigenvalue problem specific material properties such as
 
    */
-  void ProcessEigenMaterialProperties (dealii::ParameterHandler &prm);
+  void ProcessEigenMaterials (dealii::ParameterHandler &prm);
 
   bool is_eigen_problem_;//!< Boolean to determine if it's eigenvalue problem.
   bool do_nda_;//!< Boolean to determine if NDA is used.
@@ -90,10 +90,10 @@ class MaterialProperties {
   std::unordered_set<int> fissile_ids_;//!< Set of fissile material IDs.
 
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
-  std::unordered_map<int, std::vector<double>> all_sigt_;
+  std::unordered_map<int, std::vector<double>> sigt_;
 
   //! \f$1/\sigma_\mathrm{t}\f$ of all groups for all materials
-  std::unordered_map<int, std::vector<double>> all_inv_sigt_;
+  std::unordered_map<int, std::vector<double>> inv_sigt_;
 
   /*!
    \f$\chi\f$ for all materials. A mistake when designing this is that it was
@@ -101,32 +101,32 @@ class MaterialProperties {
 
    \todo Change this to std::vector<double> chi, or using Hash table.
    */
-  std::unordered_map<int, std::vector<double>> all_chi_;
+  std::unordered_map<int, std::vector<double>> chi_;
 
   //! \f$\nu\sigma_\mathrm{f}\f$ of all groups for all materials.
-  std::unordered_map<int, std::vector<double>> all_nusigf_;
+  std::unordered_map<int, std::vector<double>> nu_sigf_;
 
   //! Fixed source value \f$Q\f$'s of all groups for all materials.
-  std::unordered_map<int, std::vector<double>> all_q_;
+  std::unordered_map<int, std::vector<double>> q_;
 
   //! Fixed source value \f$Q/(4\pi)\f$'s of all groups for all materials.
-  std::unordered_map<int, std::vector<double>> all_q_per_ster_;
+  std::unordered_map<int, std::vector<double>> q_per_ster_;
 
   //! Scattering transfer matrices for all materials.
-  std::unordered_map<int, dealii::FullMatrix<double>> all_sigs_;
+  std::unordered_map<int, dealii::FullMatrix<double>> sigs_;
 
   //! Scattering transfer matrices scaled by \f$4\pi\f$
-  std::unordered_map<int, dealii::FullMatrix<double>> all_sigs_per_ster_;
+  std::unordered_map<int, dealii::FullMatrix<double>> sigs_per_ster_;
 
   //! \f$\chi\nu\sigma_\mathrm{f}\f$ for all materials.
   /*!
    It is pre-computed and transformed into a form of transfer matrix for saving
    computations.
    */
-  std::unordered_map<int, dealii::FullMatrix<double>> all_chi_nusigf_;
+  std::unordered_map<int, dealii::FullMatrix<double>> fiss_transfer_;
 
   //! \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for all materials.
-  std::unordered_map<int, dealii::FullMatrix<double>> all_chi_nusigf_per_ster_;
+  std::unordered_map<int, dealii::FullMatrix<double>> fiss_transfer_per_ster_;
 };
 
-#endif //BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
+#endif //BART_SRC_MATERIAL_MATERIALS_H_

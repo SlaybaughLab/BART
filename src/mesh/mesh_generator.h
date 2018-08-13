@@ -222,7 +222,7 @@ class MeshGenerator {
 
   std::vector<double> axis_max_values_;//!< Max values per axis in the mesh.
   std::vector<double> cell_size_all_dir_;//!< Cell length per direction on the coarse mesh.
-  std::vector<unsigned int> ncell_per_dir_;//!< Initial number of cells per axis on the coarse mesh.
+  std::vector<int> ncell_per_dir_;//!< Initial number of cells per axis on the coarse mesh.
 };
 
 #endif //BART_SRC_MESH_MESH_GENERATOR_H_

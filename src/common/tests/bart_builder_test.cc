@@ -32,7 +32,7 @@ void BARTBuilderTest::SetUp () {
 }
 
 void BARTBuilderTest::SetUpAQBuilderTest () {
-  prm.declare_entry("have reflective BC", "false",
+  prm.declare_entry("have reflective boundary", "false",
                     dealii::Patterns::Bool(), "");
   prm.declare_entry("angular quadrature order", "4",
                     dealii::Patterns::Integer(), "");
@@ -48,6 +48,8 @@ void BARTBuilderTest::SetUpFEBuilderTest () {
                     dealii::Patterns::Integer(), "");
   prm.declare_entry("do nda", "true",
                     dealii::Patterns::Bool(), "");
+  prm.declare_entry("transport model", "dummy",
+                    dealii::Patterns::Anything(), "");
   prm.declare_entry("ho spatial discretization", "",
                     dealii::Patterns::Anything(), "");
   prm.declare_entry("nda spatial discretization", "",
@@ -59,13 +61,13 @@ void BARTBuilderTest::FEBuilderTest () {
   // set values to parameters
   prm.set ("ho spatial discretization", "cfem");
   prm.set ("nda spatial discretization", "cfem");
-  std::vector<dealii::FiniteElement<dim, dim>*> fe_ptrs;
+  std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*> fe_ptrs;
   bbuilders::BuildFESpaces (prm, fe_ptrs);
 
   // testing for FE names
-  EXPECT_EQ (fe_ptrs.front()->get_name(),
+  EXPECT_EQ (fe_ptrs["dummy"]->get_name(),
       "FE_Q<"+dealii::Utilities::int_to_string(dim)+">(1)");
-  EXPECT_EQ (fe_ptrs.back()->get_name(),
+  EXPECT_EQ (fe_ptrs["nda"]->get_name(),
       "FE_Q<"+dealii::Utilities::int_to_string(dim)+">(1)");
 
   // changing FE types
@@ -73,23 +75,23 @@ void BARTBuilderTest::FEBuilderTest () {
   prm.set ("nda spatial discretization", "dfem");
   fe_ptrs.clear ();
   bbuilders::BuildFESpaces (prm, fe_ptrs);
-  EXPECT_EQ (fe_ptrs.front()->get_name(),
+  EXPECT_EQ (fe_ptrs["dummy"]->get_name(),
       "FE_DGQ<"+dealii::Utilities::int_to_string(dim)+">(1)");
-  EXPECT_EQ (fe_ptrs.back()->get_name(),
+  EXPECT_EQ (fe_ptrs["nda"]->get_name(),
       "FE_DGQ<"+dealii::Utilities::int_to_string(dim)+">(1)");
 
   // changing NDA FE type
   prm.set ("nda spatial discretization", "cmfd");
   fe_ptrs.clear ();
   bbuilders::BuildFESpaces (prm, fe_ptrs);
-  EXPECT_EQ (fe_ptrs.back()->get_name(),
+  EXPECT_EQ (fe_ptrs["nda"]->get_name(),
       "FE_DGQ<"+dealii::Utilities::int_to_string(dim)+">(0)");
 
   // changing NDA FE type
   prm.set ("nda spatial discretization", "rtk");
   fe_ptrs.clear ();
   bbuilders::BuildFESpaces (prm, fe_ptrs);
-  EXPECT_EQ (fe_ptrs.back()->get_name(),
+  EXPECT_EQ (fe_ptrs["nda"]->get_name(),
       "FE_RaviartThomas<"+dealii::Utilities::int_to_string(dim)+">(1)");
 }
 
@@ -117,7 +119,7 @@ void BARTBuilderTest::AQBuilderTest () {
   // check output
   std::string filename = "aq_builder_"+dealii::Utilities::int_to_string(dim)+"d";
   btest::GoldTestInit(filename);
-  for (unsigned int i=0; i<wi.size(); ++i) {
+  for (int i=0; i<wi.size(); ++i) {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
     for (int j=0; j<dim; ++j)
       dealii::deallog << omega_i[i][j] << " ";

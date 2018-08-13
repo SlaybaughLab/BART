@@ -4,8 +4,8 @@
 
 template <int dim>
 LSGC<dim>::LSGC (const dealii::ParameterHandler &prm)
-:
-AQBase<dim> (prm) {}
+    :
+    AQBase<dim> (prm) {}
 
 template <int dim>
 LSGC<dim>::~LSGC () {}
@@ -37,16 +37,16 @@ void LSGC<dim>::ProduceAQ () {
       break;
   }
 
-  unsigned int n_total_azi = ((dim==3 && this->transport_model_name_!="ep")?
+  int n_total_azi = ((dim==3 && this->transport_model_name_!="ep")?
                               this->n_azi_ : this->n_azi_ / 2);
-  for (unsigned int i=0; i<n_total_azi; ++i) {
+  for (int i=0; i<n_total_azi; ++i) {
     double mu = mu_quad.point(i)[0] * 2.0 - 1.0;
-    unsigned int n_level = ((i<this->n_azi_/2?4*(i+1):4*(this->n_azi_-i))/
+    int n_level = ((i<this->n_azi_/2?4*(i+1):4*(this->n_azi_-i))/
                             ((dim==2&&this->transport_model_name_=="ep")?2:1));
     double dphi = 2.0 * this->k_pi /
         (n_level*(this->transport_model_name_=="ep"?2.0:1.0));
     double w_pt = mu_quad.weight(i) * this->total_angle_ / n_level;
-    for (unsigned int j=0; j<n_level; ++j) {
+    for (int j=0; j<n_level; ++j) {
       dealii::Tensor<1, dim> omega;
       double phi = (j + 0.5) * dphi;
       omega[0] = std::sqrt (1.0 - mu * mu) * cos (phi);

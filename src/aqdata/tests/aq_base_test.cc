@@ -20,7 +20,7 @@ class AQBaseTest : public ::testing::Test {
 };
 
 void AQBaseTest::SetUp() {
-  prm.declare_entry("have reflective BC", "false",
+  prm.declare_entry("have reflective boundary", "false",
                      dealii::Patterns::Bool(), "");
   prm.declare_entry("angular quadrature order", "4",
                      dealii::Patterns::Integer(), "");
@@ -88,7 +88,7 @@ TEST_F(AQBaseTest, AQBaseBadDimProduceAQ) {
 }
 
 TEST_F(AQBaseTest, AQBaseBadDimReflectiveBC) {
-  prm.set("have reflective BC", "true");
+  prm.set("have reflective boundary", "true");
   InitRefBCAndCheck<1>();
 }
 
