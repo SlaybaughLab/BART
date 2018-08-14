@@ -268,7 +268,6 @@ void BARTDriver<2>::OutputResults () const {
   for (int i=0; i<subdomain.size(); ++i)
     subdomain(i) = proc_id;
   data_out.add_data_vector (subdomain, "subdomain");
-  dat_ptr_->pcout << "here112" << std::endl;
 
   //if (is_eigen_problem_)
   //{
@@ -279,7 +278,6 @@ void BARTDriver<2>::OutputResults () const {
       keffs(i) = keff;
     data_out.add_data_vector (keffs, "keff");
   //}
-  dat_ptr_->pcout << "here1" << std::endl;
   data_out.build_patches ();
 
 
@@ -287,7 +285,6 @@ void BARTDriver<2>::OutputResults () const {
       "-" + dealii::Utilities::int_to_string(proc_id, 4);
   std::ofstream output ((local_fname + ".vtu").c_str ());
   data_out.write_vtu (output);
-  dat_ptr_->pcout << "here11" << std::endl;
 
   if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0) {
     std::vector<std::string> filenames;
@@ -297,8 +294,7 @@ void BARTDriver<2>::OutputResults () const {
     std::ostringstream os;
     os << output_fname_ << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
-    dat_ptr_->pcout << "here12" << std::endl;
-
+    
     data_out.write_pvtu_record (master_output, filenames);
   }
 }
