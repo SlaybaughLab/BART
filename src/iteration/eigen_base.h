@@ -55,20 +55,6 @@ class EigenBase : public IterationBase<dim> {
 
  protected:
   /*!
-   Function to initialize \f$k_\mathrm{eff}\f$ and fission source.
-   \f$k_\mathrm{eff}\f$ is initilized with unit value while fission source is
-   initialize with unit-value scalar fluxes for all groups.
-
-   \param sflxes_proc A vector of scalar fluxes of all groups living on current
-   processor.
-   \param equ_ptr A pointer of EquationBase object.
-   \return Void.
-   */
-  void initialize_fiss_process
-  (std::vector<Vector<double> > &sflxes_proc,
-   std_cxx11::shared_ptr<EquationBase<dim> > &equ_ptr);
-
-  /*!
    Function to estimate fission source and \f$k_\mathrm{eff}\f$ values.
 
    \param sflxes_proc
