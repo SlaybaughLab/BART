@@ -1,0 +1,110 @@
+full_name: "Reflector"
+abbreviation: "reflector"
+id: "reflector"
+number_of_groups: 7
+thermal_groups: 4
+vector_property {
+  id: ENERGY_GROUPS
+  value: 20000000.0
+  value: 1353000.0
+  value: 9119.0
+  value: 3.928
+  value: 0.6251
+  value: 0.1457
+  value: 0.05692
+  value: 0.0
+}
+vector_property {
+  id: SIGMA_T
+  value: 0.075384
+  value: 0.24872
+  value: 0.42163
+  value: 0.53183
+  value: 0.90849
+  value: 1.3205
+  value: 2.3163
+}
+vector_property {
+  id: SIGMA_A
+  value: 0.00049929
+  value: 1.5705e-05
+  value: 0.00082969
+  value: 0.0054649
+  value: 0.013821
+  value: 0.021644
+  value: 0.039881
+}
+vector_property {
+  id: NU_SIG_F
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+}
+vector_property {
+  id: KAPPA_SIG_F
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+}
+matrix_property {
+  id: SIGMA_S
+  rows: 7
+  cols: 7
+  value: 0.082716
+  value: 0.081963
+  value: 0.00051642
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.47143
+  value: 0.09973
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.95552
+  value: 0.11014000000000002
+  value: 0.015750999999999998
+  value: 0.0028683000000000003
+  value: 0.0017862000000000002
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.70714
+  value: 0.35409
+  value: 0.049957999999999995
+  value: 0.022326
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0023861
+  value: 0.8920299999999999
+  value: 0.42845
+  value: 0.13581
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.21673
+  value: 1.1939
+  value: 0.43268999999999996
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.098237
+  value: 0.64545
+  value: 2.0233
+}

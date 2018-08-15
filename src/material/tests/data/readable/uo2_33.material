@@ -1,0 +1,120 @@
+full_name: "UO2 3.3% fuel cell"
+abbreviation: "uo2_33"
+id: "uo2_33"
+number_of_groups: 7
+thermal_groups: 4
+vector_property {
+  id: ENERGY_GROUPS
+  value: 20000000.0
+  value: 1353000.0
+  value: 9119.0
+  value: 3.928
+  value: 0.6251
+  value: 0.1457
+  value: 0.05692
+  value: 0.0
+}
+vector_property {
+  id: SIGMA_T
+  value: 0.11113
+  value: 0.28844
+  value: 0.45382
+  value: 0.46398
+  value: 0.68795
+  value: 0.98919
+  value: 1.6809
+}
+vector_property {
+  id: SIGMA_A
+  value: 0.0047825
+  value: 0.0020899
+  value: 0.02669
+  value: 0.018674
+  value: 0.060669
+  value: 0.09879
+  value: 0.18302
+}
+vector_property {
+  id: CHI
+  value: 0.5925247816749882
+  value: 0.4071432856463152
+  value: 0.00033193267869671705
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+}
+vector_property {
+  id: NU_SIG_F
+  value: 0.011458
+  value: 0.001054
+  value: 0.0123
+  value: 0.022601
+  value: 0.095993
+  value: 0.15886
+  value: 0.29556
+}
+vector_property {
+  id: KAPPA_SIG_F
+  value: 1.3977e-13
+  value: 1.3885e-14
+  value: 1.6387e-13
+  value: 3.011e-13
+  value: 1.2789e-12
+  value: 2.1164e-12
+  value: 3.9375e-12
+}
+matrix_property {
+  id: SIGMA_S
+  rows: 7
+  cols: 7
+  value: 0.12239000000000001
+  value: 0.06713
+  value: 0.0002876
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.42991999999999997
+  value: 0.051655999999999994
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.74242
+  value: 0.048867
+  value: 0.0068715
+  value: 0.0012435
+  value: 0.00076773
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.54727
+  value: 0.19917
+  value: 0.027343
+  value: 0.012226
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0047185000000000005
+  value: 0.6695
+  value: 0.20942
+  value: 0.065028
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.14190999999999998
+  value: 0.80934
+  value: 0.25445
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.0
+  value: 0.05942000000000001
+  value: 0.41229
+  value: 1.3222
+}
