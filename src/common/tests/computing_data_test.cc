@@ -2,7 +2,7 @@
 #include "../problem_definition.h"
 #include "../../test_helpers/bart_test_helper.h"
 
-class ComputingDataTest
+class ComputingDataTestMPI
     :
     public btest::BARTParallelEnvironment {
  public:
@@ -11,7 +11,7 @@ class ComputingDataTest
   dealii::ParameterHandler prm_;
 };
 
-void ComputingDataTest::SetUp() {
+void ComputingDataTestMPI::SetUp() {
   // Initilize MPI
   this->MPIInit();
   // declare all entries for parameter handler
@@ -22,6 +22,6 @@ void ComputingDataTest::SetUp() {
   prm_.set ("number of cells for x, y, z directions", "1, 3");
 }
 
-TEST_F (ComputingDataTest, 2DFundamentalDataTest) {
+TEST_F (ComputingDataTestMPI, 2DFundamentalDataTest) {
   dealii::parallel::distributed::Triangulation<2> tria_2d(MPI_COMM_WORLD);
 }
