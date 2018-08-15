@@ -4,6 +4,7 @@
 #include <string>
 
 #include "gtest/gtest.h"
+#include "../../test_helpers/gmock_wrapper.h"
 #include "../../test_helpers/bart_test_helper.h"
 
 class AQBaseTest : public ::testing::Test {
@@ -130,14 +131,14 @@ TEST_F(AQBaseTest, PrintAQ) {
   std::ostringstream output_string_stream;
   test_AQ.PrintAQ(&output_string_stream);
 
-  std::string output = "transport model: regular; output_streamature name: None\n"
-                       "Dim = 1, SN order = 4\n"
-                       "Weights | Omega_x | Omega_y | mu\n"
-                       "0.347854845137454  -0.861136311594053  \n"
-                       "0.652145154862546  -0.339981043584856  \n"
-                       "0.652145154862546  0.339981043584856  \n"
-                       "0.347854845137454  0.861136311594052  \n"; 
-  EXPECT_EQ(output, output_string_stream.str());
+  std::string output_regex = "transport model: regular; output_streamature name: None\n"
+                             "Dim = 1, SN order = 4\n"
+                             "Weights | Omega_x | Omega_y | mu\n"
+                             "0.34785//d*  -0.86113//d*  \n"
+                             "0.65214//d*  -0.33998//d*  \n"
+                             "0.65214//d*  0.33998//d*  \n"
+                             "0.34785//d*  0.86113//d*  \n";
+  EXPECT_THAT(output_string_stream.str(), ::testing::ContainsRegex(output_regex));
 }
   
 TEST_F(AQBaseTest, RefDirInt) {
