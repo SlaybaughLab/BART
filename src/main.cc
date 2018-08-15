@@ -1,51 +1,11 @@
-#ifdef TEST
-#include <unistd.h>
-#include <getopt.h>
-
-#include <deal.II/base/mpi.h>
-#include "gtest/gtest.h"
-
-#include "test_helpers/gmock_wrapper.h"
-#include "test_helpers/bart_test_helper.h"
-#else
-
 #include <iostream>
 
 #include <deal.II/base/parameter_handler.h>
 
 #include "common/problem_definition.h"
 #include "common/bart_driver.h"
-#endif
-
-
 
 int main(int argc, char* argv[]) {
-#ifdef TEST
-  // Parse optional arguments
-  ::testing::InitGoogleMock(&argc, argv);
-
-  int option_index = 0;
-
-  const struct option longopts[] =
-  {
-    {"report", no_argument, nullptr, 'r'}
-  };
-
-  int c;
-  while ((c = getopt_long (argc, argv, "rd:", longopts, &option_index)) != -1) {
-    switch(c) {
-      case 'r':
-        btest::GlobalBARTTestHelper().SetReport(true);
-        break;
-      case 'd':
-        btest::GlobalBARTTestHelper().SetGoldFilesDirectory(optarg);
-        break;
-      default:
-        break;
-    }
-  }
-  return RUN_ALL_TESTS();
-#else
   try {
     if (argc!=2) {
       std::cerr << "Call the program as mpirun -np num_proc xtrans input_file_name" << std::endl;
@@ -99,5 +59,4 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   return 0;
-#endif
 }
