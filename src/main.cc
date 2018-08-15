@@ -3,10 +3,16 @@
 #include <getopt.h>
 
 #include <deal.II/base/mpi.h>
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/bart_test_helper.h"
 #else
+
+#include <iostream>
+
+#include <deal.II/base/parameter_handler.h>
+
 #include "common/problem_definition.h"
 #include "common/bart_driver.h"
 #endif
@@ -47,7 +53,8 @@ int main(int argc, char* argv[]) {
     }
     ParameterHandler prm;
     bparams::DeclareParameters (prm);
-    prm.read_input(argv[1]);
+    const std::string filename{argv[1]};
+    prm.parse_input(filename);
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
     int dim = prm.get_integer ("problem dimension");
     switch (dim) {
