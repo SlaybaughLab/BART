@@ -87,6 +87,8 @@ file(GLOB_RECURSE sources "src/*.cpp" "src/*.cc")
 set(testing_sources ${sources})
 list(FILTER sources EXCLUDE REGEX ".(/tests/).")
 list(FILTER sources EXCLUDE REGEX ".(/test_helpers/).")
+list(FILTER sources EXCLUDE REGEX "test_main.cc")
+list(FILTER testing_sources EXCLUDE REGEX "main.cc")
 
 # Include directories
 include_directories(${GTEST_INCLUDE_DIRS}
