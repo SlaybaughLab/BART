@@ -222,7 +222,7 @@ void EvenParity<dim>::IntegrateScatteringLinearForm (
   for (int gin=0; gin<this->n_group_; ++gin) {
     std::vector<double> local_flx (this->n_q_);
     this->fv_->get_function_values (
-        this->mat_vec_->moments[this->equ_name_][{gin, 0, 0}], local_flx);
+        this->mat_vec_->moments[this->equ_name_][std::make_tuple(gin, 0, 0)], local_flx);
     for (int qi=0; qi<this->n_q_; ++qi)
       q_at_qp[qi] += (this->xsec_->sigs_per_ster.at(mid)(gin,g) *
                       local_flx[qi]);
@@ -254,7 +254,7 @@ void EvenParity<dim>::IntegrateCellFixedLinearForm (
     {
       std::vector<double> local_flx (this->n_q_);
       this->fv_->get_function_values (
-          this->mat_vec_->moments[this->equ_name_][{gin, 0, 0}], local_flx);
+          this->mat_vec_->moments[this->equ_name_][std::make_tuple(gin, 0, 0)], local_flx);
       for (int qi=0; qi<this->n_q_; ++qi)
         q_at_qp[qi] += this->scaled_fiss_transfer_.at(mid)(gin, g) *
             local_flx[qi];
