@@ -27,6 +27,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(xtrans)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ### DEPENDENCIES #####################################################
 # Check that DEAL II is installed
