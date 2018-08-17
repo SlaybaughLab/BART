@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     ParameterHandler prm;
     bparams::DeclareParameters (prm);
     const std::string filename{argv[1]};
-    prm.parse_input(filename);
+    prm.parse_input(filename, "");
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
     int dim = prm.get_integer ("problem dimension");
     switch (dim) {
