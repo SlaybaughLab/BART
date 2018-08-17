@@ -10,8 +10,12 @@
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/lac/full_matrix.h>
 
-#include "../common/numbers.h"
+#include <google/protobuf/text_format.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
 #include "../../material.pb.h"
+
+#include "../common/numbers.h"
 
 //! This class read in and pre-process material properties.
 /*!

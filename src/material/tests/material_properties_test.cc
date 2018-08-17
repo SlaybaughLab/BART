@@ -9,12 +9,21 @@
 
 class MaterialPropertiesTest : public ::testing::Test {
  protected:
-  void SetUp() override;
+  MaterialPropertiesTest();
 
-  //! working Material objects used for testing
+  //! maps from material id to data for that material
+  std::unordered_map<int, std::vector<double>> test_energy_groups_;
+  std::unordered_map<int, std::vector<double>> test_sigma_t_;
+  std::unordered_map<int, std::vector<double>> test_sigma_a_;
+  std::unordered_map<int, std::vector<double>> test_nu_sig_f_;
+  std::unordered_map<int, std::vector<double>> test_kappa_sig_f_;
+  std::unordered_map<int, std::vector<double>> test_chi_;
+  std::unordered_map<int, std::vector<double>> test_sigma_s_;
+
+  //! working Material objects used containing above data
   std::unordered_map<int, Material> test_materials_;
 
-  // uninitialized empty maps used for testing
+  // uninitialized empty maps
   std::unordered_map<int, bool> null_bool_map_;
   std::unordered_map<int, std::vector<double>> null_vector_map_;
   std::unordered_map<int, dealii::FullMatrix<double>> null_matrix_map_;
@@ -43,19 +52,121 @@ class MaterialPropertiesTest : public ::testing::Test {
     const std::unordered_map<int, std::vector<double>>& lhs, const std::unordered_map<int, std::vector<double>>& rhs);
 };
 
-void MaterialPropertiesTest::SetUp() {
-  // read in Materials from files
-  std::string path = "src/material/tests/data/serialized/";
-  std::unordered_map<int, std::string> material_file_names =
-   {{1, "control_rod"}, {2, "reflector"}, {10, "uo2_20"}, {11, "uo2_33"}};
+MaterialPropertiesTest::MaterialPropertiesTest() {
+  /*
+    test_materials_ constructed here are identical to the materials in
+    BART/src/material/tests/data/serialized/ and BART/src/material/tests/data/readable/
+    This can be verified by reading in the materials from those files and using
+    google::protobuf::util::MessageDifferencer from <google/protobuf/util/message_differencer.h>
+  */
+  const std::unordered_set<int> material_ids = {1, 2, 10, 11};
+  for (const int& key : material_ids) {
+    test_energy_groups_[key] = {20000000.0, 1353000.0, 9119.0, 3.928, 0.6251, 0.1457, 0.05692, 0};
+  }
+  test_sigma_t_[1] = {0.12417, 0.29921, 0.57997, 1.0581, 1.3203, 1.6301, 2.2847};
+  test_sigma_t_[2] = {0.075384, 0.24872, 0.42163, 0.53183, 0.90849, 1.3205, 2.3163};
+  test_sigma_t_[10] = {0.11111, 0.28863, 0.45098, 0.45889, 0.66863, 0.95402, 1.6043};
+  test_sigma_t_[11] = {0.11113, 0.28844, 0.45382, 0.46398, 0.68795, 0.98919, 1.6809};
+  test_sigma_a_[1] = {0.002142, 0.0073171, 0.18247, 0.62264, 0.68385, 0.69803, 0.6959};
+  test_sigma_a_[2] = {0.00049929, 1.5705e-05, 0.00082969, 0.0054649, 0.013821, 0.021644, 0.039881};
+  test_sigma_a_[10] = {0.0047082, 0.0019361, 0.023985, 0.014122, 0.043427, 0.070252, 0.1325};
+  test_sigma_a_[11] = {0.0047825, 0.0020899, 0.02669, 0.018674, 0.060669, 0.09879, 0.18302};
+  test_nu_sig_f_[1] = {0, 0, 0, 0, 0, 0, 0};
+  test_nu_sig_f_[2] = {0, 0, 0, 0, 0, 0, 0};
+  test_nu_sig_f_[10] = {0.011259, 0.00068735, 0.0077368, 0.013847, 0.060142, 0.098688, 0.18912};
+  test_nu_sig_f_[11] = {0.011458, 0.001054, 0.0123, 0.022601, 0.095993, 0.15886, 0.29556};
+  test_kappa_sig_f_[1] = {0, 0, 0, 0, 0, 0, 0};
+  test_kappa_sig_f_[2] = {0, 0, 0, 0, 0, 0, 0};
+  test_kappa_sig_f_[10] = {1.3749e-13, 9.0606e-15, 1.0307e-13, 1.8447e-13, 8.0124e-13, 1.3148e-12, 2.5195e-12};
+  test_kappa_sig_f_[11] = {1.3977e-13, 1.3885e-14, 1.6387e-13, 3.011e-13, 1.2789e-12, 2.1164e-12, 3.9375e-12};
+  test_chi_[10] = {0.5925247816749882, 0.4071432856463152, 0.00033193267869671705, 0, 0, 0, 0};
+  test_chi_[11] = {0.5925247816749882, 0.4071432856463152, 0.00033193267869671705, 0, 0, 0, 0};
+  test_sigma_s_[1] =   {
+    0.12334, 0.055604999999999995, 0.00023375, 0, 0, 0, 0,
+    0, 0.4042, 0.043422, 0, 0, 0, 0,
+    0, 0, 0.6650699999999999, 0.041651, 0.0058453, 0.0010578, 0.00065308,
+    0, 0, 0, 0.54505, 0.21211999999999998, 0.029405, 0.013149000000000001,
+    0, 0, 0, 0.0043207, 0.68842, 0.22864, 0.072648,
+    0, 0, 0, 0, 0.14998, 0.8552799999999999, 0.27904,
+    0, 0, 0, 0, 0.06477100000000001, 0.43825, 1.4101};
+  test_sigma_s_[2] = {
+    0.082716, 0.081963, 0.00051642, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.47143, 0.09973, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.95552, 0.11014000000000002, 0.015750999999999998, 0.0028683000000000003, 0.0017862000000000002,
+    0.0, 0.0, 0.0, 0.70714, 0.35409, 0.049957999999999995, 0.022326,
+    0.0, 0.0, 0.0, 0.0023861, 0.8920299999999999, 0.42845, 0.13581,
+    0.0, 0.0, 0.0, 0.0, 0.21673, 1.1939, 0.43268999999999996,
+    0.0, 0.0, 0.0, 0.0, 0.098237, 0.64545, 2.0233};
+  test_sigma_s_[10] = {
+    0.12244000000000001, 0.067156, 0.0002876, 0, 0, 0, 0,
+    0, 0.4302, 0.051664999999999996, 0, 0, 0, 0,
+    0, 0, 0.7420100000000001, 0.048857, 0.0068658999999999994, 0.0012425000000000001, 0.00076711,
+    0, 0, 0, 0.5464899999999999, 0.19899, 0.027304000000000002, 0.012209000000000001,
+    0, 0, 0, 0.0045242, 0.66623, 0.20922, 0.064648,
+    0, 0, 0, 0, 0.1404, 0.80301, 0.252,
+    0, 0, 0, 0, 0.058083, 0.404, 1.299};
+  test_sigma_s_[11] = {
+    0.12239000000000001, 0.06713, 0.0002876, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.42991999999999997, 0.051655999999999994, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.74242, 0.048867, 0.0068715, 0.0012435, 0.00076773,
+    0.0, 0.0, 0.0, 0.54727, 0.19917, 0.027343, 0.012226,
+    0.0, 0.0, 0.0, 0.0047185000000000005, 0.6695, 0.20942, 0.065028,
+    0.0, 0.0, 0.0, 0.0, 0.14190999999999998, 0.80934, 0.25445,
+    0.0, 0.0, 0.0, 0.0, 0.05942000000000001, 0.41229, 1.3222};
 
-  std::ifstream material_test_file_input_stream;
-  for (const std::pair<int, std::string>& mat_pair : material_file_names) {
-    material_test_file_input_stream.open(path + mat_pair.second + ".material", std::ios::binary);
-    ASSERT_TRUE(material_test_file_input_stream.is_open());
-    Material& new_mat = test_materials_[mat_pair.first]; // create new Material in the unordered_map with this id
-    new_mat.ParseFromIstream(&material_test_file_input_stream);
-    material_test_file_input_stream.close();
+  test_materials_[1].set_full_name("Control Rod");
+  test_materials_[1].set_abbreviation("control_rod");
+  test_materials_[2].set_full_name("Reflector");
+  test_materials_[2].set_abbreviation("reflector");
+  test_materials_[10].set_full_name("UO2 2.0% fuel cell");
+  test_materials_[10].set_abbreviation("uo2_20");
+  test_materials_[11].set_full_name("UO2 3.3% fuel cell");
+  test_materials_[11].set_abbreviation("uo2_33");
+
+  for (const int& key : material_ids) {
+    test_materials_[key].set_number_of_groups(7);
+    test_materials_[key].set_thermal_groups(4);
+    test_materials_[key].set_id(test_materials_[key].abbreviation());
+    Material_VectorProperty* vec_prop_ptr;
+    vec_prop_ptr = test_materials_[key].add_vector_property();
+    vec_prop_ptr->set_id(Material::ENERGY_GROUPS);
+    for (const double& val : test_energy_groups_[key]) {
+      vec_prop_ptr->add_value(val);
+    }
+    vec_prop_ptr = test_materials_[key].add_vector_property();
+    vec_prop_ptr->set_id(Material::SIGMA_T);
+    for (const double& val : test_sigma_t_[key]) {
+      vec_prop_ptr->add_value(val);
+    }
+    vec_prop_ptr = test_materials_[key].add_vector_property();
+    vec_prop_ptr->set_id(Material::SIGMA_A);
+    for (const double& val : test_sigma_a_[key]) {
+      vec_prop_ptr->add_value(val);
+    }
+    if (test_chi_.count(key) > 0) {
+      vec_prop_ptr = test_materials_[key].add_vector_property();
+      vec_prop_ptr->set_id(Material::CHI);
+      for (const double& val : test_chi_[key]) {
+        vec_prop_ptr->add_value(val);
+      }
+    }
+    vec_prop_ptr = test_materials_[key].add_vector_property();
+    vec_prop_ptr->set_id(Material::NU_SIG_F);
+    for (const double& val : test_nu_sig_f_[key]) {
+      vec_prop_ptr->add_value(val);
+    }
+    vec_prop_ptr = test_materials_[key].add_vector_property();
+    vec_prop_ptr->set_id(Material::KAPPA_SIG_F);
+    for (const double& val : test_kappa_sig_f_[key]) {
+      vec_prop_ptr->add_value(val);
+    }
+    Material_MatrixProperty* matrix_prop_ptr = test_materials_[key].add_matrix_property();
+    matrix_prop_ptr->set_id(Material::SIGMA_S);
+    matrix_prop_ptr->set_rows(7);
+    matrix_prop_ptr->set_cols(7);
+    for (const double& val : test_sigma_s_[key]) {
+      matrix_prop_ptr->add_value(val);
+    }
   }
 }
 
@@ -751,46 +862,46 @@ TEST_F(MaterialPropertiesTest, NullMaterialProperties) {
 }
 
 TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
+  std::unordered_map<int, bool> correct_fissile_id_map;
+  std::unordered_map<int, std::vector<double>> correct_sig_t_map;
+  std::unordered_map<int, std::vector<double>> correct_inv_sig_t_map;
+  std::unordered_map<int, std::vector<double>> correct_q_map;
+  std::unordered_map<int, std::vector<double>> correct_q_per_ster_map;
+  std::unordered_map<int, std::vector<double>> correct_nu_sig_f_map;
+  std::unordered_map<int, std::vector<double>> sigma_s_values;
+  std::unordered_map<int, std::vector<double>> sigma_s_per_ster_values;
+  std::unordered_map<int, std::vector<double>> chi_nu_sig_f_values;
+  std::unordered_map<int, std::vector<double>> chi_nu_sig_f_per_ster_values;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_sigma_s_map;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_sigma_s_per_ster_map;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_chi_nu_sig_f_map;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_chi_nu_sig_f_per_ster_map;
+  
   // test with one Material, no Q data
   Material control_rod;
   control_rod.CopyFrom(test_materials_.at(1));
   std::unordered_map<int, Material> map = {{1, control_rod}};
   MaterialProperties mp_1(map, false, false, 7, 1);
 
-  std::unordered_map<int, bool> correct_fissile_id_map =
-   {{1, false}};
-  std::unordered_map<int, std::vector<double>> correct_sig_t_map =
-   {{1, {0.12417, 0.29921, 0.57997, 1.0581, 1.3203, 1.6301, 2.2847}}};
-  std::unordered_map<int, std::vector<double>> correct_inv_sig_t_map =
-   {{1, {8.053475074494644, 3.34213428695565, 1.7242271151956137,
-    0.9450902561194594, 0.7574036203893054, 0.6134592969756456, 0.43769422681314835}}};
-  std::unordered_map<int, std::vector<double>> correct_q_map =
-   {{1, {0, 0, 0, 0, 0, 0, 0}}};
-  std::unordered_map<int, std::vector<double>> correct_q_per_ster_map =
-   {{1, {0, 0, 0, 0, 0, 0, 0}}};
-
-  std::unordered_map<int, std::vector<double>> sigma_s_values = {{1, {
-    0.12334, 0.055604999999999995, 0.00023375, 0, 0, 0, 0,
-    0, 0.4042, 0.043422, 0, 0, 0, 0,
-    0, 0, 0.6650699999999999, 0.041651, 0.0058453, 0.0010578, 0.00065308,
-    0, 0, 0, 0.54505, 0.21211999999999998, 0.029405, 0.013149000000000001,
-    0, 0, 0, 0.0043207, 0.68842, 0.22864, 0.072648,
-    0, 0, 0, 0, 0.14998, 0.8552799999999999, 0.27904,
-    0, 0, 0, 0, 0.06477100000000001, 0.43825, 1.4101}}};
-
-  std::unordered_map<int, std::vector<double>> sigma_s_per_ster_values = {{1, {
+  correct_fissile_id_map[1] = false;
+  correct_sig_t_map[1] = test_sigma_t_.at(1);
+  correct_inv_sig_t_map[1] =
+   {8.053475074494644, 3.34213428695565, 1.7242271151956137,
+    0.9450902561194594, 0.7574036203893054, 0.6134592969756456, 0.43769422681314835};
+  correct_q_map[1] = {0, 0, 0, 0, 0, 0, 0};
+  correct_q_per_ster_map[1] = {0, 0, 0, 0, 0, 0, 0};
+  sigma_s_values[1] = test_sigma_s_.at(1);
+  sigma_s_per_ster_values[1] = {
     0.009815085340477186, 0.00442490530531242, 1.8601233973865266e-05, 0, 0, 0, 0,
     0, 0.032165213998872053, 0.00345541296946814, 0, 0, 0, 0,
     0, 0, 0.052924589001063414, 0.0033144812673602665, 0.00046515419442752796, 8.417704940130345e-05, 5.197045511722751e-05,
     0, 0, 0, 0.04337370086611878, 0.016879973264326418, 0.0023399755508085912, 0.001046364173357666,
     0, 0, 0, 0.0003438303813085761, 0.0547827229616613, 0.018194593094265476, 0.005781144152870007,
     0, 0, 0, 0, 0.011935029182461232, 0.06806101986381811, 0.02220529766018124,
-    0, 0, 0, 0, 0.005154312409502577, 0.03487482690501156, 0.11221219262694081}}};
+    0, 0, 0, 0, 0.005154312409502577, 0.03487482690501156, 0.11221219262694081};
 
-  std::unordered_map<int, dealii::FullMatrix<double>> correct_sigma_s_map =
-  {{1, dealii::FullMatrix<double>(7, 7, sigma_s_values[1].data())}};
-  std::unordered_map<int, dealii::FullMatrix<double>> correct_sigma_s_per_ster_map =
-  {{1, dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[1].data())}};
+  correct_sigma_s_map[1] = dealii::FullMatrix<double>(7, 7, sigma_s_values[1].data());
+  correct_sigma_s_per_ster_map[1] = dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[1].data());
 
   // the SCOPED_TRACE macro makes it so that if a test fails inside ExpectApproxEqual,
   // the line number will be included in the message
@@ -841,25 +952,13 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   map[10].CopyFrom(test_materials_.at(10));
 
   correct_fissile_id_map[10] = false;
-  correct_sig_t_map[10] =
-   {0.11111, 0.28863, 0.45098, 0.45889, 0.66863, 0.95402, 1.6043};
+  correct_sig_t_map[10] = test_sigma_t_.at(10);
   correct_inv_sig_t_map[10] =
    {9.000090000900009, 3.464643314970724, 2.2173932325158545,
     2.1791714790036827, 1.4955954713369128, 1.0481960545900506, 0.6233248145608676};
-  correct_q_map[10] =
-   {0, 0, 0, 0, 0, 0, 0};
-  correct_q_per_ster_map[10] =
-   {0, 0, 0, 0, 0, 0, 0};
-
-  sigma_s_values[10] = {
-    0.12244000000000001, 0.067156, 0.0002876, 0, 0, 0, 0,
-    0, 0.4302, 0.051664999999999996, 0, 0, 0, 0,
-    0, 0, 0.7420100000000001, 0.048857, 0.0068658999999999994, 0.0012425000000000001, 0.00076711,
-    0, 0, 0, 0.5464899999999999, 0.19899, 0.027304000000000002, 0.012209000000000001,
-    0, 0, 0, 0.0045242, 0.66623, 0.20922, 0.064648,
-    0, 0, 0, 0, 0.1404, 0.80301, 0.252,
-    0, 0, 0, 0, 0.058083, 0.404, 1.299};
-
+  correct_q_map[10] = {0, 0, 0, 0, 0, 0, 0};
+  correct_q_per_ster_map[10] = {0, 0, 0, 0, 0, 0, 0};
+  sigma_s_values[10] = test_sigma_s_.at(10);
   sigma_s_per_ster_values[10] = {
     0.009743465616085833, 0.00534410467913966173, 2.288648081661455e-05, 0, 0, 0, 0,
     0, 0.03423422825906669, 0.004111370067421386, 0, 0, 0, 0,
@@ -892,32 +991,27 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
 
   // two material eigen problem
   correct_fissile_id_map[10] = true;
-
-  std::unordered_map<int, std::vector<double>> correct_nu_sig_f_map =
-   {{10, {0.011259, 0.00068735, 0.0077368, 0.013847, 0.060142, 0.098688, 0.18912}}};
-
-  std::unordered_map<int, std::vector<double>> chi_nu_sig_f_values = {{10, {
+  correct_nu_sig_f_map[10] = test_nu_sig_f_.at(10);
+  chi_nu_sig_f_values[10] = {
    0.006671236516878692, 0.004584026253091862, 3.737230029446337e-06, 0, 0, 0, 0,
    0.00040727190868430316, 0.00027984993738899475, 2.2815392670218845e-07, 0, 0, 0, 0,
    0.004584245730863049, 0.0031499861723884113, 2.5680967485407607e-06, 0, 0, 0, 0,
    0.008204690651853561, 0.005637713076344526, 4.596271801913441e-06, 0, 0, 0, 0,
    0.03563562541949714, 0.024486411485340687, 1.9963095162177958e-05, 0, 0, 0, 0,
    0.05847508565394124, 0.040180156573863555, 3.275777219522161e-05, 0, 0, 0, 0,
-   0.11205828671037378, 0.07699893818143114, 6.277510819512313e-05, 0, 0, 0, 0}}};
+   0.11205828671037378, 0.07699893818143114, 6.277510819512313e-05, 0, 0, 0, 0};
 
-  std::unordered_map<int, std::vector<double>> chi_nu_sig_f_per_ster_values = {{10, {
+  chi_nu_sig_f_per_ster_values[10] = {
    0.0005308801340982011, 0.0003647852187212948, 2.973993163289271e-07, 0.0, 0.0, 0.0, 0.0,
    3.2409668724788937e-05, 2.2269750429707967e-05, 1.815591261023963e-08, 0.0, 0.0, 0.0, 0.0,
    0.00036480268420738634, 0.0002506679350033674, 2.043626459342431e-07, 0.0, 0.0, 0.0, 0.0,
    0.0006529085368911796, 0.00044863495191702367, 3.657596885342085e-07, 0.0, 0.0, 0.0, 0.0,
    0.0028357929678420836, 0.0019485667132370648, 1.588612637237262e-06, 0.0, 0.0, 0.0, 0.0,
    0.004653299464773362, 0.0031974352664683493, 2.6067806847738836e-06, 0.0, 0.0, 0.0, 0.0,
-   0.008917315122182416, 0.00612738081220102, 4.995484386191197e-06, 0.0, 0.0, 0.0, 0.0}}};
+   0.008917315122182416, 0.00612738081220102, 4.995484386191197e-06, 0.0, 0.0, 0.0, 0.0};
 
-  std::unordered_map<int, dealii::FullMatrix<double>> correct_chi_nu_sig_f_map =
-  {{10, dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[10].data())}};
-  std::unordered_map<int, dealii::FullMatrix<double>> correct_chi_nu_sig_f_per_ster_map =
-  {{10, dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[10].data())}};
+  correct_chi_nu_sig_f_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[10].data());
+  correct_chi_nu_sig_f_per_ster_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[10].data());
 
   MaterialProperties mp_2_eigen(map, true, false, 7, 2, {10});
 
@@ -983,25 +1077,13 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
     GetPropertyPtr(map.at(11), Material::CHI)->add_value(val);
   }
   correct_fissile_id_map[11] = true;
-  correct_sig_t_map[11] =
-   {0.11113, 0.28844, 0.45382, 0.46398, 0.68795, 0.98919, 1.6809};
+  correct_sig_t_map[11] = test_sigma_t_.at(11);
   correct_inv_sig_t_map[11] =
    {8.99847026005579, 3.4669255304396063, 2.203516812833282,
     2.15526531316005, 1.453594011192674, 1.0109281331190165, 0.5949193884228687};
-  correct_q_map[11] =
-   {0, 0, 0, 0, 0, 0, 0};
-  correct_q_per_ster_map[11] =
-   {0, 0, 0, 0, 0, 0, 0};
-
-  sigma_s_values[11] = {
-    0.12239000000000001, 0.06713, 0.0002876, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.42991999999999997, 0.051655999999999994, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.74242, 0.048867, 0.0068715, 0.0012435, 0.00076773,
-    0.0, 0.0, 0.0, 0.54727, 0.19917, 0.027343, 0.012226,
-    0.0, 0.0, 0.0, 0.0047185000000000005, 0.6695, 0.20942, 0.065028,
-    0.0, 0.0, 0.0, 0.0, 0.14190999999999998, 0.80934, 0.25445,
-    0.0, 0.0, 0.0, 0.0, 0.05942000000000001, 0.41229, 1.3222};
-
+  correct_q_map[11] = {0, 0, 0, 0, 0, 0, 0};
+  correct_q_per_ster_map[11] = {0, 0, 0, 0, 0, 0, 0};
+  sigma_s_values[11] = test_sigma_s_.at(11);
   sigma_s_per_ster_values[11] = {
     0.009739486742508536, 0.005342035664879467, 2.288648081661455e-05, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.03421194656703382, 0.004110653870177472, 0.0, 0.0, 0.0, 0.0,
@@ -1011,9 +1093,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
     0.0, 0.0, 0.0, 0.0, 0.011292838987085432, 0.06440523082099728, 0.020248487634866384,
     0.0, 0.0, 0.0, 0.0, 0.004728493359260211, 0.032808995743678765, 0.10521733287805202};
 
-  correct_nu_sig_f_map[11] =
-   {0.011458, 0.001054, 0.0123, 0.022601, 0.095993, 0.15886, 0.29556};
-
+  correct_nu_sig_f_map[11] = test_nu_sig_f_.at(11);
   chi_nu_sig_f_values[11] = {
   0.0045832, 0.0034373999999999997, 0.0011458, 0.0022916, 0.0, 0.0, 0.0,
   0.00042160000000000006,  0.0003162,  0.00010540000000000001,  0.00021080000000000003,  0.0,  0.0,  0.0,
@@ -1035,24 +1115,13 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   map[2] = test_materials_.at(2);
 
   correct_fissile_id_map[2] = false;
-  correct_sig_t_map[2] =
-   {0.075384, 0.24872, 0.42163, 0.53183, 0.90849, 1.3205, 2.3163};
+  correct_sig_t_map[2] = test_sigma_t_.at(2);
   correct_inv_sig_t_map[2] =
    {13.265414411546216, 4.0205853972338375, 2.3717477409102767,
     1.880300095895305, 1.1007275809309953, 0.7572889057175313, 0.4317230065190174};
-  correct_q_map[2] =
-   {0, 0, 0, 0, 0, 0, 0};
-  correct_q_per_ster_map[2] =
-   {0, 0, 0, 0, 0, 0, 0};
-
-  sigma_s_values[2] = {
-    0.082716, 0.081963, 0.00051642, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.47143, 0.09973, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.95552, 0.11014000000000002, 0.015750999999999998, 0.0028683000000000003, 0.0017862000000000002,
-    0.0, 0.0, 0.0, 0.70714, 0.35409, 0.049957999999999995, 0.022326,
-    0.0, 0.0, 0.0, 0.0023861, 0.8920299999999999, 0.42845, 0.13581,
-    0.0, 0.0, 0.0, 0.0, 0.21673, 1.1939, 0.43268999999999996,
-    0.0, 0.0, 0.0, 0.0, 0.098237, 0.64545, 2.0233};
+  correct_q_map[2] = {0, 0, 0, 0, 0, 0, 0};
+  correct_q_per_ster_map[2] = {0, 0, 0, 0, 0, 0, 0};
+  sigma_s_values[2] = test_sigma_s_.at(2);
 
   sigma_s_per_ster_values[2] = {
     0.006582330136394607, 0.006522408300320508, 4.109539785575829e-05, 0.0, 0.0, 0.0, 0.0,
@@ -1063,18 +1132,12 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
     0.0, 0.0, 0.0, 0.0, 0.01724682540815324, 0.09500754327870692, 0.034432376163216094,
     0.0, 0.0, 0.0, 0.0, 0.007817452072259262, 0.05136327900933192, 0.1610090981789159};
 
-  correct_sigma_s_map[2] =
-  {dealii::FullMatrix<double>(7, 7, sigma_s_values[2].data())};
-  correct_sigma_s_per_ster_map[2] =
-  {dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[2].data())};
-  correct_sigma_s_map[11] =
-  {dealii::FullMatrix<double>(7, 7, sigma_s_values[11].data())};
-  correct_sigma_s_per_ster_map[11] =
-  {dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[11].data())};
-  correct_chi_nu_sig_f_map[11] =
-  {dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[11].data())};
-  correct_chi_nu_sig_f_per_ster_map[11] =
-  {dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[11].data())};
+  correct_sigma_s_map[2] = dealii::FullMatrix<double>(7, 7, sigma_s_values[2].data());
+  correct_sigma_s_per_ster_map[2] = dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[2].data());
+  correct_sigma_s_map[11] = dealii::FullMatrix<double>(7, 7, sigma_s_values[11].data());
+  correct_sigma_s_per_ster_map[11] = dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[11].data());
+  correct_chi_nu_sig_f_map[11] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[11].data());
+  correct_chi_nu_sig_f_per_ster_map[11] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[11].data());
 
   MaterialProperties mp_4_eigen(map, true, false, 7, 4, {10, 11});
 
@@ -1111,7 +1174,347 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   ExpectApproxEqual(mp_4_q.GetSigSPerSter(), correct_sigma_s_per_ster_map);}
   EXPECT_EQ(mp_4_q.GetChiNuSigF(), null_matrix_map_);
   EXPECT_EQ(mp_4_q.GetChiNuSigFPerSter(), null_matrix_map_);
+
+  // one group problem
+  const std::unordered_set<int> material_ids = {1, 2, 10, 11};
+  for (int key : material_ids) {
+    correct_sig_t_map[key].resize(1);
+    correct_inv_sig_t_map[key].resize(1);
+    correct_q_map[key].resize(1);
+    correct_q_per_ster_map[key].resize(1);
+    correct_sigma_s_map[key] = dealii::FullMatrix<double>(1, 1);
+    correct_sigma_s_map[key].set(0, 0, sigma_s_values[key][0]);
+    correct_sigma_s_per_ster_map[key] = dealii::FullMatrix<double>(1, 1);
+    correct_sigma_s_per_ster_map[key].set(0, 0, sigma_s_per_ster_values[key][0]);
+    if (correct_nu_sig_f_map.count(key) > 0) {
+      correct_nu_sig_f_map[key].resize(1);
+      correct_chi_nu_sig_f_map[key] = dealii::FullMatrix<double>(1, 1);
+      correct_chi_nu_sig_f_map[key].set(0, 0, correct_nu_sig_f_map[key][0]);
+      correct_chi_nu_sig_f_per_ster_map[key] = dealii::FullMatrix<double>(1, 1);
+      correct_chi_nu_sig_f_per_ster_map[key].set(0, 0, correct_nu_sig_f_map[key][0] / (4*3.141592653589793));
+    }
+  
+    map[key].set_number_of_groups(1);
+    GetPropertyPtr(map[key], Material::ENERGY_GROUPS)->clear_value();
+    GetPropertyPtr(map[key], Material::ENERGY_GROUPS)->add_value(20e6);
+    GetPropertyPtr(map[key], Material::ENERGY_GROUPS)->add_value(1e6);
+    GetPropertyPtr(map[key], Material::SIGMA_T)->clear_value();
+    GetPropertyPtr(map[key], Material::SIGMA_T)->add_value(correct_sig_t_map[key][0]);
+    GetPropertyPtr(map[key], Material::SIGMA_S)->clear_value();
+    GetPropertyPtr(map[key], Material::SIGMA_S)->add_value(correct_sigma_s_map[key](0, 0));
+    if (correct_nu_sig_f_map.count(key) > 0) {
+      GetPropertyPtr(map[key], Material::NU_SIG_F)->clear_value();
+      GetPropertyPtr(map[key], Material::NU_SIG_F)->add_value(correct_nu_sig_f_map[key][0]);
+    }
+    if (GetPropertyPtr(map[key], Material::CHI) != nullptr) {
+      GetPropertyPtr(map[key], Material::CHI)->clear_value();
+      GetPropertyPtr(map[key], Material::CHI)->add_value(1);
+    }
+    if (GetPropertyPtr(map[key], Material::Q) != nullptr) {
+      GetPropertyPtr(map[key], Material::Q)->clear_value();
+      GetPropertyPtr(map[key], Material::Q)->add_value(correct_q_map[key][0]);
+    }
+  }
+
+  MaterialProperties mp_one_group(map, false, false, 1, 4);
+
+  EXPECT_EQ(mp_one_group.GetFissileIDMap(), correct_fissile_id_map);
+  EXPECT_EQ(mp_one_group.GetSigT(), correct_sig_t_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group.GetInvSigT(), correct_inv_sig_t_map);}
+  EXPECT_EQ(mp_one_group.GetQ(), correct_q_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group.GetQPerSter(), correct_q_per_ster_map);};
+  EXPECT_EQ(mp_one_group.GetNuSigF(), null_vector_map_);
+  EXPECT_EQ(mp_one_group.GetSigS(), correct_sigma_s_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group.GetSigSPerSter(), correct_sigma_s_per_ster_map);}
+  EXPECT_EQ(mp_one_group.GetChiNuSigF(), null_matrix_map_);
+  EXPECT_EQ(mp_one_group.GetChiNuSigFPerSter(), null_matrix_map_);
+
+  // one group eigen problem
+  correct_fissile_id_map[10] = true;
+  correct_fissile_id_map[11] = true;
+  MaterialProperties mp_one_group_eigen(map, true, false, 1, 4, {10, 11});
+
+  EXPECT_EQ(mp_one_group_eigen.GetFissileIDMap(), correct_fissile_id_map);
+  EXPECT_EQ(mp_one_group_eigen.GetSigT(), correct_sig_t_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group_eigen.GetInvSigT(), correct_inv_sig_t_map);}
+  EXPECT_EQ(mp_one_group_eigen.GetQ(), null_vector_map_);
+  EXPECT_EQ(mp_one_group_eigen.GetQPerSter(), null_vector_map_);
+  EXPECT_EQ(mp_one_group_eigen.GetNuSigF(), correct_nu_sig_f_map);
+  EXPECT_EQ(mp_one_group_eigen.GetSigS(), correct_sigma_s_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group_eigen.GetSigSPerSter(), correct_sigma_s_per_ster_map);}
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group_eigen.GetChiNuSigF(), correct_chi_nu_sig_f_map);}
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_one_group_eigen.GetChiNuSigFPerSter(), correct_chi_nu_sig_f_per_ster_map);}
 }
 
-// TODO add one group tests
-// TODO write tests for FailedToFindMaterialFile, FailedToParseMaterialFile, and constructing from a dealii::ParameterHandler
+TEST_F(MaterialPropertiesTest, FailedToFindMaterialFile) {
+  dealii::ParameterHandler prm;
+  prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
+  prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
+  prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
+  prm.declare_entry("number of materials", "1", dealii::Patterns::Integer());
+  prm.enter_subsection("material ID map");
+  prm.declare_entry("material id file name map", "3 : src/material/tests/data/broken/nonexistent_file_70844.material",
+    dealii::Patterns::Map(dealii::Patterns::Integer(), dealii::Patterns::FileName(dealii::Patterns::FileName::input)));
+  prm.leave_subsection();
+  prm.enter_subsection("fissile material IDs");
+  prm.declare_entry("fissile material ids", "", 
+    dealii::Patterns::List(dealii::Patterns::Integer()));
+  prm.leave_subsection();
+
+  EXPECT_THROW({
+    try {
+      MaterialProperties mp(prm);
+    }
+    catch (const MaterialProperties::FailedToFindMaterialFile& e) {
+      std::string expected = "Failed to find material file \"src/material/tests/data/broken/nonexistent_file_70844.material\"";
+      expected += " for material number 3 in the current working directory.";
+      EXPECT_EQ(expected, GetMessage(e));
+      throw;
+    }
+  }, MaterialProperties::FailedToFindMaterialFile);
+
+  prm.set("number of materials", "2");
+  prm.enter_subsection("material ID map");
+  prm.set("material id file name map",
+    "10 : src/material/tests/data/serialized/uo2_20.material, 6 : src/material/tests/data/broken/nonexistent_file_55314.material");
+  prm.leave_subsection();
+
+  EXPECT_THROW({
+    try {
+      MaterialProperties mp(prm);
+    }
+    catch (const MaterialProperties::FailedToFindMaterialFile& e) {
+      std::string expected = "Failed to find material file \"src/material/tests/data/broken/nonexistent_file_55314.material\"";
+      expected += " for material number 6 in the current working directory.";
+      EXPECT_EQ(expected, GetMessage(e));
+      throw;
+    }
+  }, MaterialProperties::FailedToFindMaterialFile);
+
+}
+
+TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
+  dealii::ParameterHandler prm;
+  prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
+  prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
+  prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
+  prm.declare_entry("number of materials", "1", dealii::Patterns::Integer());
+  prm.enter_subsection("material ID map");
+  prm.declare_entry("material id file name map", "3 : src/material/tests/data/broken/invalid_material.material",
+    dealii::Patterns::Map(dealii::Patterns::Integer(), dealii::Patterns::FileName(dealii::Patterns::FileName::input)));
+  prm.leave_subsection();
+  prm.enter_subsection("fissile material IDs");
+  prm.declare_entry("fissile material ids", "", 
+    dealii::Patterns::List(dealii::Patterns::Integer()));
+  prm.leave_subsection();
+
+  EXPECT_THROW({
+    try {
+      /*
+        As long as the LogSilencer object exists, non-fatal protobuf errors will be discarded.
+        Otherwise, problems with parsing our intentionally broken file would be printed to stderr.
+      */
+      google::protobuf::LogSilencer log_silencer;
+      MaterialProperties mp(prm);
+    }
+    catch (const MaterialProperties::FailedToParseMaterialFile& e) {
+      std::string expected = "Failed to parse file \"src/material/tests/data/broken/invalid_material.material\"";
+      expected += " for material number 3 as either a human-readable or serialized material file defined by material.proto.";
+      EXPECT_EQ(expected, GetMessage(e));
+      throw;
+    }
+  }, MaterialProperties::FailedToParseMaterialFile);
+
+  prm.set("number of materials", "2");
+  prm.enter_subsection("material ID map");
+  prm.set("material id file name map",
+    "10 : src/material/tests/data/serialized/uo2_20.material, 26 : src/material/tests/data/broken/invalid_material.material");
+  prm.leave_subsection();
+
+  EXPECT_THROW({
+    try {
+      google::protobuf::LogSilencer log_silencer;
+      MaterialProperties mp(prm);
+    }
+    catch (const MaterialProperties::FailedToParseMaterialFile& e) {
+      std::string expected = "Failed to parse file \"src/material/tests/data/broken/invalid_material.material\"";
+      expected += " for material number 26 as either a human-readable or serialized material file defined by material.proto.";
+      EXPECT_EQ(expected, GetMessage(e));
+      throw;
+    }
+  }, MaterialProperties::FailedToParseMaterialFile);
+}
+
+TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
+  dealii::ParameterHandler prm;
+  prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
+  prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
+  prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
+  prm.declare_entry("number of materials", "4", dealii::Patterns::Integer());
+  prm.enter_subsection("fissile material IDs");
+  prm.declare_entry("fissile material ids", "", 
+    dealii::Patterns::List(dealii::Patterns::Integer()));
+  prm.leave_subsection();
+
+  // try two in serialized format and two in human readable text format
+  prm.enter_subsection("material ID map");
+  const std::string path = "src/material/tests/data/";
+  std::string entry = "1 : " + path + "serialized/control_rod.material, ";
+  entry += "11 : " + path + "readable/uo2_33.material, ";
+  entry += "10: " + path + "serialized/uo2_20.material, ";
+  entry += "2: " + path + "readable/reflector.material";
+  prm.declare_entry("material id file name map", entry,
+    dealii::Patterns::Map(dealii::Patterns::Integer(), dealii::Patterns::FileName(dealii::Patterns::FileName::input)));
+  prm.leave_subsection();
+
+  std::unordered_set<int> material_ids = {1, 2, 10, 11};
+  std::unordered_map<int, bool> correct_fissile_id_map = {{1, false}, {2, false}, {10, false}, {11, false}};
+  std::unordered_map<int, std::vector<double>> zero_vals_map = 
+  {{1, {0, 0, 0, 0, 0, 0, 0}}, {2, {0, 0, 0, 0, 0, 0, 0}}, {10, {0, 0, 0, 0, 0, 0, 0}}, {11, {0, 0, 0, 0, 0, 0, 0}}};
+
+  std::unordered_map<int, std::vector<double>> correct_inv_sig_t_map;
+  correct_inv_sig_t_map[1] =
+   {8.053475074494644, 3.34213428695565, 1.7242271151956137,
+    0.9450902561194594, 0.7574036203893054, 0.6134592969756456, 0.43769422681314835};
+  correct_inv_sig_t_map[10] =
+   {9.000090000900009, 3.464643314970724, 2.2173932325158545,
+    2.1791714790036827, 1.4955954713369128, 1.0481960545900506, 0.6233248145608676};
+  correct_inv_sig_t_map[11] =
+   {8.99847026005579, 3.4669255304396063, 2.203516812833282,
+    2.15526531316005, 1.453594011192674, 1.0109281331190165, 0.5949193884228687};
+  correct_inv_sig_t_map[2] =
+   {13.265414411546216, 4.0205853972338375, 2.3717477409102767,
+    1.880300095895305, 1.1007275809309953, 0.7572889057175313, 0.4317230065190174};
+
+  std::unordered_map<int, std::vector<double>> sigma_s_per_ster_values;
+  sigma_s_per_ster_values[1] = {
+    0.009815085340477186, 0.00442490530531242, 1.8601233973865266e-05, 0, 0, 0, 0,
+    0, 0.032165213998872053, 0.00345541296946814, 0, 0, 0, 0,
+    0, 0, 0.052924589001063414, 0.0033144812673602665, 0.00046515419442752796, 8.417704940130345e-05, 5.197045511722751e-05,
+    0, 0, 0, 0.04337370086611878, 0.016879973264326418, 0.0023399755508085912, 0.001046364173357666,
+    0, 0, 0, 0.0003438303813085761, 0.0547827229616613, 0.018194593094265476, 0.005781144152870007,
+    0, 0, 0, 0, 0.011935029182461232, 0.06806101986381811, 0.02220529766018124,
+    0, 0, 0, 0, 0.005154312409502577, 0.03487482690501156, 0.11221219262694081};
+    sigma_s_per_ster_values[2] = {
+    0.006582330136394607, 0.006522408300320508, 4.109539785575829e-05, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.03751520741090611, 0.007936261237277361, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.07603786561158392, 0.008764662716070678, 0.0012534247543202217, 0.00022825206163524172, 0.00014214127967537174,
+    0.0, 0.0, 0.0, 0.056272413229001436, 0.02817758689970461, 0.003975531323492453, 0.0017766466297348276,
+    0.0, 0.0, 0.0, 0.00018987980485578573, 0.0709854919431317, 0.03409496768386128, 0.010807416410655152,
+    0.0, 0.0, 0.0, 0.0, 0.01724682540815324, 0.09500754327870692, 0.034432376163216094,
+    0.0, 0.0, 0.0, 0.0, 0.007817452072259262, 0.05136327900933192, 0.1610090981789159};
+  sigma_s_per_ster_values[10] = {
+    0.009743465616085833, 0.00534410467913966173, 2.288648081661455e-05, 0, 0, 0, 0,
+    0, 0.03423422825906669, 0.004111370067421386, 0, 0, 0, 0,
+    0, 0, 0.05904727966180864, 0.0038879165273203653, 0.0005463709618873221, 9.887500839583999e-05, 6.104467419761192e-05,
+    0, 0, 0, 0.04348829242514494, 0.01583512106292813, 0.0021727832830905555, 0.00097156135010447526,
+    0, 0, 0, 0.00036002439676817644, 0.05301689886805672, 0.016649198596843173, 0.005144524380502425,
+    0, 0, 0, 0, 0.011172677005051052, 0.06390150542611144, 0.020053522829578813,
+    0, 0, 0, 0, 0.0046220982798032785, 0.032149298504562863, 0.10337113553818602};
+  sigma_s_per_ster_values[11] = {
+    0.009739486742508536, 0.005342035664879467, 2.288648081661455e-05, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.03421194656703382, 0.004110653870177472, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.059079906425142464, 0.003888712302035825, 0.0005468165957279794, 9.895458586738594e-05, 6.109401222997041e-05,
+    0.0, 0.0, 0.0, 0.04355036285295078, 0.015849445007806398, 0.002175886804480847, 0.0009729141671207563,
+    0.0, 0.0, 0.0, 0.0003754862994895541, 0.053277117200011964, 0.01666511409115236, 0.005174763819689885,
+    0.0, 0.0, 0.0, 0.0, 0.011292838987085432, 0.06440523082099728, 0.020248487634866384,
+    0.0, 0.0, 0.0, 0.0, 0.004728493359260211, 0.032808995743678765, 0.10521733287805202};
+
+  std::unordered_map<int, std::vector<double>> correct_nu_sig_f_map;
+  correct_nu_sig_f_map[10] = test_nu_sig_f_[10];
+  correct_nu_sig_f_map[11] = test_nu_sig_f_[11];
+
+  std::unordered_map<int, std::vector<double>> chi_nu_sig_f_values;
+  chi_nu_sig_f_values[10] = {
+   0.006671236516878692, 0.004584026253091862, 3.737230029446337e-06, 0, 0, 0, 0,
+   0.00040727190868430316, 0.00027984993738899475, 2.2815392670218845e-07, 0, 0, 0, 0,
+   0.004584245730863049, 0.0031499861723884113, 2.5680967485407607e-06, 0, 0, 0, 0,
+   0.008204690651853561, 0.005637713076344526, 4.596271801913441e-06, 0, 0, 0, 0,
+   0.03563562541949714, 0.024486411485340687, 1.9963095162177958e-05, 0, 0, 0, 0,
+   0.05847508565394124, 0.040180156573863555, 3.275777219522161e-05, 0, 0, 0, 0,
+   0.11205828671037378, 0.07699893818143114, 6.277510819512313e-05, 0, 0, 0, 0};
+  chi_nu_sig_f_values[11] = {
+   0.006789148948432014, 0.004665047766935479, 3.8032846325069838e-06, 0.0, 0.0, 0.0, 0.0,
+   0.0006245211198854376, 0.0004291290230712162, 3.4985704334633976e-07, 0.0, 0.0, 0.0, 0.0,
+   0.007288054814602356, 0.0050078624134496765, 4.08277194796962e-06, 0.0, 0.0, 0.0, 0.0,
+   0.013391652590636408, 0.009201845398892369, 7.502010471224502e-06, 0.0, 0.0, 0.0, 0.0,
+   0.05687823136732714, 0.03908290541904673, 3.186321362613396e-05, 0.0, 0.0, 0.0, 0.0,
+   0.09412848681688864, 0.06467878235777363, 5.273082533776047e-05, 0.0, 0.0, 0.0, 0.0,
+   0.1751266244718595, 0.12033526950562491, 9.810602251560169e-05, 0.0, 0.0, 0.0, 0.0};
+  std::unordered_map<int, std::vector<double>> chi_nu_sig_f_per_ster_values;
+  chi_nu_sig_f_per_ster_values[10] = {
+   0.0005308801340982011, 0.0003647852187212948, 2.973993163289271e-07, 0.0, 0.0, 0.0, 0.0,
+   3.2409668724788937e-05, 2.2269750429707967e-05, 1.815591261023963e-08, 0.0, 0.0, 0.0, 0.0,
+   0.00036480268420738634, 0.0002506679350033674, 2.043626459342431e-07, 0.0, 0.0, 0.0, 0.0,
+   0.0006529085368911796, 0.00044863495191702367, 3.657596885342085e-07, 0.0, 0.0, 0.0, 0.0,
+   0.0028357929678420836, 0.0019485667132370648, 1.588612637237262e-06, 0.0, 0.0, 0.0, 0.0,
+   0.004653299464773362, 0.0031974352664683493, 2.6067806847738836e-06, 0.0, 0.0, 0.0, 0.0,
+   0.008917315122182416, 0.00612738081220102, 4.995484386191197e-06, 0.0, 0.0, 0.0, 0.0};
+  chi_nu_sig_f_per_ster_values[11] = {
+   0.0005402633072650492, 0.0003712327059337948, 3.0265577462446457e-07, 0.0, 0.0, 0.0, 0.0,
+   4.9697811647526785e-05, 3.414900262299003e-05, 2.7840738912042733e-08, 0.0, 0.0, 0.0, 0.0,
+   0.0005799649746343259, 0.00039851302871231245, 3.2489666851814576e-07, 0.0, 0.0, 0.0, 0.0,
+   0.0010656738529845851, 0.000732259590400567, 5.969910248112692e-07, 0.0, 0.0, 0.0, 0.0,
+   0.004526225838217304, 0.003110118793917155, 2.535593975696127e-06, 0.0, 0.0, 0.0, 0.0,
+   0.007490506981334066, 0.005146973962702274, 4.19618575290997e-06, 0.0, 0.0, 0.0, 0.0,
+   0.013936133975847262, 0.009575976485057812, 7.807029215221395e-06, 0.0, 0.0, 0.0, 0.0};
+
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_sigma_s_map;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_sigma_s_per_ster_map;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_chi_nu_sig_f_map;
+  std::unordered_map<int, dealii::FullMatrix<double>> correct_chi_nu_sig_f_per_ster_map;
+  for (int id : material_ids) {
+    correct_sigma_s_map[id] = dealii::FullMatrix<double>(7, 7, test_sigma_s_[id].data());
+    correct_sigma_s_per_ster_map[id] = dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[id].data());
+    if (chi_nu_sig_f_values.count(id) > 0) {
+      correct_chi_nu_sig_f_map[id] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[id].data());
+      correct_chi_nu_sig_f_per_ster_map[id] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[id].data());
+    }
+  }
+
+  MaterialProperties mp(prm);
+
+  EXPECT_EQ(mp.GetFissileIDMap(), correct_fissile_id_map);
+  EXPECT_EQ(mp.GetSigT(), test_sigma_t_);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp.GetInvSigT(), correct_inv_sig_t_map);}
+  EXPECT_EQ(mp.GetQ(), zero_vals_map);
+  EXPECT_EQ(mp.GetQPerSter(), zero_vals_map);
+  EXPECT_EQ(mp.GetNuSigF(), null_vector_map_);
+  EXPECT_EQ(mp.GetSigS(), correct_sigma_s_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp.GetSigSPerSter(), correct_sigma_s_per_ster_map);}
+  EXPECT_EQ(mp.GetChiNuSigF(), null_matrix_map_);
+  EXPECT_EQ(mp.GetChiNuSigFPerSter(), null_matrix_map_);
+
+  prm.set("do eigenvalue calculations", "true");
+  prm.enter_subsection("fissile material IDs");
+  prm.set("fissile material ids", "11, 10");
+  prm.leave_subsection();
+  correct_fissile_id_map[10] = true;
+  correct_fissile_id_map[11] = true;
+  
+  MaterialProperties mp_eigen(prm);
+
+  EXPECT_EQ(mp_eigen.GetFissileIDMap(), correct_fissile_id_map);
+  EXPECT_EQ(mp_eigen.GetSigT(), test_sigma_t_);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_eigen.GetInvSigT(), correct_inv_sig_t_map);}
+  EXPECT_EQ(mp_eigen.GetQ(), null_vector_map_);
+  EXPECT_EQ(mp_eigen.GetQPerSter(), null_vector_map_);
+  EXPECT_EQ(mp_eigen.GetNuSigF(), correct_nu_sig_f_map);
+  EXPECT_EQ(mp_eigen.GetSigS(), correct_sigma_s_map);
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_eigen.GetSigSPerSter(), correct_sigma_s_per_ster_map);}
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_eigen.GetChiNuSigF(), correct_chi_nu_sig_f_map);}
+  {SCOPED_TRACE("");
+  ExpectApproxEqual(mp_eigen.GetChiNuSigFPerSter(), correct_chi_nu_sig_f_per_ster_map);}
+}

@@ -34,27 +34,61 @@ MaterialProperties::MaterialProperties(dealii::ParameterHandler& prm)
 
 MaterialProperties::~MaterialProperties() {}
 
-///!TODO implement this
 std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
-  // prm.leave_subsection()
-  return {};
+  std::unordered_map<int, std::string> result;
+  prm.enter_subsection("material ID map");
+  const std::vector<std::string> pair_strings = dealii::Utilities::split_string_list(prm.get("material id file name map"), ",");
+  for (const std::string& pair_string : pair_strings) {
+    const std::vector<std::string> split_pair = dealii::Utilities::split_string_list(pair_string, ':');
+    result[std::stoi(split_pair[0])] = split_pair[1];
+  }
+  prm.leave_subsection();
+  return result;
 }
 
-///!TODO implement this
 std::unordered_set<int> MaterialProperties::ReadFissileIDs(dealii::ParameterHandler& prm) {
-  // do not subtract 1 like in dev branch implementation
-  
-  // prm.leave_subsection()
-  return {};
+  std::unordered_set<int> result;
+  prm.enter_subsection("fissile material IDs");
+  const std::vector<std::string> id_strings = dealii::Utilities::split_string_list(prm.get("fissile material ids"), ",");
+  for (const std::string& id_string : id_strings) {
+    result.insert(std::stoi(id_string));
+  }
+  prm.leave_subsection();
+  return result;
 }
 
 std::unordered_map<int, Material> MaterialProperties::ParseMaterials(const std::unordered_map<int, std::string>& file_name_map) {
-  ///!TODO
-  // throw if file not found
-  // #include <google/protobuf/text_format.h>; TextFormat::Parse
-  // #include <google/protobuf/io/zero_copy_stream_impl.h>; google::protobuf::io::IstreamInputStream
-  // try both human-readable and serialized, throw exception if both fail
+  /*
+    Tries serialized format first and then readable text format if parsing as serialized format fails.
+    This is because by default, parsing as text format will print errors if it doesn't work, but
+    parsing as serialized format will not.
+  */
   GOOGLE_PROTOBUF_VERIFY_VERSION;
+  std::unordered_map<int, Material> result;
+  for (const std::pair<int, std::string>& id_file_pair : file_name_map) {
+    result[id_file_pair.first] = Material();
+    bool text_format_success = false;
+    bool serialized_success = false;
+
+    std::ifstream serialized_ifstream(id_file_pair.second, std::ios::binary);
+    AssertThrow(serialized_ifstream.is_open(),
+    FailedToFindMaterialFile(id_file_pair.second, id_file_pair.first));
+    serialized_success = result[id_file_pair.first].ParseFromIstream(&serialized_ifstream);
+    serialized_ifstream.close();
+
+    if (!serialized_success) {
+      std::ifstream text_format_ifstream(id_file_pair.second);
+      AssertThrow(text_format_ifstream.is_open(),
+      FailedToFindMaterialFile(id_file_pair.second, id_file_pair.first));
+      google::protobuf::io::IstreamInputStream zero_copy_stream(&text_format_ifstream); //TextFormat::Parse requires different stream type
+      text_format_success = google::protobuf::TextFormat::Parse(&zero_copy_stream, &result[id_file_pair.first]);
+      text_format_ifstream.close();
+    }
+
+    AssertThrow(text_format_success || serialized_success,
+      FailedToParseMaterialFile(id_file_pair.second, id_file_pair.first));
+  }
+  return result;
 }
 
 void MaterialProperties::PopulateFissileMap() {
