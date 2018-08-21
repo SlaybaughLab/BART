@@ -41,9 +41,9 @@ class MaterialProperties {
   /*!
     gets the necessary information from the parameter handler and delegates to the other constructor
   */
-  MaterialProperties(dealii::ParameterHandler& prm);
+  explicit MaterialProperties(dealii::ParameterHandler& prm);
 
-  //! Class destructor.
+  //! default destructor
   ~MaterialProperties();
 
   //! returns an unordered_map from material ID to a boolean for whether it is fissile
