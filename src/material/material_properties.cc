@@ -40,7 +40,7 @@ std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(d
   const std::vector<std::string> pair_strings = dealii::Utilities::split_string_list(prm.get("material id file name map"), ",");
   for (const std::string& pair_string : pair_strings) {
     const std::vector<std::string> split_pair = dealii::Utilities::split_string_list(pair_string, ':');
-    result[std::stoi(split_pair[0])] = split_pair[1];
+    result[dealii::Utilities::string_to_int(split_pair[0])] = split_pair[1];
   }
   prm.leave_subsection();
   return result;
@@ -51,7 +51,7 @@ std::unordered_set<int> MaterialProperties::ReadFissileIDs(dealii::ParameterHand
   prm.enter_subsection("fissile material IDs");
   const std::vector<std::string> id_strings = dealii::Utilities::split_string_list(prm.get("fissile material ids"), ",");
   for (const std::string& id_string : id_strings) {
-    result.insert(std::stoi(id_string));
+    result.insert(dealii::Utilities::string_to_int(id_string));
   }
   prm.leave_subsection();
   return result;
@@ -129,8 +129,8 @@ void MaterialProperties::PopulateData() {
   }
 
   for (const int& id : fissile_ids_) {
-    dealii::FullMatrix nusigf_column_matrix(n_group_, 1, nusigf_.at(id).data());
-    dealii::FullMatrix chi_row_matrix(1, n_group_, chi_.at(id).data());
+    dealii::FullMatrix<double> nusigf_column_matrix(n_group_, 1, nusigf_.at(id).data());
+    dealii::FullMatrix<double> chi_row_matrix(1, n_group_, chi_.at(id).data());
     chi_nusigf_[id] = dealii::FullMatrix<double>(n_group_, n_group_);
     nusigf_column_matrix.mmult(chi_nusigf_[id], chi_row_matrix); // chi_nusigf_[id] = nusigf_column_matrix * chi_row_matrix
   }
