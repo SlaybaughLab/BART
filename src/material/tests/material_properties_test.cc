@@ -1,6 +1,5 @@
 #include "../material_properties.h"
 
-#include <fstream>
 #include <sstream>
 
 #include <google/protobuf/text_format.h>
@@ -1479,7 +1478,14 @@ TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
     }
   }
 
+  std::stringstream prm_string_before;
+  prm.print_parameters(prm_string_before, dealii::ParameterHandler::Text);
+
   MaterialProperties mp(prm);
+
+  std::stringstream prm_string_after;
+  prm.print_parameters(prm_string_after, dealii::ParameterHandler::Text);
+  EXPECT_EQ(prm_string_before.str(), prm_string_after.str());
 
   EXPECT_EQ(mp.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp.GetSigT(), test_sigma_t_);
@@ -1501,7 +1507,13 @@ TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
   correct_fissile_id_map[10] = true;
   correct_fissile_id_map[11] = true;
   
+  prm.print_parameters(prm_string_before, dealii::ParameterHandler::Text);
+
   MaterialProperties mp_eigen(prm);
+
+  prm.print_parameters(prm_string_after, dealii::ParameterHandler::Text);
+  EXPECT_EQ(prm_string_before.str(), prm_string_after.str());
+  EXPECT_NO_THROW(prm.set("do eigenvalue calculations", "false")); // make sure the parameter handler path is back where it started
 
   EXPECT_EQ(mp_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_eigen.GetSigT(), test_sigma_t_);
