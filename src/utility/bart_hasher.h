@@ -7,7 +7,7 @@
 
 #include <boost/functional/hash.hpp>
 
-//! This namespace provides various utility functions for BART.
+//! Provides various utility functions for BART.
 namespace butil {
 
 //! Hashing struct for array<int> of any size, and vector<int>.
@@ -15,10 +15,28 @@ namespace butil {
  *  Suitable for use in an unordered_map. Uses the hashing functions of the boost
  *  library.
  *  Example:
- *    std::unordered_map<array<int, 2>, std::string, butil::Hasher> map =
- *      {{0, 0}, "all zeros"},
- *      {{1, 1}, "all ones"},};
- *    std::string value = map[{1,1}]; // Value is "all ones"
+ *  ~~~~~~~~~~{.cpp}
+ *  #include "bart_hasher.h"
+ *  #include <array>
+ *  #include <iostream>
+ *  #include <string>
+ *  #include <unordered_map>
+ *
+ *  int main()
+ *  {
+ *    std::unordered_map<std::array<int, 2>, std::string, butil::Hasher> map = {
+ *      {{0,0}, "all zeros"},
+ *      {{1,1}, "all ones"}
+ *    };
+ *    std::cout << map[{1,1}] << "\n" << map[{0,0}] << std::endl;
+ *    return 0;
+ *  }
+ *  ~~~~~~~~~~
+ *  Output:
+ *  ~~~~~~~~~~
+ *  all ones
+ *  all zeros
+ *  ~~~~~~~~~~
  */    
 
 struct Hasher {
