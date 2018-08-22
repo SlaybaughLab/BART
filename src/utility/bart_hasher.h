@@ -24,11 +24,13 @@ namespace butil {
  *
  *  int main()
  *  {
- *    std::unordered_map<std::array<int, 2>, std::string, butil::Hasher> map = {
- *      {{0,0}, "all zeros"},
- *      {{1,1}, "all ones"}
- *    };
- *    std::cout << map[{1,1}] << "\n" << map[{0,0}] << std::endl;
+ *    std::unordered_map<std::array<int, 2>, std::string, butil::Hasher>
+ *      array_to_string_umap = {
+ *                              {{0,0}, "all zeros"},
+ *                              {{1,1}, "all ones"}
+ *                             };
+ *    std::cout << array_to_string_umap[{1,1}] << "\n"
+ *              << array_to_string_umap[{0,0}] << std::endl;
  *    return 0;
  *  }
  *  ~~~~~~~~~~
