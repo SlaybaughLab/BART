@@ -37,7 +37,9 @@ MaterialProperties::~MaterialProperties() {}
 std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
   std::unordered_map<int, std::string> result;
   prm.enter_subsection("material ID map");
-  const std::vector<std::string> pair_strings = dealii::Utilities::split_string_list(prm.get("material id file name map"), ",");
+  const std::vector<std::string> pair_strings =
+    dealii::Utilities::split_string_list(prm.get("material id file name map"), ",");
+
   for (const std::string& pair_string : pair_strings) {
     const std::vector<std::string> split_pair = dealii::Utilities::split_string_list(pair_string, ':');
     result[dealii::Utilities::string_to_int(split_pair[0])] = split_pair[1];
@@ -49,7 +51,9 @@ std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(d
 std::unordered_set<int> MaterialProperties::ReadFissileIDs(dealii::ParameterHandler& prm) {
   std::unordered_set<int> result;
   prm.enter_subsection("fissile material IDs");
-  const std::vector<std::string> id_strings = dealii::Utilities::split_string_list(prm.get("fissile material ids"), ",");
+  const std::vector<std::string> id_strings =
+    dealii::Utilities::split_string_list(prm.get("fissile material ids"), ",");
+
   for (const std::string& id_string : id_strings) {
     result.insert(dealii::Utilities::string_to_int(id_string));
   }
@@ -57,7 +61,8 @@ std::unordered_set<int> MaterialProperties::ReadFissileIDs(dealii::ParameterHand
   return result;
 }
 
-std::unordered_map<int, Material> MaterialProperties::ParseMaterials(const std::unordered_map<int, std::string>& file_name_map) {
+std::unordered_map<int, Material>
+MaterialProperties::ParseMaterials(const std::unordered_map<int, std::string>& file_name_map) {
   /*
     Tries serialized format first and then readable text format if parsing as serialized format fails.
     This is because by default, parsing as text format will print errors if it doesn't work, but
@@ -80,7 +85,8 @@ std::unordered_map<int, Material> MaterialProperties::ParseMaterials(const std::
       std::ifstream text_format_ifstream(id_file_pair.second);
       AssertThrow(text_format_ifstream.is_open(),
       FailedToFindMaterialFile(id_file_pair.second, id_file_pair.first));
-      google::protobuf::io::IstreamInputStream zero_copy_stream(&text_format_ifstream); //TextFormat::Parse requires different stream type
+      // TextFormat::Parse requires different stream type
+      google::protobuf::io::IstreamInputStream zero_copy_stream(&text_format_ifstream);
       text_format_success = google::protobuf::TextFormat::Parse(&zero_copy_stream, &result[id_file_pair.first]);
       text_format_ifstream.close();
     }
@@ -108,7 +114,7 @@ void MaterialProperties::PopulateData() {
   for (const std::pair<int, Material>& mat_pair : materials_) {
     const int& id = mat_pair.first;
     const Material& material = mat_pair.second;
-    const auto vector_props = GetVectorProperties(material);
+    const std::unordered_map<Material::VectorId, std::vector<double>> vector_props = GetVectorProperties(material);
 
     sigt_[id] = vector_props.at(Material::SIGMA_T);
     sigs_[id] = GetScatteringMatrix(material);
@@ -132,7 +138,8 @@ void MaterialProperties::PopulateData() {
     dealii::FullMatrix<double> nusigf_column_matrix(n_group_, 1, nusigf_.at(id).data());
     dealii::FullMatrix<double> chi_row_matrix(1, n_group_, chi_.at(id).data());
     chi_nusigf_[id] = dealii::FullMatrix<double>(n_group_, n_group_);
-    nusigf_column_matrix.mmult(chi_nusigf_[id], chi_row_matrix); // chi_nusigf_[id] = nusigf_column_matrix * chi_row_matrix
+    // next line is equivalent to chi_nusigf_[id] = nusigf_column_matrix * chi_row_matrix
+    nusigf_column_matrix.mmult(chi_nusigf_[id], chi_row_matrix);
   }
 
   for (const std::pair<int, std::vector<double>>& sigt_pair : sigt_) {
@@ -181,7 +188,9 @@ void MaterialProperties::CheckNumberOfGroups() const {
   }
 }
 
-void MaterialProperties::CheckValid(const Material& material, const bool require_fission_data /* = false*/, std::string name /* = ""*/) {
+void MaterialProperties::CheckValid(const Material& material,
+                                    const bool require_fission_data /* = false */,
+                                    std::string name /* = "" */) {
   /* 
     calls GetVectorProperties and GetScatteringMatrix, which can throw exceptions, 
     but the order of checks is such that they shouldn't
@@ -233,7 +242,8 @@ void MaterialProperties::CheckValid(const Material& material, const bool require
   }
   const unsigned int& n = material.number_of_groups();
   std::unordered_map<Material::VectorId, unsigned int> required_count =
-   {{Material::ENERGY_GROUPS, n+1}, {Material::SIGMA_T, n}, {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n}};
+   {{Material::ENERGY_GROUPS, n+1}, {Material::SIGMA_T, n},
+    {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n}};
 
   for (Material::VectorId id : required_vector_props) {
     AssertThrow(vector_props.at(id).size() == required_count.at(id),
@@ -243,7 +253,7 @@ void MaterialProperties::CheckValid(const Material& material, const bool require
 
   for (const Material_MatrixProperty& mat_prop : material.matrix_property()) {
     if (mat_prop.id() == Material::SIGMA_S) {
-      AssertThrow((unsigned int)mat_prop.value().size() == material.number_of_groups()*material.number_of_groups(),
+      AssertThrow((unsigned int)mat_prop.value().size() == n*n,
           WrongNumberOfValues(name, Material_MatrixId_descriptor()->value(Material::SIGMA_S)->name(),
             mat_prop.value().size(), material.number_of_groups()));
     }
@@ -259,15 +269,16 @@ void MaterialProperties::CheckValid(const Material& material, const bool require
     }
   }
 
-  const dealii::FullMatrix<double> scattering_matrix = GetScatteringMatrix(material);
-  for (auto iter = scattering_matrix.begin(); iter < scattering_matrix.end(); ++iter) {
+  const dealii::FullMatrix<double> scat_mat = GetScatteringMatrix(material);
+  for (dealii::FullMatrix<double>::const_iterator iter = scat_mat.begin(); iter < scat_mat.end(); ++iter) {
     AssertThrow(iter->value() >= 0,
       WrongSign(name, Material_MatrixId_descriptor()->value(Material::SIGMA_S)->name(),
         iter->value(), iter->row()*n + iter->column()));
   }
 
   // EnergyGroupBoundariesNotSorted
-  for (auto i = vector_props.at(Material::ENERGY_GROUPS).begin()+1; i < vector_props.at(Material::ENERGY_GROUPS).end()-1; ++i) {
+  const std::vector<double> energies = vector_props.at(Material::ENERGY_GROUPS);
+  for (std::vector<double>::const_iterator i = energies.cbegin() + 1; i < energies.cend() - 1; ++i) {
     // require that every set of three consecutive values is in either strictly ascending or strictly descending order
     AssertThrow((*(i-1) > *i && *i > *(i+1)) || (*(i-1) < *i && *i < *(i+1)),
       EnergyGroupBoundariesNotSorted(name, *(i-1), *i, *(i+1)));
@@ -315,16 +326,19 @@ void MaterialProperties::CheckConsistent() const {
   CheckConsistent(materials_);
 }
 
-std::string MaterialProperties::CombinedName(const std::pair<int, Material>& id_material_pair, const std::string& delimiter /* = "|" */) {
+std::string MaterialProperties::CombinedName(const std::pair<int, Material>& id_material_pair,
+                                             const std::string& delimiter /* = "|" */) {
   const std::string q = "\"";
   const std::string& d = delimiter;
   const Material& mat = id_material_pair.second;
   std::string format = "number" + d + "full_name" + d + "abbreviation" + d + "id";
-  std::string info = std::to_string(id_material_pair.first) + d + q+mat.full_name()+q + d + q+mat.abbreviation()+q + d + q+mat.id()+q;
+  std::string info = std::to_string(id_material_pair.first) + d + q+mat.full_name()+q +
+                     d + q+mat.abbreviation()+q + d + q+mat.id()+q;
   return format + " = " + info;
 }
 
-std::string MaterialProperties::CombinedName(const Material& material, const std::string& delimiter /* = "|" */) {
+std::string MaterialProperties::CombinedName(const Material& material,
+                                             const std::string& delimiter /* = "|" */) {
   const std::string q = "\"";
   const std::string& d = delimiter;
   std::string format = "full_name" + d + "abbreviation" + d + "id";
@@ -332,7 +346,8 @@ std::string MaterialProperties::CombinedName(const Material& material, const std
   return format + " = " + info;
 }
 
-std::unordered_map<Material::VectorId, std::vector<double>> MaterialProperties::GetVectorProperties(const Material& material) {
+std::unordered_map<Material::VectorId, std::vector<double>>
+MaterialProperties::GetVectorProperties(const Material& material) {
   std::unordered_map<Material::VectorId, std::vector<double>> result;
   for (const Material_VectorProperty& vec_prop : material.vector_property()) {
     AssertThrow(result.count(vec_prop.id()) == 0 || vec_prop.id() == Material::UNKNOWN_VECTOR,
@@ -377,7 +392,8 @@ double MaterialProperties::PreciseSum(const std::vector<double>& values) {
   for (const double& addend : values) {
     const double corrected_addend = addend - error;
     const double new_sum = sum + corrected_addend;
-    error = (new_sum - sum) - corrected_addend; // holds low order digits of corrected_addend lost when making new_sum
+    // error is low order digits of corrected_addend lost when making new_sum
+    error = (new_sum - sum) - corrected_addend;
     sum = new_sum;
   }
   return sum;

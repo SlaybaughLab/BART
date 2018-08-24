@@ -43,12 +43,12 @@ class MaterialPropertiesTest : public ::testing::Test {
   static Material_MatrixProperty* GetPropertyPtr(Material& material, Material::MatrixId property_id);
 
   //! compare the contents of two maps with allowance for floating point error
-  static void ExpectApproxEqual(
-    const std::unordered_map<int, dealii::FullMatrix<double>>& lhs, const std::unordered_map<int, dealii::FullMatrix<double>>& rhs);
+  static void ExpectApproxEqual(const std::unordered_map<int, dealii::FullMatrix<double>>& lhs,
+                                const std::unordered_map<int, dealii::FullMatrix<double>>& rhs);
 
   //! compare the contents of two maps with allowance for floating point error
-  static void ExpectApproxEqual(
-    const std::unordered_map<int, std::vector<double>>& lhs, const std::unordered_map<int, std::vector<double>>& rhs);
+  static void ExpectApproxEqual(const std::unordered_map<int, std::vector<double>>& lhs,
+                                const std::unordered_map<int, std::vector<double>>& rhs);
 };
 
 MaterialPropertiesTest::MaterialPropertiesTest() {
@@ -199,8 +199,8 @@ Material_MatrixProperty* MaterialPropertiesTest::GetPropertyPtr(Material& materi
   return nullptr;
 }
 
-void MaterialPropertiesTest::ExpectApproxEqual(
-  const std::unordered_map<int, dealii::FullMatrix<double>>& lhs, const std::unordered_map<int, dealii::FullMatrix<double>>& rhs) {
+void MaterialPropertiesTest::ExpectApproxEqual(const std::unordered_map<int, dealii::FullMatrix<double>>& lhs,
+                                               const std::unordered_map<int, dealii::FullMatrix<double>>& rhs) {
   /*
     All computed values here require only a one step mathematical operation: chi*nu_sig_f, 1/sig_s, and dividing by 4pi,
     so there isn't much that can be different between implementations.
@@ -232,8 +232,8 @@ void MaterialPropertiesTest::ExpectApproxEqual(
   }
 }
 
-void MaterialPropertiesTest::ExpectApproxEqual(
-  const std::unordered_map<int, std::vector<double>>& lhs, const std::unordered_map<int, std::vector<double>>& rhs) {
+void MaterialPropertiesTest::ExpectApproxEqual(const std::unordered_map<int, std::vector<double>>& lhs,
+                                               const std::unordered_map<int, std::vector<double>>& rhs) {
   std::unordered_set<int> lhs_key_set;
   std::unordered_set<int> rhs_key_set;
   for (const auto& l_pair : lhs) {
@@ -419,7 +419,8 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       MaterialProperties::CheckValid(control_rod, false);
     }
     catch (const MaterialProperties::WrongNumberOfValues& e) {
-      std::string expected = control_rod_msg + ", the number of values under the label SIGMA_S (50) is inconsistent with number_of_groups = 7.";
+      std::string expected = control_rod_msg;
+      expected += ", the number of values under the label SIGMA_S (50) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
@@ -435,7 +436,8 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       MaterialProperties::CheckValid(control_rod, false);
     }
     catch (const MaterialProperties::WrongNumberOfValues& e) {
-      std::string expected = control_rod_msg + ", the number of values under the label SIGMA_S (36) is inconsistent with number_of_groups = 7.";
+      std::string expected = control_rod_msg;
+      expected += ", the number of values under the label SIGMA_S (36) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
@@ -452,7 +454,8 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       MaterialProperties::CheckValid(control_rod, false);
     }
     catch (const MaterialProperties::WrongNumberOfValues& e) {
-      std::string expected = control_rod_msg + ", the number of values under the label ENERGY_GROUPS (7) is inconsistent with number_of_groups = 7.";
+      std::string expected = control_rod_msg;
+      expected += ", the number of values under the label ENERGY_GROUPS (7) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
@@ -471,7 +474,8 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       MaterialProperties::CheckValid(control_rod, false);
     }
     catch (const MaterialProperties::WrongNumberOfValues& e) {
-      std::string expected = control_rod_msg + ", the number of values under the label Q (8) is inconsistent with number_of_groups = 7.";
+      std::string expected = control_rod_msg;
+      expected += ", the number of values under the label Q (8) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
@@ -1513,7 +1517,8 @@ TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
 
   prm.print_parameters(prm_string_after, dealii::ParameterHandler::Text);
   EXPECT_EQ(prm_string_before.str(), prm_string_after.str());
-  EXPECT_NO_THROW(prm.set("do eigenvalue calculations", "false")); // make sure the parameter handler path is back where it started
+  // make sure the parameter handler path is back where it started
+  EXPECT_NO_THROW(prm.set("do eigenvalue calculations", "false"));
 
   EXPECT_EQ(mp_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_eigen.GetSigT(), test_sigma_t_);
