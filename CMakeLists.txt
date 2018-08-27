@@ -1,29 +1,17 @@
-##
-#  Demo for separating CMakeLists.txt
-##
-
-# Set the name of the project and target:
-# SET(TARGET xtrans)
-
-# Declare all source files the target consists of. Here, this is only
-# the one step-X.cc file, but as you expand your project you may wish
-# to add other source files as well. If your project becomes much larger,
-# you may want to either replace the following statement by something like
-#  FILE(GLOB_RECURSE TARGET_SRC  "source/*.cc")
-#  FILE(GLOB_RECURSE TARGET_INC  "include/*.h")
-#  SET(TARGET_SRC ${TARGET_SRC}  ${TARGET_INC})
-# or switch altogether to the large project CMakeLists.txt file discussed
-# in the "CMake in user projects" page accessible from the "User info"
-# page of the documentation.
-# SET(TARGET_SRC
-#  ${TARGET}.cc
-#  )
-# FILE(GLOB TARGET_SRC "src/*/*.cc")
-# FILE(GLOB TARGET_INC "src/*/*.h")
-# SET(TARGET_SRC ${TARGET_SRC})
-# SET(TARGET_INC ${TARGET_INC})
-
-# Usually, you will not need to modify anything beyond this point...
+#
+#  ____          _____ _______ 
+# |  _ \   /\   |  __ \__   __|
+# | |_) | /  \  | |__) | | |   
+# |  _ < / /\ \ |  _  /  | |   
+# | |_) / ____ \| | \ \  | |   
+# |____/_/    \_\_|  \_\ |_|   
+#                              
+# Bay Area Radiation Transport
+#
+# CMakeLists derived from dealii example CMakeFiles
+#
+# Author: J.S. Rehak <jsrehak@berkeley.edu>
+#
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(xtrans)
@@ -86,10 +74,10 @@ ENABLE_TESTING()
 
 file(GLOB_RECURSE sources "src/*.cpp" "src/*.cc")
 set(testing_sources ${sources})
-list(FILTER sources EXCLUDE REGEX ".(/tests/).")
-list(FILTER sources EXCLUDE REGEX ".(/test_helpers/).")
-list(FILTER sources EXCLUDE REGEX "test_main.cc")
-list(FILTER testing_sources EXCLUDE REGEX "main.cc")
+list(FILTER sources EXCLUDE REGEX ".*/tests/.*")
+list(FILTER sources EXCLUDE REGEX ".*/test_helpers/.*")
+list(FILTER sources EXCLUDE REGEX ".*/test_main.cc$")
+list(FILTER testing_sources EXCLUDE REGEX ".*/main.cc$")
 
 # Include directories
 include_directories(${GTEST_INCLUDE_DIRS}
@@ -107,9 +95,6 @@ target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES}
 
 # Add subdirectory builds to build libraries for CTEST
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/mesh)
-
-SET(TARGET "xtrans")
-SET(TARGET_SRC ${CMAKE_SOURCE_DIR}/src/main.cc)
 
 # Add unit testing subdirectories
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/mesh)
