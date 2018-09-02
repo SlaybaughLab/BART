@@ -150,12 +150,7 @@ class MaterialProperties {
   //! \f$1/\sigma_\mathrm{t}\f$ of all groups for all materials
   std::unordered_map<int, std::vector<double>> inv_sigt_;
 
-  /*!
-   \f$\chi\f$ for all materials. A mistake when designing this is that it was
-   treated as other properties. Yet, it is group independent.
-
-   \todo Change this to std::vector<double> chi, or using Hash table.
-   */
+  //! \f$\chi\f$ for all materials.
   std::unordered_map<int, std::vector<double>> chi_;
 
   //! \f$\nu\sigma_\mathrm{f}\f$ of all groups for all materials.
