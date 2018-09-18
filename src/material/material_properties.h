@@ -1,6 +1,7 @@
 #ifndef BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
 #define BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
 
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -13,7 +14,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
 
-#include "../../material.pb.h"
+#include "material.pb.h"
 
 #include "../common/numbers.h"
 
@@ -25,6 +26,7 @@
 
  \todo Add functionality to perform eigenvalue decomposition.
  */
+
 class MaterialProperties {
  public:
   /*!
