@@ -1310,7 +1310,7 @@ TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
   prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
   prm.declare_entry("number of materials", "1", dealii::Patterns::Integer());
   prm.enter_subsection("material ID map");
-  prm.declare_entry("material id file name map", "3 : src/material/tests/data/broken/invalid_material.material",
+  prm.declare_entry("material id file name map", "3 : ./test_data/material/broken/invalid_material.material",
     dealii::Patterns::Map(dealii::Patterns::Integer(), dealii::Patterns::FileName(dealii::Patterns::FileName::input)));
   prm.leave_subsection();
   prm.enter_subsection("fissile material IDs");
@@ -1328,7 +1328,7 @@ TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
       MaterialProperties mp(prm);
     }
     catch (const MaterialProperties::FailedToParseMaterialFile& e) {
-      std::string expected = "Failed to parse file \"src/material/tests/data/broken/invalid_material.material\"";
+      std::string expected = "Failed to parse file \"./test_data/material/broken/invalid_material.material\"";
       expected += " for material number 3 as either a human-readable or serialized material file defined by material.proto.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
@@ -1338,7 +1338,7 @@ TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
   prm.set("number of materials", "2");
   prm.enter_subsection("material ID map");
   prm.set("material id file name map",
-    "10 : src/material/tests/data/serialized/uo2_20.material, 26 : src/material/tests/data/broken/invalid_material.material");
+    "10 : ./test_data/material/serialized/uo2_20.material, 26 : ./test_data/material/broken/invalid_material.material");
   prm.leave_subsection();
 
   EXPECT_THROW({
@@ -1347,7 +1347,7 @@ TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
       MaterialProperties mp(prm);
     }
     catch (const MaterialProperties::FailedToParseMaterialFile& e) {
-      std::string expected = "Failed to parse file \"src/material/tests/data/broken/invalid_material.material\"";
+      std::string expected = "Failed to parse file \"./test_data/material/broken/invalid_material.material\"";
       expected += " for material number 26 as either a human-readable or serialized material file defined by material.proto.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
