@@ -1368,7 +1368,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
 
   // try two in serialized format and two in human readable text format
   prm.enter_subsection("material ID map");
-  const std::string path = "src/material/tests/data/";
+  const std::string path = "./test_data/material/";
   std::string entry = "1 : " + path + "serialized/control_rod.material, ";
   entry += "11 : " + path + "readable/uo2_33.material, ";
   entry += "10: " + path + "serialized/uo2_20.material, ";
