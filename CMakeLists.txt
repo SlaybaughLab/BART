@@ -59,7 +59,7 @@ find_package(GMock REQUIRED)
 find_package(Protobuf REQUIRED)
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
   "${CMAKE_SOURCE_DIR}/protobuf/material.proto")
-
+get_filename_component(PROTO_INC_DIR ${PROTO_HDRS} DIRECTORY)
 ### COMPILE AND LINKER FLAGS #########################################
 
 SET(DEAL_II_CXX_FLAGS_DEBUG "${DEAL_II_CXX_FLAGS_DEBUG} -g -O0 --coverage")
@@ -86,7 +86,8 @@ list(FILTER testing_sources EXCLUDE REGEX ".*/main.cc$")
 
 # Include directories
 include_directories(${GTEST_INCLUDE_DIRS}
-  ${CMAKE_SOURCE_DIR}/inc)
+  ${CMAKE_SOURCE_DIR}/inc
+  ${PROTO_INC_DIR})
 
 # Add xtrans executables
 ADD_EXECUTABLE(xtrans ${sources})
