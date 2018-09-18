@@ -141,3 +141,8 @@ foreach(test_file ${ctest_files})
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file} ${file_name})
 endforeach()
 add_dependencies(xtrans_test copy_ctest_output_files)
+
+# Create copies of material protocol buffer data
+add_custom_target(copy_protoc_files ALL)
+file(COPY "./src/material/tests/data/" DESTINATION "./test_data/material")
+add_dependencies(xtrans_test copy_protoc_files)
