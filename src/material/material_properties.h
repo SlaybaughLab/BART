@@ -255,7 +255,7 @@ class MaterialProperties {
     extracts all vector properties from the Material
     can throw MultipleDefinition exception
   */
-  static std::unordered_map<Material::VectorId, std::vector<double>>
+  static std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>>
   GetVectorProperties(const Material& material);
 
   /*! 

@@ -114,7 +114,7 @@ void MaterialProperties::PopulateData() {
   for (const std::pair<int, Material>& mat_pair : materials_) {
     const int& id = mat_pair.first;
     const Material& material = mat_pair.second;
-    const std::unordered_map<Material::VectorId, std::vector<double>> vector_props = GetVectorProperties(material);
+    const std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>> vector_props = GetVectorProperties(material);
 
     sigt_[id] = vector_props.at(Material::SIGMA_T);
     sigs_[id] = GetScatteringMatrix(material);
@@ -226,7 +226,7 @@ void MaterialProperties::CheckValid(const Material& material,
     required_vector_props.insert(Material::CHI);
   }
 
-  std::unordered_map<Material::VectorId, std::vector<double>> vector_props = GetVectorProperties(material);
+  std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>> vector_props = GetVectorProperties(material);
 
   for (Material::VectorId id : required_vector_props) {
     AssertThrow(vector_props.count(id) == 1,
@@ -346,9 +346,9 @@ std::string MaterialProperties::CombinedName(const Material& material,
   return format + " = " + info;
 }
 
-std::unordered_map<Material::VectorId, std::vector<double>>
+std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>>
 MaterialProperties::GetVectorProperties(const Material& material) {
-  std::unordered_map<Material::VectorId, std::vector<double>> result;
+  std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>> result;
   for (const Material_VectorProperty& vec_prop : material.vector_property()) {
     AssertThrow(result.count(vec_prop.id()) == 0 || vec_prop.id() == Material::UNKNOWN_VECTOR,
       MultipleDefinition(CombinedName(material), Material_VectorId_descriptor()->value(vec_prop.id())->name()));
