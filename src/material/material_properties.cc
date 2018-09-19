@@ -200,7 +200,7 @@ void MaterialProperties::CheckValid(const Material& material,
   }
 
   // MultipleDefinition
-  std::unordered_set<Material::VectorId> vector_ids_in_material;
+  std::unordered_set<Material::VectorId, std::hash<int>> vector_ids_in_material;
 
   for (const Material_VectorProperty& vec_prop : material.vector_property()) {
     AssertThrow(vector_ids_in_material.count(vec_prop.id()) == 0 || vec_prop.id() == Material::UNKNOWN_VECTOR,
@@ -209,7 +209,7 @@ void MaterialProperties::CheckValid(const Material& material,
     vector_ids_in_material.insert(vec_prop.id());
   }
 
-  std::unordered_set<Material::MatrixId> matrix_ids_in_material;
+  std::unordered_set<Material::MatrixId, std::hash<int>> matrix_ids_in_material;
 
   for (const Material_MatrixProperty& mat_prop : material.matrix_property()) {
     AssertThrow(matrix_ids_in_material.count(mat_prop.id()) == 0 || mat_prop.id() == Material::UNKNOWN_MATRIX,
@@ -219,7 +219,7 @@ void MaterialProperties::CheckValid(const Material& material,
   }
 
   // MissingProperty
-  std::unordered_set<Material::VectorId> required_vector_props = {Material::ENERGY_GROUPS, Material::SIGMA_T};
+  std::unordered_set<Material::VectorId, std::hash<int>> required_vector_props = {Material::ENERGY_GROUPS, Material::SIGMA_T};
 
   if (require_fission_data) {
     required_vector_props.insert(Material::NU_SIG_F);
@@ -241,7 +241,7 @@ void MaterialProperties::CheckValid(const Material& material,
     required_vector_props.insert(Material::Q);
   }
   const unsigned int& n = material.number_of_groups();
-  std::unordered_map<Material::VectorId, unsigned int> required_count =
+  std::unordered_map<Material::VectorId, unsigned int, std::hash<int>> required_count =
    {{Material::ENERGY_GROUPS, n+1}, {Material::SIGMA_T, n},
     {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n}};
 
@@ -260,7 +260,7 @@ void MaterialProperties::CheckValid(const Material& material,
   }
 
   // WrongSign
-  const std::unordered_set<Material::VectorId> required_non_negative = required_vector_props;
+  const std::unordered_set<Material::VectorId, std::hash<int>> required_non_negative = required_vector_props;
   for (Material::VectorId id : required_non_negative) {
     for (unsigned int i = 0; i < vector_props.at(id).size(); ++i) {
       AssertThrow(vector_props.at(id)[i] >= 0,
