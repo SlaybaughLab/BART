@@ -17,6 +17,7 @@
 #include "material.pb.h"
 
 #include "../common/numbers.h"
+#include "material_properties_I.h"
 
 //! This class reads in and pre-processes material properties.
 /*!
@@ -27,7 +28,7 @@
  \todo Add functionality to perform eigenvalue decomposition.
  */
 
-class MaterialProperties {
+class MaterialProperties : public MaterialPropertiesI {
  public:
   /*!
     constructor using map of numerical IDs to Material objects
@@ -48,44 +49,44 @@ class MaterialProperties {
   explicit MaterialProperties(dealii::ParameterHandler& prm);
 
   //! default destructor
-  ~MaterialProperties();
+  ~MaterialProperties() override;
 
   /*!
     returns an unordered_map from material ID to a
     boolean that is true if the material was labeled fissile
   */
-  std::unordered_map<int, bool> GetFissileIDMap() const;
+  std::unordered_map<int, bool> GetFissileIDMap() const override;
 
   //! Returns all \f$\sigma_\mathrm{t}\f$ for all groups.
-  std::unordered_map<int, std::vector<double>> GetSigT() const;
+  std::unordered_map<int, std::vector<double>> GetSigT() const override;
 
   //! Returns all \f$1/\sigma_\mathrm{t}\f$ for all groups.
-  std::unordered_map<int, std::vector<double>> GetInvSigT() const;
+  std::unordered_map<int, std::vector<double>> GetInvSigT() const override;
 
   //! Returns all fixed source value \f$Q\f$'s for all groups.
-  std::unordered_map<int, std::vector<double>> GetQ() const;
+  std::unordered_map<int, std::vector<double>> GetQ() const override;
 
   //! Returns all \f$Q/(4\pi)\f$'s for all groups.
-  std::unordered_map<int, std::vector<double>> GetQPerSter() const;
+  std::unordered_map<int, std::vector<double>> GetQPerSter() const override;
 
   //! Returns all \f$\nu\sigma_\mathrm{f}\f$'s.
-  std::unordered_map<int, std::vector<double>> GetNuSigF() const;
+  std::unordered_map<int, std::vector<double>> GetNuSigF() const override;
 
   //! Returns all scattering transfer matrices.
   std::unordered_map<int, dealii::FullMatrix<double>>
-  GetSigS() const;
+  GetSigS() const override;
 
   //! Returns all scattering transfer matrices scaled by \f$4\pi\f$.
   std::unordered_map<int, dealii::FullMatrix<double>>
-  GetSigSPerSter() const;
+  GetSigSPerSter() const override;
 
   //! Returns \f$\chi\nu\sigma_\mathrm{f}\f$ for all fissile materials.
   std::unordered_map<int, dealii::FullMatrix<double>>
-  GetChiNuSigF() const;
+  GetChiNuSigF() const override;
 
   //! Returns \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for all fissile materials.
   std::unordered_map<int, dealii::FullMatrix<double>>
-  GetChiNuSigFPerSter() const;
+  GetChiNuSigFPerSter() const override;
 
   /*!
     asserts that a Material is self-consistent,
