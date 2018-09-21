@@ -1,5 +1,5 @@
 #ifndef BART_SRC_MATERIAL_MATERIAL_PROPERTIES_I_H_
-#define BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
+#define BART_SRC_MATERIAL_MATERIAL_PROPERTIES_I_H_
 
 #include <unordered_map>
 #include <vector>
