@@ -9,12 +9,14 @@
 
 #include "../material_properties_I.h"
 
+namespace btest {
+
 class MockMaterialProperties : public MaterialPropertiesI {
  public:
 
   using int_bool_map = std::unordered_map<int, bool>;
-  using int_vector_map = std::vector<double>;
-  using int_matrix_map = dealii::FullMatrix<double>;
+  using int_vector_map = std::unordered_map<int, std::vector<double>>;
+  using int_matrix_map = std::unordered_map<int, dealii::FullMatrix<double>>;
   
   MOCK_CONST_METHOD0(GetFissileIDMap, int_bool_map());
   
@@ -46,5 +48,7 @@ class MockMaterialProperties : public MaterialPropertiesI {
   MOCK_CONST_METHOD0(GetChiNuSigFPerSter, int_matrix_map());
   
 };
+
+} // namespace btest
 
 #endif //BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_PROPERTIES_H_
