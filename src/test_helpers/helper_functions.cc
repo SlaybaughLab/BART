@@ -2,6 +2,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <deal.II/lac/full_matrix.h>
+
 // Free functions that are helpful for writing tests
 
 namespace btest {
@@ -34,7 +36,7 @@ std::unordered_map<int, std::vector<double>> RandomIntVectorMap(
   
   for (size_t i; i < map_size + 1; ++i) {
     int material_id = rand()%static_cast<int>(min - max + 1) + min;
-    return_map.insert({material_id, RandomVector(vector_size, 0, 100)});
+    return_map.insert({material_id, RandomVector(vector_size, min, max)});
   }
   
   return return_map;
@@ -43,6 +45,42 @@ std::unordered_map<int, std::vector<double>> RandomIntVectorMap(
 //! Overload to allow easier forward-declaration
 std::unordered_map<int, std::vector<double>> RandomIntVectorMap() {
   return RandomIntVectorMap(4, 3, 0, 100);
+}
+
+//! Generates a random dealii::FullMatrix<double>.
+/*! Generates a random dealii::FullMatrix<double> of dimensions
+  \f$\mathcal{R}^{m \times n}\f$ with random double values between min and max.
+*/
+  
+dealii::FullMatrix<double> RandomMatrix(size_t m, size_t n, double min = 0,
+                                        double max = 100) {
+  dealii::FullMatrix<double> return_matrix(m, n);
+  for (size_t i = 0; i < m; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      return_matrix.set(i, j, RandomDouble(min, max));
+    }
+  }                     
+  return return_matrix;
+}
+
+//! Generates a random unordered map of ints to dealii::FullMatrix<double>
+std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap(
+    size_t map_size = 4, size_t m = 5, size_t n = 5, double min = 0,
+    double max = 100) {
+  
+  std::unordered_map<int, dealii::FullMatrix<double>> return_map;
+  
+  for (size_t i; i < map_size + 1; ++i) {
+    int material_id = rand()%static_cast<int>(min - max + 1) + min;
+    return_map.insert({material_id, RandomMatrix(m, n, min, max)});
+  }
+  
+  return return_map;
+}
+
+//! Overload for easy forward declaration
+std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap() {
+  return RandomIntMatrixMap(4, 5, 5, 0, 100);
 }
 
 } //namespace btest
