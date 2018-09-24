@@ -1,6 +1,9 @@
 #include <cstdlib>
+#include <exception>
 #include <unordered_map>
 #include <vector>
+
+#include <iostream>
 
 #include <deal.II/lac/full_matrix.h>
 
@@ -10,6 +13,8 @@ namespace btest {
 
 //! Generates a random double between min and max
 double RandomDouble(double min, double max) {
+  if (min >= max)
+    throw std::runtime_error("Min must be less than max");
   double random_zero_one =
       static_cast<double>(rand())/static_cast<double>(RAND_MAX);
   // multiply by total range and add to min
@@ -18,9 +23,14 @@ double RandomDouble(double min, double max) {
 
 //! Generates a vector populated with n random doubles between min and max
 std::vector<double> RandomVector(size_t n, double min, double max) {
+
+  if (!n)
+    throw std::runtime_error("Vector length must be > 0");
+  
   std::vector<double> return_vector;
-  for (size_t i; i < n+1; ++i)
+  for (size_t i = 0; i < n; ++i) {
     return_vector.push_back(RandomDouble(min, max));
+  }
   return return_vector;
 }
 
@@ -31,13 +41,16 @@ std::vector<double> RandomVector(size_t n, double min, double max) {
 std::unordered_map<int, std::vector<double>> RandomIntVectorMap(
     size_t map_size = 4, size_t vector_size = 3, double min = 0,
     double max = 100) {
+
+  if (!map_size)
+    throw std::runtime_error("IntVectorMap requires map size of at least 1");
   
   std::unordered_map<int, std::vector<double>> return_map;
   
-  for (size_t i; i < map_size + 1; ++i) {
-    int material_id = rand()%static_cast<int>(min - max + 1) + min;
+  do {
+    int material_id = rand()%(map_size*10);
     return_map.insert({material_id, RandomVector(vector_size, min, max)});
-  }
+  } while (return_map.size() < map_size);
   
   return return_map;
 }
