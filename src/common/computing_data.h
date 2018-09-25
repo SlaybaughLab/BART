@@ -1,7 +1,6 @@
 #ifndef BART_SRC_COMMON_COMPUTING_DATA_H_
 #define BART_SRC_COMMON_COMPUTING_DATA_H_
 
-//#include "../material/materials.h"
 #include "../material/material_properties_I.h"
 #include "../material/material_properties.h"
 #include "../aqdata/aq_base.h"
@@ -38,7 +37,6 @@ struct MatrixVector {
 };
 
 struct XSections {
-  //XSections (Materials &material);
   XSections (MaterialPropertiesI &material_properties);
 
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.

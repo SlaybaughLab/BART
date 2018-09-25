@@ -90,16 +90,6 @@ void BuildAQ (const dealii::ParameterHandler &prm,
   }
 }
 
-// void BuildMaterial (dealii::ParameterHandler &prm,
-//     std::unique_ptr<Materials> &mat_ptr) {
-//   mat_ptr = std::unique_ptr<Materials> (new Materials(prm));
-// }
-
-// std::unique_ptr<Materials> BuildMaterial (
-//     dealii::ParameterHandler &prm) {
-//   return std::unique_ptr<Materials> (new Materials(prm));
-// }
-
 template <int dim>
 void BuildMesh (dealii::ParameterHandler &prm,
     std::unique_ptr<MeshGenerator<dim>> &msh_ptr) {
