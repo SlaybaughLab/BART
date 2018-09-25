@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cstdlib>
 #include <exception>
 #include <unordered_map>
 #include <utility>
@@ -17,6 +18,7 @@ double RandomDouble(double, double);
 std::vector<double> RandomVector(size_t, double, double);
 std::unordered_map<int, std::vector<double>> RandomIntVectorMap(size_t, size_t,
                                                                 double,double);
+dealii::FullMatrix<double> RandomMatrix(size_t, size_t, double, double);
 }
 
 class TestHelperFunctionTest : public ::testing::Test {
@@ -98,5 +100,32 @@ TEST_F(TestHelperFunctionTest, RandomIntVectorMapTest) {
                                                    p.second));
       }
     }
+  }
+}
+
+TEST_F(TestHelperFunctionTest, RandomMatrixTest) {
+  // Generate 10 random matrices and verify properties
+  for (int i = 0; i < 10; ++i) {
+    size_t n = rand()%10 + 1;
+    size_t m = rand()%10 + 1;
+    
+    double val1 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
+    double val2 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
+    double min = (val1 > val2) ? val2 : val1;
+    double max = (val1 > val2) ? val1 : val2;
+
+    std::ostringstream test_msg;
+    test_msg << "Matrix Size: " << m << "x" << n << "; min/max: "
+             << min << "/" << max;                                
+    
+    dealii::FullMatrix<double> matrix = btest::RandomMatrix(m, n, min, max);
+
+    for (auto cit = matrix.begin(); cit < matrix.end(); ++cit)
+      EXPECT_THAT((*cit).value(), ::testing::AllOf(::testing::Ge(min),
+                                                   ::testing::Le(max)))
+          << test_msg.str();
+
+    EXPECT_EQ(matrix.m(), m) << test_msg.str();
+    EXPECT_EQ(matrix.n(), n) << test_msg.str();
   }
 }
