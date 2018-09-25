@@ -7,3 +7,8 @@ lcov --remove coverage.info '/usr/*' \
      '/home/dealii/libs/*' \
      --output-file coverage.info # filter out system and includes
 lcov --list coverage.info #debug info
+if [ $1 = "-r" ]
+then
+    genhtml coverage.info --branch-coverage --output-directory ./code_coverage_report/
+fi
+rm *.gcda *.gcno
