@@ -3,7 +3,7 @@
 
 #include "../aqdata/aq_base.h"
 #include "../mesh/mesh_generator.h"
-#include "../material/materials.h"
+//#include "../material/materials.h"
 #include "../equation/equation_base.h"
 #include "../iteration/eigen_base.h"
 #include "../iteration/mg_base.h"
@@ -60,8 +60,8 @@ namespace bbuilders {
    \param mat_ptr Materials object pointer.
    \return Void.
    */
-  void BuildMaterial (dealii::ParameterHandler &prm,
-      std::unique_ptr<Materials> &mat_ptr);
+  // void BuildMaterial (dealii::ParameterHandler &prm,
+  //     std::unique_ptr<Materials> &mat_ptr);
 
   //! Function used to build material
   /*!
@@ -70,8 +70,8 @@ namespace bbuilders {
    \param prm dealii::ParameterHandler object.
    \return Materials object pointer.
    */
-  std::unique_ptr<Materials> BuildMaterial (
-      dealii::ParameterHandler &prm);
+  // std::unique_ptr<Materials> BuildMaterial (
+  //     dealii::ParameterHandler &prm);
 
   //! Function used to build mesh
   /*!
