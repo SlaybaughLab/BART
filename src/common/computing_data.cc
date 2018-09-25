@@ -3,18 +3,18 @@
 
 #include <deal.II/fe/fe_update_flags.h>
 
-XSections::XSections (Materials& material)
-    :
-    sigt(material.GetSigT()),
-    inv_sigt(material.GetInvSigT()),
-    q(material.GetQ()),
-    q_per_ster(material.GetQPerSter()),
-    is_material_fissile(material.GetFissileIDMap()),
-    nu_sigf(material.GetNuSigf()),
-    sigs(material.GetSigS()),
-    sigs_per_ster(material.GetSigSPerSter()),
-    fiss_transfer(material.GetFissTransfer()),
-    fiss_transfer_per_ster(material.GetFissTransferPerSter()) {}
+// XSections::XSections (Materials& material)
+//     :
+//     sigt(material.GetSigT()),
+//     inv_sigt(material.GetInvSigT()),
+//     q(material.GetQ()),
+//     q_per_ster(material.GetQPerSter()),
+//     is_material_fissile(material.GetFissileIDMap()),
+//     nu_sigf(material.GetNuSigf()),
+//     sigs(material.GetSigS()),
+//     sigs_per_ster(material.GetSigSPerSter()),
+//     fiss_transfer(material.GetFissTransfer()),
+//     fiss_transfer_per_ster(material.GetFissTransferPerSter()) {}
 
 XSections::XSections (MaterialPropertiesI& material_properties)
     :
@@ -36,13 +36,14 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     :
     pcout(std::cout,
         (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)),
-    material(prm),
+    //material(prm),
     mesh(prm),
     mat_vec(std::shared_ptr<MatrixVector> (new MatrixVector())),
     //xsec(std::shared_ptr<XSections> (new XSections(material))),
     fe_data(prm),
     dof_handler(tria) {
-  xsec = std::shared_ptr<XSections> (new XSections(material));
+  MaterialProperties material_properties{prm};
+  xsec = std::make_shared<XSections>(material_properties);
   bbuilders::BuildAQ<dim>(prm, aq);
   aq->MakeAQ();
 }
