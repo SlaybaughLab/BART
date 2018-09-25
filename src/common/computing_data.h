@@ -3,6 +3,7 @@
 
 #include "../material/materials.h"
 #include "../material/material_properties_I.h"
+#include "../material/material_properties.h"
 #include "../aqdata/aq_base.h"
 #include "../mesh/mesh_generator.h"
 
@@ -135,7 +136,8 @@ struct FundamentalData {
 
   std::unique_ptr<AQBase<dim>> aq;//!< Pointer to aq data
   MeshGenerator<dim> mesh;//!< Pointer to mesh generator
-  Materials material;//!< Pointer to material properties
+  //Materials material;//!< Pointer to material properties
+  //std::unique_ptr<MaterialPropertiesI> material_properties;
 
   std::shared_ptr<MatrixVector> mat_vec;
   std::shared_ptr<XSections> xsec;//!< Pointer to access all cross sections.
