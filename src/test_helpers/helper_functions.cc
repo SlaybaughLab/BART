@@ -83,10 +83,10 @@ std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap(
   
   std::unordered_map<int, dealii::FullMatrix<double>> return_map;
   
-  for (size_t i; i < map_size + 1; ++i) {
-    int material_id = rand()%static_cast<int>(min - max + 1) + min;
+  do {
+    int material_id = rand()%(map_size*10);
     return_map.insert({material_id, RandomMatrix(m, n, min, max)});
-  }
+  } while (return_map.size() < map_size);
   
   return return_map;
 }

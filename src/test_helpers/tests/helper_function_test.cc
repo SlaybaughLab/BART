@@ -19,6 +19,8 @@ std::vector<double> RandomVector(size_t, double, double);
 std::unordered_map<int, std::vector<double>> RandomIntVectorMap(size_t, size_t,
                                                                 double,double);
 dealii::FullMatrix<double> RandomMatrix(size_t, size_t, double, double);
+std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap(
+    size_t, size_t, size_t, double, double);
 }
 
 class TestHelperFunctionTest : public ::testing::Test {
@@ -129,3 +131,40 @@ TEST_F(TestHelperFunctionTest, RandomMatrixTest) {
     EXPECT_EQ(matrix.n(), n) << test_msg.str();
   }
 }
+
+TEST_F(TestHelperFunctionTest, RandomIntMatrixMapTest) {
+  // Generate 20 random int to matrix maps and verify properties
+  for (int i = 0; i < 20; ++i) {
+    size_t n = rand()%10 + 1;
+    size_t m = rand()%10 + 1;
+    size_t map_size = rand()%10 + 1;
+    
+    double val1 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
+    double val2 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
+    double min = (val1 > val2) ? val2 : val1;
+    double max = (val1 > val2) ? val1 : val2;
+
+    std::ostringstream test_msg;
+    test_msg << "Map size: " << map_size << "; Matrix Size: " << m << "x"
+             << n << "; min/max: " << min << "/" << max;                                
+    
+    auto matrix_map = btest::RandomIntMatrixMap(map_size, m, n, min, max);
+
+    EXPECT_EQ(matrix_map.size(), map_size) << test_msg.str();
+
+    for (const auto mat : matrix_map) {
+      EXPECT_THAT(mat.first, ::testing::AllOf(::testing::Ge(0),
+                                                  ::testing::Le(map_size*10)))
+          << test_msg.str();
+    
+      for (auto cit = mat.second.begin(); cit < mat.second.end(); ++cit)
+        EXPECT_THAT((*cit).value(), ::testing::AllOf(::testing::Ge(min),
+                                                   ::testing::Le(max)))
+            << test_msg.str();
+
+      EXPECT_EQ(mat.second.m(), m) << test_msg.str();
+      EXPECT_EQ(mat.second.n(), n) << test_msg.str();
+    }
+  }
+}
+
