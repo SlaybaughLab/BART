@@ -1,17 +1,9 @@
-#include <cstdlib>
-#include <exception>
-#include <unordered_map>
-#include <vector>
-
-#include <iostream>
-
-#include <deal.II/lac/full_matrix.h>
+#include "test_helper_functions.h"
 
 // Free functions that are helpful for writing tests
 
 namespace btest {
 
-//! Generates a random double between min and max
 double RandomDouble(double min, double max) {
   if (min >= max)
     throw std::runtime_error("Min must be less than max");
@@ -21,7 +13,6 @@ double RandomDouble(double min, double max) {
   return (random_zero_one * (max - min)) + min;
 }
 
-//! Generates a vector populated with n random doubles between min and max
 std::vector<double> RandomVector(size_t n, double min, double max) {
 
   if (!n)
@@ -34,14 +25,9 @@ std::vector<double> RandomVector(size_t n, double min, double max) {
   return return_vector;
 }
 
-//! Generates a random unordered map of ints to vector<double>.
-/*! Generates a random unordered map of ints to vector<double> map_size keys to
-  vectors of length vector_size with values between min and max.
-*/
-std::unordered_map<int, std::vector<double>> RandomIntVectorMap(
-    size_t map_size = 4, size_t vector_size = 3, double min = 0,
-    double max = 100) {
-
+std::unordered_map<int, std::vector<double>>
+RandomIntVectorMap(size_t map_size, size_t vector_size, double min,
+                   double max) {
   if (!map_size)
     throw std::runtime_error("IntVectorMap requires map size of at least 1");
   
@@ -54,19 +40,8 @@ std::unordered_map<int, std::vector<double>> RandomIntVectorMap(
   
   return return_map;
 }
-
-//! Overload to allow easier forward-declaration
-std::unordered_map<int, std::vector<double>> RandomIntVectorMap() {
-  return RandomIntVectorMap(4, 3, 0, 100);
-}
-
-//! Generates a random dealii::FullMatrix<double>.
-/*! Generates a random dealii::FullMatrix<double> of dimensions
-  \f$\mathcal{R}^{m \times n}\f$ with random double values between min and max.
-*/
-  
-dealii::FullMatrix<double> RandomMatrix(size_t m, size_t n, double min = 0,
-                                        double max = 100) {
+dealii::FullMatrix<double> RandomMatrix(size_t m, size_t n, double min,
+                                        double max) {
   dealii::FullMatrix<double> return_matrix(m, n);
   for (size_t i = 0; i < m; ++i) {
     for (size_t j = 0; j < n; ++j) {
@@ -76,10 +51,8 @@ dealii::FullMatrix<double> RandomMatrix(size_t m, size_t n, double min = 0,
   return return_matrix;
 }
 
-//! Generates a random unordered map of ints to dealii::FullMatrix<double>
-std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap(
-    size_t map_size = 4, size_t m = 5, size_t n = 5, double min = 0,
-    double max = 100) {
+std::unordered_map<int, dealii::FullMatrix<double>>
+RandomIntMatrixMap(size_t map_size, size_t m, size_t n, double min, double max) {
   
   std::unordered_map<int, dealii::FullMatrix<double>> return_map;
   
@@ -89,11 +62,6 @@ std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap(
   } while (return_map.size() < map_size);
   
   return return_map;
-}
-
-//! Overload for easy forward declaration
-std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap() {
-  return RandomIntMatrixMap(4, 5, 5, 0, 100);
 }
 
 } //namespace btest

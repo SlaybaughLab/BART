@@ -1,3 +1,5 @@
+#include "../test_helper_functions.h"
+
 #include <gtest/gtest.h>
 
 #include <cstdlib>
@@ -11,17 +13,6 @@
 
 #include "../gmock_wrapper.h"
 
-// Forward declarations
-
-namespace btest {
-double RandomDouble(double, double);
-std::vector<double> RandomVector(size_t, double, double);
-std::unordered_map<int, std::vector<double>> RandomIntVectorMap(size_t, size_t,
-                                                                double,double);
-dealii::FullMatrix<double> RandomMatrix(size_t, size_t, double, double);
-std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap(
-    size_t, size_t, size_t, double, double);
-}
 
 class TestHelperFunctionTest : public ::testing::Test {
  protected:
