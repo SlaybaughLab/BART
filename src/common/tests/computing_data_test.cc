@@ -3,17 +3,14 @@
 #include <unordered_map>
 #include <vector>
 
+#include <gtest/gtest.h>
 #include <deal.II/lac/full_matrix.h>
 
 #include "../problem_definition.h"
-#include "../../test_helpers/bart_test_helper.h"
 #include "../../material/tests/mock_material_properties.h"
-
-// Forward declaration of test helper function
-namespace btest {
-std::unordered_map<int, std::vector<double>> RandomIntVectorMap();
-std::unordered_map<int, dealii::FullMatrix<double>> RandomIntMatrixMap();
-}
+#include "../../test_helpers/bart_test_helper.h"
+#include "../../test_helpers/gmock_wrapper.h"
+#include "../../test_helpers/test_helper_functions.h"
 
 class XSectionsTest : public ::testing::Test {
  protected:
