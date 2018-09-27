@@ -15,6 +15,7 @@
 #include <google/protobuf/text_format.h>
 
 #include "material.pb.h"
+#include "../utility/utility_functions.h"
 
 #include "../common/numbers.h"
 #include "material_properties_I.h"
@@ -285,12 +286,6 @@ class MaterialProperties : public MaterialPropertiesI {
   */
   static dealii::FullMatrix<double>
   GetScatteringMatrix(const Material& material);
-
-  /*!
-    Returns the sum of the given values calculated using
-    an algorithm that minimizes rounding error.
-  */
-  static double PreciseSum(const std::vector<double>& values);
 
  public:
   /*
