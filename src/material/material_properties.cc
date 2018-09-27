@@ -287,8 +287,8 @@ void MaterialProperties::CheckValid(const Material& material,
   // ChiDoesNotSumToOne
   if (required_vector_props.count(Material::CHI) > 0) {
     // allow a maximum error from 1 of two units in the last place
-    AssertThrow(abs(PreciseSum(vector_props.at(Material::CHI)) - 1) <= 2*std::numeric_limits<double>::epsilon(),
-      ChiDoesNotSumToOne(name, PreciseSum(vector_props.at(Material::CHI))));
+    AssertThrow(abs(butil::PreciseSum(vector_props.at(Material::CHI)) - 1) <= 2*std::numeric_limits<double>::epsilon(),
+                ChiDoesNotSumToOne(name, butil::PreciseSum(vector_props.at(Material::CHI))));
   }
 }
 
@@ -383,20 +383,6 @@ dealii::FullMatrix<double> MaterialProperties::GetScatteringMatrix(const Materia
     }
   }
   return dealii::FullMatrix<double>();
-}
-
-double MaterialProperties::PreciseSum(const std::vector<double>& values) {
-  // uses Kahan summation algorithm
-  double sum = 0;
-  double error = 0;
-  for (const double& addend : values) {
-    const double corrected_addend = addend - error;
-    const double new_sum = sum + corrected_addend;
-    // error is low order digits of corrected_addend lost when making new_sum
-    error = (new_sum - sum) - corrected_addend;
-    sum = new_sum;
-  }
-  return sum;
 }
 
 std::unordered_map<int, bool> MaterialProperties::GetFissileIDMap() const {
