@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_PROPERTIES_H_
-#define BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_PROPERTIES_H_
+#ifndef BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_H_
+#define BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_H_
 
 #include <unordered_map>
 #include <vector>
@@ -7,11 +7,11 @@
 #include <deal.II/lac/full_matrix.h>
 #include "../../test_helpers/gmock_wrapper.h"
 
-#include "../material_properties_I.h"
+#include "../material_base.h"
 
 namespace btest {
 
-class MockMaterialProperties : public MaterialPropertiesI {
+class MockMaterial : public MaterialBase {
  public:
 
   using int_bool_map = std::unordered_map<int, bool>;

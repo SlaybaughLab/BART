@@ -1,15 +1,21 @@
-#ifndef BART_SRC_MATERIAL_MATERIAL_PROPERTIES_I_H_
-#define BART_SRC_MATERIAL_MATERIAL_PROPERTIES_I_H_
+#ifndef BART_SRC_MATERIAL_MATERIAL_BASE_H_
+#define BART_SRC_MATERIAL_MATERIAL_BASE_H_
 
 #include <unordered_map>
 #include <vector>
 
 #include <deal.II/lac/full_matrix.h>
 
-class MaterialPropertiesI {
+//! Defines the interface for Material classes providing material properties
+/*!
+  \author Joshua Rehak
+  \date 2018/10/01
+*/
+
+class MaterialBase {
  public:
 
-  virtual ~MaterialPropertiesI() = default;
+  virtual ~MaterialBase() = default;
   /*!
     returns an unordered_map from material ID to a
     boolean that is true if the material was labeled fissile
@@ -45,4 +51,4 @@ class MaterialPropertiesI {
   
 };
 
-#endif
+#endif // BART_SRC_MATERIAL_MATERIAL_BASE_H_

@@ -1,4 +1,4 @@
-#include "../material_properties.h"
+#include "../material_protobuf.h"
 
 #include <sstream>
 
@@ -6,9 +6,9 @@
 
 #include "gtest/gtest.h"
 
-class MaterialPropertiesTest : public ::testing::Test {
+class MaterialProtobufTest : public ::testing::Test {
  protected:
-  MaterialPropertiesTest();
+  MaterialProtobufTest();
 
   //! maps from material id to data for that material
   std::unordered_map<int, std::vector<double>> test_energy_groups_;
@@ -51,7 +51,7 @@ class MaterialPropertiesTest : public ::testing::Test {
                                 const std::unordered_map<int, std::vector<double>>& rhs);
 };
 
-MaterialPropertiesTest::MaterialPropertiesTest() {
+MaterialProtobufTest::MaterialProtobufTest() {
   /*
     test_materials_ constructed here are identical to the materials in
     BART/src/material/tests/data/serialized/ and BART/src/material/tests/data/readable/
@@ -169,7 +169,7 @@ MaterialPropertiesTest::MaterialPropertiesTest() {
   }
 }
 
-std::string MaterialPropertiesTest::GetMessage(const dealii::ExceptionBase& e) {
+std::string MaterialProtobufTest::GetMessage(const dealii::ExceptionBase& e) {
   std::stringstream ss;
   e.print_info(ss);
   std::string msg = ss.str();
@@ -181,7 +181,7 @@ std::string MaterialPropertiesTest::GetMessage(const dealii::ExceptionBase& e) {
   return msg;
 }
 
-Material_VectorProperty* MaterialPropertiesTest::GetPropertyPtr(Material& material, Material::VectorId property_id) {
+Material_VectorProperty* MaterialProtobufTest::GetPropertyPtr(Material& material, Material::VectorId property_id) {
   for (int i = 0; i < material.vector_property_size(); ++i) {
     if (material.vector_property(i).id() == property_id) {
       return material.mutable_vector_property(i);
@@ -190,7 +190,7 @@ Material_VectorProperty* MaterialPropertiesTest::GetPropertyPtr(Material& materi
   return nullptr;
 }
 
-Material_MatrixProperty* MaterialPropertiesTest::GetPropertyPtr(Material& material, Material::MatrixId property_id) {
+Material_MatrixProperty* MaterialProtobufTest::GetPropertyPtr(Material& material, Material::MatrixId property_id) {
   for (int i = 0; i < material.matrix_property_size(); ++i) {
     if (material.matrix_property(i).id() == property_id) {
       return material.mutable_matrix_property(i);
@@ -199,7 +199,7 @@ Material_MatrixProperty* MaterialPropertiesTest::GetPropertyPtr(Material& materi
   return nullptr;
 }
 
-void MaterialPropertiesTest::ExpectApproxEqual(const std::unordered_map<int, dealii::FullMatrix<double>>& lhs,
+void MaterialProtobufTest::ExpectApproxEqual(const std::unordered_map<int, dealii::FullMatrix<double>>& lhs,
                                                const std::unordered_map<int, dealii::FullMatrix<double>>& rhs) {
   /*
     All computed values here require only a one step mathematical operation: chi*nu_sig_f, 1/sig_s, and dividing by 4pi,
@@ -232,7 +232,7 @@ void MaterialPropertiesTest::ExpectApproxEqual(const std::unordered_map<int, dea
   }
 }
 
-void MaterialPropertiesTest::ExpectApproxEqual(const std::unordered_map<int, std::vector<double>>& lhs,
+void MaterialProtobufTest::ExpectApproxEqual(const std::unordered_map<int, std::vector<double>>& lhs,
                                                const std::unordered_map<int, std::vector<double>>& rhs) {
   std::unordered_set<int> lhs_key_set;
   std::unordered_set<int> rhs_key_set;
@@ -277,9 +277,9 @@ void MaterialPropertiesTest::ExpectApproxEqual(const std::unordered_map<int, std
   and if no exception of the correct type is thrown, the EXPECT_THROW will fail.
 */
 
-// tests for static MaterialProperties::CheckValid, named after exceptions
+// tests for static MaterialProtobuf::CheckValid, named after exceptions
 
-TEST_F(MaterialPropertiesTest, MultipleDefinition) {
+TEST_F(MaterialProtobufTest, MultipleDefinition) {
   Material uo2_20;
   std::string uo2_20_msg = "Material full_name|abbreviation|id = \"UO2 2.0% fuel cell\"|\"uo2_20\"|\"uo2_20\"";
 
@@ -292,14 +292,14 @@ TEST_F(MaterialPropertiesTest, MultipleDefinition) {
       for (const double& val : energy_groups) {
         extra_vec_prop->add_value(val);
       }
-      MaterialProperties::CheckValid(uo2_20);
+      MaterialProtobuf::CheckValid(uo2_20);
     }
-    catch (const MaterialProperties::MultipleDefinition& e) {
+    catch (const MaterialProtobuf::MultipleDefinition& e) {
       std::string expected = uo2_20_msg + " has multiple definitions of ENERGY_GROUPS, which is not allowed.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MultipleDefinition);
+  }, MaterialProtobuf::MultipleDefinition);
 
   EXPECT_THROW({
     try {
@@ -309,14 +309,14 @@ TEST_F(MaterialPropertiesTest, MultipleDefinition) {
       for (unsigned int i = 0; i < uo2_20.number_of_groups()*uo2_20.number_of_groups(); ++i) {
         extra_mat_prop->add_value(0);
       }
-      MaterialProperties::CheckValid(uo2_20, false);
+      MaterialProtobuf::CheckValid(uo2_20, false);
     }
-    catch (const MaterialProperties::MultipleDefinition& e) {
+    catch (const MaterialProtobuf::MultipleDefinition& e) {
       std::string expected = uo2_20_msg + " has multiple definitions of SIGMA_S, which is not allowed.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MultipleDefinition);
+  }, MaterialProtobuf::MultipleDefinition);
 
   EXPECT_THROW({
     try {
@@ -327,17 +327,17 @@ TEST_F(MaterialPropertiesTest, MultipleDefinition) {
       for (const double& val : chi) {
         extra_vec_prop->add_value(val);
       }
-      MaterialProperties::CheckValid(uo2_20, true);
+      MaterialProtobuf::CheckValid(uo2_20, true);
     }
-    catch (const MaterialProperties::MultipleDefinition& e) {
+    catch (const MaterialProtobuf::MultipleDefinition& e) {
       std::string expected = uo2_20_msg + " has multiple definitions of CHI, which is not allowed.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MultipleDefinition);
+  }, MaterialProtobuf::MultipleDefinition);
 }
 
-TEST_F(MaterialPropertiesTest, MissingProperty) {
+TEST_F(MaterialProtobufTest, MissingProperty) {
   Material uo2_33;
   std::string uo2_33_msg = "Material full_name|abbreviation|id = \"UO2 3.3% fuel cell\"|\"uo2_33\"|\"uo2_33\"";
 
@@ -345,43 +345,43 @@ TEST_F(MaterialPropertiesTest, MissingProperty) {
     try {
       uo2_33.CopyFrom(test_materials_.at(11));
       GetPropertyPtr(uo2_33, Material::SIGMA_T)->set_id(Material::UNKNOWN_VECTOR);
-      MaterialProperties::CheckValid(uo2_33);
+      MaterialProtobuf::CheckValid(uo2_33);
     }
-    catch (const MaterialProperties::MissingProperty& e) {
+    catch (const MaterialProtobuf::MissingProperty& e) {
       std::string expected = uo2_33_msg + " is missing required property SIGMA_T.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MissingProperty);
+  }, MaterialProtobuf::MissingProperty);
 
   EXPECT_THROW({
     try {
       uo2_33.CopyFrom(test_materials_.at(11));
       uo2_33.clear_matrix_property();
-      MaterialProperties::CheckValid(uo2_33, false);
+      MaterialProtobuf::CheckValid(uo2_33, false);
     }
-    catch (const MaterialProperties::MissingProperty& e) {
+    catch (const MaterialProtobuf::MissingProperty& e) {
       std::string expected = uo2_33_msg + " is missing required property SIGMA_S.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MissingProperty);
+  }, MaterialProtobuf::MissingProperty);
 
   EXPECT_THROW({
     try {
       uo2_33.CopyFrom(test_materials_.at(11));
       GetPropertyPtr(uo2_33, Material::NU_SIG_F)->set_id(Material::Q);
-      MaterialProperties::CheckValid(uo2_33, true);
+      MaterialProtobuf::CheckValid(uo2_33, true);
     }
-    catch (const MaterialProperties::MissingProperty& e) {
+    catch (const MaterialProtobuf::MissingProperty& e) {
       std::string expected = uo2_33_msg + " is missing required property NU_SIG_F.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MissingProperty);
+  }, MaterialProtobuf::MissingProperty);
 }
 
-TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
+TEST_F(MaterialProtobufTest, WrongNumberOfValues) {
   Material control_rod;
   Material uo2_33;
   std::string control_rod_msg = "In material full_name|abbreviation|id = \"Control Rod\"|\"control_rod\"|\"control_rod\"";
@@ -390,41 +390,41 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
     try {
       uo2_33.CopyFrom(test_materials_.at(11));
       GetPropertyPtr(uo2_33, Material::NU_SIG_F)->clear_value();
-      MaterialProperties::CheckValid(uo2_33, true);
+      MaterialProtobuf::CheckValid(uo2_33, true);
     }
-    catch (const MaterialProperties::WrongNumberOfValues& e) {
+    catch (const MaterialProtobuf::WrongNumberOfValues& e) {
       std::string expected = "In material full_name|abbreviation|id = \"UO2 3.3% fuel cell\"|\"uo2_33\"|\"uo2_33\"";
       expected += ", the number of values under the label NU_SIG_F (0) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfValues);
+  }, MaterialProtobuf::WrongNumberOfValues);
 
   EXPECT_THROW({
     try {
       uo2_33.CopyFrom(test_materials_.at(11));
       uo2_33.set_number_of_groups(8);
-      MaterialProperties::CheckValid(uo2_33);
+      MaterialProtobuf::CheckValid(uo2_33);
     }
-    catch (const MaterialProperties::WrongNumberOfValues& e) {
+    catch (const MaterialProtobuf::WrongNumberOfValues& e) {
       EXPECT_EQ('8', *(GetMessage(e).rbegin()+1));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfValues);
+  }, MaterialProtobuf::WrongNumberOfValues);
 
   EXPECT_THROW({
     try {
       control_rod.CopyFrom(test_materials_.at(1));
       GetPropertyPtr(control_rod, Material::SIGMA_S)->add_value(0.1);
-      MaterialProperties::CheckValid(control_rod, false);
+      MaterialProtobuf::CheckValid(control_rod, false);
     }
-    catch (const MaterialProperties::WrongNumberOfValues& e) {
+    catch (const MaterialProtobuf::WrongNumberOfValues& e) {
       std::string expected = control_rod_msg;
       expected += ", the number of values under the label SIGMA_S (50) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfValues);
+  }, MaterialProtobuf::WrongNumberOfValues);
 
   EXPECT_THROW({
     try {
@@ -433,15 +433,15 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       for (int i = 0; i < 36; ++i) {
         GetPropertyPtr(control_rod, Material::SIGMA_S)->add_value(0.1);
       }
-      MaterialProperties::CheckValid(control_rod, false);
+      MaterialProtobuf::CheckValid(control_rod, false);
     }
-    catch (const MaterialProperties::WrongNumberOfValues& e) {
+    catch (const MaterialProtobuf::WrongNumberOfValues& e) {
       std::string expected = control_rod_msg;
       expected += ", the number of values under the label SIGMA_S (36) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfValues);
+  }, MaterialProtobuf::WrongNumberOfValues);
 
   EXPECT_THROW({
     try {
@@ -451,15 +451,15 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       for (const double& val : energy_groups) {
         GetPropertyPtr(control_rod, Material::ENERGY_GROUPS)->add_value(val);
       }
-      MaterialProperties::CheckValid(control_rod, false);
+      MaterialProtobuf::CheckValid(control_rod, false);
     }
-    catch (const MaterialProperties::WrongNumberOfValues& e) {
+    catch (const MaterialProtobuf::WrongNumberOfValues& e) {
       std::string expected = control_rod_msg;
       expected += ", the number of values under the label ENERGY_GROUPS (7) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfValues);
+  }, MaterialProtobuf::WrongNumberOfValues);
 
   // if the material contains Q data, it must be checked
   EXPECT_THROW({
@@ -471,18 +471,18 @@ TEST_F(MaterialPropertiesTest, WrongNumberOfValues) {
       for (const double& val : fixed_source) {
         q_ptr->add_value(val);
       }
-      MaterialProperties::CheckValid(control_rod, false);
+      MaterialProtobuf::CheckValid(control_rod, false);
     }
-    catch (const MaterialProperties::WrongNumberOfValues& e) {
+    catch (const MaterialProtobuf::WrongNumberOfValues& e) {
       std::string expected = control_rod_msg;
       expected += ", the number of values under the label Q (8) is inconsistent with number_of_groups = 7.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfValues);
+  }, MaterialProtobuf::WrongNumberOfValues);
 }
 
-TEST_F(MaterialPropertiesTest, WrongSign) {
+TEST_F(MaterialProtobufTest, WrongSign) {
   std::string control_rod_msg = "Material full_name|abbreviation|id = \"Control Rod\"|\"control_rod\"|\"control_rod\"";
   Material control_rod;
   control_rod.CopyFrom(test_materials_.at(1));
@@ -490,28 +490,28 @@ TEST_F(MaterialPropertiesTest, WrongSign) {
 
   EXPECT_THROW({
     try {
-      MaterialProperties::CheckValid(control_rod);
+      MaterialProtobuf::CheckValid(control_rod);
     }
-    catch (const MaterialProperties::WrongSign& e) {
+    catch (const MaterialProtobuf::WrongSign& e) {
       std::string expected = control_rod_msg + " contains a value of the wrong sign in SIGMA_T. (-1e-16 at index 6)";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongSign);
+  }, MaterialProtobuf::WrongSign);
 
   GetPropertyPtr(control_rod, Material::SIGMA_T)->set_value(6, 2.2847);
   GetPropertyPtr(control_rod, Material::SIGMA_S)->set_value(30, -85223);
 
   EXPECT_THROW({
     try {
-      MaterialProperties::CheckValid(control_rod, false);
+      MaterialProtobuf::CheckValid(control_rod, false);
     }
-    catch (const MaterialProperties::WrongSign& e) {
+    catch (const MaterialProtobuf::WrongSign& e) {
       std::string expected = control_rod_msg + " contains a value of the wrong sign in SIGMA_S. (-85223 at index 30)";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongSign);
+  }, MaterialProtobuf::WrongSign);
 
   Material uo2_33;
   uo2_33.CopyFrom(test_materials_.at(11));
@@ -519,15 +519,15 @@ TEST_F(MaterialPropertiesTest, WrongSign) {
 
   EXPECT_THROW({
     try {
-      MaterialProperties::CheckValid(uo2_33, true);
+      MaterialProtobuf::CheckValid(uo2_33, true);
     }
-    catch (const MaterialProperties::WrongSign& e) {
+    catch (const MaterialProtobuf::WrongSign& e) {
       std::string expected = "Material full_name|abbreviation|id = \"UO2 3.3% fuel cell\"|\"uo2_33\"|\"uo2_33\"";
       expected += " contains a value of the wrong sign in CHI. (-1e-16 at index 4)";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongSign);
+  }, MaterialProtobuf::WrongSign);
 
   EXPECT_THROW({
     try {
@@ -538,17 +538,17 @@ TEST_F(MaterialPropertiesTest, WrongSign) {
       for (const double& val : fixed_source) {
         q_ptr->add_value(val);
       }
-      MaterialProperties::CheckValid(control_rod, false);
+      MaterialProtobuf::CheckValid(control_rod, false);
     }
-    catch (const MaterialProperties::WrongSign& e) {
+    catch (const MaterialProtobuf::WrongSign& e) {
       std::string expected = control_rod_msg + " contains a value of the wrong sign in Q. (-6 at index 5)";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongSign);
+  }, MaterialProtobuf::WrongSign);
 }
 
-TEST_F(MaterialPropertiesTest, EnergyGroupBoundariesNotSorted) {
+TEST_F(MaterialProtobufTest, EnergyGroupBoundariesNotSorted) {
   Material control_rod;
   control_rod.CopyFrom(test_materials_.at(1));
   std::string control_rod_msg = "Energy group boundary vector for material full_name|abbreviation|id =";
@@ -561,14 +561,14 @@ TEST_F(MaterialPropertiesTest, EnergyGroupBoundariesNotSorted) {
       for (const double& val : energy_groups) {
         GetPropertyPtr(control_rod, Material::ENERGY_GROUPS)->add_value(val);
       }
-      MaterialProperties::CheckValid(control_rod);
+      MaterialProtobuf::CheckValid(control_rod);
     }
-    catch (const MaterialProperties::EnergyGroupBoundariesNotSorted& e) {
+    catch (const MaterialProtobuf::EnergyGroupBoundariesNotSorted& e) {
       std::string expected = control_rod_msg + " contains {100, 0, 10}, which are out of order.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::EnergyGroupBoundariesNotSorted);
+  }, MaterialProtobuf::EnergyGroupBoundariesNotSorted);
 
   EXPECT_THROW({
     try {
@@ -577,17 +577,17 @@ TEST_F(MaterialPropertiesTest, EnergyGroupBoundariesNotSorted) {
       for (const double& val : energy_groups) {
         GetPropertyPtr(control_rod, Material::ENERGY_GROUPS)->add_value(val);
       }
-      MaterialProperties::CheckValid(control_rod);
+      MaterialProtobuf::CheckValid(control_rod);
     }
-    catch (const MaterialProperties::EnergyGroupBoundariesNotSorted& e) {
+    catch (const MaterialProtobuf::EnergyGroupBoundariesNotSorted& e) {
       std::string expected = control_rod_msg + " contains {100, 10000, 1000}, which are out of order.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::EnergyGroupBoundariesNotSorted);
+  }, MaterialProtobuf::EnergyGroupBoundariesNotSorted);
 }
 
-TEST_F(MaterialPropertiesTest, ChiDoesNotSumToOne) {
+TEST_F(MaterialProtobufTest, ChiDoesNotSumToOne) {
   Material uo2_33;
   uo2_33.CopyFrom(test_materials_.at(11));
 
@@ -598,15 +598,15 @@ TEST_F(MaterialPropertiesTest, ChiDoesNotSumToOne) {
       for (const double& val : chi) {
         GetPropertyPtr(uo2_33, Material::CHI)->add_value(val);
       }
-      MaterialProperties::CheckValid(uo2_33, true);
+      MaterialProtobuf::CheckValid(uo2_33, true);
     }
-    catch (const MaterialProperties::ChiDoesNotSumToOne& e) {
+    catch (const MaterialProtobuf::ChiDoesNotSumToOne& e) {
       std::string expected = "In material full_name|abbreviation|id = \"UO2 3.3% fuel cell\"|\"uo2_33\"|\"uo2_33\"";
       expected += ", the sum of values in the Chi vector is 2. It must be normalized to 1.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::ChiDoesNotSumToOne);
+  }, MaterialProtobuf::ChiDoesNotSumToOne);
 
   GetPropertyPtr(uo2_33, Material::CHI)->clear_value();
   const std::vector<double> chi({0.5925247816749882 - 1e-15, 0.4071432856463152, 0.00033193267869671705, 0, 0, 0, 0});
@@ -614,33 +614,33 @@ TEST_F(MaterialPropertiesTest, ChiDoesNotSumToOne) {
     GetPropertyPtr(uo2_33, Material::CHI)->add_value(val);
   }
 
-  EXPECT_THROW(MaterialProperties::CheckValid(uo2_33, true), MaterialProperties::ChiDoesNotSumToOne);
+  EXPECT_THROW(MaterialProtobuf::CheckValid(uo2_33, true), MaterialProtobuf::ChiDoesNotSumToOne);
 }
 
-TEST_F(MaterialPropertiesTest, CheckValidNoThrow) {
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(10), false));
+TEST_F(MaterialProtobufTest, CheckValidNoThrow) {
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(10), false));
   GetPropertyPtr(test_materials_.at(10), Material::KAPPA_SIG_F)->clear_value();
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(10), true));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(10), true));
   GetPropertyPtr(test_materials_.at(10), Material::SIGMA_A)->set_value(1, -1);
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(10), true));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(10), true));
   GetPropertyPtr(test_materials_.at(10), Material::SIGMA_A)->clear_value();
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(10), true));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(10), true));
   GetPropertyPtr(test_materials_.at(10), Material::KAPPA_SIG_F)->set_id(Material::UNKNOWN_VECTOR);
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(10), true));
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(1), false));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(10), true));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(1), false));
   
   Material_VectorProperty* unknown_vector_ptr = test_materials_.at(1).add_vector_property();
   unknown_vector_ptr->set_id(Material::UNKNOWN_VECTOR);
   unknown_vector_ptr = test_materials_.at(1).add_vector_property();
   unknown_vector_ptr->set_id(Material::UNKNOWN_VECTOR);
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(1), false));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(1), false));
   GetPropertyPtr(test_materials_.at(1), Material::KAPPA_SIG_F)->set_value(4, -510);
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(1), false));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(1), false));
   GetPropertyPtr(test_materials_.at(11), Material::KAPPA_SIG_F)->add_value(-44);
-  EXPECT_NO_THROW(MaterialProperties::CheckValid(test_materials_.at(11), true));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckValid(test_materials_.at(11), true));
 }
 
-TEST_F(MaterialPropertiesTest, StaticCheckConsistent) {
+TEST_F(MaterialProtobufTest, StaticCheckConsistent) {
   Material uo2_20;
   uo2_20.CopyFrom(test_materials_.at(10));
   Material uo2_33;
@@ -653,101 +653,101 @@ TEST_F(MaterialPropertiesTest, StaticCheckConsistent) {
 
   EXPECT_THROW({
     try {
-      MaterialProperties::CheckConsistent(map);
+      MaterialProtobuf::CheckConsistent(map);
     }
-    catch (const MaterialProperties::NumberOfGroupsMismatch& e) {
+    catch (const MaterialProtobuf::NumberOfGroupsMismatch& e) {
       std::string expected_1 = "The number_of_groups in " + mat_3 + " and " + mat_12 + " are different.";
       std::string expected_2 = "The number_of_groups in " + mat_12 + " and " + mat_3 + " are different.";
       EXPECT_TRUE(expected_1 == GetMessage(e) || expected_2 == GetMessage(e));
       throw;
     }
-  }, MaterialProperties::NumberOfGroupsMismatch);
+  }, MaterialProtobuf::NumberOfGroupsMismatch);
 
   map.at(3).set_number_of_groups(7);
   GetPropertyPtr(map.at(12), Material::ENERGY_GROUPS)->set_value(2, 9118);
 
   EXPECT_THROW({
     try {
-      MaterialProperties::CheckConsistent(map);
+      MaterialProtobuf::CheckConsistent(map);
     }
-    catch (const MaterialProperties::NumberOfGroupsMismatch& e) {
+    catch (const MaterialProtobuf::NumberOfGroupsMismatch& e) {
       std::string expected_1 = "The energy groups boundaries in " + mat_3 + " and " + mat_12 + " differ at index 2.";
       std::string expected_2 = "The energy groups boundaries in " + mat_12 + " and " + mat_3 + " differ at index 2.";
       EXPECT_TRUE(expected_1 == GetMessage(e) || expected_2 == GetMessage(e));
       throw;
     }
-  }, MaterialProperties::EnergyGroupsMismatch);
+  }, MaterialProtobuf::EnergyGroupsMismatch);
 
   GetPropertyPtr(map.at(12), Material::ENERGY_GROUPS)->set_value(2, 9119);
   GetPropertyPtr(map.at(12), Material::ENERGY_GROUPS)->add_value(0);
   
   EXPECT_THROW({
     try {
-      MaterialProperties::CheckConsistent(map);
+      MaterialProtobuf::CheckConsistent(map);
     }
-    catch (const MaterialProperties::NumberOfGroupsMismatch& e) {
+    catch (const MaterialProtobuf::NumberOfGroupsMismatch& e) {
       std::string expected_1 = "The energy groups boundaries in " + mat_3 + " and " + mat_12 + " differ at index 9.";
       std::string expected_2 = "The energy groups boundaries in " + mat_12 + " and " + mat_3 + " differ at index 9.";
       EXPECT_TRUE(expected_1 == GetMessage(e) || expected_2 == GetMessage(e));
       throw;
     }
-  }, MaterialProperties::EnergyGroupsMismatch);
+  }, MaterialProtobuf::EnergyGroupsMismatch);
 }
 
-TEST_F(MaterialPropertiesTest, StaticCheckConsistentNoThrow) {
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent(test_materials_));
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent({}));
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent({{1, test_materials_.at(1)}}));
+TEST_F(MaterialProtobufTest, StaticCheckConsistentNoThrow) {
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent(test_materials_));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent({}));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent({{1, test_materials_.at(1)}}));
   test_materials_.at(1).clear_matrix_property();
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent(test_materials_));
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent({{1, Material()}}));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent(test_materials_));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent({{1, Material()}}));
   test_materials_.at(1).set_number_of_groups(5);
   test_materials_.at(2).set_number_of_groups(5);
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent({{1, test_materials_.at(1)}, {2, test_materials_.at(2)}}));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent({{1, test_materials_.at(1)}, {2, test_materials_.at(2)}}));
   GetPropertyPtr(test_materials_.at(1), Material::ENERGY_GROUPS)->clear_value();
   GetPropertyPtr(test_materials_.at(2), Material::ENERGY_GROUPS)->clear_value();
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent({{1, test_materials_.at(1)}, {2, test_materials_.at(2)}}));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent({{1, test_materials_.at(1)}, {2, test_materials_.at(2)}}));
   test_materials_.at(1).clear_vector_property();
   test_materials_.at(2).clear_vector_property();
-  EXPECT_NO_THROW(MaterialProperties::CheckConsistent({{1, test_materials_.at(1)}, {2, test_materials_.at(2)}}));
+  EXPECT_NO_THROW(MaterialProtobuf::CheckConsistent({{1, test_materials_.at(1)}, {2, test_materials_.at(2)}}));
 }
 
-// tests for exceptions thrown from MaterialProperties Material map constructor
+// tests for exceptions thrown from MaterialProtobuf Material map constructor
 
-TEST_F(MaterialPropertiesTest, NoFissileIDs) {
-  EXPECT_THROW(MaterialProperties mp(test_materials_, true, false, 7, 4), MaterialProperties::NoFissileIDs);
-  EXPECT_THROW(MaterialProperties mp(test_materials_, true, false, 7, 4, {}), MaterialProperties::NoFissileIDs);
+TEST_F(MaterialProtobufTest, NoFissileIDs) {
+  EXPECT_THROW(MaterialProtobuf mp(test_materials_, true, false, 7, 4), MaterialProtobuf::NoFissileIDs);
+  EXPECT_THROW(MaterialProtobuf mp(test_materials_, true, false, 7, 4, {}), MaterialProtobuf::NoFissileIDs);
 }
 
-TEST_F(MaterialPropertiesTest, FissileIDInvalid) {
+TEST_F(MaterialProtobufTest, FissileIDInvalid) {
   EXPECT_THROW({
     try {
-      MaterialProperties mp(test_materials_, true, false, 7, 4, {11, 5, 10});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {11, 5, 10});
     }
-    catch (const MaterialProperties::FissileIDInvalid& e) {
+    catch (const MaterialProtobuf::FissileIDInvalid& e) {
       std::string expected = "Material ID 5 was specified as fissile, but no material with ID 5 exists.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::FissileIDInvalid);
+  }, MaterialProtobuf::FissileIDInvalid);
 
   EXPECT_THROW({
     try {
-      MaterialProperties mp(test_materials_, true, false, 7, 4, {-222});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {-222});
     }
-    catch (const MaterialProperties::FissileIDInvalid& e) {
+    catch (const MaterialProtobuf::FissileIDInvalid& e) {
       std::string expected = "Material ID -222 was specified as fissile, but no material with ID -222 exists.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::FissileIDInvalid);
+  }, MaterialProtobuf::FissileIDInvalid);
 
   // test that the exception has one of the correct possible options
   EXPECT_THROW({
     try {
-      MaterialProperties mp(test_materials_, true, false, 7, 4, {1, 2, 3, 4, 8, 9, 10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {1, 2, 3, 4, 8, 9, 10, 11});
     }
-    catch (const MaterialProperties::FissileIDInvalid& e) {
+    catch (const MaterialProtobuf::FissileIDInvalid& e) {
       std::string message = GetMessage(e);
       bool errorMessageContainsInvalidID = false;
       for (std::string id_str : {" 3 ", " 4 ", " 8 ", " 9 "})
@@ -759,72 +759,72 @@ TEST_F(MaterialPropertiesTest, FissileIDInvalid) {
       EXPECT_TRUE(errorMessageContainsInvalidID);
       throw;
     }
-  }, MaterialProperties::FissileIDInvalid);
+  }, MaterialProtobuf::FissileIDInvalid);
 }
 
-TEST_F(MaterialPropertiesTest, WrongNumberOfMaterials) {
+TEST_F(MaterialProtobufTest, WrongNumberOfMaterials) {
   EXPECT_THROW({
     try {
-      MaterialProperties mp(test_materials_, true, false, 7, 3, {10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 3, {10, 11});
     }
-    catch (const MaterialProperties::WrongNumberOfMaterials& e) {
+    catch (const MaterialProtobuf::WrongNumberOfMaterials& e) {
       std::string expected = "The actual number of materials read in (4) does not match the number of materials specified (3).";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfMaterials);
+  }, MaterialProtobuf::WrongNumberOfMaterials);
 }
 
-TEST_F(MaterialPropertiesTest, WrongNumberOfGroups) {
+TEST_F(MaterialProtobufTest, WrongNumberOfGroups) {
   Material uo2_20;
   uo2_20.CopyFrom(test_materials_.at(10));
   std::unordered_map<int, Material> map = {{10, uo2_20}};
   EXPECT_THROW({
     try {
-      MaterialProperties mp(map, false, false, 8, 1);
+      MaterialProtobuf mp(map, false, false, 8, 1);
     }
-    catch (const MaterialProperties::WrongNumberOfGroups& e) {
+    catch (const MaterialProtobuf::WrongNumberOfGroups& e) {
       std::string expected = "The number_of_groups in material";
       expected += " number|full_name|abbreviation|id = 10|\"UO2 2.0% fuel cell\"|\"uo2_20\"|\"uo2_20\"";
-      expected += " does not match the number of groups in MaterialProperties. (7 != 8)";
+      expected += " does not match the number of groups in MaterialProtobuf. (7 != 8)";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongNumberOfGroups);
+  }, MaterialProtobuf::WrongNumberOfGroups);
 }
 
-TEST_F(MaterialPropertiesTest, InvalidMaterialInConstructor) {
+TEST_F(MaterialProtobufTest, InvalidMaterialInConstructor) {
   std::string uo2_33_msg = "Material number|full_name|abbreviation|id = 11|\"UO2 3.3% fuel cell\"|\"uo2_33\"|\"uo2_33\"";
   std::string reflector_msg = "Material number|full_name|abbreviation|id = 2|\"Reflector\"|\"reflector\"|\"reflector\"";
   GetPropertyPtr(test_materials_.at(11), Material::NU_SIG_F)->set_id(Material::UNKNOWN_VECTOR);
 
   EXPECT_THROW({
     try {
-      MaterialProperties mp(test_materials_, true, false, 7, 4, {10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {10, 11});
     }
-    catch (const MaterialProperties::MissingProperty& e) {
+    catch (const MaterialProtobuf::MissingProperty& e) {
       std::string expected = uo2_33_msg + " is missing required property NU_SIG_F.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::MissingProperty);
+  }, MaterialProtobuf::MissingProperty);
 
   GetPropertyPtr(test_materials_.at(11), Material::UNKNOWN_VECTOR)->set_id(Material::NU_SIG_F);
   GetPropertyPtr(test_materials_.at(2), Material::SIGMA_S)->set_value(48, -1);
 
   EXPECT_THROW({
     try {
-      MaterialProperties mp(test_materials_, true, false, 7, 4, {10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {10, 11});
     }
-    catch (const MaterialProperties::WrongSign& e) {
+    catch (const MaterialProtobuf::WrongSign& e) {
       std::string expected = reflector_msg + " contains a value of the wrong sign in SIGMA_S. (-1 at index 48)";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::WrongSign);
+  }, MaterialProtobuf::WrongSign);
 }
 
-TEST_F(MaterialPropertiesTest, InconsistentMaterialsInConstructor) {
+TEST_F(MaterialProtobufTest, InconsistentMaterialsInConstructor) {
   Material reflector;
   reflector.CopyFrom(test_materials_.at(2));
   Material uo2_33;
@@ -836,21 +836,21 @@ TEST_F(MaterialPropertiesTest, InconsistentMaterialsInConstructor) {
 
   EXPECT_THROW({
     try {
-      MaterialProperties mp(map, true, false, 7, 2, {1});
+      MaterialProtobuf mp(map, true, false, 7, 2, {1});
     }
-    catch (const MaterialProperties::NumberOfGroupsMismatch& e) {
+    catch (const MaterialProtobuf::NumberOfGroupsMismatch& e) {
       std::string expected_1 = "The energy groups boundaries in " + mat_0 + " and " + mat_1 + " differ at index 0.";
       std::string expected_2 = "The energy groups boundaries in " + mat_1 + " and " + mat_0 + " differ at index 0.";
       EXPECT_TRUE(expected_1 == GetMessage(e) || expected_2 == GetMessage(e));
       throw;
     }
-  }, MaterialProperties::EnergyGroupsMismatch);
+  }, MaterialProtobuf::EnergyGroupsMismatch);
 }
 
-// tests for MaterialProperties working correctly and returning the correct data given a map of Materials
+// tests for MaterialProtobuf working correctly and returning the correct data given a map of Materials
 
-TEST_F(MaterialPropertiesTest, NullMaterialProperties) {
-  MaterialProperties mp_0({}, false, false, 0, 0);
+TEST_F(MaterialProtobufTest, NullMaterialProtobuf) {
+  MaterialProtobuf mp_0({}, false, false, 0, 0);
 
   EXPECT_EQ(mp_0.GetFissileIDMap(), null_bool_map_);
   EXPECT_EQ(mp_0.GetSigT(), null_vector_map_);
@@ -864,7 +864,7 @@ TEST_F(MaterialPropertiesTest, NullMaterialProperties) {
   EXPECT_EQ(mp_0.GetChiNuSigFPerSter(), null_matrix_map_);
 }
 
-TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
+TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   std::unordered_map<int, bool> correct_fissile_id_map;
   std::unordered_map<int, std::vector<double>> correct_sig_t_map;
   std::unordered_map<int, std::vector<double>> correct_inv_sig_t_map;
@@ -884,7 +884,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   Material control_rod;
   control_rod.CopyFrom(test_materials_.at(1));
   std::unordered_map<int, Material> map = {{1, control_rod}};
-  MaterialProperties mp_1(map, false, false, 7, 1);
+  MaterialProtobuf mp_1(map, false, false, 7, 1);
 
   correct_fissile_id_map[1] = false;
   correct_sig_t_map[1] = test_sigma_t_.at(1);
@@ -933,7 +933,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   correct_q_map[1] = {0.05, 0.3, 0.5, 0.1, 0, 0, 0};
   correct_q_per_ster_map[1] =
    {0.0039788735772973835, 0.0238732414637843, 0.039788735772973836, 0.007957747154594767, 0, 0, 0};
-  MaterialProperties mp_1_q(map, false, false, 7, 1);
+  MaterialProtobuf mp_1_q(map, false, false, 7, 1);
 
   EXPECT_EQ(mp_1_q.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_1_q.GetSigT(), correct_sig_t_map);
@@ -976,7 +976,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   correct_sigma_s_per_ster_map[10] =
   {dealii::FullMatrix<double>(7, 7, sigma_s_per_ster_values[10].data())};
 
-  MaterialProperties mp_2(map, false, false, 7, 2);
+  MaterialProtobuf mp_2(map, false, false, 7, 2);
 
   EXPECT_EQ(mp_2.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_2.GetSigT(), correct_sig_t_map);
@@ -1016,7 +1016,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   correct_chi_nu_sig_f_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[10].data());
   correct_chi_nu_sig_f_per_ster_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[10].data());
 
-  MaterialProperties mp_2_eigen(map, true, false, 7, 2, {10});
+  MaterialProtobuf mp_2_eigen(map, true, false, 7, 2, {10});
 
   EXPECT_EQ(mp_2_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_2_eigen.GetSigT(), correct_sig_t_map);
@@ -1055,7 +1055,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   correct_chi_nu_sig_f_per_ster_map_1_eigen.erase(1);
   auto map_1_eigen = map;
   map_1_eigen.erase(1);
-  MaterialProperties mp_1_eigen(map_1_eigen, true, false, 7, 1, {10});
+  MaterialProtobuf mp_1_eigen(map_1_eigen, true, false, 7, 1, {10});
 
   EXPECT_EQ(mp_1_eigen.GetFissileIDMap(), correct_fissile_id_map_1_eigen);
   EXPECT_EQ(mp_1_eigen.GetSigT(), correct_sig_t_map_1_eigen);
@@ -1142,7 +1142,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   correct_chi_nu_sig_f_map[11] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[11].data());
   correct_chi_nu_sig_f_per_ster_map[11] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[11].data());
 
-  MaterialProperties mp_4_eigen(map, true, false, 7, 4, {10, 11});
+  MaterialProtobuf mp_4_eigen(map, true, false, 7, 4, {10, 11});
 
   EXPECT_EQ(mp_4_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_4_eigen.GetSigT(), correct_sig_t_map);
@@ -1162,7 +1162,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   // four material fixed source problem
   correct_fissile_id_map[10] = false;
   correct_fissile_id_map[11] = false;
-  MaterialProperties mp_4_q(map, false, false, 7, 4);
+  MaterialProtobuf mp_4_q(map, false, false, 7, 4);
 
   EXPECT_EQ(mp_4_q.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_4_q.GetSigT(), correct_sig_t_map);
@@ -1219,7 +1219,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
     }
   }
 
-  MaterialProperties mp_one_group(map, false, false, 1, 4);
+  MaterialProtobuf mp_one_group(map, false, false, 1, 4);
 
   EXPECT_EQ(mp_one_group.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_one_group.GetSigT(), correct_sig_t_map);
@@ -1238,7 +1238,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   // one group eigen problem
   correct_fissile_id_map[10] = true;
   correct_fissile_id_map[11] = true;
-  MaterialProperties mp_one_group_eigen(map, true, false, 1, 4, {10, 11});
+  MaterialProtobuf mp_one_group_eigen(map, true, false, 1, 4, {10, 11});
 
   EXPECT_EQ(mp_one_group_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_one_group_eigen.GetSigT(), correct_sig_t_map);
@@ -1256,7 +1256,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromMap) {
   ExpectApproxEqual(mp_one_group_eigen.GetChiNuSigFPerSter(), correct_chi_nu_sig_f_per_ster_map);}
 }
 
-TEST_F(MaterialPropertiesTest, FailedToFindMaterialFile) {
+TEST_F(MaterialProtobufTest, FailedToFindMaterialFile) {
   dealii::ParameterHandler prm;
   prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
   prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
@@ -1273,15 +1273,15 @@ TEST_F(MaterialPropertiesTest, FailedToFindMaterialFile) {
 
   EXPECT_THROW({
     try {
-      MaterialProperties mp(prm);
+      MaterialProtobuf mp(prm);
     }
-    catch (const MaterialProperties::FailedToFindMaterialFile& e) {
+    catch (const MaterialProtobuf::FailedToFindMaterialFile& e) {
       std::string expected = "Failed to find material file \"src/material/tests/data/broken/nonexistent_file_70844.material\"";
       expected += " for material number 3 in the current working directory.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::FailedToFindMaterialFile);
+  }, MaterialProtobuf::FailedToFindMaterialFile);
 
   prm.set("number of materials", "2");
   prm.enter_subsection("material ID map");
@@ -1291,19 +1291,19 @@ TEST_F(MaterialPropertiesTest, FailedToFindMaterialFile) {
 
   EXPECT_THROW({
     try {
-      MaterialProperties mp(prm);
+      MaterialProtobuf mp(prm);
     }
-    catch (const MaterialProperties::FailedToFindMaterialFile& e) {
+    catch (const MaterialProtobuf::FailedToFindMaterialFile& e) {
       std::string expected = "Failed to find material file \"src/material/tests/data/broken/nonexistent_file_55314.material\"";
       expected += " for material number 6 in the current working directory.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::FailedToFindMaterialFile);
+  }, MaterialProtobuf::FailedToFindMaterialFile);
 
 }
 
-TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
+TEST_F(MaterialProtobufTest, FailedToParseMaterialFile) {
   dealii::ParameterHandler prm;
   prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
   prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
@@ -1325,15 +1325,15 @@ TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
         Otherwise, problems with parsing our intentionally broken file would be printed to stderr.
       */
       google::protobuf::LogSilencer log_silencer;
-      MaterialProperties mp(prm);
+      MaterialProtobuf mp(prm);
     }
-    catch (const MaterialProperties::FailedToParseMaterialFile& e) {
+    catch (const MaterialProtobuf::FailedToParseMaterialFile& e) {
       std::string expected = "Failed to parse file \"./test_data/material/broken/invalid_material.material\"";
       expected += " for material number 3 as either a human-readable or serialized material file defined by material.proto.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::FailedToParseMaterialFile);
+  }, MaterialProtobuf::FailedToParseMaterialFile);
 
   prm.set("number of materials", "2");
   prm.enter_subsection("material ID map");
@@ -1344,18 +1344,18 @@ TEST_F(MaterialPropertiesTest, FailedToParseMaterialFile) {
   EXPECT_THROW({
     try {
       google::protobuf::LogSilencer log_silencer;
-      MaterialProperties mp(prm);
+      MaterialProtobuf mp(prm);
     }
-    catch (const MaterialProperties::FailedToParseMaterialFile& e) {
+    catch (const MaterialProtobuf::FailedToParseMaterialFile& e) {
       std::string expected = "Failed to parse file \"./test_data/material/broken/invalid_material.material\"";
       expected += " for material number 26 as either a human-readable or serialized material file defined by material.proto.";
       EXPECT_EQ(expected, GetMessage(e));
       throw;
     }
-  }, MaterialProperties::FailedToParseMaterialFile);
+  }, MaterialProtobuf::FailedToParseMaterialFile);
 }
 
-TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
+TEST_F(MaterialProtobufTest, ConstructorFromParameterHandler) {
   dealii::ParameterHandler prm;
   prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
   prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
@@ -1485,7 +1485,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
   std::stringstream prm_string_before;
   prm.print_parameters(prm_string_before, dealii::ParameterHandler::Text);
 
-  MaterialProperties mp(prm);
+  MaterialProtobuf mp(prm);
 
   std::stringstream prm_string_after;
   prm.print_parameters(prm_string_after, dealii::ParameterHandler::Text);
@@ -1513,7 +1513,7 @@ TEST_F(MaterialPropertiesTest, ConstructorFromParameterHandler) {
   
   prm.print_parameters(prm_string_before, dealii::ParameterHandler::Text);
 
-  MaterialProperties mp_eigen(prm);
+  MaterialProtobuf mp_eigen(prm);
 
   prm.print_parameters(prm_string_after, dealii::ParameterHandler::Text);
   EXPECT_EQ(prm_string_before.str(), prm_string_after.str());

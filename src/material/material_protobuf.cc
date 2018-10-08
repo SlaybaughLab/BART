@@ -1,6 +1,6 @@
-#include "material_properties.h"
+#include "material_protobuf.h"
 
-MaterialProperties::MaterialProperties(const std::unordered_map<int, Material>& materials,
+MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& materials,
                                         bool is_eigen_problem,
                                         bool do_nda,
                                         int number_of_groups,
@@ -23,8 +23,8 @@ MaterialProperties::MaterialProperties(const std::unordered_map<int, Material>& 
     PopulateData();
 }
 
-MaterialProperties::MaterialProperties(dealii::ParameterHandler& prm)
-    : MaterialProperties(
+MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
+    : MaterialProtobuf(
         ParseMaterials(ReadMaterialFileNames(prm)),
         prm.get_bool("do eigenvalue calculations"),
         prm.get_bool("do NDA"),
@@ -32,7 +32,7 @@ MaterialProperties::MaterialProperties(dealii::ParameterHandler& prm)
         prm.get_integer("number of materials"),
         ReadFissileIDs(prm)) {}
 
-std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
+std::unordered_map<int, std::string> MaterialProtobuf::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
   std::unordered_map<int, std::string> result;
   prm.enter_subsection("material ID map");
   const std::vector<std::string> pair_strings =
@@ -46,7 +46,7 @@ std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(d
   return result;
 }
 
-std::unordered_set<int> MaterialProperties::ReadFissileIDs(dealii::ParameterHandler& prm) {
+std::unordered_set<int> MaterialProtobuf::ReadFissileIDs(dealii::ParameterHandler& prm) {
   std::unordered_set<int> result;
   prm.enter_subsection("fissile material IDs");
   const std::vector<std::string> id_strings =
@@ -60,7 +60,7 @@ std::unordered_set<int> MaterialProperties::ReadFissileIDs(dealii::ParameterHand
 }
 
 std::unordered_map<int, Material>
-MaterialProperties::ParseMaterials(const std::unordered_map<int, std::string>& file_name_map) {
+MaterialProtobuf::ParseMaterials(const std::unordered_map<int, std::string>& file_name_map) {
   /*
     Tries serialized format first and then readable text format if parsing as serialized format fails.
     This is because by default, parsing as text format will print errors if it doesn't work, but
@@ -95,14 +95,14 @@ MaterialProperties::ParseMaterials(const std::unordered_map<int, std::string>& f
   return result;
 }
 
-void MaterialProperties::PopulateFissileMap() {
+void MaterialProtobuf::PopulateFissileMap() {
   for (const std::pair<int, Material>& mat_pair : materials_) {
     const int& id = mat_pair.first;
     is_material_fissile_[id] = (fissile_ids_.count(id) > 0);
   }
 }
 
-void MaterialProperties::PopulateData() {
+void MaterialProtobuf::PopulateData() {
   /* 
     unordered maps for fixed source data will be left empty for an eigen problem and
     materials not labeled fissile will be excluded from the unordered_maps for fission data
@@ -165,7 +165,7 @@ void MaterialProperties::PopulateData() {
   }
 }
 
-void MaterialProperties::CheckFissileIDs() const {
+void MaterialProtobuf::CheckFissileIDs() const {
   AssertThrow(!(is_eigen_problem_ && fissile_ids_.empty()), NoFissileIDs());
 
   for (const int& id : fissile_ids_) {
@@ -173,12 +173,12 @@ void MaterialProperties::CheckFissileIDs() const {
   }
 }
 
-void MaterialProperties::CheckNumberOfMaterials() const {
+void MaterialProtobuf::CheckNumberOfMaterials() const {
   AssertThrow(n_material_ >= 0 && (unsigned int)(n_material_) == materials_.size(),
     WrongNumberOfMaterials(materials_.size(), n_material_));
 }
 
-void MaterialProperties::CheckNumberOfGroups() const {
+void MaterialProtobuf::CheckNumberOfGroups() const {
   for (const std::pair<int, Material>& mat_pair : materials_) {
     const Material& mat = mat_pair.second;
     AssertThrow(n_group_ >= 0 && (unsigned int)(n_group_) == mat.number_of_groups(),
@@ -186,7 +186,7 @@ void MaterialProperties::CheckNumberOfGroups() const {
   }
 }
 
-void MaterialProperties::CheckValid(const Material& material,
+void MaterialProtobuf::CheckValid(const Material& material,
                                     const bool require_fission_data /* = false */,
                                     std::string name /* = "" */) {
   /* 
@@ -290,13 +290,13 @@ void MaterialProperties::CheckValid(const Material& material,
   }
 }
 
-void MaterialProperties::CheckValidEach() const {
+void MaterialProtobuf::CheckValidEach() const {
   for (const std::pair<int, Material>& mat_pair : materials_) {
     CheckValid(mat_pair.second, is_material_fissile_.at(mat_pair.first), CombinedName(mat_pair));
   }
 }
 
-void MaterialProperties::CheckConsistent(const std::unordered_map<int, Material>& materials) {
+void MaterialProtobuf::CheckConsistent(const std::unordered_map<int, Material>& materials) {
   if (materials.empty()) {
     return;
   }
@@ -320,11 +320,11 @@ void MaterialProperties::CheckConsistent(const std::unordered_map<int, Material>
   }
 }
 
-void MaterialProperties::CheckConsistent() const {
+void MaterialProtobuf::CheckConsistent() const {
   CheckConsistent(materials_);
 }
 
-std::string MaterialProperties::CombinedName(const std::pair<int, Material>& id_material_pair,
+std::string MaterialProtobuf::CombinedName(const std::pair<int, Material>& id_material_pair,
                                              const std::string& delimiter /* = "|" */) {
   const std::string q = "\"";
   const std::string& d = delimiter;
@@ -335,7 +335,7 @@ std::string MaterialProperties::CombinedName(const std::pair<int, Material>& id_
   return format + " = " + info;
 }
 
-std::string MaterialProperties::CombinedName(const Material& material,
+std::string MaterialProtobuf::CombinedName(const Material& material,
                                              const std::string& delimiter /* = "|" */) {
   const std::string q = "\"";
   const std::string& d = delimiter;
@@ -345,7 +345,7 @@ std::string MaterialProperties::CombinedName(const Material& material,
 }
 
 std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>>
-MaterialProperties::GetVectorProperties(const Material& material) {
+MaterialProtobuf::GetVectorProperties(const Material& material) {
   std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>> result;
   for (const Material_VectorProperty& vec_prop : material.vector_property()) {
     AssertThrow(result.count(vec_prop.id()) == 0 || vec_prop.id() == Material::UNKNOWN_VECTOR,
@@ -357,7 +357,7 @@ MaterialProperties::GetVectorProperties(const Material& material) {
   return result;
 }
 
-std::vector<double> MaterialProperties::GetVectorProperty(const Material& material, Material::VectorId property_id) {
+std::vector<double> MaterialProtobuf::GetVectorProperty(const Material& material, Material::VectorId property_id) {
   for (const Material_VectorProperty& vec_prop : material.vector_property()) {
     if (vec_prop.id() == property_id) {
       return std::vector<double>(vec_prop.value().cbegin(), vec_prop.value().cend());
@@ -366,7 +366,7 @@ std::vector<double> MaterialProperties::GetVectorProperty(const Material& materi
   return {};
 }
 
-dealii::FullMatrix<double> MaterialProperties::GetScatteringMatrix(const Material& material) {
+dealii::FullMatrix<double> MaterialProtobuf::GetScatteringMatrix(const Material& material) {
   for (const Material_MatrixProperty& mat_prop : material.matrix_property()) {
     if (mat_prop.id() == Material::SIGMA_S) {
       std::vector<double> raw_values(mat_prop.value().cbegin(), mat_prop.value().cend());
@@ -383,42 +383,42 @@ dealii::FullMatrix<double> MaterialProperties::GetScatteringMatrix(const Materia
   return dealii::FullMatrix<double>();
 }
 
-std::unordered_map<int, bool> MaterialProperties::GetFissileIDMap() const {
+std::unordered_map<int, bool> MaterialProtobuf::GetFissileIDMap() const {
   return is_material_fissile_;
 }
 
-std::unordered_map<int, std::vector<double>> MaterialProperties::GetSigT() const {
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetSigT() const {
   return sigt_;
 }
 
-std::unordered_map<int, std::vector<double>> MaterialProperties::GetInvSigT() const {
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetInvSigT() const {
   return inv_sigt_;
 }
 
-std::unordered_map<int, std::vector<double>> MaterialProperties::GetQ() const {
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetQ() const {
   return q_;
 }
 
-std::unordered_map<int, std::vector<double>> MaterialProperties::GetQPerSter() const {
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetQPerSter() const {
   return q_per_ster_;
 }
 
-std::unordered_map<int, std::vector<double>> MaterialProperties::GetNuSigF() const {
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetNuSigF() const {
   return nusigf_;
 }
 
-std::unordered_map<int, dealii::FullMatrix<double>> MaterialProperties::GetSigS() const {
+std::unordered_map<int, dealii::FullMatrix<double>> MaterialProtobuf::GetSigS() const {
   return sigs_;
 }
 
-std::unordered_map<int, dealii::FullMatrix<double>> MaterialProperties::GetSigSPerSter() const {
+std::unordered_map<int, dealii::FullMatrix<double>> MaterialProtobuf::GetSigSPerSter() const {
   return sigs_per_ster_;
 }
 
-std::unordered_map<int, dealii::FullMatrix<double>> MaterialProperties::GetChiNuSigF() const {
+std::unordered_map<int, dealii::FullMatrix<double>> MaterialProtobuf::GetChiNuSigF() const {
   return chi_nusigf_;
 }
 
-std::unordered_map<int, dealii::FullMatrix<double>> MaterialProperties::GetChiNuSigFPerSter() const {
+std::unordered_map<int, dealii::FullMatrix<double>> MaterialProtobuf::GetChiNuSigFPerSter() const {
   return chi_nusigf_per_ster_;
 }

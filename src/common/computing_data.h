@@ -1,8 +1,8 @@
 #ifndef BART_SRC_COMMON_COMPUTING_DATA_H_
 #define BART_SRC_COMMON_COMPUTING_DATA_H_
 
-#include "../material/material_properties_I.h"
-#include "../material/material_properties.h"
+#include "../material/material_base.h"
+#include "../material/material_protobuf.h"
 #include "../aqdata/aq_base.h"
 #include "../mesh/mesh_generator.h"
 
@@ -37,7 +37,7 @@ struct MatrixVector {
 };
 
 struct XSections {
-  XSections (MaterialPropertiesI &material_properties);
+  XSections (MaterialBase &material_properties);
 
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
   const std::unordered_map<int, std::vector<double>> sigt;
