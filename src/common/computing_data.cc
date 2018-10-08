@@ -16,18 +16,18 @@
 //     fiss_transfer(material.GetFissTransfer()),
 //     fiss_transfer_per_ster(material.GetFissTransferPerSter()) {}
 
-XSections::XSections (MaterialPropertiesI& material_properties)
+XSections::XSections (MaterialBase& material)
     :
-    sigt(material_properties.GetSigT()),
-    inv_sigt(material_properties.GetInvSigT()),
-    q(material_properties.GetQ()),
-    q_per_ster(material_properties.GetQPerSter()),
-    is_material_fissile(material_properties.GetFissileIDMap()),
-    nu_sigf(material_properties.GetNuSigF()),
-    sigs(material_properties.GetSigS()),
-    sigs_per_ster(material_properties.GetSigSPerSter()),
-    fiss_transfer(material_properties.GetChiNuSigF()),
-    fiss_transfer_per_ster(material_properties.GetChiNuSigFPerSter())
+    sigt(material.GetSigT()),
+    inv_sigt(material.GetInvSigT()),
+    q(material.GetQ()),
+    q_per_ster(material.GetQPerSter()),
+    is_material_fissile(material.GetFissileIDMap()),
+    nu_sigf(material.GetNuSigF()),
+    sigs(material.GetSigS()),
+    sigs_per_ster(material.GetSigSPerSter()),
+    fiss_transfer(material.GetChiNuSigF()),
+    fiss_transfer_per_ster(material.GetChiNuSigFPerSter())
 {}
 
 template <int dim>
@@ -42,8 +42,8 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     //xsec(std::shared_ptr<XSections> (new XSections(material))),
     fe_data(prm),
     dof_handler(tria) {
-  MaterialProperties material_properties{prm};
-  xsec = std::make_shared<XSections>(material_properties);
+  MaterialProtobuf material{prm};
+  xsec = std::make_shared<XSections>(material);
   bbuilders::BuildAQ<dim>(prm, aq);
   aq->MakeAQ();
 }

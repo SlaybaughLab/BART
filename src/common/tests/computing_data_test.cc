@@ -7,7 +7,7 @@
 #include <deal.II/lac/full_matrix.h>
 
 #include "../problem_definition.h"
-#include "../../material/tests/mock_material_properties.h"
+#include "../../material/tests/mock_material.h"
 #include "../../test_helpers/bart_test_helper.h"
 #include "../../test_helpers/gmock_wrapper.h"
 #include "../../test_helpers/test_helper_functions.h"
@@ -16,7 +16,7 @@ class XSectionsTest : public ::testing::Test {
  protected:
   using id_vector_map = std::unordered_map<int, std::vector<double>>;
   using id_matrix_map = std::unordered_map<int, dealii::FullMatrix<double>>;
-  btest::MockMaterialProperties mock_material_properties;
+  btest::MockMaterial mock_material_properties;
 };
 
 class ComputingDataTestMPI

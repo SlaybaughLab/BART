@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
-#define BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_
+#ifndef BART_SRC_MATERIAL_MATERIAL_PROTOBUF_H_
+#define BART_SRC_MATERIAL_MATERIAL_PROTOBUF_H_
 
 #include <fstream>
 #include <string>
@@ -18,7 +18,7 @@
 #include "../utility/utility_functions.h"
 
 #include "../common/numbers.h"
-#include "material_properties_I.h"
+#include "material_base.h"
 
 //! This class reads in and pre-processes material properties.
 /*!
@@ -29,14 +29,14 @@
  \todo Add functionality to perform eigenvalue decomposition.
  */
 
-class MaterialProperties : public MaterialPropertiesI {
+class MaterialProtobuf : public MaterialBase {
  public:
   /*!
     constructor using map of numerical IDs to Material objects
     do_nda is currently unused, and may be removed in the future
     fissile_ids must be non-empty if is_eigen_problem is given as true
    */
-  MaterialProperties(const std::unordered_map<int, Material>& materials,
+  MaterialProtobuf(const std::unordered_map<int, Material>& materials,
                      bool is_eigen_problem,
                      bool do_nda,
                      int number_of_groups,
@@ -47,10 +47,10 @@ class MaterialProperties : public MaterialPropertiesI {
     gets the necessary information from the parameter handler and
     delegates to the other constructor
   */
-  explicit MaterialProperties(dealii::ParameterHandler& prm);
+  explicit MaterialProtobuf(dealii::ParameterHandler& prm);
 
   //! default destructor
-  ~MaterialProperties() override = default;
+  ~MaterialProtobuf() override = default;
 
   /*!
     returns an unordered_map from material ID to a
@@ -323,7 +323,7 @@ class MaterialProperties : public MaterialPropertiesI {
   DeclException3(WrongNumberOfGroups,
     std::string, unsigned int, int,
     << "The number_of_groups in material " << arg1
-    << " does not match the number of groups in MaterialProperties."
+    << " does not match the number of groups in MaterialProtobuf."
     << " (" << arg2 << " != " << arg3 << ")");
 
   DeclException2(NumberOfGroupsMismatch,
