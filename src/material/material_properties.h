@@ -50,7 +50,7 @@ class MaterialProperties : public MaterialPropertiesI {
   explicit MaterialProperties(dealii::ParameterHandler& prm);
 
   //! default destructor
-  ~MaterialProperties() override;
+  ~MaterialProperties() override = default;
 
   /*!
     returns an unordered_map from material ID to a

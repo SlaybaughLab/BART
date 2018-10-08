@@ -32,8 +32,6 @@ MaterialProperties::MaterialProperties(dealii::ParameterHandler& prm)
         prm.get_integer("number of materials"),
         ReadFissileIDs(prm)) {}
 
-MaterialProperties::~MaterialProperties() {}
-
 std::unordered_map<int, std::string> MaterialProperties::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
   std::unordered_map<int, std::string> result;
   prm.enter_subsection("material ID map");

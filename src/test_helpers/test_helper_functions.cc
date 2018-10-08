@@ -15,7 +15,7 @@ double RandomDouble(double min, double max) {
 
 std::vector<double> RandomVector(size_t n, double min, double max) {
 
-  if (!n)
+  if (n == 0u)
     throw std::runtime_error("Vector length must be > 0");
   
   std::vector<double> return_vector;
@@ -28,7 +28,7 @@ std::vector<double> RandomVector(size_t n, double min, double max) {
 std::unordered_map<int, std::vector<double>>
 RandomIntVectorMap(size_t map_size, size_t vector_size, double min,
                    double max) {
-  if (!map_size)
+  if (map_size == 0u)
     throw std::runtime_error("IntVectorMap requires map size of at least 1");
   
   std::unordered_map<int, std::vector<double>> return_map;
