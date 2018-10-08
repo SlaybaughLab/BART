@@ -19,7 +19,6 @@ class TestHelperFunctionTest : public ::testing::Test {
 };
 
 TEST_F(TestHelperFunctionTest, RandomDoubleTest) {
-
   const std::vector<std::pair<double, double>> test_pairs = {
     {0, 100}, {-50, 50}, {-50, 0}, {0, 20.4}, {-102.4, 293}};
 
@@ -99,23 +98,24 @@ TEST_F(TestHelperFunctionTest, RandomIntVectorMapTest) {
 TEST_F(TestHelperFunctionTest, RandomMatrixTest) {
   // Generate 10 random matrices and verify properties
   for (int i = 0; i < 10; ++i) {
-    size_t n = rand()%10 + 1;
-    size_t m = rand()%10 + 1;
+    std::size_t n = std::rand()%10 + 1;
+    std::size_t m = std::rand()%10 + 1;
     
-    double val1 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
-    double val2 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
-    double min = (val1 > val2) ? val2 : val1;
-    double max = (val1 > val2) ? val1 : val2;
+    double val1 = -200 + static_cast<double>(std::rand()) / RAND_MAX*(400);
+    double val2 = -200 + static_cast<double>(std::rand()) / RAND_MAX*(400);
+    double min_value = (val1 > val2) ? val2 : val1;
+    double max_value = (val1 > val2) ? val1 : val2;
 
     std::ostringstream test_msg;
     test_msg << "Matrix Size: " << m << "x" << n << "; min/max: "
-             << min << "/" << max;                                
+             << min_value << "/" << max_value;                                
     
-    dealii::FullMatrix<double> matrix = btest::RandomMatrix(m, n, min, max);
+    dealii::FullMatrix<double> matrix = btest::RandomMatrix(m, n, min_value,
+                                                            max_value);
 
     for (auto cit = matrix.begin(); cit < matrix.end(); ++cit)
-      EXPECT_THAT((*cit).value(), ::testing::AllOf(::testing::Ge(min),
-                                                   ::testing::Le(max)))
+      EXPECT_THAT((*cit).value(), ::testing::AllOf(::testing::Ge(min_value),
+                                                   ::testing::Le(max_value)))
           << test_msg.str();
 
     EXPECT_EQ(matrix.m(), m) << test_msg.str();
@@ -126,20 +126,21 @@ TEST_F(TestHelperFunctionTest, RandomMatrixTest) {
 TEST_F(TestHelperFunctionTest, RandomIntMatrixMapTest) {
   // Generate 20 random int to matrix maps and verify properties
   for (int i = 0; i < 20; ++i) {
-    size_t n = rand()%10 + 1;
-    size_t m = rand()%10 + 1;
-    size_t map_size = rand()%10 + 1;
+    std::size_t n = std::rand()%10 + 1;
+    std::size_t m = std::rand()%10 + 1;
+    std::size_t map_size = std::rand()%10 + 1;
     
-    double val1 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
-    double val2 = -200 + static_cast<double>(rand()) / RAND_MAX*(400);
-    double min = (val1 > val2) ? val2 : val1;
-    double max = (val1 > val2) ? val1 : val2;
+    double val1 = -200 + static_cast<double>(std::rand()) / RAND_MAX*(400);
+    double val2 = -200 + static_cast<double>(std::rand()) / RAND_MAX*(400);
+    double min_value = (val1 > val2) ? val2 : val1;
+    double max_value = (val1 > val2) ? val1 : val2;
 
     std::ostringstream test_msg;
     test_msg << "Map size: " << map_size << "; Matrix Size: " << m << "x"
-             << n << "; min/max: " << min << "/" << max;                                
+             << n << "; min/max: " << min_value << "/" << max_value;                                
     
-    auto matrix_map = btest::RandomIntMatrixMap(map_size, m, n, min, max);
+    auto matrix_map = btest::RandomIntMatrixMap(map_size, m, n, min_value,
+                                                max_value);
 
     EXPECT_EQ(matrix_map.size(), map_size) << test_msg.str();
 
@@ -149,8 +150,8 @@ TEST_F(TestHelperFunctionTest, RandomIntMatrixMapTest) {
           << test_msg.str();
     
       for (auto cit = mat.second.begin(); cit < mat.second.end(); ++cit)
-        EXPECT_THAT((*cit).value(), ::testing::AllOf(::testing::Ge(min),
-                                                   ::testing::Le(max)))
+        EXPECT_THAT((*cit).value(), ::testing::AllOf(::testing::Ge(min_value),
+                                                   ::testing::Le(max_value)))
             << test_msg.str();
 
       EXPECT_EQ(mat.second.m(), m) << test_msg.str();
