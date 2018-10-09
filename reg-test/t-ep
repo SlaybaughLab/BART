@@ -27,29 +27,10 @@ set finite element polynomial degree         = 1
 set output file name base                    = rhlf
 
 subsection material ID map
-set material id file name                    = /Users/GrillCheese/UCB/Research/xtrans/test-input/mid.txt
-end
-
-subsection one-group sigma_t
-set values                                   = 1.0, 1.0
-end
-
-subsection one-group sigma_s
-set values                                   = 0.15, 0.15
-end
-
-subsection one-group Q
-set values                                   = 0.
+set material id file name map                = 1: t-ep.material, 2: t-ep.material
+set material id file name                    = mid.txt
 end
 
 subsection fissile material IDs
 set fissile material ids                     = 1, 2
-end
-
-subsection one-group chi
-set values                                   = 1.0, 1.0
-end
-
-subsection one-group nu_sigf
-set values                                   = 0.99, 0.99
 end
