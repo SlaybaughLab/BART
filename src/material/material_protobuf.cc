@@ -27,7 +27,7 @@ MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
     : MaterialProtobuf(
         ParseMaterials(ReadMaterialFileNames(prm)),
         prm.get_bool("do eigenvalue calculations"),
-        prm.get_bool("do NDA"),
+        prm.get_bool("do nda"),
         prm.get_integer("number of groups"),
         prm.get_integer("number of materials"),
         ReadFissileIDs(prm)) {}

@@ -121,6 +121,11 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     local_prm.declare_entry ("fuel pin material id file name", "pin_id.txt",
         dealii::Patterns::FileName(),
         "file name for pin material id map for pin-resolved calculations");
+    local_prm.declare_entry("material id file name map", "",
+                            dealii::Patterns::Map(
+                                dealii::Patterns::Integer(),
+                                dealii::Patterns::FileName(
+                                    dealii::Patterns::FileName::input)));
   }
   local_prm.leave_subsection ();
 
