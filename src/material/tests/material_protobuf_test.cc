@@ -1259,7 +1259,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
 TEST_F(MaterialProtobufTest, FailedToFindMaterialFile) {
   dealii::ParameterHandler prm;
   prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
-  prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
+  prm.declare_entry("do nda", "false", dealii::Patterns::Bool());
   prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
   prm.declare_entry("number of materials", "1", dealii::Patterns::Integer());
   prm.enter_subsection("material ID map");
@@ -1306,7 +1306,7 @@ TEST_F(MaterialProtobufTest, FailedToFindMaterialFile) {
 TEST_F(MaterialProtobufTest, FailedToParseMaterialFile) {
   dealii::ParameterHandler prm;
   prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
-  prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
+  prm.declare_entry("do nda", "false", dealii::Patterns::Bool());
   prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
   prm.declare_entry("number of materials", "1", dealii::Patterns::Integer());
   prm.enter_subsection("material ID map");
@@ -1358,7 +1358,7 @@ TEST_F(MaterialProtobufTest, FailedToParseMaterialFile) {
 TEST_F(MaterialProtobufTest, ConstructorFromParameterHandler) {
   dealii::ParameterHandler prm;
   prm.declare_entry("do eigenvalue calculations", "false", dealii::Patterns::Bool());
-  prm.declare_entry("do NDA", "false", dealii::Patterns::Bool());
+  prm.declare_entry("do nda", "false", dealii::Patterns::Bool());
   prm.declare_entry("number of groups", "7", dealii::Patterns::Integer());
   prm.declare_entry("number of materials", "4", dealii::Patterns::Integer());
   prm.enter_subsection("fissile material IDs");
