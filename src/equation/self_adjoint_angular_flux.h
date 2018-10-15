@@ -21,7 +21,9 @@ template <int dim>
 class SelfAdjointAngularFlux : public EquationBase<dim> {
  public:
   /*! Class constructor */
-  SelfAdjointAngularFlux();
+  SelfAdjointAngularFlux(const std::string equation_name,
+                         const dealii::ParameterHandler &prm,
+                         std::shared_ptr<FundamentalData<dim>> &data_ptr);
   ~SelfAdjointAngularFlux() = default;
 
   void IntegrateCellBilinearForm (
@@ -35,7 +37,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
       const int &dir) override {};
-  void PreassembleCellMatrices () override {};
+  void PreassembleCellMatrices () override;
   void IntegrateInterfaceBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       typename dealii::DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
@@ -62,6 +64,8 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir) override {};
+ protected:
+  std::unordered_map<int, dealii::FullMatrix<double>> &streaming_matrix;
 };
 
 #endif // BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_
