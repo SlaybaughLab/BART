@@ -26,6 +26,19 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
                          std::shared_ptr<FundamentalData<dim>> &data_ptr);
   ~SelfAdjointAngularFlux() = default;
 
+  /*!
+   * \brief Provides the integrated value of the linear scattering term.
+   */
+  void IntegrateScatteringLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      dealii::Vector<double> &cell_rhs,
+      const int &g,
+      const int &dir) override;  
+  void PreassembleCellMatrices () override;
+
+  // NOT DONE YET
+  
+  
   void IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::FullMatrix<double> &cell_matrix,
@@ -37,7 +50,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
       const int &dir) override {};
-  void PreassembleCellMatrices () override;
+
   void IntegrateInterfaceBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       typename dealii::DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
@@ -48,11 +61,6 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::FullMatrix<double> &ve_ue,
       const int &g,
       const int &i_dir) override {};
-  void IntegrateScatteringLinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      dealii::Vector<double> &cell_rhs,
-      const int &g,
-      const int &dir) override {};  
   void IntegrateBoundaryLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,/*face number*/
@@ -65,7 +73,21 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       const int &g,
       const int &dir) override {};
  protected:
-  std::unordered_map<int, dealii::FullMatrix<double>> &streaming_matrix;
+  using EquationBase<dim>::xsec_;
+  using EquationBase<dim>::pre_streaming_;
+  using EquationBase<dim>::pre_collision_;
+  using EquationBase<dim>::omega_;
+  using EquationBase<dim>::equ_name_;
+  using EquationBase<dim>::fv_;
+  using EquationBase<dim>::dat_ptr_;
+  using EquationBase<dim>::mat_vec_;
+  using EquationBase<dim>::n_group_;
+  using EquationBase<dim>::n_q_;
+  using EquationBase<dim>::n_dir_;
+  using EquationBase<dim>::dofs_per_cell_;
+  
+  dealii::FullMatrix<double> CellCollisionMatrix (int q);
+  dealii::FullMatrix<double> CellStreamingMatrix (int q, int dir);
 };
 
 #endif // BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_
