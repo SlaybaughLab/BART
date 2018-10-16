@@ -12,6 +12,16 @@ SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
  * PUBLIC FUNCTIONS
  * =============================================================================
  */  
+template<int dim>
+void SelfAdjointAngularFlux<dim>::IntegrateCellBilinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      dealii::FullMatrix<double> &cell_matrix,
+      const int &g,
+      const int &dir) {
+
+
+  
+}
 
 template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
@@ -59,8 +69,8 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
   for (int q = 0; q < n_q_; ++q) {
     cell_scatter_flux[q] *= fv_->JxW(q);
     for (int i = 0; i < dofs_per_cell_; ++i) {
-      cell_rhs += fv_->shape_value(i, q) * cell_scatter_flux[q];
-      cell_rhs +=
+      cell_rhs(i) += fv_->shape_value(i, q) * cell_scatter_flux[q];
+      cell_rhs(i) +=
           omega_[dir] * fv_->shape_grad(i, q) * cell_scatter_over_total_flux[q];
     }
   }

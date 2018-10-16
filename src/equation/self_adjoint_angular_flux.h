@@ -26,24 +26,41 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
                          std::shared_ptr<FundamentalData<dim>> &data_ptr);
   ~SelfAdjointAngularFlux() = default;
 
-  /*!
-   * \brief Provides the integrated value of the linear scattering term.
-   */
-  void IntegrateScatteringLinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      dealii::Vector<double> &cell_rhs,
-      const int &g,
-      const int &dir) override;  
-  void PreassembleCellMatrices () override;
 
-  // NOT DONE YET
-  
   
   void IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
-      const int &dir) override {};
+      const int &dir) override;
+  
+  /*!
+   * \brief Integrates the linear scattering terms in the SAAF equation and adds
+   *        the values to the vector cell_rhs.
+   *           
+   * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+   * \f$\varphi\f$, this function integrates the following two terms using the
+   * quadrature specified in the problem definition:
+   * \f[
+   * \int_{K}\frac{\sigma_s}{4\pi}\phi\varphi dV + \int_{K}\left(\vec{\Omega}
+   * \cdot \nabla \varphi\right)\frac{\sigma_s}{4\pi\sigma_t}\phi dV
+   * \f]
+   *
+   * where \f$\phi\f$ is the scalar flux. Adds the result per cell DOF to the
+   * input-output vector cell_rhs.
+   */
+  void IntegrateScatteringLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      dealii::Vector<double> &cell_rhs,
+      const int &g,
+      const int &dir) override;
+  
+  void PreassembleCellMatrices () override;
+
+  // NOT DONE YET
+  
+  
+
   void IntegrateBoundaryBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,
@@ -67,11 +84,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir) override {};  
-  void IntegrateCellFixedLinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      dealii::Vector<double> &cell_rhs,
-      const int &g,
-      const int &dir) override {};
+
  protected:
   using EquationBase<dim>::xsec_;
   using EquationBase<dim>::pre_streaming_;
