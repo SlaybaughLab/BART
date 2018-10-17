@@ -45,8 +45,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * \varphi_j(\vec{r}) dV
    * \f]
    *
-   * where \f$\psi\f$ is the angular flux. Adds the result to position
-   * \f$(i,j)\f$ in cell_matrix
+   * where \f$\psi\f$ is the angular flux. 
    *
    * \param cell the cell \f$K\f$.
    * \param cell_matrix the local matrix to be modified, \f$\mathbf{A}\f$

@@ -133,6 +133,7 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
   // Integrate and add both scattering terms
   for (int q = 0; q < n_q_; ++q) {
     cell_scatter_flux[q] *= fv_->JxW(q);
+    cell_scatter_over_total_flux[q] *= fv_->JxW(q);
     for (int i = 0; i < dofs_per_cell_; ++i) {
       // First scattering term
       cell_rhs(i) += fv_->shape_value(i, q) * cell_scatter_flux[q];
