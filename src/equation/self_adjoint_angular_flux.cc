@@ -18,9 +18,22 @@ void SelfAdjointAngularFlux<dim>::IntegrateCellBilinearForm (
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
       const int &dir) {
+  // Get material id for the given cell and cross-sections
+  int material_id = cell->material_id();
+  auto sigma_t = xsec_->sigt.at(material_id)[g];
+  auto inv_sigma_t = xsec_->inv_sigt.at(material_id)[g];
 
+  // Integrate and add both bilinear terms using precomputed values
+  for (int q = 0; q < n_q_; ++q) {
+    for (int i = 0; i < dofs_per_cell_; ++i) {
+      for (int j = 0; j < dofs_per_cell_; ++j) {
 
-  
+        cell_matrix(i, j) += (pre_streaming_[{dir, q}](i, j) * inv_sigma_t
+                              +
+                              pre_collision_[q](i, j) * sigma_t) * fv_->JxW(q);
+      }
+    }
+  }
 }
 
 template<int dim>
@@ -29,7 +42,6 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
       dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir) {
-
   // Get material id for the given cell:
   int material_id = cell->material_id();
 
@@ -69,7 +81,9 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
   for (int q = 0; q < n_q_; ++q) {
     cell_scatter_flux[q] *= fv_->JxW(q);
     for (int i = 0; i < dofs_per_cell_; ++i) {
+      // First scattering term
       cell_rhs(i) += fv_->shape_value(i, q) * cell_scatter_flux[q];
+      // Second scattering term
       cell_rhs(i) +=
           omega_[dir] * fv_->shape_grad(i, q) * cell_scatter_over_total_flux[q];
     }

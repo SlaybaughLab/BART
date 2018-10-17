@@ -27,7 +27,23 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   ~SelfAdjointAngularFlux() = default;
 
 
-  
+    /*!
+   * \brief Integrates the bilinear terms in the SAAF equation and adds
+   *        the values to the matrix cell_matrix.
+   *           
+   * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+   * \f$\varphi\f$, this function integrates the following two terms using the
+   * quadrature specified in the problem definition:
+   * \f[
+   * A(i,j) = 
+   * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i\right)\frac{1}{\sigma_t}\left(
+   * \vec{\Omega}\cdot\nabla\varphi_j\right) dV +
+   * \int_{K}\sigma_t\varphi_i\varphi_j dV
+   * \f]
+   *
+   * where \f$\psi\f$ is the angular flux. Adds the result to position
+   * \f$(i,j)\f$ in cell_matrix.
+   */
   void IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::FullMatrix<double> &cell_matrix,
