@@ -55,13 +55,46 @@ void SelfAdjointAngularFlux<dim>::IntegrateCellFixedLinearForm (
     
     // Fill the two vectors with the appropriate q/4pi and q/4pi*sigma_t values
     auto q_per_ster = xsec_->q_per_ster.at(material_id)[g];
-    std::fill(cell_q.begin(), cell_q.end(), q_per_ster);
+    std::fill(cell_q.begin(), cell_q.end(),
+              q_per_ster);
     std::fill(cell_q_over_total.begin(), cell_q_over_total.end(),
               q_per_ster * xsec_->inv_sigt.at(material_id)[g]);
     
   } else if (xsec_->is_material_fissile.at(material_id)) {    
+
+    // Fill the two vectors with the appropriate fission sources, summed
+    // over all groups
+    for (int group_in = 0; group_in < n_group_; ++group_in) {
+      // Retrieve cell scalar flux, inverse sigma t, fission terms
+      std::vector<double> group_cell_scalar_flux =
+          this->GetGroupScalarFlux(group_in);
+      auto inv_sigma_t = xsec_->inv_sigt.at(material_id)[g];
+      auto scaled_fission_transfer =
+          scaled_fission_transfer_.at(material_id)(group_in, g);
+      
+      for (int q = 0; q < n_q_; ++q) {
+        cell_q[q] +=
+            scaled_fission_transfer * group_cell_scalar_flux[q];
+        cell_q_over_total[q] +=
+            cell_q[q] * inv_sigma_t;
+      }
+    }    
+  }
+
+  //Integrate and add both source terms
+  for (int q = 0; q < n_q_; ++q) {
     
-  }  
+    cell_q[q] *= fv_->JxW(q);
+    cell_q_over_total[q] *= fv_->JxW(q);
+    
+    for (int i = 0; i < dofs_per_cell_; ++i) {
+      // First scattering term
+      cell_rhs(i) += fv_->shape_value(i, q) * cell_q[q];
+      // Second scattering term
+      cell_rhs(i) +=
+          omega_[dir] * fv_->shape_grad(i, q) * cell_q_over_total[q];
+    }
+  }
 }
 
 template<int dim>
