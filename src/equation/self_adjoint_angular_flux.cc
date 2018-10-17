@@ -37,6 +37,14 @@ void SelfAdjointAngularFlux<dim>::IntegrateCellBilinearForm (
 }
 
 template<int dim>
+void SelfAdjointAngularFlux<dim>::IntegrateCellFixedLinearForm (
+    typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+    dealii::Vector<double> &cell_rhs,
+    const int &g,
+    const int &dir) {
+}
+
+template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::Vector<double> &cell_rhs,

@@ -32,21 +32,51 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    *        the values to the matrix cell_matrix.
    *           
    * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
-   * \f$\varphi\f$, this function integrates the following two terms using the
-   * quadrature specified in the problem definition:
+   * \f$\varphi\f$, this function integrates two bilinear SAAF terms for one group
+   * using the quadrature specified in the problem definition and adds them to
+   * the local cell matrix.
    * \f[
-   * A(i,j) = 
-   * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i\right)\frac{1}{\sigma_t}\left(
-   * \vec{\Omega}\cdot\nabla\varphi_j\right) dV +
-   * \int_{K}\sigma_t\varphi_i\varphi_j dV
+   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} + 
+   * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i(\vec{r})\right)
+   * \frac{1}{\sigma_t(\vec{r},g)}\left(\vec{\Omega}\cdot\nabla\varphi_j
+   * (\vec{r})\right) dV + \int_{K}\sigma_t(\vec{r},g)\varphi_i(\vec{r})
+   * \varphi_j(\vec{r}) dV
    * \f]
    *
    * where \f$\psi\f$ is the angular flux. Adds the result to position
-   * \f$(i,j)\f$ in cell_matrix.
+   * \f$(i,j)\f$ in cell_matrix
+   *
+   * \param cell the cell \f$K\f$.
+   * \param cell_matrix the local matrix to be modified, \f$\mathbf{A}\f$
+   * \param g energy group
+   * \param dir direction \f$\vec{\Omega}\f$.
+   * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.
    */
   void IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::FullMatrix<double> &cell_matrix,
+      const int &g,
+      const int &dir) override;
+
+  /*!
+   * \brief Integrates the linear fixed terms in the SAAF equation and adds the
+   *        values to the vector cell_rhs.
+   *
+   * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+   * \f$\varphi\f$, this function integrates the two linear fixed source SAAF terms
+   * for one group using the quadrature specified in the problem definition and
+   * adds them to the cell right-hand side vector.
+   *
+   * \f[
+   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} +
+   * \int_{K}\frac{q(\vec{r})}{4\pi}\varphi_i(\vec{r})dV +
+   * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i(\vec{r})\right)
+   * \frac{q}{4\pi\sigma_t(\vec{r})}dV
+   * \f]
+   */   
+  void IntegrateCellFixedLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir) override;
   
@@ -55,15 +85,24 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    *        the values to the vector cell_rhs.
    *           
    * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
-   * \f$\varphi\f$, this function integrates the following two terms using the
-   * quadrature specified in the problem definition:
+   * \f$\varphi\f$, this function integrates the two linear scattering SAAF terms
+   * for one group using the quadrature specified in the problem definition and
+   * adds them to the cell right-hand side vector.
    * \f[
-   * \int_{K}\frac{\sigma_s}{4\pi}\phi\varphi dV + \int_{K}\left(\vec{\Omega}
-   * \cdot \nabla \varphi\right)\frac{\sigma_s}{4\pi\sigma_t}\phi dV
+   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} + 
+   * \int_{K}\frac{\sigma_s(\vec{r})}{4\pi}\phi(\vec{r}) \varphi_i(\vec{r}) dV +
+   * \int_{K}\left(\vec{\Omega}\cdot \nabla \varphi_i(\vec{r})\right)
+   * \frac{\sigma_s(\vec{r})}{4\pi\sigma_t(\vec{r}) }\phi(\vec{r}) dV
    * \f]
    *
-   * where \f$\phi\f$ is the scalar flux. Adds the result per cell DOF to the
+   * where \f$\phi\f$ is the scalar flux. Adds the result per cell DOFF to the
    * input-output vector cell_rhs.
+   *
+   * \param cell the cell \f$K\f$.
+   * \param cell_rhs the local right-hand side to be modified, \f$\vec{b}\f$
+   * \param g energy group
+   * \param dir direction \f$\vec{\Omega}\f$.
+   * \return No values returned, modifies input parameter \f$\vec{b}\to \vec{b}'\f$.
    */
   void IntegrateScatteringLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
