@@ -38,8 +38,8 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * \f[
    * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} + 
    * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i(\vec{r})\right)
-   * \frac{1}{\sigma_t(\vec{r},g)}\left(\vec{\Omega}\cdot\nabla\varphi_j
-   * (\vec{r})\right) dV + \int_{K}\sigma_t(\vec{r},g)\varphi_i(\vec{r})
+   * \frac{1}{\sigma_{t,g}(\vec{r})}\left(\vec{\Omega}\cdot\nabla\varphi_j
+   * (\vec{r})\right) dV + \int_{K}\sigma_{t,g}(\vec{r})\varphi_i(\vec{r})
    * \varphi_j(\vec{r}) dV
    * \f]
    *
@@ -69,9 +69,16 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    *
    * \f[
    * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} +
-   * \int_{K}\frac{q(\vec{r})}{4\pi}\varphi_i(\vec{r})dV +
+   * \int_{K}\frac{q_g(\vec{r})}{4\pi}\varphi_i(\vec{r})dV +
    * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i(\vec{r})\right)
-   * \frac{q}{4\pi\sigma_t(\vec{r})}dV
+   * \frac{q_g(\vec{r})}{4\pi\sigma_{t,g}(\vec{r})}dV
+   * \f]
+   *
+   * where \f$q_g(\vec{r})\f$ is a given fixed source or a fission source:
+   *
+   * \f[
+   * q_g(\vec{r}) = \frac{\nu_g \cdot \sigma_{f,g}(\vec{r})_g}
+   * {4\pi k_{\text{eff}}}\phi_g(\vec{r})
    * \f]
    */   
   void IntegrateCellFixedLinearForm (
@@ -89,10 +96,11 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * for one group using the quadrature specified in the problem definition and
    * adds them to the cell right-hand side vector.
    * \f[
-   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} + 
-   * \int_{K}\frac{\sigma_s(\vec{r})}{4\pi}\phi(\vec{r}) \varphi_i(\vec{r}) dV +
+   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} + \sum_{g'}\left[
+   * \int_{K}\frac{\sigma_{s,g'\to g}(\vec{r})}{4\pi}\phi_{g'}(\vec{r}) \varphi_i(\vec{r}) dV +
    * \int_{K}\left(\vec{\Omega}\cdot \nabla \varphi_i(\vec{r})\right)
-   * \frac{\sigma_s(\vec{r})}{4\pi\sigma_t(\vec{r}) }\phi(\vec{r}) dV
+   * \frac{\sigma_{s,g'\to g}(\vec{r})}{4\pi\sigma_{t,g}(\vec{r}) }\phi_{g'}(\vec{r}) dV
+   * \right]
    * \f]
    *
    * where \f$\phi\f$ is the scalar flux. Adds the result per cell DOFF to the
