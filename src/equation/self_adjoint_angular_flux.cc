@@ -42,6 +42,26 @@ void SelfAdjointAngularFlux<dim>::IntegrateCellFixedLinearForm (
     dealii::Vector<double> &cell_rhs,
     const int &g,
     const int &dir) {
+  // get material id for the given cell
+  int material_id = cell->material_id();
+  
+  // SAAF has two fixed source terms, the first is proportional to q/4pi, the
+  // second contains an additional division by sigma_t. These two vectors hold
+  // these values, respectively, for each quadrature point.
+  std::vector<double> cell_q(n_q_);
+  std::vector<double> cell_q_over_total(n_q_);
+  
+  if (!is_eigen_problem_) {
+    
+    // Fill the two vectors with the appropriate q/4pi and q/4pi*sigma_t values
+    auto q_per_ster = xsec_->q_per_ster.at(material_id)[g];
+    std::fill(cell_q.begin(), cell_q.end(), q_per_ster);
+    std::fill(cell_q_over_total.begin(), cell_q_over_total.end(),
+              q_per_ster * xsec_->inv_sigt.at(material_id)[g]);
+    
+  } else if (xsec_->is_material_fissile.at(material_id)) {    
+    
+  }  
 }
 
 template<int dim>
@@ -62,7 +82,6 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
   
   // Iterate over groups to populate cell_scatter_flux
   for (int group_in = 0; group_in < n_group_; ++group_in) {
-
     std::vector<double> group_cell_scalar_flux(n_q_);
     
     // Get the global scalar flux for the current group

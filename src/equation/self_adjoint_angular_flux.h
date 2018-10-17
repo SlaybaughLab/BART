@@ -1,6 +1,8 @@
 #ifndef BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_
 #define BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_
 
+#include <algorithm>
+
 #include "equation_base.h"
 
 /*!
@@ -149,18 +151,19 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       const int &dir) override {};  
 
  protected:
-  using EquationBase<dim>::xsec_;
-  using EquationBase<dim>::pre_streaming_;
-  using EquationBase<dim>::pre_collision_;
-  using EquationBase<dim>::omega_;
+  using EquationBase<dim>::dat_ptr_;
+  using EquationBase<dim>::dofs_per_cell_;
   using EquationBase<dim>::equ_name_;
   using EquationBase<dim>::fv_;
-  using EquationBase<dim>::dat_ptr_;
+  using EquationBase<dim>::is_eigen_problem_;
   using EquationBase<dim>::mat_vec_;
+  using EquationBase<dim>::n_dir_;
   using EquationBase<dim>::n_group_;
   using EquationBase<dim>::n_q_;
-  using EquationBase<dim>::n_dir_;
-  using EquationBase<dim>::dofs_per_cell_;
+  using EquationBase<dim>::omega_;
+  using EquationBase<dim>::pre_streaming_;
+  using EquationBase<dim>::pre_collision_;
+  using EquationBase<dim>::xsec_;
   
   dealii::FullMatrix<double> CellCollisionMatrix (int q);
   dealii::FullMatrix<double> CellStreamingMatrix (int q, int dir);
