@@ -27,9 +27,36 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
                          const dealii::ParameterHandler &prm,
                          std::shared_ptr<FundamentalData<dim>> &data_ptr);
   ~SelfAdjointAngularFlux() = default;
-
-
-    /*!
+  /*!
+   * \brief Integrates the bilinear boundary terms in the SAAF equation and adds
+   *        the values to the matrix cell_matrix.
+   *           
+   * For a given boundary in the triangulation, \f$\partial K \in \partial T_K\f$,
+   * with basis functions \f$\varphi\f$, this function integrates the bilinear
+   * boundary term for one group using the quadrature specified in the
+   * problem definition and adds them to the local cell matrix.
+   * \f[
+   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
+   * \int_{\partial K}(\hat{n}\cdot\vec{\Omega})
+   * \varphi_i(\vec{r})\varphi_j(\vec{r})dS
+   * \f]
+   * where \f$\hat{n}\cdot\vec{\Omega} > 0\f$, and adds nothing otherwise.
+   * 
+   * \param cell the cell \f$K\f$.
+   * \param fn face index for the current face in the cell
+   * \param cell_matrix the local matrix to be modified, \f$\mathbf{A}\f$
+   * \param g energy group
+   * \param dir direction \f$\vec{\Omega}\f$.
+   * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.   
+   !*/
+  void IntegrateBoundaryBilinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      const int &fn,
+      dealii::FullMatrix<double> &cell_matrix,
+      const int &g,
+      const int &dir) override;
+  
+  /*!
    * \brief Integrates the bilinear terms in the SAAF equation and adds
    *        the values to the matrix cell_matrix.
    *           
@@ -122,15 +149,6 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   void PreassembleCellMatrices () override;
 
   // NOT DONE YET
-  
-  
-
-  void IntegrateBoundaryBilinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      const int &fn,
-      dealii::FullMatrix<double> &cell_matrix,
-      const int &g,
-      const int &dir) override {};
 
   void IntegrateInterfaceBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,

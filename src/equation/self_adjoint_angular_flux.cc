@@ -11,7 +11,16 @@ SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
  * =============================================================================
  * PUBLIC FUNCTIONS
  * =============================================================================
- */  
+ */
+template<int dim>
+void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      const int &fn,
+      dealii::FullMatrix<double> &cell_matrix,
+      const int &g,
+      const int &dir) {
+}
+
 template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
