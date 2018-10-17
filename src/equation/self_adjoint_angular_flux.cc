@@ -82,15 +82,8 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
   
   // Iterate over groups to populate cell_scatter_flux
   for (int group_in = 0; group_in < n_group_; ++group_in) {
-    std::vector<double> group_cell_scalar_flux(n_q_);
-    
-    // Get the global scalar flux for the current group
-    auto group_global_scalar_flux =
-        mat_vec_->moments[equ_name_][std::make_tuple(group_in, 0, 0)];
-
-    // Evaluate the global scalar flux at the quadrature points of the current
-    // cell and store in group_cell_scalar_flux (dealii function in FEValuesBase)
-    fv_->get_function_values(group_global_scalar_flux, group_cell_scalar_flux);
+    std::vector<double> group_cell_scalar_flux =
+        this->GetGroupScalarFlux(group_in);
 
     // Get needed cross-sections:
     auto sigma_s_per_ster = xsec_->sigs_per_ster.at(material_id)(group_in, g);
@@ -171,5 +164,21 @@ SelfAdjointAngularFlux<dim>::CellStreamingMatrix (int q, int dir) {
   
   return return_matrix;
 }
+
+template <int dim>
+std::vector<double>
+SelfAdjointAngularFlux<dim>::GetGroupCellScalarFlux(int group) {
+  std::vector<double> return_vector(n_q_);
+
+  // Get the global scalar flux for the current group
+  auto group_global_scalar_flux =
+      mat_vec_->moments[equ_name_][std::make_tuple(group, 0, 0)];
+  // Evaluate the global scalar flux at the quadrature points of the current
+  // cell and store in return_vector (dealii function in FEValuesBase)
+  fv_->get_function_values(group_global_scalar_flux, return_vector);
+  
+  return return_vector;
+}
+
 
 

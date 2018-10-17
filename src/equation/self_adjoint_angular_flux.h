@@ -167,6 +167,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   
   dealii::FullMatrix<double> CellCollisionMatrix (int q);
   dealii::FullMatrix<double> CellStreamingMatrix (int q, int dir);
+  std::vector<double> GetGroupCellScalarFlux(int group);
 };
 
 #endif // BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_
