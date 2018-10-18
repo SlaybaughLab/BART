@@ -27,20 +27,20 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
   
   if (normal_dot_omega > 0) {
     // Integrate bilinear term
-    for (int q = 0; q < n_q_; ++q) {
+    for (int q = 0; q < n_qf_; ++q) {
       for (int i = 0; i < dofs_per_cell_; ++i) {
         for (int j = 0; j < dofs_per_cell_; ++j) {
-          cell_matrix += normal_dot_omega *
-                         fvf_->shape_value(i, q) *
-                         fvf_->shape_value(j, q) *
-                         fvf_->JxW(q);
+          cell_matrix(i,j) += normal_dot_omega *
+                              fvf_->shape_value(i, q) *
+                              fvf_->shape_value(j, q) *
+                              fvf_->JxW(q);
         }
       }
     }
   }
 }
-
-void IntegrateBoundaryLinearForm (
+template<int dim>
+void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,/*face number*/
       dealii::Vector<double> &cell_rhs,
@@ -105,10 +105,10 @@ void SelfAdjointAngularFlux<dim>::IntegrateCellFixedLinearForm (
     for (int group_in = 0; group_in < n_group_; ++group_in) {
       // Retrieve cell scalar flux, inverse sigma t, fission terms
       std::vector<double> group_cell_scalar_flux =
-          this->GetGroupScalarFlux(group_in);
+          this->GetGroupCellScalarFlux(group_in);
       auto inv_sigma_t = xsec_->inv_sigt.at(material_id)[g];
       auto scaled_fission_transfer =
-          scaled_fission_transfer_.at(material_id)(group_in, g);
+          scaled_fiss_transfer_.at(material_id)(group_in, g);
       
       for (int q = 0; q < n_q_; ++q) {
         cell_q[q] +=
@@ -154,7 +154,7 @@ void SelfAdjointAngularFlux<dim>::IntegrateScatteringLinearForm (
   // Iterate over groups to populate cell_scatter_flux
   for (int group_in = 0; group_in < n_group_; ++group_in) {
     std::vector<double> group_cell_scalar_flux =
-        this->GetGroupScalarFlux(group_in);
+        this->GetGroupCellScalarFlux(group_in);
 
     // Get needed cross-sections:
     auto sigma_s_per_ster = xsec_->sigs_per_ster.at(material_id)(group_in, g);
@@ -252,5 +252,7 @@ SelfAdjointAngularFlux<dim>::GetGroupCellScalarFlux(int group) {
   return return_vector;
 }
 
-
+template class SelfAdjointAngularFlux<1>;
+template class SelfAdjointAngularFlux<2>;
+template class SelfAdjointAngularFlux<3>;
 

@@ -214,10 +214,11 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   using EquationBase<dim>::n_dir_;
   using EquationBase<dim>::n_group_;
   using EquationBase<dim>::n_q_;
+  using EquationBase<dim>::n_qf_;
   using EquationBase<dim>::omega_;
   using EquationBase<dim>::pre_streaming_;
   using EquationBase<dim>::pre_collision_;
-  using EquationBase<dim>::scaled_fission_transfer_;
+  using EquationBase<dim>::scaled_fiss_transfer_;
   using EquationBase<dim>::xsec_;
   
   dealii::FullMatrix<double> CellCollisionMatrix (int q);
