@@ -45,7 +45,10 @@ void IntegrateBoundaryLinearForm (
       const int &fn,/*face number*/
       dealii::Vector<double> &cell_rhs,
       const int &g,
-      const int &dir) {}
+      const int &dir) {
+  //TODO: Add section for using previous iteration as incident flux
+
+}
 
 template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateCellBilinearForm (
