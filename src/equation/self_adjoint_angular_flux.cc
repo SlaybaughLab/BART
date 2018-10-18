@@ -40,6 +40,13 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
   }
 }
 
+void IntegrateBoundaryLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      const int &fn,/*face number*/
+      dealii::Vector<double> &cell_rhs,
+      const int &g,
+      const int &dir) {}
+
 template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateCellBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,

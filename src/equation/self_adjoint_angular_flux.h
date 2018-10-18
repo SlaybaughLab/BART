@@ -60,6 +60,43 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
       const int &dir) override;
+  /*!
+   * \brief Integrates the linear bilinear boundary term in the SAAF equation and adds
+   *        the values to the matrix cell_matrix.
+   *           
+   * For a given boundary in the triangulation, \f$\partial K \in \partial T_K\f$,
+   * with basis functions \f$\varphi\f$, this function integrates the linear
+   * boundary term for one group using the quadrature specified in the
+   * problem definition and adds them to the local cell right-hand side. For the case
+   * \f$(\vec{n} \cdot \vec{\Omega}) < 0\f$, the boundary condition is
+   * \f$\Psi_b(\vec{r},\vec{\Omega}) = \Psi_{\text{inc}}(\vec{r},\vec{\Omega})\f$ and is
+   * partially handled by integrating the following bilinear term (there is also
+   * a bilinear term):
+   * \f[
+   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} +
+   * \int_{\partial K}
+   * (\hat{n}\cdot\vec{\Omega})\varphi_i(\vec{r})
+   * \Psi_{\text{inc},g}(\vec{r})
+   * dS
+   * \f]
+   *
+   * For vacuum boundary conditions, \f$\Psi_{\text{inc},g} = 0\f$. For reflective
+   * boundary conditions, it is equal to the angular flux on the boundary in
+   * the previous iteration.
+   * 
+   * \param cell the cell \f$K\f$.
+   * \param fn face index for the current face in the cell
+   * \param cell_rhs the local cell right-hand side to be modified, \f$\vec{b}\f$
+   * \param g energy group
+   * \param dir direction \f$\vec{\Omega}\f$.
+   * \return No values returned, modifies input parameter \f$\vec{b}\to \vec{b}'\f$.   
+   !*/
+  void IntegrateBoundaryLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+      const int &fn,/*face number*/
+      dealii::Vector<double> &cell_rhs,
+      const int &g,
+      const int &dir) override;  
   
   /*!
    * \brief Integrates the bilinear terms in the SAAF equation and adds
@@ -165,12 +202,6 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       dealii::FullMatrix<double> &ve_ue,
       const int &g,
       const int &i_dir) override {};
-  void IntegrateBoundaryLinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      const int &fn,/*face number*/
-      dealii::Vector<double> &cell_rhs,
-      const int &g,
-      const int &dir) override {};  
 
  protected:
   using EquationBase<dim>::dat_ptr_;
