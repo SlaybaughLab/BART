@@ -38,7 +38,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * \f$(\vec{n} \cdot \vec{\Omega}) > 0\f$, the boundary condition is
    * \f$\Psi_b(\vec{r},\vec{\Omega}) = \Psi(\vec{r},\vec{\Omega})\f$ and is
    * partially handled by integrating the following bilinear term (there may
-   * also be a linear term, if there is vacuum or incident boundary conditions):
+   * also be a linear term):
    * \f[
    * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
    * \int_{\partial K}

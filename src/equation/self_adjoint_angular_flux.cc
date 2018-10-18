@@ -21,7 +21,6 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
       const int &dir) {
   
   // Get the boundary ID and the normal vector
-  int boundary_id = cell->face(fn)->boundary_id();
   const dealii::Tensor<1, dim> normal_vector = fvf_->normal_vector(0);
 
   double normal_dot_omega = normal_vector * omega_[dir];
