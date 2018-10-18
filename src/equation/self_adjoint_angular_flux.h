@@ -37,32 +37,14 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * problem definition and adds them to the local cell matrix. For the case
    * \f$(\vec{n} \cdot \vec{\Omega}) > 0\f$, the boundary condition is
    * \f$\Psi_b(\vec{r},\vec{\Omega}) = \Psi(\vec{r},\vec{\Omega})\f$ and is
-   * partially handled by integrating the following bilinear term (there are also
-   * two linear terms):
+   * partially handled by integrating the following bilinear term (there may
+   * also be a linear term, if there is vacuum or incident boundary conditions):
    * \f[
-   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} -
-   * \int_{\partial K}\frac{1}{\sigma_{t,g}(\vec{r})}
+   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
+   * \int_{\partial K}
    * (\hat{n}\cdot\vec{\Omega})\varphi_i(\vec{r})
    * \varphi_j(\vec{r})
    * dS
-   * \f]
-   *
-   * When there are reflective boundary conditions and
-   * \f$(\vec{n} \cdot \vec{\Omega}) < 0\f$, there is an additional bilinear
-   * term:
-   *
-   * \f[
-   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} -
-   * \int_{\partial K}\frac{1}{\sigma_{t,g}(\vec{r})}
-   * (\hat{n}\cdot\vec{\Omega}')\varphi_i(\vec{r})
-   * \varphi_j(\vec{r})
-   * dS
-   * \f]
-   *
-   * where \f$\vec{\Omega}'\f$ is the angle of reflection, given by:
-   *
-   * \f[
-   * \vec{\Omega}' = \vec{\Omega} - 2(\vec{\Omega} \cdot \hat{n})\hat{n}
    * \f]
    * 
    * \param cell the cell \f$K\f$.
