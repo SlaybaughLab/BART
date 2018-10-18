@@ -18,7 +18,7 @@ void DeclareParameters (dealii::ParameterHandler &local_prm) {
     local_prm.declare_entry ("problem dimension", "2",
         dealii::Patterns::Integer(), "");
     local_prm.declare_entry ("transport model", "none",
-        dealii::Patterns::Selection("ep|none"),
+        dealii::Patterns::Selection("ep|saaf|none"),
         "valid names such as ep");
     local_prm.declare_entry ("ho linear solver name", "cg",
         dealii::Patterns::Selection("cg|gmres|bicgstab|direct"),
