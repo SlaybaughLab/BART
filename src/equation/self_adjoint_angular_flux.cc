@@ -19,6 +19,26 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
       const int &dir) {
+  
+  // Get the boundary ID and the normal vector
+  int boundary_id = cell->face(fn)->boundary_id();
+  const dealii::Tensor<1, dim> normal_vector = fvf_->normal_vector(0);
+
+  double normal_dot_omega = normal_vector * omega_[dir];
+  
+  if (normal_dot_omega > 0) {
+    // Integrate bilinear term
+    for (int q = 0; q < n_q_; ++q) {
+      for (int i = 0; i < dofs_per_cell_; ++i) {
+        for (int j = 0; j < dofs_per_cell_; ++j) {
+          cell_matrix += normal_dot_omega *
+                         fvf_->shape_value(i, q) *
+                         fvf_->shape_value(j, q) *
+                         fvf_->JxW(q);
+        }
+      }
+    }
+  }
 }
 
 template<int dim>

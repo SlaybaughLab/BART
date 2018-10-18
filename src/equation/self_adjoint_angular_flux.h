@@ -34,13 +34,36 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * For a given boundary in the triangulation, \f$\partial K \in \partial T_K\f$,
    * with basis functions \f$\varphi\f$, this function integrates the bilinear
    * boundary term for one group using the quadrature specified in the
-   * problem definition and adds them to the local cell matrix.
+   * problem definition and adds them to the local cell matrix. For the case
+   * \f$(\vec{n} \cdot \vec{\Omega}) > 0\f$, the boundary condition is
+   * \f$\Psi_b(\vec{r},\vec{\Omega}) = \Psi(\vec{r},\vec{\Omega})\f$ and is
+   * partially handled by integrating the following bilinear term (there are also
+   * two linear terms):
    * \f[
-   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
-   * \int_{\partial K}(\hat{n}\cdot\vec{\Omega})
-   * \varphi_i(\vec{r})\varphi_j(\vec{r})dS
+   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} -
+   * \int_{\partial K}\frac{1}{\sigma_{t,g}(\vec{r})}
+   * (\hat{n}\cdot\vec{\Omega})\varphi_i(\vec{r})
+   * \varphi_j(\vec{r})
+   * dS
    * \f]
-   * where \f$\hat{n}\cdot\vec{\Omega} > 0\f$, and adds nothing otherwise.
+   *
+   * When there are reflective boundary conditions and
+   * \f$(\vec{n} \cdot \vec{\Omega}) < 0\f$, there is an additional bilinear
+   * term:
+   *
+   * \f[
+   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} -
+   * \int_{\partial K}\frac{1}{\sigma_{t,g}(\vec{r})}
+   * (\hat{n}\cdot\vec{\Omega}')\varphi_i(\vec{r})
+   * \varphi_j(\vec{r})
+   * dS
+   * \f]
+   *
+   * where \f$\vec{\Omega}'\f$ is the angle of reflection, given by:
+   *
+   * \f[
+   * \vec{\Omega}' = \vec{\Omega} - 2(\vec{\Omega} \cdot \hat{n})\hat{n}
+   * \f]
    * 
    * \param cell the cell \f$K\f$.
    * \param fn face index for the current face in the cell
@@ -172,6 +195,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   using EquationBase<dim>::dofs_per_cell_;
   using EquationBase<dim>::equ_name_;
   using EquationBase<dim>::fv_;
+  using EquationBase<dim>::fvf_;
   using EquationBase<dim>::is_eigen_problem_;
   using EquationBase<dim>::mat_vec_;
   using EquationBase<dim>::n_dir_;
