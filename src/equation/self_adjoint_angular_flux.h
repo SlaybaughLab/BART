@@ -15,14 +15,24 @@
  * + \sigma_t\psi = \frac{1}{4\pi}\left[\sigma_s\phi + Q - \vec{\Omega}\cdot
  * \nabla\frac{\sigma_s\phi + Q}{\sigma_t}\right]
  * \f]
+ * Where for eigenvalue problems:
  *
- * With boundary conditions:
+ * \f[
+ * Q = 
+ * \frac{\nu\sigma_f}{4\pi k_{\text{eff}}}\phi
+ * \f]
+ *
+ * 
+ * and with boundary conditions:
  * \f[
  * \psi_b = \cases{
  * F(\vec{r}, \vec{\Omega}) & for $\hat{n} \cdot \vec{\Omega} < 0$ \\
  * \psi(\vec{r}, \vec{\Omega}) & for $\hat{n} \cdot \vec{\Omega} > 0$
  * }
  * \f]
+ *
+ * This class provides a Continuous Galerkin formulation that includes either
+ * vacuum boundary conditions or reflective boundary conditions.
  * 
  * \author Joshua Rehak
  */
@@ -30,11 +40,18 @@
 template <int dim>
 class SelfAdjointAngularFlux : public EquationBase<dim> {
  public:
-  /*! Class constructor */
+  /*! Class constructor.
+   * \param equation_name name of the equation
+   * \param prm ParameterHandler object containing problem definition
+   * \param data_ptr pointer to FundamentalData holding problem data
+   */
   SelfAdjointAngularFlux(const std::string equation_name,
                          const dealii::ParameterHandler &prm,
                          std::shared_ptr<FundamentalData<dim>> &data_ptr);
+
+  /*! Default class destructor */
   ~SelfAdjointAngularFlux() = default;
+  
   /*!
    * \brief Integrates the bilinear boundary terms in the SAAF equation and adds
    *        the values to the matrix cell_matrix.
