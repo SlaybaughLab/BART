@@ -246,8 +246,6 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   using EquationBase<dim>::scaled_fiss_transfer_;
   using EquationBase<dim>::xsec_;
   
-  dealii::FullMatrix<double> CellCollisionMatrix (int q);
-  dealii::FullMatrix<double> CellStreamingMatrix (int q, int dir);
   std::vector<double> GetGroupCellScalarFlux(int group);
 };
 

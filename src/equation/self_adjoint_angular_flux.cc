@@ -190,10 +190,32 @@ void SelfAdjointAngularFlux<dim>::PreassembleCellMatrices () {
 
   // For each quadrature angle, generate the Collision and Streaming matrices
   for (int q = 0; q < n_q_; ++q) {
-    pre_collision_[q] = this->CellCollisionMatrix(q);
+
+    dealii::FullMatrix<double> temp_matrix(dofs_per_cell_, dofs_per_cell_);
+    
+    for (int i = 0; i < dofs_per_cell_; ++i) {
+      for (int j = 0; j < dofs_per_cell_; ++j) {
+        temp_matrix(i,j) =
+            (fv_->shape_value(i,q) * fv_->shape_value(j,q));
+      }
+    }
+    
+    pre_collision_[q] = temp_matrix;
+
+    temp_matrix = 0;
+    
     // Streaming terms also depend on direction
-    for (int dir = 0; dir < n_dir_; ++dir)
-      pre_streaming_[{dir, q}] = this->CellStreamingMatrix(q, dir);
+    for (int dir = 0; dir < n_dir_; ++dir) {
+      for (int i = 0; i < dofs_per_cell_; ++i) {
+        for (int j = 0; j < dofs_per_cell_; ++j) {
+          temp_matrix(i,j) =
+              (fv_->shape_grad(i,q) * omega_[dir])
+              *
+              (fv_->shape_grad(j,q) * omega_[dir]);
+        }
+      }
+      pre_streaming_[{dir, q}] = temp_matrix;
+    }
   }
 }
 
@@ -202,40 +224,6 @@ void SelfAdjointAngularFlux<dim>::PreassembleCellMatrices () {
  * PROTECTED FUNCTIONS
  * =============================================================================
  */  
-
-template <int dim>
-dealii::FullMatrix<double>
-SelfAdjointAngularFlux<dim>::CellCollisionMatrix (int q) {
-  
-  dealii::FullMatrix<double> return_matrix (dofs_per_cell_, dofs_per_cell_);
-  
-  for (int i = 0; i < dofs_per_cell_; ++i) {
-      for (int j = 0; j < dofs_per_cell_; ++j) {
-        return_matrix(i,j) =
-            (fv_->shape_value(i,q) * fv_->shape_value(j,q));
-      }
-  }
-  
-  return return_matrix;
-}
-
-template <int dim>
-dealii::FullMatrix<double>
-SelfAdjointAngularFlux<dim>::CellStreamingMatrix (int q, int dir) {
-  
-  dealii::FullMatrix<double> return_matrix (dofs_per_cell_, dofs_per_cell_);
-  
-  for (int i = 0; i < dofs_per_cell_; ++i) {
-      for (int j = 0; j < dofs_per_cell_; ++j) {
-        return_matrix(i,j) =
-            (fv_->shape_grad(i,q) * omega_[dir])
-            *
-            (fv_->shape_grad(j,q) * omega_[dir]);
-      }
-  }
-  
-  return return_matrix;
-}
 
 template <int dim>
 std::vector<double>
