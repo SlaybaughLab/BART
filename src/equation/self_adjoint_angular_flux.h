@@ -9,11 +9,19 @@
  * \brief Provides the weak formulation for the Self Adjoint Angular Flux 
  *         (SAAF) equation.
  *
- * This is a second-order formulation of the transport equation, given as:
+ * SAAF is a second-order formulation of the transport equation, given as:
  * \f[
- * -\vec{\Omega} \cdot \nabla \frac{1}{\Sigma_t}\vec{\Omega}\cdot\nabla\psi
- * + \Sigma_t\psi = \frac{1}{4\pi}\left[\Sigma_s\phi + Q - \vec{\Omega}\cdot
- * \nabla\frac{\Sigma_s\phi + Q}{\Sigma_t}\right]
+ * -\vec{\Omega} \cdot \nabla \frac{1}{\sigma_t}\vec{\Omega}\cdot\nabla\psi
+ * + \sigma_t\psi = \frac{1}{4\pi}\left[\sigma_s\phi + Q - \vec{\Omega}\cdot
+ * \nabla\frac{\sigma_s\phi + Q}{\sigma_t}\right]
+ * \f]
+ *
+ * With boundary conditions:
+ * \f[
+ * \psi_b = \cases{
+ * F(\vec{r}, \vec{\Omega}) & for $\hat{n} \cdot \vec{\Omega} < 0$ \\
+ * \psi(\vec{r}, \vec{\Omega}) & for $\hat{n} \cdot \vec{\Omega} > 0$
+ * }
  * \f]
  * 
  * \author Joshua Rehak
