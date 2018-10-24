@@ -72,7 +72,39 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
     equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
 
 template <int dim>
-BARTDriver<dim>::~BARTDriver () {}
+BARTDriver<dim>::~BARTDriver () {
+  // free matrices
+  for (auto & mats : dat_ptr_->mat_vec->sys_mats) {
+    // mats.first==equ name, mats.second==matrix pointers
+    for (auto & matrix : mats.second) {
+      // delete dynamically allocated memory
+      delete matrix;
+      // set dangling pointers to null
+      matrix = nullptr;
+    }
+  }
+
+  for (auto & fluxes : dat_ptr_->mat_vec->sys_flxes) {
+    for (auto & flux : fluxes.second) {
+      delete flux;
+      flux = nullptr;
+    }
+  }
+
+  for (auto & rhses : dat_ptr_->mat_vec->sys_rhses) {
+    for (auto & rhs : rhses.second) {
+      delete rhs;
+      rhs = nullptr;
+    }
+  }
+
+  for (auto & fixed_rhses : dat_ptr_->mat_vec->sys_fixed_rhses) {
+    for (auto & fixed_rhs : fixed_rhses.second) {
+      delete fixed_rhs;
+      fixed_rhs = nullptr;
+    }
+  }
+}
 
 template <>
 void BARTDriver<1>::MakeGrid() {
@@ -294,7 +326,7 @@ void BARTDriver<2>::OutputResults () const {
     std::ostringstream os;
     os << output_fname_ << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
-    
+
     data_out.write_pvtu_record (master_output, filenames);
   }
 }
