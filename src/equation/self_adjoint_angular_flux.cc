@@ -1,4 +1,5 @@
 #include "self_adjoint_angular_flux.h"
+#include <deal.II/dofs/dof_accessor.h>
 
 template <int dim>
 SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
@@ -46,8 +47,36 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
       dealii::Vector<double> &cell_rhs,
       const int &g,
       const int &dir) {
-  //TODO: Add section for using previous iteration as incident flux
 
+  // Get boundary id to determine if we have reflective BCs
+  int boundary_id = cell->face(fn)->boundary_id();
+
+  if (have_reflective_bc_ && is_reflective_bc_.at(boundary_id)) {
+  
+    // Get normal vector and dot product with omega
+    const dealii::Tensor<1, dim> normal_vector = fvf_->normal_vector(0);
+    double normal_dot_omega = normal_vector * omega_[dir];
+
+    if (normal_dot_omega < 0) {
+
+      // Retrieve previous iteration angular flux and get local values
+      std::vector<unsigned int> local_dof_indices(dofs_per_cell_);
+      cell->get_dof_indices(local_dof_indices);
+    
+      std::vector<double> angular_flux(dofs_per_cell_);
+      mat_vec_->sys_flxes[equ_name_][this->GetCompInd(g, dir)]
+          ->extract_subvector_to(local_dof_indices, angular_flux);
+
+      for (int q = 0; q < n_qf_; ++q) {
+        for (int i = 0; i < dofs_per_cell_; ++i) {
+          cell_rhs(i) += normal_dot_omega *
+                         angular_flux[i] *
+                         fvf_->shape_value(i, q) *
+                         fvf_->JxW(q);
+        }
+      }
+    }
+  }
 }
 
 template<int dim>
