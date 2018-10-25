@@ -80,10 +80,10 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
    * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.   
    !*/
   void IntegrateBoundaryBilinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      const int &fn,
+      typename dealii::DoFHandler<dim>::active_cell_iterator &,
+      const int &,
       dealii::FullMatrix<double> &cell_matrix,
-      const int &g,
+      const int &,
       const int &dir) override;
   /*!
    * \brief Integrates the linear bilinear boundary term in the SAAF equation and adds
@@ -215,18 +215,18 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   
   void PreassembleCellMatrices () override;
 
-  // NOT DONE YET
+
 
   void IntegrateInterfaceBilinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      typename dealii::DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
-      const int &fn,/*concerning face number in local cell*/
-      dealii::FullMatrix<double> &vi_ui,
-      dealii::FullMatrix<double> &vi_ue,
-      dealii::FullMatrix<double> &ve_ui,
-      dealii::FullMatrix<double> &ve_ue,
-      const int &g,
-      const int &i_dir) override {};
+      typename dealii::DoFHandler<dim>::active_cell_iterator &,
+      typename dealii::DoFHandler<dim>::cell_iterator &,/*cell iterator for cell*/
+      const int &,/*concerning face number in local cell*/
+      dealii::FullMatrix<double> &,
+      dealii::FullMatrix<double> &,
+      dealii::FullMatrix<double> &,
+      dealii::FullMatrix<double> &,
+      const int &,
+      const int &) override {};
 
  protected:
   using EquationBase<dim>::dat_ptr_;
@@ -234,6 +234,8 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   using EquationBase<dim>::equ_name_;
   using EquationBase<dim>::fv_;
   using EquationBase<dim>::fvf_;
+  using EquationBase<dim>::have_reflective_bc_;
+  using EquationBase<dim>::is_reflective_bc_;
   using EquationBase<dim>::is_eigen_problem_;
   using EquationBase<dim>::mat_vec_;
   using EquationBase<dim>::n_dir_;
@@ -245,8 +247,7 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   using EquationBase<dim>::pre_collision_;
   using EquationBase<dim>::scaled_fiss_transfer_;
   using EquationBase<dim>::xsec_;
-  
-  std::vector<double> GetGroupCellScalarFlux(int group);
+  void GetGroupCellScalarFlux (std::vector<double> &to_fill, int group);
 };
 
 #endif // BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_
