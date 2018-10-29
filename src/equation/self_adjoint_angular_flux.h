@@ -51,6 +51,8 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
 
   /*! Default class destructor */
   ~SelfAdjointAngularFlux() = default;
+
+  void AssembleLinearForms (const int &g) override;
   
   /*!
    * \brief Integrates the bilinear boundary terms in the SAAF equation and adds
@@ -248,6 +250,8 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   using EquationBase<dim>::scaled_fiss_transfer_;
   using EquationBase<dim>::xsec_;
   void GetGroupCellScalarFlux (std::vector<double> &to_fill, int group);
+  //std::map<int, std::unique_ptr<dealii::Vector<double>>> global_angular_flux_;
+  std::map<int, dealii::Vector<double>> global_angular_flux_;
 };
 
 #endif // BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_

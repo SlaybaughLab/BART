@@ -13,6 +13,18 @@ SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
  * PUBLIC FUNCTIONS
  * =============================================================================
  */
+
+
+template <int dim>
+void SelfAdjointAngularFlux<dim>::AssembleLinearForms (const int &g) {
+  for (int dir = 0; dir < n_dir_; ++dir) {
+    global_angular_flux_[dir] =
+        *(mat_vec_->sys_flxes[equ_name_][this->GetCompInd(g, dir)]);         
+  }
+  
+  EquationBase<dim>::AssembleLinearForms(g);
+}
+
 template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &,
@@ -59,18 +71,16 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
 
     if (normal_dot_omega < 0) {
 
-      // Retrieve previous iteration angular flux and get local values
-      std::vector<unsigned int> local_dof_indices(dofs_per_cell_);
-      cell->get_dof_indices(local_dof_indices);
-    
-      std::vector<double> angular_flux(dofs_per_cell_);
-      mat_vec_->sys_flxes[equ_name_][this->GetCompInd(g, dir)]
-          ->extract_subvector_to(local_dof_indices, angular_flux);
-
+      // Retrieve previous iteration angular flux and get local values       
+      
+      std::vector<double> angular_flux(n_qf_);
+      fvf_->get_function_values(global_angular_flux_[dir],
+                                angular_flux);     
+      
       for (int q = 0; q < n_qf_; ++q) {
         for (int i = 0; i < dofs_per_cell_; ++i) {
-          cell_rhs(i) += normal_dot_omega *
-                         angular_flux[i] *
+          cell_rhs(i) += - normal_dot_omega *
+                         angular_flux[q] *
                          fvf_->shape_value(i, q) *
                          fvf_->JxW(q);
         }
