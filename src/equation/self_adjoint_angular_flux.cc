@@ -73,8 +73,7 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
 
       // Retrieve previous iteration angular flux and get local values for the
       // reflected angle
-      int reflected_dir = dat_ptr_->aq->GetRefDirInd()
-                          [std::make_pair(boundary_id, dir)];
+      int reflected_dir = this->ref_dir_ind_[std::make_pair(boundary_id, dir)];
       
       std::vector<double> angular_flux(n_qf_);
       fvf_->get_function_values(
