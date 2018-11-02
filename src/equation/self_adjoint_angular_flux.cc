@@ -18,7 +18,7 @@ SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
 template <int dim>
 void SelfAdjointAngularFlux<dim>::AssembleLinearForms (const int &g) {
   for (int dir = 0; dir < n_dir_; ++dir) {
-    global_angular_flux_[dir] =
+    global_angular_flux_[this->GetCompInd(g, dir)] =
         *(mat_vec_->sys_flxes[equ_name_][this->GetCompInd(g, dir)]);         
   }
   
@@ -71,17 +71,21 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
 
     if (normal_dot_omega < 0) {
 
-      // Retrieve previous iteration angular flux and get local values       
+      // Retrieve previous iteration angular flux and get local values for the
+      // reflected angle
+      int reflected_dir = dat_ptr_->aq->GetRefDirInd()
+                          [std::make_pair(boundary_id, dir)];
       
       std::vector<double> angular_flux(n_qf_);
-      fvf_->get_function_values(global_angular_flux_[dir],
-                                angular_flux);     
+      fvf_->get_function_values(
+          global_angular_flux_[this->GetCompInd(g, reflected_dir)],
+          angular_flux);     
       
       for (int q = 0; q < n_qf_; ++q) {
         for (int i = 0; i < dofs_per_cell_; ++i) {
-          cell_rhs(i) += - normal_dot_omega *
-                         angular_flux[q] *
+          cell_rhs(i) -= normal_dot_omega *
                          fvf_->shape_value(i, q) *
+                         angular_flux[q] *
                          fvf_->JxW(q);
         }
       }
