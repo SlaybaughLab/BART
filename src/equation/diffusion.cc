@@ -48,7 +48,7 @@ void Diffusion<dim>::IntegrateCellBilinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::FullMatrix<double> &cell_matrix,
     const int &g,
-    const int &dir) {
+    const int &) {
   int mid = cell->material_id ();
   auto siga = this->xsec_->sigt.at(mid)[g] - this->xsec_->sigs.at(mid)(g,g);
   for (int qi=0; qi<this->n_q_; ++qi)
@@ -66,7 +66,7 @@ void Diffusion<dim>::IntegrateScatteringLinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::Vector<double> &cell_rhs,
     const int &g,
-    const int &dir) {
+    const int &) {
   int mid = cell->material_id ();
   std::vector<double> q_at_qp (this->n_q_);
   for (int gin=0; gin<this->n_group_; ++gin) {
@@ -91,7 +91,7 @@ void Diffusion<dim>::IntegrateCellFixedLinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::Vector<double> &cell_rhs,
     const int &g,
-    const int &dir) {
+    const int &) {
   int mid = cell->material_id ();
   std::vector<double> q_at_qp (this->n_q_);
 
@@ -124,7 +124,7 @@ void Diffusion<dim>::IntegrateBoundaryBilinearForm (
     const int &fn,/*face number*/
     dealii::Vector<double> &cell_rhs,
     const int &g,
-    const int &dir) {
+    const int &) {
   int bd_id = cell->face(fn)->boundary_id ();
   const dealii::Tensor<1,dim> vec_n = this->fvf_->normal_vector(0);
   if (!this->have_reflective_bc_ || this->is_reflective_bc_.at(bd_id)) {
