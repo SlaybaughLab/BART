@@ -9,7 +9,7 @@ EvenParity<dim>::EvenParity(const std::string &equation_name,
   if (this->discretization_=="dfem") {
     for (int i=0; i<this->n_dir_; ++i) {
       dealii::Tensor<2, dim> tmp =
-          outer_product(this->omega_[i], this->omega_[i]);
+          dealii::outer_product(this->omega_[i], this->omega_[i]);
       tensor_norms_.push_back(tmp.norm());
     }
     // note that the first constant on rhs is tunable and should be cautious
