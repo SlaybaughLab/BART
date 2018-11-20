@@ -22,9 +22,8 @@
 
 //! This class reads in and pre-processes material properties.
 /*!
- \author Weixiong Zheng
- \date 2017/04~06
- Modified by ablank@berkeley.edu August 2018
+ \author Weixiong Zheng, Alex Blank
+ \date 2017/04~06, 2018/08
 
  \todo Add functionality to perform eigenvalue decomposition.
  */
@@ -271,7 +270,7 @@ class MaterialProtobuf : public MaterialBase {
   static std::unordered_map<Material::VectorId, std::vector<double>, std::hash<int>>
   GetVectorProperties(const Material& material);
 
-  /*! 
+  /*!
     returns the first instance of the specified vector property
     found in the Material
     will return an empty vector {} if the property isn't found
@@ -279,7 +278,7 @@ class MaterialProtobuf : public MaterialBase {
   static std::vector<double>
   GetVectorProperty(const Material& material, Material::VectorId property_id);
 
-  /*! 
+  /*!
     returns the first instance of a SIGMA_S matrix found in the Material
     will return an empty zero by zero matrix if SIGMA_S isn't found
     can throw WrongNumberOfValues exception
@@ -298,7 +297,7 @@ class MaterialProtobuf : public MaterialBase {
 
   DeclExceptionMsg(NoFissileIDs,
     "At least one material ID must be specified as fissile for eigen problems.");
-  
+
   DeclException1(FissileIDInvalid,
     int,
     << "Material ID " << arg1
@@ -314,7 +313,7 @@ class MaterialProtobuf : public MaterialBase {
     std::string, int,
     << "Failed to parse file \"" << arg1 << "\" for material number " << arg2
     << " as either a human-readable or serialized material file defined by material.proto.");
-  
+
   DeclException2(WrongNumberOfMaterials,
     unsigned int, int,
     << "The actual number of materials read in (" << arg1
