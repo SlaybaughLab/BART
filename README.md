@@ -5,6 +5,7 @@
 Software for investigating methods to solve the Boltzmann Transport equation.
 Developed and maintained by 
 
+- [Alexander Blank](https://github.com/AlexanderBlank)
 - [Marissa Ramirez Zweiger](https://github.com/mzweig/)
 - [Joshua Rehak](https://github.com/jsrehak/)
 - [Rachel Slaybaugh](https://github.com/rachelslaybaugh)
