@@ -3,8 +3,6 @@
 
 #include "iteration_base.h"
 
-using namespace dealii;
-
 //! This class provides in-group solving scheme.
 /*!
  This class serves as the base class for in group solvers. The main (only)

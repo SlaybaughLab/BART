@@ -1,8 +1,6 @@
 #include "iterations.h"
 #include "../common/bart_builder.h"
 
-using namespace dealii;
-
 template <int dim>
 Iterations<dim>::Iterations (const dealii::ParameterHandler &prm,
     std::shared_ptr<FundamentalData<dim>> &dat_ptr)
