@@ -52,6 +52,15 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   /*! Default class destructor */
   ~SelfAdjointAngularFlux() = default;
 
+  /*!
+   * \brief Assembles the right-hand-side (linear term) of the SAAF equation.
+   *
+   * Override is required because the SAAF RHS requires angular flux information
+   * when reflective boundary conditions are used.
+   *
+   * \param g energy group
+   * 
+   !*/
   void AssembleLinearForms (const int &g) override;
   
   /*!
@@ -218,7 +227,9 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
   void PreassembleCellMatrices () override;
 
 
-
+  /*!
+   * \brief There are no interface forms for CFEM.
+   !*/
   void IntegrateInterfaceBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &,
       typename dealii::DoFHandler<dim>::cell_iterator &,/*cell iterator for cell*/
@@ -231,27 +242,27 @@ class SelfAdjointAngularFlux : public EquationBase<dim> {
       const int &) override {};
 
  protected:
+  void GetGroupCellScalarFlux (std::vector<double> &to_fill, int group);
+  std::map<int, dealii::Vector<double>> global_angular_flux_;
+  
   using EquationBase<dim>::dat_ptr_;
   using EquationBase<dim>::dofs_per_cell_;
   using EquationBase<dim>::equ_name_;
   using EquationBase<dim>::fv_;
   using EquationBase<dim>::fvf_;
   using EquationBase<dim>::have_reflective_bc_;
-  using EquationBase<dim>::is_reflective_bc_;
   using EquationBase<dim>::is_eigen_problem_;
+  using EquationBase<dim>::is_reflective_bc_;
   using EquationBase<dim>::mat_vec_;
   using EquationBase<dim>::n_dir_;
   using EquationBase<dim>::n_group_;
   using EquationBase<dim>::n_q_;
   using EquationBase<dim>::n_qf_;
   using EquationBase<dim>::omega_;
-  using EquationBase<dim>::pre_streaming_;
   using EquationBase<dim>::pre_collision_;
+  using EquationBase<dim>::pre_streaming_;
   using EquationBase<dim>::scaled_fiss_transfer_;
   using EquationBase<dim>::xsec_;
-  void GetGroupCellScalarFlux (std::vector<double> &to_fill, int group);
-  //std::map<int, std::unique_ptr<dealii::Vector<double>>> global_angular_flux_;
-  std::map<int, dealii::Vector<double>> global_angular_flux_;
 };
 
 #endif // BART_SRC_EQUATION_SELF_ADJOINT_ANGULAR_FLUX_H_

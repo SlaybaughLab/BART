@@ -14,14 +14,14 @@ SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
  * =============================================================================
  */
 
-
 template <int dim>
 void SelfAdjointAngularFlux<dim>::AssembleLinearForms (const int &g) {
-  for (int dir = 0; dir < n_dir_; ++dir) {
-    global_angular_flux_[this->GetCompInd(g, dir)] =
-        *(mat_vec_->sys_flxes[equ_name_][this->GetCompInd(g, dir)]);         
+  if (have_reflective_bc_) {
+    for (int dir = 0; dir < n_dir_; ++dir) {
+      global_angular_flux_[this->GetCompInd(g, dir)] =
+          *(mat_vec_->sys_flxes[equ_name_][this->GetCompInd(g, dir)]);         
+    }
   }
-  
   EquationBase<dim>::AssembleLinearForms(g);
 }
 
@@ -52,6 +52,7 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryBilinearForm (
     }
   }
 }
+
 template<int dim>
 void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
@@ -70,7 +71,6 @@ void SelfAdjointAngularFlux<dim>::IntegrateBoundaryLinearForm (
     double normal_dot_omega = normal_vector * omega_[dir];
 
     if (normal_dot_omega < 0) {
-
       // Retrieve previous iteration angular flux and get local values for the
       // reflected angle
       int reflected_dir = this->ref_dir_ind_[std::make_pair(boundary_id, dir)];
