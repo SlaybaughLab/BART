@@ -101,7 +101,7 @@ public:
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,/*face number*/
       dealii::FullMatrix<double> &cell_matrix,
-      const int &g,
+      const int &,
       const int &dir);
 
   /*!
