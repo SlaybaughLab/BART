@@ -24,8 +24,3 @@ void SAAFIntegrationTest::SetUp() {
   const char *parse_string = parameter_oss.str().c_str();
   prm_.parse_input_from_string(parse_string);
 }
-
-TEST_F(SAAFIntegrationTest, Dummy){
-  EXPECT_TRUE(true);
-}
-
