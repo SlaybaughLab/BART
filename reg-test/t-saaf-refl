@@ -7,8 +7,7 @@ set number of groups                         = 1
 set do eigenvalue calculations               = true
 set do nda                                   = false
 set have reflective boundary                 = true
-#set reflective boundary names                =  xmax
-set reflective boundary names                =  xmax, ymax, xmin, ymin
+set reflective boundary names                =  xmax, xmin, ymax, ymin
 
 set uniform refinements                      = 3
 
