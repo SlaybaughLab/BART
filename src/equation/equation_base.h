@@ -69,10 +69,10 @@ class EquationBase {
    \return Void.
    */
   virtual void IntegrateBoundaryBilinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      const int &fn,
+      typename dealii::DoFHandler<dim>::active_cell_iterator &,
+      const int &,
       dealii::FullMatrix<double> &cell_matrix,
-      const int &g,
+      const int &,
       const int &dir) = 0;
 
   /*!

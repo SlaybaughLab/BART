@@ -1,6 +1,7 @@
 #include "bart_builder.h"
 #include "../aqdata/lsgc.h"
 #include "../equation/even_parity.h"
+#include "../equation/self_adjoint_angular_flux.h"
 #include "../iteration/power_iteration.h"
 #include "../iteration/gauss_seidel.h"
 #include "../iteration/source_iteration.h"
@@ -108,11 +109,16 @@ std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>> BuildEqu (
     std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
   std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>> equ_ptrs;
   const std::string ho_equ_name(prm.get("transport model"));
-  std::unordered_map<std::string, int> mp = {{"ep",0}};
+  std::unordered_map<std::string, int> mp = {{"ep",0}, {"saaf",1}};
   switch (mp[ho_equ_name]) {
     case 0:
       equ_ptrs[ho_equ_name] = std::unique_ptr<EquationBase<dim>>(
           new EvenParity<dim>(ho_equ_name, prm, dat_ptr));
+      break;
+    case 1:
+      equ_ptrs[ho_equ_name] = std::unique_ptr<EquationBase<dim>>(
+          new SelfAdjointAngularFlux<dim>(ho_equ_name, prm, dat_ptr));
+      break;
     default:
       break;
   }
