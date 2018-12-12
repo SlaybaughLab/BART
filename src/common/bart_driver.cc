@@ -78,30 +78,30 @@ BARTDriver<dim>::~BARTDriver () {
     // mats.first==equ name, mats.second==matrix pointers
     for (auto & matrix : mats.second) {
       // delete dynamically allocated memory
-      delete matrix;
+      delete matrix.second;
       // set dangling pointers to null
-      matrix = nullptr;
+      matrix.second = nullptr;
     }
   }
 
   for (auto & fluxes : dat_ptr_->mat_vec->sys_flxes) {
     for (auto & flux : fluxes.second) {
-      delete flux;
-      flux = nullptr;
+      delete flux.second;
+      flux.second = nullptr;
     }
   }
 
   for (auto & rhses : dat_ptr_->mat_vec->sys_rhses) {
     for (auto & rhs : rhses.second) {
-      delete rhs;
-      rhs = nullptr;
+      delete rhs.second;
+      rhs.second = nullptr;
     }
   }
 
   for (auto & fixed_rhses : dat_ptr_->mat_vec->sys_fixed_rhses) {
     for (auto & fixed_rhs : fixed_rhses.second) {
-      delete fixed_rhs;
-      fixed_rhs = nullptr;
+      delete fixed_rhs.second;
+      fixed_rhs.second = nullptr;
     }
   }
 }
