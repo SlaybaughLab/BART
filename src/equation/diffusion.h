@@ -39,7 +39,7 @@ class Diffusion : public EquationBase<dim> {
 
    \return Void.
    */
-  virtual virtual void PreassembleCellMatrices ();
+  virtual void PreassembleCellMatrices ();
 
   /*!
    This function provides cell-wise integrator for bilinear form. Specifically,
@@ -114,6 +114,27 @@ class Diffusion : public EquationBase<dim> {
       const int &g,
       const int &dir);
 
+  void IntegrateBoundaryLinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &,
+      const int &,/*face number*/
+      dealii::Vector<double> &,
+      const int &,
+      const int &) override {};  
+
+  /*!
+   * \brief There are no interface forms for CFEM.
+   !*/
+  void IntegrateInterfaceBilinearForm (
+      typename dealii::DoFHandler<dim>::active_cell_iterator &,
+      typename dealii::DoFHandler<dim>::cell_iterator &,/*cell iterator for cell*/
+      const int &,/*concerning face number in local cell*/
+      dealii::FullMatrix<double> &,
+      dealii::FullMatrix<double> &,
+      dealii::FullMatrix<double> &,
+      dealii::FullMatrix<double> &,
+      const int &,
+      const int &) override {};
+  
 protected:
   //! Polynomial order related part of penalty coefficient.
   double c_penalty_;
