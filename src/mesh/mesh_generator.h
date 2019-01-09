@@ -84,7 +84,7 @@ class MeshGenerator {
    \param tria Triangulation object.
    \return Void. Modify tria in place.
    */
-  void GenerateInitialUnstructGrid (dealii::Triangulation<dim> &tria);
+  void GenerateInitialUnstructGrid (dealii::Triangulation<dim> &);
 
   /*!
    Function to generate a non-fuel pin model for 2D. 4 cells are created for the

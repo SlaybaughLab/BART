@@ -138,7 +138,7 @@ void MeshGenerator<dim>::NonFuelPin2DGrid (dealii::Triangulation<2> &tria,
 
 template <>
 void MeshGenerator<1>::GenerateInitialUnstructGrid (
-    dealii::Triangulation<1> &tria) {}
+    dealii::Triangulation<1> &) {}
 
 template <>
 void MeshGenerator<2>::GenerateInitialUnstructGrid (
@@ -190,7 +190,7 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
   // create a local triangulation and modify it for the first time
   dealii::Triangulation<2> t_loc;
   // modify the rest of the domain
-  for (int ix=0; ix<ncell_per_dir_[0]; ++ix)
+  for (int ix=0; ix<ncell_per_dir_[0]; ++ix) {
     for (int iy=0; iy<ncell_per_dir_[1]; ++iy) {
       int fuel_id = -1;
       for (int iz=0; iz<ncell_per_dir_[2]; ++iz) {
@@ -219,11 +219,12 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
         dealii::GridGenerator::merge_triangulations (t_loc, t_tmp, t_loc);
       }
     }
-    // extrude 2d to 3d
-    dealii::Triangulation<3> t_3d;
-    dealii::GridGenerator::extrude_triangulation (
-        t_loc, ncell_per_dir_[2]+1, axis_max_values_[2], t_3d);
-    tria.copy_triangulation (t_3d);
+  }
+  // extrude 2d to 3d
+  dealii::Triangulation<3> t_3d;
+  dealii::GridGenerator::extrude_triangulation (
+      t_loc, ncell_per_dir_[2]+1, axis_max_values_[2], t_3d);
+  tria.copy_triangulation (t_3d);
 }
 
 template <int dim>
