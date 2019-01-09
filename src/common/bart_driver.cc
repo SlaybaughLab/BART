@@ -253,16 +253,16 @@ void BARTDriver<1>::OutputResults () const {
     }
   }
   dealii::Vector<float> subdomain (tria.n_active_cells ());
-  for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = 0;
+  for (auto &it : subdomain)
+    it = 0;
   data_out.add_data_vector (subdomain, "subdomain");
 
   if (is_eigen_problem_) {
     // add keff to the output file
     dealii::Vector<float> keffs (tria.n_active_cells ());
     const double keff = iter_cls_.GetKeff();
-    for (int i=0; i<keffs.size(); ++i)
-      keffs(i) = keff;
+    for (auto& it : keffs)
+      it = keff;
     data_out.add_data_vector (keffs, "keff");
   }
 
@@ -297,8 +297,8 @@ void BARTDriver<2>::OutputResults () const {
   }
   dealii::Vector<float> subdomain (distributed_tria.n_active_cells());
   const int proc_id = distributed_tria.locally_owned_subdomain ();
-  for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = proc_id;
+  for (auto &it : subdomain)
+    it = proc_id;
   data_out.add_data_vector (subdomain, "subdomain");
 
   //if (is_eigen_problem_)
@@ -306,8 +306,8 @@ void BARTDriver<2>::OutputResults () const {
     // add keff to the output file
     dealii::Vector<float> keffs (distributed_tria.n_active_cells());
     double keff = is_eigen_problem_?iter_cls_.GetKeff():0.0;
-    for (int i=0; i<keffs.size(); ++i)
-      keffs(i) = keff;
+    for (auto& it : keffs)
+      it = keff;
     data_out.add_data_vector (keffs, "keff");
   //}
   data_out.build_patches ();
@@ -346,14 +346,14 @@ void BARTDriver<3>::OutputResults () const {
   }
   dealii::Vector<float> subdomain (distributed_tria.n_active_cells());
   const int proc_id = distributed_tria.locally_owned_subdomain ();
-  for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = proc_id;
+  for (auto& it : subdomain)
+    it = proc_id;
   data_out.add_data_vector (subdomain, "subdomain");
 
   dealii::Vector<float> keffs (distributed_tria.n_active_cells());
   double keff = is_eigen_problem_ ? iter_cls_.GetKeff() : 0.0;
-  for (int i=0; i<keffs.size(); ++i)
-  keffs(i) = keff;
+  for (auto& it : keffs)
+    it = keff;
   data_out.add_data_vector (keffs, "keff");
 
   data_out.build_patches ();
