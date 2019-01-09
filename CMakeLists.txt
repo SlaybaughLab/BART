@@ -14,7 +14,7 @@
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
-PROJECT(xtrans)
+PROJECT(bart)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ### DEPENDENCIES #####################################################
@@ -89,16 +89,16 @@ include_directories(${GTEST_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/inc
   ${PROTO_INC_DIR})
 
-# Add xtrans executables
-ADD_EXECUTABLE(xtrans ${sources})
-ADD_EXECUTABLE(xtrans_test ${testing_sources})
+# Add BART executables
+ADD_EXECUTABLE(bart ${sources})
+ADD_EXECUTABLE(bart_test ${testing_sources})
 
-# Add testing definition and library to xtrans_test
-target_compile_definitions(xtrans_test PUBLIC -DTEST)
+# Add testing definition and library to bart_test
+target_compile_definitions(bart_test PUBLIC -DTEST)
 
 
-target_link_libraries(xtrans ${Protobuf_LIBRARIES})
-target_link_libraries(xtrans_test ${GTEST_BOTH_LIBRARIES}
+target_link_libraries(bart ${Protobuf_LIBRARIES})
+target_link_libraries(bart_test ${GTEST_BOTH_LIBRARIES}
   ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES})
 
 # Add subdirectory builds to build libraries for CTEST
@@ -107,8 +107,8 @@ ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/mesh)
 # Add unit testing subdirectories
 ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/mesh)
 
-DEAL_II_SETUP_TARGET(xtrans)
-DEAL_II_SETUP_TARGET(xtrans_test)
+DEAL_II_SETUP_TARGET(bart)
+DEAL_II_SETUP_TARGET(bart_test)
 
 ### TEST FILES ##################################################
 # Create copies of .gold files in the BART/src directory for gtest
@@ -126,7 +126,7 @@ foreach(test_file ${gtest_files})
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file}
             ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
 endforeach()
-add_dependencies(xtrans_test copy_gtest_gold_files)
+add_dependencies(bart_test copy_gtest_gold_files)
 
 # Creates copies of .output files in the BART/test directory for CTEST
 
@@ -140,9 +140,9 @@ foreach(test_file ${ctest_files})
     TARGET copy_ctest_output_files PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file} ${file_name})
 endforeach()
-add_dependencies(xtrans_test copy_ctest_output_files)
+add_dependencies(bart_test copy_ctest_output_files)
 
 # Create copies of material protocol buffer data
 add_custom_target(copy_protoc_files ALL)
 file(COPY "./src/material/tests/data/" DESTINATION "./test_data/material")
-add_dependencies(xtrans_test copy_protoc_files)
+add_dependencies(bart_test copy_protoc_files)
