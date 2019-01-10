@@ -71,7 +71,7 @@ class MGBase : public IterationBase<dim> {
    \param equ_ptr Pointer of EquationBase object.
    \return Void.
    */
-  virtual void NonthermalSolves(std::unique_ptr<EquationBase<dim>> &equ_ptr);
+  virtual void NonthermalSolves(std::unique_ptr<EquationBase<dim>> &);
 
   /*!
    This virtual function performs iterative energy solves over thermal groups.
@@ -83,7 +83,7 @@ class MGBase : public IterationBase<dim> {
    \param equ_ptrs A vector of shared_ptr's of EquationBase objects.
    \return Void.
    */
-  virtual void ThermalIterations (std::unique_ptr<EquationBase<dim>> &equ_ptr);
+  virtual void ThermalIterations (std::unique_ptr<EquationBase<dim>> &);
 
  protected:
   int g_thermal_;//!< Starting group index where upscattering exists.
