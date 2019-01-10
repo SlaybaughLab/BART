@@ -84,15 +84,16 @@ class LinearAlgebra {
           dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
       std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_flxes,
       std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_rhses,
-      std::unordered_map<int, dealii::ConstraintMatrix*> &constraints,
+      std::unordered_map<int, dealii::ConstraintMatrix*> &,
       const int &i);
 
 private:
+
+  const std::string equ_name_;//!< Name of the target equation.
+  
   const int n_total_vars_;//!< Total number of variables in the target system.
 
   const bool have_reflective_bc_;//!< Boolean to determine if there's any reflective boundary
-
-  const std::string equ_name_;//!< Name of the target equation.
 
   double ssor_omega_;//!< The relaxation factor if block SSOR is used as preconditioner.
 
