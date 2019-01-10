@@ -447,7 +447,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
         int z = ct / ncell_y;
         std::vector<std::string> strings =
             dealii::Utilities::split_string_list (line, ' ');
-        AssertThrow (strings.size()==static_cast<size_t>(ncell_x),
+        AssertThrow (static_cast<int>(strings.size()) == ncell_x,
             dealii::ExcMessage("Entries of material ID per row must be ncell_x"));
         for (int x=0; x<ncell_x; ++x) {
           std::vector<int> tmp = {x};
@@ -471,7 +471,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
           int z = ct / ncell_y;
           std::vector<std::string> strings =
               dealii::Utilities::split_string_list (line, ' ');
-          AssertThrow (strings.size()==static_cast<size_t>(ncell_x),
+          AssertThrow (static_cast<int>(strings.size())==ncell_x,
               dealii::ExcMessage("Entries of material ID per row must be ncell_x"));
           for (int x=0; x<ncell_x; ++x) {
             std::vector<int> tmp = {x};
