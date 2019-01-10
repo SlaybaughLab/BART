@@ -34,8 +34,8 @@ class EigenBase : public IterationBase<dim> {
 
    \return Void.
    */
-  virtual void EigenIterations (
-      std::unique_ptr<EquationBase<dim>> &equ_ptrs) = 0;
+  virtual void EigenIterations
+  (std::unique_ptr<EquationBase<dim>> &equ_ptrs) = 0;
 
   /*!
    Function to update \f$\phi\f$, fission source and \f$k_\mathrm{eff}\f$ from
