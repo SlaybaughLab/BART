@@ -14,7 +14,7 @@ void SourceIteration<dim>::IGIterations (
     std::unique_ptr<EquationBase<dim>> &equ_ptr,
     const int &g) {
   double err = 1.0;
-  int iter = 0;
+  //int iter = 0;
   const std::string equ_name = equ_ptr->GetEquName();
   while (err>this->err_phi_tol_) {
     // generate rhs for group g
