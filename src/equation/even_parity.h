@@ -122,7 +122,7 @@ public:
   void IntegrateInterfaceBilinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       typename dealii::DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
-      const int &fn,/*concerning face number in local cell*/
+      const int &,/*concerning face number in local cell*/
       dealii::FullMatrix<double> &vp_up,
       dealii::FullMatrix<double> &vp_un,
       dealii::FullMatrix<double> &vn_up,
@@ -145,7 +145,7 @@ public:
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::Vector<double> &cell_rhs,
       const int &g,
-      const int &dir);
+      const int &);
 
   /*!
    This function provides cellwise integrator for linear form assembly specifically
@@ -166,7 +166,7 @@ public:
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       dealii::Vector<double> &cell_rhs,
       const int &g,
-      const int &dir);
+      const int &);
 
   /*!
    Function to override for boundary linear form from EquationBase. It essentially
@@ -181,11 +181,11 @@ public:
    \return Void.
    */
   void IntegrateBoundaryLinearForm (
-      typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-      const int &fn,/*face number*/
-      dealii::Vector<double> &cell_rhs,
-      const int &g,
-      const int &dir);
+      typename dealii::DoFHandler<dim>::active_cell_iterator &,
+      const int &,/*face number*/
+      dealii::Vector<double> &,
+      const int &,
+      const int &);
 
 private:
   //! Polynomial order related part of penalty coefficient.

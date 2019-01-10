@@ -72,7 +72,39 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
     equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
 
 template <int dim>
-BARTDriver<dim>::~BARTDriver () {}
+BARTDriver<dim>::~BARTDriver () {
+  // free matrices
+  for (auto & mats : dat_ptr_->mat_vec->sys_mats) {
+    // mats.first==equ name, mats.second==matrix pointers
+    for (auto & matrix : mats.second) {
+      // delete dynamically allocated memory
+      delete matrix.second;
+      // set dangling pointers to null
+      matrix.second = nullptr;
+    }
+  }
+
+  for (auto & fluxes : dat_ptr_->mat_vec->sys_flxes) {
+    for (auto & flux : fluxes.second) {
+      delete flux.second;
+      flux.second = nullptr;
+    }
+  }
+
+  for (auto & rhses : dat_ptr_->mat_vec->sys_rhses) {
+    for (auto & rhs : rhses.second) {
+      delete rhs.second;
+      rhs.second = nullptr;
+    }
+  }
+
+  for (auto & fixed_rhses : dat_ptr_->mat_vec->sys_fixed_rhses) {
+    for (auto & fixed_rhs : fixed_rhses.second) {
+      delete fixed_rhs.second;
+      fixed_rhs.second = nullptr;
+    }
+  }
+}
 
 template <>
 void BARTDriver<1>::MakeGrid() {
@@ -221,16 +253,16 @@ void BARTDriver<1>::OutputResults () const {
     }
   }
   dealii::Vector<float> subdomain (tria.n_active_cells ());
-  for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = 0;
+  for (auto &it : subdomain)
+    it = 0;
   data_out.add_data_vector (subdomain, "subdomain");
 
   if (is_eigen_problem_) {
     // add keff to the output file
     dealii::Vector<float> keffs (tria.n_active_cells ());
     const double keff = iter_cls_.GetKeff();
-    for (int i=0; i<keffs.size(); ++i)
-      keffs(i) = keff;
+    for (auto& it : keffs)
+      it = keff;
     data_out.add_data_vector (keffs, "keff");
   }
 
@@ -265,8 +297,8 @@ void BARTDriver<2>::OutputResults () const {
   }
   dealii::Vector<float> subdomain (distributed_tria.n_active_cells());
   const int proc_id = distributed_tria.locally_owned_subdomain ();
-  for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = proc_id;
+  for (auto &it : subdomain)
+    it = proc_id;
   data_out.add_data_vector (subdomain, "subdomain");
 
   //if (is_eigen_problem_)
@@ -274,8 +306,8 @@ void BARTDriver<2>::OutputResults () const {
     // add keff to the output file
     dealii::Vector<float> keffs (distributed_tria.n_active_cells());
     double keff = is_eigen_problem_?iter_cls_.GetKeff():0.0;
-    for (int i=0; i<keffs.size(); ++i)
-      keffs(i) = keff;
+    for (auto& it : keffs)
+      it = keff;
     data_out.add_data_vector (keffs, "keff");
   //}
   data_out.build_patches ();
@@ -294,7 +326,7 @@ void BARTDriver<2>::OutputResults () const {
     std::ostringstream os;
     os << output_fname_ << ".pvtu";
     std::ofstream master_output ((os.str()).c_str ());
-    
+
     data_out.write_pvtu_record (master_output, filenames);
   }
 }
@@ -314,14 +346,14 @@ void BARTDriver<3>::OutputResults () const {
   }
   dealii::Vector<float> subdomain (distributed_tria.n_active_cells());
   const int proc_id = distributed_tria.locally_owned_subdomain ();
-  for (int i=0; i<subdomain.size(); ++i)
-    subdomain(i) = proc_id;
+  for (auto& it : subdomain)
+    it = proc_id;
   data_out.add_data_vector (subdomain, "subdomain");
 
   dealii::Vector<float> keffs (distributed_tria.n_active_cells());
   double keff = is_eigen_problem_ ? iter_cls_.GetKeff() : 0.0;
-  for (int i=0; i<keffs.size(); ++i)
-  keffs(i) = keff;
+  for (auto& it : keffs)
+    it = keff;
   data_out.add_data_vector (keffs, "keff");
 
   data_out.build_patches ();

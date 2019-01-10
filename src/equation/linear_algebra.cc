@@ -25,7 +25,7 @@ LinearAlgebra::~LinearAlgebra () {}
 void LinearAlgebra::InitPrecond (
     std::unordered_map<int, dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
     std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_rhses) {
-  AssertThrow (n_total_vars_==sys_mats.size(),
+  AssertThrow (n_total_vars_ == static_cast<int>(sys_mats.size()),
       dealii::ExcMessage("num of system matrices should be equal to total variable number"));
   if (linear_solver_name_!="direct") {
     if (preconditioner_name_=="amg") {
@@ -93,7 +93,7 @@ void LinearAlgebra::LinAlgSolve (
     std::unordered_map<int, dealii::PETScWrappers::MPI::SparseMatrix*> &sys_mats,
     std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_flxes,
     std::unordered_map<int, dealii::PETScWrappers::MPI::Vector*> &sys_rhses,
-    std::unordered_map<int, dealii::ConstraintMatrix*> &constraints,
+    std::unordered_map<int, dealii::ConstraintMatrix*> &,
     const int &i) {
   if (linear_solver_name_=="cg") {
     dealii::PETScWrappers::SolverCG solver (*cn_, MPI_COMM_WORLD);

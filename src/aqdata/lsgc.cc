@@ -58,9 +58,9 @@ void LSGC<dim>::ProduceAQ () {
     }
   }
 
-  AssertThrow (this->n_dir_==this->wi_.size(),
+  AssertThrow (this->n_dir_==static_cast<int>(this->wi_.size()),
                dealii::ExcMessage("calculated number of angles should be the same as number of angular weights"));
-  AssertThrow (this->n_dir_==this->omega_i_.size(),
+  AssertThrow (this->n_dir_==static_cast<int>(this->omega_i_.size()),
                dealii::ExcMessage("calculated number of angles should be the same as number of angles"));
 
   this->n_total_ho_vars_ = this->n_dir_ * this->n_group_;

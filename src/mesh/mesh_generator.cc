@@ -138,7 +138,7 @@ void MeshGenerator<dim>::NonFuelPin2DGrid (dealii::Triangulation<2> &tria,
 
 template <>
 void MeshGenerator<1>::GenerateInitialUnstructGrid (
-    dealii::Triangulation<1> &tria) {}
+    dealii::Triangulation<1> &) {}
 
 template <>
 void MeshGenerator<2>::GenerateInitialUnstructGrid (
@@ -190,7 +190,7 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
   // create a local triangulation and modify it for the first time
   dealii::Triangulation<2> t_loc;
   // modify the rest of the domain
-  for (int ix=0; ix<ncell_per_dir_[0]; ++ix)
+  for (int ix=0; ix<ncell_per_dir_[0]; ++ix) {
     for (int iy=0; iy<ncell_per_dir_[1]; ++iy) {
       int fuel_id = -1;
       for (int iz=0; iz<ncell_per_dir_[2]; ++iz) {
@@ -219,11 +219,12 @@ void MeshGenerator<3>::GenerateInitialUnstructGrid (
         dealii::GridGenerator::merge_triangulations (t_loc, t_tmp, t_loc);
       }
     }
-    // extrude 2d to 3d
-    dealii::Triangulation<3> t_3d;
-    dealii::GridGenerator::extrude_triangulation (
-        t_loc, ncell_per_dir_[2]+1, axis_max_values_[2], t_3d);
-    tria.copy_triangulation (t_3d);
+  }
+  // extrude 2d to 3d
+  dealii::Triangulation<3> t_3d;
+  dealii::GridGenerator::extrude_triangulation (
+      t_loc, ncell_per_dir_[2]+1, axis_max_values_[2], t_3d);
+  tria.copy_triangulation (t_3d);
 }
 
 template <int dim>
@@ -344,7 +345,8 @@ void MeshGenerator<dim>::SetupBoundaryIDs
   for (typename dealii::Triangulation<dim>::active_cell_iterator
        cell=tria.begin_active(); cell!=tria.end(); ++cell)
     if (cell->is_locally_owned())
-      for (int fn=0; fn<dealii::GeometryInfo<dim>::faces_per_cell; ++fn)
+      for (unsigned int fn=0;
+           fn<dealii::GeometryInfo<dim>::faces_per_cell; ++fn)
         if (cell->at_boundary(fn)) {
           dealii::Point<dim> ct = cell->face(fn)->center();
           // x-axis boundaries
@@ -408,7 +410,7 @@ void MeshGenerator<dim>::PreprocessReflectiveBC (
     AssertThrow (strings.size()>0,
         dealii::ExcMessage("reflective boundary names have to be entered"));
     std::set<int> tmp;
-    for (int i=0; i<strings.size (); ++i) {
+    for (unsigned int i=0; i<strings.size (); ++i) {
       AssertThrow(bd_names_to_id.find(strings[i])!=bd_names_to_id.end(),
           dealii::ExcMessage("Invalid reflective boundary name: use xmin, xmax, etc."));
       tmp.insert (bd_names_to_id[strings[i]]);
@@ -445,7 +447,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
         int z = ct / ncell_y;
         std::vector<std::string> strings =
             dealii::Utilities::split_string_list (line, ' ');
-        AssertThrow (strings.size()==ncell_x,
+        AssertThrow (static_cast<int>(strings.size()) == ncell_x,
             dealii::ExcMessage("Entries of material ID per row must be ncell_x"));
         for (int x=0; x<ncell_x; ++x) {
           std::vector<int> tmp = {x};
@@ -469,7 +471,7 @@ void MeshGenerator<dim>::InitializeRelativePositionToIDMap (
           int z = ct / ncell_y;
           std::vector<std::string> strings =
               dealii::Utilities::split_string_list (line, ' ');
-          AssertThrow (strings.size()==ncell_x,
+          AssertThrow (static_cast<int>(strings.size())==ncell_x,
               dealii::ExcMessage("Entries of material ID per row must be ncell_x"));
           for (int x=0; x<ncell_x; ++x) {
             std::vector<int> tmp = {x};
@@ -523,7 +525,8 @@ void MeshGenerator<2>::SetManifoldsAndRefine (dealii::Triangulation<2> &tria) {
         dealii::Point<2> cell_ctr_xy (cell->center()[0], cell->center()[1]);
         if (cell_ctr_xy.distance(pin_ctr_xy)<rod_radius_) {
           int x=relative_position[0], y=relative_position[1];
-          for (int vn=0; vn<dealii::GeometryInfo<2>::vertices_per_cell; ++vn) {
+          for (unsigned  vn=0;
+               vn<dealii::GeometryInfo<2>::vertices_per_cell; ++vn) {
             dealii::Point<2> vertex_xy(cell->vertex(vn)[0], cell->vertex(vn)[1]);
             double dist = vertex_xy.distance(pin_ctr_xy);
             if (std::fabs(dist-rod_radius_)<1.0e-14) {
@@ -539,7 +542,7 @@ void MeshGenerator<2>::SetManifoldsAndRefine (dealii::Triangulation<2> &tria) {
   tria.refine_global (global_refinements_);
 
   // reset the manifolds to avoid error from deal.II design defect of manifold
-  tria.set_manifold (INT_MAX);
+  tria.reset_manifold (INT_MAX);
 }
 
 template <>
@@ -578,7 +581,7 @@ void MeshGenerator<3>::SetManifoldsAndRefine (dealii::Triangulation<3> &tria) {
   // perform the refinement
   tria.refine_global (global_refinements_);
   // reset the manifolds to avoid error from deal.II design defect of manifold
-  tria.set_manifold (INT_MAX);
+  tria.reset_manifold (INT_MAX);
 }
 
 template <>

@@ -119,7 +119,7 @@ void BARTBuilderTest::AQBuilderTest () {
   // check output
   std::string filename = "aq_builder_"+dealii::Utilities::int_to_string(dim)+"d";
   btest::GoldTestInit(filename);
-  for (int i=0; i<wi.size(); ++i) {
+  for (unsigned int i=0; i<wi.size(); ++i) {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
     for (int j=0; j<dim; ++j)
       dealii::deallog << omega_i[i][j] << " ";

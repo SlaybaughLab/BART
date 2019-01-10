@@ -29,11 +29,6 @@ void EigenBase<dim>::DoIterations (std::unordered_map<std::string,
   }
 }
 
-// Override this function to do specific eigenvalue iteration as desired
-template <int dim>
-void EigenBase<dim>::EigenIterations (
-    std::unique_ptr<EquationBase<dim>> &equ_ptr) {}
-
 template <int dim>
 void EigenBase<dim>::UpdatePrevSflxesFissSrcKeff (const std::string &equ_name) {
   // update scalar fluxes from previous eigen iteration

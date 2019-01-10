@@ -97,6 +97,6 @@ namespace bbuilders {
   template <int dim>
   std::unique_ptr<IGBase<dim>> BuildIGItr (const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-};
+}
 
 #endif // BART_SRC_COMMON_BART_BUILDER_H_

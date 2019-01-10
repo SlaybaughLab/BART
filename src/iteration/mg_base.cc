@@ -46,11 +46,11 @@ void MGBase<dim>::MGIterations (std::unique_ptr<EquationBase<dim>> &equ_ptr) {
 }
 
 template <int dim>
-void MGBase<dim>::NonthermalSolves (std::unique_ptr<EquationBase<dim>> &equ_ptr)
+void MGBase<dim>::NonthermalSolves (std::unique_ptr<EquationBase<dim>> &)
 {}
 
 template <int dim>
-void MGBase<dim>::ThermalIterations (std::unique_ptr<EquationBase<dim>> &equ_ptr)
+void MGBase<dim>::ThermalIterations (std::unique_ptr<EquationBase<dim>> &)
 {}
 
 template class MGBase<1>;

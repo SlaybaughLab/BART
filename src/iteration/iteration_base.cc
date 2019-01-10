@@ -4,12 +4,13 @@ template <int dim>
 IterationBase<dim>::IterationBase (const dealii::ParameterHandler &prm,
     std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
-    dat_ptr_(dat_ptr),
-    mat_vec_(dat_ptr->mat_vec),
     n_group_(prm.get_integer("number of groups")),
     is_eigen_problem_(prm.get_bool("do eigenvalue calculations")),
     do_nda_(prm.get_bool("do nda")),
-    ho_equ_name_(prm.get("transport model")) {}
+    ho_equ_name_(prm.get("transport model")),
+    dat_ptr_(dat_ptr),
+    mat_vec_(dat_ptr->mat_vec)
+{}
 
 template <int dim>
 IterationBase<dim>::~IterationBase () {}
@@ -26,7 +27,7 @@ double IterationBase<dim>::EstimatePhiDiff (
   AssertThrow (phis1.size ()== phis2.size (),
                dealii::ExcMessage ("n_groups for different phis should be identical"));
   double err = 0.0;
-  for (int i=0; i<phis1.size (); ++i)
+  for (unsigned int i=0; i<phis1.size (); ++i)
     err = std::max (err, EstimatePhiDiff(phis1[i],phis2[i]));
   return err;
 }
@@ -59,7 +60,7 @@ double IterationBase<dim>::EstimatePhiDiff (
   AssertThrow (phis1.size()==phis2.size(),
       dealii::ExcMessage("lengths of both vectors of solutions should be the same"));
   double err = 0.0;
-  for (int g=0; g<phis1.size(); ++g)
+  for (unsigned int g=0; g<phis1.size(); ++g)
     err = std::max(err, EstimatePhiDiff(phis1[std::make_tuple(g,0,0)],
         phis2[std::make_tuple(g,0,0)]));
   return err;

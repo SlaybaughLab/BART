@@ -40,7 +40,7 @@ void LSGCTest::AQDataTest() {
   lsgc_ptr->MakeAQ();
   auto wi = lsgc_ptr->GetAQWeights();
   auto omega_i = lsgc_ptr->GetAQDirs();
-  for (int i=0; i<wi.size(); ++i)
+  for (unsigned int i=0; i<wi.size(); ++i)
   {
     dealii::deallog << "Weight: " << wi[i] << "; Omega: ";
     for (int j=0; j<dim; ++j)

@@ -104,11 +104,11 @@ void EvenParity<dim>::IntegrateBoundaryBilinearForm (
 
 template <int dim>
 void EvenParity<dim>::IntegrateBoundaryLinearForm (
-    typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-    const int &fn,/*face number*/
-    dealii::Vector<double> &cell_rhs,
-    const int &g,
-    const int &dir) {
+    typename dealii::DoFHandler<dim>::active_cell_iterator &,
+    const int &,/*face number*/
+    dealii::Vector<double> &,
+    const int &,
+    const int &) {
   // We implement nothing for even parity boundary linear form. In reflective BC,
   // even parity realizes it via modifying bilinear form. Also, we assume vacuum
   // BC so nothing needs to be realized therein.
@@ -118,7 +118,7 @@ template <int dim>
 void EvenParity<dim>::IntegrateInterfaceBilinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     typename dealii::DoFHandler<dim>::cell_iterator &neigh,/*cell iterator for cell*/
-    const int &fn,/*concerning face number in local cell*/
+    const int &,/*concerning face number in local cell*/
     dealii::FullMatrix<double> &vp_up,
     dealii::FullMatrix<double> &vp_un,
     dealii::FullMatrix<double> &vn_up,
@@ -214,7 +214,7 @@ void EvenParity<dim>::IntegrateScatteringLinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::Vector<double> &cell_rhs,
     const int &g,
-    const int &dir) {
+    const int &) {
   // dir info is irrelavant for even parity
   // TODO: Anisotropic scattering is not included
   int mid = cell->material_id ();
@@ -240,7 +240,7 @@ void EvenParity<dim>::IntegrateCellFixedLinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::Vector<double> &cell_rhs,
     const int &g,
-    const int &dir) {
+    const int &) {
   // dir info is irrelavant for even parity
   int mid = cell->material_id ();
   std::vector<double> q_at_qp (this->n_q_);

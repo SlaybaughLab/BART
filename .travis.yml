@@ -23,8 +23,8 @@ install:
 script:
  - docker exec bart cmake .
  - docker exec bart make
- - docker exec bart bash -c "./xtrans_test --gtest_filter=-*MPI*"
- - docker exec bart bash -c "mpirun -np 1 --allow-run-as-root ./xtrans_test --gtest_filter=*MPI*"
+ - docker exec bart bash -c "./bart_test"
+ - docker exec bart bash -c "mpirun -np 1 --allow-run-as-root ./bart_test --mpi"
 
 after_success:
  - docker exec bart bash -c "./coverage.sh"
