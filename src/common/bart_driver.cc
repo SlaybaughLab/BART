@@ -27,7 +27,7 @@ BARTDriver<1>::BARTDriver (dealii::ParameterHandler &prm)
     dat_ptr_(std::shared_ptr<FundamentalData<1>>(
         new FundamentalData<1>(prm, tria))),
     iter_cls_(prm, dat_ptr_),
-    equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
+    equ_ptrs_(GetEquations<1>(prm, dat_ptr_)) {}
 
 template <>
 BARTDriver<2>::BARTDriver (dealii::ParameterHandler &prm)
@@ -48,7 +48,7 @@ BARTDriver<2>::BARTDriver (dealii::ParameterHandler &prm)
     dat_ptr_(std::shared_ptr<FundamentalData<2>>(
         new FundamentalData<2>(prm, distributed_tria))),
     iter_cls_(prm, dat_ptr_),
-    equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
+    equ_ptrs_(GetEquations<2>(prm, dat_ptr_)) {}
 
 template <>
 BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
@@ -69,7 +69,7 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
     dat_ptr_(std::shared_ptr<FundamentalData<3>>(
         new FundamentalData<3>(prm, distributed_tria))),
     iter_cls_(prm, dat_ptr_),
-    equ_ptrs_(bbuilders::BuildEqu(prm, dat_ptr_)) {}
+    equ_ptrs_(GetEquations<3>(prm, dat_ptr_)) {}
 
 template <int dim>
 BARTDriver<dim>::~BARTDriver () {
