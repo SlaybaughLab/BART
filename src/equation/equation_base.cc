@@ -1,5 +1,8 @@
 #include "equation_base.h"
 
+#include "self_adjoint_angular_flux.h"
+#include "even_parity.h"
+
 template <int dim>
 EquationBase<dim>::EquationBase (
     const std::string &equation_name,
@@ -35,7 +38,36 @@ EquationBase<dim>::EquationBase (
 }
 
 template <int dim>
-EquationBase<dim>::~EquationBase () {}
+std::unique_ptr<EquationBase<dim>> EquationBase<dim>::CreateEquation(
+    const dealii::ParameterHandler &prm,
+    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+
+  // Get transport model
+  const std::string equation_name(prm.get("transport model"));
+
+  std::unordered_map<std::string, EquationType, std::hash<std::string>>
+      equation_name_map_ = {{"ep",   EquationType::EvenParity},
+                            {"saaf", EquationType::SAAF}};
+  
+  std::unique_ptr<EquationBase<dim>> eq_ptr;
+
+  switch(equation_name_map_[equation_name]) {
+    case EquationType::SAAF: {
+      eq_ptr.reset(
+          new SelfAdjointAngularFlux<dim>(equation_name, prm, dat_ptr));
+      break;
+    }
+    case EquationType::EvenParity: {
+      eq_ptr.reset(new EvenParity<dim>(equation_name, prm, dat_ptr));
+      break;
+    }
+    default: {
+      assert(false);
+    }      
+  }
+  
+  return std::move(eq_ptr);
+}
 
 template <int dim>
 void EquationBase<dim>::ProcessInput () {
@@ -344,3 +376,32 @@ int EquationBase<dim>::GetNTotalVars () const {
 template class EquationBase<1>;
 template class EquationBase<2>;
 template class EquationBase<3>;
+
+template <int dim>
+std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+
+  std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>
+      return_map;
+
+  return_map[prm.get("transport model")] =
+      EquationBase<dim>::CreateEquation(prm, dat_ptr);
+  
+  return std::move(return_map);
+}
+
+template 
+std::unordered_map<std::string, std::unique_ptr<EquationBase<1>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<1>> &dat_ptr);
+
+template 
+std::unordered_map<std::string, std::unique_ptr<EquationBase<2>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<2>> &dat_ptr);
+
+template 
+std::unordered_map<std::string, std::unique_ptr<EquationBase<3>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<3>> &dat_ptr);

@@ -1,6 +1,8 @@
 #ifndef BART_SRC_EQUATION_EQUATION_BASE_H_
 #define BART_SRC_EQUATION_EQUATION_BASE_H_
 
+#include <memory>
+
 #include "../common/computing_data.h"
 #include "linear_algebra.h"
 
@@ -10,11 +12,18 @@
 template <int dim>
 class EquationBase {
  public:
+
+  enum class EquationType { EvenParity, SAAF };
+  
   EquationBase (
       const std::string &equation_name,
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-  ~EquationBase ();
+  ~EquationBase () = default;
+
+  static std::unique_ptr<EquationBase<dim>> CreateEquation(
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   /*!
    Virtual function to assemble bilinear form. Inside this function, volumetric,
@@ -378,5 +387,10 @@ class EquationBase {
   //! Hash table for mapping: component index->(group index, direction index).
   std::unordered_map<int, std::pair<int,int>> ho_inv_comp_ind_;
 };
+
+template <int dim>
+std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
 #endif //BART_SRC_EQUATION_EQUATION_BASE_H_
