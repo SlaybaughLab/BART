@@ -3,19 +3,6 @@
 
 #include <deal.II/fe/fe_update_flags.h>
 
-// XSections::XSections (Materials& material)
-//     :
-//     sigt(material.GetSigT()),
-//     inv_sigt(material.GetInvSigT()),
-//     q(material.GetQ()),
-//     q_per_ster(material.GetQPerSter()),
-//     is_material_fissile(material.GetFissileIDMap()),
-//     nu_sigf(material.GetNuSigf()),
-//     sigs(material.GetSigS()),
-//     sigs_per_ster(material.GetSigSPerSter()),
-//     fiss_transfer(material.GetFissTransfer()),
-//     fiss_transfer_per_ster(material.GetFissTransferPerSter()) {}
-
 XSections::XSections (MaterialBase& material)
     :
     sigt(material.GetSigT()),
@@ -36,6 +23,7 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     :
     pcout(std::cout,
         (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)),
+    aq(AQBase<dim>::CreateAQ(prm)),
     //material(prm),
     mesh(prm),
     mat_vec(std::shared_ptr<MatrixVector> (new MatrixVector())),
@@ -44,7 +32,6 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     dof_handler(tria) {
   MaterialProtobuf material{prm};
   xsec = std::make_shared<XSections>(material);
-  bbuilders::BuildAQ<dim>(prm, aq);
   aq->MakeAQ();
 }
 
