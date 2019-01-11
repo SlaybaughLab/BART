@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <string>
 #include <iomanip>
@@ -34,6 +35,7 @@
 template <int dim>
 class AQBase {
  public:
+  enum class AQType { LSGC };
   /*!
    Class constructor.
 
@@ -42,8 +44,11 @@ class AQBase {
   AQBase (const dealii::ParameterHandler &prm);
 
   //! Virtual destructor.
-  virtual ~AQBase ();
+  virtual ~AQBase () = default;
 
+  static std::unique_ptr<AQBase<dim>> CreateAQ(
+      const dealii::ParameterHandler &prm);
+  
   /*!
    A pure virtual function to produce angular quadrature.
 
