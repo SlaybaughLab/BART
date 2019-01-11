@@ -36,20 +36,6 @@ namespace bbuilders {
   void BuildFESpaces (const dealii::ParameterHandler &prm,
       std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>& fe_ptrs);
 
-  //! Function used to build AQ data.
-  /*!
-   The main functionality is to build angular quadrature data based on parameters
-   specified in prm. For 1D, Gauss-Legendre quadrature will be built while in
-   multi-D, AQBase will be cast to specific model.
-
-   \param prm dealii::ParameterHandler object.
-   \param aq_ptr Angular quadrature pointer that needs to be built.
-   \return Void.
-   */
-  template <int dim>
-  void BuildAQ (const dealii::ParameterHandler &prm,
-      std::unique_ptr<AQBase<dim>> &aq_ptr);
-
   //! Function used to build mesh
   /*!
    The main functionality is to build pointer to object of MeshGenerator<dim>

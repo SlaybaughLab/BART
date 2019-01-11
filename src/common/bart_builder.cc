@@ -68,30 +68,6 @@ void BuildFESpaces (const dealii::ParameterHandler &prm,
 }
 
 template <int dim>
-void BuildAQ (const dealii::ParameterHandler &prm,
-    std::unique_ptr<AQBase<dim>> &aq_ptr) {
-  // getting parameter values
-  const std::string aq_name = prm.get ("angular quadrature name");
-  if (dim==1) {
-    // AQBase implements 1D quadrature
-    aq_ptr = std::unique_ptr<AQBase<dim>> (new AQBase<dim>(prm));
-  } else if (dim>1) {
-    std::unordered_map<std::string, int> aq_ind = {{"lsgc", 0}};
-
-    switch (aq_ind[aq_name]) {
-      case 0:
-        aq_ptr = std::unique_ptr<AQBase<dim>> (new LSGC<dim>(prm));
-        break;
-
-      default:
-        AssertThrow (false,
-            dealii::ExcMessage("Proper name is not given for AQ"));
-        break;
-    }
-  }
-}
-
-template <int dim>
 void BuildMesh (dealii::ParameterHandler &prm,
     std::unique_ptr<MeshGenerator<dim>> &msh_ptr) {
   msh_ptr = std::unique_ptr<MeshGenerator<dim>> (new MeshGenerator<dim>(prm));
