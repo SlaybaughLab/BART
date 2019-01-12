@@ -1,10 +1,4 @@
 #include "bart_builder.h"
-#include "../aqdata/lsgc.h"
-#include "../equation/even_parity.h"
-#include "../equation/self_adjoint_angular_flux.h"
-#include "../iteration/power_iteration.h"
-#include "../iteration/gauss_seidel.h"
-#include "../iteration/source_iteration.h"
 
 #include <unordered_map>
 
@@ -79,87 +73,6 @@ std::unique_ptr<MeshGenerator<dim>> BuildMesh (
   return std::unique_ptr<MeshGenerator<dim>> (new MeshGenerator<dim>(prm));
 }
 
-template <int dim>
-std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>> BuildEqu (
-    const dealii::ParameterHandler &prm,
-    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
-  std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>> equ_ptrs;
-  const std::string ho_equ_name(prm.get("transport model"));
-  std::unordered_map<std::string, int> mp = {{"ep",0}, {"saaf",1}};
-  switch (mp[ho_equ_name]) {
-    case 0:
-      equ_ptrs[ho_equ_name] = std::unique_ptr<EquationBase<dim>>(
-          new EvenParity<dim>(ho_equ_name, prm, dat_ptr));
-      break;
-    case 1:
-      equ_ptrs[ho_equ_name] = std::unique_ptr<EquationBase<dim>>(
-          new SelfAdjointAngularFlux<dim>(ho_equ_name, prm, dat_ptr));
-      break;
-    default:
-      break;
-  }
-  bool do_nda = prm.get_bool("do nda");
-  if (do_nda) {
-    AssertThrow(ho_equ_name!="diffusion",
-        dealii::ExcMessage("NDA cannot be used with diffusion"));
-    //TODO:
-    // 1. Fill in NDA part once corresponding class is ready
-    // 2. TG-NDA is needed for future research.
-  }
-  return equ_ptrs;
-}
-
-template <int dim>
-std::unique_ptr<EigenBase<dim>> BuildEigenItr (
-    const dealii::ParameterHandler &prm,
-    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
-  const std::string eigen_name(prm.get("eigen solver name"));
-  std::unordered_map<std::string, int> mp = {{"pi", 0}};
-  std::unique_ptr<EigenBase<dim>> eig;
-  switch (mp[eigen_name]) {
-    case 0:
-      eig = std::unique_ptr<EigenBase<dim>>(
-          new PowerIteration<dim>(prm, dat_ptr));
-      break;
-    default:
-      break;
-  }
-  return eig;
-}
-
-template <int dim>
-std::unique_ptr<MGBase<dim>> BuildMGItr (
-    const dealii::ParameterHandler &prm,
-    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
-  const std::string mg_name(prm.get("mg solver name"));
-  std::unordered_map<std::string, int> mp = {{"gs", 0}};
-  std::unique_ptr<MGBase<dim>> mg;
-  switch (mp[mg_name]) {
-    case 0:
-      mg = std::unique_ptr<MGBase<dim>>(new GaussSeidel<dim>(prm, dat_ptr));
-      break;
-    default:
-      break;
-  }
-  return mg;
-}
-
-template <int dim>
-std::unique_ptr<IGBase<dim>> BuildIGItr (
-    const dealii::ParameterHandler &prm,
-    std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
-  const std::string ig_name(prm.get("in group solver name"));
-  std::unordered_map<std::string, int> mp = {{"si", 0}};
-  std::unique_ptr<IGBase<dim>> ig;
-  switch (mp[ig_name]) {
-    case 0:
-      ig = std::unique_ptr<IGBase<dim>>(new SourceIteration<dim>(prm, dat_ptr));
-      break;
-    default:
-      break;
-  }
-  return ig;
-}
 }
 
 // explicitly instantiate all builders using templates
@@ -185,43 +98,3 @@ template std::unique_ptr<MeshGenerator<2>> bbuilders::BuildMesh<2> (
     dealii::ParameterHandler&);
 template std::unique_ptr<MeshGenerator<3>> bbuilders::BuildMesh<3> (
     dealii::ParameterHandler&);
-
-template std::unique_ptr<IGBase<1>> bbuilders::BuildIGItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<1>> &);
-template std::unique_ptr<IGBase<2>> bbuilders::BuildIGItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<2>> &);
-template std::unique_ptr<IGBase<3>> bbuilders::BuildIGItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<3>> &);
-
-template std::unique_ptr<MGBase<1>> bbuilders::BuildMGItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<1>> &);
-template std::unique_ptr<MGBase<2>> bbuilders::BuildMGItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<2>> &);
-template std::unique_ptr<MGBase<3>> bbuilders::BuildMGItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<3>> &);
-
-template std::unique_ptr<EigenBase<1>> bbuilders::BuildEigenItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<1>> &);
-template std::unique_ptr<EigenBase<2>> bbuilders::BuildEigenItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<2>> &);
-template std::unique_ptr<EigenBase<3>> bbuilders::BuildEigenItr (
-    const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<3>> &);
-
-template std::unordered_map<std::string, std::unique_ptr<EquationBase<1>>>
-    bbuilders::BuildEqu(const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<1>> &);
-template std::unordered_map<std::string, std::unique_ptr<EquationBase<2>>>
-    bbuilders::BuildEqu(const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<2>> &);
-template std::unordered_map<std::string, std::unique_ptr<EquationBase<3>>>
-    bbuilders::BuildEqu(const dealii::ParameterHandler &,
-    std::shared_ptr<FundamentalData<3>> &);

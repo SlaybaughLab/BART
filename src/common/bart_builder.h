@@ -1,12 +1,7 @@
 #ifndef BART_SRC_COMMON_BART_BUILDER_H_
 #define BART_SRC_COMMON_BART_BUILDER_H_
 
-#include "../aqdata/aq_base.h"
 #include "../mesh/mesh_generator.h"
-#include "../equation/equation_base.h"
-#include "../iteration/eigen_base.h"
-#include "../iteration/mg_base.h"
-#include "../iteration/ig_base.h"
 
 #include <vector>
 
@@ -59,30 +54,6 @@ namespace bbuilders {
   std::unique_ptr<MeshGenerator<dim>> BuildMesh (
       dealii::ParameterHandler &prm);
 
-  /*!
-   The main functionality is to return a pointer to newly constructed objects of
-   EquationBase.
-
-   \param prm dealii::ParameterHandler object.
-   \param dat_ptr Resource struct object.
-   */
-  template <int dim>
-  std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>BuildEqu (
-      const dealii::ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-
-  template <int dim>
-  std::unique_ptr<EigenBase<dim>> BuildEigenItr (
-      const dealii::ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-
-  template <int dim>
-  std::unique_ptr<MGBase<dim>> BuildMGItr (const dealii::ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-
-  template <int dim>
-  std::unique_ptr<IGBase<dim>> BuildIGItr (const dealii::ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 }
 
 #endif // BART_SRC_COMMON_BART_BUILDER_H_
