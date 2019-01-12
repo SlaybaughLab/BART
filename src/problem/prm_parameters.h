@@ -18,7 +18,7 @@ namespace problem {
 
 class PrmParameters : ParametersI {
  public:
-  PrmParameters(dealii::ParameterHandler handler);
+  PrmParameters(const dealii::ParameterHandler &handler);
   ~PrmParameters() = default;
 };
 

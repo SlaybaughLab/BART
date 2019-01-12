@@ -4,7 +4,7 @@ namespace bart {
 
 namespace problem {
 
-PrmParameters::PrmParameters(dealii::ParameterHandler handler) {
+PrmParameters::PrmParameters(const dealii::ParameterHandler &handler) {
 
 }
 
