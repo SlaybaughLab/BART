@@ -18,6 +18,23 @@ template <int dim>
 class IGBase : public IterationBase<dim> {
  public:
   /*!
+   * Enumerator for the types of in-group iterations.
+   */
+  enum class IGIterationType {
+    kSourceIteration /*!< Source iteration */
+  };
+  
+  /*!
+   * \brief Static factory for classes derived from IGBase.
+   *
+   * Instantiates and returns the appropriate in-group iteration based
+   * on the value specified in the problem as `in group solver name`.
+   */
+  static std::unique_ptr<IGBase<dim>> CreateIGIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+  
+  /*!
    Class constructor.
 
    \param prm Const ParameterHandler object.
@@ -26,8 +43,8 @@ class IGBase : public IterationBase<dim> {
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Class destructor.
-  virtual ~IGBase();
-
+  virtual ~IGBase() = default;
+  
   /*!
    Abstract function for in group solving functionality. For instance, one could
    provid overriding as one-pass solve for diffusion/NDA, or iteration based in

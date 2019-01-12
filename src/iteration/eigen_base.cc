@@ -1,17 +1,41 @@
 #include "eigen_base.h"
-#include "../common/bart_builder.h"
+
+#include "power_iteration.h"
+
+template <int dim>
+std::unique_ptr<EigenBase<dim>> EigenBase<dim>::CreateEigenIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+  
+  const std::string eigen_iteration_name(prm.get("eigen solver name"));
+
+  std::unordered_map<std::string, EigenIterationType> eigen_iteration_name_map =
+      {{"pi", EigenIterationType::kPowerIteration}};
+
+    std::unique_ptr<EigenBase<dim>> iteration_ptr;
+
+    switch(eigen_iteration_name_map[eigen_iteration_name]) {
+    case EigenIterationType::kPowerIteration: {
+      iteration_ptr.reset(new PowerIteration<dim>(prm, dat_ptr));
+      break;
+    }
+    default: {
+      assert(false);
+      break;
+    }
+  }
+  return std::move(iteration_ptr);
+}
+
 
 template <int dim>
 EigenBase<dim>::EigenBase (const dealii::ParameterHandler &prm,
     std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
     IterationBase<dim>(prm, dat_ptr),
-    mg_ptr_(bbuilders::BuildMGItr(prm, dat_ptr)),
+    mg_ptr_(MGBase<dim>::CreateMGIteration(prm, dat_ptr)),
     err_k_tol_(1.0e-6),
     err_phi_tol_(1.0e-5) {}
-
-template <int dim>
-EigenBase<dim>::~EigenBase () {}
 
 template <int dim>
 void EigenBase<dim>::DoIterations (std::unordered_map<std::string,

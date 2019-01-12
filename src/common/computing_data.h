@@ -78,7 +78,9 @@ struct XSections {
 template <int dim>
 struct FEData {
   FEData (const dealii::ParameterHandler &prm);
-  ~FEData ();
+  ~FEData () = default;
+
+  void InitializeFESpaces(const dealii::ParameterHandler &prm);
 
   //! Finite element spaces.
   std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*> fe;

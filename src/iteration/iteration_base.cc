@@ -12,9 +12,6 @@ IterationBase<dim>::IterationBase (const dealii::ParameterHandler &prm,
     mat_vec_(dat_ptr->mat_vec)
 {}
 
-template <int dim>
-IterationBase<dim>::~IterationBase () {}
-
 // *****************************************************************************
 // The following section are four member functions used to estimate difference
 // between two vectors. The difference estimation is based on L1 norm.

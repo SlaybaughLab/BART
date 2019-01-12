@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <string>
 #include <iomanip>
@@ -35,6 +36,25 @@ template <int dim>
 class AQBase {
  public:
   /*!
+    Enumerator for the types of angular quadrature.
+   */
+  enum class AQType {
+    kLSGC /*!< Level symmetric gaussian */
+  };
+
+  /*!
+   * \brief Static factory for classes derived from AQBase.
+   *
+   * Instantiates and returns the appropriate angular quadrature class based
+   * on the value specified in the problem as `angular quadrature name`.
+   *
+   * \param prm ParameterHandler object containing problem definition.
+   * 
+   */
+  static std::unique_ptr<AQBase<dim>> CreateAQ(
+      const dealii::ParameterHandler &prm);
+  
+  /*!
    Class constructor.
 
    \param prm ParameterHandler object.
@@ -42,8 +62,8 @@ class AQBase {
   AQBase (const dealii::ParameterHandler &prm);
 
   //! Virtual destructor.
-  virtual ~AQBase ();
-
+  virtual ~AQBase () = default;
+  
   /*!
    A pure virtual function to produce angular quadrature.
 

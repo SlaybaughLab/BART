@@ -14,6 +14,8 @@
 #include <deal.II/base/numbers.h>
 #include <deal.II/base/quadrature_lib.h>
 
+#include "lsgc.h"
+
 template <int dim>
 AQBase<dim>::AQBase (const dealii::ParameterHandler &prm)
     : k_pi(dealii::numbers::PI),
@@ -24,7 +26,31 @@ AQBase<dim>::AQBase (const dealii::ParameterHandler &prm)
       aq_name_(prm.get("angular quadrature name")) {}
 
 template <int dim>
-AQBase<dim>::~AQBase () {}
+std::unique_ptr<AQBase<dim>> AQBase<dim>::CreateAQ(
+    const dealii::ParameterHandler &prm) {
+  
+  std::unique_ptr<AQBase<dim>> return_ptr;
+
+  if (dim == 1) {
+    return_ptr.reset(new AQBase<dim>(prm));
+  } else {
+    std::unordered_map<std::string, AQType>
+        aq_name_map = {{"lsgc", AQType::kLSGC}};
+
+    switch(aq_name_map[prm.get("angular quadrature name")]) {
+      case AQType::kLSGC: {
+        return_ptr.reset(new LSGC<dim>(prm));
+        break;
+      }
+      default: {
+        assert(false);
+      }
+    }
+  }
+
+  return std::move(return_ptr);     
+}
+  
 
 template <int dim>
 void AQBase<dim>::MakeAQ () {

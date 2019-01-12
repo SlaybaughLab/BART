@@ -1,20 +1,9 @@
 #include "computing_data.h"
-#include "bart_builder.h"
 
 #include <deal.II/fe/fe_update_flags.h>
-
-// XSections::XSections (Materials& material)
-//     :
-//     sigt(material.GetSigT()),
-//     inv_sigt(material.GetInvSigT()),
-//     q(material.GetQ()),
-//     q_per_ster(material.GetQPerSter()),
-//     is_material_fissile(material.GetFissileIDMap()),
-//     nu_sigf(material.GetNuSigf()),
-//     sigs(material.GetSigS()),
-//     sigs_per_ster(material.GetSigSPerSter()),
-//     fiss_transfer(material.GetFissTransfer()),
-//     fiss_transfer_per_ster(material.GetFissTransferPerSter()) {}
+#include <deal.II/fe/fe_dgq.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_raviart_thomas.h>
 
 XSections::XSections (MaterialBase& material)
     :
@@ -36,6 +25,7 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     :
     pcout(std::cout,
         (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)==0)),
+    aq(AQBase<dim>::CreateAQ(prm)),
     //material(prm),
     mesh(prm),
     mat_vec(std::shared_ptr<MatrixVector> (new MatrixVector())),
@@ -44,7 +34,6 @@ FundamentalData<dim>::FundamentalData (dealii::ParameterHandler &prm,
     dof_handler(tria) {
   MaterialProtobuf material{prm};
   xsec = std::make_shared<XSections>(material);
-  bbuilders::BuildAQ<dim>(prm, aq);
   aq->MakeAQ();
 }
 
@@ -53,7 +42,7 @@ FundamentalData<dim>::~FundamentalData () {}
 
 template <int dim>
 FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
-  bbuilders::BuildFESpaces(prm, fe);
+  InitializeFESpaces(prm);
   const dealii::UpdateFlags update_flags =
       dealii::update_values | dealii::update_gradients |
       dealii::update_quadrature_points |
@@ -120,7 +109,58 @@ FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
 }
 
 template <int dim>
-FEData<dim>::~FEData() {}
+void FEData<dim>::InitializeFESpaces(const dealii::ParameterHandler &prm) {
+    // getting parameter values
+  const bool do_nda = prm.get_bool ("do nda");
+  const int p_order = prm.get_integer("finite element polynomial degree");
+  const std::string ho_discretization = prm.get ("ho spatial discretization");
+  const std::string nda_discretization = prm.get ("nda spatial discretization");
+  const std::string ho_equ_name = prm.get ("transport model");
+
+  std::unordered_map<std::string, int> discretization_ind = {
+      {"cfem", 0}, {"dfem", 1}, {"cmfd", 2}, {"rtk", 3}};
+
+  switch (discretization_ind[ho_discretization]) {
+    case 0:
+      fe[ho_equ_name] = new dealii::FE_Q<dim> (p_order);
+      break;
+
+    case 1:
+      fe[ho_equ_name] = new dealii::FE_DGQ<dim> (p_order);
+      break;
+
+    default:
+      AssertThrow (false,
+          dealii::ExcMessage("Invalid HO discretization name"));
+      break;
+  }
+
+  if (do_nda) {
+    switch (discretization_ind[nda_discretization]) {
+      case 0:
+        fe["nda"] = new dealii::FE_Q<dim> (p_order);
+        break;
+
+      case 1:
+        fe["nda"] = new dealii::FE_DGQ<dim> (p_order);
+        break;
+
+      case 2:
+        fe["nda"] = new dealii::FE_DGQ<dim> (0);
+        break;
+
+      case 3:
+        fe["nda"] = new dealii::FE_RaviartThomas<dim> (p_order);
+        break;
+
+      default:
+        AssertThrow (false,
+            dealii::ExcMessage("Invalid NDA discretization name"));
+        break;
+    }
+  }
+}
+
 
 template struct FundamentalData<1>;
 template struct FundamentalData<2>;

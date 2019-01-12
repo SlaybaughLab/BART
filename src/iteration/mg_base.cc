@@ -1,5 +1,31 @@
 #include "mg_base.h"
-#include "../common/bart_builder.h"
+
+#include "gauss_seidel.h"
+
+template <int dim>
+std::unique_ptr<MGBase<dim>> MGBase<dim>::CreateMGIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+
+  const std::string mg_iteration_name(prm.get("mg solver name"));
+
+  std::unordered_map<std::string, MGIterationType> mg_iteration_name_map =
+      {{"gs", MGIterationType::kGaussSeidel}};
+
+  std::unique_ptr<MGBase<dim>> iteration_ptr;
+
+  switch(mg_iteration_name_map[mg_iteration_name]) {
+    case MGIterationType::kGaussSeidel: {
+      iteration_ptr.reset(new GaussSeidel<dim>(prm, dat_ptr));
+      break;
+    }
+    default: {
+      assert(false);
+      break;
+    }
+  }
+  return std::move(iteration_ptr);
+}
 
 template <int dim>
 MGBase<dim>::MGBase (const dealii::ParameterHandler &prm,
@@ -7,14 +33,11 @@ MGBase<dim>::MGBase (const dealii::ParameterHandler &prm,
     :
     IterationBase<dim> (prm, dat_ptr),
     g_thermal_(prm.get_integer("thermal group boundary")),
-    ig_ptr_(bbuilders::BuildIGItr(prm, dat_ptr)),
+    ig_ptr_(IGBase<dim>::CreateIGIteration(prm, dat_ptr)),
     err_phi_tol_(1.0e-5) {
   AssertThrow (g_thermal_<this->n_group_ && g_thermal_>=0,
                dealii::ExcMessage("Invalid thermal upper boundary"));
 }
-
-template <int dim>
-MGBase<dim>::~MGBase () {}
 
 template <int dim>
 void MGBase<dim>::DoIterations (std::unordered_map<std::string,

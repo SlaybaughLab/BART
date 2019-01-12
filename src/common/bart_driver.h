@@ -3,6 +3,7 @@
 
 #include "../iteration/iterations.h"
 #include "computing_data.h"
+#include "../equation/equation_base.h"
 
 template <int dim>
 class BARTDriver {
