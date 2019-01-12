@@ -13,6 +13,19 @@ template <int dim>
 class EquationBase {
  public:
 
+  /*!
+   * \brief Static factory for classes derived from EquationBase.
+   *
+   * Instantiates and returns the appropriate equation based
+   * on the value specified in the problem as `transport model`.
+   */
+  static std::unique_ptr<EquationBase<dim>> CreateEquation(
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+
+  /*!
+   * Enumerator for equations that can be instantiated.
+   */  
   enum class EquationType { EvenParity, SAAF };
   
   EquationBase (
@@ -20,10 +33,6 @@ class EquationBase {
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
   ~EquationBase () = default;
-
-  static std::unique_ptr<EquationBase<dim>> CreateEquation(
-      const dealii::ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   /*!
    Virtual function to assemble bilinear form. Inside this function, volumetric,
