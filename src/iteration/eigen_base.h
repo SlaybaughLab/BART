@@ -1,6 +1,8 @@
 #ifndef BART_SRC_ITERATION_EIGEN_BASE_H_
 #define BART_SRC_ITERATION_EIGEN_BASE_H_
 
+#include <memory>
+
 #include "iteration_base.h"
 #include "mg_base.h"
 
@@ -16,9 +18,16 @@
 template <int dim>
 class EigenBase : public IterationBase<dim> {
  public:
+
+  enum class EigenIterationType { PowerIteration };
+
+  static std::unique_ptr<EigenBase<dim>> CreateEigenIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+  
   EigenBase (const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-  virtual ~EigenBase ();
+  virtual ~EigenBase () = default;
 
   /*!
    This function calls eigen_iterations to performs eigenvalue iterations.
