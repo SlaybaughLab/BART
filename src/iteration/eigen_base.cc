@@ -10,12 +10,12 @@ std::unique_ptr<EigenBase<dim>> EigenBase<dim>::CreateEigenIteration (
   const std::string eigen_iteration_name(prm.get("eigen solver name"));
 
   std::unordered_map<std::string, EigenIterationType> eigen_iteration_name_map =
-      {{"pi", EigenIterationType::PowerIteration}};
+      {{"pi", EigenIterationType::kPowerIteration}};
 
     std::unique_ptr<EigenBase<dim>> iteration_ptr;
 
     switch(eigen_iteration_name_map[eigen_iteration_name]) {
-    case EigenIterationType::PowerIteration: {
+    case EigenIterationType::kPowerIteration: {
       iteration_ptr.reset(new PowerIteration<dim>(prm, dat_ptr));
       break;
     }

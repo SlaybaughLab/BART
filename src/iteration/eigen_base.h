@@ -22,7 +22,7 @@ class EigenBase : public IterationBase<dim> {
     Enumerator for the types of eigenvalue iteration
    */
   enum class EigenIterationType {
-    PowerIteration /*!< Power iteration */
+    kPowerIteration /*!< Power iteration */
   };
   /*!
    * \brief Static factory for classes derived from EigenBase
@@ -32,7 +32,7 @@ class EigenBase : public IterationBase<dim> {
    *
    * \param prm ParameterHandler object containing problem definition.
    * 
-   */
+   */j
   static std::unique_ptr<EigenBase<dim>> CreateEigenIteration (
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
