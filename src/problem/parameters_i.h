@@ -19,4 +19,8 @@ class ParametersI {
   virtual ~ParametersI() = default;
 };
 
+} // namespace problem
+
+} // namespace bart
+
 #endif // BART_SRC_PROBLEM_PARAMETERS_I_H_

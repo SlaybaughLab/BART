@@ -1,6 +1,7 @@
 #ifndef BART_SRC_PROBLEM_PRM_PARAMETERS_H_
 #define BART_SRC_PROBLEM_PRM_PARAMETERS_H_
 
+#include <deal.II/base/parameter_handler.h>
 
 #include "parameters_i.h"
 
@@ -17,8 +18,12 @@ namespace problem {
 
 class PrmParameters : ParametersI {
  public:
-  PrmParameters()  = default;
+  PrmParameters(dealii::ParameterHandler handler);
   ~PrmParameters() = default;
 };
+
+} // namespace problem
+
+} // namespace bart
 
 #endif // BART_SRC_PROBLEM_PRM_PARAMETERS_H_
