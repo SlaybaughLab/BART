@@ -7,14 +7,11 @@ MGBase<dim>::MGBase (const dealii::ParameterHandler &prm,
     :
     IterationBase<dim> (prm, dat_ptr),
     g_thermal_(prm.get_integer("thermal group boundary")),
-    ig_ptr_(bbuilders::BuildIGItr(prm, dat_ptr)),
+    ig_ptr_(IGBase<dim>::CreateIGIteration(prm, dat_ptr)),
     err_phi_tol_(1.0e-5) {
   AssertThrow (g_thermal_<this->n_group_ && g_thermal_>=0,
                dealii::ExcMessage("Invalid thermal upper boundary"));
 }
-
-template <int dim>
-MGBase<dim>::~MGBase () {}
 
 template <int dim>
 void MGBase<dim>::DoIterations (std::unordered_map<std::string,
