@@ -1,5 +1,4 @@
 #include "bart_driver.h"
-#include "bart_builder.h"
 
 #include <fstream>
 #include <sstream>
