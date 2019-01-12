@@ -1,0 +1,24 @@
+#ifndef BART_SRC_PROBLEM_PRM_PARAMETERS_H_
+#define BART_SRC_PROBLEM_PRM_PARAMETERS_H_
+
+
+#include "parameters_i.h"
+
+namespace bart {
+
+namespace problem {
+
+/*!
+ * \brief Problem parameters derived using a dealii ParameterHandler object.
+ * 
+ * The ParameterHandler can be given directly or a file that can be parsed into
+ * a ParameterHandler object can be passed.
+ */
+
+class PrmParameters : ParametersI {
+ public:
+  PrmParameters()  = default;
+  ~PrmParameters() = default;
+};
+
+#endif // BART_SRC_PROBLEM_PRM_PARAMETERS_H_
