@@ -19,6 +19,14 @@
 template <int dim>
 class MGBase : public IterationBase<dim> {
  public:
+
+  /*!
+   * Enumerator for the types of multi-group iterations.
+   */
+  enum class MGIterationType {
+    kGaussSeidel /*!< Gauss-seidel iteration */
+  };
+  
   /*!
    * \brief Static factory for classes derived from MGBase.
    *
@@ -28,14 +36,6 @@ class MGBase : public IterationBase<dim> {
   static std::unique_ptr<MGBase<dim>> CreateMGIteration (
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-  
-    /*!
-   * Enumerator for the types of multi-group iterations.
-   */
-  enum class MGIterationType {
-    GaussSeidel /*!< Gauss-seidel iteration */
-  };
-  
 
   /*!
    A constructor of MGBase.

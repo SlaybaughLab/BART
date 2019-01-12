@@ -10,12 +10,12 @@ std::unique_ptr<MGBase<dim>> MGBase<dim>::CreateMGIteration (
   const std::string mg_iteration_name(prm.get("mg solver name"));
 
   std::unordered_map<std::string, MGIterationType> mg_iteration_name_map =
-      {{"gs", MGIterationType::GaussSeidel}};
+      {{"gs", MGIterationType::kGaussSeidel}};
 
   std::unique_ptr<MGBase<dim>> iteration_ptr;
 
   switch(mg_iteration_name_map[mg_iteration_name]) {
-    case MGIterationType::GaussSeidel: {
+    case MGIterationType::kGaussSeidel: {
       iteration_ptr.reset(new GaussSeidel<dim>(prm, dat_ptr));
       break;
     }
