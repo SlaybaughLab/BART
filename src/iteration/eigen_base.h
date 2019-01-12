@@ -18,9 +18,21 @@
 template <int dim>
 class EigenBase : public IterationBase<dim> {
  public:
-
-  enum class EigenIterationType { PowerIteration };
-
+  /*!
+    Enumerator for the types of eigenvalue iteration
+   */
+  enum class EigenIterationType {
+    PowerIteration /*!< Power iteration */
+  };
+  /*!
+   * \brief Static factory for classes derived from EigenBase
+   *
+   * Instantiates and returns the appropriate eigenvalue iteration class based
+   * on the value specified in the problem as `eigen solver name`.
+   *
+   * \param prm ParameterHandler object containing problem definition.
+   * 
+   */
   static std::unique_ptr<EigenBase<dim>> CreateEigenIteration (
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
