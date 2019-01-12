@@ -46,18 +46,18 @@ std::unique_ptr<EquationBase<dim>> EquationBase<dim>::CreateEquation(
   const std::string equation_name(prm.get("transport model"));
 
   std::unordered_map<std::string, EquationType, std::hash<std::string>>
-      equation_name_map_ = {{"ep",   EquationType::EvenParity},
-                            {"saaf", EquationType::SAAF}};
+      equation_name_map_ = {{"ep",   EquationType::kEvenParity},
+                            {"saaf", EquationType::kSAAF}};
   
   std::unique_ptr<EquationBase<dim>> eq_ptr;
 
   switch(equation_name_map_[equation_name]) {
-    case EquationType::SAAF: {
+    case EquationType::kSAAF: {
       eq_ptr.reset(
           new SelfAdjointAngularFlux<dim>(equation_name, prm, dat_ptr));
       break;
     }
-    case EquationType::EvenParity: {
+    case EquationType::kEvenParity: {
       eq_ptr.reset(new EvenParity<dim>(equation_name, prm, dat_ptr));
       break;
     }
