@@ -18,18 +18,6 @@
  \date 2018/03
  */
 namespace bbuilders {
-  //! Function used to build FE spaces for transport equations.
-  /*!
-   The main functionality is to produce finite element spaces for transport
-   equation and NDA if required based on parameters specified in prm.
-
-   \param prm dealii::ParameterHandler object.
-   \param fe_ptrs A Hash table containing pointers of FE spaces.
-   \return Void.
-   */
-  template <int dim>
-  void BuildFESpaces (const dealii::ParameterHandler &prm,
-      std::unordered_map<std::string, dealii::FiniteElement<dim, dim>*>& fe_ptrs);
 
   //! Function used to build mesh
   /*!

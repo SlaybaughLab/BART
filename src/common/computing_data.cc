@@ -1,5 +1,4 @@
 #include "computing_data.h"
-#include "bart_builder.h"
 
 #include <deal.II/fe/fe_update_flags.h>
 #include <deal.II/fe/fe_dgq.h>
@@ -43,7 +42,7 @@ FundamentalData<dim>::~FundamentalData () {}
 
 template <int dim>
 FEData<dim>::FEData (const dealii::ParameterHandler &prm) {
-  bbuilders::BuildFESpaces(prm, fe);
+  InitializeFESpaces(prm);
   const dealii::UpdateFlags update_flags =
       dealii::update_values | dealii::update_gradients |
       dealii::update_quadrature_points |
