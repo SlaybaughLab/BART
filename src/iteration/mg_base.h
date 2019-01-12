@@ -19,13 +19,24 @@
 template <int dim>
 class MGBase : public IterationBase<dim> {
  public:
-
-  enum class MGIterationType { GaussSeidel };
-  
+  /*!
+   * \brief Static factory for classes derived from MGBase.
+   *
+   * Instantiates and returns the appropriate multi-group iteration based
+   * on the value specified in the problem as `mg solver name`.
+   */
   static std::unique_ptr<MGBase<dim>> CreateMGIteration (
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
   
+    /*!
+   * Enumerator for the types of multi-group iterations.
+   */
+  enum class MGIterationType {
+    GaussSeidel /*!< Gauss-seidel iteration */
+  };
+  
+
   /*!
    A constructor of MGBase.
 
