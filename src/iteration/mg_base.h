@@ -1,6 +1,10 @@
 #ifndef BART_SRC_ITERATION_MG_BASE_H_
 #define BART_SRC_ITERATION_MG_BASE_H_
 
+#include <memory>
+#include <unordered_map>
+
+#include "../common/computing_data.h"
 #include "iteration_base.h"
 #include "ig_base.h"
 
@@ -15,6 +19,13 @@
 template <int dim>
 class MGBase : public IterationBase<dim> {
  public:
+
+  enum class MGIterationType { GaussSeidel };
+  
+  static std::unique_ptr<MGBase<dim>> CreateMGIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
+  
   /*!
    A constructor of MGBase.
 
@@ -24,7 +35,7 @@ class MGBase : public IterationBase<dim> {
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! A virtual destructor for MGBase
-  virtual ~MGBase ();
+  virtual ~MGBase () = default;
 
   /*!
    This function will call mg_iterations to perform MG iterations in fixed source

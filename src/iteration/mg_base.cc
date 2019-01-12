@@ -1,5 +1,31 @@
 #include "mg_base.h"
-#include "../common/bart_builder.h"
+
+#include "gauss_seidel.h"
+
+template <int dim>
+std::unique_ptr<MGBase<dim>> MGBase<dim>::CreateMGIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+
+  const std::string mg_iteration_name(prm.get("mg solver name"));
+
+  std::unordered_map<std::string, MGIterationType> mg_iteration_name_map =
+      {{"gs", MGIterationType::GaussSeidel}};
+
+  std::unique_ptr<MGBase<dim>> iteration_ptr;
+
+  switch(mg_iteration_name_map[mg_iteration_name]) {
+    case MGIterationType::GaussSeidel: {
+      iteration_ptr.reset(new GaussSeidel<dim>(prm, dat_ptr));
+      break;
+    }
+    default: {
+      assert(false);
+      break;
+    }
+  }
+  return std::move(iteration_ptr);
+}
 
 template <int dim>
 MGBase<dim>::MGBase (const dealii::ParameterHandler &prm,
