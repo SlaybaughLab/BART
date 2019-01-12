@@ -39,7 +39,7 @@ class AQBase {
     Enumerator for the types of angular quadrature.
    */
   enum class AQType {
-    LSGC /*!< Level symmetric gaussian */
+    kLSGC /*!< Level symmetric gaussian */
   };
 
   /*!

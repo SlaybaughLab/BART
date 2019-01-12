@@ -35,10 +35,10 @@ std::unique_ptr<AQBase<dim>> AQBase<dim>::CreateAQ(
     return_ptr.reset(new AQBase<dim>(prm));
   } else {
     std::unordered_map<std::string, AQType>
-        aq_name_map = {{"lsgc", AQType::LSGC}};
+        aq_name_map = {{"lsgc", AQType::kLSGC}};
 
     switch(aq_name_map[prm.get("angular quadrature name")]) {
-      case AQType::LSGC: {
+      case AQType::kLSGC: {
         return_ptr.reset(new LSGC<dim>(prm));
         break;
       }
