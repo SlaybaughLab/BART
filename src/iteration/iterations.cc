@@ -1,5 +1,4 @@
 #include "iterations.h"
-#include "../common/bart_builder.h"
 
 using namespace dealii;
 
@@ -9,7 +8,7 @@ Iterations<dim>::Iterations (const dealii::ParameterHandler &prm,
     :
     is_eigen_problem_(prm.get_bool("do eigenvalue calculations")) {
   if (is_eigen_problem_) {
-    eig_ptr_ = bbuilders::BuildEigenItr (prm, dat_ptr);
+    eig_ptr_ = EigenBase<dim>::CreateEigenIteration (prm, dat_ptr);
   } else {
     mg_ptr_ = MGBase<dim>::CreateMGIteration (prm, dat_ptr);
   }
