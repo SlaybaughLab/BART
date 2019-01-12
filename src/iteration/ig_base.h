@@ -17,8 +17,22 @@ using namespace dealii;
 template <int dim>
 class IGBase : public IterationBase<dim> {
  public:
+  /*!
+   * \brief Static factory for classes derived from EquationBase.
+   *
+   * Instantiates and returns the appropriate in-group iteration based
+   * on the value specified in the problem as `in group solver name`.
+   */
+  static std::unique_ptr<IGBase<dim>> CreateIGIteration (
+      const dealii::ParameterHandler &prm,
+      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
-  enum class IGIterationType { SourceIteration };
+  /*!
+   * Enumerator for the types of in-group iterations.
+   */
+  enum class IGIterationType {
+    SourceIteration /*!< Source iteration */
+  };
   
   /*!
    Class constructor.
@@ -30,10 +44,6 @@ class IGBase : public IterationBase<dim> {
 
   //! Class destructor.
   virtual ~IGBase() = default;
-
-  static std::unique_ptr<IGBase<dim>> CreateIGIteration (
-      const dealii::ParameterHandler &prm,
-      std::shared_ptr<FundamentalData<dim>> &dat_ptr);
   
   /*!
    Abstract function for in group solving functionality. For instance, one could
