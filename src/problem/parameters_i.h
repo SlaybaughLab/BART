@@ -17,6 +17,9 @@ namespace problem {
 class ParametersI {
  public:
   virtual ~ParametersI() = default;
+
+  // Basic Problem Parameters
+  virtual int Dimension() const = 0;
 };
 
 } // namespace problem

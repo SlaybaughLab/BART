@@ -20,6 +20,12 @@ class PrmParameters : ParametersI {
  public:
   PrmParameters(const dealii::ParameterHandler &handler);
   ~PrmParameters() = default;
+
+  // Basic Parameters
+  int Dimension() const override { return dimension_;} ;
+
+ private:
+  int dimension_;
 };
 
 } // namespace problem

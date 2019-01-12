@@ -15,4 +15,5 @@ void PrmParametersTest::SetUp() {
 
 TEST_F(PrmParametersTest, BasicParametersParsing) {
   bart::problem::PrmParameters test_parameters{test_prm};
+  ASSERT_EQ(test_parameters.Dimension(), 2);
 }
