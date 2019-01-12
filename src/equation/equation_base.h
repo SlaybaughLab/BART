@@ -26,7 +26,10 @@ class EquationBase {
   /*!
    * Enumerator for equations that can be instantiated.
    */  
-  enum class EquationType { kEvenParity, kSAAF };
+  enum class EquationType {
+    kEvenParity, /*!< Even-parity equation */
+    kSAAF        /*!< Self-adjoint angular flux equation */
+  };
   
   EquationBase (
       const std::string &equation_name,
