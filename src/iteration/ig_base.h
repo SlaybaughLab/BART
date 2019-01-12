@@ -18,7 +18,7 @@ template <int dim>
 class IGBase : public IterationBase<dim> {
  public:
   /*!
-   * \brief Static factory for classes derived from EquationBase.
+   * \brief Static factory for classes derived from IGBase.
    *
    * Instantiates and returns the appropriate in-group iteration based
    * on the value specified in the problem as `in group solver name`.
@@ -31,7 +31,7 @@ class IGBase : public IterationBase<dim> {
    * Enumerator for the types of in-group iterations.
    */
   enum class IGIterationType {
-    SourceIteration /*!< Source iteration */
+    kSourceIteration /*!< Source iteration */
   };
   
   /*!

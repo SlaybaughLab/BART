@@ -15,12 +15,12 @@ std::unique_ptr<IGBase<dim>> IGBase<dim>::CreateIGIteration (
       std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
   const std::string ig_iteration_name(prm.get("in group solver name"));
   std::unordered_map<std::string, IGIterationType> ig_iteration_name_map =
-      {{"si", IGIterationType::SourceIteration}};
+      {{"si", IGIterationType::kSourceIteration}};
 
   std::unique_ptr<IGBase<dim>> iteration_ptr;
 
   switch(ig_iteration_name_map[ig_iteration_name]) {
-    case IGIterationType::SourceIteration: {
+    case IGIterationType::kSourceIteration: {
       iteration_ptr.reset(new SourceIteration<dim>(prm, dat_ptr));
       break;
     }
