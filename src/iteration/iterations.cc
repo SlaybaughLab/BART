@@ -11,7 +11,7 @@ Iterations<dim>::Iterations (const dealii::ParameterHandler &prm,
   if (is_eigen_problem_) {
     eig_ptr_ = bbuilders::BuildEigenItr (prm, dat_ptr);
   } else {
-    mg_ptr_ = bbuilders::BuildMGItr (prm, dat_ptr);
+    mg_ptr_ = MGBase<dim>::CreateMGIteration (prm, dat_ptr);
   }
 }
 

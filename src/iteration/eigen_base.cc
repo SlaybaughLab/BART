@@ -6,7 +6,7 @@ EigenBase<dim>::EigenBase (const dealii::ParameterHandler &prm,
     std::shared_ptr<FundamentalData<dim>> &dat_ptr)
     :
     IterationBase<dim>(prm, dat_ptr),
-    mg_ptr_(bbuilders::BuildMGItr(prm, dat_ptr)),
+    mg_ptr_(MGBase<dim>::CreateMGIteration(prm, dat_ptr)),
     err_k_tol_(1.0e-6),
     err_phi_tol_(1.0e-5) {}
 
