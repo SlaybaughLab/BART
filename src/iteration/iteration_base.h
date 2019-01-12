@@ -26,7 +26,7 @@ class IterationBase {
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
 
   //! Virtual class destructor.
-  virtual ~IterationBase ();
+  virtual ~IterationBase () = default;
 
  protected:
   /**
