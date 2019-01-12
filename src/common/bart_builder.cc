@@ -171,15 +171,6 @@ template void bbuilders::BuildFESpaces<2> (const dealii::ParameterHandler&,
 template void bbuilders::BuildFESpaces<3> (const dealii::ParameterHandler&,
     std::unordered_map<std::string, dealii::FiniteElement<3, 3>*>&);
 
-
-// explicit instantiation for BuildAQ
-template void bbuilders::BuildAQ<1> (const dealii::ParameterHandler&,
-    std::unique_ptr<AQBase<1>> &);
-template void bbuilders::BuildAQ<2> (const dealii::ParameterHandler&,
-    std::unique_ptr<AQBase<2>> &);
-template void bbuilders::BuildAQ<3> (const dealii::ParameterHandler&,
-    std::unique_ptr<AQBase<3>> &);
-
 // explicit instantiation for BuildMesh
 template void bbuilders::BuildMesh<1> (dealii::ParameterHandler&,
     std::unique_ptr<MeshGenerator<1>> &);
