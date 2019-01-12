@@ -18,6 +18,13 @@ template <int dim>
 class IGBase : public IterationBase<dim> {
  public:
   /*!
+   * Enumerator for the types of in-group iterations.
+   */
+  enum class IGIterationType {
+    kSourceIteration /*!< Source iteration */
+  };
+  
+  /*!
    * \brief Static factory for classes derived from IGBase.
    *
    * Instantiates and returns the appropriate in-group iteration based
@@ -26,13 +33,6 @@ class IGBase : public IterationBase<dim> {
   static std::unique_ptr<IGBase<dim>> CreateIGIteration (
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-
-  /*!
-   * Enumerator for the types of in-group iterations.
-   */
-  enum class IGIterationType {
-    kSourceIteration /*!< Source iteration */
-  };
   
   /*!
    Class constructor.
