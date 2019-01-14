@@ -8,6 +8,7 @@ namespace problem {
 enum class EquationType {
   kEvenParity,
   kSelfAdjointAngularFlux,
+  kNone
 };
 
 } // namespace problem
