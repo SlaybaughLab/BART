@@ -33,10 +33,14 @@ class ParametersDealiiHandler : ParametersI {
   
   // Basic Parameters
   /*! Get problem spatial dimension */
+  std::string OutputFilenameBase() const override {
+    return output_filename_base_; }
   int SpatialDimension() const override { return spatial_dimension_; }
   std::vector<double> SpatialMax() const override { return spatial_max; }
 
+
  private:
+  std::string         output_filename_base_;
   int                 spatial_dimension_;
   std::vector<double> spatial_max;
 
@@ -46,6 +50,7 @@ class ParametersDealiiHandler : ParametersI {
   std::vector<double> ParseDealiiList(std::string to_parse);
   
   // Key-words for input file
+  const std::string kOutputFilenameBase = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
 };

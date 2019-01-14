@@ -12,6 +12,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   bart::problem::ParametersDealiiHandler test_parameters;
 
   // Key-words for input file
+  const std::string kOutputFilenameBase = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
 };
@@ -25,18 +26,24 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   
   ASSERT_EQ(test_parameters.SpatialDimension(), 2)
       << "Default spatial dimension";
+  ASSERT_EQ(test_parameters.OutputFilenameBase(), "bart_output")
+      << "Default spatial dimension";
 }
 
 TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 
   std::vector<double> spatial_max{10.0, 5.0, 8.0};
+  std::string         output_filename_base{"test_output"};
   
   test_parameter_handler.set(kSpatialDimension_, 3.0);
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
+  test_parameter_handler.set(kOutputFilenameBase, output_filename_base);
   test_parameters.Parse(test_parameter_handler);
 
+  ASSERT_EQ(test_parameters.OutputFilenameBase(), output_filename_base)
+      << "Parsed output filename base";
   ASSERT_EQ(test_parameters.SpatialDimension(), 3.0)
       << "Parsed spatial dimension";
   ASSERT_EQ(test_parameters.SpatialMax(), spatial_max)            
-      << "Parsed spatial dimension";
+      << "Parsed spatial maximums";
 }

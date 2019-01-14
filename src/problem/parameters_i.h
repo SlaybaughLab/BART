@@ -1,6 +1,7 @@
 #ifndef BART_SRC_PROBLEM_PARAMETERS_I_H_
 #define BART_SRC_PROBLEM_PARAMETERS_I_H_
 
+#include <string>
 #include <vector>
 
 namespace bart {
@@ -21,8 +22,9 @@ class ParametersI {
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
-  virtual int                 SpatialDimension() const = 0;
-  virtual std::vector<double> SpatialMax()       const = 0;
+  virtual int                 SpatialDimension()   const = 0;
+  virtual std::vector<double> SpatialMax()         const = 0;
+  virtual std::string         OutputFilenameBase() const = 0;
 };
 
 } // namespace problem
