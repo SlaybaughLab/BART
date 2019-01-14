@@ -14,7 +14,7 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
   
   // Basic parameters
-  handler.declare_entry(kSpatialDimension_, "2", Pattern::Integer(), "");
+  handler.declare_entry(kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
 }
 
 } // namespace problem
