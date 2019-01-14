@@ -22,9 +22,10 @@ class ParametersI {
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
+  virtual std::vector<int>    NCells()             const = 0;
+  virtual std::string         OutputFilenameBase() const = 0;
   virtual int                 SpatialDimension()   const = 0;
   virtual std::vector<double> SpatialMax()         const = 0;
-  virtual std::string         OutputFilenameBase() const = 0;
 };
 
 } // namespace problem

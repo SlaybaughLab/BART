@@ -33,13 +33,22 @@ class ParametersDealiiHandler : ParametersI {
   
   // Basic Parameters
   /*! Get problem spatial dimension */
-  std::string OutputFilenameBase() const override {
+  std::vector<int>    NCells() const override { return n_cells_; }
+  
+  /*! Get problem output filename base */
+  std::string         OutputFilenameBase() const override {
     return output_filename_base_; }
-  int SpatialDimension() const override { return spatial_dimension_; }
+  
+  /*! Get number of spatial dimensions */
+  int                 SpatialDimension() const override {
+    return spatial_dimension_; }
+  
+  /*! Get maximum x, y, z size */
   std::vector<double> SpatialMax() const override { return spatial_max; }
 
 
  private:
+  std::vector<int>    n_cells_;
   std::string         output_filename_base_;
   int                 spatial_dimension_;
   std::vector<double> spatial_max;
@@ -48,9 +57,11 @@ class ParametersDealiiHandler : ParametersI {
    * into a vector.
    */
   std::vector<double> ParseDealiiList(std::string to_parse);
+  std::vector<int>    ParseDealiiIntList(std::string to_parse);
   
   // Key-words for input file
-  const std::string kOutputFilenameBase = "output file name base";
+  const std::string kNCells_ = "number of cells for x, y, z directions";
+  const std::string kOutputFilenameBase_ = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
 };
