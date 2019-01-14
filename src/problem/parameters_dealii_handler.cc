@@ -1,5 +1,7 @@
 #include "parameters_dealii_handler.h"
 
+#include <deal.II/base/parameter_handler.h>
+
 #include <sstream>
 
 namespace bart {
@@ -22,8 +24,11 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
   
   // Basic parameters
   handler.declare_entry(kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
-  handler.declare_entry (kSpatialMax_, "", Pattern::List (Pattern::Double ()),
-        "xmax, ymax, zmax of the boundaries, mins are zero");
+  try {
+    handler.declare_entry (kSpatialMax_, "",
+                           Pattern::List(Pattern::Double(), 1, 3),
+                           "xmax, ymax, zmax of the boundaries, mins are zero");
+  } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 }
 
 std::vector<double> ParametersDealiiHandler::ParseDealiiList(
