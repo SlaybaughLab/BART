@@ -11,6 +11,13 @@ enum class EquationType {
   kNone
 };
 
+enum class LinearSolverType {
+  kConjugateGradient,
+  kGMRES,
+  kBiCGSTAB,
+  kDirect,
+};
+
 } // namespace problem
 
 } // namespace bart
