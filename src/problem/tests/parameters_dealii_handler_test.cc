@@ -14,12 +14,14 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   bart::problem::ParametersDealiiHandler test_parameters;
 
   // Key-words for input file
-  const std::string kLinearSolver = "ho linear solver name";
   const std::string kNCells = "number of cells for x, y, z directions";
   const std::string kOutputFilenameBase = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
   const std::string kTransportModel_ = "transport model";
+  
+  const std::string kEigenSolver_ = "eigen solver name";
+  const std::string kLinearSolver = "ho linear solver name";
 };
 
 void ParametersDealiiHandlerTest::SetUp() {
@@ -29,15 +31,19 @@ void ParametersDealiiHandlerTest::SetUp() {
 TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   test_parameters.Parse(test_parameter_handler);
 
-  ASSERT_EQ(test_parameters.LinearSolver(),
-            bart::problem::LinearSolverType::kConjugateGradient)
-      << "Default linear solver";
   ASSERT_EQ(test_parameters.SpatialDimension(), 2)
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.OutputFilenameBase(), "bart_output")
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.TransportModel(), bart::problem::EquationType::kNone)
       << "Default transport model";
+
+  ASSERT_EQ(test_parameters.LinearSolver(),
+            bart::problem::LinearSolverType::kConjugateGradient)
+      << "Default linear solver";
+  ASSERT_EQ(test_parameters.EigenSolver(),
+            bart::problem::EigenSolverType::kPowerIteration)
+      << "Default eigenvalue solver";
 }
 
 TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {

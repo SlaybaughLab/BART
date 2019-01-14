@@ -35,10 +35,7 @@ class ParametersDealiiHandler : ParametersI {
 
 
   // Functions to get problem parameters
-
-  /*! Get linear solver type */
-  LinearSolverType    LinearSolver() const override { return linear_solver_; }
-  
+  // Basic Parameters ==========================================================
   /*! Get problem transport model */
   EquationType        TransportModel() const override {
     return transport_model_; }
@@ -56,8 +53,14 @@ class ParametersDealiiHandler : ParametersI {
   
   /*! Get maximum x, y, z size */
   std::vector<double> SpatialMax() const override { return spatial_max; }
+  
+  // Solver Parameters =========================================================
+  /*1 Get eigenvalue solver type */
+  EigenSolverType     EigenSolver() const override { return eigen_solver_; }
 
-
+  /*! Get linear solver type */
+  LinearSolverType    LinearSolver() const override { return linear_solver_; }
+  
  private:
   // Basic parameters  
   EquationType        transport_model_;
@@ -67,6 +70,7 @@ class ParametersDealiiHandler : ParametersI {
   std::vector<double> spatial_max;
 
   // Solvers
+  EigenSolverType     eigen_solver_;
   LinearSolverType    linear_solver_;
 
   // Key-words for input file
@@ -78,6 +82,7 @@ class ParametersDealiiHandler : ParametersI {
   const std::string kTransportModel_ = "transport model";
 
   // Solvers
+  const std::string kEigenSolver_ = "eigen solver name";
   const std::string kLinearSolver_ = "ho linear solver name";
 
   // Options mapping
@@ -87,6 +92,10 @@ class ParametersDealiiHandler : ParametersI {
     {"none", EquationType::kNone}
   };
 
+  const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
+    {"pi",    EigenSolverType::kPowerIteration},
+  };
+  
   const std::unordered_map<std::string, LinearSolverType> kLinearSolverTypeMap_ {
     {"cg",    LinearSolverType::kConjugateGradient},
     {"gmres", LinearSolverType::kGMRES},
