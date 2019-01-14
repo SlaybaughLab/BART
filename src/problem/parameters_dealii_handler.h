@@ -20,17 +20,26 @@ namespace problem {
 
 class ParametersDealiiHandler : ParametersI {
  public:
-  ParametersDealiiHandler(const dealii::ParameterHandler &handler);
+  ParametersDealiiHandler();
   ~ParametersDealiiHandler() = default;
 
+  /*! \brief Parses a ParameterHandler object for problem parameters */
+  void Parse(const dealii::ParameterHandler &handler);
+  
+  /*! \brief Set up a ParameterHandler object for problem parameters.
+   * This setup includes default values.
+   */
+  void SetUp(dealii::ParameterHandler &handler);
+  
   // Basic Parameters
-  int SpatialDimension() const override { return spatial_dimension_;} ;
+  /*! Get problem spatial dimension */
+  int  SpatialDimension() const override { return spatial_dimension_; }
 
  private:
   int spatial_dimension_;
 
   // Key-words for input file
-  const std::string kw_dimension_ = "problem dimension";
+  const std::string kSpatialDimension_ = "problem dimension";
 };
 
 } // namespace problem

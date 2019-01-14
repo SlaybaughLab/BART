@@ -5,15 +5,16 @@
 class ParametersDealiiHandlerTest : public ::testing::Test {
  protected:
   void SetUp() override;
-  dealii::ParameterHandler test_prm;
+  dealii::ParameterHandler test_parameter_handler;
+  bart::problem::ParametersDealiiHandler test_parameters;
 };
 
 void ParametersDealiiHandlerTest::SetUp() {
-  test_prm.declare_entry ("problem dimension", "2",
-                          dealii::Patterns::Integer(), "");
+  test_parameters.SetUp(test_parameter_handler);
 }
 
 TEST_F(ParametersDealiiHandlerTest, BasicParametersParsing) {
-  bart::problem::ParametersDealiiHandler test_parameters{test_prm};
+  test_parameters.Parse(test_parameter_handler);
+  
   ASSERT_EQ(test_parameters.SpatialDimension(), 2);
 }
