@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "parameter_types.h"
+
 namespace bart {
 
 namespace problem {
@@ -19,9 +21,11 @@ namespace problem {
 
 class ParametersI {
  public:
+  
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
+  virtual EquationType        TransportModel()     const = 0;
   virtual std::vector<int>    NCells()             const = 0;
   virtual std::string         OutputFilenameBase() const = 0;
   virtual int                 SpatialDimension()   const = 0;

@@ -6,6 +6,7 @@
 #include <deal.II/base/parameter_handler.h>
 
 #include "parameters_i.h"
+#include "parameter_types.h"
 
 namespace bart {
 
@@ -31,7 +32,10 @@ class ParametersDealiiHandler : ParametersI {
    */
   void SetUp(dealii::ParameterHandler &handler);
   
-  // Basic Parameters
+  /*! Get problem transport model */
+  EquationType        TransportModel() const override {
+    return transport_model_; }
+  
   /*! Get problem spatial dimension */
   std::vector<int>    NCells() const override { return n_cells_; }
   
@@ -48,6 +52,7 @@ class ParametersDealiiHandler : ParametersI {
 
 
  private:
+  EquationType        transport_model_;
   std::vector<int>    n_cells_;
   std::string         output_filename_base_;
   int                 spatial_dimension_;
@@ -64,6 +69,7 @@ class ParametersDealiiHandler : ParametersI {
   const std::string kOutputFilenameBase_ = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
+  const std::string kTransportModel_ = "transport model";
 };
 
 } // namespace problem

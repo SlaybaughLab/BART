@@ -5,6 +5,8 @@
 
 #include "gtest/gtest.h"
 
+#include "../parameter_types.h"
+
 class ParametersDealiiHandlerTest : public ::testing::Test {
  protected:
   void SetUp() override;
@@ -16,7 +18,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kOutputFilenameBase = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
-  
+  const std::string kTransportModel_ = "transport model";
 };
 
 void ParametersDealiiHandlerTest::SetUp() {
@@ -30,6 +32,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.OutputFilenameBase(), "bart_output")
       << "Default spatial dimension";
+  ASSERT_EQ(test_parameters.TransportModel(), bart::problem::EquationType::kNone)
+      << "Default transport model";
 }
 
 TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
@@ -42,6 +46,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(kOutputFilenameBase, output_filename_base);
   test_parameter_handler.set(kSpatialDimension_, 3.0);
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
+  test_parameter_handler.set(kTransportModel_, "saaf");
   test_parameters.Parse(test_parameter_handler);
 
   ASSERT_EQ(test_parameters.NCells(), n_cells)
@@ -52,4 +57,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
       << "Parsed spatial dimension";
   ASSERT_EQ(test_parameters.SpatialMax(), spatial_max)            
       << "Parsed spatial maximums";
+  ASSERT_EQ(test_parameters.TransportModel(),
+            bart::problem::EquationType::kSelfAdjointAngularFlux)
+      << "Parsed transport model";
 }
