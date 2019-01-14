@@ -19,7 +19,7 @@ class ParametersI {
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
-  virtual int Dimension() const = 0;
+  virtual int SpatialDimension() const = 0;
 };
 
 } // namespace problem
