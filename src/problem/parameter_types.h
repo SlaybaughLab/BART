@@ -18,6 +18,10 @@ enum class LinearSolverType {
   kDirect,
 };
 
+enum class EigenSolverType {
+  kPowerIteration,
+};
+
 } // namespace problem
 
 } // namespace bart
