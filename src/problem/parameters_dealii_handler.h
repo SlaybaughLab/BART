@@ -40,6 +40,11 @@ class ParametersDealiiHandler : ParametersI {
   int                 spatial_dimension_;
   std::vector<double> spatial_max;
 
+  /*! Parses a ParameterHandler entry of type dealii::Patterns::List with doubles
+   * into a vector.
+   */
+  std::vector<double> ParseDealiiList(std::string to_parse);
+  
   // Key-words for input file
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
