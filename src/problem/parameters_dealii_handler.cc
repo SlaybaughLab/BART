@@ -2,7 +2,6 @@
 
 #include <deal.II/base/parameter_handler.h>
 
-#include <unordered_map>
 #include <sstream>
 
 namespace bart {
@@ -13,26 +12,13 @@ ParametersDealiiHandler::ParametersDealiiHandler() {}
 
 void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
-  std::map<std::string, EquationType> equation_type_map {
-    {"ep",   EquationType::kEvenParity},
-    {"saaf", EquationType::kSelfAdjointAngularFlux},
-    {"none", EquationType::kNone}
-  };
-
-  std::map<std::string, LinearSolverType> linear_solver_type_map {
-    {"cg",    LinearSolverType::kConjugateGradient},
-    {"gmres", LinearSolverType::kGMRES},
-    {"bicgstab", LinearSolverType::kBiCGSTAB},
-    {"direct", LinearSolverType::kDirect}
-  };
-
   // Parse parameters
-  linear_solver_ = linear_solver_type_map[handler.get(kLinearSolver_)];
+  linear_solver_ = linear_solver_type_map_[handler.get(kLinearSolver_)];
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
   output_filename_base_ = handler.get(kOutputFilenameBase_);  
   spatial_dimension_ = handler.get_integer(kSpatialDimension_);
   spatial_max = ParseDealiiList(handler.get(kSpatialMax_));
-  transport_model_ = equation_type_map[handler.get(kTransportModel_)];
+  transport_model_ = equation_type_map_[handler.get(kTransportModel_)];
 }
 
 void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
@@ -43,8 +29,9 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    * default values are not valid themselves. Mostly this means that there is
    * no default value.
    */
+  std::string linear_solver_options{GetOptionString(linear_solver_type_map_)};
   handler.declare_entry (kLinearSolver_, "cg",
-                         Pattern::Selection("cg|gmres|bicgstab|direct"),
+                         Pattern::Selection(linear_solver_options),
                          "linear solvers");
   try {
     handler.declare_entry (kNCells_ , "",
@@ -62,10 +49,24 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
                            Pattern::List(Pattern::Double(), 1, 3),
                            "xmax, ymax, zmax of the boundaries, mins are zero");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
-  
+
+  std::string equation_options{GetOptionString(equation_type_map_)};
   handler.declare_entry(kTransportModel_, "none",
-                        Pattern::Selection("ep|saaf|none"),
+                        Pattern::Selection(equation_options),
                         "valid names such as ep");
+}
+
+template<typename T>
+std::string ParametersDealiiHandler::GetOptionString(
+    const std::unordered_map<std::string, T> enum_map) const {
+  std::ostringstream oss;
+  std::string return_string;
+  for (auto const &entry : enum_map) {
+    oss << entry.first << "|";
+  }
+  return_string = oss.str();
+  return_string.pop_back();
+  return return_string;
 }
 
 std::vector<double> ParametersDealiiHandler::ParseDealiiList(

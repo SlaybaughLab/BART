@@ -2,6 +2,7 @@
 #define BART_SRC_PROBLEM_PARAMETERS_DEALII_HANDLER_H_
 
 #include <string>
+#include <unordered_map>
 
 #include <deal.II/base/parameter_handler.h>
 
@@ -70,6 +71,14 @@ class ParametersDealiiHandler : ParametersI {
    */
   std::vector<double> ParseDealiiList(std::string to_parse);
   std::vector<int>    ParseDealiiIntList(std::string to_parse);
+
+  /*! Returns a string formed by combining the key strings in a mapping,
+   * separated by `|`. Used to generate valid option strings for ParameterHandler
+   * entries.
+   */
+  template<typename T>
+  std::string GetOptionString(
+      const std::unordered_map<std::string, T> enum_map) const;
   
   // Key-words for input file
   const std::string kLinearSolver_ = "ho linear solver name";
@@ -78,6 +87,20 @@ class ParametersDealiiHandler : ParametersI {
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
   const std::string kTransportModel_ = "transport model";
+
+  // Options mapping
+  std::unordered_map<std::string, EquationType> equation_type_map_ {
+    {"ep",   EquationType::kEvenParity},
+    {"saaf", EquationType::kSelfAdjointAngularFlux},
+    {"none", EquationType::kNone}
+  };
+
+  std::unordered_map<std::string, LinearSolverType> linear_solver_type_map_ {
+    {"cg",    LinearSolverType::kConjugateGradient},
+    {"gmres", LinearSolverType::kGMRES},
+    {"bicgstab", LinearSolverType::kBiCGSTAB},
+    {"direct", LinearSolverType::kDirect}
+  };
 };
 
 } // namespace problem
