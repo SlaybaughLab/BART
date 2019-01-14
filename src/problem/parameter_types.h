@@ -5,6 +5,12 @@ namespace bart {
 
 namespace problem {
 
+enum class AngularQuadType {
+  kLevelSymmetricGaussChebyshev,
+  kGaussLegendre,
+  kNone,
+};
+
 enum class EquationType {
   kEvenParity,
   kSelfAdjointAngularFlux,
