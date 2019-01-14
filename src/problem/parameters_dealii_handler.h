@@ -33,13 +33,16 @@ class ParametersDealiiHandler : ParametersI {
   
   // Basic Parameters
   /*! Get problem spatial dimension */
-  int  SpatialDimension() const override { return spatial_dimension_; }
+  int SpatialDimension() const override { return spatial_dimension_; }
+  std::vector<double> SpatialMax() const override { return spatial_max; }
 
  private:
-  int spatial_dimension_;
+  int                 spatial_dimension_;
+  std::vector<double> spatial_max;
 
   // Key-words for input file
   const std::string kSpatialDimension_ = "problem dimension";
+  const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
 };
 
 } // namespace problem
