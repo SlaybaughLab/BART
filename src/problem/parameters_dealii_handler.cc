@@ -13,12 +13,15 @@ ParametersDealiiHandler::ParametersDealiiHandler() {}
 void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Parse parameters
-  linear_solver_ = linear_solver_type_map_[handler.get(kLinearSolver_)];
+  // Basic Parameters
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
   output_filename_base_ = handler.get(kOutputFilenameBase_);  
   spatial_dimension_ = handler.get_integer(kSpatialDimension_);
   spatial_max = ParseDealiiList(handler.get(kSpatialMax_));
-  transport_model_ = equation_type_map_[handler.get(kTransportModel_)];
+  transport_model_ = kEquationTypeMap_.at(handler.get(kTransportModel_));
+
+  // Solvers
+  linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kLinearSolver_));
 }
 
 void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
@@ -29,10 +32,8 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    * default values are not valid themselves. Mostly this means that there is
    * no default value.
    */
-  std::string linear_solver_options{GetOptionString(linear_solver_type_map_)};
-  handler.declare_entry (kLinearSolver_, "cg",
-                         Pattern::Selection(linear_solver_options),
-                         "linear solvers");
+  
+  // Basic Parameters ==========================================================
   try {
     handler.declare_entry (kNCells_ , "",
                            Pattern::List (Pattern::Integer (0), 1, 3),
@@ -50,10 +51,17 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
                            "xmax, ymax, zmax of the boundaries, mins are zero");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 
-  std::string equation_options{GetOptionString(equation_type_map_)};
+  std::string equation_options{GetOptionString(kEquationTypeMap_)};
   handler.declare_entry(kTransportModel_, "none",
                         Pattern::Selection(equation_options),
                         "valid names such as ep");
+  
+  // Solvers ===================================================================
+  std::string linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
+  handler.declare_entry (kLinearSolver_, "cg",
+                         Pattern::Selection(linear_solver_options),
+                         "linear solvers");
+  
 }
 
 template<typename T>

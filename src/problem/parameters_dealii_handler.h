@@ -59,12 +59,40 @@ class ParametersDealiiHandler : ParametersI {
 
 
  private:
-  LinearSolverType    linear_solver_;
+  // Basic parameters  
   EquationType        transport_model_;
   std::vector<int>    n_cells_;
   std::string         output_filename_base_;
   int                 spatial_dimension_;
   std::vector<double> spatial_max;
+
+  // Solvers
+  LinearSolverType    linear_solver_;
+
+  // Key-words for input file
+  // Basic parameters
+  const std::string kNCells_ = "number of cells for x, y, z directions";
+  const std::string kOutputFilenameBase_ = "output file name base";
+  const std::string kSpatialDimension_ = "problem dimension";
+  const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
+  const std::string kTransportModel_ = "transport model";
+
+  // Solvers
+  const std::string kLinearSolver_ = "ho linear solver name";
+
+  // Options mapping
+  const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {
+    {"ep",   EquationType::kEvenParity},
+    {"saaf", EquationType::kSelfAdjointAngularFlux},
+    {"none", EquationType::kNone}
+  };
+
+  const std::unordered_map<std::string, LinearSolverType> kLinearSolverTypeMap_ {
+    {"cg",    LinearSolverType::kConjugateGradient},
+    {"gmres", LinearSolverType::kGMRES},
+    {"bicgstab", LinearSolverType::kBiCGSTAB},
+    {"direct", LinearSolverType::kDirect}
+  };
 
   /*! Parses a ParameterHandler entry of type dealii::Patterns::List with doubles
    * into a vector.
@@ -78,29 +106,8 @@ class ParametersDealiiHandler : ParametersI {
    */
   template<typename T>
   std::string GetOptionString(
-      const std::unordered_map<std::string, T> enum_map) const;
-  
-  // Key-words for input file
-  const std::string kLinearSolver_ = "ho linear solver name";
-  const std::string kNCells_ = "number of cells for x, y, z directions";
-  const std::string kOutputFilenameBase_ = "output file name base";
-  const std::string kSpatialDimension_ = "problem dimension";
-  const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
-  const std::string kTransportModel_ = "transport model";
+      const std::unordered_map<std::string, T> enum_map) const;  
 
-  // Options mapping
-  std::unordered_map<std::string, EquationType> equation_type_map_ {
-    {"ep",   EquationType::kEvenParity},
-    {"saaf", EquationType::kSelfAdjointAngularFlux},
-    {"none", EquationType::kNone}
-  };
-
-  std::unordered_map<std::string, LinearSolverType> linear_solver_type_map_ {
-    {"cg",    LinearSolverType::kConjugateGradient},
-    {"gmres", LinearSolverType::kGMRES},
-    {"bicgstab", LinearSolverType::kBiCGSTAB},
-    {"direct", LinearSolverType::kDirect}
-  };
 };
 
 } // namespace problem
