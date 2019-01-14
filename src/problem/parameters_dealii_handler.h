@@ -94,6 +94,12 @@ class ParametersDealiiHandler : ParametersI {
     {"direct", LinearSolverType::kDirect}
   };
 
+  // Setup functions
+  /*! Set up basic problem parameters */
+  void SetUpBasicParameters(dealii::ParameterHandler &handler);
+  /*! Set up solver parameters */
+  void SetUpSolverParameters(dealii::ParameterHandler &handler);
+  
   /*! Parses a ParameterHandler entry of type dealii::Patterns::List with doubles
    * into a vector.
    */

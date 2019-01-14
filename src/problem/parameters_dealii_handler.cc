@@ -32,12 +32,18 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    * default values are not valid themselves. Mostly this means that there is
    * no default value.
    */
+  SetUpBasicParameters(handler);
+  SetUpSolverParameters(handler);
+}
+
+void ParametersDealiiHandler::SetUpBasicParameters(
+    dealii::ParameterHandler &handler) {
+  namespace Pattern = dealii::Patterns;
   
-  // Basic Parameters ==========================================================
   try {
-    handler.declare_entry (kNCells_ , "",
-                           Pattern::List (Pattern::Integer (0), 1, 3),
-                           "Geometry is hyper rectangle defined by how many cells exist per direction");
+    handler.declare_entry(kNCells_ , "",
+                          Pattern::List (Pattern::Integer (0), 1, 3),
+                          "Geometry is hyper rectangle defined by how many cells exist per direction");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
   
   handler.declare_entry(kOutputFilenameBase_, "bart_output",Pattern::Anything(),
@@ -46,22 +52,25 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
   handler.declare_entry(kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
   
   try {
-    handler.declare_entry (kSpatialMax_, "",
-                           Pattern::List(Pattern::Double(), 1, 3),
-                           "xmax, ymax, zmax of the boundaries, mins are zero");
+    handler.declare_entry(kSpatialMax_, "",
+                          Pattern::List(Pattern::Double(), 1, 3),
+                          "xmax, ymax, zmax of the boundaries, mins are zero");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 
   std::string equation_options{GetOptionString(kEquationTypeMap_)};
   handler.declare_entry(kTransportModel_, "none",
                         Pattern::Selection(equation_options),
                         "valid names such as ep");
+}
+
+void ParametersDealiiHandler::SetUpSolverParameters(
+    dealii::ParameterHandler &handler) {
+  namespace Pattern = dealii::Patterns;
   
-  // Solvers ===================================================================
   std::string linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
-  handler.declare_entry (kLinearSolver_, "cg",
-                         Pattern::Selection(linear_solver_options),
-                         "linear solvers");
-  
+  handler.declare_entry(kLinearSolver_, "cg",
+                        Pattern::Selection(linear_solver_options),
+                        "linear solvers");
 }
 
 template<typename T>
