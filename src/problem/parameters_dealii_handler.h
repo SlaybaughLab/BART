@@ -31,6 +31,12 @@ class ParametersDealiiHandler : ParametersI {
    * This setup includes default values.
    */
   void SetUp(dealii::ParameterHandler &handler);
+
+
+  // Functions to get problem parameters
+
+  /*! Get linear solver type */
+  LinearSolverType    LinearSolver() const override { return linear_solver_; }
   
   /*! Get problem transport model */
   EquationType        TransportModel() const override {
@@ -52,6 +58,7 @@ class ParametersDealiiHandler : ParametersI {
 
 
  private:
+  LinearSolverType    linear_solver_;
   EquationType        transport_model_;
   std::vector<int>    n_cells_;
   std::string         output_filename_base_;
@@ -65,6 +72,7 @@ class ParametersDealiiHandler : ParametersI {
   std::vector<int>    ParseDealiiIntList(std::string to_parse);
   
   // Key-words for input file
+  const std::string kLinearSolver_ = "ho linear solver name";
   const std::string kNCells_ = "number of cells for x, y, z directions";
   const std::string kOutputFilenameBase_ = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";

@@ -25,11 +25,12 @@ class ParametersI {
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
-  virtual EquationType        TransportModel()     const = 0;
+  virtual LinearSolverType    LinearSolver()       const = 0;
   virtual std::vector<int>    NCells()             const = 0;
   virtual std::string         OutputFilenameBase() const = 0;
   virtual int                 SpatialDimension()   const = 0;
   virtual std::vector<double> SpatialMax()         const = 0;
+  virtual EquationType        TransportModel()     const = 0;
 };
 
 } // namespace problem
