@@ -22,6 +22,8 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kLinearSolver = "ho linear solver name";
+
+  const std::string kAngularQuadrature_ = "angular quadrature name";
 };
 
 void ParametersDealiiHandlerTest::SetUp() {
@@ -44,6 +46,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.EigenSolver(),
             bart::problem::EigenSolverType::kPowerIteration)
       << "Default eigenvalue solver";
+
+  ASSERT_EQ(test_parameters.AngularQuadrature(),
+            bart::problem::AngularQuadType::kNone)
+      << "Default angular quadrature";
 }
 
 TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
@@ -59,11 +65,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(kSpatialDimension_, 3.0);
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
   test_parameter_handler.set(kTransportModel_, "saaf");
+
+  test_parameter_handler.set(kAngularQuadrature_, "lsgc");
   test_parameters.Parse(test_parameter_handler);
 
-  ASSERT_EQ(test_parameters.LinearSolver(),
-            bart::problem::LinearSolverType::kGMRES)
-      << "Parsed linear solver";
   ASSERT_EQ(test_parameters.NCells(), n_cells)
       << "Parsed number of cells";                             
   ASSERT_EQ(test_parameters.OutputFilenameBase(), output_filename_base)
@@ -75,4 +80,12 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.TransportModel(),
             bart::problem::EquationType::kSelfAdjointAngularFlux)
       << "Parsed transport model";
+
+  ASSERT_EQ(test_parameters.LinearSolver(),
+            bart::problem::LinearSolverType::kGMRES)
+      << "Parsed linear solver";
+
+  ASSERT_EQ(test_parameters.AngularQuadrature(),
+            bart::problem::AngularQuadType::kLevelSymmetricGaussChebyshev)
+      << "Parsed angular quadrature";
 }

@@ -34,6 +34,9 @@ class ParametersI {
   // Solver parameters
   virtual EigenSolverType     EigenSolver()        const = 0;
   virtual LinearSolverType    LinearSolver()       const = 0;
+
+  // Angular quadrature parameters
+  virtual AngularQuadType     AngularQuadrature()  const = 0;
 };
 
 } // namespace problem

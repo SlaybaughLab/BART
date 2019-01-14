@@ -23,6 +23,9 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
   linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kLinearSolver_));
+
+  // Angular Quadrature parameters
+  angular_quad_ = kAngularQuadTypeMap_.at(handler.get(kAngularQuad_));
 }
 
 void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
@@ -35,6 +38,7 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    */
   SetUpBasicParameters(handler);
   SetUpSolverParameters(handler);
+  SetUpAngularQuadratureParameters(handler);
 }
 
 void ParametersDealiiHandler::SetUpBasicParameters(
@@ -79,6 +83,17 @@ void ParametersDealiiHandler::SetUpSolverParameters(
                         "eigenvalue solvers");
 
   
+}
+
+void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
+    dealii::ParameterHandler &handler) {
+
+  namespace Pattern = dealii::Patterns;
+  
+  std::string angular_quad_options{GetOptionString(kAngularQuadTypeMap_)};
+  handler.declare_entry (kAngularQuad_, "none",
+                         Pattern::Selection (angular_quad_options),
+                         "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
 }
 
 template<typename T>

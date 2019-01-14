@@ -60,6 +60,11 @@ class ParametersDealiiHandler : ParametersI {
 
   /*! Get linear solver type */
   LinearSolverType    LinearSolver() const override { return linear_solver_; }
+
+  // Angular Quadrature Parameters =============================================
+  /*! Get Angular quadrature type */
+  AngularQuadType     AngularQuadrature() const override {
+    return angular_quad_; }
   
  private:
   // Basic parameters  
@@ -73,6 +78,9 @@ class ParametersDealiiHandler : ParametersI {
   EigenSolverType     eigen_solver_;
   LinearSolverType    linear_solver_;
 
+  // Angular Quadrature
+  AngularQuadType     angular_quad_;
+
   // Key-words for input file
   // Basic parameters
   const std::string kNCells_ = "number of cells for x, y, z directions";
@@ -85,6 +93,9 @@ class ParametersDealiiHandler : ParametersI {
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kLinearSolver_ = "ho linear solver name";
 
+  // Angular quadrature
+  const std::string kAngularQuad_ = "angular quadrature name";
+
   // Options mapping
   const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {
     {"ep",   EquationType::kEvenParity},
@@ -93,14 +104,20 @@ class ParametersDealiiHandler : ParametersI {
   };
 
   const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
-    {"pi",    EigenSolverType::kPowerIteration},
+    {"pi", EigenSolverType::kPowerIteration},
   };
   
   const std::unordered_map<std::string, LinearSolverType> kLinearSolverTypeMap_ {
-    {"cg",    LinearSolverType::kConjugateGradient},
-    {"gmres", LinearSolverType::kGMRES},
+    {"cg",       LinearSolverType::kConjugateGradient},
+    {"gmres",    LinearSolverType::kGMRES},
     {"bicgstab", LinearSolverType::kBiCGSTAB},
-    {"direct", LinearSolverType::kDirect}
+    {"direct",   LinearSolverType::kDirect}
+  };
+
+  const std::unordered_map<std::string, AngularQuadType> kAngularQuadTypeMap_ {
+    {"lsgc", AngularQuadType::kLevelSymmetricGaussChebyshev},
+    {"gl",   AngularQuadType::kGaussLegendre},
+    {"none", AngularQuadType::kNone},
   };
 
   // Setup functions
@@ -108,6 +125,9 @@ class ParametersDealiiHandler : ParametersI {
   void SetUpBasicParameters(dealii::ParameterHandler &handler);
   /*! Set up solver parameters */
   void SetUpSolverParameters(dealii::ParameterHandler &handler);
+  /*! Set up angular quadrature parameters */
+  void SetUpAngularQuadratureParameters(dealii::ParameterHandler &handler);
+  
   
   /*! Parses a ParameterHandler entry of type dealii::Patterns::List with doubles
    * into a vector.
