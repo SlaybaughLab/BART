@@ -37,6 +37,7 @@ class ParametersI {
 
   // Angular quadrature parameters
   virtual AngularQuadType     AngularQuad()        const = 0;
+  virtual int                 AngularQuadOrder()   const = 0;
   
 };
 

@@ -64,6 +64,10 @@ class ParametersDealiiHandler : ParametersI {
   // Angular Quadrature Parameters =============================================
   /*! Get Angular quadrature type */
   AngularQuadType     AngularQuad() const override { return angular_quad_; }
+
+  /*! Get angular quadrature order */
+  int                 AngularQuadOrder() const override {
+    return angular_quad_order_; }
   
  private:
   // Basic parameters  
@@ -79,6 +83,7 @@ class ParametersDealiiHandler : ParametersI {
 
   // Angular Quadrature
   AngularQuadType     angular_quad_;
+  int                 angular_quad_order_;
 
   // Key-words for input file
   // Basic parameters
@@ -94,6 +99,7 @@ class ParametersDealiiHandler : ParametersI {
 
   // Angular quadrature
   const std::string kAngularQuad_ = "angular quadrature name";
+  const std::string kAngularQuadOrder_ = "angular quadrature order";
 
   // Options mapping
   const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {

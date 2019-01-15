@@ -26,6 +26,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Angular Quadrature parameters
   angular_quad_ = kAngularQuadTypeMap_.at(handler.get(kAngularQuad_));
+  angular_quad_order_ = handler.get_integer(kAngularQuadOrder_);
 }
 
 void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
@@ -89,9 +90,11 @@ void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
   namespace Pattern = dealii::Patterns;
   
   std::string angular_quad_options{GetOptionString(kAngularQuadTypeMap_)};
-  handler.declare_entry (kAngularQuad_, "none",
-                         Pattern::Selection (angular_quad_options),
-                         "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
+  handler.declare_entry(kAngularQuad_, "none",
+                        Pattern::Selection (angular_quad_options),
+                        "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
+  handler.declare_entry(kAngularQuadOrder_, "4", Pattern::Integer(),
+                        "Gauss-Chebyshev level-symmetric-like quadrature");
 }
 
 template<typename T>
