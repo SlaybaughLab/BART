@@ -26,6 +26,7 @@ class ParametersI {
 
   // Basic Problem Parameters
   virtual std::vector<int>     NCells()             const = 0;
+  virtual int                  NEnergyGroups()      const = 0;
   virtual int                  NumberOfMaterials()  const = 0;
   virtual std::string          OutputFilenameBase() const = 0;
   virtual int                  SpatialDimension()   const = 0;

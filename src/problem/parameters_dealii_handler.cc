@@ -15,6 +15,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   // Parse parameters
   // Basic Parameters
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
+  n_groups_ = handler.get_integer(kNEnergyGroups_);
   n_materials_ = handler.get_integer(kNumberOfMaterials_);
   output_filename_base_ = handler.get(kOutputFilenameBase_);  
   spatial_dimension_ = handler.get_integer(kSpatialDimension_);
@@ -60,6 +61,9 @@ void ParametersDealiiHandler::SetUpBasicParameters(
                           "Geometry is hyper rectangle defined by how many cells exist per direction");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 
+  handler.declare_entry(kNEnergyGroups_, "1", Pattern::Integer(0),
+                        "number of energy groups in the problem");
+  
   handler.declare_entry(kNumberOfMaterials_, "1", Pattern::Integer(0),
                          "number of materials in the problem");
   

@@ -43,6 +43,9 @@ class ParametersDealiiHandler : ParametersI {
   /*! Get problem spatial dimension */
   std::vector<int>     NCells() const override { return n_cells_; }
 
+  /*! Get number of energy groups */
+  int                  NEnergyGroups() const override { return n_groups_; }
+
   /*! Get number of materials */
   int                  NumberOfMaterials() const override {
     return n_materials_; }
@@ -88,6 +91,7 @@ class ParametersDealiiHandler : ParametersI {
   // Basic parameters  
   EquationType         transport_model_;
   std::vector<int>     n_cells_;
+  int                  n_groups_;
   int                  n_materials_;
   std::string          output_filename_base_;
   int                  spatial_dimension_;
@@ -109,6 +113,7 @@ class ParametersDealiiHandler : ParametersI {
   // Key-words for input file
   // Basic parameters
   const std::string kNCells_ = "number of cells for x, y, z directions";
+  const std::string kNEnergyGroups_ = "number of groups";
   const std::string kNumberOfMaterials_ = "number of materials";
   const std::string kOutputFilenameBase_ = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";

@@ -15,6 +15,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
 
   // Key-words for input file
   const std::string kNCells = "number of cells for x, y, z directions";
+  const std::string kNEnergyGroups_ = "number of groups";
   const std::string kNumberOfMaterials_ = "number of materials";
   const std::string kOutputFilenameBase = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
@@ -40,6 +41,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   test_parameters.Parse(test_parameter_handler);
 
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 1)
+      << "Default number of materials";
+  ASSERT_EQ(test_parameters.NEnergyGroups(), 1)
       << "Default number of materials";
   ASSERT_EQ(test_parameters.SpatialDimension(), 2)
       << "Default spatial dimension";
@@ -93,6 +96,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   // Set testing Parameters
   test_parameter_handler.set(kNCells, "10, 5, 20");
   test_parameter_handler.set(kNumberOfMaterials_, "5");
+  test_parameter_handler.set(kNEnergyGroups_, "10");
   test_parameter_handler.set(kOutputFilenameBase, output_filename_base);
   test_parameter_handler.set(kSpatialDimension_, 3.0);
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
@@ -102,6 +106,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 
   ASSERT_EQ(test_parameters.NCells(), n_cells)
       << "Parsed number of cells";
+  ASSERT_EQ(test_parameters.NEnergyGroups(), 10)
+      << "Parsed number of materials";
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 5)
       << "Parsed number of materials";                             
   ASSERT_EQ(test_parameters.OutputFilenameBase(), output_filename_base)
