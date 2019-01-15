@@ -22,6 +22,11 @@ enum class EquationType {
   kSelfAdjointAngularFlux,
 };
 
+enum class InGroupSolverType {
+  kNone,
+  kSourceIteration,
+};
+
 enum class LinearSolverType {
   kNone,
   kConjugateGradient,
