@@ -6,22 +6,24 @@ namespace bart {
 namespace problem {
 
 enum class AngularQuadType {
+  kNone,
   kLevelSymmetricGaussChebyshev,
   kGaussLegendre,
-  kNone,
 };
 
 enum class EigenSolverType {
+  kNone,
   kPowerIteration,
 };
 
 enum class EquationType {
+  kNone,
   kEvenParity,
   kSelfAdjointAngularFlux,
-  kNone
 };
 
 enum class LinearSolverType {
+  kNone,
   kConjugateGradient,
   kGMRES,
   kBiCGSTAB,
@@ -29,6 +31,7 @@ enum class LinearSolverType {
 };
 
 enum class MultiGroupSolverType {
+  kNone,
   kGaussSeidel,
 };
 
