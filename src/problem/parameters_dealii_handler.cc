@@ -73,6 +73,11 @@ void ParametersDealiiHandler::SetUpBasicParameters(
   
   handler.declare_entry(kOutputFilenameBase_, "bart_output",Pattern::Anything(),
                          "name base of the output file");
+
+  std::string boundary_options{GetOptionString(kBoundaryMap_)};
+  handler.declare_entry(kReflectiveBoundary_, "",
+                        Pattern::MultipleSelection(boundary_options),
+                        "lower case boundary names (xmin, ymax) etc)");
   
   handler.declare_entry(kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
   

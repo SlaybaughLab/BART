@@ -16,8 +16,8 @@ enum class Boundary {
   kXMax,
   kYMin,
   kYMax,
-  kZmin,
-  kZmax,
+  kZMin,
+  kZMax,
 };
 
 enum class EigenSolverType {
