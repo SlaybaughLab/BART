@@ -14,6 +14,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Parse parameters
   // Basic Parameters
+  first_thermal_group_ = handler.get_integer(kFirstThermalGroup_);
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
   n_groups_ = handler.get_integer(kNEnergyGroups_);
   n_materials_ = handler.get_integer(kNumberOfMaterials_);
@@ -54,6 +55,9 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
 void ParametersDealiiHandler::SetUpBasicParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
+
+  handler.declare_entry(kFirstThermalGroup_, "0", Pattern::Integer(0),
+                        "group number for the first thermal group");
   
   try {
     handler.declare_entry(kNCells_ , "",

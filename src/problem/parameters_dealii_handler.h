@@ -36,6 +36,11 @@ class ParametersDealiiHandler : ParametersI {
 
   // Functions to get problem parameters
   // Basic Parameters ==========================================================
+
+  /*! Get thermal energy group boundary */
+  int                  FirstThermalGroup() const override {
+    return first_thermal_group_; }
+  
   /*! Get problem transport model */
   EquationType         TransportModel() const override {
     return transport_model_; }
@@ -60,7 +65,7 @@ class ParametersDealiiHandler : ParametersI {
   
   /*! Get maximum x, y, z size */
   std::vector<double>  SpatialMax() const override { return spatial_max; }
-
+  
   // Acceleration parameters ===================================================
   bool                 DoNDA() const override { return do_nda_; }
   
@@ -88,7 +93,8 @@ class ParametersDealiiHandler : ParametersI {
     return angular_quad_order_; }
   
  private:
-  // Basic parameters  
+  // Basic parameters
+  int                  first_thermal_group_;
   EquationType         transport_model_;
   std::vector<int>     n_cells_;
   int                  n_groups_;
@@ -112,6 +118,7 @@ class ParametersDealiiHandler : ParametersI {
 
   // Key-words for input file
   // Basic parameters
+  const std::string kFirstThermalGroup_ = "thermal group boundary";
   const std::string kNCells_ = "number of cells for x, y, z directions";
   const std::string kNEnergyGroups_ = "number of groups";
   const std::string kNumberOfMaterials_ = "number of materials";

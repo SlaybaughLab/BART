@@ -25,6 +25,7 @@ class ParametersI {
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
+  virtual int                  FirstThermalGroup()  const = 0;
   virtual std::vector<int>     NCells()             const = 0;
   virtual int                  NEnergyGroups()      const = 0;
   virtual int                  NumberOfMaterials()  const = 0;
