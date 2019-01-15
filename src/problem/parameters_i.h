@@ -30,6 +30,10 @@ class ParametersI {
   virtual int                  SpatialDimension()   const = 0;
   virtual std::vector<double>  SpatialMax()         const = 0;
   virtual EquationType         TransportModel()     const = 0;
+
+  // Acceleration parameters
+  virtual bool                 DoNDA()              const = 0;
+  
                                
   // Solver parameters         
   virtual EigenSolverType      EigenSolver()        const = 0;

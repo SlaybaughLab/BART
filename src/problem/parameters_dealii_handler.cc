@@ -20,6 +20,9 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   spatial_max = ParseDealiiList(handler.get(kSpatialMax_));
   transport_model_ = kEquationTypeMap_.at(handler.get(kTransportModel_));
 
+  // Acceleration
+  do_nda_ = handler.get_bool(kDoNDA_);
+  
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
   in_group_solver_ = kInGroupSolverTypeMap_.at(handler.get(kInGroupSolver_));
@@ -41,6 +44,7 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    * no default value.
    */
   SetUpBasicParameters(handler);
+  SetUpAccelerationParameters(handler);
   SetUpSolverParameters(handler);
   SetUpAngularQuadratureParameters(handler);
 }
@@ -70,6 +74,14 @@ void ParametersDealiiHandler::SetUpBasicParameters(
   handler.declare_entry(kTransportModel_, "none",
                         Pattern::Selection(equation_options),
                         "valid names such as ep");
+}
+
+void ParametersDealiiHandler::SetUpAccelerationParameters(
+    dealii::ParameterHandler &handler) {
+  namespace Pattern = dealii::Patterns;
+
+  handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
+                        "Boolean to determine NDA or not");
 }
 
 void ParametersDealiiHandler::SetUpSolverParameters(

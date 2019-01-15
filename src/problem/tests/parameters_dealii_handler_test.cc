@@ -19,6 +19,8 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
   const std::string kTransportModel_ = "transport model";
+
+  const std::string kDoNDA_ = "do nda";
   
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kInGroupSolver_ = "in group solver name";
@@ -42,6 +44,9 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.TransportModel(), bart::problem::EquationType::kNone)
       << "Default transport model";
+  
+  ASSERT_EQ(test_parameters.DoNDA(), false)
+      << "Default NDA usage";
 
   ASSERT_EQ(test_parameters.LinearSolver(),
             bart::problem::LinearSolverType::kConjugateGradient)
@@ -77,6 +82,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
   test_parameter_handler.set(kTransportModel_, "saaf");
 
+  test_parameter_handler.set(kDoNDA_, "true");
+  
   test_parameter_handler.set(kEigenSolver_, "none");
   test_parameter_handler.set(kInGroupSolver_, "none");
   test_parameter_handler.set(kLinearSolver_, "gmres");
@@ -98,13 +105,16 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
             bart::problem::EquationType::kSelfAdjointAngularFlux)
       << "Parsed transport model";
 
+  ASSERT_EQ(test_parameters.DoNDA(), true)
+      << "Parsed NDA usage";
+  
   ASSERT_EQ(test_parameters.EigenSolver(),
             bart::problem::EigenSolverType::kNone)
       << "Parsed eigenvalue solver";
-    ASSERT_EQ(test_parameters.InGroupSolver(),
+  ASSERT_EQ(test_parameters.InGroupSolver(),
             bart::problem::InGroupSolverType::kNone)
       << "Parsed in-group solver";
-    ASSERT_EQ(test_parameters.LinearSolver(),
+  ASSERT_EQ(test_parameters.LinearSolver(),
             bart::problem::LinearSolverType::kGMRES)
       << "Parsed linear solver";
   ASSERT_EQ(test_parameters.MultiGroupSolver(),

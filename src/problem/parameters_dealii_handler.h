@@ -53,6 +53,9 @@ class ParametersDealiiHandler : ParametersI {
   
   /*! Get maximum x, y, z size */
   std::vector<double>  SpatialMax() const override { return spatial_max; }
+
+  // Acceleration parameters ===================================================
+  bool                 DoNDA() const override { return do_nda_; }
   
   // Solver Parameters =========================================================
   /*! Get eigenvalue solver type */
@@ -84,7 +87,10 @@ class ParametersDealiiHandler : ParametersI {
   std::string          output_filename_base_;
   int                  spatial_dimension_;
   std::vector<double>  spatial_max;
-                       
+
+  // Acceleration parameters
+  bool                 do_nda_;
+  
   // Solvers           
   EigenSolverType      eigen_solver_;
   InGroupSolverType    in_group_solver_;
@@ -103,6 +109,9 @@ class ParametersDealiiHandler : ParametersI {
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
   const std::string kTransportModel_ = "transport model";
 
+  // Acceleration parameters
+  const std::string kDoNDA_ = "do nda";
+  
   // Solvers
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kInGroupSolver_ = "in group solver name";
@@ -154,6 +163,8 @@ class ParametersDealiiHandler : ParametersI {
   // Setup functions
   /*! Set up basic problem parameters */
   void SetUpBasicParameters(dealii::ParameterHandler &handler);
+  /*! Set up acceleration parameters */
+  void SetUpAccelerationParameters(dealii::ParameterHandler &handler);
   /*! Set up solver parameters */
   void SetUpSolverParameters(dealii::ParameterHandler &handler);
   /*! Set up angular quadrature parameters */
