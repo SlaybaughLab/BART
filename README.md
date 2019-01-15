@@ -33,7 +33,9 @@ BART uses the following applications and libraries for testing:
 The development work is led by [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
 - [Joshua Rehak](https://github.com/jsrehak/)
 
-Previous developers include [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/).
+Previous developers include 
+- [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/).
+- [Marissa Ramirez Zweiger](https://github.com/mzweig/)
 
 ## What is the rationale behind BART?
 ### BART is a finite element method based code
