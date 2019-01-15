@@ -47,7 +47,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
             bart::problem::EigenSolverType::kPowerIteration)
       << "Default eigenvalue solver";
 
-  ASSERT_EQ(test_parameters.AngularQuadrature(),
+  ASSERT_EQ(test_parameters.AngularQuad(),
             bart::problem::AngularQuadType::kNone)
       << "Default angular quadrature";
 }
@@ -85,7 +85,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
             bart::problem::LinearSolverType::kGMRES)
       << "Parsed linear solver";
 
-  ASSERT_EQ(test_parameters.AngularQuadrature(),
+  ASSERT_EQ(test_parameters.AngularQuad(),
             bart::problem::AngularQuadType::kLevelSymmetricGaussChebyshev)
       << "Parsed angular quadrature";
 }

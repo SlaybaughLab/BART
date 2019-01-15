@@ -63,8 +63,7 @@ class ParametersDealiiHandler : ParametersI {
 
   // Angular Quadrature Parameters =============================================
   /*! Get Angular quadrature type */
-  AngularQuadType     AngularQuadrature() const override {
-    return angular_quad_; }
+  AngularQuadType     AngularQuad() const override { return angular_quad_; }
   
  private:
   // Basic parameters  

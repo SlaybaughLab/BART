@@ -81,8 +81,6 @@ void ParametersDealiiHandler::SetUpSolverParameters(
   handler.declare_entry(kEigenSolver_, "pi",
                         Pattern::Selection(eigen_solver_options),
                         "eigenvalue solvers");
-
-  
 }
 
 void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
