@@ -21,7 +21,8 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kTransportModel_ = "transport model";
   
   const std::string kEigenSolver_ = "eigen solver name";
-  const std::string kLinearSolver = "ho linear solver name";
+  const std::string kLinearSolver_ = "ho linear solver name";
+  const std::string kMultiGroupSolver_ = "mg solver name";
 
   const std::string kAngularQuadrature_ = "angular quadrature name";
   const std::string kAngularQuadOrder_ = "angular quadrature order";
@@ -47,13 +48,16 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.EigenSolver(),
             bart::problem::EigenSolverType::kPowerIteration)
       << "Default eigenvalue solver";
+  ASSERT_EQ(test_parameters.MultiGroupSolver(),
+            bart::problem::MultiGroupSolverType::kGaussSeidel)
+      << "Default multi-group solver";
+  
 
   ASSERT_EQ(test_parameters.AngularQuad(),
             bart::problem::AngularQuadType::kNone)
       << "Default angular quadrature";
   ASSERT_EQ(test_parameters.AngularQuadOrder(), 4)
       << "Default angular quadrature order";
-  
 }
 
 TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
@@ -63,13 +67,16 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   std::string         output_filename_base{"test_output"};
 
   // Set testing Parameters
-  test_parameter_handler.set(kLinearSolver, "gmres");
   test_parameter_handler.set(kNCells, "10, 5, 20");
   test_parameter_handler.set(kOutputFilenameBase, output_filename_base);
   test_parameter_handler.set(kSpatialDimension_, 3.0);
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
   test_parameter_handler.set(kTransportModel_, "saaf");
 
+  test_parameter_handler.set(kLinearSolver_, "gmres");
+  test_parameter_handler.set(kEigenSolver_, "none");
+  test_parameter_handler.set(kMultiGroupSolver_, "none");
+  
   test_parameter_handler.set(kAngularQuadrature_, "lsgc");
   test_parameter_handler.set(kAngularQuadOrder_, "8");
   test_parameters.Parse(test_parameter_handler);
@@ -89,6 +96,12 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.LinearSolver(),
             bart::problem::LinearSolverType::kGMRES)
       << "Parsed linear solver";
+    ASSERT_EQ(test_parameters.EigenSolver(),
+            bart::problem::EigenSolverType::kNone)
+      << "Parsed eigenvalue solver";
+  ASSERT_EQ(test_parameters.MultiGroupSolver(),
+            bart::problem::MultiGroupSolverType::kNone)
+      << "Parsed multi-group solver";
 
   ASSERT_EQ(test_parameters.AngularQuad(),
             bart::problem::AngularQuadType::kLevelSymmetricGaussChebyshev)

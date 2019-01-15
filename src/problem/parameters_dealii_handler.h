@@ -37,29 +37,33 @@ class ParametersDealiiHandler : ParametersI {
   // Functions to get problem parameters
   // Basic Parameters ==========================================================
   /*! Get problem transport model */
-  EquationType        TransportModel() const override {
+  EquationType         TransportModel() const override {
     return transport_model_; }
   
   /*! Get problem spatial dimension */
-  std::vector<int>    NCells() const override { return n_cells_; }
+  std::vector<int>     NCells() const override { return n_cells_; }
   
   /*! Get problem output filename base */
-  std::string         OutputFilenameBase() const override {
+  std::string          OutputFilenameBase() const override {
     return output_filename_base_; }
   
   /*! Get number of spatial dimensions */
-  int                 SpatialDimension() const override {
+  int                  SpatialDimension() const override {
     return spatial_dimension_; }
   
   /*! Get maximum x, y, z size */
-  std::vector<double> SpatialMax() const override { return spatial_max; }
+  std::vector<double>  SpatialMax() const override { return spatial_max; }
   
   // Solver Parameters =========================================================
-  /*1 Get eigenvalue solver type */
-  EigenSolverType     EigenSolver() const override { return eigen_solver_; }
+  /*! Get eigenvalue solver type */
+  EigenSolverType      EigenSolver() const override { return eigen_solver_; }
 
   /*! Get linear solver type */
-  LinearSolverType    LinearSolver() const override { return linear_solver_; }
+  LinearSolverType     LinearSolver() const override { return linear_solver_; }
+
+  /*! Get multigroup solver type */
+  MultiGroupSolverType MultiGroupSolver() const override {
+    return multi_group_solver_; }
 
   // Angular Quadrature Parameters =============================================
   /*! Get Angular quadrature type */
@@ -71,19 +75,20 @@ class ParametersDealiiHandler : ParametersI {
   
  private:
   // Basic parameters  
-  EquationType        transport_model_;
-  std::vector<int>    n_cells_;
-  std::string         output_filename_base_;
-  int                 spatial_dimension_;
-  std::vector<double> spatial_max;
-
-  // Solvers
-  EigenSolverType     eigen_solver_;
-  LinearSolverType    linear_solver_;
+  EquationType         transport_model_;
+  std::vector<int>     n_cells_;
+  std::string          output_filename_base_;
+  int                  spatial_dimension_;
+  std::vector<double>  spatial_max;
+                       
+  // Solvers           
+  EigenSolverType      eigen_solver_;
+  LinearSolverType     linear_solver_;
+  MultiGroupSolverType multi_group_solver_;
 
   // Angular Quadrature
-  AngularQuadType     angular_quad_;
-  int                 angular_quad_order_;
+  AngularQuadType      angular_quad_;
+  int                  angular_quad_order_;
 
   // Key-words for input file
   // Basic parameters
@@ -96,6 +101,7 @@ class ParametersDealiiHandler : ParametersI {
   // Solvers
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kLinearSolver_ = "ho linear solver name";
+  const std::string kMultiGroupSolver_ = "mg solver name";
 
   // Angular quadrature
   const std::string kAngularQuad_ = "angular quadrature name";
@@ -105,18 +111,26 @@ class ParametersDealiiHandler : ParametersI {
   const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {
     {"ep",   EquationType::kEvenParity},
     {"saaf", EquationType::kSelfAdjointAngularFlux},
-    {"none", EquationType::kNone}
+    {"none", EquationType::kNone},
   };
 
   const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
-    {"pi", EigenSolverType::kPowerIteration},
+    {"pi",   EigenSolverType::kPowerIteration},
+    {"none", EigenSolverType::kNone},
   };
   
   const std::unordered_map<std::string, LinearSolverType> kLinearSolverTypeMap_ {
     {"cg",       LinearSolverType::kConjugateGradient},
     {"gmres",    LinearSolverType::kGMRES},
     {"bicgstab", LinearSolverType::kBiCGSTAB},
-    {"direct",   LinearSolverType::kDirect}
+    {"direct",   LinearSolverType::kDirect},
+    {"none",     LinearSolverType::kNone},
+  };
+
+  const std::unordered_map<std::string, MultiGroupSolverType>
+  kMultiGroupSolverTypeMap_ {
+    {"gs",   MultiGroupSolverType::kGaussSeidel},
+    {"none", MultiGroupSolverType::kNone},
   };
 
   const std::unordered_map<std::string, AngularQuadType> kAngularQuadTypeMap_ {

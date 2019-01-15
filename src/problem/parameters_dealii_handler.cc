@@ -23,6 +23,8 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
   linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kLinearSolver_));
+  multi_group_solver_ =
+      kMultiGroupSolverTypeMap_.at(handler.get(kMultiGroupSolver_));
 
   // Angular Quadrature parameters
   angular_quad_ = kAngularQuadTypeMap_.at(handler.get(kAngularQuad_));
@@ -82,6 +84,12 @@ void ParametersDealiiHandler::SetUpSolverParameters(
   handler.declare_entry(kEigenSolver_, "pi",
                         Pattern::Selection(eigen_solver_options),
                         "eigenvalue solvers");
+  
+  std::string multigroup_solver_options{GetOptionString(kMultiGroupSolverTypeMap_)};
+  handler.declare_entry(kMultiGroupSolver_, "gs",
+                        Pattern::Selection(multigroup_solver_options),
+                        "Multi-group solvers");
+  
 }
 
 void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
