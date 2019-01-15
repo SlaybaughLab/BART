@@ -26,9 +26,6 @@ BART uses the following applications and libraries for testing:
   serial unit testings.
 - [Codecov](https://codecov.io/) for code coverage of serial tests.
 
-<!-- ### Agile management -->
-<!-- We are gradually immersing ourselves in the principle of agile management using [Jira](https://www.atlassian.com/software/jira?aceid=&adposition=1t1&adgroup=9124375582&campaign=189421462&creative=256725234926&device=c&keyword=jira&matchtype=e&network=g&placement=&ds_kids=p19481846873&gclid=Cj0KCQjwkpfWBRDZARIsAAfeXarkxD2j0JPwTTaH07dxEy8nVbZgK7U_Uj8hDx7j2uyUBXl29zrtoQQaAshhEALw_wcB&gclsrc=aw.ds) to improve our BART development tracking. -->
-
 ## Developers
 The development work is led by [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
 - [Joshua Rehak](https://github.com/jsrehak/)
@@ -36,6 +33,7 @@ The development work is led by [Dr. Rachel Slaybaugh](https://github.com/rachels
 Previous developers include 
 - [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/).
 - [Marissa Ramirez Zweiger](https://github.com/mzweig/)
+- [Alexander Blank](https://github.com/AlexanderBlank)
 
 ## What is the rationale behind BART?
 ### BART is a finite element method based code
