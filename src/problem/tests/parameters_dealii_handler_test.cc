@@ -44,9 +44,17 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.TransportModel(), bart::problem::EquationType::kNone)
       << "Default transport model";
+}
+
+TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
+  test_parameters.Parse(test_parameter_handler);
   
   ASSERT_EQ(test_parameters.DoNDA(), false)
       << "Default NDA usage";
+}
+
+TEST_F(ParametersDealiiHandlerTest, SolverParametersDefault) {
+  test_parameters.Parse(test_parameter_handler);
 
   ASSERT_EQ(test_parameters.LinearSolver(),
             bart::problem::LinearSolverType::kConjugateGradient)
@@ -60,8 +68,12 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.MultiGroupSolver(),
             bart::problem::MultiGroupSolverType::kGaussSeidel)
       << "Default multi-group solver";
-  
 
+}
+
+TEST_F(ParametersDealiiHandlerTest, AngularQuadParametersDefault) {
+  test_parameters.Parse(test_parameter_handler);
+  
   ASSERT_EQ(test_parameters.AngularQuad(),
             bart::problem::AngularQuadType::kNone)
       << "Default angular quadrature";
@@ -81,16 +93,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(kSpatialDimension_, 3.0);
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
   test_parameter_handler.set(kTransportModel_, "saaf");
-
-  test_parameter_handler.set(kDoNDA_, "true");
   
-  test_parameter_handler.set(kEigenSolver_, "none");
-  test_parameter_handler.set(kInGroupSolver_, "none");
-  test_parameter_handler.set(kLinearSolver_, "gmres");
-  test_parameter_handler.set(kMultiGroupSolver_, "none");
-  
-  test_parameter_handler.set(kAngularQuadrature_, "lsgc");
-  test_parameter_handler.set(kAngularQuadOrder_, "8");
   test_parameters.Parse(test_parameter_handler);
 
   ASSERT_EQ(test_parameters.NCells(), n_cells)
@@ -104,9 +107,25 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.TransportModel(),
             bart::problem::EquationType::kSelfAdjointAngularFlux)
       << "Parsed transport model";
+}
+
+TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
+  test_parameter_handler.set(kDoNDA_, "true");
+  
+  test_parameters.Parse(test_parameter_handler);
 
   ASSERT_EQ(test_parameters.DoNDA(), true)
       << "Parsed NDA usage";
+}
+
+TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {
+
+  test_parameter_handler.set(kEigenSolver_, "none");
+  test_parameter_handler.set(kInGroupSolver_, "none");
+  test_parameter_handler.set(kLinearSolver_, "gmres");
+  test_parameter_handler.set(kMultiGroupSolver_, "none");
+  
+  test_parameters.Parse(test_parameter_handler);
   
   ASSERT_EQ(test_parameters.EigenSolver(),
             bart::problem::EigenSolverType::kNone)
@@ -121,6 +140,15 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
             bart::problem::MultiGroupSolverType::kNone)
       << "Parsed multi-group solver";
 
+}
+
+TEST_F(ParametersDealiiHandlerTest, AngularQuadParametersParsed) {
+
+  test_parameter_handler.set(kAngularQuadrature_, "lsgc");
+  test_parameter_handler.set(kAngularQuadOrder_, "8");
+  
+  test_parameters.Parse(test_parameter_handler);
+  
   ASSERT_EQ(test_parameters.AngularQuad(),
             bart::problem::AngularQuadType::kLevelSymmetricGaussChebyshev)
       << "Parsed angular quadrature";
