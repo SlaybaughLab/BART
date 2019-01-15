@@ -11,6 +11,10 @@ enum class AngularQuadType {
   kNone,
 };
 
+enum class EigenSolverType {
+  kPowerIteration,
+};
+
 enum class EquationType {
   kEvenParity,
   kSelfAdjointAngularFlux,
@@ -24,8 +28,8 @@ enum class LinearSolverType {
   kDirect,
 };
 
-enum class EigenSolverType {
-  kPowerIteration,
+enum class MultiGroupSolverType {
+  kGaussSeidel,
 };
 
 } // namespace problem
