@@ -13,15 +13,17 @@ int main(int argc, char** argv) {
 
   int option_index = 0, c = 0;
   bool use_mpi = false;
+  std::string filter = "";
 
   const struct option longopts[] =
   {
+    {"filter", no_argument, NULL, 'f'},
     {"report", no_argument, NULL, 'r'},
     {"mpi",    no_argument, NULL, 'm'},
     {NULL,     0,           NULL,   0}
   };
 
-  while ((c = getopt_long (argc, argv, "rmd:", longopts, &option_index)) != -1) {
+  while ((c = getopt_long (argc, argv, "rmd:f:", longopts, &option_index)) != -1) {
     switch(c) {
       case 'r': {
         btest::GlobalBARTTestHelper().SetReport(true);
@@ -35,17 +37,25 @@ int main(int argc, char** argv) {
         use_mpi = true;
         break;
       }
+      case 'f': {
+        filter = optarg;
+        break;
+      }
       default:
         break;
     }
   }
 
   std::vector<const char*> new_argv(argv, argv + argc);
-  if (use_mpi) {
-    new_argv.push_back("--gtest_filter=*MPI*");
+  if (filter != "") {
+    filter = "--gtest_filter=" + filter;
+    new_argv.push_back(filter.c_str());
+  } else if (use_mpi) {
+      new_argv.push_back("--gtest_filter=*MPI*");
   } else {
     new_argv.push_back("--gtest_filter=-*MPI*");
   }
+
   new_argv.push_back(nullptr);
   argv = const_cast<char**>(new_argv.data());
   argc += 1;
