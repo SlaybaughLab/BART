@@ -42,6 +42,10 @@ class ParametersDealiiHandler : ParametersI {
   
   /*! Get problem spatial dimension */
   std::vector<int>     NCells() const override { return n_cells_; }
+
+  /*! Get number of materials */
+  int                  NumberOfMaterials() const override {
+    return n_materials_; }
   
   /*! Get problem output filename base */
   std::string          OutputFilenameBase() const override {
@@ -84,6 +88,7 @@ class ParametersDealiiHandler : ParametersI {
   // Basic parameters  
   EquationType         transport_model_;
   std::vector<int>     n_cells_;
+  int                  n_materials_;
   std::string          output_filename_base_;
   int                  spatial_dimension_;
   std::vector<double>  spatial_max;
@@ -104,6 +109,7 @@ class ParametersDealiiHandler : ParametersI {
   // Key-words for input file
   // Basic parameters
   const std::string kNCells_ = "number of cells for x, y, z directions";
+  const std::string kNumberOfMaterials_ = "number of materials";
   const std::string kOutputFilenameBase_ = "output file name base";
   const std::string kSpatialDimension_ = "problem dimension";
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";

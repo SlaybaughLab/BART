@@ -26,6 +26,7 @@ class ParametersI {
 
   // Basic Problem Parameters
   virtual std::vector<int>     NCells()             const = 0;
+  virtual int                  NumberOfMaterials()  const = 0;
   virtual std::string          OutputFilenameBase() const = 0;
   virtual int                  SpatialDimension()   const = 0;
   virtual std::vector<double>  SpatialMax()         const = 0;
@@ -33,8 +34,7 @@ class ParametersI {
 
   // Acceleration parameters
   virtual bool                 DoNDA()              const = 0;
-  
-                               
+                                 
   // Solver parameters         
   virtual EigenSolverType      EigenSolver()        const = 0;
   virtual InGroupSolverType    InGroupSolver()      const = 0;

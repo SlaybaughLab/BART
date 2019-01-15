@@ -15,6 +15,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   // Parse parameters
   // Basic Parameters
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
+  n_materials_ = handler.get_integer(kNumberOfMaterials_);
   output_filename_base_ = handler.get(kOutputFilenameBase_);  
   spatial_dimension_ = handler.get_integer(kSpatialDimension_);
   spatial_max = ParseDealiiList(handler.get(kSpatialMax_));
@@ -58,6 +59,9 @@ void ParametersDealiiHandler::SetUpBasicParameters(
                           Pattern::List (Pattern::Integer (0), 1, 3),
                           "Geometry is hyper rectangle defined by how many cells exist per direction");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
+
+  handler.declare_entry(kNumberOfMaterials_, "1", Pattern::Integer(0),
+                         "number of materials in the problem");
   
   handler.declare_entry(kOutputFilenameBase_, "bart_output",Pattern::Anything(),
                          "name base of the output file");
