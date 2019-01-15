@@ -11,6 +11,15 @@ enum class AngularQuadType {
   kGaussLegendre,
 };
 
+enum class Boundary {
+  kXMin,
+  kXMax,
+  kYMin,
+  kYMax,
+  kZmin,
+  kZmax,
+};
+
 enum class EigenSolverType {
   kNone,
   kPowerIteration,
