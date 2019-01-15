@@ -21,6 +21,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kTransportModel_ = "transport model";
   
   const std::string kEigenSolver_ = "eigen solver name";
+  const std::string kInGroupSolver_ = "in group solver name";
   const std::string kLinearSolver_ = "ho linear solver name";
   const std::string kMultiGroupSolver_ = "mg solver name";
 
@@ -45,6 +46,9 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.LinearSolver(),
             bart::problem::LinearSolverType::kConjugateGradient)
       << "Default linear solver";
+  ASSERT_EQ(test_parameters.InGroupSolver(),
+            bart::problem::InGroupSolverType::kSourceIteration)
+      << "Default in-group solver";
   ASSERT_EQ(test_parameters.EigenSolver(),
             bart::problem::EigenSolverType::kPowerIteration)
       << "Default eigenvalue solver";
@@ -73,8 +77,9 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
   test_parameter_handler.set(kTransportModel_, "saaf");
 
-  test_parameter_handler.set(kLinearSolver_, "gmres");
   test_parameter_handler.set(kEigenSolver_, "none");
+  test_parameter_handler.set(kInGroupSolver_, "none");
+  test_parameter_handler.set(kLinearSolver_, "gmres");
   test_parameter_handler.set(kMultiGroupSolver_, "none");
   
   test_parameter_handler.set(kAngularQuadrature_, "lsgc");
@@ -93,12 +98,15 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
             bart::problem::EquationType::kSelfAdjointAngularFlux)
       << "Parsed transport model";
 
-  ASSERT_EQ(test_parameters.LinearSolver(),
-            bart::problem::LinearSolverType::kGMRES)
-      << "Parsed linear solver";
-    ASSERT_EQ(test_parameters.EigenSolver(),
+  ASSERT_EQ(test_parameters.EigenSolver(),
             bart::problem::EigenSolverType::kNone)
       << "Parsed eigenvalue solver";
+    ASSERT_EQ(test_parameters.InGroupSolver(),
+            bart::problem::InGroupSolverType::kNone)
+      << "Parsed in-group solver";
+    ASSERT_EQ(test_parameters.LinearSolver(),
+            bart::problem::LinearSolverType::kGMRES)
+      << "Parsed linear solver";
   ASSERT_EQ(test_parameters.MultiGroupSolver(),
             bart::problem::MultiGroupSolverType::kNone)
       << "Parsed multi-group solver";

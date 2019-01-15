@@ -22,6 +22,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
+  in_group_solver_ = kInGroupSolverTypeMap_.at(handler.get(kInGroupSolver_));
   linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kLinearSolver_));
   multi_group_solver_ =
       kMultiGroupSolverTypeMap_.at(handler.get(kMultiGroupSolver_));
@@ -75,15 +76,20 @@ void ParametersDealiiHandler::SetUpSolverParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
   
-  std::string linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
-  handler.declare_entry(kLinearSolver_, "cg",
-                        Pattern::Selection(linear_solver_options),
-                        "linear solvers");
-
   std::string eigen_solver_options{GetOptionString(kEigenSolverTypeMap_)};
   handler.declare_entry(kEigenSolver_, "pi",
                         Pattern::Selection(eigen_solver_options),
                         "eigenvalue solvers");
+
+  std::string in_group_solver_options{GetOptionString(kInGroupSolverTypeMap_)};
+  handler.declare_entry(kInGroupSolver_, "si",
+                        Pattern::Selection(in_group_solver_options),
+                        "in-group solvers");
+  
+  std::string linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
+  handler.declare_entry(kLinearSolver_, "cg",
+                        Pattern::Selection(linear_solver_options),
+                        "linear solvers");
   
   std::string multigroup_solver_options{GetOptionString(kMultiGroupSolverTypeMap_)};
   handler.declare_entry(kMultiGroupSolver_, "gs",

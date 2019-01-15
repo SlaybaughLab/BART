@@ -58,6 +58,10 @@ class ParametersDealiiHandler : ParametersI {
   /*! Get eigenvalue solver type */
   EigenSolverType      EigenSolver() const override { return eigen_solver_; }
 
+  /*! Get in-group solver type */
+  InGroupSolverType    InGroupSolver() const override {
+    return in_group_solver_; }
+  
   /*! Get linear solver type */
   LinearSolverType     LinearSolver() const override { return linear_solver_; }
 
@@ -83,6 +87,7 @@ class ParametersDealiiHandler : ParametersI {
                        
   // Solvers           
   EigenSolverType      eigen_solver_;
+  InGroupSolverType    in_group_solver_;
   LinearSolverType     linear_solver_;
   MultiGroupSolverType multi_group_solver_;
 
@@ -100,6 +105,7 @@ class ParametersDealiiHandler : ParametersI {
 
   // Solvers
   const std::string kEigenSolver_ = "eigen solver name";
+  const std::string kInGroupSolver_ = "in group solver name";
   const std::string kLinearSolver_ = "ho linear solver name";
   const std::string kMultiGroupSolver_ = "mg solver name";
 
@@ -117,6 +123,12 @@ class ParametersDealiiHandler : ParametersI {
   const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
     {"pi",   EigenSolverType::kPowerIteration},
     {"none", EigenSolverType::kNone},
+  };
+
+  const std::unordered_map<std::string, InGroupSolverType>
+  kInGroupSolverTypeMap_ {
+    {"si",   InGroupSolverType::kSourceIteration},
+    {"none", InGroupSolverType::kNone},
   };
   
   const std::unordered_map<std::string, LinearSolverType> kLinearSolverTypeMap_ {

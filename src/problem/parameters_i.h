@@ -33,6 +33,7 @@ class ParametersI {
                                
   // Solver parameters         
   virtual EigenSolverType      EigenSolver()        const = 0;
+  virtual InGroupSolverType    InGroupSolver()      const = 0;
   virtual LinearSolverType     LinearSolver()       const = 0;
   virtual MultiGroupSolverType MultiGroupSolver()   const = 0;
 
