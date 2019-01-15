@@ -1,20 +1,32 @@
 sudo: required
-branches:
-  only:
-  - master
-  - dev
+
 notifications:
   email: false
+
 language: cpp
+
 services:
  - docker
+
 before_install:
- - sudo docker pull dealii/dealii:v8.5.0-gcc-mpi-fulldepscandi-debugrelease
+ - sudo docker pull jsrehak/bart
+ - ci_env=`bash <(curl -s https://codecov.io/env)`
+
 install:
- - sudo docker run dealii/dealii:v8.5.0-gcc-mpi-fulldepscandi-debugrelease
+ - sudo docker run jsrehak/bart
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker cp ../BART $id:/home/dealii
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker commit $id dealii/dealii-bart
+ - sudo docker commit $id jsrehak/bart
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" --name bart jsrehak/bart
+
 script:
- - sudo docker run dealii/dealii-bart /bin/sh -c "cmake BART/; make"
+ - docker exec bart cmake .
+ - docker exec bart make
+ - docker exec bart bash -c "./bart_test"
+ - docker exec bart bash -c "mpirun -np 1 --allow-run-as-root ./bart_test --mpi"
+
+after_success:
+ - docker exec bart bash -c "./coverage.sh"
+ - docker cp bart:/home/dealii/BART/coverage.info .
+ - bash <(curl -s https://codecov.io/bash)

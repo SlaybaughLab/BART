@@ -1,6 +1,8 @@
+*.toc
 serial/
 work_log.txt
 original*/
+*.vtk
 *.vtu
 *.pvtu
 *.cmake
@@ -8,6 +10,7 @@ Makefile
 CMakeFiles/
 *Ca*
 xtrans
+xtrans_test
 dg-ep*
 *cg*.txt
 *dg*.txt
@@ -19,3 +22,15 @@ quadr.txt
 *.blg
 *.out
 *.gz
+src/original*
+*matrix*txt
+lib*.*
+*_exe
+*.debug/
+Testing/
+*.json
+*.release
+html/
+latex/
+build/
+test_data/

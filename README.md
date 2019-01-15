@@ -1,36 +1,75 @@
-[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=master)](https://travis-ci.org/SlaybaughLab/BART)
+| `master` | `dev` |
+|----------|-------|
+|[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=master)](https://travis-ci.org/SlaybaughLab/BART)[![Codecov](https://codecov.io/gh/SlaybaughLab/BART/branch/master/graph/badge.svg)](https://codecov.io/gh/SlaybaughLab/BART/branch/master)|[![Build Status](https://travis-ci.org/SlaybaughLab/BART.svg?branch=dev)](https://travis-ci.org/SlaybaughLab/BART)[![Codecov](https://codecov.io/gh/SlaybaughLab/BART/branch/dev/graph/badge.svg)](https://codecov.io/gh/SlaybaughLab/BART/branch/dev)|
 
 # Bay Area Radiation Transport (BART)
 
-Software for investigating methods to solve the Boltzmann Transport equation.
-Developed and maintained by 
+## What is BART for?
 
-- [Alexander Blank](https://github.com/AlexanderBlank)
-- [Marissa Ramirez Zweiger](https://github.com/mzweig/)
+Bay Area Radiation Transport (BART), is a C++-based research-purpose
+code for parallel radiation transport computation in nuclear reactor
+applications. BART is under active developed by the Computational
+Neutronics group in Nuclear Engineering at University of California,
+Berkeley.
+
+## How do we manage the development?
+
+### Documentation
+
+BART documentation is generated using [doxygen](http://www.stack.nl/~dimitri/doxygen/).
+
+### Test-driven development
+BART uses the following applications and libraries for testing:
+- [Travis CI](https://travis-ci.org) for continuous integration
+- [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest) for unit testings requiring MPI
+- [Google Test](https://github.com/google/googletest) for all other
+  serial unit testings.
+- [Codecov](https://codecov.io/) for code coverage of serial tests.
+
+## Developers
+The development work is led by [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
 - [Joshua Rehak](https://github.com/jsrehak/)
-- [Rachel Slaybaugh](https://github.com/rachelslaybaugh)
-- [Richard Vasques](https://github.com/ricvasques)
-- [Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/)
 
-of the Nuclear Engineering Department at the University of California, Berkeley
+Previous developers include 
+- [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/).
+- [Marissa Ramirez Zweiger](https://github.com/mzweig/)
+- [Alexander Blank](https://github.com/AlexanderBlank)
 
-## DG-EP
+## What is the rationale behind BART?
+### BART is a finite element method based code
+BART is based off the general purpose finite elment [deal.II](http://www.dealii.org/). It aims to solve first and second-order forms of linear Boltzmann equation for nuclear reactor applications using continuous/discontinuous finite element methods for spatial discretization with existing/developing acceleration methods. BART uses discrete ordinates method for angular discretization. 
 
-This is a project to do neutronics calculation using finite element methods.
+### Parallelism in meshing and linear algebra
+BART uses MPI for parallelism and is designed for computation on distributed memory system:
+- By utilizing distributed triangulation enabled by [p4est](https://www.mcs.anl.gov/petsc/) library wrapped in deal.II, BART can automatically partition the mesh by however many number of processors requested and distribute the triangulation onto different processors.
+- BART heavily depends on [PETSc](https://www.mcs.anl.gov/petsc/) by utilizing deal.II wrappers of PETSc data structure. Therefore, all the parallel-supported functionalities in PETSc (if wrapped by deal.II) can be invoked by BART. This includes parallel sparse matrix, parallel vectors and parallel preconditioners/algebraic solvers.
 
-The initial motivation is to explore the Discontinuous Galerkin (DG) method for the Even Parity
-(EP) neutron transport equations in general dimensions (up to 3D). 
-This is an initial setup and prototypical code with isotropic scattering.
-The code is still in progress.
+### Supported Transport Equation forms
 
-Up to now, the code is re-designed and gradually re-coded to take in different transport solvers in
-an OOP way.
+Bart supports the following forms of the transport equation:
 
-Currently, the project is named XTrans and will be discussed.
+- Self Adjoint Angular Flux
+- Even Parity
 
-Currently, we are using [deal.II](http://www.dealii.org/) finite element
-library. In the future, we are likely to convert to
-[libMesh](http://libmesh.github.io/).
+More forms of the transport equation and accelleration methods are an
+area of active development.
 
-## Install and build
+### Meshing capability
+Supported meshes in BART include:
+- Hyper-rectangular mesh in 1/2/3D;
+- Fuel pin-resolved curvilinear mesh in 2D;
+- Fuel pin-resolved curvilinear mesh in 3D based on extrusion.
+
+Part of the work also contributes to development version of [deal.II](http://www.dealii.org/).
+
+# Install and build
 Please check [install_build.md](https://github.com/SlaybaughLab/BART/blob/master/install_build.md) for installation and building instructions.
+
+# More to read
+- [deal.II](http://www.dealii.org/): general purpose finite element library
+- [PETSc](https://www.mcs.anl.gov/petsc/): high-performance parallel linear algebra library
+- [Doxygen](http://www.stack.nl/~dimitri/doxygen/): documentation.
+- [p4est](http://www.p4est.org/): distributed meshing in multi-D.
+- [Google Style Guide](https://google.github.io/styleguide/cppguide.html): consistent code convention.
+- [Google Test](https://github.com/google/googletest): efficient unit testing tools.
+- [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest): unit testing tools  with Google Test.

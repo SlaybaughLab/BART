@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+message Material {
+  string full_name = 1;
+  string abbreviation = 2;
+  string id = 3;
+
+  uint32 number_of_groups = 4;
+  uint32 thermal_groups = 5;
+  
+  repeated ScalarProperty scalar_property = 6;
+  repeated VectorProperty vector_property = 7;
+  repeated MatrixProperty matrix_property = 8;
+
+  enum ScalarId {
+    UNKNOWN_SCALAR = 0;
+    DENSITY = 1;
+  }
+
+  enum VectorId {
+    UNKNOWN_VECTOR = 0;
+    ENERGY_GROUPS = 1; // edges of energy groups in eV
+    CHI = 2;
+    SIGMA_T = 3; // group homogenized cross sections in 1/cm
+    SIGMA_A = 4;
+    NU_SIG_F = 5;
+    KAPPA_SIG_F = 6;
+    Q = 7;
+  }
+
+  enum MatrixId {
+    UNKNOWN_MATRIX = 0;
+    SIGMA_S = 1; // element r*number_of_groups + c represents scattering from group r+1 to group c+1
+  }
+
+
+  message ScalarProperty {
+    ScalarId id = 1;
+    double value = 2;
+  }
+  
+  message VectorProperty {
+    VectorId id = 1;
+    repeated double value = 2 [packed=true];
+  }
+
+  message MatrixProperty {
+    MatrixId id = 1;
+    uint32 rows = 2;
+    uint32 cols = 3;
+    repeated double value = 4 [packed=true];
+  }
+}
