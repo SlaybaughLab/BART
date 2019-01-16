@@ -49,6 +49,15 @@ enum class MultiGroupSolverType {
   kGaussSeidel,
 };
 
+enum class PreconditionerType {
+  kNone,
+  kAMG,
+  kParaSails,
+  kBlockJacobi,
+  kJacobi,
+  kSSOR,
+};  
+
 } // namespace problem
 
 } // namespace bart
