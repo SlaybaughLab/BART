@@ -15,7 +15,8 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Parse parameters
   // Basic Parameters
-  discretization_ = kDiscretizationTypeMap_.at(handler.get(key_words_.kDiscretization_));
+  discretization_ = kDiscretizationTypeMap_.at(
+      handler.get(key_words_.kDiscretization_));
   is_eigenvalue_problem_ = handler.get_bool(key_words_.kEigenvalueProblem_);
   have_reflective_bc_ = handler.get_bool(key_words_.kHaveReflectiveBC_);
   fe_polynomial_degree_ = handler.get_integer(key_words_.kFEPolynomialDegree_);
@@ -29,15 +30,18 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
       kBoundaryMap_);
   spatial_dimension_ = handler.get_integer(key_words_.kSpatialDimension_);
   spatial_max = ParseDealiiList(handler.get(key_words_.kSpatialMax_));
-  transport_model_ = kEquationTypeMap_.at(handler.get(key_words_.kTransportModel_));
+  transport_model_ = kEquationTypeMap_.at(
+      handler.get(key_words_.kTransportModel_));
 
   // Acceleration
-  preconditioner_ = kPreconditionerTypeMap_.at(handler.get(key_words_.kPreconditioner_));
+  preconditioner_ = kPreconditionerTypeMap_.at(
+      handler.get(key_words_.kPreconditioner_));
   block_ssor_factor_ = handler.get_double(key_words_.kBSSOR_Factor_);
   do_nda_ = handler.get_bool(key_words_.kDoNDA_);
   nda_discretization_ =
       kDiscretizationTypeMap_.at(handler.get(key_words_.kNDA_Discretization_));
-  nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(key_words_.kNDALinearSolver_));
+  nda_linear_solver_ =
+      kLinearSolverTypeMap_.at(handler.get(key_words_.kNDALinearSolver_));
   nda_preconditioner_ = kPreconditionerTypeMap_.at(
       handler.get(key_words_.kNDAPreconditioner_));
   nda_block_ssor_factor_ = handler.get_double(key_words_.kNDA_BSSOR_Factor_);
