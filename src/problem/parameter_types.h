@@ -55,7 +55,7 @@ enum class PreconditionerType {
   kParaSails,
   kBlockJacobi,
   kJacobi,
-  kSSOR,
+  kBlockSSOR,
 };  
 
 } // namespace problem

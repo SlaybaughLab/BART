@@ -218,7 +218,7 @@ class ParametersDealiiHandler : public ParametersI {
     {"parasails", PreconditionerType::kParaSails},
     {"bjacobi",   PreconditionerType::kBlockJacobi},
     {"jacobi",    PreconditionerType::kJacobi},
-    {"bssor",     PreconditionerType::kSSOR},
+    {"bssor",     PreconditionerType::kBlockSSOR},
     {"none",      PreconditionerType::kNone},
         };
 
