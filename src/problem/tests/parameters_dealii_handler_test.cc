@@ -15,6 +15,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   bart::problem::ParametersDealiiHandler test_parameters;
 
   // Key-words for input file
+  const std::string kHaveReflectiveBC_ = "have reflective boundary";
   const std::string kFirstThermalGroup = "thermal group boundary";
   const std::string kNCells = "number of cells for x, y, z directions";
   const std::string kNEnergyGroups_ = "number of groups";
@@ -51,7 +52,9 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
         };
   
   test_parameters.Parse(test_parameter_handler);
-  
+
+  ASSERT_EQ(test_parameters.HaveReflectiveBC(), false)
+      << "Default have reflective boundaries";
   ASSERT_EQ(test_parameters.FirstThermalGroup(), 0)
       << "Default first thermal group";
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 1)
@@ -118,6 +121,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
         };
 
   // Set testing Parameters
+  test_parameter_handler.set(kHaveReflectiveBC_, "true");
   test_parameter_handler.set(kFirstThermalGroup, "2");
   test_parameter_handler.set(kNCells, "10, 5, 20");
   test_parameter_handler.set(kNumberOfMaterials_, "5");
@@ -129,7 +133,9 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(kTransportModel_, "saaf");
   
   test_parameters.Parse(test_parameter_handler);
-  
+
+  ASSERT_EQ(test_parameters.HaveReflectiveBC(), true)
+      << "Parsed have reflective boundaries";
   ASSERT_EQ(test_parameters.FirstThermalGroup(), 2)
       << "Parsed first thermal group";
   ASSERT_EQ(test_parameters.NCells(), n_cells)

@@ -15,6 +15,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Parse parameters
   // Basic Parameters
+  have_reflective_bc_ = handler.get_bool(kHaveReflectiveBC_);
   first_thermal_group_ = handler.get_integer(kFirstThermalGroup_);
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
   n_groups_ = handler.get_integer(kNEnergyGroups_);
@@ -60,6 +61,9 @@ void ParametersDealiiHandler::SetUpBasicParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
 
+  handler.declare_entry ("have reflective boundary", "false", Pattern::Bool(),
+                         "Does the problem have reflective boundaries");        
+  
   handler.declare_entry(kFirstThermalGroup_, "0", Pattern::Integer(0),
                         "group number for the first thermal group");
   

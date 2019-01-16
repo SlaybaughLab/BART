@@ -41,6 +41,10 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get thermal energy group boundary */
   int                  FirstThermalGroup() const override {
     return first_thermal_group_; }
+
+  /*! Get if the problem has reflective boundary conditions */
+  bool                 HaveReflectiveBC() const override {
+    return have_reflective_bc_; }
   
   /*! Get problem transport model */
   EquationType         TransportModel() const override {
@@ -100,6 +104,7 @@ class ParametersDealiiHandler : public ParametersI {
  private:
   // Basic parameters
   int                      first_thermal_group_;
+  bool                     have_reflective_bc_;
   EquationType             transport_model_;
   std::vector<int>         n_cells_;
   int                      n_groups_;
@@ -125,6 +130,7 @@ class ParametersDealiiHandler : public ParametersI {
   // Key-words for input file
   // Basic parameters
   const std::string kFirstThermalGroup_ = "thermal group boundary";
+  const std::string kHaveReflectiveBC_ = "have reflective boundary";
   const std::string kNCells_ = "number of cells for x, y, z directions";
   const std::string kNEnergyGroups_ = "number of groups";
   const std::string kNumberOfMaterials_ = "number of materials";
