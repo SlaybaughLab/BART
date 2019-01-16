@@ -11,6 +11,12 @@ enum class AngularQuadType {
   kGaussLegendre,
 };
 
+enum class DiscretizationType {
+  kNone,
+  kDiscontinuousFEM,
+  kContinuousFEM,
+};
+
 enum class Boundary {
   kXMin = 0,
   kXMax = 1,
