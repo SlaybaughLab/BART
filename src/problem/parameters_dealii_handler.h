@@ -76,6 +76,10 @@ class ParametersDealiiHandler : public ParametersI {
   std::vector<double>  SpatialMax() const override { return spatial_max; }
   
   // Acceleration parameters ===================================================
+  /*! Get preconditioner for high order equation */
+  PreconditionerType       Preconditioner() const override {
+    return preconditioner_; }
+  
   bool                 DoNDA() const override { return do_nda_; }
   /*! Get linear solver type for NDA */
   LinearSolverType     NDALinearSolver() const override {
@@ -118,8 +122,9 @@ class ParametersDealiiHandler : public ParametersI {
   std::vector<double>      spatial_max;
                            
   // Acceleration parameters
+  PreconditionerType       preconditioner_;
   bool                     do_nda_;
-  LinearSolverType          nda_linear_solver_;
+  LinearSolverType         nda_linear_solver_;
                            
   // Solvers               
   EigenSolverType          eigen_solver_;
@@ -145,6 +150,7 @@ class ParametersDealiiHandler : public ParametersI {
   const std::string kTransportModel_ = "transport model";
 
   // Acceleration parameters
+  const std::string kPreconditioner_ = "ho preconditioner name";
   const std::string kDoNDA_ = "do nda";
   const std::string kNDALinearSolver_ = "nda linear solver name";
   
@@ -199,6 +205,15 @@ class ParametersDealiiHandler : public ParametersI {
     {"gs",   MultiGroupSolverType::kGaussSeidel},
     {"none", MultiGroupSolverType::kNone},
   };
+
+  const std::unordered_map<std::string, PreconditionerType> kPreconditionerTypeMap_ {
+    {"amg",       PreconditionerType::kAMG},
+    {"parasails", PreconditionerType::kParaSails},
+    {"bjacobi",   PreconditionerType::kBlockJacobi},
+    {"jacobi",    PreconditionerType::kJacobi},
+    {"bssor",     PreconditionerType::kSSOR},
+    {"none",      PreconditionerType::kNone},
+        };
 
   const std::unordered_map<std::string, AngularQuadType> kAngularQuadTypeMap_ {
     {"lsgc", AngularQuadType::kLevelSymmetricGaussChebyshev},

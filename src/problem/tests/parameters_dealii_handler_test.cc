@@ -26,6 +26,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
   const std::string kTransportModel_ = "transport model";
 
+  const std::string kPreconditioner_ = "ho preconditioner name";
   const std::string kDoNDA_ = "do nda";
   const std::string kNDALinearSolver_ = "nda linear solver name";
   
@@ -74,7 +75,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
   test_parameters.Parse(test_parameter_handler);
-  
+
+  ASSERT_EQ(test_parameters.Preconditioner(),
+            bart::problem::PreconditionerType::kAMG)
+        << "Default preconditioner";
   ASSERT_EQ(test_parameters.DoNDA(), false)
       << "Default NDA usage";
   ASSERT_EQ(test_parameters.NDALinearSolver(),
@@ -162,11 +166,15 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
+  test_parameter_handler.set(kPreconditioner_, "bjacobi");
   test_parameter_handler.set(kDoNDA_, "true");
   test_parameter_handler.set(kNDALinearSolver_, "gmres");
   
   test_parameters.Parse(test_parameter_handler);
-
+  
+  ASSERT_EQ(test_parameters.Preconditioner(),
+            bart::problem::PreconditionerType::kBlockJacobi)
+        << "Parsedpreconditioner";
   ASSERT_EQ(test_parameters.DoNDA(), true)
       << "Parsed NDA usage";
   ASSERT_EQ(test_parameters.NDALinearSolver(),

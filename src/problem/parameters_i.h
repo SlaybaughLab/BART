@@ -37,7 +37,8 @@ class ParametersI {
   virtual std::vector<double>      SpatialMax()         const = 0;
   virtual EquationType             TransportModel()     const = 0;
                                    
-  // Acceleration parameters       
+  // Acceleration parameters
+  virtual PreconditionerType       Preconditioner()     const = 0;
   virtual bool                     DoNDA()              const = 0;
   virtual LinearSolverType         NDALinearSolver()    const = 0;
                                      

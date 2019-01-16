@@ -29,6 +29,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   transport_model_ = kEquationTypeMap_.at(handler.get(kTransportModel_));
 
   // Acceleration
+  preconditioner_ = kPreconditionerTypeMap_.at(handler.get(kPreconditioner_));
   do_nda_ = handler.get_bool(kDoNDA_);
   nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kNDALinearSolver_));
   
@@ -119,6 +120,12 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
 
+  std::string preconditioner_options{GetOptionString(kPreconditionerTypeMap_)};
+  
+  handler.declare_entry(kPreconditioner_, "amg",
+                        Pattern::Selection(preconditioner_options),
+                        "Preconditioner");
+    
   handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
                         "Boolean to determine NDA or not");
 
