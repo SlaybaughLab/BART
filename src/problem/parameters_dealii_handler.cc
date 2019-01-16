@@ -34,6 +34,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
       handler.get(key_words_.kTransportModel_));
 
   // Mesh parameters
+  mesh_file_name_ = handler.get(key_words_.kMeshFileName_);
   uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
   
   // Acceleration
@@ -153,6 +154,9 @@ void ParametersDealiiHandler::SetUpMeshParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
 
+  handler.declare_entry(key_words_.kMeshFileName_, "", Pattern::Anything(),
+                        "mesh file name");
+  
   handler.declare_entry(key_words_.kUniformRefinements_,
                         "0", Pattern::Integer(0),
                         "number of uniform refinements desired");

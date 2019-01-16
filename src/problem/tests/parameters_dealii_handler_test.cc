@@ -60,6 +60,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
 TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
   test_parameters.Parse(test_parameter_handler);
 
+  ASSERT_EQ(test_parameters.MeshFileName(), "")
+      << "Default mesh file name";
   ASSERT_EQ(test_parameters.UniformRefinements(), 0)
       << "Default number of uniform refinements";
 }
@@ -180,9 +182,11 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
 
   test_parameter_handler.set(key_words.kUniformRefinements_, "1");
+  test_parameter_handler.set(key_words.kMeshFileName_, "test_mesh.msh");
   
   test_parameters.Parse(test_parameter_handler);
-  
+  ASSERT_EQ(test_parameters.MeshFileName(), "test_mesh.msh")
+      << "Parsed mesh file name";
   ASSERT_EQ(test_parameters.UniformRefinements(), 1)
       << "Parsed number of uniform refinements";
 }

@@ -41,6 +41,7 @@ class ParametersI {
   virtual EquationType             TransportModel()      const = 0;
 
   // Mesh parameters
+  virtual std::string              MeshFileName()        const = 0;
   virtual int                      UniformRefinements()  const = 0;
                                                          
   // Acceleration parameters                             

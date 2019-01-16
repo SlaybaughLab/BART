@@ -41,6 +41,7 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kTransportModel_ = "transport model";
 
     // Mesh parameters
+    const std::string kMeshFileName_ = "mesh file name";
     const std::string kUniformRefinements_ = "uniform refinements";
     
     // Acceleration parameters
@@ -131,6 +132,10 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get number of uniform refinements of mesh */
   int                      UniformRefinements() const override {
     return uniform_refinements_; }
+
+  /*! Get mesh filename */
+  std::string              MeshFileName() const override {
+    return mesh_file_name_; }
   
   // Acceleration parameters ===================================================
   /*! Get preconditioner for high order equation */
@@ -204,6 +209,7 @@ class ParametersDealiiHandler : public ParametersI {
   std::vector<double>      spatial_max;
 
   // Mesh parameters
+  std::string              mesh_file_name_;
   int                      uniform_refinements_;
   
   // Acceleration parameters
