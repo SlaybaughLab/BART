@@ -39,6 +39,9 @@ class ParametersI {
   virtual int                      SpatialDimension()    const = 0;
   virtual std::vector<double>      SpatialMax()          const = 0;
   virtual EquationType             TransportModel()      const = 0;
+
+  // Mesh parameters
+  virtual int                      UniformRefinements()  const = 0;
                                                          
   // Acceleration parameters                             
   virtual PreconditionerType       Preconditioner()      const = 0;

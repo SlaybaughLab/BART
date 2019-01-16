@@ -33,6 +33,9 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   transport_model_ = kEquationTypeMap_.at(
       handler.get(key_words_.kTransportModel_));
 
+  // Mesh parameters
+  uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
+  
   // Acceleration
   preconditioner_ = kPreconditionerTypeMap_.at(
       handler.get(key_words_.kPreconditioner_));
@@ -70,6 +73,7 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    * no default value.
    */
   SetUpBasicParameters(handler);
+  SetUpMeshParameters(handler);
   SetUpAccelerationParameters(handler);
   SetUpSolverParameters(handler);
   SetUpAngularQuadratureParameters(handler);
@@ -141,6 +145,17 @@ void ParametersDealiiHandler::SetUpBasicParameters(
   handler.declare_entry(key_words_.kTransportModel_, "none",
                         Pattern::Selection(GetOptionString(kEquationTypeMap_)),
                         "valid names such as ep");
+}
+
+// MESH PARAMETERS =============================================================
+
+void ParametersDealiiHandler::SetUpMeshParameters(
+    dealii::ParameterHandler &handler) {
+  namespace Pattern = dealii::Patterns;
+
+  handler.declare_entry(key_words_.kUniformRefinements_,
+                        "0", Pattern::Integer(0),
+                        "number of uniform refinements desired");
 }
 
 // ACCELERATION PARAMETERS =====================================================

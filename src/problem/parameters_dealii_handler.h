@@ -40,6 +40,9 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
     const std::string kTransportModel_ = "transport model";
 
+    // Mesh parameters
+    const std::string kUniformRefinements_ = "uniform refinements";
+    
     // Acceleration parameters
     const std::string kPreconditioner_ = "ho preconditioner name";
     const std::string kBSSOR_Factor_ = "ho ssor factor";
@@ -123,6 +126,11 @@ class ParametersDealiiHandler : public ParametersI {
   
   /*! Get maximum x, y, z size */
   std::vector<double>  SpatialMax() const override { return spatial_max; }
+
+  // MESH PARAMETERS ===========================================================
+  /*! Get number of uniform refinements of mesh */
+  int                      UniformRefinements() const override {
+    return uniform_refinements_; }
   
   // Acceleration parameters ===================================================
   /*! Get preconditioner for high order equation */
@@ -194,7 +202,10 @@ class ParametersDealiiHandler : public ParametersI {
   std::map<Boundary, bool> reflective_boundary_;    
   int                      spatial_dimension_;
   std::vector<double>      spatial_max;
-                           
+
+  // Mesh parameters
+  int                      uniform_refinements_;
+  
   // Acceleration parameters
   PreconditionerType       preconditioner_;
   double                   block_ssor_factor_;
@@ -283,6 +294,8 @@ class ParametersDealiiHandler : public ParametersI {
   // Setup functions
   /*! Set up basic problem parameters */
   void SetUpBasicParameters(dealii::ParameterHandler &handler);
+  /*! Set up mesh parameters */
+  void SetUpMeshParameters(dealii::ParameterHandler &handler);
   /*! Set up acceleration parameters */
   void SetUpAccelerationParameters(dealii::ParameterHandler &handler);
   /*! Set up solver parameters */

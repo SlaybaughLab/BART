@@ -50,11 +50,18 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.SpatialDimension(), 2)
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.ReflectiveBoundary(), test_reflective_map)
-      << "Default first thermal group";
+      << "Default first reflective boundaries";
   ASSERT_EQ(test_parameters.OutputFilenameBase(), "bart_output")
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.TransportModel(), bart::problem::EquationType::kNone)
       << "Default transport model";
+}
+
+TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
+  test_parameters.Parse(test_parameter_handler);
+
+  ASSERT_EQ(test_parameters.UniformRefinements(), 0)
+      << "Default number of uniform refinements";
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
@@ -168,6 +175,16 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.TransportModel(),
             bart::problem::EquationType::kSelfAdjointAngularFlux)
       << "Parsed transport model";
+}
+
+TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
+
+  test_parameter_handler.set(key_words.kUniformRefinements_, "1");
+  
+  test_parameters.Parse(test_parameter_handler);
+  
+  ASSERT_EQ(test_parameters.UniformRefinements(), 1)
+      << "Parsed number of uniform refinements";
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
