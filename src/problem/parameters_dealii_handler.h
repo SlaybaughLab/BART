@@ -21,7 +21,7 @@ namespace problem {
  * a ParameterHandler object can be passed.
  */
 
-class ParametersDealiiHandler : ParametersI {
+class ParametersDealiiHandler : public ParametersI {
  public:
   ParametersDealiiHandler();
   ~ParametersDealiiHandler() = default;
