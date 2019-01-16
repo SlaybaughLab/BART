@@ -15,6 +15,8 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Parse parameters
   // Basic Parameters
+  discretization_ = kDiscretizationTypeMap_.at(handler.get(kDiscretization_));
+  is_eigenvalue_problem_ = handler.get_bool(kEigenvalueProblem_);
   have_reflective_bc_ = handler.get_bool(kHaveReflectiveBC_);
   first_thermal_group_ = handler.get_integer(kFirstThermalGroup_);
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
@@ -32,6 +34,8 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   preconditioner_ = kPreconditionerTypeMap_.at(handler.get(kPreconditioner_));
   block_ssor_factor_ = handler.get_double(kBSSOR_Factor_);
   do_nda_ = handler.get_bool(kDoNDA_);
+  nda_discretization_ =
+      kDiscretizationTypeMap_.at(handler.get(kNDA_Discretization_));
   nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kNDALinearSolver_));
   nda_preconditioner_ = kPreconditionerTypeMap_.at(
       handler.get(kNDAPreconditioner_));
@@ -78,6 +82,14 @@ void ParametersDealiiHandler::SetUpBasicParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
 
+  handler.declare_entry(kDiscretization_, "cfem",
+                        Pattern::Selection(
+                            GetOptionString(kDiscretizationTypeMap_)),
+                        "HO equation spatial discretization");
+
+  handler.declare_entry(kEigenvalueProblem_, "false", Pattern::Bool(),
+                        "is problem an eigenvalue problem");
+  
   handler.declare_entry ("have reflective boundary", "false", Pattern::Bool(),
                          "Does the problem have reflective boundaries");        
   
@@ -136,6 +148,11 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
                         "Boolean to determine NDA or not");
 
+  handler.declare_entry(kNDA_Discretization_, "cfem",
+                        Pattern::Selection(
+                            GetOptionString(kDiscretizationTypeMap_)),
+                        "NDA equation spatial discretization");
+  
   // Remove Conjugate Gradient from options for NDA linear solver
   std::string nda_linear_solver_options{GetOptionString(
       kLinearSolverTypeMap_,

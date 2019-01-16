@@ -38,6 +38,14 @@ class ParametersDealiiHandler : public ParametersI {
   // Functions to get problem parameters
   // Basic Parameters ==========================================================
 
+  /*! Get spatial discretization */
+  DiscretizationType   Discretization() const override {
+    return discretization_; }
+
+  /*! Get if problem is an eigenvalue problem */
+  bool                     IsEigenvalueProblem() const override {
+    return is_eigenvalue_problem_; }
+  
   /*! Get thermal energy group boundary */
   int                  FirstThermalGroup() const override {
     return first_thermal_group_; }
@@ -99,6 +107,10 @@ class ParametersDealiiHandler : public ParametersI {
   double               NDABlockSSORFactor() const override {
     return nda_block_ssor_factor_;
   }
+
+  /*! Get NDA Discretization */
+  DiscretizationType   NDADiscretization() const override {
+    return nda_discretization_; }
   
   // Solver Parameters =========================================================
   /*! Get eigenvalue solver type */
@@ -125,6 +137,8 @@ class ParametersDealiiHandler : public ParametersI {
   
  private:
   // Basic parameters
+  DiscretizationType       discretization_;
+  bool                     is_eigenvalue_problem_;
   int                      first_thermal_group_;
   bool                     have_reflective_bc_;
   EquationType             transport_model_;
@@ -140,6 +154,7 @@ class ParametersDealiiHandler : public ParametersI {
   PreconditionerType       preconditioner_;
   double                   block_ssor_factor_;
   bool                     do_nda_;
+  DiscretizationType       nda_discretization_;
   LinearSolverType         nda_linear_solver_;
   PreconditionerType       nda_preconditioner_;
   double                   nda_block_ssor_factor_;
@@ -156,6 +171,8 @@ class ParametersDealiiHandler : public ParametersI {
 
   // Key-words for input file
   // Basic parameters
+  const std::string kDiscretization_ = "ho spatial discretization";
+  const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
   const std::string kFirstThermalGroup_ = "thermal group boundary";
   const std::string kHaveReflectiveBC_ = "have reflective boundary";
   const std::string kNCells_ = "number of cells for x, y, z directions";
@@ -171,6 +188,7 @@ class ParametersDealiiHandler : public ParametersI {
   const std::string kPreconditioner_ = "ho preconditioner name";
   const std::string kBSSOR_Factor_ = "ho ssor factor";
   const std::string kDoNDA_ = "do nda";
+  const std::string kNDA_Discretization_ = "nda spatial discretization";
   const std::string kNDALinearSolver_ = "nda linear solver name";
   const std::string kNDAPreconditioner_ = "nda preconditioner name";
   const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
@@ -194,6 +212,12 @@ class ParametersDealiiHandler : public ParametersI {
     {"ymax", Boundary::kYMax},
     {"zmin", Boundary::kZMin},
     {"zmax", Boundary::kZMax},
+        };
+
+  const std::unordered_map<std::string, DiscretizationType> kDiscretizationTypeMap_ {
+    {"none", DiscretizationType::kNone},
+    {"cfem",   DiscretizationType::kContinuousFEM},
+    {"dfem", DiscretizationType::kDiscontinuousFEM},
         };
   
   const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {

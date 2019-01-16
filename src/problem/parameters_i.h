@@ -26,34 +26,37 @@ class ParametersI {
   virtual ~ParametersI() = default;
 
   // Basic Problem Parameters
-  virtual int                      FirstThermalGroup()  const = 0;
-  virtual bool                     HaveReflectiveBC()   const = 0;
-  virtual std::vector<int>         NCells()             const = 0;
-  virtual int                      NEnergyGroups()      const = 0;
-  virtual int                      NumberOfMaterials()  const = 0;
-  virtual std::string              OutputFilenameBase() const = 0;
-  virtual std::map<Boundary, bool> ReflectiveBoundary() const = 0;
-  virtual int                      SpatialDimension()   const = 0;
-  virtual std::vector<double>      SpatialMax()         const = 0;
-  virtual EquationType             TransportModel()     const = 0;
-                                   
-  // Acceleration parameters
-  virtual PreconditionerType       Preconditioner()     const = 0;
-  virtual double                   BlockSSORFactor()    const = 0;
-  virtual bool                     DoNDA()              const = 0;
-  virtual LinearSolverType         NDALinearSolver()    const = 0;
-  virtual PreconditionerType       NDAPreconditioner()  const = 0;
-  virtual double                   NDABlockSSORFactor() const = 0;
-                                     
-  // Solver parameters             
-  virtual EigenSolverType          EigenSolver()        const = 0;
-  virtual InGroupSolverType        InGroupSolver()      const = 0;
-  virtual LinearSolverType         LinearSolver()       const = 0;
-  virtual MultiGroupSolverType     MultiGroupSolver()   const = 0;
-                                   
-  // Angular quadrature parameters
-  virtual AngularQuadType          AngularQuad()        const = 0;
-  virtual int                      AngularQuadOrder()   const = 0;
+  virtual DiscretizationType       Discretization()      const = 0;
+  virtual bool                     IsEigenvalueProblem() const = 0;
+  virtual int                      FirstThermalGroup()   const = 0;
+  virtual bool                     HaveReflectiveBC()    const = 0;
+  virtual std::vector<int>         NCells()              const = 0;
+  virtual int                      NEnergyGroups()       const = 0;
+  virtual int                      NumberOfMaterials()   const = 0;
+  virtual std::string              OutputFilenameBase()  const = 0;
+  virtual std::map<Boundary, bool> ReflectiveBoundary()  const = 0;
+  virtual int                      SpatialDimension()    const = 0;
+  virtual std::vector<double>      SpatialMax()          const = 0;
+  virtual EquationType             TransportModel()      const = 0;
+                                                         
+  // Acceleration parameters                             
+  virtual PreconditionerType       Preconditioner()      const = 0;
+  virtual double                   BlockSSORFactor()     const = 0;
+  virtual bool                     DoNDA()               const = 0;
+  virtual DiscretizationType       NDADiscretization()   const = 0;
+  virtual LinearSolverType         NDALinearSolver()     const = 0;
+  virtual PreconditionerType       NDAPreconditioner()   const = 0;
+  virtual double                   NDABlockSSORFactor()  const = 0;
+                                                         
+  // Solver parameters                                   
+  virtual EigenSolverType          EigenSolver()         const = 0;
+  virtual InGroupSolverType        InGroupSolver()       const = 0;
+  virtual LinearSolverType         LinearSolver()        const = 0;
+  virtual MultiGroupSolverType     MultiGroupSolver()    const = 0;
+                                                         
+  // Angular quadrature parameters                       
+  virtual AngularQuadType          AngularQuad()         const = 0;
+  virtual int                      AngularQuadOrder()    const = 0;
   
 };
 

@@ -15,6 +15,8 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   bart::problem::ParametersDealiiHandler test_parameters;
 
   // Key-words for input file
+  const std::string kDiscretization_ = "ho spatial discretization";
+  const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
   const std::string kHaveReflectiveBC_ = "have reflective boundary";
   const std::string kFirstThermalGroup = "thermal group boundary";
   const std::string kNCells = "number of cells for x, y, z directions";
@@ -29,6 +31,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kPreconditioner_ = "ho preconditioner name";
   const std::string kBSSOR_Factor_ = "ho ssor factor";
   const std::string kDoNDA_ = "do nda";
+  const std::string kNDA_Discretization_ = "nda spatial discretization";
   const std::string kNDALinearSolver_ = "nda linear solver name";
   const std::string kNDAPreconditioner_ = "nda preconditioner name";
   const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
@@ -58,6 +61,11 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   
   test_parameters.Parse(test_parameter_handler);
 
+  ASSERT_EQ(test_parameters.Discretization(),
+            bart::problem::DiscretizationType::kContinuousFEM)
+      << "Default discretization";
+  ASSERT_EQ(test_parameters.IsEigenvalueProblem(), false)
+      << "Default eigenvalue problem";
   ASSERT_EQ(test_parameters.HaveReflectiveBC(), false)
       << "Default have reflective boundaries";
   ASSERT_EQ(test_parameters.FirstThermalGroup(), 0)
@@ -86,6 +94,9 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
       << "Default BSSOR Factor"; 
   ASSERT_EQ(test_parameters.DoNDA(), false)
       << "Default NDA usage";
+  ASSERT_EQ(test_parameters.NDADiscretization(),
+            bart::problem::DiscretizationType::kContinuousFEM)
+      << "Default NDA Discretization";
   ASSERT_EQ(test_parameters.NDALinearSolver(),
             bart::problem::LinearSolverType::kNone)
       << "Default NDA linear solver";
@@ -139,6 +150,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
         };
 
   // Set testing Parameters
+  test_parameter_handler.set(kDiscretization_, "dfem");
+  test_parameter_handler.set(kEigenvalueProblem_, "true");
   test_parameter_handler.set(kHaveReflectiveBC_, "true");
   test_parameter_handler.set(kFirstThermalGroup, "2");
   test_parameter_handler.set(kNCells, "10, 5, 20");
@@ -152,6 +165,12 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   
   test_parameters.Parse(test_parameter_handler);
 
+
+  ASSERT_EQ(test_parameters.Discretization(),
+            bart::problem::DiscretizationType::kDiscontinuousFEM)
+      << "Parsed discretization";
+    ASSERT_EQ(test_parameters.IsEigenvalueProblem(), true)
+      << "Parsed eigenvalue problem";
   ASSERT_EQ(test_parameters.HaveReflectiveBC(), true)
       << "Parsed have reflective boundaries";
   ASSERT_EQ(test_parameters.FirstThermalGroup(), 2)
@@ -179,6 +198,7 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
   test_parameter_handler.set(kPreconditioner_, "bjacobi");
   test_parameter_handler.set(kBSSOR_Factor_, "1.5");
   test_parameter_handler.set(kDoNDA_, "true");
+  test_parameter_handler.set(kNDA_Discretization_, "dfem");
   test_parameter_handler.set(kNDALinearSolver_, "gmres");
   test_parameter_handler.set(kNDAPreconditioner_, "amg");
   test_parameter_handler.set(kNDA_BSSOR_Factor_, "2.0");
@@ -192,6 +212,9 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
       << "Parsed BSSOR Factor"; 
   ASSERT_EQ(test_parameters.DoNDA(), true)
       << "Parsed NDA usage";
+  ASSERT_EQ(test_parameters.NDADiscretization(),
+            bart::problem::DiscretizationType::kDiscontinuousFEM)
+      << "Parsed NDA Discretization";
   ASSERT_EQ(test_parameters.NDALinearSolver(),
             bart::problem::LinearSolverType::kGMRES)
       << "Parsed NDA linear solver";
