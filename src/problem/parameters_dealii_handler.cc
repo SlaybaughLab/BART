@@ -32,6 +32,8 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   preconditioner_ = kPreconditionerTypeMap_.at(handler.get(kPreconditioner_));
   do_nda_ = handler.get_bool(kDoNDA_);
   nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kNDALinearSolver_));
+  nda_preconditioner_ = kPreconditionerTypeMap_.at(
+      handler.get(kNDAPreconditioner_));
   
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
@@ -137,6 +139,10 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   handler.declare_entry(kNDALinearSolver_, "none",
                         Pattern::Selection(nda_linear_solver_options),
                         "NDA linear solver");
+
+  handler.declare_entry(kNDAPreconditioner_, "jacobi",
+                        Pattern::Selection(preconditioner_options),
+                        "NDA Preconditioner");
 }
 
 // SOLVER PARAMETERS ===========================================================

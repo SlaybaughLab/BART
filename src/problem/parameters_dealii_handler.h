@@ -81,9 +81,14 @@ class ParametersDealiiHandler : public ParametersI {
     return preconditioner_; }
   
   bool                 DoNDA() const override { return do_nda_; }
+  
   /*! Get linear solver type for NDA */
   LinearSolverType     NDALinearSolver() const override {
     return nda_linear_solver_; }
+
+  /*! Get NDA Preconditioner */
+  PreconditionerType       NDAPreconditioner() const override {
+    return nda_preconditioner_; }
   
   // Solver Parameters =========================================================
   /*! Get eigenvalue solver type */
@@ -125,6 +130,7 @@ class ParametersDealiiHandler : public ParametersI {
   PreconditionerType       preconditioner_;
   bool                     do_nda_;
   LinearSolverType         nda_linear_solver_;
+  PreconditionerType       nda_preconditioner_;
                            
   // Solvers               
   EigenSolverType          eigen_solver_;
@@ -153,6 +159,7 @@ class ParametersDealiiHandler : public ParametersI {
   const std::string kPreconditioner_ = "ho preconditioner name";
   const std::string kDoNDA_ = "do nda";
   const std::string kNDALinearSolver_ = "nda linear solver name";
+  const std::string kNDAPreconditioner_ = "nda preconditioner name";
   
   // Solvers
   const std::string kEigenSolver_ = "eigen solver name";

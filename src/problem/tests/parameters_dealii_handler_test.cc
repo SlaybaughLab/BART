@@ -29,6 +29,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kPreconditioner_ = "ho preconditioner name";
   const std::string kDoNDA_ = "do nda";
   const std::string kNDALinearSolver_ = "nda linear solver name";
+  const std::string kNDAPreconditioner_ = "nda preconditioner name";
   
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kInGroupSolver_ = "in group solver name";
@@ -84,6 +85,9 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
   ASSERT_EQ(test_parameters.NDALinearSolver(),
             bart::problem::LinearSolverType::kNone)
       << "Default NDA linear solver";
+  ASSERT_EQ(test_parameters.NDAPreconditioner(),
+            bart::problem::PreconditionerType::kJacobi)
+        << "Default NDA preconditioner";
 }
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersDefault) {
@@ -169,6 +173,7 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
   test_parameter_handler.set(kPreconditioner_, "bjacobi");
   test_parameter_handler.set(kDoNDA_, "true");
   test_parameter_handler.set(kNDALinearSolver_, "gmres");
+  test_parameter_handler.set(kNDAPreconditioner_, "amg");  
   
   test_parameters.Parse(test_parameter_handler);
   
@@ -180,6 +185,9 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
   ASSERT_EQ(test_parameters.NDALinearSolver(),
             bart::problem::LinearSolverType::kGMRES)
       << "Parsed NDA linear solver";
+  ASSERT_EQ(test_parameters.NDAPreconditioner(),
+            bart::problem::PreconditionerType::kAMG)
+        << "Parsed NDA preconditioner";
 }
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {

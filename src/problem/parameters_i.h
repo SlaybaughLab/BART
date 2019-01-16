@@ -41,6 +41,7 @@ class ParametersI {
   virtual PreconditionerType       Preconditioner()     const = 0;
   virtual bool                     DoNDA()              const = 0;
   virtual LinearSolverType         NDALinearSolver()    const = 0;
+  virtual PreconditionerType       NDAPreconditioner()  const = 0;
                                      
   // Solver parameters             
   virtual EigenSolverType          EigenSolver()        const = 0;
