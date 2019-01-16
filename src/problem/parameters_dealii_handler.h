@@ -23,6 +23,42 @@ namespace problem {
 
 class ParametersDealiiHandler : public ParametersI {
  public:
+  // Key-words for input file
+  struct KeyWords {
+    // Basic parameters
+    const std::string kDiscretization_ = "ho spatial discretization";
+    const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
+    const std::string kFirstThermalGroup_ = "thermal group boundary";
+    const std::string kHaveReflectiveBC_ = "have reflective boundary";
+    const std::string kNCells_ = "number of cells for x, y, z directions";
+    const std::string kNEnergyGroups_ = "number of groups";
+    const std::string kNumberOfMaterials_ = "number of materials";
+    const std::string kOutputFilenameBase_ = "output file name base";
+    const std::string kReflectiveBoundary_ = "reflective boundary names";
+    const std::string kSpatialDimension_ = "problem dimension";
+    const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
+    const std::string kTransportModel_ = "transport model";
+
+    // Acceleration parameters
+    const std::string kPreconditioner_ = "ho preconditioner name";
+    const std::string kBSSOR_Factor_ = "ho ssor factor";
+    const std::string kDoNDA_ = "do nda";
+    const std::string kNDA_Discretization_ = "nda spatial discretization";
+    const std::string kNDALinearSolver_ = "nda linear solver name";
+    const std::string kNDAPreconditioner_ = "nda preconditioner name";
+    const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
+  
+    // Solvers
+    const std::string kEigenSolver_ = "eigen solver name";
+    const std::string kInGroupSolver_ = "in group solver name";
+    const std::string kLinearSolver_ = "ho linear solver name";
+    const std::string kMultiGroupSolver_ = "mg solver name";
+
+    // Angular quadrature
+    const std::string kAngularQuad_ = "angular quadrature name";
+    const std::string kAngularQuadOrder_ = "angular quadrature order";
+  };
+  
   ParametersDealiiHandler();
   ~ParametersDealiiHandler() = default;
 
@@ -134,6 +170,9 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get angular quadrature order */
   int                 AngularQuadOrder() const override {
     return angular_quad_order_; }
+
+  /*! Get struct that holds the key-words that are used to parse input files */
+  KeyWords              GetKeyWords() const { return key_words_; }
   
  private:
   // Basic parameters
@@ -169,40 +208,9 @@ class ParametersDealiiHandler : public ParametersI {
   AngularQuadType          angular_quad_;
   int                      angular_quad_order_;
 
-  // Key-words for input file
-  // Basic parameters
-  const std::string kDiscretization_ = "ho spatial discretization";
-  const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
-  const std::string kFirstThermalGroup_ = "thermal group boundary";
-  const std::string kHaveReflectiveBC_ = "have reflective boundary";
-  const std::string kNCells_ = "number of cells for x, y, z directions";
-  const std::string kNEnergyGroups_ = "number of groups";
-  const std::string kNumberOfMaterials_ = "number of materials";
-  const std::string kOutputFilenameBase_ = "output file name base";
-  const std::string kReflectiveBoundary_ = "reflective boundary names";
-  const std::string kSpatialDimension_ = "problem dimension";
-  const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
-  const std::string kTransportModel_ = "transport model";
-
-  // Acceleration parameters
-  const std::string kPreconditioner_ = "ho preconditioner name";
-  const std::string kBSSOR_Factor_ = "ho ssor factor";
-  const std::string kDoNDA_ = "do nda";
-  const std::string kNDA_Discretization_ = "nda spatial discretization";
-  const std::string kNDALinearSolver_ = "nda linear solver name";
-  const std::string kNDAPreconditioner_ = "nda preconditioner name";
-  const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
+  // Key-words struct
+  KeyWords                 key_words_;
   
-  // Solvers
-  const std::string kEigenSolver_ = "eigen solver name";
-  const std::string kInGroupSolver_ = "in group solver name";
-  const std::string kLinearSolver_ = "ho linear solver name";
-  const std::string kMultiGroupSolver_ = "mg solver name";
-
-  // Angular quadrature
-  const std::string kAngularQuad_ = "angular quadrature name";
-  const std::string kAngularQuadOrder_ = "angular quadrature order";
-
   // Options mapping
 
   const std::unordered_map<std::string, Boundary> kBoundaryMap_ {

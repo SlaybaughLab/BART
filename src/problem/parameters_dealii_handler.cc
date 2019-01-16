@@ -15,42 +15,42 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Parse parameters
   // Basic Parameters
-  discretization_ = kDiscretizationTypeMap_.at(handler.get(kDiscretization_));
-  is_eigenvalue_problem_ = handler.get_bool(kEigenvalueProblem_);
-  have_reflective_bc_ = handler.get_bool(kHaveReflectiveBC_);
-  first_thermal_group_ = handler.get_integer(kFirstThermalGroup_);
-  n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
-  n_groups_ = handler.get_integer(kNEnergyGroups_);
-  n_materials_ = handler.get_integer(kNumberOfMaterials_);
-  output_filename_base_ = handler.get(kOutputFilenameBase_);
+  discretization_ = kDiscretizationTypeMap_.at(handler.get(key_words_.kDiscretization_));
+  is_eigenvalue_problem_ = handler.get_bool(key_words_.kEigenvalueProblem_);
+  have_reflective_bc_ = handler.get_bool(key_words_.kHaveReflectiveBC_);
+  first_thermal_group_ = handler.get_integer(key_words_.kFirstThermalGroup_);
+  n_cells_ = ParseDealiiIntList(handler.get(key_words_.kNCells_));
+  n_groups_ = handler.get_integer(key_words_.kNEnergyGroups_);
+  n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
+  output_filename_base_ = handler.get(key_words_.kOutputFilenameBase_);
   reflective_boundary_ = ParseDealiiMultiple(
-      handler.get(kReflectiveBoundary_),
+      handler.get(key_words_.kReflectiveBoundary_),
       kBoundaryMap_);
-  spatial_dimension_ = handler.get_integer(kSpatialDimension_);
-  spatial_max = ParseDealiiList(handler.get(kSpatialMax_));
-  transport_model_ = kEquationTypeMap_.at(handler.get(kTransportModel_));
+  spatial_dimension_ = handler.get_integer(key_words_.kSpatialDimension_);
+  spatial_max = ParseDealiiList(handler.get(key_words_.kSpatialMax_));
+  transport_model_ = kEquationTypeMap_.at(handler.get(key_words_.kTransportModel_));
 
   // Acceleration
-  preconditioner_ = kPreconditionerTypeMap_.at(handler.get(kPreconditioner_));
-  block_ssor_factor_ = handler.get_double(kBSSOR_Factor_);
-  do_nda_ = handler.get_bool(kDoNDA_);
+  preconditioner_ = kPreconditionerTypeMap_.at(handler.get(key_words_.kPreconditioner_));
+  block_ssor_factor_ = handler.get_double(key_words_.kBSSOR_Factor_);
+  do_nda_ = handler.get_bool(key_words_.kDoNDA_);
   nda_discretization_ =
-      kDiscretizationTypeMap_.at(handler.get(kNDA_Discretization_));
-  nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kNDALinearSolver_));
+      kDiscretizationTypeMap_.at(handler.get(key_words_.kNDA_Discretization_));
+  nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(key_words_.kNDALinearSolver_));
   nda_preconditioner_ = kPreconditionerTypeMap_.at(
-      handler.get(kNDAPreconditioner_));
-  nda_block_ssor_factor_ = handler.get_double(kNDA_BSSOR_Factor_);
+      handler.get(key_words_.kNDAPreconditioner_));
+  nda_block_ssor_factor_ = handler.get_double(key_words_.kNDA_BSSOR_Factor_);
   
   // Solvers
-  eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
-  in_group_solver_ = kInGroupSolverTypeMap_.at(handler.get(kInGroupSolver_));
-  linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kLinearSolver_));
+  eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(key_words_.kEigenSolver_));
+  in_group_solver_ = kInGroupSolverTypeMap_.at(handler.get(key_words_.kInGroupSolver_));
+  linear_solver_ = kLinearSolverTypeMap_.at(handler.get(key_words_.kLinearSolver_));
   multi_group_solver_ =
-      kMultiGroupSolverTypeMap_.at(handler.get(kMultiGroupSolver_));
+      kMultiGroupSolverTypeMap_.at(handler.get(key_words_.kMultiGroupSolver_));
 
   // Angular Quadrature parameters
-  angular_quad_ = kAngularQuadTypeMap_.at(handler.get(kAngularQuad_));
-  angular_quad_order_ = handler.get_integer(kAngularQuadOrder_);
+  angular_quad_ = kAngularQuadTypeMap_.at(handler.get(key_words_.kAngularQuad_));
+  angular_quad_order_ = handler.get_integer(key_words_.kAngularQuadOrder_);
 }
 
 void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
@@ -82,50 +82,50 @@ void ParametersDealiiHandler::SetUpBasicParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
 
-  handler.declare_entry(kDiscretization_, "cfem",
+  handler.declare_entry(key_words_.kDiscretization_, "cfem",
                         Pattern::Selection(
                             GetOptionString(kDiscretizationTypeMap_)),
                         "HO equation spatial discretization");
 
-  handler.declare_entry(kEigenvalueProblem_, "false", Pattern::Bool(),
+  handler.declare_entry(key_words_.kEigenvalueProblem_, "false", Pattern::Bool(),
                         "is problem an eigenvalue problem");
   
   handler.declare_entry ("have reflective boundary", "false", Pattern::Bool(),
                          "Does the problem have reflective boundaries");        
   
-  handler.declare_entry(kFirstThermalGroup_, "0", Pattern::Integer(0),
+  handler.declare_entry(key_words_.kFirstThermalGroup_, "0", Pattern::Integer(0),
                         "group number for the first thermal group");
   
   try {
-    handler.declare_entry(kNCells_ , "",
+    handler.declare_entry(key_words_.kNCells_ , "",
                           Pattern::List (Pattern::Integer (0), 1, 3),
                           "Geometry is hyper rectangle defined by how many cells exist per direction");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 
-  handler.declare_entry(kNEnergyGroups_, "1", Pattern::Integer(0),
+  handler.declare_entry(key_words_.kNEnergyGroups_, "1", Pattern::Integer(0),
                         "number of energy groups in the problem");
   
-  handler.declare_entry(kNumberOfMaterials_, "1", Pattern::Integer(0),
+  handler.declare_entry(key_words_.kNumberOfMaterials_, "1", Pattern::Integer(0),
                          "number of materials in the problem");
   
-  handler.declare_entry(kOutputFilenameBase_, "bart_output",Pattern::Anything(),
+  handler.declare_entry(key_words_.kOutputFilenameBase_, "bart_output",Pattern::Anything(),
                          "name base of the output file");
 
   std::string boundary_options{GetOptionString(kBoundaryMap_)};
-  handler.declare_entry(kReflectiveBoundary_, "",
+  handler.declare_entry(key_words_.kReflectiveBoundary_, "",
                         Pattern::MultipleSelection(boundary_options),
                         "lower case boundary names (xmin, ymax) etc)");
   
-  handler.declare_entry(kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
+  handler.declare_entry(key_words_.kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
   
   try {
-    handler.declare_entry(kSpatialMax_, "",
+    handler.declare_entry(key_words_.kSpatialMax_, "",
                           Pattern::List(Pattern::Double(), 1, 3),
                           "xmax, ymax, zmax of the boundaries, mins are zero");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 
   std::string equation_options{GetOptionString(kEquationTypeMap_)};
-  handler.declare_entry(kTransportModel_, "none",
+  handler.declare_entry(key_words_.kTransportModel_, "none",
                         Pattern::Selection(equation_options),
                         "valid names such as ep");
 }
@@ -138,17 +138,17 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
 
   std::string preconditioner_options{GetOptionString(kPreconditionerTypeMap_)};
   
-  handler.declare_entry(kPreconditioner_, "amg",
+  handler.declare_entry(key_words_.kPreconditioner_, "amg",
                         Pattern::Selection(preconditioner_options),
                         "Preconditioner");
 
-  handler.declare_entry(kBSSOR_Factor_, "1.0", Pattern::Double(0),
+  handler.declare_entry(key_words_.kBSSOR_Factor_, "1.0", Pattern::Double(0),
                         "damping factor of block SSOR");
   
-  handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
+  handler.declare_entry(key_words_.kDoNDA_, "false", Pattern::Bool(),
                         "Boolean to determine NDA or not");
 
-  handler.declare_entry(kNDA_Discretization_, "cfem",
+  handler.declare_entry(key_words_.kNDA_Discretization_, "cfem",
                         Pattern::Selection(
                             GetOptionString(kDiscretizationTypeMap_)),
                         "NDA equation spatial discretization");
@@ -158,15 +158,15 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
       kLinearSolverTypeMap_,
       LinearSolverType::kConjugateGradient),};
 
-  handler.declare_entry(kNDALinearSolver_, "none",
+  handler.declare_entry(key_words_.kNDALinearSolver_, "none",
                         Pattern::Selection(nda_linear_solver_options),
                         "NDA linear solver");
 
-  handler.declare_entry(kNDAPreconditioner_, "jacobi",
+  handler.declare_entry(key_words_.kNDAPreconditioner_, "jacobi",
                         Pattern::Selection(preconditioner_options),
                         "NDA Preconditioner");
 
-  handler.declare_entry(kNDA_BSSOR_Factor_, "1.0", Pattern::Double(0),
+  handler.declare_entry(key_words_.kNDA_BSSOR_Factor_, "1.0", Pattern::Double(0),
                         "damping factor of NDA block SSOR");
 }
 
@@ -177,22 +177,22 @@ void ParametersDealiiHandler::SetUpSolverParameters(
   namespace Pattern = dealii::Patterns;
   
   std::string eigen_solver_options{GetOptionString(kEigenSolverTypeMap_)};
-  handler.declare_entry(kEigenSolver_, "pi",
+  handler.declare_entry(key_words_.kEigenSolver_, "pi",
                         Pattern::Selection(eigen_solver_options),
                         "eigenvalue solvers");
 
   std::string in_group_solver_options{GetOptionString(kInGroupSolverTypeMap_)};
-  handler.declare_entry(kInGroupSolver_, "si",
+  handler.declare_entry(key_words_.kInGroupSolver_, "si",
                         Pattern::Selection(in_group_solver_options),
                         "in-group solvers");
   
   std::string linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
-  handler.declare_entry(kLinearSolver_, "cg",
+  handler.declare_entry(key_words_.kLinearSolver_, "cg",
                         Pattern::Selection(linear_solver_options),
                         "linear solvers");
   
   std::string multigroup_solver_options{GetOptionString(kMultiGroupSolverTypeMap_)};
-  handler.declare_entry(kMultiGroupSolver_, "gs",
+  handler.declare_entry(key_words_.kMultiGroupSolver_, "gs",
                         Pattern::Selection(multigroup_solver_options),
                         "Multi-group solvers");
   
@@ -204,10 +204,10 @@ void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
   namespace Pattern = dealii::Patterns;
   
   std::string angular_quad_options{GetOptionString(kAngularQuadTypeMap_)};
-  handler.declare_entry(kAngularQuad_, "none",
+  handler.declare_entry(key_words_.kAngularQuad_, "none",
                         Pattern::Selection (angular_quad_options),
                         "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
-  handler.declare_entry(kAngularQuadOrder_, "4", Pattern::Integer(),
+  handler.declare_entry(key_words_.kAngularQuadOrder_, "4", Pattern::Integer(),
                         "Gauss-Chebyshev level-symmetric-like quadrature");
 }
 
@@ -302,7 +302,6 @@ std::vector<int> ParametersDealiiHandler::ParseDealiiIntList(
   std::vector<int> return_vector(double_vector.cbegin(), double_vector.cend());
   return return_vector;
 }
-
 
 } // namespace problem
 

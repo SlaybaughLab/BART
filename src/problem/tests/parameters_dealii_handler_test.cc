@@ -13,36 +13,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   void SetUp() override;
   dealii::ParameterHandler test_parameter_handler;
   bart::problem::ParametersDealiiHandler test_parameters;
-
-  // Key-words for input file
-  const std::string kDiscretization_ = "ho spatial discretization";
-  const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
-  const std::string kHaveReflectiveBC_ = "have reflective boundary";
-  const std::string kFirstThermalGroup = "thermal group boundary";
-  const std::string kNCells = "number of cells for x, y, z directions";
-  const std::string kNEnergyGroups_ = "number of groups";
-  const std::string kNumberOfMaterials_ = "number of materials";
-  const std::string kOutputFilenameBase = "output file name base";
-  const std::string kReflectiveBoundary = "reflective boundary names";
-  const std::string kSpatialDimension_ = "problem dimension";
-  const std::string kSpatialMax_ = "x, y, z max values of boundary locations";
-  const std::string kTransportModel_ = "transport model";
-
-  const std::string kPreconditioner_ = "ho preconditioner name";
-  const std::string kBSSOR_Factor_ = "ho ssor factor";
-  const std::string kDoNDA_ = "do nda";
-  const std::string kNDA_Discretization_ = "nda spatial discretization";
-  const std::string kNDALinearSolver_ = "nda linear solver name";
-  const std::string kNDAPreconditioner_ = "nda preconditioner name";
-  const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
-  
-  const std::string kEigenSolver_ = "eigen solver name";
-  const std::string kInGroupSolver_ = "in group solver name";
-  const std::string kLinearSolver_ = "ho linear solver name";
-  const std::string kMultiGroupSolver_ = "mg solver name";
-
-  const std::string kAngularQuadrature_ = "angular quadrature name";
-  const std::string kAngularQuadOrder_ = "angular quadrature order";
+  bart::problem::ParametersDealiiHandler::KeyWords key_words;
 };
 
 void ParametersDealiiHandlerTest::SetUp() {
@@ -150,18 +121,18 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
         };
 
   // Set testing Parameters
-  test_parameter_handler.set(kDiscretization_, "dfem");
-  test_parameter_handler.set(kEigenvalueProblem_, "true");
-  test_parameter_handler.set(kHaveReflectiveBC_, "true");
-  test_parameter_handler.set(kFirstThermalGroup, "2");
-  test_parameter_handler.set(kNCells, "10, 5, 20");
-  test_parameter_handler.set(kNumberOfMaterials_, "5");
-  test_parameter_handler.set(kNEnergyGroups_, "10");
-  test_parameter_handler.set(kOutputFilenameBase, output_filename_base);
-  test_parameter_handler.set(kReflectiveBoundary, "xmin, ymax");
-  test_parameter_handler.set(kSpatialDimension_, 3.0);
-  test_parameter_handler.set(kSpatialMax_, "10.0, 5.0, 8.0");
-  test_parameter_handler.set(kTransportModel_, "saaf");
+  test_parameter_handler.set(key_words.kDiscretization_, "dfem");
+  test_parameter_handler.set(key_words.kEigenvalueProblem_, "true");
+  test_parameter_handler.set(key_words.kHaveReflectiveBC_, "true");
+  test_parameter_handler.set(key_words.kFirstThermalGroup_, "2");
+  test_parameter_handler.set(key_words.kNCells_, "10, 5, 20");
+  test_parameter_handler.set(key_words.kNumberOfMaterials_, "5");
+  test_parameter_handler.set(key_words.kNEnergyGroups_, "10");
+  test_parameter_handler.set(key_words.kOutputFilenameBase_, output_filename_base);
+  test_parameter_handler.set(key_words.kReflectiveBoundary_, "xmin, ymax");
+  test_parameter_handler.set(key_words.kSpatialDimension_, 3.0);
+  test_parameter_handler.set(key_words.kSpatialMax_, "10.0, 5.0, 8.0");
+  test_parameter_handler.set(key_words.kTransportModel_, "saaf");
   
   test_parameters.Parse(test_parameter_handler);
 
@@ -195,13 +166,13 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
-  test_parameter_handler.set(kPreconditioner_, "bjacobi");
-  test_parameter_handler.set(kBSSOR_Factor_, "1.5");
-  test_parameter_handler.set(kDoNDA_, "true");
-  test_parameter_handler.set(kNDA_Discretization_, "dfem");
-  test_parameter_handler.set(kNDALinearSolver_, "gmres");
-  test_parameter_handler.set(kNDAPreconditioner_, "amg");
-  test_parameter_handler.set(kNDA_BSSOR_Factor_, "2.0");
+  test_parameter_handler.set(key_words.kPreconditioner_, "bjacobi");
+  test_parameter_handler.set(key_words.kBSSOR_Factor_, "1.5");
+  test_parameter_handler.set(key_words.kDoNDA_, "true");
+  test_parameter_handler.set(key_words.kNDA_Discretization_, "dfem");
+  test_parameter_handler.set(key_words.kNDALinearSolver_, "gmres");
+  test_parameter_handler.set(key_words.kNDAPreconditioner_, "amg");
+  test_parameter_handler.set(key_words.kNDA_BSSOR_Factor_, "2.0");
   
   test_parameters.Parse(test_parameter_handler);
   
@@ -227,10 +198,10 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {
 
-  test_parameter_handler.set(kEigenSolver_, "none");
-  test_parameter_handler.set(kInGroupSolver_, "none");
-  test_parameter_handler.set(kLinearSolver_, "gmres");
-  test_parameter_handler.set(kMultiGroupSolver_, "none");
+  test_parameter_handler.set(key_words.kEigenSolver_, "none");
+  test_parameter_handler.set(key_words.kInGroupSolver_, "none");
+  test_parameter_handler.set(key_words.kLinearSolver_, "gmres");
+  test_parameter_handler.set(key_words.kMultiGroupSolver_, "none");
   
   test_parameters.Parse(test_parameter_handler);
   
@@ -251,8 +222,8 @@ TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {
 
 TEST_F(ParametersDealiiHandlerTest, AngularQuadParametersParsed) {
 
-  test_parameter_handler.set(kAngularQuadrature_, "lsgc");
-  test_parameter_handler.set(kAngularQuadOrder_, "8");
+  test_parameter_handler.set(key_words.kAngularQuad_, "lsgc");
+  test_parameter_handler.set(key_words.kAngularQuadOrder_, "8");
   
   test_parameters.Parse(test_parameter_handler);
   
