@@ -1,7 +1,6 @@
 set problem dimension                        = 2
 set angular quadrature name                  = lsgc
 set transport model                          = saaf
-set do print angular quadrature info         = true
 set angular quadrature order                 = 8
 set number of groups                         = 1
 set do eigenvalue calculations               = true
