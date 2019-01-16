@@ -39,9 +39,11 @@ class ParametersI {
                                    
   // Acceleration parameters
   virtual PreconditionerType       Preconditioner()     const = 0;
+  virtual double                   BlockSSORFactor()    const = 0;
   virtual bool                     DoNDA()              const = 0;
   virtual LinearSolverType         NDALinearSolver()    const = 0;
   virtual PreconditionerType       NDAPreconditioner()  const = 0;
+  virtual double                   NDABlockSSORFactor() const = 0;
                                      
   // Solver parameters             
   virtual EigenSolverType          EigenSolver()        const = 0;

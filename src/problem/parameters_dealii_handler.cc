@@ -30,10 +30,12 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Acceleration
   preconditioner_ = kPreconditionerTypeMap_.at(handler.get(kPreconditioner_));
+  block_ssor_factor_ = handler.get_double(kBSSOR_Factor_);
   do_nda_ = handler.get_bool(kDoNDA_);
   nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kNDALinearSolver_));
   nda_preconditioner_ = kPreconditionerTypeMap_.at(
       handler.get(kNDAPreconditioner_));
+  nda_block_ssor_factor_ = handler.get_double(kNDA_BSSOR_Factor_);
   
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
@@ -127,7 +129,10 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   handler.declare_entry(kPreconditioner_, "amg",
                         Pattern::Selection(preconditioner_options),
                         "Preconditioner");
-    
+
+  handler.declare_entry(kBSSOR_Factor_, "1.0", Pattern::Double(0),
+                        "damping factor of block SSOR");
+  
   handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
                         "Boolean to determine NDA or not");
 
@@ -143,6 +148,9 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   handler.declare_entry(kNDAPreconditioner_, "jacobi",
                         Pattern::Selection(preconditioner_options),
                         "NDA Preconditioner");
+
+  handler.declare_entry(kNDA_BSSOR_Factor_, "1.0", Pattern::Double(0),
+                        "damping factor of NDA block SSOR");
 }
 
 // SOLVER PARAMETERS ===========================================================

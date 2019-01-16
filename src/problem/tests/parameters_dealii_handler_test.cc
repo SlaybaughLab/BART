@@ -27,9 +27,11 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kTransportModel_ = "transport model";
 
   const std::string kPreconditioner_ = "ho preconditioner name";
+  const std::string kBSSOR_Factor_ = "ho ssor factor";
   const std::string kDoNDA_ = "do nda";
   const std::string kNDALinearSolver_ = "nda linear solver name";
   const std::string kNDAPreconditioner_ = "nda preconditioner name";
+  const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
   
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kInGroupSolver_ = "in group solver name";
@@ -80,6 +82,8 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
   ASSERT_EQ(test_parameters.Preconditioner(),
             bart::problem::PreconditionerType::kAMG)
         << "Default preconditioner";
+  ASSERT_EQ(test_parameters.BlockSSORFactor(), 1.0)
+      << "Default BSSOR Factor"; 
   ASSERT_EQ(test_parameters.DoNDA(), false)
       << "Default NDA usage";
   ASSERT_EQ(test_parameters.NDALinearSolver(),
@@ -88,6 +92,8 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
   ASSERT_EQ(test_parameters.NDAPreconditioner(),
             bart::problem::PreconditionerType::kJacobi)
         << "Default NDA preconditioner";
+  ASSERT_EQ(test_parameters.NDABlockSSORFactor(), 1.0)
+      << "Default NDA BSSOR Factor"; 
 }
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersDefault) {
@@ -171,15 +177,19 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
   test_parameter_handler.set(kPreconditioner_, "bjacobi");
+  test_parameter_handler.set(kBSSOR_Factor_, "1.5");
   test_parameter_handler.set(kDoNDA_, "true");
   test_parameter_handler.set(kNDALinearSolver_, "gmres");
-  test_parameter_handler.set(kNDAPreconditioner_, "amg");  
+  test_parameter_handler.set(kNDAPreconditioner_, "amg");
+  test_parameter_handler.set(kNDA_BSSOR_Factor_, "2.0");
   
   test_parameters.Parse(test_parameter_handler);
   
   ASSERT_EQ(test_parameters.Preconditioner(),
             bart::problem::PreconditionerType::kBlockJacobi)
-        << "Parsedpreconditioner";
+        << "Parsed preconditioner";
+  ASSERT_EQ(test_parameters.BlockSSORFactor(), 1.5)
+      << "Parsed BSSOR Factor"; 
   ASSERT_EQ(test_parameters.DoNDA(), true)
       << "Parsed NDA usage";
   ASSERT_EQ(test_parameters.NDALinearSolver(),
@@ -188,6 +198,8 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
   ASSERT_EQ(test_parameters.NDAPreconditioner(),
             bart::problem::PreconditionerType::kAMG)
         << "Parsed NDA preconditioner";
+  ASSERT_EQ(test_parameters.NDABlockSSORFactor(), 2.0)
+      << "Parsed NDA BSSOR Factor"; 
 }
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {

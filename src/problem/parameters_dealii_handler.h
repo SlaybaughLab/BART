@@ -79,6 +79,11 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get preconditioner for high order equation */
   PreconditionerType       Preconditioner() const override {
     return preconditioner_; }
+
+  /*! Get Block SSOR Factor */
+  double               BlockSSORFactor() const override {
+    return block_ssor_factor_;
+  }
   
   bool                 DoNDA() const override { return do_nda_; }
   
@@ -89,6 +94,11 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get NDA Preconditioner */
   PreconditionerType       NDAPreconditioner() const override {
     return nda_preconditioner_; }
+  
+    /*! Get NDA Block SSOR Factor */
+  double               NDABlockSSORFactor() const override {
+    return nda_block_ssor_factor_;
+  }
   
   // Solver Parameters =========================================================
   /*! Get eigenvalue solver type */
@@ -128,9 +138,11 @@ class ParametersDealiiHandler : public ParametersI {
                            
   // Acceleration parameters
   PreconditionerType       preconditioner_;
+  double                   block_ssor_factor_;
   bool                     do_nda_;
   LinearSolverType         nda_linear_solver_;
   PreconditionerType       nda_preconditioner_;
+  double                   nda_block_ssor_factor_;
                            
   // Solvers               
   EigenSolverType          eigen_solver_;
@@ -157,9 +169,11 @@ class ParametersDealiiHandler : public ParametersI {
 
   // Acceleration parameters
   const std::string kPreconditioner_ = "ho preconditioner name";
+  const std::string kBSSOR_Factor_ = "ho ssor factor";
   const std::string kDoNDA_ = "do nda";
   const std::string kNDALinearSolver_ = "nda linear solver name";
   const std::string kNDAPreconditioner_ = "nda preconditioner name";
+  const std::string kNDA_BSSOR_Factor_ = "nda ssor factor";
   
   // Solvers
   const std::string kEigenSolver_ = "eigen solver name";
