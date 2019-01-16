@@ -38,18 +38,21 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
       handler.get(key_words_.kPreconditioner_));
   block_ssor_factor_ = handler.get_double(key_words_.kBSSOR_Factor_);
   do_nda_ = handler.get_bool(key_words_.kDoNDA_);
-  nda_discretization_ =
-      kDiscretizationTypeMap_.at(handler.get(key_words_.kNDA_Discretization_));
-  nda_linear_solver_ =
-      kLinearSolverTypeMap_.at(handler.get(key_words_.kNDALinearSolver_));
+  nda_discretization_ = kDiscretizationTypeMap_.at(
+      handler.get(key_words_.kNDA_Discretization_));
+  nda_linear_solver_ = kLinearSolverTypeMap_.at(
+      handler.get(key_words_.kNDALinearSolver_));
   nda_preconditioner_ = kPreconditionerTypeMap_.at(
       handler.get(key_words_.kNDAPreconditioner_));
   nda_block_ssor_factor_ = handler.get_double(key_words_.kNDA_BSSOR_Factor_);
   
   // Solvers
-  eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(key_words_.kEigenSolver_));
-  in_group_solver_ = kInGroupSolverTypeMap_.at(handler.get(key_words_.kInGroupSolver_));
-  linear_solver_ = kLinearSolverTypeMap_.at(handler.get(key_words_.kLinearSolver_));
+  eigen_solver_ = kEigenSolverTypeMap_.at(
+      handler.get(key_words_.kEigenSolver_));
+  in_group_solver_ = kInGroupSolverTypeMap_.at(
+      handler.get(key_words_.kInGroupSolver_));
+  linear_solver_ = kLinearSolverTypeMap_.at(
+      handler.get(key_words_.kLinearSolver_));
   multi_group_solver_ =
       kMultiGroupSolverTypeMap_.at(handler.get(key_words_.kMultiGroupSolver_));
 
@@ -117,15 +120,17 @@ void ParametersDealiiHandler::SetUpBasicParameters(
   handler.declare_entry(key_words_.kNumberOfMaterials_, "1", Pattern::Integer(0),
                          "number of materials in the problem");
   
-  handler.declare_entry(key_words_.kOutputFilenameBase_, "bart_output",Pattern::Anything(),
+  handler.declare_entry(key_words_.kOutputFilenameBase_,
+                        "bart_output",Pattern::Anything(),
                          "name base of the output file");
 
-  std::string boundary_options{GetOptionString(kBoundaryMap_)};
   handler.declare_entry(key_words_.kReflectiveBoundary_, "",
-                        Pattern::MultipleSelection(boundary_options),
+                        Pattern::MultipleSelection(
+                            GetOptionString(kBoundaryMap_)),
                         "lower case boundary names (xmin, ymax) etc)");
   
-  handler.declare_entry(key_words_.kSpatialDimension_, "2", Pattern::Integer(1, 3), "");
+  handler.declare_entry(key_words_.kSpatialDimension_, "2",
+                        Pattern::Integer(1, 3), "");
   
   try {
     handler.declare_entry(key_words_.kSpatialMax_, "",
@@ -133,9 +138,8 @@ void ParametersDealiiHandler::SetUpBasicParameters(
                           "xmax, ymax, zmax of the boundaries, mins are zero");
   } catch (const dealii::ParameterHandler::ExcValueDoesNotMatchPattern &e) {}
 
-  std::string equation_options{GetOptionString(kEquationTypeMap_)};
   handler.declare_entry(key_words_.kTransportModel_, "none",
-                        Pattern::Selection(equation_options),
+                        Pattern::Selection(GetOptionString(kEquationTypeMap_)),
                         "valid names such as ep");
 }
 
@@ -146,7 +150,6 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   namespace Pattern = dealii::Patterns;
 
   std::string preconditioner_options{GetOptionString(kPreconditionerTypeMap_)};
-  
   handler.declare_entry(key_words_.kPreconditioner_, "amg",
                         Pattern::Selection(preconditioner_options),
                         "Preconditioner");
@@ -163,12 +166,12 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
                         "NDA equation spatial discretization");
   
   // Remove Conjugate Gradient from options for NDA linear solver
-  std::string nda_linear_solver_options{GetOptionString(
-      kLinearSolverTypeMap_,
-      LinearSolverType::kConjugateGradient),};
 
   handler.declare_entry(key_words_.kNDALinearSolver_, "none",
-                        Pattern::Selection(nda_linear_solver_options),
+                        Pattern::Selection(
+                            GetOptionString(
+                                kLinearSolverTypeMap_,
+                                LinearSolverType::kConjugateGradient)),
                         "NDA linear solver");
 
   handler.declare_entry(key_words_.kNDAPreconditioner_, "jacobi",
@@ -185,24 +188,24 @@ void ParametersDealiiHandler::SetUpSolverParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
   
-  std::string eigen_solver_options{GetOptionString(kEigenSolverTypeMap_)};
   handler.declare_entry(key_words_.kEigenSolver_, "pi",
-                        Pattern::Selection(eigen_solver_options),
+                        Pattern::Selection(
+                            GetOptionString(kEigenSolverTypeMap_)),
                         "eigenvalue solvers");
 
-  std::string in_group_solver_options{GetOptionString(kInGroupSolverTypeMap_)};
   handler.declare_entry(key_words_.kInGroupSolver_, "si",
-                        Pattern::Selection(in_group_solver_options),
+                        Pattern::Selection(
+                            GetOptionString(kInGroupSolverTypeMap_)),
                         "in-group solvers");
   
-  std::string linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
   handler.declare_entry(key_words_.kLinearSolver_, "cg",
-                        Pattern::Selection(linear_solver_options),
+                        Pattern::Selection(
+                            GetOptionString(kLinearSolverTypeMap_)),
                         "linear solvers");
   
-  std::string multigroup_solver_options{GetOptionString(kMultiGroupSolverTypeMap_)};
   handler.declare_entry(key_words_.kMultiGroupSolver_, "gs",
-                        Pattern::Selection(multigroup_solver_options),
+                        Pattern::Selection(
+                            GetOptionString(kMultiGroupSolverTypeMap_)),
                         "Multi-group solvers");
   
 }
@@ -212,9 +215,9 @@ void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
 
   namespace Pattern = dealii::Patterns;
   
-  std::string angular_quad_options{GetOptionString(kAngularQuadTypeMap_)};
   handler.declare_entry(key_words_.kAngularQuad_, "none",
-                        Pattern::Selection (angular_quad_options),
+                        Pattern::Selection(
+                            GetOptionString(kAngularQuadTypeMap_)),
                         "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
   handler.declare_entry(key_words_.kAngularQuadOrder_, "4", Pattern::Integer(),
                         "Gauss-Chebyshev level-symmetric-like quadrature");
