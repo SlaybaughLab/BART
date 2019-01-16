@@ -2,8 +2,7 @@
 #define BART_SRC_PROBLEM_LOCATOR_H_
 
 #include <memory>
-
-class ParametersI;
+#include "../problem/parameters_i.h"
 
 namespace bart {
 
@@ -21,8 +20,6 @@ class Locator {
  private:
   static ParametersI *parameters_;
 };
-
-ParametersI *Locator::parameters_ = nullptr;
 
 } // namespace problem
 
