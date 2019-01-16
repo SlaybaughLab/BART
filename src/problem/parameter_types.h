@@ -12,12 +12,12 @@ enum class AngularQuadType {
 };
 
 enum class Boundary {
-  kXMin,
-  kXMax,
-  kYMin,
-  kYMax,
-  kZMin,
-  kZMax,
+  kXMin = 0,
+  kXMax = 1,
+  kYMin = 2,
+  kYMax = 3,
+  kZMin = 4,
+  kZMax = 5,
 };
 
 enum class EigenSolverType {
