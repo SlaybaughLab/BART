@@ -232,11 +232,19 @@ class ParametersDealiiHandler : public ParametersI {
 
   /*! Returns a string formed by combining the key strings in a mapping,
    * separated by `|`. Used to generate valid option strings for ParameterHandler
-   * entries.
+   * entries. Optional parameter allows a list of options to ignore.
    */
   template<typename T>
   std::string GetOptionString(
-      const std::unordered_map<std::string, T> enum_map) const;  
+      const std::unordered_map<std::string, T> enum_map,
+      const std::vector<T> to_ignore) const;
+  template<typename T>
+  std::string GetOptionString(
+      const std::unordered_map<std::string, T> enum_map,
+      const T to_ignore) const;
+  template<typename T>
+  std::string GetOptionString(
+      const std::unordered_map<std::string, T> enum_map) const;
 
 };
 

@@ -204,16 +204,38 @@ std::map<Key, bool> ParametersDealiiHandler::ParseDealiiMultiple(
 
 template<typename T>
 std::string ParametersDealiiHandler::GetOptionString(
-    const std::unordered_map<std::string, T> enum_map) const {
+    const std::unordered_map<std::string, T> enum_map,
+    const std::vector<T> to_ignore) const {
+      
   std::ostringstream oss;
   std::string return_string;
   for (auto const &entry : enum_map) {
-    oss << entry.first << "|";
+    if (std::find(to_ignore.begin(), to_ignore.end(), entry.second) ==
+        to_ignore.end())
+      oss << entry.first << "|";
   }
   return_string = oss.str();
-  return_string.pop_back();
+  if (return_string.size() > 0)
+    return_string.pop_back();
   return return_string;
 }
+
+template<typename T>
+std::string ParametersDealiiHandler::GetOptionString(
+    const std::unordered_map<std::string, T> enum_map) const {
+  std::vector<T> to_ignore;
+  return GetOptionString(enum_map, to_ignore);
+}
+
+template<typename T>
+std::string ParametersDealiiHandler::GetOptionString(
+    const std::unordered_map<std::string, T> enum_map,
+    const T to_ignore) const {
+  std::vector<T> ignore_vector{to_ignore};
+  return GetOptionString(enum_map, ignore_vector);
+}
+
+
 
 std::vector<double> ParametersDealiiHandler::ParseDealiiList(
     std::string to_parse) {
