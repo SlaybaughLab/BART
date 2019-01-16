@@ -122,7 +122,10 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
                         "Boolean to determine NDA or not");
 
-  std::string nda_linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
+  // Remove Conjugate Gradient from options for NDA linear solver
+  std::string nda_linear_solver_options{GetOptionString(
+      kLinearSolverTypeMap_,
+      LinearSolverType::kConjugateGradient),};
 
   handler.declare_entry(kNDALinearSolver_, "none",
                         Pattern::Selection(nda_linear_solver_options),
