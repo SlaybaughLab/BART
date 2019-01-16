@@ -1,6 +1,7 @@
 #ifndef BART_SRC_PROBLEM_PARAMETERS_DEALII_HANDLER_H_
 #define BART_SRC_PROBLEM_PARAMETERS_DEALII_HANDLER_H_
 
+#include <map>
 #include <string>
 #include <unordered_map>
 
@@ -210,6 +211,13 @@ class ParametersDealiiHandler : ParametersI {
    */
   std::vector<double> ParseDealiiList(std::string to_parse);
   std::vector<int>    ParseDealiiIntList(std::string to_parse);
+
+  /*! Parses a ParameterHandler entry of type dealii::Patterns::MultipleSelection
+   * returning a map of one type to another */
+  template<typename Key>
+  std::map<Key, bool> ParseDealiiMultiple(
+      const std::string to_parse,
+      const std::unordered_map<std::string, Key> enum_map) const;
 
   /*! Returns a string formed by combining the key strings in a mapping,
    * separated by `|`. Used to generate valid option strings for ParameterHandler

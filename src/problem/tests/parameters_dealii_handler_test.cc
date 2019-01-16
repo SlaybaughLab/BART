@@ -46,6 +46,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
     {bart::problem::Boundary::kXMax, false},
     {bart::problem::Boundary::kYMin, false},
     {bart::problem::Boundary::kYMax, false},
+    {bart::problem::Boundary::kZMin, false},
+    {bart::problem::Boundary::kZMax, false},
         };
   
   test_parameters.Parse(test_parameter_handler);

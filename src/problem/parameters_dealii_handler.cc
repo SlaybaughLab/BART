@@ -2,6 +2,7 @@
 
 #include <deal.II/base/parameter_handler.h>
 
+#include <algorithm>
 #include <sstream>
 
 namespace bart {
@@ -18,7 +19,10 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   n_cells_ = ParseDealiiIntList(handler.get(kNCells_));
   n_groups_ = handler.get_integer(kNEnergyGroups_);
   n_materials_ = handler.get_integer(kNumberOfMaterials_);
-  output_filename_base_ = handler.get(kOutputFilenameBase_);  
+  output_filename_base_ = handler.get(kOutputFilenameBase_);
+  reflective_boundary_ = ParseDealiiMultiple(
+      handler.get(kReflectiveBoundary_),
+      kBoundaryMap_);
   spatial_dimension_ = handler.get_integer(kSpatialDimension_);
   spatial_max = ParseDealiiList(handler.get(kSpatialMax_));
   transport_model_ = kEquationTypeMap_.at(handler.get(kTransportModel_));
@@ -138,6 +142,38 @@ void ParametersDealiiHandler::SetUpAngularQuadratureParameters(
                         "angular quadrature types. only LS-GC for multi-D and GL for 1D implemented for now.");
   handler.declare_entry(kAngularQuadOrder_, "4", Pattern::Integer(),
                         "Gauss-Chebyshev level-symmetric-like quadrature");
+}
+
+template<typename Key>
+std::map<Key, bool> ParametersDealiiHandler::ParseDealiiMultiple(
+    const std::string to_parse,
+    const std::unordered_map<std::string, Key> enum_map) const {
+
+  std::map<Key, bool> return_map;
+  
+  for (auto const entry : enum_map)
+    return_map[entry.second] = false;    
+
+  std::stringstream iss{to_parse};
+  std::string read_value;
+  
+  while(iss >> read_value) {
+    // strip commas
+    read_value.erase(std::remove(read_value.begin(), read_value.end(), ','),
+                     read_value.end());
+    
+    auto const it = enum_map.find(read_value);
+    
+    if (it != enum_map.cend())
+      return_map[enum_map.at(read_value)] = true;
+    
+    // Ignore next if comma or space
+    if (iss.peek() == ' ')
+      iss.ignore();
+  }
+
+  return return_map;
+  
 }
 
 template<typename T>
