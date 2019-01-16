@@ -35,6 +35,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.Discretization(),
             bart::problem::DiscretizationType::kContinuousFEM)
       << "Default discretization";
+  ASSERT_EQ(test_parameters.FEPolynomialDegree(), 1)
+      << "Default finite element polynomial degree";
   ASSERT_EQ(test_parameters.IsEigenvalueProblem(), false)
       << "Default eigenvalue problem";
   ASSERT_EQ(test_parameters.HaveReflectiveBC(), false)
@@ -124,6 +126,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(key_words.kDiscretization_, "dfem");
   test_parameter_handler.set(key_words.kEigenvalueProblem_, "true");
   test_parameter_handler.set(key_words.kHaveReflectiveBC_, "true");
+  test_parameter_handler.set(key_words.kFEPolynomialDegree_, "2");
   test_parameter_handler.set(key_words.kFirstThermalGroup_, "2");
   test_parameter_handler.set(key_words.kNCells_, "10, 5, 20");
   test_parameter_handler.set(key_words.kNumberOfMaterials_, "5");
@@ -140,8 +143,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.Discretization(),
             bart::problem::DiscretizationType::kDiscontinuousFEM)
       << "Parsed discretization";
-    ASSERT_EQ(test_parameters.IsEigenvalueProblem(), true)
+  ASSERT_EQ(test_parameters.IsEigenvalueProblem(), true)
       << "Parsed eigenvalue problem";
+  ASSERT_EQ(test_parameters.FEPolynomialDegree(), 2)
+        << "Parsed finite element polynomial degree";
   ASSERT_EQ(test_parameters.HaveReflectiveBC(), true)
       << "Parsed have reflective boundaries";
   ASSERT_EQ(test_parameters.FirstThermalGroup(), 2)

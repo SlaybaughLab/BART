@@ -18,6 +18,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   discretization_ = kDiscretizationTypeMap_.at(handler.get(key_words_.kDiscretization_));
   is_eigenvalue_problem_ = handler.get_bool(key_words_.kEigenvalueProblem_);
   have_reflective_bc_ = handler.get_bool(key_words_.kHaveReflectiveBC_);
+  fe_polynomial_degree_ = handler.get_integer(key_words_.kFEPolynomialDegree_);
   first_thermal_group_ = handler.get_integer(key_words_.kFirstThermalGroup_);
   n_cells_ = ParseDealiiIntList(handler.get(key_words_.kNCells_));
   n_groups_ = handler.get_integer(key_words_.kNEnergyGroups_);
@@ -89,6 +90,10 @@ void ParametersDealiiHandler::SetUpBasicParameters(
 
   handler.declare_entry(key_words_.kEigenvalueProblem_, "false", Pattern::Bool(),
                         "is problem an eigenvalue problem");
+
+  handler.declare_entry(key_words_.kFEPolynomialDegree_, "1",
+                        Pattern::Integer(1),
+                        "polynomial degree p for finite element");
   
   handler.declare_entry ("have reflective boundary", "false", Pattern::Bool(),
                          "Does the problem have reflective boundaries");        

@@ -28,6 +28,7 @@ class ParametersDealiiHandler : public ParametersI {
     // Basic parameters
     const std::string kDiscretization_ = "ho spatial discretization";
     const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
+    const std::string kFEPolynomialDegree_ = "finite element polynomial degree";
     const std::string kFirstThermalGroup_ = "thermal group boundary";
     const std::string kHaveReflectiveBC_ = "have reflective boundary";
     const std::string kNCells_ = "number of cells for x, y, z directions";
@@ -81,6 +82,10 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get if problem is an eigenvalue problem */
   bool                     IsEigenvalueProblem() const override {
     return is_eigenvalue_problem_; }
+
+  /*! Get finite element polynomial degree */
+  int                      FEPolynomialDegree() const override {
+    return fe_polynomial_degree_; }
   
   /*! Get thermal energy group boundary */
   int                  FirstThermalGroup() const override {
@@ -178,6 +183,7 @@ class ParametersDealiiHandler : public ParametersI {
   // Basic parameters
   DiscretizationType       discretization_;
   bool                     is_eigenvalue_problem_;
+  int                      fe_polynomial_degree_;
   int                      first_thermal_group_;
   bool                     have_reflective_bc_;
   EquationType             transport_model_;

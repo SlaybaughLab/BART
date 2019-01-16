@@ -28,6 +28,7 @@ class ParametersI {
   // Basic Problem Parameters
   virtual DiscretizationType       Discretization()      const = 0;
   virtual bool                     IsEigenvalueProblem() const = 0;
+  virtual int                      FEPolynomialDegree()  const = 0;
   virtual int                      FirstThermalGroup()   const = 0;
   virtual bool                     HaveReflectiveBC()    const = 0;
   virtual std::vector<int>         NCells()              const = 0;
