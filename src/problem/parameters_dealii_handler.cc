@@ -30,6 +30,7 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
 
   // Acceleration
   do_nda_ = handler.get_bool(kDoNDA_);
+  nda_linear_solver_ = kLinearSolverTypeMap_.at(handler.get(kNDALinearSolver_));
   
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(handler.get(kEigenSolver_));
@@ -56,6 +57,17 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
   SetUpSolverParameters(handler);
   SetUpAngularQuadratureParameters(handler);
 }
+
+/* =============================================================================
+ * PARAMETER SET UP
+ *
+ * This section declares all the entries in the parameter handler that we expect
+ * to see in our input file. We use the validation checking that comes with
+ * dealii; sometimes default parameters do not meet the validation (if no default
+ * parameter makes sense) so a try/catch is needed to ignore the thrown error.
+ * The entry is still made. SetUp is divided up to make it a little easier, but
+ * it's still a lot of hard to read code.
+ * ===========================================================================*/  
 
 void ParametersDealiiHandler::SetUpBasicParameters(
     dealii::ParameterHandler &handler) {
@@ -101,13 +113,23 @@ void ParametersDealiiHandler::SetUpBasicParameters(
                         "valid names such as ep");
 }
 
+// ACCELERATION PARAMETERS =====================================================
+
 void ParametersDealiiHandler::SetUpAccelerationParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
 
   handler.declare_entry(kDoNDA_, "false", Pattern::Bool(),
                         "Boolean to determine NDA or not");
+
+  std::string nda_linear_solver_options{GetOptionString(kLinearSolverTypeMap_)};
+
+  handler.declare_entry(kNDALinearSolver_, "none",
+                        Pattern::Selection(nda_linear_solver_options),
+                        "NDA linear solver");
 }
+
+// SOLVER PARAMETERS ===========================================================
 
 void ParametersDealiiHandler::SetUpSolverParameters(
     dealii::ParameterHandler &handler) {

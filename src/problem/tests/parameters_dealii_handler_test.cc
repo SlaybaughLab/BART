@@ -27,6 +27,7 @@ class ParametersDealiiHandlerTest : public ::testing::Test {
   const std::string kTransportModel_ = "transport model";
 
   const std::string kDoNDA_ = "do nda";
+  const std::string kNDALinearSolver_ = "nda linear solver name";
   
   const std::string kEigenSolver_ = "eigen solver name";
   const std::string kInGroupSolver_ = "in group solver name";
@@ -76,6 +77,9 @@ TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
   
   ASSERT_EQ(test_parameters.DoNDA(), false)
       << "Default NDA usage";
+  ASSERT_EQ(test_parameters.NDALinearSolver(),
+            bart::problem::LinearSolverType::kNone)
+      << "Default NDA linear solver";
 }
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersDefault) {
@@ -159,11 +163,15 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {
   test_parameter_handler.set(kDoNDA_, "true");
+  test_parameter_handler.set(kNDALinearSolver_, "gmres");
   
   test_parameters.Parse(test_parameter_handler);
 
   ASSERT_EQ(test_parameters.DoNDA(), true)
       << "Parsed NDA usage";
+  ASSERT_EQ(test_parameters.NDALinearSolver(),
+            bart::problem::LinearSolverType::kGMRES)
+      << "Parsed NDA linear solver";
 }
 
 TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {

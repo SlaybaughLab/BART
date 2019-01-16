@@ -39,6 +39,7 @@ class ParametersI {
                                    
   // Acceleration parameters       
   virtual bool                     DoNDA()              const = 0;
+  virtual LinearSolverType         NDALinearSolver()    const = 0;
                                      
   // Solver parameters             
   virtual EigenSolverType          EigenSolver()        const = 0;

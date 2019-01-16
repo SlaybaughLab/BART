@@ -77,6 +77,9 @@ class ParametersDealiiHandler : public ParametersI {
   
   // Acceleration parameters ===================================================
   bool                 DoNDA() const override { return do_nda_; }
+  /*! Get linear solver type for NDA */
+  LinearSolverType     NDALinearSolver() const override {
+    return nda_linear_solver_; }
   
   // Solver Parameters =========================================================
   /*! Get eigenvalue solver type */
@@ -116,6 +119,7 @@ class ParametersDealiiHandler : public ParametersI {
                            
   // Acceleration parameters
   bool                     do_nda_;
+  LinearSolverType          nda_linear_solver_;
                            
   // Solvers               
   EigenSolverType          eigen_solver_;
@@ -142,6 +146,7 @@ class ParametersDealiiHandler : public ParametersI {
 
   // Acceleration parameters
   const std::string kDoNDA_ = "do nda";
+  const std::string kNDALinearSolver_ = "nda linear solver name";
   
   // Solvers
   const std::string kEigenSolver_ = "eigen solver name";
