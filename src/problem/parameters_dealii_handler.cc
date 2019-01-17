@@ -40,6 +40,7 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   // Material parameters
   n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
   handler.enter_subsection(key_words_.kMaterialSubsection_);
+  material_filenames_ = ParseMap(handler.get(key_words_.kMaterialFilenames_));
   material_map_filename_ = handler.get(key_words_.kMaterialMapFilename_);
   handler.leave_subsection();
   
@@ -182,6 +183,8 @@ void ParametersDealiiHandler::SetUpMaterialParameters(
   
   handler.declare_entry(key_words_.kMaterialMapFilename_, "", Pattern::Anything(),
                         "file name for material id map");
+  handler.declare_entry(key_words_.kMaterialFilenames_, "",
+                        Pattern::Map(Pattern::Integer(), Pattern::Anything()));
   
   handler.leave_subsection();
 }
@@ -356,6 +359,23 @@ std::vector<int> ParametersDealiiHandler::ParseDealiiIntList(
   std::vector<double> double_vector(ParseDealiiList(to_parse));
   std::vector<int> return_vector(double_vector.cbegin(), double_vector.cend());
   return return_vector;
+}
+
+std::unordered_map<int, std::string> ParametersDealiiHandler::ParseMap(
+    std::string to_parse) {
+
+  std::unordered_map<int, std::string> return_map;
+  
+  const std::vector<std::string> pair_strings =
+      dealii::Utilities::split_string_list(to_parse, ",");
+
+  for (const std::string& pair_string : pair_strings) {
+    const std::vector<std::string> split_pair =
+        dealii::Utilities::split_string_list(pair_string, ':');
+    return_map[dealii::Utilities::string_to_int(split_pair[0])] = split_pair[1];
+  }
+
+  return return_map;
 }
 
 } // namespace problem

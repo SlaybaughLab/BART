@@ -47,6 +47,7 @@ class ParametersDealiiHandler : public ParametersI {
     // Material parameters
     const std::string kMaterialSubsection_ = "material ID map";
     const std::string kMaterialMapFilename_ = "material id file name";
+    const std::string kMaterialFilenames_ = "material id file name map";
     const std::string kNumberOfMaterials_ = "number of materials";
     
     // Acceleration parameters
@@ -147,6 +148,10 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get filename of material mapping (where materials are located) */
   std::string              MaterialMapFilename() const override {
     return material_map_filename_; }
+
+  /*! Get the map that gives the filenames for each material id */
+  std::unordered_map<int, std::string>  MaterialFilenames() const override {
+    return material_filenames_; }
   
   /*! Get number of materials */
   int                  NumberOfMaterials() const override {
@@ -209,49 +214,50 @@ class ParametersDealiiHandler : public ParametersI {
   
  private:
   // Basic parameters
-  DiscretizationType       discretization_;
-  bool                     is_eigenvalue_problem_;
-  int                      fe_polynomial_degree_;
-  int                      first_thermal_group_;
-  bool                     have_reflective_bc_;
-  EquationType             transport_model_;
-  std::vector<int>         n_cells_;
-  int                      n_groups_;
-  std::string              output_filename_base_;
-  std::map<Boundary, bool> reflective_boundary_;    
-  int                      spatial_dimension_;
-  std::vector<double>      spatial_max;
-
-  // Mesh parameters
-  bool                     is_mesh_generated_;
-  std::string              mesh_file_name_;
-  int                      uniform_refinements_;
-
-  // Material Parameters
-  std::string              material_map_filename_;
-  int                      n_materials_;
-  
+  DiscretizationType                   discretization_;
+  bool                                 is_eigenvalue_problem_;
+  int                                  fe_polynomial_degree_;
+  int                                  first_thermal_group_;
+  bool                                 have_reflective_bc_;
+  EquationType                         transport_model_;
+  std::vector<int>                     n_cells_;
+  int                                  n_groups_;
+  std::string                          output_filename_base_;
+  std::map<Boundary, bool>             reflective_boundary_;    
+  int                                  spatial_dimension_;
+  std::vector<double>                  spatial_max;
+                                       
+  // Mesh parameters                   
+  bool                                 is_mesh_generated_;
+  std::string                          mesh_file_name_;
+  int                                  uniform_refinements_;
+                                       
+  // Material Parameters               
+  std::string                          material_map_filename_;
+  std::unordered_map<int, std::string> material_filenames_;
+  int                                  n_materials_;
+                                       
   // Acceleration parameters
-  PreconditionerType       preconditioner_;
-  double                   block_ssor_factor_;
-  bool                     do_nda_;
-  DiscretizationType       nda_discretization_;
-  LinearSolverType         nda_linear_solver_;
-  PreconditionerType       nda_preconditioner_;
-  double                   nda_block_ssor_factor_;
-                           
-  // Solvers               
-  EigenSolverType          eigen_solver_;
-  InGroupSolverType        in_group_solver_;
-  LinearSolverType         linear_solver_;
-  MultiGroupSolverType     multi_group_solver_;
-                           
-  // Angular Quadrature    
-  AngularQuadType          angular_quad_;
-  int                      angular_quad_order_;
-
-  // Key-words struct
-  KeyWords                 key_words_;
+  PreconditionerType                   preconditioner_;
+  double                               block_ssor_factor_;
+  bool                                 do_nda_;
+  DiscretizationType                   nda_discretization_;
+  LinearSolverType                     nda_linear_solver_;
+  PreconditionerType                   nda_preconditioner_;
+  double                               nda_block_ssor_factor_;
+                                       
+  // Solvers                           
+  EigenSolverType                      eigen_solver_;
+  InGroupSolverType                    in_group_solver_;
+  LinearSolverType                     linear_solver_;
+  MultiGroupSolverType                 multi_group_solver_;
+                                       
+  // Angular Quadrature                
+  AngularQuadType                      angular_quad_;
+  int                                  angular_quad_order_;
+                                       
+  // Key-words struct                  
+  KeyWords                             key_words_;
   
   // Options mapping
 
@@ -336,6 +342,11 @@ class ParametersDealiiHandler : public ParametersI {
    */
   std::vector<double> ParseDealiiList(std::string to_parse);
   std::vector<int>    ParseDealiiIntList(std::string to_parse);
+
+  /*! Parses the Material Filename mapping which is of the following deal.II
+   * pattern: Map(Integer, Anything)
+   */
+  std::unordered_map<int, std::string> ParseMap(std::string to_parse);
 
   /*! Parses a ParameterHandler entry of type dealii::Patterns::MultipleSelection
    * returning a map of one type to another */

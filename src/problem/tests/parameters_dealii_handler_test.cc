@@ -2,6 +2,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -68,7 +69,11 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
 
 TEST_F(ParametersDealiiHandlerTest, MaterialParametersDefault) {
   test_parameters.Parse(test_parameter_handler);
+
+  std::unordered_map<int, std::string> empty_map;
   
+  ASSERT_EQ(test_parameters.MaterialFilenames(), empty_map)
+      << "Default material filenames";
   ASSERT_EQ(test_parameters.MaterialMapFilename(), "")
       << "Default mesh filename";
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 1)
@@ -202,14 +207,24 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
 }
 
 TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
+
+  std::unordered_map<int, std::string> material_map{
+    {1, "file_1"},
+    {2, "file_2"}
+  };
+  
   test_parameter_handler.set(key_words.kNumberOfMaterials_, "5");
   
   test_parameter_handler.enter_subsection(key_words.kMaterialSubsection_);
   test_parameter_handler.set(key_words.kMaterialMapFilename_, "mid.txt");
+  test_parameter_handler.set(key_words.kMaterialFilenames_,
+                             "1: file_1, 2: file_2");
   test_parameter_handler.leave_subsection();
   
   test_parameters.Parse(test_parameter_handler);
-  
+
+  ASSERT_EQ(test_parameters.MaterialFilenames(), material_map)
+      << "Parsed material filenames";
   ASSERT_EQ(test_parameters.MaterialMapFilename(), "mid.txt")
       << "Parsed material map file name";
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 5)
