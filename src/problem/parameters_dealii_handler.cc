@@ -34,7 +34,7 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
 
   // Mesh parameters
   is_mesh_generated_ = handler.get_bool(key_words_.kMeshGenerated_);
-  mesh_file_name_ = handler.get(key_words_.kMeshFileName_);
+  mesh_file_name_ = handler.get(key_words_.kMeshFilename_);
   uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
 
   // Material parameters
@@ -161,7 +161,7 @@ void ParametersDealiiHandler::SetUpMeshParameters(
   handler.declare_entry(key_words_.kMeshGenerated_, "true", Pattern::Bool(),
                         "Boolean to determine if generating mesh in dealii or read in mesh");
   
-  handler.declare_entry(key_words_.kMeshFileName_, "", Pattern::Anything(),
+  handler.declare_entry(key_words_.kMeshFilename_, "", Pattern::Anything(),
                         "mesh file name");
   
   handler.declare_entry(key_words_.kUniformRefinements_,
