@@ -9,7 +9,12 @@ namespace bart {
 
 namespace problem {
 
-ParametersDealiiHandler::ParametersDealiiHandler() {}
+ParametersDealiiHandler::ParametersDealiiHandler(const std::string filename) {
+  dealii::ParameterHandler prm;
+  SetUp(prm);
+  prm.parse_input(filename, "");
+  Parse(prm);
+}
 
 void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
 

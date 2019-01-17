@@ -70,7 +70,11 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kAngularQuadOrder_ = "angular quadrature order";
   };
   
-  ParametersDealiiHandler();
+  ParametersDealiiHandler() = default;
+  /*! Constructor that parses a given filename in the appropriate format to be
+   * read by a ParameterHandler object
+   */
+  ParametersDealiiHandler(const std::string filename);
   ~ParametersDealiiHandler() = default;
 
   /*! \brief Parses a ParameterHandler object for problem parameters */
