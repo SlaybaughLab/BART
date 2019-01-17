@@ -44,12 +44,12 @@ class ParametersI {
   virtual bool                                 IsMeshGenerated()     const = 0;
   virtual std::string                          MeshFilename()        const = 0;
   virtual int                                  UniformRefinements()  const = 0;
+  virtual double                               FuelRodRadius()       const = 0;
                                                
   // Material parameters                       
   virtual int                                  NumberOfMaterials()   const = 0;
   virtual std::string                          MaterialMapFilename() const = 0;
   virtual std::unordered_map<int, std::string> MaterialFilenames()   const = 0;
-                                   
                                                          
   // Acceleration parameters                             
   virtual PreconditionerType                   Preconditioner()      const = 0;

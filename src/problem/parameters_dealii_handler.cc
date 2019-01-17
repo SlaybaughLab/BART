@@ -41,6 +41,7 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   is_mesh_generated_ = handler.get_bool(key_words_.kMeshGenerated_);
   mesh_file_name_ = handler.get(key_words_.kMeshFilename_);
   uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
+  fuel_rod_radius_ = handler.get_double(key_words_.kFuelRodRadius_);
 
   // Material parameters
   n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
@@ -170,9 +171,12 @@ void ParametersDealiiHandler::SetUpMeshParameters(
   handler.declare_entry(key_words_.kMeshFilename_, "", Pattern::Anything(),
                         "mesh file name");
   
-  handler.declare_entry(key_words_.kUniformRefinements_,
-                        "0", Pattern::Integer(0),
+  handler.declare_entry(key_words_.kUniformRefinements_, "0",
+                        Pattern::Integer(0),
                         "number of uniform refinements desired");
+
+  handler.declare_entry(key_words_.kFuelRodRadius_, "0.5", Pattern::Double(0),
+                        "radius of fuel rod");
 }
 
 // MATERIAL PARAMETERS =============================================================

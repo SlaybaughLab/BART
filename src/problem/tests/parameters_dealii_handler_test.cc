@@ -65,6 +65,8 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
       << "Default mesh filename";
   ASSERT_EQ(test_parameters.UniformRefinements(), 0)
       << "Default number of uniform refinements";
+  ASSERT_EQ(test_parameters.FuelRodRadius(), 0.5)
+      << "Default fuel rod radius";
 }
 
 TEST_F(ParametersDealiiHandlerTest, MaterialParametersDefault) {
@@ -195,6 +197,7 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
   test_parameter_handler.set(key_words.kMeshGenerated_, "false");
   test_parameter_handler.set(key_words.kUniformRefinements_, "1");
   test_parameter_handler.set(key_words.kMeshFilename_, "test_mesh.msh");
+  test_parameter_handler.set(key_words.kFuelRodRadius_, "1.0");
 
   test_parameters.Parse(test_parameter_handler);
 
@@ -204,6 +207,8 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
       << "Parsed mesh file name";
   ASSERT_EQ(test_parameters.UniformRefinements(), 1)
       << "Parsed number of uniform refinements";
+  ASSERT_EQ(test_parameters.FuelRodRadius(), 1.0)
+      << "Default fuel rod radius";
 }
 
 TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
