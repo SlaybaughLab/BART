@@ -11,7 +11,7 @@ namespace problem {
 
 ParametersDealiiHandler::ParametersDealiiHandler() {}
 
-void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
+void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
 
   // Parse parameters
   // Basic Parameters
@@ -23,7 +23,6 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   first_thermal_group_ = handler.get_integer(key_words_.kFirstThermalGroup_);
   n_cells_ = ParseDealiiIntList(handler.get(key_words_.kNCells_));
   n_groups_ = handler.get_integer(key_words_.kNEnergyGroups_);
-  n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
   output_filename_base_ = handler.get(key_words_.kOutputFilenameBase_);
   reflective_boundary_ = ParseDealiiMultiple(
       handler.get(key_words_.kReflectiveBoundary_),
@@ -37,6 +36,12 @@ void ParametersDealiiHandler::Parse(const dealii::ParameterHandler &handler) {
   is_mesh_generated_ = handler.get_bool(key_words_.kMeshGenerated_);
   mesh_file_name_ = handler.get(key_words_.kMeshFileName_);
   uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
+
+  // Material parameters
+  n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
+  handler.enter_subsection(key_words_.kMaterialSubsection_);
+  material_map_filename_ = handler.get(key_words_.kMaterialMapFilename_);
+  handler.leave_subsection();
   
   // Acceleration
   preconditioner_ = kPreconditionerTypeMap_.at(
@@ -76,6 +81,7 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
    */
   SetUpBasicParameters(handler);
   SetUpMeshParameters(handler);
+  SetUpMaterialParameters(handler);
   SetUpAccelerationParameters(handler);
   SetUpSolverParameters(handler);
   SetUpAngularQuadratureParameters(handler);
@@ -123,9 +129,6 @@ void ParametersDealiiHandler::SetUpBasicParameters(
   handler.declare_entry(key_words_.kNEnergyGroups_, "1", Pattern::Integer(0),
                         "number of energy groups in the problem");
   
-  handler.declare_entry(key_words_.kNumberOfMaterials_, "1", Pattern::Integer(0),
-                         "number of materials in the problem");
-  
   handler.declare_entry(key_words_.kOutputFilenameBase_,
                         "bart_output",Pattern::Anything(),
                          "name base of the output file");
@@ -164,6 +167,23 @@ void ParametersDealiiHandler::SetUpMeshParameters(
   handler.declare_entry(key_words_.kUniformRefinements_,
                         "0", Pattern::Integer(0),
                         "number of uniform refinements desired");
+}
+
+// MATERIAL PARAMETERS =============================================================
+
+void ParametersDealiiHandler::SetUpMaterialParameters(
+    dealii::ParameterHandler &handler) {
+  namespace Pattern = dealii::Patterns;
+
+  handler.declare_entry(key_words_.kNumberOfMaterials_, "1", Pattern::Integer(0),
+                         "number of materials in the problem");
+  
+  handler.enter_subsection(key_words_.kMaterialSubsection_);
+  
+  handler.declare_entry(key_words_.kMaterialMapFilename_, "", Pattern::Anything(),
+                        "file name for material id map");
+  
+  handler.leave_subsection();
 }
 
 // ACCELERATION PARAMETERS =====================================================

@@ -43,10 +43,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
       << "Default have reflective boundaries";
   ASSERT_EQ(test_parameters.FirstThermalGroup(), 0)
       << "Default first thermal group";
-  ASSERT_EQ(test_parameters.NumberOfMaterials(), 1)
-      << "Default number of materials";
   ASSERT_EQ(test_parameters.NEnergyGroups(), 1)
-      << "Default number of materials";
+      << "Default number of energy groups";
   ASSERT_EQ(test_parameters.SpatialDimension(), 2)
       << "Default spatial dimension";
   ASSERT_EQ(test_parameters.ReflectiveBoundary(), test_reflective_map)
@@ -63,9 +61,18 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
   ASSERT_EQ(test_parameters.IsMeshGenerated(), true)
       << "Default mesh generation";
   ASSERT_EQ(test_parameters.MeshFileName(), "")
-      << "Default mesh file name";
+      << "Default mesh filename";
   ASSERT_EQ(test_parameters.UniformRefinements(), 0)
       << "Default number of uniform refinements";
+}
+
+TEST_F(ParametersDealiiHandlerTest, MaterialParametersDefault) {
+  test_parameters.Parse(test_parameter_handler);
+  
+  ASSERT_EQ(test_parameters.MaterialMapFilename(), "")
+      << "Default mesh filename";
+  ASSERT_EQ(test_parameters.NumberOfMaterials(), 1)
+      << "Default number of materials";
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
@@ -140,7 +147,6 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(key_words.kFEPolynomialDegree_, "2");
   test_parameter_handler.set(key_words.kFirstThermalGroup_, "2");
   test_parameter_handler.set(key_words.kNCells_, "10, 5, 20");
-  test_parameter_handler.set(key_words.kNumberOfMaterials_, "5");
   test_parameter_handler.set(key_words.kNEnergyGroups_, "10");
   test_parameter_handler.set(key_words.kOutputFilenameBase_, output_filename_base);
   test_parameter_handler.set(key_words.kReflectiveBoundary_, "xmin, ymax");
@@ -165,9 +171,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.NCells(), n_cells)
       << "Parsed number of cells";
   ASSERT_EQ(test_parameters.NEnergyGroups(), 10)
-      << "Parsed number of materials";
-  ASSERT_EQ(test_parameters.NumberOfMaterials(), 5)
-      << "Parsed number of materials";                             
+      << "Parsed number of enery groups";
   ASSERT_EQ(test_parameters.OutputFilenameBase(), output_filename_base)
       << "Parsed output filename base";
   ASSERT_EQ(test_parameters.ReflectiveBoundary(), parsed_reflective_map)
@@ -195,6 +199,21 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
       << "Parsed mesh file name";
   ASSERT_EQ(test_parameters.UniformRefinements(), 1)
       << "Parsed number of uniform refinements";
+}
+
+TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
+  test_parameter_handler.set(key_words.kNumberOfMaterials_, "5");
+  
+  test_parameter_handler.enter_subsection(key_words.kMaterialSubsection_);
+  test_parameter_handler.set(key_words.kMaterialMapFilename_, "mid.txt");
+  test_parameter_handler.leave_subsection();
+  
+  test_parameters.Parse(test_parameter_handler);
+  
+  ASSERT_EQ(test_parameters.MaterialMapFilename(), "mid.txt")
+      << "Parsed material map file name";
+  ASSERT_EQ(test_parameters.NumberOfMaterials(), 5)
+      << "Parsed number of materials";                             
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {

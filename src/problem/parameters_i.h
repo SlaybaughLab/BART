@@ -33,7 +33,6 @@ class ParametersI {
   virtual bool                     HaveReflectiveBC()    const = 0;
   virtual std::vector<int>         NCells()              const = 0;
   virtual int                      NEnergyGroups()       const = 0;
-  virtual int                      NumberOfMaterials()   const = 0;
   virtual std::string              OutputFilenameBase()  const = 0;
   virtual std::map<Boundary, bool> ReflectiveBoundary()  const = 0;
   virtual int                      SpatialDimension()    const = 0;
@@ -44,6 +43,10 @@ class ParametersI {
   virtual bool                     IsMeshGenerated()     const = 0;
   virtual std::string              MeshFileName()        const = 0;
   virtual int                      UniformRefinements()  const = 0;
+
+  // Material parameters
+  virtual int                      NumberOfMaterials()   const = 0;
+  virtual std::string              MaterialMapFilename() const = 0;
                                                          
   // Acceleration parameters                             
   virtual PreconditionerType       Preconditioner()      const = 0;
