@@ -65,11 +65,11 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
       << "Default mesh filename";
   ASSERT_EQ(test_parameters.UniformRefinements(), 0)
       << "Default number of uniform refinements";
-  ASSERT_EQ(test_parameters.FuelRodRadius(), 0.5)
-      << "Default fuel rod radius";
-  ASSERT_EQ(test_parameters.FuelRodTriangulation(),
-            bart::problem::FuelRodTriangulationType::kNone)
-      << "Default fuel rod triangulation type";
+  ASSERT_EQ(test_parameters.FuelPinRadius(), 0.5)
+      << "Default fuel Pin radius";
+  ASSERT_EQ(test_parameters.FuelPinTriangulation(),
+            bart::problem::FuelPinTriangulationType::kNone)
+      << "Default fuel Pin triangulation type";
   ASSERT_EQ(test_parameters.IsMeshPinResolved(), false)
       << "Default is mesh pin resolved";
 }
@@ -202,8 +202,8 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
   test_parameter_handler.set(key_words.kMeshGenerated_, "false");
   test_parameter_handler.set(key_words.kUniformRefinements_, "1");
   test_parameter_handler.set(key_words.kMeshFilename_, "test_mesh.msh");
-  test_parameter_handler.set(key_words.kFuelRodRadius_, "1.0");
-  test_parameter_handler.set(key_words.kFuelRodTriangulation_, "simple");
+  test_parameter_handler.set(key_words.kFuelPinRadius_, "1.0");
+  test_parameter_handler.set(key_words.kFuelPinTriangulation_, "simple");
   test_parameter_handler.set(key_words.kMeshPinResolved_, "true");
 
   test_parameters.Parse(test_parameter_handler);
@@ -214,11 +214,11 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
       << "Parsed mesh file name";
   ASSERT_EQ(test_parameters.UniformRefinements(), 1)
       << "Parsed number of uniform refinements";
-  ASSERT_EQ(test_parameters.FuelRodRadius(), 1.0)
-      << "Default fuel rod radius";
-  ASSERT_EQ(test_parameters.FuelRodTriangulation(),
-            bart::problem::FuelRodTriangulationType::kSimple)
-      << "Parsed fuel rod triangulation type";
+  ASSERT_EQ(test_parameters.FuelPinRadius(), 1.0)
+      << "Default fuel Pin radius";
+  ASSERT_EQ(test_parameters.FuelPinTriangulation(),
+            bart::problem::FuelPinTriangulationType::kSimple)
+      << "Parsed fuel Pin triangulation type";
   ASSERT_EQ(test_parameters.IsMeshPinResolved(), true)
       << "Parsed is mesh pin resolved";
 }

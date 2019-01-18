@@ -41,9 +41,9 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   is_mesh_generated_ = handler.get_bool(key_words_.kMeshGenerated_);
   mesh_file_name_ = handler.get(key_words_.kMeshFilename_);
   uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
-  fuel_rod_radius_ = handler.get_double(key_words_.kFuelRodRadius_);
-  fuel_rod_triangulation_ = kFuelRodTriangulationTypeMap_.at(
-      handler.get(key_words_.kFuelRodTriangulation_));
+  fuel_pin_radius_ = handler.get_double(key_words_.kFuelPinRadius_);
+  fuel_pin_triangulation_ = kFuelPinTriangulationTypeMap_.at(
+      handler.get(key_words_.kFuelPinTriangulation_));
   is_mesh_pin_resolved_ = handler.get_bool(key_words_.kMeshPinResolved_);
 
   // Material parameters
@@ -178,15 +178,15 @@ void ParametersDealiiHandler::SetUpMeshParameters(
                         Pattern::Integer(0),
                         "number of uniform refinements desired");
 
-  handler.declare_entry(key_words_.kFuelRodRadius_, "0.5", Pattern::Double(0),
-                        "radius of fuel rod");
+  handler.declare_entry(key_words_.kFuelPinRadius_, "0.5", Pattern::Double(0),
+                        "radius of fuel Pin");
 
-  handler.declare_entry(key_words_.kFuelRodTriangulation_, "none",
+  handler.declare_entry(key_words_.kFuelPinTriangulation_, "none",
                         Pattern::Selection(
-                            GetOptionString(kFuelRodTriangulationTypeMap_)),
-                        "fuel rod triangulation type");
+                            GetOptionString(kFuelPinTriangulationTypeMap_)),
+                        "fuel Pin triangulation type");
   handler.declare_entry(key_words_.kMeshPinResolved_, "false", Pattern::Bool(),
-                        "Boolean to determine if producing pin-resolved mesh");
+                        "Boolean to determine if pPinucing pin-resolved mesh");
                         
 }
 

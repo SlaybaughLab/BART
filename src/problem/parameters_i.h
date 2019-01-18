@@ -42,10 +42,11 @@ class ParametersI {
                                                                       
   // Mesh parameters                                                  
   virtual bool                                 IsMeshGenerated()      const = 0;
+
   virtual std::string                          MeshFilename()         const = 0;
   virtual int                                  UniformRefinements()   const = 0;
-  virtual double                               FuelRodRadius()        const = 0;
-  virtual FuelRodTriangulationType             FuelRodTriangulation() const = 0;
+  virtual double                               FuelPinRadius()        const = 0;
+  virtual FuelPinTriangulationType             FuelPinTriangulation() const = 0;
   virtual bool                                 IsMeshPinResolved()    const = 0;
                                                                       
   // Material parameters                                              
