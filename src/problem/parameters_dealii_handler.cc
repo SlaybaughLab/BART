@@ -42,6 +42,8 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   mesh_file_name_ = handler.get(key_words_.kMeshFilename_);
   uniform_refinements_ = handler.get_integer(key_words_.kUniformRefinements_);
   fuel_rod_radius_ = handler.get_double(key_words_.kFuelRodRadius_);
+  fuel_rod_triangulation_ = kFuelRodTriangulationTypeMap_.at(
+      handler.get(key_words_.kFuelRodTriangulation_));
 
   // Material parameters
   n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
@@ -177,6 +179,12 @@ void ParametersDealiiHandler::SetUpMeshParameters(
 
   handler.declare_entry(key_words_.kFuelRodRadius_, "0.5", Pattern::Double(0),
                         "radius of fuel rod");
+
+  handler.declare_entry(key_words_.kFuelRodTriangulation_, "none",
+                        Pattern::Selection(
+                            GetOptionString(kFuelRodTriangulationTypeMap_)),
+                        "fuel rod triangulation type");
+                        
 }
 
 // MATERIAL PARAMETERS =============================================================

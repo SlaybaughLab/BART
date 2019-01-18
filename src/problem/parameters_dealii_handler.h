@@ -44,6 +44,7 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kMeshFilename_ = "mesh file name";
     const std::string kUniformRefinements_ = "uniform refinements";
     const std::string kFuelRodRadius_ = "fuel rod radius";
+    const std::string kFuelRodTriangulation_ = "triangulation type of fuel rod";
 
     // Material parameters
     const std::string kMaterialSubsection_ = "material ID map";
@@ -151,6 +152,10 @@ class ParametersDealiiHandler : public ParametersI {
   /*! Get fuel rod radius if mesh has fuel rods */
   double FuelRodRadius() const override { return fuel_rod_radius_; }
 
+  /*! Get fuel rod triangulation type */
+  FuelRodTriangulationType FuelRodTriangulation() const override {
+    return fuel_rod_triangulation_; }
+
   // MATERIAL PARAMETERS =======================================================
 
   /*! Get filename of material mapping (where materials are located) */
@@ -240,6 +245,7 @@ class ParametersDealiiHandler : public ParametersI {
   std::string                          mesh_file_name_;
   int                                  uniform_refinements_;
   double                               fuel_rod_radius_;
+  FuelRodTriangulationType             fuel_rod_triangulation_;
                                        
   // Material Parameters               
   std::string                          material_map_filename_;
@@ -294,6 +300,13 @@ class ParametersDealiiHandler : public ParametersI {
   const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
     {"pi",   EigenSolverType::kPowerIteration},
     {"none", EigenSolverType::kNone},
+        };
+
+  const std::unordered_map<std::string, FuelRodTriangulationType>
+  kFuelRodTriangulationTypeMap_ {
+    {"none",      FuelRodTriangulationType::kNone},
+    {"simple",    FuelRodTriangulationType::kSimple},
+    {"composite", FuelRodTriangulationType::kComposite},
         };
 
   const std::unordered_map<std::string, InGroupSolverType>
