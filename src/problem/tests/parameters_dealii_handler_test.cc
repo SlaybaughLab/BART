@@ -70,6 +70,8 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
   ASSERT_EQ(test_parameters.FuelRodTriangulation(),
             bart::problem::FuelRodTriangulationType::kNone)
       << "Default fuel rod triangulation type";
+  ASSERT_EQ(test_parameters.IsMeshPinResolved(), false)
+      << "Default is mesh pin resolved";
 }
 
 TEST_F(ParametersDealiiHandlerTest, MaterialParametersDefault) {
@@ -202,6 +204,7 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
   test_parameter_handler.set(key_words.kMeshFilename_, "test_mesh.msh");
   test_parameter_handler.set(key_words.kFuelRodRadius_, "1.0");
   test_parameter_handler.set(key_words.kFuelRodTriangulation_, "simple");
+  test_parameter_handler.set(key_words.kMeshPinResolved_, "true");
 
   test_parameters.Parse(test_parameter_handler);
 
@@ -216,6 +219,8 @@ TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
   ASSERT_EQ(test_parameters.FuelRodTriangulation(),
             bart::problem::FuelRodTriangulationType::kSimple)
       << "Parsed fuel rod triangulation type";
+  ASSERT_EQ(test_parameters.IsMeshPinResolved(), true)
+      << "Parsed is mesh pin resolved";
 }
 
 TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {

@@ -44,6 +44,7 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   fuel_rod_radius_ = handler.get_double(key_words_.kFuelRodRadius_);
   fuel_rod_triangulation_ = kFuelRodTriangulationTypeMap_.at(
       handler.get(key_words_.kFuelRodTriangulation_));
+  is_mesh_pin_resolved_ = handler.get_bool(key_words_.kMeshPinResolved_);
 
   // Material parameters
   n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
@@ -184,6 +185,8 @@ void ParametersDealiiHandler::SetUpMeshParameters(
                         Pattern::Selection(
                             GetOptionString(kFuelRodTriangulationTypeMap_)),
                         "fuel rod triangulation type");
+  handler.declare_entry(key_words_.kMeshPinResolved_, "false", Pattern::Bool(),
+                        "Boolean to determine if producing pin-resolved mesh");
                         
 }
 

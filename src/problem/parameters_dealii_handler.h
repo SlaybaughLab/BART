@@ -45,6 +45,7 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kUniformRefinements_ = "uniform refinements";
     const std::string kFuelRodRadius_ = "fuel rod radius";
     const std::string kFuelRodTriangulation_ = "triangulation type of fuel rod";
+    const std::string kMeshPinResolved_ = "is mesh pin-resolved";
 
     // Material parameters
     const std::string kMaterialSubsection_ = "material ID map";
@@ -156,6 +157,9 @@ class ParametersDealiiHandler : public ParametersI {
   FuelRodTriangulationType FuelRodTriangulation() const override {
     return fuel_rod_triangulation_; }
 
+  /*! Get if generated mesh is pin-resolved */
+  bool IsMeshPinResolved() const override { return is_mesh_pin_resolved_;}
+
   // MATERIAL PARAMETERS =======================================================
 
   /*! Get filename of material mapping (where materials are located) */
@@ -246,6 +250,7 @@ class ParametersDealiiHandler : public ParametersI {
   int                                  uniform_refinements_;
   double                               fuel_rod_radius_;
   FuelRodTriangulationType             fuel_rod_triangulation_;
+  bool                                 is_mesh_pin_resolved_;
                                        
   // Material Parameters               
   std::string                          material_map_filename_;
