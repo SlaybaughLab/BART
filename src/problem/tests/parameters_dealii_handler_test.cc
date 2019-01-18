@@ -85,6 +85,9 @@ TEST_F(ParametersDealiiHandlerTest, MaterialParametersDefault) {
       << "Default mesh filename";
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 1)
       << "Default number of materials";
+  ASSERT_EQ(test_parameters.FuelPinMaterialFilename(), "")
+      << "Default fuel pin filename";
+  
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersDefault) {
@@ -236,6 +239,7 @@ TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
   test_parameter_handler.set(key_words.kMaterialMapFilename_, "mid.txt");
   test_parameter_handler.set(key_words.kMaterialFilenames_,
                              "1: file_1, 2: file_2");
+  test_parameter_handler.set(key_words.kFuelPinMaterialFilename_, "pin.txt");
   test_parameter_handler.leave_subsection();
   
   test_parameters.Parse(test_parameter_handler);
@@ -245,7 +249,9 @@ TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
   ASSERT_EQ(test_parameters.MaterialMapFilename(), "mid.txt")
       << "Parsed material map file name";
   ASSERT_EQ(test_parameters.NumberOfMaterials(), 5)
-      << "Parsed number of materials";                             
+      << "Parsed number of materials";
+  ASSERT_EQ(test_parameters.FuelPinMaterialFilename(), "pin.txt")
+      << "Parsed fuel pin filename";
 }
 
 TEST_F(ParametersDealiiHandlerTest, AccelerationParametersParsed) {

@@ -52,6 +52,8 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kMaterialMapFilename_ = "material id file name";
     const std::string kMaterialFilenames_ = "material id file name map";
     const std::string kNumberOfMaterials_ = "number of materials";
+    const std::string kFuelPinMaterialFilename_ =
+        "fuel pin material id file name";
     
     // Acceleration parameters
     const std::string kPreconditioner_ = "ho preconditioner name";
@@ -162,6 +164,10 @@ class ParametersDealiiHandler : public ParametersI {
   
   /*! Get number of materials */
   int NumberOfMaterials() const override { return n_materials_; }
+
+  /*! Get filename of material for fuel pin */
+  std::string FuelPinMaterialFilename() const override {
+    return fuel_pin_material_filename_; }
   
   // Acceleration parameters ===================================================
   /*! Get preconditioner for high order equation */
@@ -241,6 +247,7 @@ class ParametersDealiiHandler : public ParametersI {
   std::string                          material_map_filename_;
   std::unordered_map<int, std::string> material_filenames_;
   int                                  n_materials_;
+  std::string                          fuel_pin_material_filename_;
                                        
   // Acceleration parameters
   PreconditionerType                   preconditioner_;

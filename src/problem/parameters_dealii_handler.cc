@@ -51,6 +51,8 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   handler.enter_subsection(key_words_.kMaterialSubsection_);
   material_filenames_ = ParseMap(handler.get(key_words_.kMaterialFilenames_));
   material_map_filename_ = handler.get(key_words_.kMaterialMapFilename_);
+  fuel_pin_material_filename_ = handler.get(
+      key_words_.kFuelPinMaterialFilename_);
   handler.leave_subsection();
   
   // Acceleration
@@ -205,6 +207,8 @@ void ParametersDealiiHandler::SetUpMaterialParameters(
                         "file name for material id map");
   handler.declare_entry(key_words_.kMaterialFilenames_, "",
                         Pattern::Map(Pattern::Integer(), Pattern::Anything()));
+  handler.declare_entry(key_words_.kFuelPinMaterialFilename_, "",
+                        Pattern::Anything(), "file name for pin material map");
   
   handler.leave_subsection();
 }
