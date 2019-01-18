@@ -76,7 +76,7 @@ ENABLE_TESTING()
 
 # Recursively find source files
 
-file(GLOB_RECURSE sources "src/*.cpp" "src/*.cc")
+file(GLOB_RECURSE sources "src/[a-zA-Z]*.cpp" "src/[a-zA-Z]*.cc")
 list(APPEND sources ${PROTO_SRCS} ${PROTO_HDRS})
 set(testing_sources ${sources})
 list(FILTER sources EXCLUDE REGEX ".*/tests/.*")
