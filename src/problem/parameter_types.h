@@ -37,6 +37,12 @@ enum class EquationType {
   kSelfAdjointAngularFlux,
 };
 
+enum class FuelRodTriangulationType {
+  kNone,
+  kSimple,
+  kComposite,
+};
+
 enum class InGroupSolverType {
   kNone,
   kSourceIteration,
