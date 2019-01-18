@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <deal.II/lac/full_matrix.h>
 
-#include "../problem_definition.h"
+#include "../../problem/parameters_dealii_handler.h"
 #include "../../material/tests/mock_material.h"
 #include "../../test_helpers/bart_test_helper.h"
 #include "../../test_helpers/gmock_wrapper.h"
@@ -31,7 +31,8 @@ void ComputingDataTestMPI::SetUp() {
   // Initilize MPI
   this->MPIInit();
   // declare all entries for parameter handler
-  bparams::DeclareParameters(prm_);
+  bart::problem::ParametersDealiiHandler parameter_handler;
+  parameter_handler.SetUp(prm_);
 
   prm_.set ("reflective boundary names", "xmin");
   prm_.set ("x, y, z max values of boundary locations", "1.0, 2.0");
