@@ -54,7 +54,7 @@ class ParametersI {
   virtual std::string                MaterialMapFilename()            const = 0;
   virtual std::unordered_map<int, std::string>                       
                                      MaterialFilenames()              const = 0;
-  virtual std::string                FuelPinMaterialFilename()        const = 0;
+  virtual std::string                FuelPinMaterialMapFilename()        const = 0;
                                                             
   // Acceleration parameters                                
   virtual PreconditionerType         Preconditioner()                 const = 0;
