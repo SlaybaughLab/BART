@@ -49,7 +49,8 @@ class ParametersI {
   virtual FuelPinTriangulationType   FuelPinTriangulation()           const = 0;
   virtual bool                       IsMeshPinResolved()              const = 0;
                                                                       
-  // Material parameters                                              
+  // Material parameters
+  virtual std::vector<int>           FissileMaterialIDs()             const = 0;
   virtual int                        NumberOfMaterials()              const = 0;
   virtual std::string                MaterialMapFilename()            const = 0;
   virtual std::unordered_map<int, std::string>                       

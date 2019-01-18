@@ -48,11 +48,21 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
 
   // Material parameters
   n_materials_ = handler.get_integer(key_words_.kNumberOfMaterials_);
+  
   handler.enter_subsection(key_words_.kMaterialSubsection_);
-  material_filenames_ = ParseMap(handler.get(key_words_.kMaterialFilenames_));
-  material_map_filename_ = handler.get(key_words_.kMaterialMapFilename_);
-  fuel_pin_material_map_filename_ = handler.get(
-      key_words_.kFuelPinMaterialMapFilename_);
+  {
+    material_filenames_ = ParseMap(handler.get(key_words_.kMaterialFilenames_));
+    material_map_filename_ = handler.get(key_words_.kMaterialMapFilename_);
+    fuel_pin_material_map_filename_ = handler.get(
+        key_words_.kFuelPinMaterialMapFilename_);
+  }
+  handler.leave_subsection();
+
+  handler.enter_subsection(key_words_.kFissileMaterialIDsSubsection_);
+  {
+    fissile_material_ids_ =
+        ParseDealiiIntList(handler.get(key_words_.kFissileMaterialIDs_));
+  }
   handler.leave_subsection();
   
   // Acceleration
@@ -209,6 +219,14 @@ void ParametersDealiiHandler::SetUpMaterialParameters(
                         Pattern::Map(Pattern::Integer(), Pattern::Anything()));
   handler.declare_entry(key_words_.kFuelPinMaterialMapFilename_, "",
                         Pattern::Anything(), "file name for pin material map");
+  
+  handler.leave_subsection();
+
+  handler.enter_subsection(key_words_.kFissileMaterialIDsSubsection_);
+
+  handler.declare_entry (key_words_.kFissileMaterialIDs_, "",
+                         dealii::Patterns::List (
+                             dealii::Patterns::Integer (0)), "");
   
   handler.leave_subsection();
 }

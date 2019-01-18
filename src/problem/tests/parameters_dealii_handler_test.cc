@@ -78,7 +78,10 @@ TEST_F(ParametersDealiiHandlerTest, MaterialParametersDefault) {
   test_parameters.Parse(test_parameter_handler);
 
   std::unordered_map<int, std::string> empty_map;
-  
+  std::vector<int> empty_int_vector;
+
+  ASSERT_EQ(test_parameters.FissileMaterialIDs(), empty_int_vector)
+      << "Default fissile IDs";
   ASSERT_EQ(test_parameters.MaterialFilenames(), empty_map)
       << "Default material filenames";
   ASSERT_EQ(test_parameters.MaterialMapFilename(), "")
@@ -232,6 +235,8 @@ TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
     {1, "file_1"},
     {2, "file_2"}
   };
+
+  std::vector<int> fissile_ids{1,2};
   
   test_parameter_handler.set(key_words.kNumberOfMaterials_, "5");
   
@@ -241,9 +246,16 @@ TEST_F(ParametersDealiiHandlerTest, MaterialParametersParsed) {
                              "1: file_1, 2: file_2");
   test_parameter_handler.set(key_words.kFuelPinMaterialMapFilename_, "pin.txt");
   test_parameter_handler.leave_subsection();
+
+  test_parameter_handler.enter_subsection(
+      key_words.kFissileMaterialIDsSubsection_);
+  test_parameter_handler.set(key_words.kFissileMaterialIDs_, "1, 2");
+  test_parameter_handler.leave_subsection();
   
   test_parameters.Parse(test_parameter_handler);
 
+  ASSERT_EQ(test_parameters.FissileMaterialIDs(), fissile_ids)
+      << "Parsed fissile IDs";
   ASSERT_EQ(test_parameters.MaterialFilenames(), material_map)
       << "Parsed material filenames";
   ASSERT_EQ(test_parameters.MaterialMapFilename(), "mid.txt")
