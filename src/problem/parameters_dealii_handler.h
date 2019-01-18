@@ -23,9 +23,12 @@ namespace problem {
 
 class ParametersDealiiHandler : public ParametersI {
  public:
-  // Key-words for input file
   struct KeyWords {
-    // Basic parameters
+    /*!
+     * \brief Data struct to contain keywords for input files
+     * These are the strings that the ParameterHandler will look for in provided
+     * input files.
+     */
     const std::string kDiscretization_ = "ho spatial discretization";
     const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
     const std::string kFEPolynomialDegree_ = "finite element polynomial degree";
@@ -79,7 +82,7 @@ class ParametersDealiiHandler : public ParametersI {
   
   ParametersDealiiHandler() = default;
   /*! Constructor that parses a given filename in the appropriate format to be
-   * read by a ParameterHandler object
+   * read by a ParameterHandler object.
    */
   ParametersDealiiHandler(const std::string filename);
   ~ParametersDealiiHandler() = default;
@@ -249,37 +252,41 @@ class ParametersDealiiHandler : public ParametersI {
     {"ymax", Boundary::kYMax},
     {"zmin", Boundary::kZMin},
     {"zmax", Boundary::kZMax},
-        };
+        }; /*!< Maps boundaries to strings used in parsed input files. */
 
-  const std::unordered_map<std::string, DiscretizationType> kDiscretizationTypeMap_ {
+  const std::unordered_map<std::string, DiscretizationType>
+  kDiscretizationTypeMap_ {
     {"none", DiscretizationType::kNone},
     {"cfem",   DiscretizationType::kContinuousFEM},
     {"dfem", DiscretizationType::kDiscontinuousFEM},
-        };
-  
+        }; /*!< Maps discretization type to strings used in parsed input
+            * files. */
+
   const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {
     {"ep",   EquationType::kEvenParity},
     {"saaf", EquationType::kSelfAdjointAngularFlux},
     {"none", EquationType::kNone},
-        };
+        }; /*!< Maps equation type to strings used in parsed input files. */
 
   const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
     {"pi",   EigenSolverType::kPowerIteration},
     {"none", EigenSolverType::kNone},
-        };
+        }; /*!< Maps eigen solver type to strings used in parsed input files. */
 
   const std::unordered_map<std::string, FuelPinTriangulationType>
   kFuelPinTriangulationTypeMap_ {
     {"none",      FuelPinTriangulationType::kNone},
     {"simple",    FuelPinTriangulationType::kSimple},
     {"composite", FuelPinTriangulationType::kComposite},
-        };
+        }; /*!< Maps fuel pin triangulation type to strings used in parsed input
+            * files. */
 
   const std::unordered_map<std::string, InGroupSolverType>
   kInGroupSolverTypeMap_ {
     {"si",   InGroupSolverType::kSourceIteration},
     {"none", InGroupSolverType::kNone},
-        };
+        }; /*!< Maps in-group solver type to strings used in parsed input
+            * files. */
   
   const std::unordered_map<std::string, LinearSolverType> kLinearSolverTypeMap_ {
     {"cg",       LinearSolverType::kConjugateGradient},
@@ -287,65 +294,71 @@ class ParametersDealiiHandler : public ParametersI {
     {"bicgstab", LinearSolverType::kBiCGSTAB},
     {"direct",   LinearSolverType::kDirect},
     {"none",     LinearSolverType::kNone},
-        };
+        };  /*!< Maps linear solver type to strings used in parsed input
+             * files. */
 
   const std::unordered_map<std::string, MultiGroupSolverType>
   kMultiGroupSolverTypeMap_ {
     {"gs",   MultiGroupSolverType::kGaussSeidel},
     {"none", MultiGroupSolverType::kNone},
-  };
+  }; /*!< Maps multi-group solver type to strings used in parsed input files. */
 
-  const std::unordered_map<std::string, PreconditionerType> kPreconditionerTypeMap_ {
+  const std::unordered_map<std::string, PreconditionerType>
+  kPreconditionerTypeMap_ {
     {"amg",       PreconditionerType::kAMG},
     {"parasails", PreconditionerType::kParaSails},
     {"bjacobi",   PreconditionerType::kBlockJacobi},
     {"jacobi",    PreconditionerType::kJacobi},
     {"bssor",     PreconditionerType::kBlockSSOR},
     {"none",      PreconditionerType::kNone},
-        };
+        }; /*!< Maps preconditioner type to strings used in parsed input
+            * files. */
 
   const std::unordered_map<std::string, AngularQuadType> kAngularQuadTypeMap_ {
     {"lsgc", AngularQuadType::kLevelSymmetricGaussChebyshev},
     {"gl",   AngularQuadType::kGaussLegendre},
     {"none", AngularQuadType::kNone},
-  };
+  }; /*!< Maps angular quadrature type to strings used in parsed input files. */
 
   // Setup functions
-  /*! Set up basic problem parameters */
+  /*! \brief Set up basic problem parameters */
   void SetUpBasicParameters(dealii::ParameterHandler &handler);
-  /*! Set up mesh parameters */
+  /*! \brief Set up mesh parameters */
   void SetUpMeshParameters(dealii::ParameterHandler &handler);
-  /*! Set up material parameters */
+  /*! \brief Set up material parameters */
   void SetUpMaterialParameters(dealii::ParameterHandler &handler);
-  /*! Set up acceleration parameters */
+  /*! \brief Set up acceleration parameters */
   void SetUpAccelerationParameters(dealii::ParameterHandler &handler);
-  /*! Set up solver parameters */
+  /*! \brief Set up solver parameters */
   void SetUpSolverParameters(dealii::ParameterHandler &handler);
-  /*! Set up angular quadrature parameters */
+  /*! \brief Set up angular quadrature parameters */
   void SetUpAngularQuadratureParameters(dealii::ParameterHandler &handler);
   
   
-  /*! Parses a ParameterHandler entry of type dealii::Patterns::List with doubles
-   * into a vector.
+  /*! \brief Parses a ParameterHandler entry of type dealii::Patterns::List with
+   * doubles into a vector.
    */
   std::vector<double> ParseDealiiList(std::string to_parse);
   std::vector<int>    ParseDealiiIntList(std::string to_parse);
 
-  /*! Parses the Material Filename mapping which is of the following deal.II
-   * pattern: Map(Integer, Anything)
+  /*! \brief Parses the Material Filename mapping which is of the following
+   * deal.II pattern: Map(Integer, Anything)
    */
   std::unordered_map<int, std::string> ParseMap(std::string to_parse);
 
-  /*! Parses a ParameterHandler entry of type dealii::Patterns::MultipleSelection
-   * returning a map of one type to another */
+  /*! \brief Parses a ParameterHandler entry of type
+   * dealii::Patterns::MultipleSelection returning a map of one type to another
+   */
   template<typename Key>
   std::map<Key, bool> ParseDealiiMultiple(
       const std::string to_parse,
       const std::unordered_map<std::string, Key> enum_map) const;
 
-  /*! Returns a string formed by combining the key strings in a mapping,
-   * separated by `|`. Used to generate valid option strings for ParameterHandler
-   * entries. Optional parameter allows a list of options to ignore.
+  /*! \brief Returns a string formed by combining the key strings in a mapping.
+   * 
+   * Entries will be separated by `|`. Used to generate valid option strings for
+   * ParameterHandler entries. Optional parameter allows a list of options to
+   * ignore.
    */
   template<typename T>
   std::string GetOptionString(
