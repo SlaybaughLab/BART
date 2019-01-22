@@ -914,6 +914,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // with two materials, one with Q data, one without
   map[10] = Material();
   map[10].CopyFrom(test_materials_.at(10));
+  map[10].set_is_fissile(false);
 
   correct_fissile_id_map[10] = false;
   correct_sig_t_map[10] = test_sigma_t_.at(10);
@@ -954,6 +955,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   EXPECT_EQ(mp_2.GetChiNuSigFPerSter(), null_matrix_map_);
 
   // two material eigen problem
+
   correct_fissile_id_map[10] = true;
   correct_nu_sig_f_map[10] = test_nu_sig_f_.at(10);
   chi_nu_sig_f_values[10] = {
@@ -976,7 +978,8 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
 
   correct_chi_nu_sig_f_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[10].data());
   correct_chi_nu_sig_f_per_ster_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[10].data());
-
+  
+  map[10].set_is_fissile(true);
   MaterialProtobuf mp_2_eigen(map, true, false, 7, 2, {10});
 
   EXPECT_EQ(mp_2_eigen.GetFissileIDMap(), correct_fissile_id_map);
@@ -1123,6 +1126,9 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // four material fixed source problem
   correct_fissile_id_map[10] = false;
   correct_fissile_id_map[11] = false;
+  map[10].set_is_fissile(false);
+  map[11].set_is_fissile(false);
+  
   MaterialProtobuf mp_4_q(map, false, false, 7, 4);
 
   EXPECT_EQ(mp_4_q.GetFissileIDMap(), correct_fissile_id_map);
@@ -1199,6 +1205,8 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // one group eigen problem
   correct_fissile_id_map[10] = true;
   correct_fissile_id_map[11] = true;
+  map[10].set_is_fissile(true);
+  map[11].set_is_fissile(true);
   MaterialProtobuf mp_one_group_eigen(map, true, false, 1, 4, {10, 11});
 
   EXPECT_EQ(mp_one_group_eigen.GetFissileIDMap(), correct_fissile_id_map);
