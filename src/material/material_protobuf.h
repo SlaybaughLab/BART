@@ -37,11 +37,10 @@ class MaterialProtobuf : public MaterialBase {
     fissile_ids must be non-empty if is_eigen_problem is given as true
    */
   MaterialProtobuf(const std::unordered_map<int, Material>& materials,
-                     bool is_eigen_problem,
-                     bool do_nda,
-                     int number_of_groups,
-                     int number_of_materials,
-                     const std::unordered_set<int>& fissile_ids = {});
+                   bool is_eigen_problem,
+                   bool do_nda,
+                   int number_of_groups,
+                   int number_of_materials);
 
   /*!
     gets the necessary information from the parameter handler and

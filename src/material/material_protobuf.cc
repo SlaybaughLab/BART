@@ -1,11 +1,10 @@
 #include "material_protobuf.h"
 
 MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& materials,
-                                        bool is_eigen_problem,
-                                        bool do_nda,
-                                        int number_of_groups,
-                                        int number_of_materials,
-                                        const std::unordered_set<int>& fissile_ids /* = {} */)
+                                   bool is_eigen_problem,
+                                   bool do_nda,
+                                   int number_of_groups,
+                                   int number_of_materials)
     : materials_(materials),
       is_eigen_problem_(is_eigen_problem),
       do_nda_(do_nda),
@@ -39,8 +38,7 @@ MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
         prm.get_bool("do eigenvalue calculations"),
         prm.get_bool("do nda"),
         prm.get_integer("number of groups"),
-        prm.get_integer("number of materials"),
-        ReadFissileIDs(prm)) {}
+        prm.get_integer("number of materials")) {}
 
 std::unordered_map<int, std::string> MaterialProtobuf::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
   std::unordered_map<int, std::string> result;
