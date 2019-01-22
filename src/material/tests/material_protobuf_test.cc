@@ -11,6 +11,7 @@ class MaterialProtobufTest : public ::testing::Test {
   MaterialProtobufTest();
 
   //! maps from material id to data for that material
+  std::unordered_map<int, bool> test_is_fissile_;
   std::unordered_map<int, std::vector<double>> test_energy_groups_;
   std::unordered_map<int, std::vector<double>> test_sigma_t_;
   std::unordered_map<int, std::vector<double>> test_sigma_a_;
@@ -62,6 +63,7 @@ MaterialProtobufTest::MaterialProtobufTest() {
   for (const int& key : material_ids) {
     test_energy_groups_[key] = {20000000.0, 1353000.0, 9119.0, 3.928, 0.6251, 0.1457, 0.05692, 0};
   }
+  test_is_fissile_ = {{1, false}, {2, false}, {10, true}, {11, true}};
   test_sigma_t_[1] = {0.12417, 0.29921, 0.57997, 1.0581, 1.3203, 1.6301, 2.2847};
   test_sigma_t_[2] = {0.075384, 0.24872, 0.42163, 0.53183, 0.90849, 1.3205, 2.3163};
   test_sigma_t_[10] = {0.11111, 0.28863, 0.45098, 0.45889, 0.66863, 0.95402, 1.6043};
@@ -123,6 +125,7 @@ MaterialProtobufTest::MaterialProtobufTest() {
   test_materials_[11].set_abbreviation("uo2_33");
 
   for (const int& key : material_ids) {
+    test_materials_[key].set_is_fissile(test_is_fissile_[key]);
     test_materials_[key].set_number_of_groups(7);
     test_materials_[key].set_thermal_groups(4);
     test_materials_[key].set_id(test_materials_[key].abbreviation());
