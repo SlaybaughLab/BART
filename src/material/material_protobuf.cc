@@ -10,17 +10,25 @@ MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& mate
       is_eigen_problem_(is_eigen_problem),
       do_nda_(do_nda),
       n_group_(number_of_groups),
-      n_material_(number_of_materials),
-      fissile_ids_(fissile_ids) {
-    CheckFissileIDs();
-    PopulateFissileMap(); // generates is_material_fissile_, which is used by CheckValidEach and PopulateData
+      n_material_(number_of_materials) {
 
-    CheckNumberOfMaterials();
-    CheckValidEach();
-    CheckNumberOfGroups();
-    CheckConsistent();
+  for (const std::pair<int, Material>& mat_pair : materials_) {
+    const int& id = mat_pair.first;
+    const Material& material = mat_pair.second;
 
-    PopulateData();
+    if (material.is_fissile())
+      fissile_ids_.emplace(id);
+  }
+  
+  CheckFissileIDs();
+  PopulateFissileMap(); // generates is_material_fissile_, which is used by CheckValidEach and PopulateData
+
+  CheckNumberOfMaterials();
+  CheckValidEach();
+  CheckNumberOfGroups();
+  CheckConsistent();
+
+  PopulateData();
 }
 
 MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
