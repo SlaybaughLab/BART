@@ -12,12 +12,14 @@ MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& mate
       n_group_(number_of_groups),
       n_material_(number_of_materials) {
 
-  for (const std::pair<int, Material>& mat_pair : materials_) {
-    const int& id = mat_pair.first;
-    const Material& material = mat_pair.second;
+  if (is_eigen_problem) {
+    for (const std::pair<int, Material>& mat_pair : materials_) {
+      const int& id = mat_pair.first;
+      const Material& material = mat_pair.second;
 
-    if (material.is_fissile())
-      fissile_ids_.emplace(id);
+      if (material.is_fissile())
+        fissile_ids_.emplace(id);
+    }
   }
   
   CheckFissileIDs();
