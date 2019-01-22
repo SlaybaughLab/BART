@@ -7,10 +7,11 @@ message Material {
 
   uint32 number_of_groups = 4;
   uint32 thermal_groups = 5;
+  bool   is_fissile = 6;
   
-  repeated ScalarProperty scalar_property = 6;
-  repeated VectorProperty vector_property = 7;
-  repeated MatrixProperty matrix_property = 8;
+  repeated ScalarProperty scalar_property = 7;
+  repeated VectorProperty vector_property = 8;
+  repeated MatrixProperty matrix_property = 9;
 
   enum ScalarId {
     UNKNOWN_SCALAR = 0;
@@ -26,6 +27,7 @@ message Material {
     NU_SIG_F = 5;
     KAPPA_SIG_F = 6;
     Q = 7;
+    DIFFUSION_COEFF = 8;
   }
 
   enum MatrixId {
