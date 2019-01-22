@@ -718,51 +718,9 @@ TEST_F(MaterialProtobufTest, StaticCheckConsistentNoThrow) {
 // tests for exceptions thrown from MaterialProtobuf Material map constructor
 
 TEST_F(MaterialProtobufTest, NoFissileIDs) {
+  test_materials_.erase(10);
+  test_materials_.erase(11);
   EXPECT_THROW(MaterialProtobuf mp(test_materials_, true, false, 7, 4), MaterialProtobuf::NoFissileIDs);
-  EXPECT_THROW(MaterialProtobuf mp(test_materials_, true, false, 7, 4, {}), MaterialProtobuf::NoFissileIDs);
-}
-
-TEST_F(MaterialProtobufTest, FissileIDInvalid) {
-  EXPECT_THROW({
-    try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {11, 5, 10});
-    }
-    catch (const MaterialProtobuf::FissileIDInvalid& e) {
-      std::string expected = "Material ID 5 was specified as fissile, but no material with ID 5 exists.";
-      EXPECT_EQ(expected, GetMessage(e));
-      throw;
-    }
-  }, MaterialProtobuf::FissileIDInvalid);
-
-  EXPECT_THROW({
-    try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {-222});
-    }
-    catch (const MaterialProtobuf::FissileIDInvalid& e) {
-      std::string expected = "Material ID -222 was specified as fissile, but no material with ID -222 exists.";
-      EXPECT_EQ(expected, GetMessage(e));
-      throw;
-    }
-  }, MaterialProtobuf::FissileIDInvalid);
-
-  // test that the exception has one of the correct possible options
-  EXPECT_THROW({
-    try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {1, 2, 3, 4, 8, 9, 10, 11});
-    }
-    catch (const MaterialProtobuf::FissileIDInvalid& e) {
-      std::string message = GetMessage(e);
-      bool errorMessageContainsInvalidID = false;
-      for (std::string id_str : {" 3 ", " 4 ", " 8 ", " 9 "})
-      {
-        if (message.substr(11, 3) == id_str) {
-          errorMessageContainsInvalidID = true;
-        }
-      }
-      EXPECT_TRUE(errorMessageContainsInvalidID);
-      throw;
-    }
-  }, MaterialProtobuf::FissileIDInvalid);
 }
 
 TEST_F(MaterialProtobufTest, WrongNumberOfMaterials) {
