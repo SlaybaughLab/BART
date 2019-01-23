@@ -28,7 +28,6 @@ MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& mate
   CheckValidEach();
   CheckNumberOfGroups();
   CheckConsistent();
-
   PopulateData();
 }
 
@@ -111,6 +110,11 @@ void MaterialProtobuf::PopulateData() {
 
     sigt_[id] = vector_props.at(Material::SIGMA_T);
     sigs_[id] = GetScatteringMatrix(material);
+    if (vector_props.count(Material::DIFFUSION_COEFF) > 0) {
+      diffusion_coef_[id] = vector_props.at(Material::DIFFUSION_COEFF);
+    } else {
+      diffusion_coef_[id] = std::vector<double>(n_group_, 0);
+    }
 
     if (is_material_fissile_[id]) {
       chi_[id] = vector_props.at(Material::CHI);
@@ -233,10 +237,15 @@ void MaterialProtobuf::CheckValid(const Material& material,
   if (vector_props.count(Material::Q) > 0) {
     required_vector_props.insert(Material::Q);
   }
+
+  if (vector_props.count(Material::DIFFUSION_COEFF) > 0) {
+    required_vector_props.insert(Material::DIFFUSION_COEFF);
+  } 
   const unsigned int& n = material.number_of_groups();
   std::unordered_map<Material::VectorId, unsigned int, std::hash<int>> required_count =
    {{Material::ENERGY_GROUPS, n+1}, {Material::SIGMA_T, n},
-    {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n}};
+    {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n},
+    {Material::DIFFUSION_COEFF, n}};
 
   for (Material::VectorId id : required_vector_props) {
     AssertThrow(vector_props.at(id).size() == required_count.at(id),

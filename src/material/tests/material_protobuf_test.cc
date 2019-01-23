@@ -1,10 +1,13 @@
 #include "../material_protobuf.h"
 
 #include <sstream>
+#include <exception>
 
 #include <google/protobuf/text_format.h>
 
 #include "gtest/gtest.h"
+
+#include "../../test_helpers/test_helper_functions.h"
 
 class MaterialProtobufTest : public ::testing::Test {
  protected:
@@ -1504,3 +1507,53 @@ TEST_F(MaterialProtobufTest, ConstructorFromParameterHandler) {
   {SCOPED_TRACE("");
   ExpectApproxEqual(mp_eigen.GetChiNuSigFPerSter(), correct_chi_nu_sig_f_per_ster_map);}
 }
+
+TEST_F(MaterialProtobufTest, DiffusionCoefficientValuesTest) {
+
+  auto &diffusion_material = test_materials_.at(1);
+
+  auto diffusion_ptr = diffusion_material.add_vector_property();
+  
+  diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
+  
+  const std::vector<double> diffusion_coef(btest::RandomVector(7, 1e-3, 3));
+  const std::vector<double> null_vector(7,0);
+  
+  for (const double& val : diffusion_coef) {
+    diffusion_ptr->add_value(val);
+  }
+   
+  MaterialProtobuf mp_1(test_materials_, false, false, 7, 4);
+
+  auto diffusion_map = mp_1.GetDiffusionCoef();
+  
+  ASSERT_EQ(diffusion_map.size(), 4)
+      << "Incorrectly sized diffusion map";
+  ASSERT_EQ(mp_1.GetDiffusionCoef().at(1), diffusion_coef)
+      << "Incorrect provided diffusion coefficient";
+  ASSERT_EQ(mp_1.GetDiffusionCoef().at(10), null_vector)
+      << "Incorrect default diffusion coefficient";
+}
+
+TEST_F(MaterialProtobufTest, DiffusionCoefficientInvalidTest) {
+
+  auto &diffusion_material = test_materials_.at(1);
+
+  auto diffusion_ptr = diffusion_material.add_vector_property();
+  
+  diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
+  
+  const std::vector<double> diffusion_coef(btest::RandomVector(5, 1e-3, 3));
+  for (const double& val : diffusion_coef) {
+    diffusion_ptr->add_value(val);
+  }
+  
+  ASSERT_THROW({
+      MaterialProtobuf mp_1(test_materials_, false, false, 7, 4);
+    }, MaterialProtobuf::WrongNumberOfValues);
+}
+
+  
+
+
+  
