@@ -7,7 +7,7 @@ message Material {
 
   uint32 number_of_groups = 4;
   uint32 thermal_groups = 5;
-  bool   is_fissile = 6;
+  bool   is_fissionable = 6;
   
   repeated ScalarProperty scalar_property = 7;
   repeated VectorProperty vector_property = 8;
