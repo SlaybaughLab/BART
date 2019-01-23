@@ -69,8 +69,6 @@ class ParametersI {
   virtual bool                       IsMeshPinResolved()              const = 0;
                                                                       
   // Material parameters
-  /*! \brief Gets which materials are fissile */
-  virtual std::vector<int>           FissileMaterialIDs()             const = 0;
   /*! \brief Gets total number of materials in the problem */
   virtual int                        NumberOfMaterials()              const = 0;
   /*! \brief Gets the filename that shows the layout of materials in the problem */

@@ -52,8 +52,6 @@ class ParametersDealiiHandler : public ParametersI {
 
     // Material parameters
     const std::string kMaterialSubsection_ = "material ID map";
-    const std::string kFissileMaterialIDsSubsection_ = "fissile material IDs";
-    const std::string kFissileMaterialIDs_ = "fissile material ids";
     const std::string kMaterialMapFilename_ = "material id file name";
     const std::string kMaterialFilenames_ = "material id file name map";
     const std::string kNumberOfMaterials_ = "number of materials";
@@ -139,9 +137,6 @@ class ParametersDealiiHandler : public ParametersI {
   bool IsMeshPinResolved() const override { return is_mesh_pin_resolved_;}
 
   // MATERIAL PARAMETERS =======================================================
-  std::vector<int> FissileMaterialIDs() const override {
-    return fissile_material_ids_; }
-
   std::string MaterialMapFilename() const override { 
     return material_map_filename_; }
 
@@ -215,7 +210,6 @@ class ParametersDealiiHandler : public ParametersI {
   bool                                 is_mesh_pin_resolved_;
                                        
   // Material Parameters
-  std::vector<int>                     fissile_material_ids_;
   std::string                          material_map_filename_;
   std::unordered_map<int, std::string> material_filenames_;
   int                                  n_materials_;
