@@ -128,7 +128,7 @@ MaterialProtobufTest::MaterialProtobufTest() {
   test_materials_[11].set_abbreviation("uo2_33");
 
   for (const int& key : material_ids) {
-    test_materials_[key].set_is_fissile(test_is_fissile_[key]);
+    test_materials_[key].set_is_fissionable(test_is_fissile_[key]);
     test_materials_[key].set_number_of_groups(7);
     test_materials_[key].set_thermal_groups(4);
     test_materials_[key].set_id(test_materials_[key].abbreviation());
@@ -917,7 +917,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // with two materials, one with Q data, one without
   map[10] = Material();
   map[10].CopyFrom(test_materials_.at(10));
-  map[10].set_is_fissile(false);
+  map[10].set_is_fissionable(false);
 
   correct_fissile_id_map[10] = false;
   correct_sig_t_map[10] = test_sigma_t_.at(10);
@@ -982,7 +982,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   correct_chi_nu_sig_f_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[10].data());
   correct_chi_nu_sig_f_per_ster_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[10].data());
   
-  map[10].set_is_fissile(true);
+  map[10].set_is_fissionable(true);
   MaterialProtobuf mp_2_eigen(map, true, false, 7, 2);
 
   EXPECT_EQ(mp_2_eigen.GetFissileIDMap(), correct_fissile_id_map);
@@ -1129,8 +1129,8 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // four material fixed source problem
   correct_fissile_id_map[10] = false;
   correct_fissile_id_map[11] = false;
-  map[10].set_is_fissile(false);
-  map[11].set_is_fissile(false);
+  map[10].set_is_fissionable(false);
+  map[11].set_is_fissionable(false);
   
   MaterialProtobuf mp_4_q(map, false, false, 7, 4);
 
@@ -1208,8 +1208,8 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // one group eigen problem
   correct_fissile_id_map[10] = true;
   correct_fissile_id_map[11] = true;
-  map[10].set_is_fissile(true);
-  map[11].set_is_fissile(true);
+  map[10].set_is_fissionable(true);
+  map[11].set_is_fissionable(true);
   MaterialProtobuf mp_one_group_eigen(map, true, false, 1, 4);
 
   EXPECT_EQ(mp_one_group_eigen.GetFissileIDMap(), correct_fissile_id_map);

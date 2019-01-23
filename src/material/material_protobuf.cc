@@ -16,7 +16,7 @@ MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& mate
       const int& id = mat_pair.first;
       const Material& material = mat_pair.second;
 
-      if (material.is_fissile())
+      if (material.is_fissionable())
         fissile_ids_.emplace(id);
     }
   }
