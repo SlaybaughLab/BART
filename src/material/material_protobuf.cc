@@ -54,19 +54,6 @@ std::unordered_map<int, std::string> MaterialProtobuf::ReadMaterialFileNames(dea
   return result;
 }
 
-std::unordered_set<int> MaterialProtobuf::ReadFissileIDs(dealii::ParameterHandler& prm) {
-  std::unordered_set<int> result;
-  prm.enter_subsection("fissile material IDs");
-  const std::vector<std::string> id_strings =
-    dealii::Utilities::split_string_list(prm.get("fissile material ids"), ",");
-
-  for (const std::string& id_string : id_strings) {
-    result.insert(dealii::Utilities::string_to_int(id_string));
-  }
-  prm.leave_subsection();
-  return result;
-}
-
 std::unordered_map<int, Material>
 MaterialProtobuf::ParseMaterials(const std::unordered_map<int, std::string>& file_name_map) {
   /*

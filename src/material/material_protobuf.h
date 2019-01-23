@@ -234,10 +234,6 @@ class MaterialProtobuf : public MaterialBase {
   static std::unordered_map<int, std::string>
   ReadMaterialFileNames(dealii::ParameterHandler& prm);
 
-  //! Reads fissile material ids listed in the parameter handler
-  static std::unordered_set<int>
-  ReadFissileIDs(dealii::ParameterHandler& prm);
-
   /*!
     parses Materials from the given file names
     accepts both serialized and human-readable protobuf files
