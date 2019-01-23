@@ -7,6 +7,7 @@
 
 XSections::XSections (MaterialBase& material)
     :
+    diffusion_coef(material.GetDiffusionCoef()),
     sigt(material.GetSigT()),
     inv_sigt(material.GetInvSigT()),
     q(material.GetQ()),

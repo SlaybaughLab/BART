@@ -45,6 +45,7 @@ TEST_F (ComputingDataTestMPI, 2DFundamentalDataTest) {
 
 TEST_F(XSectionsTest, XSectionsConstructor) {
 
+  id_vector_map diffusion_coef_map = btest::RandomIntVectorMap();
   id_vector_map sigma_t_map = btest::RandomIntVectorMap();
   id_vector_map sigma_t_inv_map = btest::RandomIntVectorMap();
   id_vector_map q_map = btest::RandomIntVectorMap();
@@ -55,7 +56,9 @@ TEST_F(XSectionsTest, XSectionsConstructor) {
   id_matrix_map chi_nu_sig_f_map = btest::RandomIntMatrixMap();
   id_matrix_map chi_nu_sig_f_per_ster_map = btest::RandomIntMatrixMap();
   std::unordered_map<int, bool> fissile_id_map{{1, true}, {2, false}};
-  
+
+  EXPECT_CALL(mock_material_properties, GetDiffusionCoef())
+      .WillOnce(::testing::Return(diffusion_coef_map));
   EXPECT_CALL(mock_material_properties, GetSigT())
       .WillOnce(::testing::Return(sigma_t_map));
   EXPECT_CALL(mock_material_properties, GetInvSigT())
@@ -79,6 +82,7 @@ TEST_F(XSectionsTest, XSectionsConstructor) {
   
   XSections test_xsections(mock_material_properties);
 
+  EXPECT_EQ(test_xsections.diffusion_coef, diffusion_coef_map);
   EXPECT_EQ(test_xsections.sigt, sigma_t_map);
   EXPECT_EQ(test_xsections.inv_sigt, sigma_t_inv_map);
   EXPECT_EQ(test_xsections.q, q_map);
