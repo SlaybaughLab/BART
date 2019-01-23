@@ -3,7 +3,7 @@ abbreviation: "uo2_33"
 id: "uo2_33"
 number_of_groups: 7
 thermal_groups: 4
-is_fissile: true
+is_fissionable: true
 vector_property {
   id: ENERGY_GROUPS
   value: 20000000.0
