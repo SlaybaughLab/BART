@@ -3,6 +3,7 @@ abbreviation: "reflector"
 id: "reflector"
 number_of_groups: 7
 thermal_groups: 4
+is_fissionable: false
 vector_property {
   id: ENERGY_GROUPS
   value: 20000000.0

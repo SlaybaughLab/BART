@@ -30,6 +30,4 @@ set material id file name map                = 1: t-ep.material, 2: t-ep.materia
 set material id file name                    = mid.txt
 end
 
-subsection fissile material IDs
-set fissile material ids                     = 1, 2
-end
+

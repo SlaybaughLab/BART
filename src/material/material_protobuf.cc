@@ -1,26 +1,34 @@
 #include "material_protobuf.h"
 
 MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& materials,
-                                        bool is_eigen_problem,
-                                        bool do_nda,
-                                        int number_of_groups,
-                                        int number_of_materials,
-                                        const std::unordered_set<int>& fissile_ids /* = {} */)
+                                   bool is_eigen_problem,
+                                   bool do_nda,
+                                   int number_of_groups,
+                                   int number_of_materials)
     : materials_(materials),
       is_eigen_problem_(is_eigen_problem),
       do_nda_(do_nda),
       n_group_(number_of_groups),
-      n_material_(number_of_materials),
-      fissile_ids_(fissile_ids) {
-    CheckFissileIDs();
-    PopulateFissileMap(); // generates is_material_fissile_, which is used by CheckValidEach and PopulateData
+      n_material_(number_of_materials) {
 
-    CheckNumberOfMaterials();
-    CheckValidEach();
-    CheckNumberOfGroups();
-    CheckConsistent();
+  if (is_eigen_problem) {
+    for (const std::pair<int, Material>& mat_pair : materials_) {
+      const int& id = mat_pair.first;
+      const Material& material = mat_pair.second;
 
-    PopulateData();
+      if (material.is_fissionable())
+        fissile_ids_.emplace(id);
+    }
+  }
+  
+  CheckFissileIDs();
+  PopulateFissileMap(); // generates is_material_fissile_, which is used by CheckValidEach and PopulateData
+
+  CheckNumberOfMaterials();
+  CheckValidEach();
+  CheckNumberOfGroups();
+  CheckConsistent();
+  PopulateData();
 }
 
 MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
@@ -29,8 +37,7 @@ MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
         prm.get_bool("do eigenvalue calculations"),
         prm.get_bool("do nda"),
         prm.get_integer("number of groups"),
-        prm.get_integer("number of materials"),
-        ReadFissileIDs(prm)) {}
+        prm.get_integer("number of materials")) {}
 
 std::unordered_map<int, std::string> MaterialProtobuf::ReadMaterialFileNames(dealii::ParameterHandler& prm) {
   std::unordered_map<int, std::string> result;
@@ -41,19 +48,6 @@ std::unordered_map<int, std::string> MaterialProtobuf::ReadMaterialFileNames(dea
   for (const std::string& pair_string : pair_strings) {
     const std::vector<std::string> split_pair = dealii::Utilities::split_string_list(pair_string, ':');
     result[dealii::Utilities::string_to_int(split_pair[0])] = split_pair[1];
-  }
-  prm.leave_subsection();
-  return result;
-}
-
-std::unordered_set<int> MaterialProtobuf::ReadFissileIDs(dealii::ParameterHandler& prm) {
-  std::unordered_set<int> result;
-  prm.enter_subsection("fissile material IDs");
-  const std::vector<std::string> id_strings =
-    dealii::Utilities::split_string_list(prm.get("fissile material ids"), ",");
-
-  for (const std::string& id_string : id_strings) {
-    result.insert(dealii::Utilities::string_to_int(id_string));
   }
   prm.leave_subsection();
   return result;
@@ -116,6 +110,11 @@ void MaterialProtobuf::PopulateData() {
 
     sigt_[id] = vector_props.at(Material::SIGMA_T);
     sigs_[id] = GetScatteringMatrix(material);
+    if (vector_props.count(Material::DIFFUSION_COEFF) > 0) {
+      diffusion_coef_[id] = vector_props.at(Material::DIFFUSION_COEFF);
+    } else {
+      diffusion_coef_[id] = std::vector<double>(n_group_, 0);
+    }
 
     if (is_material_fissile_[id]) {
       chi_[id] = vector_props.at(Material::CHI);
@@ -167,10 +166,6 @@ void MaterialProtobuf::PopulateData() {
 
 void MaterialProtobuf::CheckFissileIDs() const {
   AssertThrow(!(is_eigen_problem_ && fissile_ids_.empty()), NoFissileIDs());
-
-  for (const int& id : fissile_ids_) {
-    AssertThrow(materials_.count(id) > 0, FissileIDInvalid(id));
-  }
 }
 
 void MaterialProtobuf::CheckNumberOfMaterials() const {
@@ -238,10 +233,15 @@ void MaterialProtobuf::CheckValid(const Material& material,
   if (vector_props.count(Material::Q) > 0) {
     required_vector_props.insert(Material::Q);
   }
+
+  if (vector_props.count(Material::DIFFUSION_COEFF) > 0) {
+    required_vector_props.insert(Material::DIFFUSION_COEFF);
+  } 
   const unsigned int& n = material.number_of_groups();
   std::unordered_map<Material::VectorId, unsigned int, std::hash<int>> required_count =
    {{Material::ENERGY_GROUPS, n+1}, {Material::SIGMA_T, n},
-    {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n}};
+    {Material::Q, n}, {Material::NU_SIG_F, n}, {Material::CHI, n},
+    {Material::DIFFUSION_COEFF, n}};
 
   for (Material::VectorId id : required_vector_props) {
     AssertThrow(vector_props.at(id).size() == required_count.at(id),
@@ -386,6 +386,12 @@ dealii::FullMatrix<double> MaterialProtobuf::GetScatteringMatrix(const Material&
 std::unordered_map<int, bool> MaterialProtobuf::GetFissileIDMap() const {
   return is_material_fissile_;
 }
+
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetDiffusionCoef()
+    const {
+  return diffusion_coef_;
+}
+  
 
 std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetSigT() const {
   return sigt_;
