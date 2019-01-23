@@ -166,10 +166,6 @@ void MaterialProtobuf::PopulateData() {
 
 void MaterialProtobuf::CheckFissileIDs() const {
   AssertThrow(!(is_eigen_problem_ && fissile_ids_.empty()), NoFissileIDs());
-
-  for (const int& id : fissile_ids_) {
-    AssertThrow(materials_.count(id) > 0, FissileIDInvalid(id));
-  }
 }
 
 void MaterialProtobuf::CheckNumberOfMaterials() const {

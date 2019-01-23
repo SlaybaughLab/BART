@@ -298,12 +298,6 @@ class MaterialProtobuf : public MaterialBase {
 
   DeclExceptionMsg(NoFissileIDs,
     "At least one material ID must be specified as fissile for eigen problems.");
-  
-  DeclException1(FissileIDInvalid,
-    int,
-    << "Material ID " << arg1
-    << " was specified as fissile, but no material with ID "
-    << arg1 << " exists.");
 
   DeclException2(FailedToFindMaterialFile,
     std::string, int,
