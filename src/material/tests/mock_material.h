@@ -19,6 +19,8 @@ class MockMaterial : public MaterialBase {
   using int_matrix_map = std::unordered_map<int, dealii::FullMatrix<double>>;
   
   MOCK_CONST_METHOD0(GetFissileIDMap, int_bool_map());
+
+  MOCK_CONST_METHOD0(GetDiffusionCoef, int_vector_map());
   
   //! Returns all \f$\sigma_\mathrm{t}\f$ for all groups.
   MOCK_CONST_METHOD0(GetSigT, int_vector_map());

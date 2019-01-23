@@ -57,6 +57,8 @@ class MaterialProtobuf : public MaterialBase {
   */
   std::unordered_map<int, bool> GetFissileIDMap() const override;
 
+  std::unordered_map<int, std::vector<double>> GetDiffusionCoef() const override;
+  
   //! Returns all \f$\sigma_\mathrm{t}\f$ for all groups.
   std::unordered_map<int, std::vector<double>> GetSigT() const override;
 
@@ -158,6 +160,9 @@ class MaterialProtobuf : public MaterialBase {
   //! Map of material ID to a bool indicating if it is fissile.
   std::unordered_map<int, bool> is_material_fissile_;
 
+  //! Diffusion coefficient of all groups for all materials.
+  std::unordered_map<int, std::vector<double>> diffusion_coef_;
+  
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
   std::unordered_map<int, std::vector<double>> sigt_;
 

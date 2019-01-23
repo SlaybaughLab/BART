@@ -382,6 +382,12 @@ std::unordered_map<int, bool> MaterialProtobuf::GetFissileIDMap() const {
   return is_material_fissile_;
 }
 
+std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetDiffusionCoef()
+    const {
+  return diffusion_coef_;
+}
+  
+
 std::unordered_map<int, std::vector<double>> MaterialProtobuf::GetSigT() const {
   return sigt_;
 }
