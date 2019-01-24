@@ -112,10 +112,10 @@ void Diffusion<dim>::IntegrateBoundaryBilinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     const int &fn,/*face number*/
     dealii::FullMatrix<double> &cell_matrix,
-    const int &g,
+    const int &,
     const int &) {
   int bd_id = cell->face(fn)->boundary_id ();
-  const dealii::Tensor<1,dim> vec_n = this->fvf_->normal_vector(0);
+  //const dealii::Tensor<1,dim> vec_n = this->fvf_->normal_vector(0);
   if (!this->have_reflective_bc_ || this->is_reflective_bc_.at(bd_id)) {
     // incident/vacuum boundary
     // TODO: check correctness

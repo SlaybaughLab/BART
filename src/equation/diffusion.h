@@ -111,7 +111,7 @@ class Diffusion : public EquationBase<dim> {
       typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
       const int &fn,/*face number*/
       dealii::FullMatrix<double> &cell_matrix,
-      const int &g,
+      const int &,
       const int &);
 
   void IntegrateBoundaryLinearForm (
@@ -141,6 +141,26 @@ protected:
 
   //! Preassembled streaming matrices at quadrature points for diffusion
   std::unordered_map<int, dealii::FullMatrix<double>> pre_streaming_;
+
+
+  using EquationBase<dim>::problem_parameters;
+  using EquationBase<dim>::dat_ptr_;
+  using EquationBase<dim>::dofs_per_cell_;
+  using EquationBase<dim>::equ_name_;
+  using EquationBase<dim>::fv_;
+  using EquationBase<dim>::fvf_;
+  using EquationBase<dim>::have_reflective_bc_;
+  using EquationBase<dim>::is_eigen_problem_;
+  using EquationBase<dim>::is_reflective_bc_;
+  using EquationBase<dim>::mat_vec_;
+  using EquationBase<dim>::n_dir_;
+  using EquationBase<dim>::n_group_;
+  using EquationBase<dim>::n_q_;
+  using EquationBase<dim>::n_qf_;
+  using EquationBase<dim>::omega_;
+  using EquationBase<dim>::pre_collision_;
+  using EquationBase<dim>::scaled_fiss_transfer_;
+  using EquationBase<dim>::xsec_;
 };
 
 #endif // BART_SRC_EQUATION_DIFFUSION_H_
