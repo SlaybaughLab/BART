@@ -15,7 +15,7 @@ vector_property {
 }
 vector_property {
   id: DIFFUSION_COEFF
-  value: 1.0
+  value: 0.33333
 }
 vector_property {
   id: NU_SIG_F
