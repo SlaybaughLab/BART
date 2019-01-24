@@ -257,9 +257,10 @@ class ParametersDealiiHandler : public ParametersI {
             * files. */
 
   const std::unordered_map<std::string, EquationType> kEquationTypeMap_ {
-    {"ep",   EquationType::kEvenParity},
-    {"saaf", EquationType::kSelfAdjointAngularFlux},
-    {"none", EquationType::kNone},
+    {"diffusion", EquationType::kDiffusion},
+    {"ep",        EquationType::kEvenParity},
+    {"saaf",      EquationType::kSelfAdjointAngularFlux},
+    {"none",      EquationType::kNone},
         }; /*!< Maps equation type to strings used in parsed input files. */
 
   const std::unordered_map<std::string, EigenSolverType> kEigenSolverTypeMap_ {
