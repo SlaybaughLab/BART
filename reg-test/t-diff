@@ -23,7 +23,7 @@ set ho spatial discretization                = cfem
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = saaf_reg_test
+set output file name base                    = diff_reg_test
 
 subsection material ID map
 set material id file name map                = 1: t-ep.material, 2: t-ep.material
