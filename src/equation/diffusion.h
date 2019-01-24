@@ -41,6 +41,12 @@ class Diffusion : public EquationBase<dim> {
    */
   virtual void PreassembleCellMatrices ();
 
+
+  virtual void GenerateMoments (
+    std::map<std::tuple<int,int,int>, dealii::Vector<double>> &moments,
+    std::map<std::tuple<int,int,int>, dealii::Vector<double>> &moments_prev,
+    const int &g) override;
+  
   /*!
    This function provides cell-wise integrator for bilinear form. Specifically,
    this overrides EquationBase<dim>'s integrator for even parity equation. Note

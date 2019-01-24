@@ -31,6 +31,17 @@ void Diffusion<dim>::PreassembleCellMatrices() {
 }
 
 template <int dim>
+void Diffusion<dim>::GenerateMoments (
+    std::map<std::tuple<int,int,int>, dealii::Vector<double>> &moments,
+    std::map<std::tuple<int,int,int>, dealii::Vector<double>> &moments_prev,
+    const int &g) {
+  auto key = std::make_tuple(g,0,0);
+  moments_prev[key] = moments[key];
+  // generate moments
+  moments[key] = *mat_vec_->sys_flxes[equ_name_][0];
+}
+
+template <int dim>
 void Diffusion<dim>::IntegrateCellBilinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::FullMatrix<double> &cell_matrix,
@@ -136,8 +147,8 @@ void Diffusion<dim>::IntegrateCellFixedLinearForm (
 
 template <int dim>
 void Diffusion<dim>::IntegrateBoundaryBilinearForm (
-    typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
-    const int &fn,/*face number*/
+    typename dealii::DoFHandler<dim>::active_cell_iterator &,
+    const int &,/*face number*/
     dealii::FullMatrix<double> &cell_matrix,
     const int &,
     const int &) {
