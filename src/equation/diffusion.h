@@ -112,7 +112,7 @@ class Diffusion : public EquationBase<dim> {
       const int &fn,/*face number*/
       dealii::FullMatrix<double> &cell_matrix,
       const int &g,
-      const int &dir);
+      const int &);
 
   void IntegrateBoundaryLinearForm (
       typename dealii::DoFHandler<dim>::active_cell_iterator &,

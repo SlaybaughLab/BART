@@ -12,12 +12,6 @@ Diffusion<dim>::~Diffusion () {}
 
 template <int dim>
 void Diffusion<dim>::PreassembleCellMatrices() {
-  PreassembleCellMatricesDiffusion();
-  PreassembleClosure();
-}
-
-template <int dim>
-void Diffusion<dim>::PreassembleCellMatricesDiffusion () {
   auto cell = this->dat_ptr_->local_cells[0];
   this->fv_->reinit (cell);
 
@@ -39,11 +33,6 @@ void Diffusion<dim>::PreassembleCellMatricesDiffusion () {
 }
 
 template <int dim>
-void Diffusion<dim>::PreassembleClosure() {
-  // Diffusion has zero closure for angular approximation
-}
-
-template <int dim>
 void Diffusion<dim>::IntegrateCellBilinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     dealii::FullMatrix<double> &cell_matrix,
@@ -55,7 +44,7 @@ void Diffusion<dim>::IntegrateCellBilinearForm (
     for (int i=0; i<this->dofs_per_cell_; ++i)
       for (int j=0; j<this->dofs_per_cell_; ++j)
         cell_matrix(i,j) += (pre_streaming_[qi](i,j) *
-                             this->xsec_->diff_coef.at(mid)[g]
+                             this->xsec_->diffusion_coef.at(mid)[g]
                              +
                              this->pre_collision_[qi](i,j) *
                              siga) * this->fv_->JxW(qi);
@@ -122,7 +111,7 @@ template <int dim>
 void Diffusion<dim>::IntegrateBoundaryBilinearForm (
     typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
     const int &fn,/*face number*/
-    dealii::Vector<double> &cell_rhs,
+    dealii::FullMatrix<double> &cell_matrix,
     const int &g,
     const int &) {
   int bd_id = cell->face(fn)->boundary_id ();
