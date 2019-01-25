@@ -13,7 +13,10 @@ vector_property {
   id: SIGMA_T
   value: 1.0
 }
-
+vector_property {
+  id: DIFFUSION_COEFF
+  value: 0.33333
+}
 vector_property {
   id: NU_SIG_F
   value: 0.99

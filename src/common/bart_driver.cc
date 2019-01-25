@@ -72,6 +72,8 @@ BARTDriver<3>::BARTDriver (dealii::ParameterHandler &prm)
 
 template <int dim>
 BARTDriver<dim>::~BARTDriver () {
+  // to prevent leaked momery, we will free the raw pointers
+
   // free matrices
   for (auto & mats : dat_ptr_->mat_vec->sys_mats) {
     // mats.first==equ name, mats.second==matrix pointers

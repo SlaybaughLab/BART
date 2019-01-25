@@ -3,11 +3,21 @@
 
 #include <memory>
 
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+
 #include "../common/computing_data.h"
 #include "linear_algebra.h"
 
-#include <deal.II/grid/tria_accessor.h>
-#include <deal.II/grid/tria_iterator.h>
+namespace bart {
+
+namespace problem {
+
+class ParametersI;
+
+} // namespace problem
+
+} // namespace bart
 
 template <int dim>
 class EquationBase {
@@ -35,7 +45,7 @@ class EquationBase {
       const std::string &equation_name,
       const dealii::ParameterHandler &prm,
       std::shared_ptr<FundamentalData<dim>> &dat_ptr);
-  ~EquationBase () = default;
+  virtual ~EquationBase () = default;
 
   /*!
    Virtual function to assemble bilinear form. Inside this function, volumetric,
@@ -43,7 +53,7 @@ class EquationBase {
 
    \return Void.
    */
-  void AssembleBilinearForms();
+  virtual void AssembleBilinearForms();
 
   /*!
    Virtual function to assemble volumetric and boundary bilinear form. It is not
@@ -313,6 +323,9 @@ class EquationBase {
   int GetNTotalVars () const;
 
  protected:
+
+  const bart::problem::ParametersI *problem_parameters;
+  
   const std::string equ_name_;//!< Name of current equation.
 
   std::shared_ptr<FundamentalData<dim>> dat_ptr_;//!< Pointer to FundamentalData object

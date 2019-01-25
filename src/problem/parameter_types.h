@@ -33,6 +33,7 @@ enum class EigenSolverType {
 
 enum class EquationType {
   kNone,
+  kDiffusion,
   kEvenParity,
   kSelfAdjointAngularFlux,
 };
