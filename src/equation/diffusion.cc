@@ -147,20 +147,22 @@ void Diffusion<dim>::IntegrateCellFixedLinearForm (
 
 template <int dim>
 void Diffusion<dim>::IntegrateBoundaryBilinearForm (
-    typename dealii::DoFHandler<dim>::active_cell_iterator &,
-    const int &,/*face number*/
+    typename dealii::DoFHandler<dim>::active_cell_iterator &cell,
+    const int &fn,/*face number*/
     dealii::FullMatrix<double> &cell_matrix,
     const int &,
     const int &) {
 
+  int boundary_id = cell->face(fn)->boundary_id();
+
   // Vacuum boundary conditions
-  if (!have_reflective_bc_) {
+  if (!have_reflective_bc_ || !is_reflective_bc_.at(boundary_id)) {
     for (int q = 0; q < n_qf_; ++q) {      
       for (int i = 0; i < dofs_per_cell_; ++i) {
         for (int j = 0; j < dofs_per_cell_; ++j) {
           cell_matrix(i,j) += (fvf_->shape_value(i,q) *
                                fvf_->shape_value(j,q) *
-                               0.25 * fvf_->JxW(q));
+                               0.5 * fvf_->JxW(q));
         }
       }
     }
