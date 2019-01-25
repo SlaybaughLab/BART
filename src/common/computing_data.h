@@ -39,6 +39,9 @@ struct MatrixVector {
 struct XSections {
   XSections (MaterialBase &material_properties);
 
+  //! Diffusion coefficient of all groups for all materials.
+  const std::unordered_map<int, std::vector<double>> diffusion_coef;
+
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
   const std::unordered_map<int, std::vector<double>> sigt;
 

@@ -1,9 +1,11 @@
+#include <memory>
 #include <iostream>
 
 #include <deal.II/base/parameter_handler.h>
 
-#include "common/problem_definition.h"
 #include "common/bart_driver.h"
+#include "problem/parameters_dealii_handler.h"
+#include "problem/locator.h"
 
 int main(int argc, char* argv[]) {
   try {
@@ -12,9 +14,20 @@ int main(int argc, char* argv[]) {
       return 1;
     }
     ParameterHandler prm;
-    bparams::DeclareParameters (prm);
+
+    // New parameters handler
+    bart::problem::ParametersDealiiHandler parameter_handler;
+
+    // Declare input strings, declare both using the new handler, and the old
+    // method, as not all have been moved (and may not be moved)
+    parameter_handler.SetUp(prm);
+    
     const std::string filename{argv[1]};
     prm.parse_input(filename, "");
+
+    parameter_handler.Parse(prm);
+    bart::problem::Locator::Provide(&parameter_handler);   
+    
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
     int dim = prm.get_integer ("problem dimension");
     switch (dim) {

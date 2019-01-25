@@ -796,6 +796,7 @@ INPUT=	./src/aqdata \
 	./src/iteration \
 	./src/mesh \
 	./src/material \
+	./src/problem \	
 	./src/test_helpers \
 	./src/utility
 

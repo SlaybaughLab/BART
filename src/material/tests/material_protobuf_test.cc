@@ -1,16 +1,20 @@
 #include "../material_protobuf.h"
 
 #include <sstream>
+#include <exception>
 
 #include <google/protobuf/text_format.h>
 
 #include "gtest/gtest.h"
+
+#include "../../test_helpers/test_helper_functions.h"
 
 class MaterialProtobufTest : public ::testing::Test {
  protected:
   MaterialProtobufTest();
 
   //! maps from material id to data for that material
+  std::unordered_map<int, bool> test_is_fissile_;
   std::unordered_map<int, std::vector<double>> test_energy_groups_;
   std::unordered_map<int, std::vector<double>> test_sigma_t_;
   std::unordered_map<int, std::vector<double>> test_sigma_a_;
@@ -62,6 +66,7 @@ MaterialProtobufTest::MaterialProtobufTest() {
   for (const int& key : material_ids) {
     test_energy_groups_[key] = {20000000.0, 1353000.0, 9119.0, 3.928, 0.6251, 0.1457, 0.05692, 0};
   }
+  test_is_fissile_ = {{1, false}, {2, false}, {10, true}, {11, true}};
   test_sigma_t_[1] = {0.12417, 0.29921, 0.57997, 1.0581, 1.3203, 1.6301, 2.2847};
   test_sigma_t_[2] = {0.075384, 0.24872, 0.42163, 0.53183, 0.90849, 1.3205, 2.3163};
   test_sigma_t_[10] = {0.11111, 0.28863, 0.45098, 0.45889, 0.66863, 0.95402, 1.6043};
@@ -123,6 +128,7 @@ MaterialProtobufTest::MaterialProtobufTest() {
   test_materials_[11].set_abbreviation("uo2_33");
 
   for (const int& key : material_ids) {
+    test_materials_[key].set_is_fissionable(test_is_fissile_[key]);
     test_materials_[key].set_number_of_groups(7);
     test_materials_[key].set_thermal_groups(4);
     test_materials_[key].set_id(test_materials_[key].abbreviation());
@@ -715,57 +721,15 @@ TEST_F(MaterialProtobufTest, StaticCheckConsistentNoThrow) {
 // tests for exceptions thrown from MaterialProtobuf Material map constructor
 
 TEST_F(MaterialProtobufTest, NoFissileIDs) {
+  test_materials_.erase(10);
+  test_materials_.erase(11);
   EXPECT_THROW(MaterialProtobuf mp(test_materials_, true, false, 7, 4), MaterialProtobuf::NoFissileIDs);
-  EXPECT_THROW(MaterialProtobuf mp(test_materials_, true, false, 7, 4, {}), MaterialProtobuf::NoFissileIDs);
-}
-
-TEST_F(MaterialProtobufTest, FissileIDInvalid) {
-  EXPECT_THROW({
-    try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {11, 5, 10});
-    }
-    catch (const MaterialProtobuf::FissileIDInvalid& e) {
-      std::string expected = "Material ID 5 was specified as fissile, but no material with ID 5 exists.";
-      EXPECT_EQ(expected, GetMessage(e));
-      throw;
-    }
-  }, MaterialProtobuf::FissileIDInvalid);
-
-  EXPECT_THROW({
-    try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {-222});
-    }
-    catch (const MaterialProtobuf::FissileIDInvalid& e) {
-      std::string expected = "Material ID -222 was specified as fissile, but no material with ID -222 exists.";
-      EXPECT_EQ(expected, GetMessage(e));
-      throw;
-    }
-  }, MaterialProtobuf::FissileIDInvalid);
-
-  // test that the exception has one of the correct possible options
-  EXPECT_THROW({
-    try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {1, 2, 3, 4, 8, 9, 10, 11});
-    }
-    catch (const MaterialProtobuf::FissileIDInvalid& e) {
-      std::string message = GetMessage(e);
-      bool errorMessageContainsInvalidID = false;
-      for (std::string id_str : {" 3 ", " 4 ", " 8 ", " 9 "})
-      {
-        if (message.substr(11, 3) == id_str) {
-          errorMessageContainsInvalidID = true;
-        }
-      }
-      EXPECT_TRUE(errorMessageContainsInvalidID);
-      throw;
-    }
-  }, MaterialProtobuf::FissileIDInvalid);
 }
 
 TEST_F(MaterialProtobufTest, WrongNumberOfMaterials) {
   EXPECT_THROW({
     try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 3, {10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 3);
     }
     catch (const MaterialProtobuf::WrongNumberOfMaterials& e) {
       std::string expected = "The actual number of materials read in (4) does not match the number of materials specified (3).";
@@ -800,7 +764,7 @@ TEST_F(MaterialProtobufTest, InvalidMaterialInConstructor) {
 
   EXPECT_THROW({
     try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4);
     }
     catch (const MaterialProtobuf::MissingProperty& e) {
       std::string expected = uo2_33_msg + " is missing required property NU_SIG_F.";
@@ -814,7 +778,7 @@ TEST_F(MaterialProtobufTest, InvalidMaterialInConstructor) {
 
   EXPECT_THROW({
     try {
-      MaterialProtobuf mp(test_materials_, true, false, 7, 4, {10, 11});
+      MaterialProtobuf mp(test_materials_, true, false, 7, 4);
     }
     catch (const MaterialProtobuf::WrongSign& e) {
       std::string expected = reflector_msg + " contains a value of the wrong sign in SIGMA_S. (-1 at index 48)";
@@ -836,7 +800,7 @@ TEST_F(MaterialProtobufTest, InconsistentMaterialsInConstructor) {
 
   EXPECT_THROW({
     try {
-      MaterialProtobuf mp(map, true, false, 7, 2, {1});
+      MaterialProtobuf mp(map, true, false, 7, 2);
     }
     catch (const MaterialProtobuf::NumberOfGroupsMismatch& e) {
       std::string expected_1 = "The energy groups boundaries in " + mat_0 + " and " + mat_1 + " differ at index 0.";
@@ -953,6 +917,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // with two materials, one with Q data, one without
   map[10] = Material();
   map[10].CopyFrom(test_materials_.at(10));
+  map[10].set_is_fissionable(false);
 
   correct_fissile_id_map[10] = false;
   correct_sig_t_map[10] = test_sigma_t_.at(10);
@@ -993,6 +958,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   EXPECT_EQ(mp_2.GetChiNuSigFPerSter(), null_matrix_map_);
 
   // two material eigen problem
+
   correct_fissile_id_map[10] = true;
   correct_nu_sig_f_map[10] = test_nu_sig_f_.at(10);
   chi_nu_sig_f_values[10] = {
@@ -1015,8 +981,9 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
 
   correct_chi_nu_sig_f_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[10].data());
   correct_chi_nu_sig_f_per_ster_map[10] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[10].data());
-
-  MaterialProtobuf mp_2_eigen(map, true, false, 7, 2, {10});
+  
+  map[10].set_is_fissionable(true);
+  MaterialProtobuf mp_2_eigen(map, true, false, 7, 2);
 
   EXPECT_EQ(mp_2_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_2_eigen.GetSigT(), correct_sig_t_map);
@@ -1055,7 +1022,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   correct_chi_nu_sig_f_per_ster_map_1_eigen.erase(1);
   auto map_1_eigen = map;
   map_1_eigen.erase(1);
-  MaterialProtobuf mp_1_eigen(map_1_eigen, true, false, 7, 1, {10});
+  MaterialProtobuf mp_1_eigen(map_1_eigen, true, false, 7, 1);
 
   EXPECT_EQ(mp_1_eigen.GetFissileIDMap(), correct_fissile_id_map_1_eigen);
   EXPECT_EQ(mp_1_eigen.GetSigT(), correct_sig_t_map_1_eigen);
@@ -1142,7 +1109,7 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   correct_chi_nu_sig_f_map[11] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_values[11].data());
   correct_chi_nu_sig_f_per_ster_map[11] = dealii::FullMatrix<double>(7, 7, chi_nu_sig_f_per_ster_values[11].data());
 
-  MaterialProtobuf mp_4_eigen(map, true, false, 7, 4, {10, 11});
+  MaterialProtobuf mp_4_eigen(map, true, false, 7, 4);
 
   EXPECT_EQ(mp_4_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_4_eigen.GetSigT(), correct_sig_t_map);
@@ -1162,6 +1129,9 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // four material fixed source problem
   correct_fissile_id_map[10] = false;
   correct_fissile_id_map[11] = false;
+  map[10].set_is_fissionable(false);
+  map[11].set_is_fissionable(false);
+  
   MaterialProtobuf mp_4_q(map, false, false, 7, 4);
 
   EXPECT_EQ(mp_4_q.GetFissileIDMap(), correct_fissile_id_map);
@@ -1238,7 +1208,9 @@ TEST_F(MaterialProtobufTest, ConstructorFromMap) {
   // one group eigen problem
   correct_fissile_id_map[10] = true;
   correct_fissile_id_map[11] = true;
-  MaterialProtobuf mp_one_group_eigen(map, true, false, 1, 4, {10, 11});
+  map[10].set_is_fissionable(true);
+  map[11].set_is_fissionable(true);
+  MaterialProtobuf mp_one_group_eigen(map, true, false, 1, 4);
 
   EXPECT_EQ(mp_one_group_eigen.GetFissileIDMap(), correct_fissile_id_map);
   EXPECT_EQ(mp_one_group_eigen.GetSigT(), correct_sig_t_map);
@@ -1535,3 +1507,53 @@ TEST_F(MaterialProtobufTest, ConstructorFromParameterHandler) {
   {SCOPED_TRACE("");
   ExpectApproxEqual(mp_eigen.GetChiNuSigFPerSter(), correct_chi_nu_sig_f_per_ster_map);}
 }
+
+TEST_F(MaterialProtobufTest, DiffusionCoefficientValuesTest) {
+
+  auto &diffusion_material = test_materials_.at(1);
+
+  auto diffusion_ptr = diffusion_material.add_vector_property();
+  
+  diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
+  
+  const std::vector<double> diffusion_coef(btest::RandomVector(7, 1e-3, 3));
+  const std::vector<double> null_vector(7,0);
+  
+  for (const double& val : diffusion_coef) {
+    diffusion_ptr->add_value(val);
+  }
+   
+  MaterialProtobuf mp_1(test_materials_, false, false, 7, 4);
+
+  auto diffusion_map = mp_1.GetDiffusionCoef();
+  
+  ASSERT_EQ(diffusion_map.size(), 4)
+      << "Incorrectly sized diffusion map";
+  ASSERT_EQ(mp_1.GetDiffusionCoef().at(1), diffusion_coef)
+      << "Incorrect provided diffusion coefficient";
+  ASSERT_EQ(mp_1.GetDiffusionCoef().at(10), null_vector)
+      << "Incorrect default diffusion coefficient";
+}
+
+TEST_F(MaterialProtobufTest, DiffusionCoefficientInvalidTest) {
+
+  auto &diffusion_material = test_materials_.at(1);
+
+  auto diffusion_ptr = diffusion_material.add_vector_property();
+  
+  diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
+  
+  const std::vector<double> diffusion_coef(btest::RandomVector(5, 1e-3, 3));
+  for (const double& val : diffusion_coef) {
+    diffusion_ptr->add_value(val);
+  }
+  
+  ASSERT_THROW({
+      MaterialProtobuf mp_1(test_materials_, false, false, 7, 4);
+    }, MaterialProtobuf::WrongNumberOfValues);
+}
+
+  
+
+
+  

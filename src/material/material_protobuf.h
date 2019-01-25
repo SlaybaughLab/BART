@@ -37,11 +37,10 @@ class MaterialProtobuf : public MaterialBase {
     fissile_ids must be non-empty if is_eigen_problem is given as true
    */
   MaterialProtobuf(const std::unordered_map<int, Material>& materials,
-                     bool is_eigen_problem,
-                     bool do_nda,
-                     int number_of_groups,
-                     int number_of_materials,
-                     const std::unordered_set<int>& fissile_ids = {});
+                   bool is_eigen_problem,
+                   bool do_nda,
+                   int number_of_groups,
+                   int number_of_materials);
 
   /*!
     gets the necessary information from the parameter handler and
@@ -58,6 +57,8 @@ class MaterialProtobuf : public MaterialBase {
   */
   std::unordered_map<int, bool> GetFissileIDMap() const override;
 
+  std::unordered_map<int, std::vector<double>> GetDiffusionCoef() const override;
+  
   //! Returns all \f$\sigma_\mathrm{t}\f$ for all groups.
   std::unordered_map<int, std::vector<double>> GetSigT() const override;
 
@@ -159,6 +160,9 @@ class MaterialProtobuf : public MaterialBase {
   //! Map of material ID to a bool indicating if it is fissile.
   std::unordered_map<int, bool> is_material_fissile_;
 
+  //! Diffusion coefficient of all groups for all materials.
+  std::unordered_map<int, std::vector<double>> diffusion_coef_;
+  
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
   std::unordered_map<int, std::vector<double>> sigt_;
 
@@ -235,10 +239,6 @@ class MaterialProtobuf : public MaterialBase {
   static std::unordered_map<int, std::string>
   ReadMaterialFileNames(dealii::ParameterHandler& prm);
 
-  //! Reads fissile material ids listed in the parameter handler
-  static std::unordered_set<int>
-  ReadFissileIDs(dealii::ParameterHandler& prm);
-
   /*!
     parses Materials from the given file names
     accepts both serialized and human-readable protobuf files
@@ -298,12 +298,6 @@ class MaterialProtobuf : public MaterialBase {
 
   DeclExceptionMsg(NoFissileIDs,
     "At least one material ID must be specified as fissile for eigen problems.");
-  
-  DeclException1(FissileIDInvalid,
-    int,
-    << "Material ID " << arg1
-    << " was specified as fissile, but no material with ID "
-    << arg1 << " exists.");
 
   DeclException2(FailedToFindMaterialFile,
     std::string, int,
