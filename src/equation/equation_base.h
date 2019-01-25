@@ -324,7 +324,7 @@ class EquationBase {
 
  protected:
 
-  const bart::problem::ParametersI *problem_parameters;
+  const std::shared_ptr<bart::problem::ParametersI> problem_parameters;
   
   const std::string equ_name_;//!< Name of current equation.
 

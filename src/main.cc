@@ -16,17 +16,18 @@ int main(int argc, char* argv[]) {
     ParameterHandler prm;
 
     // New parameters handler
-    bart::problem::ParametersDealiiHandler parameter_handler;
+    auto parameter_handler_ptr =
+        std::make_shared<bart::problem::ParametersDealiiHandler>();
 
     // Declare input strings, declare both using the new handler, and the old
     // method, as not all have been moved (and may not be moved)
-    parameter_handler.SetUp(prm);
+    parameter_handler_ptr->SetUp(prm);
     
     const std::string filename{argv[1]};
     prm.parse_input(filename, "");
 
-    parameter_handler.Parse(prm);
-    bart::problem::Locator::Provide(&parameter_handler);   
+    parameter_handler_ptr->Parse(prm);
+    bart::problem::Locator::Provide(parameter_handler_ptr);   
     
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
     int dim = prm.get_integer ("problem dimension");
