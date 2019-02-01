@@ -56,7 +56,7 @@ GetEquations(const dealii::ParameterHandler &prm,
       return_map;
 
   return_map[prm.get("transport model")] =
-      EquationBase<dim>::CreateEquation(prm, dat_ptr);
+      Factory<dim>::CreateEquation(prm, dat_ptr);
   
   return std::move(return_map);
 }
