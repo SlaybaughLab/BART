@@ -47,6 +47,36 @@ std::unique_ptr<EquationBase<dim>> Factory<dim>::CreateEquation(
   return std::move(eq_ptr);
 }
 
+template <int dim>
+std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<dim>> &dat_ptr) {
+
+  std::unordered_map<std::string, std::unique_ptr<EquationBase<dim>>>
+      return_map;
+
+  return_map[prm.get("transport model")] =
+      EquationBase<dim>::CreateEquation(prm, dat_ptr);
+  
+  return std::move(return_map);
+}
+
+template 
+std::unordered_map<std::string, std::unique_ptr<EquationBase<1>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<1>> &dat_ptr);
+
+template 
+std::unordered_map<std::string, std::unique_ptr<EquationBase<2>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<2>> &dat_ptr);
+
+template 
+std::unordered_map<std::string, std::unique_ptr<EquationBase<3>>>
+GetEquations(const dealii::ParameterHandler &prm,
+             std::shared_ptr<FundamentalData<3>> &dat_ptr);
+
+
 } // namespace equation
 
 } // namespace bart
