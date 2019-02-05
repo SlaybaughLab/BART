@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <deal.II/base/quadrature_lib.h>
 #include <deal.II/fe/fe_values.h>
 
 #include "../problem/parameter_types.h"
@@ -14,7 +15,7 @@ namespace data {
 template <int dim>
 class FiniteElement {
  public:
-  using DiscretizationType = bart::problem::DiscretizationType;
+  using DiscretizationType = problem::DiscretizationType;
   FiniteElement(DiscretizationType discretization,
                 int polynomial_degree);
   ~FiniteElement() = default;
@@ -23,9 +24,17 @@ class FiniteElement {
   dealii::FiniteElement<dim, dim> *finite_element() {
     return finite_element_.get(); };
 
+  dealii::QGauss<dim> *cell_quadrature() {
+    return cell_quadrature_.get(); };
+
+    dealii::QGauss<dim> *face_quadrature() {
+    return face_quadrature_.get(); };
+
  private:
   const int polynomial_degree_;
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
+  std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
+  std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
 
   std::shared_ptr<dealii::FiniteElement<dim, dim>>
   GetFiniteElement(DiscretizationType discretization);
