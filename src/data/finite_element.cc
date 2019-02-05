@@ -13,10 +13,14 @@ FiniteElement<dim>::FiniteElement(DiscretizationType discretization,
                                   int polynomial_degree)
     : polynomial_degree_(polynomial_degree) {
 
-  const dealii::UpdateFlags update_flags =
+  const auto update_flags = dealii::update_values | dealii::update_gradients |
+                            dealii::update_quadrature_points |
+                            dealii::update_JxW_values;
+
+  const auto face_update_flags =
       dealii::update_values | dealii::update_gradients |
       dealii::update_quadrature_points |
-      dealii::update_JxW_values;
+      dealii::update_JxW_values | dealii::update_normal_vectors;
   
   finite_element_ = GetFiniteElement(discretization);
   
@@ -30,6 +34,10 @@ FiniteElement<dim>::FiniteElement(DiscretizationType discretization,
       std::make_shared<dealii::FEValues<dim>>(*finite_element_,
                                               *cell_quadrature_,
                                               update_flags);
+  finite_element_face_values_ =
+      std::make_shared<dealii::FEFaceValues<dim>>(*finite_element_,
+                                                  *face_quadrature_,
+                                                  face_update_flags);
 }
 
 template <int dim>

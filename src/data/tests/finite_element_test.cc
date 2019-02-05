@@ -17,10 +17,12 @@ class FiniteElementTest : public ::testing::Test {
 
 TEST_F(FiniteElementTest, ConstructorContinuous) {
   bart::data::FiniteElement<2> test_fe{DiscretizationType::kContinuousFEM, 2};
-  auto *fe_q_ptr =
+  auto fe_q_ptr =
       dynamic_cast<dealii::FE_Q<2>*>(test_fe.finite_element());
-  auto *fe_value_ptr =
+  auto fe_value_ptr =
       dynamic_cast<dealii::FEValues<2>*>(test_fe.finite_element_values());
+  auto fe_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
+      test_fe.finite_element_face_values());
   auto cell_quad_ptr =
       dynamic_cast<dealii::QGauss<2>*>(test_fe.cell_quadrature());
   auto face_quad_ptr =
@@ -29,6 +31,7 @@ TEST_F(FiniteElementTest, ConstructorContinuous) {
   ASSERT_EQ(test_fe.polynomial_degree(), 2);
   ASSERT_FALSE(fe_q_ptr == nullptr);
   ASSERT_FALSE(fe_value_ptr == nullptr);
+  ASSERT_FALSE(fe_face_value_ptr == nullptr);
   ASSERT_FALSE(cell_quad_ptr == nullptr);
   ASSERT_FALSE(face_quad_ptr == nullptr);  
 }

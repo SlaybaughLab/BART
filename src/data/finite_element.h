@@ -27,6 +27,9 @@ class FiniteElement {
   dealii::FEValues<dim> *finite_element_values() {
     return finite_element_values_.get(); };
 
+  dealii::FEFaceValues<dim> *finite_element_face_values() {
+    return finite_element_face_values_.get(); };
+  
   dealii::QGauss<dim> *cell_quadrature() {
     return cell_quadrature_.get(); };
 
@@ -37,6 +40,7 @@ class FiniteElement {
   const int polynomial_degree_;
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
   std::shared_ptr<dealii::FEValues<dim>> finite_element_values_;
+  std::shared_ptr<dealii::FEFaceValues<dim>> finite_element_face_values_;
   std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
   std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
 
