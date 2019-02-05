@@ -18,8 +18,13 @@ class FiniteElement {
                 int polynomial_degree);
   ~FiniteElement() = default;
 
+  int polynomial_degree() { return polynomial_degree_; };
+  dealii::FiniteElement<dim, dim> *finite_element()
+  { return finite_element_.get(); };
+
  private:
-  std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_values_;
+  const int polynomial_degree_;
+  std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
 };
 
 } // namespace data
