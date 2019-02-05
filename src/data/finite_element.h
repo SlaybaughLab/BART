@@ -24,7 +24,7 @@ class FiniteElement {
   dealii::FiniteElement<dim, dim> *finite_element() {
     return finite_element_.get(); };
 
-  dealii::FEValues<dim> *finite_element_values_() {
+  dealii::FEValues<dim> *finite_element_values() {
     return finite_element_values_.get(); };
 
   dealii::QGauss<dim> *cell_quadrature() {
@@ -39,7 +39,6 @@ class FiniteElement {
   std::shared_ptr<dealii::FEValues<dim>> finite_element_values_;
   std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
   std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
-
 
   std::shared_ptr<dealii::FiniteElement<dim, dim>>
   GetFiniteElement(DiscretizationType discretization);
