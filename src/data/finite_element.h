@@ -24,17 +24,22 @@ class FiniteElement {
   dealii::FiniteElement<dim, dim> *finite_element() {
     return finite_element_.get(); };
 
+  dealii::FEValues<dim> *finite_element_values_() {
+    return finite_element_values_.get(); };
+
   dealii::QGauss<dim> *cell_quadrature() {
     return cell_quadrature_.get(); };
 
-    dealii::QGauss<dim> *face_quadrature() {
+  dealii::QGauss<dim - 1> *face_quadrature() {
     return face_quadrature_.get(); };
 
  private:
   const int polynomial_degree_;
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
+  std::shared_ptr<dealii::FEValues<dim>> finite_element_values_;
   std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
   std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
+
 
   std::shared_ptr<dealii::FiniteElement<dim, dim>>
   GetFiniteElement(DiscretizationType discretization);

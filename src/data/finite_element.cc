@@ -2,6 +2,7 @@
 
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_update_flags.h>
 
 namespace bart {
 
@@ -13,20 +14,27 @@ FiniteElement<dim>::FiniteElement(DiscretizationType discretization,
     : polynomial_degree_(polynomial_degree) {
   
   finite_element_ = GetFiniteElement(discretization);
+  cell_quadrature_ =
+      std::make_shared<dealii::QGauss<dim>>(polynomial_degree + 1);
+  face_quadrature_ =
+      std::make_shared<dealii::QGauss<dim - 1>>(polynomial_degree + 1);
 }
 
 template <int dim>
 std::shared_ptr<dealii::FiniteElement<dim, dim>>
 FiniteElement<dim>::GetFiniteElement(DiscretizationType discretization) {
   switch (discretization) {
+    
     case DiscretizationType::kContinuousFEM: {
       return std::make_shared<dealii::FE_Q<dim>>(polynomial_degree_);
       break;
     }
+      
     case DiscretizationType::kDiscontinuousFEM:{
       return std::make_shared<dealii::FE_DGQ<dim>>(polynomial_degree_);
       break;
     }
+      
     default: {
       AssertThrow(false,
                   dealii::ExcMessage("Cannot build FiniteElement object with discretization type None"));
