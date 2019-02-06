@@ -23,6 +23,8 @@ TEST_F(FiniteElementTest, ConstructorContinuous) {
       dynamic_cast<dealii::FEValues<2>*>(test_fe.finite_element_values());
   auto fe_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
       test_fe.finite_element_face_values());
+  auto fe_neighbor_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
+      test_fe.finite_element_neighbor_face_values());
   auto cell_quad_ptr =
       dynamic_cast<dealii::QGauss<2>*>(test_fe.cell_quadrature());
   auto face_quad_ptr =
@@ -32,6 +34,7 @@ TEST_F(FiniteElementTest, ConstructorContinuous) {
   ASSERT_FALSE(fe_q_ptr == nullptr);
   ASSERT_FALSE(fe_value_ptr == nullptr);
   ASSERT_FALSE(fe_face_value_ptr == nullptr);
+  ASSERT_TRUE(fe_neighbor_face_value_ptr == nullptr);
   ASSERT_FALSE(cell_quad_ptr == nullptr);
   ASSERT_FALSE(face_quad_ptr == nullptr);
   ASSERT_EQ(test_fe.dofs_per_cell(), 9);
@@ -43,7 +46,10 @@ TEST_F(FiniteElementTest, ConstructorDiscontinuous) {
   bart::data::FiniteElement<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
   dealii::FE_DGQ<2> *fe_q_ptr =
       dynamic_cast<dealii::FE_DGQ<2>*>(test_fe.finite_element());
+  auto fe_neighbor_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
+      test_fe.finite_element_neighbor_face_values());
   ASSERT_FALSE(fe_q_ptr == nullptr);
+  ASSERT_FALSE(fe_neighbor_face_value_ptr == nullptr);
 }
 
 TEST_F(FiniteElementTest, ConstructorNone) {
