@@ -30,14 +30,12 @@ class FiniteElementGaussian {
 
   int n_face_quad_pts() const { return face_quadrature_->size(); }
 
-  dealii::FEValues<dim> *finite_element_values() {
-    return finite_element_values_.get(); };
+  dealii::FEValues<dim> *values() { return values_.get(); };
 
-  dealii::FEFaceValues<dim> *finite_element_face_values() {
-    return finite_element_face_values_.get(); };
+  dealii::FEFaceValues<dim> *face_values() { return face_values_.get(); };
 
-  dealii::FEFaceValues<dim> *finite_element_neighbor_face_values() {
-    return finite_element_neighbor_face_values_.get(); };
+  dealii::FEFaceValues<dim> *neighbor_face_values() {
+    return neighbor_face_values_.get(); };
   
   dealii::QGauss<dim> *cell_quadrature() {
     return cell_quadrature_.get(); };
@@ -48,10 +46,9 @@ class FiniteElementGaussian {
  private:
   const int polynomial_degree_;
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
-  std::shared_ptr<dealii::FEValues<dim>> finite_element_values_;
-  std::shared_ptr<dealii::FEFaceValues<dim>> finite_element_face_values_;
-  std::shared_ptr<dealii::FEFaceValues<dim>>
-  finite_element_neighbor_face_values_;
+  std::shared_ptr<dealii::FEValues<dim>> values_;
+  std::shared_ptr<dealii::FEFaceValues<dim>> face_values_;
+  std::shared_ptr<dealii::FEFaceValues<dim>> neighbor_face_values_;
   std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
   std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
 

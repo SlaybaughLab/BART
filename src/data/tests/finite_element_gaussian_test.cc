@@ -8,6 +8,8 @@
 #include <deal.II/fe/fe_values.h>
 #include <gtest/gtest.h>
 
+#include "../../problem/parameter_types.h"
+
 #include "../../test_helpers/gmock_wrapper.h"
 
 class FiniteElementGaussianTest : public ::testing::Test {
@@ -20,11 +22,11 @@ TEST_F(FiniteElementGaussianTest, ConstructorContinuous) {
   auto fe_q_ptr =
       dynamic_cast<dealii::FE_Q<2>*>(test_fe.finite_element());
   auto fe_value_ptr =
-      dynamic_cast<dealii::FEValues<2>*>(test_fe.finite_element_values());
+      dynamic_cast<dealii::FEValues<2>*>(test_fe.values());
   auto fe_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
-      test_fe.finite_element_face_values());
+      test_fe.face_values());
   auto fe_neighbor_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
-      test_fe.finite_element_neighbor_face_values());
+      test_fe.neighbor_face_values());
   auto cell_quad_ptr =
       dynamic_cast<dealii::QGauss<2>*>(test_fe.cell_quadrature());
   auto face_quad_ptr =
@@ -47,7 +49,7 @@ TEST_F(FiniteElementGaussianTest, ConstructorDiscontinuous) {
   dealii::FE_DGQ<2> *fe_q_ptr =
       dynamic_cast<dealii::FE_DGQ<2>*>(test_fe.finite_element());
   auto fe_neighbor_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
-      test_fe.finite_element_neighbor_face_values());
+      test_fe.neighbor_face_values());
   ASSERT_FALSE(fe_q_ptr == nullptr);
   ASSERT_FALSE(fe_neighbor_face_value_ptr == nullptr);
 }

@@ -30,17 +30,15 @@ FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretizat
   face_quadrature_ =
       std::make_shared<dealii::QGauss<dim - 1>>(polynomial_degree + 1);
 
-  finite_element_values_ =
-      std::make_shared<dealii::FEValues<dim>>(*finite_element_,
-                                              *cell_quadrature_,
-                                              update_flags);
-  finite_element_face_values_ =
-      std::make_shared<dealii::FEFaceValues<dim>>(*finite_element_,
-                                                  *face_quadrature_,
-                                                  face_update_flags);
+  values_ = std::make_shared<dealii::FEValues<dim>>(*finite_element_,
+                                                    *cell_quadrature_,
+                                                    update_flags);
+  face_values_ = std::make_shared<dealii::FEFaceValues<dim>>(*finite_element_,
+                                                             *face_quadrature_,
+                                                             face_update_flags);
   
   if (discretization == DiscretizationType::kDiscontinuousFEM) {
-    finite_element_neighbor_face_values_ =
+    neighbor_face_values_ = 
         std::make_shared<dealii::FEFaceValues<dim>>(*finite_element_,
                                                     *face_quadrature_,
                                                     face_update_flags);
