@@ -11,6 +11,7 @@ namespace bart {
 namespace data {
 
 struct CrossSections {
+  CrossSections() = default;
   virtual ~CrossSections() = default;
 
   //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
@@ -28,6 +29,6 @@ struct CrossSections {
   
 } // namespace data
 
-} // namespace bart
+} // namespace bart 
 
-#endif // BART_SRC_DATA_CROSS_SECTIONS_I_H_
+#endif // BART_SRC_DATA_CROSS_SECTIONS_H_
