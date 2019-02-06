@@ -38,6 +38,7 @@ FiniteElement<dim>::FiniteElement(DiscretizationType discretization,
       std::make_shared<dealii::FEFaceValues<dim>>(*finite_element_,
                                                   *face_quadrature_,
                                                   face_update_flags);
+
 }
 
 template <int dim>

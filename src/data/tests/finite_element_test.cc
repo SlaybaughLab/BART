@@ -33,7 +33,10 @@ TEST_F(FiniteElementTest, ConstructorContinuous) {
   ASSERT_FALSE(fe_value_ptr == nullptr);
   ASSERT_FALSE(fe_face_value_ptr == nullptr);
   ASSERT_FALSE(cell_quad_ptr == nullptr);
-  ASSERT_FALSE(face_quad_ptr == nullptr);  
+  ASSERT_FALSE(face_quad_ptr == nullptr);
+  ASSERT_EQ(test_fe.dofs_per_cell(), 9);
+  ASSERT_EQ(test_fe.n_cell_quad_pts(), 9);
+  ASSERT_EQ(test_fe.n_face_quad_pts(), 3);
 }
 
 TEST_F(FiniteElementTest, ConstructorDiscontinuous) {

@@ -24,6 +24,12 @@ class FiniteElement {
   dealii::FiniteElement<dim, dim> *finite_element() {
     return finite_element_.get(); };
 
+  int dofs_per_cell() const { return finite_element_->dofs_per_cell; }
+
+  int n_cell_quad_pts() const { return cell_quadrature_->size(); }
+
+  int n_face_quad_pts() const { return face_quadrature_->size(); }
+
   dealii::FEValues<dim> *finite_element_values() {
     return finite_element_values_.get(); };
 
