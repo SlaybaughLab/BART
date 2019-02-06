@@ -37,11 +37,9 @@ class FiniteElementGaussian {
   dealii::FEFaceValues<dim> *neighbor_face_values() {
     return neighbor_face_values_.get(); };
   
-  dealii::QGauss<dim> *cell_quadrature() {
-    return cell_quadrature_.get(); };
+  dealii::QGauss<dim> *cell_quadrature() { return cell_quadrature_.get(); };
 
-  dealii::QGauss<dim - 1> *face_quadrature() {
-    return face_quadrature_.get(); };
+  dealii::QGauss<dim - 1> *face_quadrature() { return face_quadrature_.get(); };
 
  private:
   const int polynomial_degree_;
