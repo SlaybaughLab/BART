@@ -1,4 +1,4 @@
-#include "../finite_element.h"
+#include "../finite_element_gaussian.h"
 
 #include <vector>
 
@@ -10,13 +10,13 @@
 
 #include "../../test_helpers/gmock_wrapper.h"
 
-class FiniteElementTest : public ::testing::Test {
+class FiniteElementGaussianTest : public ::testing::Test {
  protected:
   using DiscretizationType = bart::problem::DiscretizationType;
 };
 
-TEST_F(FiniteElementTest, ConstructorContinuous) {
-  bart::data::FiniteElement<2> test_fe{DiscretizationType::kContinuousFEM, 2};
+TEST_F(FiniteElementGaussianTest, ConstructorContinuous) {
+  bart::data::FiniteElementGaussian<2> test_fe{DiscretizationType::kContinuousFEM, 2};
   auto fe_q_ptr =
       dynamic_cast<dealii::FE_Q<2>*>(test_fe.finite_element());
   auto fe_value_ptr =
@@ -42,8 +42,8 @@ TEST_F(FiniteElementTest, ConstructorContinuous) {
   ASSERT_EQ(test_fe.n_face_quad_pts(), 3);
 }
 
-TEST_F(FiniteElementTest, ConstructorDiscontinuous) {
-  bart::data::FiniteElement<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+TEST_F(FiniteElementGaussianTest, ConstructorDiscontinuous) {
+  bart::data::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
   dealii::FE_DGQ<2> *fe_q_ptr =
       dynamic_cast<dealii::FE_DGQ<2>*>(test_fe.finite_element());
   auto fe_neighbor_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
@@ -52,8 +52,8 @@ TEST_F(FiniteElementTest, ConstructorDiscontinuous) {
   ASSERT_FALSE(fe_neighbor_face_value_ptr == nullptr);
 }
 
-TEST_F(FiniteElementTest, ConstructorNone) {
+TEST_F(FiniteElementGaussianTest, ConstructorNone) {
   ASSERT_ANY_THROW({
-      bart::data::FiniteElement<2> test_fe(DiscretizationType::kNone, 2);
+      bart::data::FiniteElementGaussian<2> test_fe(DiscretizationType::kNone, 2);
     });
 }

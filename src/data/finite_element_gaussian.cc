@@ -1,4 +1,4 @@
-#include "finite_element.h"
+#include "finite_element_gaussian.h"
 
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
@@ -9,7 +9,7 @@ namespace bart {
 namespace data {
 
 template <int dim>
-FiniteElement<dim>::FiniteElement(DiscretizationType discretization,
+FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretization,
                                   int polynomial_degree)
     : polynomial_degree_(polynomial_degree) {
 
@@ -49,7 +49,7 @@ FiniteElement<dim>::FiniteElement(DiscretizationType discretization,
 
 template <int dim>
 std::shared_ptr<dealii::FiniteElement<dim, dim>>
-FiniteElement<dim>::GetFiniteElement(DiscretizationType discretization) {
+FiniteElementGaussian<dim>::GetFiniteElement(DiscretizationType discretization) {
   switch (discretization) {
     
     case DiscretizationType::kContinuousFEM: {
@@ -64,15 +64,15 @@ FiniteElement<dim>::GetFiniteElement(DiscretizationType discretization) {
       
     default: {
       AssertThrow(false,
-                  dealii::ExcMessage("Cannot build FiniteElement object with discretization type None"));
+                  dealii::ExcMessage("Cannot build FiniteElementGaussian object with discretization type None"));
       break;
     }
   }
 }
 
-template class FiniteElement<1>;
-template class FiniteElement<2>;
-template class FiniteElement<3>;
+template class FiniteElementGaussian<1>;
+template class FiniteElementGaussian<2>;
+template class FiniteElementGaussian<3>;
 
 } // namespace data
 

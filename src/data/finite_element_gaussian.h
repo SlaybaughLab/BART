@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DATA_FINITE_ELEMENT_H_
-#define BART_SRC_DATA_FINITE_ELEMENT_H_
+#ifndef BART_SRC_DATA_FINITE_ELEMENT_GAUSSIAN_H_
+#define BART_SRC_DATA_FINITE_ELEMENT_GAUSSIAN_H_
 
 #include <memory>
 
@@ -13,12 +13,12 @@ namespace bart {
 namespace data {
 
 template <int dim>
-class FiniteElement {
+class FiniteElementGaussian {
  public:
   using DiscretizationType = problem::DiscretizationType;
-  FiniteElement(DiscretizationType discretization,
+  FiniteElementGaussian(DiscretizationType discretization,
                 int polynomial_degree);
-  ~FiniteElement() = default;
+  ~FiniteElementGaussian() = default;
 
   int polynomial_degree() { return polynomial_degree_; };
   dealii::FiniteElement<dim, dim> *finite_element() {
@@ -63,4 +63,4 @@ class FiniteElement {
 
 } // namespace bart 
 
-#endif // BART_SRC_DATA_FINITE_ELEMENT_H_
+#endif // BART_SRC_DATA_FINITE_ELEMENT_GAUSSIAN_H_
