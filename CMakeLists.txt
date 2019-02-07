@@ -101,12 +101,6 @@ target_link_libraries(bart ${Protobuf_LIBRARIES})
 target_link_libraries(bart_test ${GTEST_BOTH_LIBRARIES}
   ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES})
 
-# Add subdirectory builds to build libraries for CTEST
-ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/mesh)
-
-# Add unit testing subdirectories
-ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/mesh)
-
 DEAL_II_SETUP_TARGET(bart)
 DEAL_II_SETUP_TARGET(bart_test)
 
