@@ -18,7 +18,7 @@ class FiniteElementGaussianTest : public ::testing::Test {
 };
 
 TEST_F(FiniteElementGaussianTest, ConstructorContinuous) {
-  bart::data::FiniteElementGaussian<2> test_fe{DiscretizationType::kContinuousFEM, 2};
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kContinuousFEM, 2};
   auto fe_q_ptr =
       dynamic_cast<dealii::FE_Q<2>*>(test_fe.finite_element());
   auto fe_value_ptr =
@@ -45,7 +45,7 @@ TEST_F(FiniteElementGaussianTest, ConstructorContinuous) {
 }
 
 TEST_F(FiniteElementGaussianTest, ConstructorDiscontinuous) {
-  bart::data::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
   dealii::FE_DGQ<2> *fe_q_ptr =
       dynamic_cast<dealii::FE_DGQ<2>*>(test_fe.finite_element());
   auto fe_neighbor_face_value_ptr = dynamic_cast<dealii::FEFaceValues<2>*>(
@@ -56,6 +56,6 @@ TEST_F(FiniteElementGaussianTest, ConstructorDiscontinuous) {
 
 TEST_F(FiniteElementGaussianTest, ConstructorNone) {
   ASSERT_ANY_THROW({
-      bart::data::FiniteElementGaussian<2> test_fe(DiscretizationType::kNone, 2);
+      bart::domain::FiniteElementGaussian<2> test_fe(DiscretizationType::kNone, 2);
     });
 }

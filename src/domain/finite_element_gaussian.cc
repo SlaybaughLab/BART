@@ -6,7 +6,7 @@
 
 namespace bart {
 
-namespace data {
+namespace domain {
 
 template <int dim>
 FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretization,
@@ -72,6 +72,6 @@ template class FiniteElementGaussian<1>;
 template class FiniteElementGaussian<2>;
 template class FiniteElementGaussian<3>;
 
-} // namespace data
+} // namespace domain
 
 } // namespace bart 

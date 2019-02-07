@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DATA_FINITE_ELEMENT_GAUSSIAN_H_
-#define BART_SRC_DATA_FINITE_ELEMENT_GAUSSIAN_H_
+#ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_GAUSSIAN_H_
+#define BART_SRC_DOMAIN_FINITE_ELEMENT_GAUSSIAN_H_
 
 #include <memory>
 
@@ -10,7 +10,7 @@
 
 namespace bart {
 
-namespace data {
+namespace domain {
 
 template <int dim>
 class FiniteElementGaussian {
@@ -54,8 +54,8 @@ class FiniteElementGaussian {
   GetFiniteElement(DiscretizationType discretization);
 };
 
-} // namespace data
+} // namespace domain
 
 } // namespace bart 
 
-#endif // BART_SRC_DATA_FINITE_ELEMENT_GAUSSIAN_H_
+#endif // BART_SRC_DOMAIN_FINITE_ELEMENT_GAUSSIAN_H_
