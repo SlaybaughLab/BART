@@ -9,22 +9,15 @@ namespace bart {
 
 namespace domain {
 
+template <int dim>
 class CartesianMesh {
  public:
   CartesianMesh() = default;
   ~CartesianMesh() = default;
 
-  void FillTriangulation(dealii::Triangulation<1> &to_fill,
-                         std::array<double, 1> x_max,
-                         std::array<int, 1> n_cells);
-
-  void FillTriangulation(dealii::Triangulation<2> &to_fill,
-                         std::array<double, 2> max_dim,
-                         std::array<int, 2> n_cells);
-
-  void FillTriangulation(dealii::Triangulation<3> &to_fill,
-                         std::array<double, 3> max_dim,
-                         std::array<int, 3> n_cells);
+  void FillTriangulation(dealii::Triangulation<dim> &to_fill,
+                         std::array<double, dim> x_max,
+                         std::array<int, dim> n_cells);
 };
 
 } // namespace domain
