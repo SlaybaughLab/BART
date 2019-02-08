@@ -12,8 +12,8 @@ namespace domain {
 
 template <int dim>
 void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill,
-                                           std::array<double, dim> spatial_max,
-                                           std::array<int, dim> n_cells) {
+                                           std::vector<double> spatial_max,
+                                           std::vector<int> n_cells) {
   dealii::Point<dim> diagonal;
   dealii::Point<dim> origin;
 

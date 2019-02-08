@@ -1,6 +1,6 @@
 #include "../cartesian_mesh.h"
 
-#include <array>
+#include <vector>
 #include <deal.II/grid/tria.h>
 #include <gtest/gtest.h>
 
@@ -13,8 +13,8 @@ class CartesianMeshTest : public ::testing::Test {
 TEST_F(CartesianMeshTest, Triangulation1D) {
   bart::domain::CartesianMesh<1> test_mesh;
   dealii::Triangulation<1> test_triangulation;
-  std::array<double, 1> x_max{10.5};
-  std::array<int, 1> n_cells{10};
+  std::vector<double> x_max{10.5};
+  std::vector<int> n_cells{10};
   test_mesh.FillTriangulation(test_triangulation, x_max, n_cells);
   
   EXPECT_EQ(test_triangulation.n_lines(), 10);
@@ -30,8 +30,8 @@ TEST_F(CartesianMeshTest, Triangulation1D) {
 TEST_F(CartesianMeshTest, Triangulation2D) {
   bart::domain::CartesianMesh<2> test_mesh;
   dealii::Triangulation<2> test_triangulation;
-  std::array<double, 2> max_dim{10.5, 12.0};
-  std::array<int, 2> n_cells{12, 20};
+  std::vector<double> max_dim{10.5, 12.0};
+  std::vector<int> n_cells{12, 20};
   test_mesh.FillTriangulation(test_triangulation, max_dim, n_cells);
   
   EXPECT_EQ(test_triangulation.n_cells(), 240);
@@ -47,8 +47,8 @@ TEST_F(CartesianMeshTest, Triangulation2D) {
 TEST_F(CartesianMeshTest, Triangulation3D) {
   bart::domain::CartesianMesh<3> test_mesh;
   dealii::Triangulation<3> test_triangulation;
-  std::array<double, 3> max_dim{10.5, 12.0, 6.0};
-  std::array<int, 3> n_cells{12, 20, 10};
+  std::vector<double> max_dim{10.5, 12.0, 6.0};
+  std::vector<int> n_cells{12, 20, 10};
   test_mesh.FillTriangulation(test_triangulation, max_dim, n_cells);
   
   EXPECT_EQ(test_triangulation.n_cells(), 12*20*10);

@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_CARTESIAN_MESH_H_
 #define BART_SRC_DOMAIN_CARTESIAN_MESH_H_
 
-#include <array>
+#include <vector>
 
 #include <deal.II/grid/tria.h>
 
@@ -16,8 +16,8 @@ class CartesianMesh {
   ~CartesianMesh() = default;
 
   void FillTriangulation(dealii::Triangulation<dim> &to_fill,
-                         std::array<double, dim> x_max,
-                         std::array<int, dim> n_cells);
+                         std::vector<double> spatial_max,
+                         std::vector<int> n_cells);
 };
 
 } // namespace domain
