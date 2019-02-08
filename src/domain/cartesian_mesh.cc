@@ -14,6 +14,7 @@ template <int dim>
 void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill,
                                            std::vector<double> spatial_max,
                                            std::vector<int> n_cells) {
+  
   dealii::Point<dim> diagonal;
   dealii::Point<dim> origin;
 
