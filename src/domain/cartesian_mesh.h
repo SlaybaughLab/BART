@@ -26,9 +26,9 @@ class CartesianMesh {
       
  private:
   std::array<double, dim> spatial_max_;
-  std::array<int, dim>    n_material_cells_;
+  std::array<int, 3>    n_material_cells_;
   std::array<int, dim>    n_cells_;
-  std::map<std::array<int, dim>, int> material_mapping_;
+  std::map<std::array<int, 3>, int> material_mapping_;
 };
 
 } // namespace domain

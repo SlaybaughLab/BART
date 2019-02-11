@@ -6,6 +6,7 @@
 #include <deal.II/base/point.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/base/tensor.h>
+#include <deal.II/base/utilities.h>
 
 namespace bart {
 
@@ -40,11 +41,53 @@ void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) 
                                                     origin, diagonal);
 }
 template <int dim>
-void CartesianMesh<dim>::SetMaterialIDs(dealii::Triangulation<dim> &to_set,
-                                        std::string material_mapping) {};
+void CartesianMesh<dim>::SetMaterialIDs(dealii::Triangulation<dim> &,
+                                        std::string material_mapping) {
+  using dealii::Utilities::split_string_list;
+  using dealii::Utilities::string_to_int;
+  using StringVector = std::vector<std::string>;
+      
+  StringVector z_vector = split_string_list(material_mapping, "\n\n");
+  
+  for (int k = 0; k < static_cast<int>(z_vector.size()); ++k){
+    
+    StringVector y_vector = split_string_list(z_vector[k], "\n");
+    std::reverse(y_vector.begin(), y_vector.end());
+    
+    for (int j = 0 ; j < static_cast<int>(y_vector.size()); ++j ) {
+      
+      StringVector x_vector = split_string_list(y_vector[j], " ");
+      
+      for (int i = 0; i < static_cast<int>(x_vector.size()); ++i ) {
+        
+        std::array<int, 3> location{i, j, k};
+        material_mapping_[location] = string_to_int(x_vector[i]);
+      }
+      n_material_cells_[0] = x_vector.size();
+    }
+    n_material_cells_[1] = y_vector.size();
+  }
+  n_material_cells_[2] = z_vector.size(); 
+};
 
 template <int dim>
-int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {return 0;};
+int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
+  std::array<int, 3> relative_location{0, 0, 0};
+
+  for (int i = 0; i < dim; ++i) {
+    double cell_size = spatial_max_[i]/n_material_cells_[i];
+    double cell_location = location[i] / cell_size;
+    int cell_index = std::floor(cell_location);
+
+    if (static_cast<double>(cell_index) == cell_location && cell_index != 0) {
+      relative_location[i] = cell_index - 1;
+    } else {
+      relative_location[i] = cell_index;         
+    }
+  }
+  
+  return material_mapping_[relative_location];
+}
 
 
 template class CartesianMesh<1>;

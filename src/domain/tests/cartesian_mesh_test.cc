@@ -95,7 +95,7 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
   
 class MaterialMapping1DTest : public CartesianMeshTest {
  protected:
-  std::vector<double> spatial_max{btest::RandomVector(1, 0, 20)};
+  std::vector<double> spatial_max{btest::RandomVector(1, 5, 20)};
   std::vector<int> n_cells{rand() % 20 + 1};
   dealii::Triangulation<1> test_triangulation;
 };
@@ -108,12 +108,138 @@ TEST_F(MaterialMapping1DTest, 1DMaterialMapping) {
 
   std::vector<std::array<double, 1>> test_locations;
   for (int i = 0; i < 5; ++i)
-    test_locations.push_back({btest::RandomDouble(0, 20)});
+    test_locations.push_back({btest::RandomDouble(0, spatial_max[0])});
 
   for (auto location : test_locations)
     EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
-        "Location: " << location[0];
+        "Location: " << location[0] << "/" << spatial_max[0];
 }
+
+TEST_F(MaterialMapping1DTest, 1DMultiMaterialMapping) {
+  bart::domain::CartesianMesh<1> test_mesh(spatial_max, n_cells);
+  std::string material_mapping{"1 2"};
+
+  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+
+  std::vector<std::array<double, 1>> test_locations_1;
+  std::vector<std::array<double, 1>> test_locations_2;
+  for (int i = 0; i < 5; ++i) {
+    test_locations_1.push_back({btest::RandomDouble(0, spatial_max[0]/2)});
+    test_locations_2.push_back({btest::RandomDouble(spatial_max[0]/2,
+                                                    spatial_max[0])});
+  }
+  test_locations_1.push_back({0});
+  test_locations_1.push_back({spatial_max[0]/2});
+  test_locations_2.push_back({spatial_max[0]});
+
+  for (auto location : test_locations_1)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
+        "Location: " << location[0] << "/" << spatial_max[0];
+  for (auto location : test_locations_2)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 2) <<
+        "Location: " << location[0] << "/" << spatial_max[0];
+}
+
+class MaterialMapping2DTest : public CartesianMeshTest {
+ protected:
+  std::vector<double> spatial_max{btest::RandomVector(2, 5, 20)};
+  std::vector<int> n_cells{rand() % 20 + 1, rand() % 20 + 1};
+  dealii::Triangulation<2> test_triangulation;
+};
+
+TEST_F(MaterialMapping2DTest, 2DMaterialMapping) {
+  bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
+  std::string material_mapping{'1'};
+
+  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+
+  std::vector<std::array<double, 2>> test_locations;
+  for (int i = 0; i < 5; ++i)
+    test_locations.push_back({btest::RandomDouble(0, spatial_max[0])});
+
+  for (auto location : test_locations)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
+        "Location: (" << location[0] << ", " << location[1] << ")/("
+                      << spatial_max[0] << ", " << spatial_max[1] << ")";
+}
+
+TEST_F(MaterialMapping2DTest, 2DMultiMaterialMapping) {
+  bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
+  std::string material_mapping{"1 2"};
+
+  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+
+  std::vector<std::array<double, 2>> test_locations_1;
+  std::vector<std::array<double, 2>> test_locations_2;
+  for (int i = 0; i < 5; ++i) {
+    test_locations_1.push_back(
+        {btest::RandomDouble(0, spatial_max[0]/2),          
+              btest::RandomDouble(0, spatial_max[1])});
+    
+    test_locations_2.push_back(
+        {btest::RandomDouble(spatial_max[0]/2, spatial_max[0]),
+              btest::RandomDouble(0, spatial_max[1])});
+  }
+  test_locations_1.push_back({0,0});
+  test_locations_1.push_back({spatial_max[0]/2, 0});
+  test_locations_1.push_back({spatial_max[0]/2, spatial_max[1]/2});
+  test_locations_1.push_back({spatial_max[0]/2, spatial_max[1]});
+  test_locations_2.push_back({spatial_max[0], 0});
+  test_locations_2.push_back({spatial_max[0], spatial_max[1]});
+
+  for (auto location : test_locations_1)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
+        "Location: (" << location[0] << ", " << location[1] << ")/("
+                      << spatial_max[0] << ", " << spatial_max[1] << ")";
+  for (auto location : test_locations_2)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 2) <<
+        "Location: (" << location[0] << ", " << location[1] << ")/("
+                      << spatial_max[0] << ", " << spatial_max[1] << ")";
+}
+
+TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
+  bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
+  std::string material_mapping{"2 1\n1 2"};
+
+  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+
+  std::vector<std::array<double, 2>> test_locations_1;
+  std::vector<std::array<double, 2>> test_locations_2;
+  for (int i = 0; i < 5; ++i) {
+    test_locations_1.push_back(
+        {btest::RandomDouble(0, spatial_max[0]/2),          
+              btest::RandomDouble(0, spatial_max[1]/2)});
+    
+    test_locations_1.push_back(
+        {btest::RandomDouble(spatial_max[0]/2, spatial_max[0]),
+              btest::RandomDouble(spatial_max[1]/2, spatial_max[1])});
+    
+    test_locations_2.push_back(
+        {btest::RandomDouble(spatial_max[0]/2, spatial_max[0]),
+              btest::RandomDouble(0, spatial_max[1]/2)});
+    
+    test_locations_2.push_back(
+        {btest::RandomDouble(0, spatial_max[0]/2),
+              btest::RandomDouble(spatial_max[1]/2, spatial_max[1])});
+  }
+  test_locations_1.push_back({0,0});
+  test_locations_1.push_back({spatial_max[0]/2, 0});
+  test_locations_1.push_back({spatial_max[0]/2, spatial_max[1]/2});
+  test_locations_2.push_back({spatial_max[0]/2, spatial_max[1]});
+  test_locations_2.push_back({spatial_max[0], 0});
+  test_locations_1.push_back({spatial_max[0], spatial_max[1]});
+  test_locations_2.push_back({spatial_max[0]/2, spatial_max[1]});
+
+  for (auto location : test_locations_1)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
+        "Location: (" << location[0] << ", " << location[1] << ")/("
+                      << spatial_max[0] << ", " << spatial_max[1] << ")";
+  for (auto location : test_locations_2)
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 2) <<
+        "Location: (" << location[0] << ", " << location[1] << ")/("
+                      << spatial_max[0] << ", " << spatial_max[1] << ")";
+}
+
 
 template void CartesianMeshTest::FillTriangulationTest<1>();
 template void CartesianMeshTest::FillTriangulationTest<2>();
