@@ -39,6 +39,12 @@ void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) 
   dealii::GridGenerator::subdivided_hyper_rectangle(to_fill, number_of_cells,
                                                     origin, diagonal);
 }
+template <int dim>
+void CartesianMesh<dim>::SetMaterialIDs(dealii::Triangulation<dim> &to_set,
+                                        std::string material_mapping) {};
+
+template <int dim>
+int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {return 0;};
 
 
 template class CartesianMesh<1>;
