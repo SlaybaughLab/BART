@@ -1,5 +1,6 @@
 #include "cartesian_mesh.h"
 
+#include <algorithm>
 #include <vector>
 
 #include <deal.II/base/point.h>
@@ -9,6 +10,10 @@
 namespace bart {
 
 namespace domain {
+
+template <int dim>
+CartesianMesh<dim>::CartesianMesh(std::vector<double> spatial_max,
+                                  std::vector<int> n_cells) {}
 
 template <int dim>
 void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill,
