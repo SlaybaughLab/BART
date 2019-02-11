@@ -27,7 +27,7 @@ void CartesianMeshTest::FillTriangulationTest() {
   bart::domain::CartesianMesh<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
-  test_mesh.FillTriangulation(test_triangulation, spatial_max, n_cells);
+  test_mesh.FillTriangulation(test_triangulation);
   EXPECT_EQ(test_triangulation.n_cells(), n_total_cells);
 
   for (auto const &cell : test_triangulation.active_cell_iterators()) {

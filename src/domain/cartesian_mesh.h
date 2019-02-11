@@ -16,9 +16,8 @@ class CartesianMesh {
   CartesianMesh(std::vector<double> spatial_max, std::vector<int> n_cells);
   ~CartesianMesh() = default;
 
-  void FillTriangulation(dealii::Triangulation<dim> &to_fill,
-                         std::vector<double> spatial_max,
-                         std::vector<int> n_cells);
+  void FillTriangulation(dealii::Triangulation<dim> &to_fill);
+      
  private:
   std::array<double, dim> spatial_max_;
   std::array<int, dim>    n_cells_;

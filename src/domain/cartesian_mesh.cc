@@ -13,20 +13,22 @@ namespace domain {
 
 template <int dim>
 CartesianMesh<dim>::CartesianMesh(std::vector<double> spatial_max,
-                                  std::vector<int> n_cells) {}
+                                  std::vector<int> n_cells) {
+  
+  std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
+  std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());
+}
 
 template <int dim>
-void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill,
-                                           std::vector<double> spatial_max,
-                                           std::vector<int> n_cells) {
+void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) {
   
   dealii::Point<dim> diagonal;
   dealii::Point<dim> origin;
 
   for (int i = 0; i < dim; ++i)
-    diagonal[i] = spatial_max[i];
+    diagonal[i] = spatial_max_[i];
 
-  std::vector<unsigned int> number_of_cells{n_cells.begin(), n_cells.end()};
+  std::vector<unsigned int> number_of_cells{n_cells_.begin(), n_cells_.end()};
 
   dealii::GridGenerator::subdivided_hyper_rectangle(to_fill, number_of_cells,
                                                     origin, diagonal);
