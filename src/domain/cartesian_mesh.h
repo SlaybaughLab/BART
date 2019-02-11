@@ -13,7 +13,8 @@ namespace domain {
 template <int dim>
 class CartesianMesh {
  public:
-  CartesianMesh(std::vector<double> spatial_max, std::vector<int> n_cells);
+  CartesianMesh(const std::vector<double> spatial_max,
+                const std::vector<int> n_cells);
   ~CartesianMesh() = default;
 
   void FillTriangulation(dealii::Triangulation<dim> &to_fill);

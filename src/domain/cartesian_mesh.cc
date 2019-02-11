@@ -12,8 +12,14 @@ namespace bart {
 namespace domain {
 
 template <int dim>
-CartesianMesh<dim>::CartesianMesh(std::vector<double> spatial_max,
-                                  std::vector<int> n_cells) {
+CartesianMesh<dim>::CartesianMesh(const std::vector<double> spatial_max,
+                                  const std::vector<int> n_cells) {
+
+  // Check lengths of spatial max and n_cells
+  AssertThrow(spatial_max.size() == dim,
+              dealii::ExcMessage("CartesianMesh argument error, incorrect spatial vector size"));
+  AssertThrow(n_cells.size() == dim,
+              dealii::ExcMessage("CartesianMesh argument error, incorrect number of cells vector size"))
   
   std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
   std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());

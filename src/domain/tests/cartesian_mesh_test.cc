@@ -59,7 +59,7 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
       // 1D Case
-      if ((i != 0) && (j != 0)) {
+      if ((i != 0) || (j != 0)) {
         EXPECT_ANY_THROW({
             bart::domain::CartesianMesh<1> test_mesh(domain_sizes[i], n_cells[j]);
           });
@@ -69,7 +69,7 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
           });
       }
       // 2D Case
-      if ((i != 1) && (j != 1)) {
+      if ((i != 1) || (j != 1)) {
         EXPECT_ANY_THROW({
             bart::domain::CartesianMesh<2> test_mesh(domain_sizes[i], n_cells[j]);
           });
@@ -79,7 +79,7 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
           });
       }
       // 3D Case
-      if ((i != 2) && (j != 2)) {
+      if ((i != 2) || (j != 2)) {
         EXPECT_ANY_THROW({
             bart::domain::CartesianMesh<3> test_mesh(domain_sizes[i], n_cells[j]);
           });
