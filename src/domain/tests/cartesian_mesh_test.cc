@@ -92,21 +92,8 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
     }
   }
 }
-
-class MaterialMappingTest : public CartesianMeshTest {
- protected:
-  template <int dim> std::array<double, dim> RandomArray(int min, int max);
-};
-
-template <int dim>
-std::array<double, dim> MaterialMappingTest::RandomArray(int min, int max) {
-  auto vector = btest::RandomVector(dim, min, max);
-  std::array<double, dim> return_array;
-  std::copy(vector.begin(), vector.end(), return_array.begin());
-  return return_array;
-}
   
-class MaterialMapping1DTest : public MaterialMappingTest {
+class MaterialMapping1DTest : public CartesianMeshTest {
  protected:
   std::vector<double> spatial_max{btest::RandomVector(1, 0, 20)};
   std::vector<int> n_cells{rand() % 20 + 1};
@@ -119,19 +106,14 @@ TEST_F(MaterialMapping1DTest, 1DMaterialMapping) {
 
   test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
 
-  std::vector<std::array<double, 1>> test_locations
-  {
-    RandomArray<1>(0, spatial_max[0]),
-        RandomArray<1>(0, spatial_max[0]),
-        RandomArray<1>(0, spatial_max[0])};
+  std::vector<std::array<double, 1>> test_locations;
+  for (int i = 0; i < 5; ++i)
+    test_locations.push_back({btest::RandomDouble(0, 20)});
 
   for (auto location : test_locations)
-    ASSERT_EQ(test_mesh.GetMaterialID(location), 1);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
+        "Location: " << location[0];
 }
-
-template std::array<double, 1> MaterialMappingTest::RandomArray<1>(int, int);
-template std::array<double, 2> MaterialMappingTest::RandomArray<2>(int, int);
-template std::array<double, 3> MaterialMappingTest::RandomArray<3>(int, int);
 
 template void CartesianMeshTest::FillTriangulationTest<1>();
 template void CartesianMeshTest::FillTriangulationTest<2>();
