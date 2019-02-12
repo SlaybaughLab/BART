@@ -30,6 +30,7 @@ class CartesianMesh {
   
   int GetMaterialID(std::array<double, dim> location);
   int GetMaterialID(dealii::Point<dim> location);
+  bool has_material_mapping() { return !material_mapping_.empty(); }
       
  private:
   std::array<double, dim> spatial_max_;

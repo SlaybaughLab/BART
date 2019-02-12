@@ -31,7 +31,7 @@ void CartesianMeshTest::FillTriangulationTest() {
 
   test_mesh.FillTriangulation(test_triangulation);
   EXPECT_EQ(test_triangulation.n_cells(), n_total_cells);
-
+  EXPECT_FALSE(test_mesh.has_material_mapping());
   for (auto const &cell : test_triangulation.active_cell_iterators()) {
     for (int i = 0; i < dim; ++i) {
       EXPECT_THAT(cell->extent_in_direction(i),
@@ -91,7 +91,8 @@ TEST_F(MaterialMapping1DTest, 1DMaterialMapping) {
   std::string material_mapping{'1'};
 
   test_mesh.ParseMaterialMap(material_mapping);
-
+  EXPECT_TRUE(test_mesh.has_material_mapping());
+  
   std::vector<std::array<double, 1>> test_locations;
   for (int i = 0; i < 5; ++i)
     test_locations.push_back({btest::RandomDouble(0, spatial_max[0])});
@@ -106,6 +107,7 @@ TEST_F(MaterialMapping1DTest, 1DMultiMaterialMapping) {
   std::string material_mapping{"1 2"};
 
   test_mesh.ParseMaterialMap(material_mapping);
+  EXPECT_TRUE(test_mesh.has_material_mapping());
 
   std::vector<std::array<double, 1>> test_locations_1;
   std::vector<std::array<double, 1>> test_locations_2;
@@ -138,6 +140,7 @@ TEST_F(MaterialMapping2DTest, 2DMaterialMapping) {
   std::string material_mapping{'1'};
 
   test_mesh.ParseMaterialMap(material_mapping);
+  EXPECT_TRUE(test_mesh.has_material_mapping());
 
   std::vector<std::array<double, 2>> test_locations;
   for (int i = 0; i < 5; ++i)
@@ -155,6 +158,7 @@ TEST_F(MaterialMapping2DTest, 2DMultiMaterialMapping) {
   std::string material_mapping{"1 2"};
 
   test_mesh.ParseMaterialMap(material_mapping);
+  EXPECT_TRUE(test_mesh.has_material_mapping());
 
   std::vector<std::array<double, 2>> test_locations_1;
   std::vector<std::array<double, 2>> test_locations_2;
@@ -189,6 +193,7 @@ TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
   std::string material_mapping{"2 1\n1 2"};
 
   test_mesh.ParseMaterialMap(material_mapping);
+  EXPECT_TRUE(test_mesh.has_material_mapping());
 
   std::vector<std::array<double, 2>> test_locations_1;
   std::vector<std::array<double, 2>> test_locations_2;
