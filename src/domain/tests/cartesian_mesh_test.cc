@@ -5,6 +5,7 @@
 #include <functional>
 #include <vector>
 
+#include <deal.II/base/point.h>
 #include <deal.II/grid/tria.h>
 #include <gtest/gtest.h>
 
@@ -140,7 +141,8 @@ TEST_F(MaterialMapping2DTest, 2DMaterialMapping) {
 
   std::vector<std::array<double, 2>> test_locations;
   for (int i = 0; i < 5; ++i)
-    test_locations.push_back({btest::RandomDouble(0, spatial_max[0])});
+    test_locations.push_back({btest::RandomDouble(0, spatial_max[0]),
+            btest::RandomDouble(0, spatial_max[1])});
 
   for (auto location : test_locations)
     EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
