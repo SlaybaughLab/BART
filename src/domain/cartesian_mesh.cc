@@ -1,12 +1,15 @@
 #include "cartesian_mesh.h"
 
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 #include <deal.II/base/point.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/base/tensor.h>
 #include <deal.II/base/utilities.h>
+
+#include "../problem/parameter_types.h"
 
 namespace bart {
 
@@ -66,11 +69,55 @@ void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
 }
 
 template <int dim>  
-void FillMaterialID(dealii::Triangulation<dim> &to_fill) {
+void CartesianMesh<dim>::FillMaterialID(dealii::Triangulation<dim> &to_fill) {
   for (auto cell = to_fill.begin_active(); cell != to_fill.end(); ++cell) {
     if (cell->is_locally_owned()) {
       int material_id = GetMaterialID(cell->center());
       cell->set_material_id(material_id);
+    }
+  }
+}
+
+template <int dim>
+void CartesianMesh<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
+  using Boundary = bart::problem::Boundary;
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  double zero_tol = 1.0e-14;
+  
+  for (auto cell = to_fill.begin_active(); cell != to_fill.end(); ++cell) {
+    if (cell->is_locally_owned()) {
+      for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
+        auto face = cell->face(face_id);
+        dealii::Point<dim> face_center = face->center();
+
+        switch (dim) {
+          case 2: {
+            if (std::fabs(face_center[1]) < zero_tol) {
+              face->set_boundary_id(static_cast<int>(Boundary::kYMin));
+              break;
+            } else if (std::fabs(face_center[1] - spatial_max_[1]) < zero_tol) {
+              face->set_boundary_id(static_cast<int>(Boundary::kYMax));
+              break;
+            }
+            [[fallthrough]];
+          }
+          // Fall through to check x-direction
+          case 1: {
+            if (std::fabs(face_center[0]) < zero_tol) {
+              face->set_boundary_id(static_cast<int>(Boundary::kXMin));
+              break;
+            } else if (std::fabs(face_center[0] - spatial_max_[0]) < zero_tol) {
+              face->set_boundary_id(static_cast<int>(Boundary::kXMax));
+              break;
+            }
+            break;
+          }
+          default: {
+            AssertThrow(false,
+                        dealii::ExcMessage("Unsupported number of dimensions in FillBoundaryID"));
+          }
+        }
+      }
     }
   }
 }
