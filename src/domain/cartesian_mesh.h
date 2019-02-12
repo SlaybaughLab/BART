@@ -22,6 +22,9 @@ class CartesianMesh {
 
   void FillTriangulation(dealii::Triangulation<dim> &to_fill);
   void ParseMaterialMap(std::string material_mapping);
+  void FillMaterialID(dealii::Triangulation<dim> &to_fill);
+
+  
   int GetMaterialID(std::array<double, dim> location);
   int GetMaterialID(dealii::Point<dim> location);
       

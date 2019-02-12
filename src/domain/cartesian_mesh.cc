@@ -51,7 +51,7 @@ void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
   
   std::reverse(y_vector.begin(), y_vector.end());
     
-  for (int j = 0 ; j < static_cast<int>(y_vector.size()); ++j ) {
+  for (int j = 0; j < static_cast<int>(y_vector.size()); ++j ) {
       
     StringVector x_vector = split_string_list(y_vector[j], " ");
       
@@ -64,6 +64,17 @@ void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
   }
   n_material_cells_[1] = y_vector.size();
 }
+
+template <int dim>  
+void FillMaterialID(dealii::Triangulation<dim> &to_fill) {
+  for (auto cell = to_fill.begin_active(); cell != to_fill.end(); ++cell) {
+    if (cell->is_locally_owned()) {
+      int material_id = GetMaterialID(cell->center());
+      cell->set_material_id(material_id);
+    }
+  }
+}
+  
 
 template <int dim>
 int CartesianMesh<dim>::GetMaterialID(dealii::Point<dim> location) {
