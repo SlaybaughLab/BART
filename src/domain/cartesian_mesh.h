@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include <deal.II/base/point.h>
 #include <deal.II/grid/tria.h>
 
 namespace bart {
@@ -22,6 +23,7 @@ class CartesianMesh {
   void FillTriangulation(dealii::Triangulation<dim> &to_fill);
   void ParseMaterialMap(std::string material_mapping);
   int GetMaterialID(std::array<double, dim> location);
+  int GetMaterialID(dealii::Point<dim> location);
       
  private:
   std::array<double, dim> spatial_max_;

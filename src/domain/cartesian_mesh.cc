@@ -66,6 +66,14 @@ void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
 }
 
 template <int dim>
+int CartesianMesh<dim>::GetMaterialID(dealii::Point<dim> location) {
+  std::array<double, dim> array_location;
+  for (int i = 0; i < dim; ++i)
+    array_location[i] = location[i];
+  return GetMaterialID(array_location);
+}
+  
+template <int dim>
 int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
   std::array<int, 2> relative_location{0, 0};
 
