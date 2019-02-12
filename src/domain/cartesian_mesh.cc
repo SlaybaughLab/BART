@@ -162,7 +162,10 @@ int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
 template <int dim>
 void SetupTriangulation(dealii::Triangulation<dim> &to_setup,
                         CartesianMesh<dim> &mesh) {
-  
+  mesh.FillTriangulation(to_setup);
+  mesh.FillBoundaryID(to_setup);
+  if (mesh.has_material_mapping())
+    mesh.FillMaterialID(to_setup);
 }
 
 
