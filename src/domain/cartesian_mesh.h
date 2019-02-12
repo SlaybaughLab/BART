@@ -18,6 +18,9 @@ class CartesianMesh {
  public:
   CartesianMesh(const std::vector<double> spatial_max,
                 const std::vector<int> n_cells);
+  CartesianMesh(const std::vector<double> spatial_max,
+                const std::vector<int> n_cells,
+                const std::string material_mapping);
   ~CartesianMesh() = default;
 
   void FillTriangulation(dealii::Triangulation<dim> &to_fill);
@@ -34,6 +37,10 @@ class CartesianMesh {
   std::array<int, dim>    n_cells_;
   std::map<std::array<int, 2>, int> material_mapping_;
 };
+
+template <int dim>
+void SetupTriangulation(dealii::Triangulation<dim> &to_setup,
+                        CartesianMesh<dim> &mesh);
 
 } // namespace domain
 

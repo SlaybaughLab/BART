@@ -17,6 +17,15 @@ namespace domain {
 
 template <int dim>
 CartesianMesh<dim>::CartesianMesh(const std::vector<double> spatial_max,
+                                  const std::vector<int> n_cells,
+                                  const std::string material_mapping)
+    : CartesianMesh(spatial_max, n_cells) {
+  ParseMaterialMap(material_mapping);
+}
+
+
+template <int dim>
+CartesianMesh<dim>::CartesianMesh(const std::vector<double> spatial_max,
                                   const std::vector<int> n_cells) {
 
   // Check lengths of spatial max and n_cells
@@ -150,9 +159,19 @@ int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
   return material_mapping_[relative_location];
 }
 
+template <int dim>
+void SetupTriangulation(dealii::Triangulation<dim> &to_setup,
+                        CartesianMesh<dim> &mesh) {
+  
+}
+
 
 template class CartesianMesh<1>;
 template class CartesianMesh<2>;
+template void SetupTriangulation<1>(dealii::Triangulation<1>&,
+                                    CartesianMesh<1>&);
+template void SetupTriangulation<2>(dealii::Triangulation<2>&,
+                                    CartesianMesh<2>&);
 
 } // namespace domain
 
