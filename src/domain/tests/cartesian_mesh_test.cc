@@ -34,7 +34,7 @@ void CartesianMeshTest::FillTriangulationTest() {
   for (auto const &cell : test_triangulation.active_cell_iterators()) {
     for (int i = 0; i < dim; ++i) {
       EXPECT_THAT(cell->extent_in_direction(i),
-                  ::testing::DoubleNear(spatial_max[i]/n_cells[i], 1e-14));
+                  ::testing::DoubleNear(spatial_max[i]/n_cells[i], 1e-10));
     }
   }
 }                                     
@@ -47,18 +47,13 @@ TEST_F(CartesianMeshTest, Triangulation2D) {
     FillTriangulationTest<2>();
 }
 
-TEST_F(CartesianMeshTest, Triangulation3D) {
-    FillTriangulationTest<3>();
-}
-
 TEST_F(CartesianMeshTest, BadSpatialSize) {
 
-  std::vector<std::vector<double>> domain_sizes {{10.0}, {10.0, 20.0},
-                                                         {10.0, 20.0, 30.0}};
-  std::vector<std::vector<int>> n_cells {{10}, {10, 20}, {10, 20, 30}};
+  std::vector<std::vector<double>> domain_sizes {{10.0}, {10.0, 20.0}};
+  std::vector<std::vector<int>> n_cells {{10}, {10, 20}};
   
-  for (int i = 0; i < 3; ++i) {
-    for (int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < 2; ++j) {
       // 1D Case
       if ((i != 0) || (j != 0)) {
         EXPECT_ANY_THROW({
@@ -79,16 +74,6 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
             bart::domain::CartesianMesh<2> test_mesh(domain_sizes[i], n_cells[j]);
           });
       }
-      // 3D Case
-      if ((i != 2) || (j != 2)) {
-        EXPECT_ANY_THROW({
-            bart::domain::CartesianMesh<3> test_mesh(domain_sizes[i], n_cells[j]);
-          });
-      } else {
-        EXPECT_NO_THROW({
-            bart::domain::CartesianMesh<3> test_mesh(domain_sizes[i], n_cells[j]);
-          });
-      }
     }
   }
 }
@@ -104,7 +89,7 @@ TEST_F(MaterialMapping1DTest, 1DMaterialMapping) {
   bart::domain::CartesianMesh<1> test_mesh(spatial_max, n_cells);
   std::string material_mapping{'1'};
 
-  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+  test_mesh.ParseMaterialMap(material_mapping);
 
   std::vector<std::array<double, 1>> test_locations;
   for (int i = 0; i < 5; ++i)
@@ -119,7 +104,7 @@ TEST_F(MaterialMapping1DTest, 1DMultiMaterialMapping) {
   bart::domain::CartesianMesh<1> test_mesh(spatial_max, n_cells);
   std::string material_mapping{"1 2"};
 
-  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+  test_mesh.ParseMaterialMap(material_mapping);
 
   std::vector<std::array<double, 1>> test_locations_1;
   std::vector<std::array<double, 1>> test_locations_2;
@@ -151,7 +136,7 @@ TEST_F(MaterialMapping2DTest, 2DMaterialMapping) {
   bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
   std::string material_mapping{'1'};
 
-  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+  test_mesh.ParseMaterialMap(material_mapping);
 
   std::vector<std::array<double, 2>> test_locations;
   for (int i = 0; i < 5; ++i)
@@ -167,7 +152,7 @@ TEST_F(MaterialMapping2DTest, 2DMultiMaterialMapping) {
   bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
   std::string material_mapping{"1 2"};
 
-  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+  test_mesh.ParseMaterialMap(material_mapping);
 
   std::vector<std::array<double, 2>> test_locations_1;
   std::vector<std::array<double, 2>> test_locations_2;
@@ -201,7 +186,7 @@ TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
   bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
   std::string material_mapping{"2 1\n1 2"};
 
-  test_mesh.SetMaterialIDs(test_triangulation, material_mapping);
+  test_mesh.ParseMaterialMap(material_mapping);
 
   std::vector<std::array<double, 2>> test_locations_1;
   std::vector<std::array<double, 2>> test_locations_2;
@@ -243,4 +228,3 @@ TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
 
 template void CartesianMeshTest::FillTriangulationTest<1>();
 template void CartesianMeshTest::FillTriangulationTest<2>();
-template void CartesianMeshTest::FillTriangulationTest<3>();

@@ -40,39 +40,34 @@ void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) 
   dealii::GridGenerator::subdivided_hyper_rectangle(to_fill, number_of_cells,
                                                     origin, diagonal);
 }
+
 template <int dim>
-void CartesianMesh<dim>::SetMaterialIDs(dealii::Triangulation<dim> &,
-                                        std::string material_mapping) {
+void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
   using dealii::Utilities::split_string_list;
   using dealii::Utilities::string_to_int;
   using StringVector = std::vector<std::string>;
       
-  StringVector z_vector = split_string_list(material_mapping, "\n\n");
+  StringVector y_vector = split_string_list(material_mapping, "\n");
   
-  for (int k = 0; k < static_cast<int>(z_vector.size()); ++k){
+  std::reverse(y_vector.begin(), y_vector.end());
     
-    StringVector y_vector = split_string_list(z_vector[k], "\n");
-    std::reverse(y_vector.begin(), y_vector.end());
-    
-    for (int j = 0 ; j < static_cast<int>(y_vector.size()); ++j ) {
+  for (int j = 0 ; j < static_cast<int>(y_vector.size()); ++j ) {
       
-      StringVector x_vector = split_string_list(y_vector[j], " ");
+    StringVector x_vector = split_string_list(y_vector[j], " ");
       
-      for (int i = 0; i < static_cast<int>(x_vector.size()); ++i ) {
+    for (int i = 0; i < static_cast<int>(x_vector.size()); ++i ) {
         
-        std::array<int, 3> location{i, j, k};
-        material_mapping_[location] = string_to_int(x_vector[i]);
-      }
-      n_material_cells_[0] = x_vector.size();
+      std::array<int, 2> location{i, j};
+      material_mapping_[location] = string_to_int(x_vector[i]);
     }
-    n_material_cells_[1] = y_vector.size();
+    n_material_cells_[0] = x_vector.size();
   }
-  n_material_cells_[2] = z_vector.size(); 
-};
+  n_material_cells_[1] = y_vector.size();
+}
 
 template <int dim>
 int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
-  std::array<int, 3> relative_location{0, 0, 0};
+  std::array<int, 2> relative_location{0, 0};
 
   for (int i = 0; i < dim; ++i) {
     double cell_size = spatial_max_[i]/n_material_cells_[i];
@@ -92,7 +87,6 @@ int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
 
 template class CartesianMesh<1>;
 template class CartesianMesh<2>;
-template class CartesianMesh<3>;
 
 } // namespace domain
 
