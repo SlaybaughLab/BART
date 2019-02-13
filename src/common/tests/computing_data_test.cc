@@ -19,9 +19,7 @@ class XSectionsTest : public ::testing::Test {
   ::testing::NiceMock<btest::MockMaterial> mock_material_properties;
 };
 
-class ComputingDataTestMPI
-    :
-    public btest::BARTParallelEnvironment {
+class ComputingDataTestMPI : public ::testing::Test {
  public:
   void SetUp (); 
   dealii::ParameterHandler prm_;
@@ -29,7 +27,7 @@ class ComputingDataTestMPI
 
 void ComputingDataTestMPI::SetUp() {
   // Initilize MPI
-  this->MPIInit();
+  //this->MPIInit();
   // declare all entries for parameter handler
   bart::problem::ParametersDealiiHandler parameter_handler;
   parameter_handler.SetUp(prm_);
