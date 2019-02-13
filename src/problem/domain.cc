@@ -26,6 +26,14 @@ Domain<dim>& Domain<dim>::SetUpMesh() {
   return *this;
 }
 
+template <int dim>
+Domain<dim>& Domain<dim>::SetUpDOF() {
+  // Setup dof Handler
+  dof_handler_.distribute_dofs(*(finite_element_->finite_element()));
+  locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
+  return *this;
+}
+
 template class Domain<1>;
 template class Domain<2>;
 

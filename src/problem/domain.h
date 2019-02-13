@@ -39,6 +39,9 @@ class Domain {
    * the mesh has a material mapping setup.
    */ 
   Domain<dim>& SetUpMesh();
+
+  /*! Set up the DOF handler, to access sparsity patterns, etc */
+  Domain<dim>& SetUpDOF();
   
  private:
   //! Internal owned mesh object.
