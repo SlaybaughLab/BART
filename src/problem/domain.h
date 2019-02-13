@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <deal.II/distributed/tria.h>
+
 #include "../domain/mesh_i.h"
 #include "../domain/finite_element_i.h"
 
@@ -29,9 +31,18 @@ class Domain {
   ~Domain() = default;
   
  private:
+  //! Internal DoFHandler object
+  //dealii::DoFHandler<dim> dof_handler;
+  
+  //! Internal owned mesh object.
   std::unique_ptr<domain::MeshI<dim>> mesh_;
+  
   //! Internal owned finite element object
   std::unique_ptr<domain::FiniteElementI<dim>> finite_element_;
+
+  //! Internal distributed triangulation object
+  dealii::parallel::distributed::Triangulation<dim> triangulation_;
+
 };
 
 } // namespace bart
