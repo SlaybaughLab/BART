@@ -26,9 +26,16 @@ namespace problem {
 template <int dim>
 class Domain {
  public:
+  /*! \brief Constructor.
+   *
+   * Takes ownership of injected dependencies (MeshI and FiniteElementI).
+   *
+   */
   Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
          std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
   ~Domain() = default;
+
+  Domain<dim>& SetUpMesh();
   
  private:
   

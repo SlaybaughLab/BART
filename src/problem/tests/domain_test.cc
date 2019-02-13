@@ -36,6 +36,15 @@ void DomainTest::SetUp() {
 }
 
 TEST_F(DomainTest, Constructor) {
+  MocksToPointers();
+  
+  bart::problem::Domain<2> test_domain(mesh_ptr, fe_ptr);
+  // Verify ownership has been taken by constructor
+  EXPECT_EQ(mesh_ptr, nullptr);
+  EXPECT_EQ(fe_ptr, nullptr);
+}
+
+TEST_F(DomainTest, SetUpMesh) {
   EXPECT_CALL(*mesh_mock, FillTriangulation(_));
   EXPECT_CALL(*mesh_mock, FillMaterialID(_));
   EXPECT_CALL(*mesh_mock, has_material_mapping()).
@@ -43,19 +52,19 @@ TEST_F(DomainTest, Constructor) {
   EXPECT_CALL(*mesh_mock, FillBoundaryID(_));
 
   MocksToPointers();
-  
+
   bart::problem::Domain<2> test_domain(mesh_ptr, fe_ptr);
-  EXPECT_EQ(mesh_ptr, nullptr);
-  EXPECT_EQ(fe_ptr, nullptr);
+
+  EXPECT_NO_THROW(test_domain.SetUpMesh(););
 }
 
-TEST_F(DomainTest, ConstructorErrorMaterialMapping) {
+  
+TEST_F(DomainTest, SetUpMeshNoMaterialMappingError) {
   EXPECT_CALL(*nice_mesh_mock, has_material_mapping()).
       WillOnce(::testing::Return(false));
 
   MocksToPointers();
-  
-  EXPECT_ANY_THROW({
-      bart::problem::Domain<2> test_domain(nice_mesh_ptr, fe_ptr);
-    });
+
+  bart::problem::Domain<2> test_domain(nice_mesh_ptr, fe_ptr);
+  EXPECT_ANY_THROW(test_domain.SetUpMesh(););
 }
