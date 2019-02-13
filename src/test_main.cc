@@ -2,7 +2,7 @@
 #include <getopt.h>
 #include <vector>
 
-//#include <deal.II/base/mpi.h>
+#include <deal.II/base/mpi.h>
 #include "gtest/gtest.h"
 
 #include "test_helpers/gmock_wrapper.h"
@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
   argv = const_cast<char**>(new_argv.data());
   argc += 1;
 
+  dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
   ::testing::InitGoogleMock(&argc, argv);
   
   return RUN_ALL_TESTS();
