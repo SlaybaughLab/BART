@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <deal.II/base/index_set.h>
 #include <deal.II/distributed/tria.h>
 
 #include "../domain/mesh_i.h"
@@ -27,18 +28,19 @@ template <int dim>
 class Domain {
  public:
   /*! \brief Constructor.
-   *
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
-   *
    */
   Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
          std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
   ~Domain() = default;
-
+  
+  /*! Fills triangulation with mesh defined in MeshI object
+   * Creates mesh shape, sets up boundary ids and material ids. Requires that 
+   * the mesh has a material mapping setup.
+   */ 
   Domain<dim>& SetUpMesh();
   
  private:
-  
   //! Internal owned mesh object.
   std::unique_ptr<domain::MeshI<dim>> mesh_;
   
@@ -50,6 +52,9 @@ class Domain {
 
   //! Internal DoFHandler object
   dealii::DoFHandler<dim> dof_handler_;
+
+  //! Locally owned degrees of freedom for the current processor
+  dealii::IndexSet locally_owned_dofs_;
   
 };
 

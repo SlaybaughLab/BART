@@ -57,9 +57,8 @@ TEST_F(DomainTest, SetUpMesh) {
 
   EXPECT_NO_THROW(test_domain.SetUpMesh(););
 }
-
   
-TEST_F(DomainTest, SetUpMeshNoMaterialMappingError) {
+TEST_F(DomainTest, SetUpMeshMaterialMappingError) {
   EXPECT_CALL(*nice_mesh_mock, has_material_mapping()).
       WillOnce(::testing::Return(false));
 

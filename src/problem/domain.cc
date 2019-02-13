@@ -17,6 +17,7 @@ Domain<dim>::Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
 
 template <int dim>
 Domain<dim>& Domain<dim>::SetUpMesh() {
+  // SetUp triangulation using the mesh dependency
   AssertThrow(mesh_->has_material_mapping(),
                     dealii::ExcMessage("Mesh object must have initialized material mapping"));
   mesh_->FillTriangulation(triangulation_);
