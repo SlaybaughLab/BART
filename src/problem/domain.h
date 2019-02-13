@@ -56,8 +56,14 @@ class Domain {
   //! Internal DoFHandler object
   dealii::DoFHandler<dim> dof_handler_;
 
-  //! Locally owned degrees of freedom for the current processor
+  //! Index of locally owned dofs owned by the current processor
   dealii::IndexSet locally_owned_dofs_;
+
+  /*! Index of locally relevant dofs to the current processor
+   * This includes indices of dofs owned by the current processor but also
+   * the indices of neighboring cells (ghost cells) that may be relevant.
+   */
+  dealii::IndexSet locally_relevant_dofs_;
   
 };
 

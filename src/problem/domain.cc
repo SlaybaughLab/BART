@@ -1,5 +1,7 @@
 #include "domain.h"
 
+#include <deal.II/dofs/dof_tools.h>
+
 namespace bart {
 
 namespace problem {
@@ -30,7 +32,11 @@ template <int dim>
 Domain<dim>& Domain<dim>::SetUpDOF() {
   // Setup dof Handler
   dof_handler_.distribute_dofs(*(finite_element_->finite_element()));
+  // Populate dof IndexSets
   locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
+  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
+                                                  locally_relevant_dofs_);  
+  
   return *this;
 }
 
