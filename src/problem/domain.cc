@@ -13,8 +13,14 @@ Domain<dim>::Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
                      typename dealii::Triangulation<dim>::MeshSmoothing(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                          dealii::Triangulation<dim>::smoothing_on_coarsening)),
-      dof_handler_(triangulation_)
-{}
+      dof_handler_(triangulation_) {
+  // Populate the triangulation object with the mesh specified by the mesh object
+  AssertThrow(mesh_->has_material_mapping(),
+                    dealii::ExcMessage("Mesh object must have initialized material mapping"));
+  mesh_->FillTriangulation(triangulation_);
+  mesh_->FillBoundaryID(triangulation_);
+  mesh_->FillMaterialID(triangulation_);
+}
 
 template class Domain<1>;
 template class Domain<2>;
