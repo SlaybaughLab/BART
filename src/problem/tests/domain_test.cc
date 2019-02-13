@@ -22,14 +22,9 @@ void DomainTest::SetUp() {
   fe_ptr = std::make_unique<bart::domain::FiniteElementMock<2>>();
 }
 
-TEST_F(DomainTest, ProvideMesh) {
-  bart::problem::Domain<2> test_domain;
-  test_domain.ProvideMesh(mesh_ptr);
+TEST_F(DomainTest, Constructor) {
+  bart::problem::Domain<2> test_domain(mesh_ptr, fe_ptr);
   EXPECT_EQ(mesh_ptr, nullptr);
-}
-
-TEST_F(DomainTest, ProvideFiniteElement) {
-  bart::problem::Domain<2> test_domain;
-  test_domain.ProvideFiniteElement(fe_ptr);
   EXPECT_EQ(fe_ptr, nullptr);
 }
+

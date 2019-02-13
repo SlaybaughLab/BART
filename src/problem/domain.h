@@ -10,7 +10,7 @@ namespace bart {
 
 namespace problem {
 
-/* \brief Defines a domain that couples a cartesian mesh with a finite element basis.
+/*! \brief Defines a domain that couples a cartesian mesh with a finite element basis.
  *
  * This class provides the framework on which the problem can be solved. The
  * purpose of the coupling is to distribute the finite element basis functions
@@ -24,18 +24,13 @@ namespace problem {
 template <int dim>
 class Domain {
  public:
-  Domain() = default;
+  Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
+         std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
   ~Domain() = default;
-
-  void ProvideMesh(std::unique_ptr<domain::MeshI<dim>> &mesh) {
-    mesh_ = std::move(mesh); };
-
-  void ProvideFiniteElement(
-      std::unique_ptr<domain::FiniteElementI<dim>> &finite_element) {
-    finite_element_ = std::move(finite_element); };
   
  private:
   std::unique_ptr<domain::MeshI<dim>> mesh_;
+  //! Internal owned finite element object
   std::unique_ptr<domain::FiniteElementI<dim>> finite_element_;
 };
 
