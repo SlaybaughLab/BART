@@ -31,8 +31,6 @@ class Domain {
   ~Domain() = default;
   
  private:
-  //! Internal DoFHandler object
-  //dealii::DoFHandler<dim> dof_handler;
   
   //! Internal owned mesh object.
   std::unique_ptr<domain::MeshI<dim>> mesh_;
@@ -43,6 +41,9 @@ class Domain {
   //! Internal distributed triangulation object
   dealii::parallel::distributed::Triangulation<dim> triangulation_;
 
+  //! Internal DoFHandler object
+  dealii::DoFHandler<dim> dof_handler_;
+  
 };
 
 } // namespace bart
