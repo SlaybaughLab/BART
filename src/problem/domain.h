@@ -26,6 +26,13 @@ class Domain {
  public:
   Domain() = default;
   ~Domain() = default;
+
+  void ProvideMesh(std::unique_ptr<domain::MeshI<dim>> &mesh) {
+    mesh_ = std::move(mesh); };
+
+  void ProvideFiniteElement(
+      std::unique_ptr<domain::FiniteElementI<dim>> &finite_element) {
+    finite_element_ = std::move(finite_element); };
   
  private:
   std::unique_ptr<domain::MeshI<dim>> mesh_;
