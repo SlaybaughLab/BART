@@ -1,4 +1,4 @@
-#include "cartesian_mesh.h"
+#include "mesh_cartesian.h"
 
 #include <algorithm>
 #include <cmath>
@@ -16,30 +16,30 @@ namespace bart {
 namespace domain {
 
 template <int dim>
-CartesianMesh<dim>::CartesianMesh(const std::vector<double> spatial_max,
-                                  const std::vector<int> n_cells,
-                                  const std::string material_mapping)
-    : CartesianMesh(spatial_max, n_cells) {
+MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
+                                              const std::vector<int> n_cells,
+                                              const std::string material_mapping)
+    : MeshCartesian(spatial_max, n_cells) {
   ParseMaterialMap(material_mapping);
 }
 
 
 template <int dim>
-CartesianMesh<dim>::CartesianMesh(const std::vector<double> spatial_max,
-                                  const std::vector<int> n_cells) {
+MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
+                                              const std::vector<int> n_cells) {
 
   // Check lengths of spatial max and n_cells
   AssertThrow(spatial_max.size() == dim,
-              dealii::ExcMessage("CartesianMesh argument error, incorrect spatial vector size"));
+              dealii::ExcMessage("MeshCartesian argument error, incorrect spatial vector size"));
   AssertThrow(n_cells.size() == dim,
-              dealii::ExcMessage("CartesianMesh argument error, incorrect number of cells vector size"))
+              dealii::ExcMessage("MeshCartesian argument error, incorrect number of cells vector size"))
   
-  std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
+      std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
   std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());
 }
 
 template <int dim>
-void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) {
+void MeshCartesian<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) {
   
   dealii::Point<dim> diagonal;
   dealii::Point<dim> origin;
@@ -54,7 +54,7 @@ void CartesianMesh<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) 
 }
 
 template <int dim>
-void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
+void MeshCartesian<dim>::ParseMaterialMap(std::string material_mapping) {
   using dealii::Utilities::split_string_list;
   using dealii::Utilities::string_to_int;
   using StringVector = std::vector<std::string>;
@@ -78,7 +78,7 @@ void CartesianMesh<dim>::ParseMaterialMap(std::string material_mapping) {
 }
 
 template <int dim>  
-void CartesianMesh<dim>::FillMaterialID(dealii::Triangulation<dim> &to_fill) {
+void MeshCartesian<dim>::FillMaterialID(dealii::Triangulation<dim> &to_fill) {
   for (auto cell = to_fill.begin_active(); cell != to_fill.end(); ++cell) {
     if (cell->is_locally_owned()) {
       int material_id = GetMaterialID(cell->center());
@@ -88,7 +88,7 @@ void CartesianMesh<dim>::FillMaterialID(dealii::Triangulation<dim> &to_fill) {
 }
 
 template <int dim>
-void CartesianMesh<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
+void MeshCartesian<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
   using Boundary = bart::problem::Boundary;
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
   double zero_tol = 1.0e-14;
@@ -110,7 +110,7 @@ void CartesianMesh<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
             }
             [[fallthrough]];
           }
-          // Fall through to check x-direction
+            // Fall through to check x-direction
           case 1: {
             if (std::fabs(face_center[0]) < zero_tol) {
               face->set_boundary_id(static_cast<int>(Boundary::kXMin));
@@ -133,7 +133,7 @@ void CartesianMesh<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
   
 
 template <int dim>
-int CartesianMesh<dim>::GetMaterialID(dealii::Point<dim> location) {
+int MeshCartesian<dim>::GetMaterialID(dealii::Point<dim> location) {
   std::array<double, dim> array_location;
   for (int i = 0; i < dim; ++i)
     array_location[i] = location[i];
@@ -141,7 +141,7 @@ int CartesianMesh<dim>::GetMaterialID(dealii::Point<dim> location) {
 }
   
 template <int dim>
-int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
+int MeshCartesian<dim>::GetMaterialID(std::array<double, dim> location) {
   std::array<int, 2> relative_location{0, 0};
 
   for (int i = 0; i < dim; ++i) {
@@ -159,22 +159,8 @@ int CartesianMesh<dim>::GetMaterialID(std::array<double, dim> location) {
   return material_mapping_[relative_location];
 }
 
-template <int dim>
-void SetupTriangulation(dealii::Triangulation<dim> &to_setup,
-                        CartesianMesh<dim> &mesh) {
-  mesh.FillTriangulation(to_setup);
-  mesh.FillBoundaryID(to_setup);
-  if (mesh.has_material_mapping())
-    mesh.FillMaterialID(to_setup);
-}
-
-
-template class CartesianMesh<1>;
-template class CartesianMesh<2>;
-template void SetupTriangulation<1>(dealii::Triangulation<1>&,
-                                    CartesianMesh<1>&);
-template void SetupTriangulation<2>(dealii::Triangulation<2>&,
-                                    CartesianMesh<2>&);
+template class MeshCartesian<1>;
+template class MeshCartesian<2>;
 
 } // namespace domain
 

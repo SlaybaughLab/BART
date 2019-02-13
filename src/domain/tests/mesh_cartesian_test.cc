@@ -1,4 +1,4 @@
-#include "../cartesian_mesh.h"
+#include "../mesh_cartesian.h"
 
 #include <cstdlib>
 #include <numeric>
@@ -12,13 +12,13 @@
 #include "../../test_helpers/test_helper_functions.h"
 #include "../../test_helpers/gmock_wrapper.h"
 
-class CartesianMeshTest : public ::testing::Test {
+class MeshCartesianTest : public ::testing::Test {
  protected:
   template <int dim> void FillTriangulationTest();
 };
 
 template <int dim>
-void CartesianMeshTest::FillTriangulationTest() {
+void MeshCartesianTest::FillTriangulationTest() {
   std::vector<double> spatial_max{btest::RandomVector(dim, 0, 100)};
   std::vector<double> n_cells_double{btest::RandomVector(dim, 0, 20)};
   std::vector<int> n_cells{n_cells_double.begin(), n_cells_double.end()};
@@ -26,7 +26,7 @@ void CartesianMeshTest::FillTriangulationTest() {
   int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1,
                                       std::multiplies<int>());
 
-  bart::domain::CartesianMesh<dim> test_mesh(spatial_max, n_cells);
+  bart::domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
   test_mesh.FillTriangulation(test_triangulation);
@@ -40,15 +40,15 @@ void CartesianMeshTest::FillTriangulationTest() {
   }
 }                                     
 
-TEST_F(CartesianMeshTest, Triangulation1D) {
+TEST_F(MeshCartesianTest, Triangulation1D) {
     FillTriangulationTest<1>();
 }
 
-TEST_F(CartesianMeshTest, Triangulation2D) {
+TEST_F(MeshCartesianTest, Triangulation2D) {
     FillTriangulationTest<2>();
 }
 
-TEST_F(CartesianMeshTest, BadSpatialSize) {
+TEST_F(MeshCartesianTest, BadSpatialSize) {
 
   std::vector<std::vector<double>> domain_sizes {{10.0}, {10.0, 20.0}};
   std::vector<std::vector<int>> n_cells {{10}, {10, 20}};
@@ -58,28 +58,28 @@ TEST_F(CartesianMeshTest, BadSpatialSize) {
       // 1D Case
       if ((i != 0) || (j != 0)) {
         EXPECT_ANY_THROW({
-            bart::domain::CartesianMesh<1> test_mesh(domain_sizes[i], n_cells[j]);
+            bart::domain::MeshCartesian<1> test_mesh(domain_sizes[i], n_cells[j]);
           });
       } else {
         EXPECT_NO_THROW({
-            bart::domain::CartesianMesh<1> test_mesh(domain_sizes[i], n_cells[j]);
+            bart::domain::MeshCartesian<1> test_mesh(domain_sizes[i], n_cells[j]);
           });
       }
       // 2D Case
       if ((i != 1) || (j != 1)) {
         EXPECT_ANY_THROW({
-            bart::domain::CartesianMesh<2> test_mesh(domain_sizes[i], n_cells[j]);
+            bart::domain::MeshCartesian<2> test_mesh(domain_sizes[i], n_cells[j]);
           });
       } else {
         EXPECT_NO_THROW({
-            bart::domain::CartesianMesh<2> test_mesh(domain_sizes[i], n_cells[j]);
+            bart::domain::MeshCartesian<2> test_mesh(domain_sizes[i], n_cells[j]);
           });
       }
     }
   }
 }
   
-class MaterialMapping1DTest : public CartesianMeshTest {
+class MaterialMapping1DTest : public MeshCartesianTest {
  protected:
   std::vector<double> spatial_max{btest::RandomVector(1, 5, 20)};
   std::vector<int> n_cells{rand() % 20 + 1};
@@ -87,7 +87,7 @@ class MaterialMapping1DTest : public CartesianMeshTest {
 };
 
 TEST_F(MaterialMapping1DTest, 1DMaterialMapping) {
-  bart::domain::CartesianMesh<1> test_mesh(spatial_max, n_cells);
+  bart::domain::MeshCartesian<1> test_mesh(spatial_max, n_cells);
   std::string material_mapping{'1'};
 
   test_mesh.ParseMaterialMap(material_mapping);
@@ -103,7 +103,7 @@ TEST_F(MaterialMapping1DTest, 1DMaterialMapping) {
 }
 
 TEST_F(MaterialMapping1DTest, 1DMultiMaterialMapping) {
-  bart::domain::CartesianMesh<1> test_mesh(spatial_max, n_cells);
+  bart::domain::MeshCartesian<1> test_mesh(spatial_max, n_cells);
   std::string material_mapping{"1 2"};
 
   test_mesh.ParseMaterialMap(material_mapping);
@@ -128,7 +128,7 @@ TEST_F(MaterialMapping1DTest, 1DMultiMaterialMapping) {
         "Location: " << location[0] << "/" << spatial_max[0];
 }
 
-class MaterialMapping2DTest : public CartesianMeshTest {
+class MaterialMapping2DTest : public MeshCartesianTest {
  protected:
   std::vector<double> spatial_max{btest::RandomVector(2, 5, 20)};
   std::vector<int> n_cells{rand() % 20 + 1, rand() % 20 + 1};
@@ -136,7 +136,7 @@ class MaterialMapping2DTest : public CartesianMeshTest {
 };
 
 TEST_F(MaterialMapping2DTest, 2DMaterialMapping) {
-  bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
+  bart::domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
   std::string material_mapping{'1'};
 
   test_mesh.ParseMaterialMap(material_mapping);
@@ -154,7 +154,7 @@ TEST_F(MaterialMapping2DTest, 2DMaterialMapping) {
 }
 
 TEST_F(MaterialMapping2DTest, 2DMultiMaterialMapping) {
-  bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
+  bart::domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
   std::string material_mapping{"1 2"};
 
   test_mesh.ParseMaterialMap(material_mapping);
@@ -189,7 +189,7 @@ TEST_F(MaterialMapping2DTest, 2DMultiMaterialMapping) {
 }
 
 TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
-  bart::domain::CartesianMesh<2> test_mesh(spatial_max, n_cells);
+  bart::domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
   std::string material_mapping{"2 1\n1 2"};
 
   test_mesh.ParseMaterialMap(material_mapping);
@@ -233,5 +233,5 @@ TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
 }
 
 
-template void CartesianMeshTest::FillTriangulationTest<1>();
-template void CartesianMeshTest::FillTriangulationTest<2>();
+template void MeshCartesianTest::FillTriangulationTest<1>();
+template void MeshCartesianTest::FillTriangulationTest<2>();
