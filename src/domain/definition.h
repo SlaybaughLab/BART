@@ -1,5 +1,5 @@
-#ifndef BART_SRC_PROBLEM_DOMAIN_H_
-#define BART_SRC_PROBLEM_DOMAIN_H_
+#ifndef BART_SRC_DOMAIN_DEFINITION_H_
+#define BART_SRC_DOMAIN_DEFINITION_H_
 
 #include <memory>
 
@@ -11,11 +11,11 @@
 
 namespace bart {
 
-namespace problem {
+namespace domain {
 
 /*! \brief Defines a domain that couples a cartesian mesh with a finite element basis.
  *
- * This class provides the framework on which the problem can be solved. The
+ * This class provides the framework on which the domain can be solved. The
  * purpose of the coupling is to distribute the finite element basis functions
  * and needed degrees of freedom throughout the provided mesh. Most of this is
  * done under the hood by a dealii object called the DofHandler. This class
@@ -30,23 +30,23 @@ namespace problem {
  */  
 
 template <int dim>
-class Domain {
+class Definition {
  public:
   /*! \brief Constructor.
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
    */
-  Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
+  Definition(std::unique_ptr<domain::MeshI<dim>> &mesh,
          std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
-  ~Domain() = default;
+  ~Definition() = default;
   
   /*! Fills triangulation with mesh defined in MeshI object
    * Creates mesh shape, sets up boundary ids and material ids. Requires that 
    * the mesh has a material mapping setup.
    */ 
-  Domain<dim>& SetUpMesh();
+  Definition<dim>& SetUpMesh();
 
   /*! Set up the DOF handler, to access sparsity patterns, etc */
-  Domain<dim>& SetUpDOF();
+  Definition<dim>& SetUpDOF();
 
   dealii::IndexSet locally_owned_dofs() { return locally_owned_dofs_; }
   
@@ -73,8 +73,8 @@ class Domain {
   dealii::IndexSet locally_relevant_dofs_;
 };
 
+} // namespace domain
+
 } // namespace bart
 
-} // namespace problem
-
-#endif // BART_SRC_PROBLEM_DOMAIN_H_
+#endif // BART_SRC_DOMAIN_DEFINITION_H_

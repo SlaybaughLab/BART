@@ -1,13 +1,13 @@
-#include "domain.h"
+#include "definition.h"
 
 #include <deal.II/dofs/dof_tools.h>
 
 namespace bart {
 
-namespace problem {
+namespace domain {
 
 template <int dim>
-Domain<dim>::Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
+Definition<dim>::Definition(std::unique_ptr<domain::MeshI<dim>> &mesh,
                     std::unique_ptr<domain::FiniteElementI<dim>> &finite_element)
     : mesh_(std::move(mesh)),                     
       finite_element_(std::move(finite_element)), 
@@ -18,7 +18,7 @@ Domain<dim>::Domain(std::unique_ptr<domain::MeshI<dim>> &mesh,
       dof_handler_(triangulation_) {}
 
 template <int dim>
-Domain<dim>& Domain<dim>::SetUpMesh() {
+Definition<dim>& Definition<dim>::SetUpMesh() {
   // SetUp triangulation using the mesh dependency
   AssertThrow(mesh_->has_material_mapping(),
                     dealii::ExcMessage("Mesh object must have initialized material mapping"));
@@ -29,7 +29,7 @@ Domain<dim>& Domain<dim>::SetUpMesh() {
 }
 
 template <int dim>
-Domain<dim>& Domain<dim>::SetUpDOF() {
+Definition<dim>& Definition<dim>::SetUpDOF() {
   // Setup dof Handler
   dof_handler_.distribute_dofs(*(finite_element_->finite_element()));
   // Populate dof IndexSets
@@ -39,9 +39,9 @@ Domain<dim>& Domain<dim>::SetUpDOF() {
   return *this;
 }
 
-template class Domain<1>;
-template class Domain<2>;
+template class Definition<1>;
+template class Definition<2>;
 
 } // namespace bart
 
-} // namespace problem
+} // namespace domain

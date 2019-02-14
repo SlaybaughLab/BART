@@ -1,4 +1,4 @@
-#include "../domain.h"
+#include "../definition.h"
 
 #include <memory>
 
@@ -11,7 +11,7 @@
 using ::testing::_;
 using ::testing::NiceMock;
 
-class DomainTest : public ::testing::Test {
+class DefinitionTest : public ::testing::Test {
  protected:
 
   std::unique_ptr<bart::domain::MeshI<2>> mesh_ptr;
@@ -29,22 +29,22 @@ class DomainTest : public ::testing::Test {
     fe_ptr = std::move(fe_mock); };
 };
 
-void DomainTest::SetUp() {
+void DefinitionTest::SetUp() {
   mesh_mock = std::make_unique<bart::domain::MeshMock<2>>();
   nice_mesh_mock = std::make_unique<NiceMock<bart::domain::MeshMock<2>>>();
   fe_mock = std::make_unique<bart::domain::FiniteElementMock<2>>();
 }
 
-TEST_F(DomainTest, Constructor) {
+TEST_F(DefinitionTest, Constructor) {
   MocksToPointers();
   
-  bart::problem::Domain<2> test_domain(mesh_ptr, fe_ptr);
+  bart::domain::Definition<2> test_domain(mesh_ptr, fe_ptr);
   // Verify ownership has been taken by constructor
   EXPECT_EQ(mesh_ptr, nullptr);
   EXPECT_EQ(fe_ptr, nullptr);
 }
 
-TEST_F(DomainTest, SetUpMesh) {
+TEST_F(DefinitionTest, SetUpMesh) {
   EXPECT_CALL(*mesh_mock, FillTriangulation(_));
   EXPECT_CALL(*mesh_mock, FillMaterialID(_));
   EXPECT_CALL(*mesh_mock, has_material_mapping()).
@@ -53,17 +53,17 @@ TEST_F(DomainTest, SetUpMesh) {
 
   MocksToPointers();
 
-  bart::problem::Domain<2> test_domain(mesh_ptr, fe_ptr);
+  bart::domain::Definition<2> test_domain(mesh_ptr, fe_ptr);
 
   EXPECT_NO_THROW(test_domain.SetUpMesh(););
 }
   
-TEST_F(DomainTest, SetUpMeshMaterialMappingError) {
+TEST_F(DefinitionTest, SetUpMeshMaterialMappingError) {
   EXPECT_CALL(*nice_mesh_mock, has_material_mapping()).
       WillOnce(::testing::Return(false));
 
   MocksToPointers();
 
-  bart::problem::Domain<2> test_domain(nice_mesh_ptr, fe_ptr);
+  bart::domain::Definition<2> test_domain(nice_mesh_ptr, fe_ptr);
   EXPECT_ANY_THROW(test_domain.SetUpMesh(););
 }
