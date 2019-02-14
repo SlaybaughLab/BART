@@ -35,8 +35,7 @@ Domain<dim>& Domain<dim>::SetUpDOF() {
   // Populate dof IndexSets
   locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
   dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
-                                                  locally_relevant_dofs_);  
-  
+                                                  locally_relevant_dofs_);    
   return *this;
 }
 
