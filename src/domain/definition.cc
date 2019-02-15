@@ -35,7 +35,13 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
   // Populate dof IndexSets
   locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
   dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
-                                                  locally_relevant_dofs_);    
+                                                  locally_relevant_dofs_);
+  // Create constraint matrix
+  constraint_matrix_.clear();
+  constraint_matrix_.reinit(locally_relevant_dofs_);
+  dealii::DoFTools::make_hanging_node_constraints(dof_handler_,
+                                                  constraint_matrix_);
+  constraint_matrix_.close();
   return *this;
 }
 

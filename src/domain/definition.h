@@ -5,6 +5,7 @@
 
 #include <deal.II/base/index_set.h>
 #include <deal.II/distributed/tria.h>
+#include <deal.II/lac/constraint_matrix.h>
 
 #include "../domain/mesh_i.h"
 #include "../domain/finite_element_i.h"
@@ -71,6 +72,9 @@ class Definition {
    * the indices of neighboring cells (ghost cells) that may be relevant.
    */
   dealii::IndexSet locally_relevant_dofs_;
+
+  /*! Constraint matrix */
+  dealii::ConstraintMatrix constraint_matrix_;
 };
 
 } // namespace domain
