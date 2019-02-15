@@ -37,7 +37,7 @@ class Definition {
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
    */
   Definition(std::unique_ptr<domain::MeshI<dim>> &mesh,
-         std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
+             std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
   ~Definition() = default;
   
   /*! Fills triangulation with mesh defined in MeshI object
@@ -49,7 +49,10 @@ class Definition {
   /*! Set up the DOF handler, to access sparsity patterns, etc */
   Definition<dim>& SetUpDOF();
 
-  dealii::IndexSet locally_owned_dofs() { return locally_owned_dofs_; }
+  dealii::IndexSet locally_owned_dofs() const { return locally_owned_dofs_; }
+
+  /*! Get total degrees of freedom */
+  int total_degrees_of_freedom() const;
   
  private:
   //! Internal owned mesh object.
@@ -63,6 +66,9 @@ class Definition {
 
   //! Internal DoFHandler object
   dealii::DoFHandler<dim> dof_handler_;
+
+  //! Total degrees of freedom
+  mutable int total_degrees_of_freedom_ = 0;
 
   //! Index of locally owned dofs owned by the current processor
   dealii::IndexSet locally_owned_dofs_;

@@ -1,8 +1,13 @@
 #include "../definition.h"
 
+#include <functional>
 #include <memory>
 
 #include <gtest/gtest.h>
+
+#include <deal.II/grid/tria.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/grid/grid_generator.h>
 
 #include "../../test_helpers/gmock_wrapper.h"
 #include "../../domain/tests/mesh_mock.h"
@@ -66,4 +71,35 @@ TEST_F(DefinitionTest, SetUpMeshMaterialMappingError) {
 
   bart::domain::Definition<2> test_domain(nice_mesh_ptr, fe_ptr);
   EXPECT_ANY_THROW(test_domain.SetUpMesh(););
+}
+
+class DOFTest : public DefinitionTest {
+ protected:
+  DOFTest() : fe(1) {};
+  dealii::Triangulation<2> triangulation;
+  dealii::FE_Q<2>          fe;
+  void SetUp() override;
+  static void SetTriangulation(dealii::Triangulation<2> &to_fill) {
+    dealii::GridGenerator::hyper_cube(to_fill, -1, 1);
+    to_fill.refine_global(5);}
+};
+
+void DOFTest::SetUp() {
+  DefinitionTest::SetUp();
+}
+
+TEST_F(DOFTest, SetUpDOFTest) {
+  EXPECT_CALL(*nice_mesh_mock, has_material_mapping()).
+      WillOnce(::testing::Return(true));
+  EXPECT_CALL(*nice_mesh_mock, FillTriangulation(_))
+      .WillOnce(::testing::Invoke(SetTriangulation));
+  EXPECT_CALL(*fe_mock, finite_element())
+      .WillOnce(::testing::Return(&fe));
+
+  MocksToPointers();
+  bart::domain::Definition<2> test_domain(nice_mesh_ptr, fe_ptr);
+  test_domain.SetUpMesh();
+  test_domain.SetUpDOF();
+
+  EXPECT_EQ(test_domain.total_degrees_of_freedom(), 1089);
 }

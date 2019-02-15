@@ -45,6 +45,13 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
   return *this;
 }
 
+template <int dim>
+int Definition<dim>::total_degrees_of_freedom() const {
+  if (total_degrees_of_freedom_ == 0)
+    total_degrees_of_freedom_ = dof_handler_.n_dofs();
+  return total_degrees_of_freedom_;
+}
+
 template class Definition<1>;
 template class Definition<2>;
 
