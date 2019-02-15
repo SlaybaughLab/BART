@@ -49,14 +49,6 @@ class Definition {
   /*! Set up the DOF handler, to access sparsity patterns, etc */
   Definition<dim>& SetUpDOF();
 
-  dealii::IndexSet locally_owned_dofs() const { return locally_owned_dofs_; }
-
-  dealii::IndexSet locally_relevant_dofs() const {
-    return locally_relevant_dofs_; }
-
-  dealii::ConstraintMatrix& constraint_matrix() {
-    return constraint_matrix_; }
-
   /*! Get total degrees of freedom */
   int total_degrees_of_freedom() const;
   
