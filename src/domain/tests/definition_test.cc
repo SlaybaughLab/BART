@@ -81,7 +81,7 @@ class DOFTest : public DefinitionTest {
   void SetUp() override;
   static void SetTriangulation(dealii::Triangulation<2> &to_fill) {
     dealii::GridGenerator::hyper_cube(to_fill, -1, 1);
-    to_fill.refine_global(5);}
+    to_fill.refine_global(2);}
 };
 
 void DOFTest::SetUp() {
@@ -101,5 +101,5 @@ TEST_F(DOFTest, SetUpDOFTest) {
   test_domain.SetUpMesh();
   test_domain.SetUpDOF();
 
-  EXPECT_EQ(test_domain.total_degrees_of_freedom(), 1089);
+  EXPECT_EQ(test_domain.total_degrees_of_freedom(), 25);
 }
