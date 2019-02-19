@@ -7,17 +7,21 @@
 #include <deal.II/lac/constraint_matrix.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
+#include "matrix_parameters.h"
+
 namespace bart {
 
 namespace data {
 
-struct Matrices {
-  typedef dealii::PETScWrappers::MPI::SparseMatrix MPISparseMatrix;
-  typedef dealii::ConstraintMatrix                 ConstraintMatrix;
+typedef dealii::PETScWrappers::MPI::SparseMatrix MPISparseMatrix;
+typedef dealii::ConstraintMatrix                 ConstraintMatrix;
 
+struct Matrices {
   std::unordered_map<int, std::shared_ptr<MPISparseMatrix>> system_lhs;
   std::unordered_map<int, std::shared_ptr<ConstraintMatrix>> constraints;
 };
+
+std::shared_ptr<MPISparseMatrix> BuildMatrix(MatrixParameters &parameters);
 
 } // namespace data
 
