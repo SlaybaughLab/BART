@@ -2,8 +2,10 @@
 #define BART_SRC_DOMAIN_DEFINITION_H_
 
 #include <memory>
+#include <vector>
 
 #include <deal.II/base/index_set.h>
+#include <deal.II/base/iterator_range.h>
 #include <deal.II/distributed/tria.h>
 #include <deal.II/lac/constraint_matrix.h>
 
@@ -35,6 +37,9 @@ namespace domain {
 template <int dim>
 class Definition {
  public:
+
+  typedef dealii::IteratorRange<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
+  
   /*! \brief Constructor.
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
    */
@@ -54,6 +59,9 @@ class Definition {
   /*! Get the parameters required to build a system matrix for this domain */
   void FillMatrixParameters(data::MatrixParameters &to_fill,
                             problem::DiscretizationType discretization) const;
+
+  /*! Get a range of all cells to allow iterating over them */
+  CellRange Cells() const { return dof_handler_.active_cell_iterators(); };
 
   /*! Get total degrees of freedom */
   int total_degrees_of_freedom() const;
@@ -84,7 +92,7 @@ class Definition {
   dealii::IndexSet locally_relevant_dofs_;
 
   /*! Constraint matrix */
-  dealii::ConstraintMatrix constraint_matrix_;
+  dealii::ConstraintMatrix constraint_matrix_;  
 };
 
 } // namespace domain
