@@ -1,6 +1,7 @@
 #include "definition.h"
 
 #include <deal.II/dofs/dof_tools.h>
+#include <deal.II/lac/sparsity_tools.h>
 
 namespace bart {
 
@@ -49,6 +50,28 @@ template <int dim>
 void Definition<dim>::FillMatrixParameters(
     data::MatrixParameters &to_fill,
     problem::DiscretizationType discretization) const {
+
+  to_fill.row_degrees_of_freedom = locally_owned_dofs_;
+  to_fill.column_degrees_of_freedom = locally_owned_dofs_;
+
+  dealii::DynamicSparsityPattern dsp(locally_relevant_dofs_);
+
+  if (discretization ==  problem::DiscretizationType::kDiscontinuousFEM) {
+    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dsp,
+                                                 constraint_matrix_, false);
+  } else {
+    dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp,
+                                            constraint_matrix_, false);
+  }
+
+  auto locally_owned_per_proc =
+      dof_handler_.n_locally_owned_dofs_per_processor();
+  
+  dealii::SparsityTools::distribute_sparsity_pattern(dsp,
+                                                     locally_owned_per_proc,
+                                                     MPI_COMM_WORLD,
+                                                     locally_relevant_dofs_);
+  to_fill.dsp = dsp;
 }
 
 template <int dim>
