@@ -51,6 +51,9 @@ void Definition<dim>::FillMatrixParameters(
     data::MatrixParameters &to_fill,
     problem::DiscretizationType discretization) const {
 
+  AssertThrow(dof_handler_.has_active_dofs(),
+              dealii::ExcMessage("SetUpDOF must be called before MatrixParameters are generated"));              
+  
   to_fill.row_degrees_of_freedom = locally_owned_dofs_;
   to_fill.column_degrees_of_freedom = locally_owned_dofs_;
 
