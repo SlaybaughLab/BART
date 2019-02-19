@@ -15,8 +15,8 @@ struct Matrices {
   typedef dealii::PETScWrappers::MPI::SparseMatrix MPISparseMatrix;
   typedef dealii::ConstraintMatrix                 ConstraintMatrix;
 
-  std::unordered_map<int, std::unique_ptr<MPISparseMatrix>> system_lhs;
-  std::unordered_map<int, std::unique_ptr<ConstraintMatrix>> constraints;
+  std::unordered_map<int, std::shared_ptr<MPISparseMatrix>> system_lhs;
+  std::unordered_map<int, std::shared_ptr<ConstraintMatrix>> constraints;
 };
 
 } // namespace data
