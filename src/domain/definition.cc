@@ -46,6 +46,12 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
 }
 
 template <int dim>
+void Definition<dim>::FillMatrixParameters(
+    data::MatrixParameters &to_fill,
+    problem::DiscretizationType discretization) const {
+}
+
+template <int dim>
 int Definition<dim>::total_degrees_of_freedom() const {
   if (total_degrees_of_freedom_ == 0)
     total_degrees_of_freedom_ = dof_handler_.n_dofs();

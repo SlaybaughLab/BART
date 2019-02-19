@@ -7,6 +7,8 @@
 #include <deal.II/distributed/tria.h>
 #include <deal.II/lac/constraint_matrix.h>
 
+#include "../problem/parameter_types.h"
+#include "../data/matrix_parameters.h"
 #include "../domain/mesh_i.h"
 #include "../domain/finite_element_i.h"
 
@@ -48,6 +50,10 @@ class Definition {
 
   /*! Set up the DOF handler, to access sparsity patterns, etc */
   Definition<dim>& SetUpDOF();
+
+  /*! Get the parameters required to build a system matrix for this domain */
+  void FillMatrixParameters(data::MatrixParameters &to_fill,
+                            problem::DiscretizationType discretization) const;
 
   /*! Get total degrees of freedom */
   int total_degrees_of_freedom() const;
