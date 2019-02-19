@@ -12,8 +12,8 @@ namespace bart {
 namespace data {
 
 struct MatrixParameters {
-  dealii::IndexSet row_degrees_of_freedom;
-  dealii::IndexSet column_degrees_of_freedom;
+  dealii::IndexSet rows;
+  dealii::IndexSet columns;
   dealii::DynamicSparsityPattern dsp;  
 };
 

@@ -54,8 +54,8 @@ void Definition<dim>::FillMatrixParameters(
   AssertThrow(dof_handler_.has_active_dofs(),
               dealii::ExcMessage("SetUpDOF must be called before MatrixParameters are generated"));              
   
-  to_fill.row_degrees_of_freedom = locally_owned_dofs_;
-  to_fill.column_degrees_of_freedom = locally_owned_dofs_;
+  to_fill.rows = locally_owned_dofs_;
+  to_fill.columns = locally_owned_dofs_;
 
   dealii::DynamicSparsityPattern dsp(locally_relevant_dofs_);
 
