@@ -15,14 +15,25 @@ Builder<dim>::Builder(std::shared_ptr<problem::ParametersI> parameters)
 
 template <int dim>
 std::unique_ptr<domain::Definition<dim>> Builder<dim>::BuildDefinition() const {
-  // Get material mapping from input file and build mesh
+  // Get material mapping from input file
   std::string material_mapping =
       GetMaterialMapFromFile(parameters_->MaterialMapFilename());
-  auto mesh = std::make_unique<domain::MeshCartesian<dim>>(
-      parameters_->SpatialMax(), parameters_->NCells(), material_mapping);
-  auto finite_element = std::make_unique<domain::FiniteElementGaussian<dim>>(
-      parameters_->Discretization(), parameters_->FEPolynomialDegree());
-
+  // Instantiate mesh
+  std::unique_ptr<domain::MeshI<dim>> mesh =
+      std::make_unique<domain::MeshCartesian<dim>>(parameters_->SpatialMax(),
+                                                   parameters_->NCells(),
+                                                   material_mapping);
+  
+  // Instantiate FiniteElement
+  std::unique_ptr<domain::FiniteElementI<dim>> finite_element =
+      std::make_unique<domain::FiniteElementGaussian<dim>>(
+          parameters_->Discretization(),
+          parameters_->FEPolynomialDegree());
+  
+  // Instantiate domain definition
+  auto definition = std::make_unique<domain::Definition<dim>>(
+      mesh, finite_element);
+  return definition;
 }
 
 template <int dim>
