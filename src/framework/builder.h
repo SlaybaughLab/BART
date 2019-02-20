@@ -20,7 +20,7 @@ class Builder {
  private:
   std::shared_ptr<problem::ParametersI> parameters_;
   std::unique_ptr<domain::Definition<dim>> BuildDefinition() const;
-  std::string GetMaterialMapping(std::string filename) const;
+  std::string GetMaterialMapFromFile(std::string filename) const;
 };
 
 } // namespace framework
