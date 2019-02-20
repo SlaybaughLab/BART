@@ -10,6 +10,7 @@ namespace convergence {
 /*! \brief Checks for convergence between two provided fluxes. */
 
 class FluxI {
+ public:
   virtual ~FluxI() = default;
   virtual bool isConverged(data::Flux &, data::Flux &) = 0;
 };
