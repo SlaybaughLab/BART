@@ -17,7 +17,7 @@ class FluxL1Threshold : public FluxI {
   void SetThreshold(double value) { threshold_ = value; };
   double GetThreshold() const {return threshold_; };
  private:
-  double threshold_ = 1e-16;  
+  double threshold_ = 1e-6;  
 };
   
 } // namespace convergence
