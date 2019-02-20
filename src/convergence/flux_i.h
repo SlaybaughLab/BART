@@ -11,7 +11,7 @@ namespace convergence {
 
 class FluxI {
   virtual ~FluxI() = default;
-  virtual bool isConverged(Flux &, Flux &) = 0;
+  virtual bool isConverged(data::Flux &, data::Flux &) = 0;
 };
   
 } // namespace convergence
