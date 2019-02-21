@@ -1,5 +1,5 @@
-#ifndef BART_SRC_CONVERGENCE_FLUX_I_H_
-#define BART_SRC_CONVERGENCE_FLUX_I_H_
+#ifndef BART_SRC_CONVERGENCE_FLUX_CHECKER_I_H_
+#define BART_SRC_CONVERGENCE_FLUX_CHECKER_I_H_
 
 #include "../data/vector_parameters.h"
 
@@ -9,9 +9,9 @@ namespace convergence {
 
 /*! \brief Checks for convergence between two provided fluxes. */
 
-class FluxI {
+class FluxCheckerI {
  public:
-  virtual ~FluxI() = default;
+  virtual ~FluxCheckerI() = default;
   virtual bool isConverged(data::Flux &, data::Flux &) = 0;
 };
   
@@ -19,4 +19,4 @@ class FluxI {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_FLUX_I_H_
+#endif // BART_SRC_CONVERGENCE_FLUX_CHECKER_I_H_

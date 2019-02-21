@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "flux_i.h"
+#include "flux_checker_i.h"
 #include "group_fluxes_i.h"
 
 
@@ -17,13 +17,13 @@ namespace convergence {
 
 class GroupFluxesSequential : public GroupFluxesI {
  public:
-  GroupFluxesSequential(std::unique_ptr<FluxI> &tester);
+  GroupFluxesSequential(std::unique_ptr<FluxCheckerI> &tester);
   ~GroupFluxesSequential() = default;
   bool isConverged(data::GroupFluxes &) {return false; };
 
  private:
   /*! Flux convergence tester that will be used to check sequentially */
-  std::unique_ptr<FluxI> tester_;
+  std::unique_ptr<FluxCheckerI> tester_;
 };
 
 } // namespace convergence

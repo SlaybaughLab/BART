@@ -1,20 +1,20 @@
-#include "../flux_l1_threshold.h"
+#include "../flux_checker_l1_threshold.h"
 
 #include <deal.II/lac/petsc_parallel_vector.h>
 
 #include "../../test_helpers/test_helper_functions.h"
 #include "../../test_helpers/gmock_wrapper.h"
 
-class FluxL1ThresholdTest : public ::testing::Test {
+class FluxCheckerL1ThresholdTest : public ::testing::Test {
  protected:
-  bart::convergence::FluxL1Threshold test_convergence;
+  bart::convergence::FluxCheckerL1Threshold test_convergence;
   bart::data::Flux flux_one;
   bart::data::Flux flux_two;
   void SetUp() override;
   
 };
 
-void FluxL1ThresholdTest::SetUp() {
+void FluxCheckerL1ThresholdTest::SetUp() {
   flux_one.reinit(MPI_COMM_WORLD, 5, 5);
   flux_two.reinit(MPI_COMM_WORLD, 5, 5);
   auto random_vector = btest::RandomVector(5, 0, 2);
@@ -26,11 +26,11 @@ void FluxL1ThresholdTest::SetUp() {
   flux_two.compress(dealii::VectorOperation::values::insert);
 }
 
-TEST_F(FluxL1ThresholdTest, SameVector) {
+TEST_F(FluxCheckerL1ThresholdTest, SameVector) {
   EXPECT_TRUE(test_convergence.isConverged(flux_one, flux_one));
 }
 
-TEST_F(FluxL1ThresholdTest, OneThresholdAway) {
+TEST_F(FluxCheckerL1ThresholdTest, OneThresholdAway) {
   double to_add = flux_one.l1_norm() * 0.99 * test_convergence.GetThreshold();
   flux_two(2) += to_add;
   
@@ -39,7 +39,7 @@ TEST_F(FluxL1ThresholdTest, OneThresholdAway) {
   EXPECT_TRUE(test_convergence.isConverged(flux_two, flux_one));
 }
 
-TEST_F(FluxL1ThresholdTest, TwoThresholdAway) {
+TEST_F(FluxCheckerL1ThresholdTest, TwoThresholdAway) {
   double to_add = flux_one.l1_norm() * 2*test_convergence.GetThreshold();
   flux_two(2) += to_add;
   flux_two.compress(dealii::VectorOperation::values::add);
@@ -47,7 +47,7 @@ TEST_F(FluxL1ThresholdTest, TwoThresholdAway) {
   EXPECT_FALSE(test_convergence.isConverged(flux_two, flux_one));
 }
 
-TEST_F(FluxL1ThresholdTest, SetThreshold) {
+TEST_F(FluxCheckerL1ThresholdTest, SetThreshold) {
   double to_set = 1e-5;
   test_convergence.SetThreshold(to_set);
   EXPECT_EQ(test_convergence.GetThreshold(), to_set);

@@ -3,12 +3,12 @@
 #include <memory>
 
 #include "../../test_helpers/gmock_wrapper.h"
-#include "flux_mock.h"
+#include "flux_checker_mock.h"
 
 class GroupFluxesSequentialTest : public ::testing::Test {
  protected:
-  std::unique_ptr<bart::convergence::FluxI> tester_ptr;
-  std::unique_ptr<bart::convergence::FluxMock> tester_mock;
+  std::unique_ptr<bart::convergence::FluxCheckerI> tester_ptr;
+  std::unique_ptr<bart::convergence::FluxCheckerMock> tester_mock;
 
   void SetUp() override;
   void MocksToPointers() {
@@ -17,7 +17,7 @@ class GroupFluxesSequentialTest : public ::testing::Test {
 };
 
 void GroupFluxesSequentialTest::SetUp() {
-  tester_mock = std::make_unique<bart::convergence::FluxMock>();
+  tester_mock = std::make_unique<bart::convergence::FluxCheckerMock>();
 }
 
 TEST_F(GroupFluxesSequentialTest, Constructor) {

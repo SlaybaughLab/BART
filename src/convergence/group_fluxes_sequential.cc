@@ -4,7 +4,7 @@ namespace bart {
 
 namespace convergence {
 
-GroupFluxesSequential::GroupFluxesSequential(std::unique_ptr<FluxI> &tester)
+GroupFluxesSequential::GroupFluxesSequential(std::unique_ptr<FluxCheckerI> &tester)
     : tester_(std::move(tester)) {}
 
 } // namespace convergence
