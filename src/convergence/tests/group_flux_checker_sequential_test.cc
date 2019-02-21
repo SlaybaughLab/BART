@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <deal.II/lac/petsc_parallel_vector.h>
+
 #include "../../test_helpers/gmock_wrapper.h"
 #include "flux_checker_mock.h"
 
@@ -20,11 +22,24 @@ void GroupFluxCheckerSequentialTest::SetUp() {
   tester_mock = std::make_unique<bart::convergence::FluxCheckerMock>();
 }
 
-TEST_F(GroupFluxCheckerSequentialTest, Constructor) {
-  MocksToPointers();
-  bart::convergence::GroupFluxCheckerSequential sequential_tester(tester_ptr);
+// Tests where there are no mock calls
+class GroupFluxCheckerSeqTestEmptyMock : public GroupFluxCheckerSequentialTest {
+ protected:
+  bart::convergence::GroupFluxCheckerSequential sequential_tester;
+  void SetUp() override {
+    MocksToPointers();
+    sequential_tester.ProvideChecker(tester_ptr);
+  }
+};
+
+TEST_F(GroupFluxCheckerSeqTestEmptyMock, Constructor) {
   EXPECT_EQ(tester_ptr, nullptr);
 }
+
+TEST_F(GroupFluxCheckerSeqTestEmptyMock, DifferentGroupSizes) {
+  EXPECT_TRUE(true);
+}
+
 
 
 

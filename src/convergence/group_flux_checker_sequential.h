@@ -17,8 +17,11 @@ namespace convergence {
 
 class GroupFluxCheckerSequential : public GroupFluxCheckerI {
  public:
+  GroupFluxCheckerSequential() = default;
   GroupFluxCheckerSequential(std::unique_ptr<FluxCheckerI> &tester);
   ~GroupFluxCheckerSequential() = default;
+  void ProvideChecker(std::unique_ptr<FluxCheckerI> &tester) {
+    tester_ = std::move(tester); };
   bool isConverged(data::GroupFluxes &current, data::GroupFluxes &last) {
     return false; };
 
