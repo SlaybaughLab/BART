@@ -1,10 +1,10 @@
-#ifndef BART_SRC_CONVERGENCE_GROUP_FLUXES_SEQUENTIAL_H_
-#define BART_SRC_CONVERGENCE_GROUP_FLUXES_SEQUENTIAL_H_
+#ifndef BART_SRC_CONVERGENCE_GROUP_FLUX_CHECKER_SEQUENTIAL_H_
+#define BART_SRC_CONVERGENCE_GROUP_FLUX_CHECKER_SEQUENTIAL_H_
 
 #include <memory>
 
 #include "flux_checker_i.h"
-#include "group_fluxes_i.h"
+#include "group_flux_checker_i.h"
 
 
 namespace bart {
@@ -15,10 +15,10 @@ namespace convergence {
  * Will not re-check converged groups until final convergence is believed to
  * have been reached. */
 
-class GroupFluxesSequential : public GroupFluxesI {
+class GroupFluxCheckerSequential : public GroupFluxCheckerI {
  public:
-  GroupFluxesSequential(std::unique_ptr<FluxCheckerI> &tester);
-  ~GroupFluxesSequential() = default;
+  GroupFluxCheckerSequential(std::unique_ptr<FluxCheckerI> &tester);
+  ~GroupFluxCheckerSequential() = default;
   bool isConverged(data::GroupFluxes &) {return false; };
 
  private:
@@ -30,4 +30,4 @@ class GroupFluxesSequential : public GroupFluxesI {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_GROUP_FLUXES_SEQUENTIAL_H_
+#endif // BART_SRC_CONVERGENCE_GROUP_FLUX_CHECKER_SEQUENTIAL_H_

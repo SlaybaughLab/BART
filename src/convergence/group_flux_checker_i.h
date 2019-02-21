@@ -1,5 +1,5 @@
-#ifndef BART_SRC_CONVERGENCE_GROUP_FLUXES_I_H_
-#define BART_SRC_CONVERGENCE_GROUP_FLUXES_I_H_
+#ifndef BART_SRC_CONVERGENCE_GROUP_FLUX_CHECKER_I_H_
+#define BART_SRC_CONVERGENCE_GROUP_FLUX_CHECKER_I_H_
 
 #include "../data/vector_parameters.h"
 
@@ -9,9 +9,9 @@ namespace convergence {
 
 /*! \brief Checks that all fluxes have converged across groups */
 
-class GroupFluxesI {
+class GroupFluxCheckerI {
  public:
-  virtual ~GroupFluxesI() = default;
+  virtual ~GroupFluxCheckerI() = default;
   virtual bool isConverged(data::GroupFluxes &) = 0;
 };
   
@@ -19,4 +19,4 @@ class GroupFluxesI {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_GROUP_FLUXES_I_H_
+#endif // BART_SRC_CONVERGENCE_GROUP_FLUX_CHECKER_I_H_
