@@ -22,12 +22,14 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
   ~GroupFluxCheckerSequential() = default;
   void ProvideChecker(std::unique_ptr<FluxCheckerI> &tester) {
     tester_ = std::move(tester); };
-  bool isConverged(data::GroupFluxes &current, data::GroupFluxes &last) {
-    return false; };
+  bool isConverged(data::GroupFluxes &current, data::GroupFluxes &last);
+  int GetFailedGroup() const { return failed_group_; };
 
  private:
   /*! Flux convergence tester that will be used to check sequentially */
   std::unique_ptr<FluxCheckerI> tester_;
+  /*! Stores the ID of the first group that failed the convergence check */
+  int failed_group_; 
 };
 
 } // namespace convergence
