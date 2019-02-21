@@ -19,7 +19,8 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
  public:
   GroupFluxCheckerSequential(std::unique_ptr<FluxCheckerI> &tester);
   ~GroupFluxCheckerSequential() = default;
-  bool isConverged(data::GroupFluxes &) {return false; };
+  bool isConverged(data::GroupFluxes &current, data::GroupFluxes &last) {
+    return false; };
 
  private:
   /*! Flux convergence tester that will be used to check sequentially */

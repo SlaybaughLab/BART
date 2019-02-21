@@ -7,12 +7,14 @@ namespace bart {
 
 namespace convergence {
 
-/*! \brief Checks that all fluxes have converged across groups */
+/*! \brief Checks that all group fluxes have converged from the previous
+ * iteration. */
 
 class GroupFluxCheckerI {
  public:
   virtual ~GroupFluxCheckerI() = default;
-  virtual bool isConverged(data::GroupFluxes &) = 0;
+  virtual bool isConverged(data::GroupFluxes &current,
+                           data::GroupFluxes &last) = 0;
 };
   
 } // namespace convergence
