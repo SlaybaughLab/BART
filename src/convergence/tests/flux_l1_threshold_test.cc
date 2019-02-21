@@ -33,9 +33,6 @@ TEST_F(FluxL1ThresholdTest, SameVector) {
 TEST_F(FluxL1ThresholdTest, OneThresholdAway) {
   double to_add = flux_one.l1_norm() * 0.99 * test_convergence.GetThreshold();
   flux_two(2) += to_add;
-
-  bart::data::Flux difference{flux_one};
-  difference -= flux_two;
   
   flux_two.compress(dealii::VectorOperation::values::add);
   EXPECT_TRUE(test_convergence.isConverged(flux_one, flux_two));
@@ -50,5 +47,17 @@ TEST_F(FluxL1ThresholdTest, TwoThresholdAway) {
   EXPECT_FALSE(test_convergence.isConverged(flux_two, flux_one));
 }
 
+TEST_F(FluxL1ThresholdTest, SetThreshold) {
+  double to_set = 1e-5;
+  test_convergence.SetThreshold(to_set);
+  EXPECT_EQ(test_convergence.GetThreshold(), to_set);
 
+  double to_add = flux_one.l1_norm() * 0.99 * to_set;
+  flux_two(2) += to_add;
+  
+  flux_two.compress(dealii::VectorOperation::values::add);
+  EXPECT_TRUE(test_convergence.isConverged(flux_one, flux_two));
+  EXPECT_TRUE(test_convergence.isConverged(flux_two, flux_one));
+  
+}
 
