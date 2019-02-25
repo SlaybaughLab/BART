@@ -17,8 +17,8 @@ namespace domain {
 
 template <int dim>
 MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
-                                              const std::vector<int> n_cells,
-                                              const std::string material_mapping)
+                                  const std::vector<int> n_cells,
+                                  const std::string material_mapping)
     : MeshCartesian(spatial_max, n_cells) {
   ParseMaterialMap(material_mapping);
 }
@@ -26,15 +26,15 @@ MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
 
 template <int dim>
 MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
-                                              const std::vector<int> n_cells) {
+                                  const std::vector<int> n_cells) {
 
   // Check lengths of spatial max and n_cells
   AssertThrow(spatial_max.size() == dim,
               dealii::ExcMessage("MeshCartesian argument error, incorrect spatial vector size"));
   AssertThrow(n_cells.size() == dim,
-              dealii::ExcMessage("MeshCartesian argument error, incorrect number of cells vector size"))
+              dealii::ExcMessage("MeshCartesian argument error, incorrect number of cells vector size"));
   
-      std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
+  std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
   std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());
 }
 
@@ -48,7 +48,6 @@ void MeshCartesian<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) 
     diagonal[i] = spatial_max_[i];
 
   std::vector<unsigned int> number_of_cells{n_cells_.begin(), n_cells_.end()};
-
   dealii::GridGenerator::subdivided_hyper_rectangle(to_fill, number_of_cells,
                                                     origin, diagonal);
 }
