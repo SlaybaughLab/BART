@@ -85,8 +85,7 @@ TEST_F(GroupFluxCheckerSequentialTest, GoodMatch) {
 
 TEST_F(GroupFluxCheckerSequentialTest, BadMatch) {
   EXPECT_CALL(*tester_mock, isConverged(_,_)).
-      WillOnce(::testing::Return(true));
-  EXPECT_CALL(*tester_mock, isConverged(_,_)).
+      WillOnce(::testing::Return(true)).
       WillOnce(::testing::Return(false));
   
   MocksToPointers();
