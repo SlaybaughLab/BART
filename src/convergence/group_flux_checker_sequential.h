@@ -20,9 +20,12 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
   GroupFluxCheckerSequential() = default;
   GroupFluxCheckerSequential(std::unique_ptr<FluxCheckerI> &tester);
   ~GroupFluxCheckerSequential() = default;
+  
   void ProvideChecker(std::unique_ptr<FluxCheckerI> &tester) {
     tester_ = std::move(tester); };
-  bool isConverged(data::GroupFluxes &current, data::GroupFluxes &last);
+  
+  bool isConverged(data::GroupFluxPointers &current,
+                   data::GroupFluxPointers &last);
   int GetFailedGroup() const { return failed_group_; };
 
  private:
