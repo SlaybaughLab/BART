@@ -13,9 +13,8 @@ namespace convergence {
 class GroupFluxCheckerI {
  public:
   virtual ~GroupFluxCheckerI() = default;
-  virtual bool isConverged(data::GroupFluxPointers &current,
-                           data::GroupFluxPointers &last) = 0;
-  virtual bool isConverged() const = 0;
+  virtual bool CheckIfConverged(data::GroupFluxPointers &current,
+                                data::GroupFluxPointers &last) = 0;
 };
   
 } // namespace convergence

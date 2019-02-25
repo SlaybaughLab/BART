@@ -11,8 +11,7 @@ namespace convergence {
 
 class FluxCheckerMock : public FluxCheckerI {
  public:
-  MOCK_METHOD2(isConverged, bool(data::Flux &, data::Flux &));
-  MOCK_CONST_METHOD0(isConverged, bool());
+  MOCK_METHOD2(CheckIfConverged, bool(data::Flux &, data::Flux &));
 };
 
 } // namespace convergence

@@ -24,9 +24,8 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
   void ProvideChecker(std::unique_ptr<FluxCheckerI> &tester) {
     tester_ = std::move(tester); };
   
-  bool isConverged(data::GroupFluxPointers &current,
-                   data::GroupFluxPointers &last);
-  bool isConverged() const override { return converged_; };
+  bool CheckIfConverged(data::GroupFluxPointers &current,
+                        data::GroupFluxPointers &last);
   int GetFailedGroup() const { return failed_group_; };
 
  private:
@@ -34,8 +33,6 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
   std::unique_ptr<FluxCheckerI> tester_ = nullptr;
   /*! Stores the ID of the first group that failed the convergence check */
   int failed_group_ = 0;
-  /*! Stores value of last isConverged call */
-  bool converged_ = false;
 };
 
 } // namespace convergence

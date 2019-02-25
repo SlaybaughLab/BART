@@ -8,8 +8,8 @@ GroupFluxCheckerSequential::GroupFluxCheckerSequential(
     std::unique_ptr<FluxCheckerI> &tester)
     : tester_(std::move(tester)) {}
 
-bool GroupFluxCheckerSequential::isConverged(data::GroupFluxPointers &current,
-                                             data::GroupFluxPointers &last) {
+bool GroupFluxCheckerSequential::CheckIfConverged(data::GroupFluxPointers &current,
+                                                  data::GroupFluxPointers &last) {
   AssertThrow(current.size() > 0,
               dealii::ExcMessage("Current iteration group fluxes has 0 groups"));
   AssertThrow(last.size() > 0,
@@ -28,13 +28,12 @@ bool GroupFluxCheckerSequential::isConverged(data::GroupFluxPointers &current,
     AssertThrow(current_group_number == last_group_number,
                 dealii::ExcMessage("Current & last group numbers mismatched"));
 
-    if (!tester_->isConverged(*current_group_flux_ptr, *last_group_flux_ptr)) {
+    if (!tester_->CheckIfConverged(*current_group_flux_ptr,
+                                   *last_group_flux_ptr)) {
       failed_group_ = current_group_number;
-      converged_ = false;
       return false;
     }
   }
-  converged_ = true;
   return true;
 }
 

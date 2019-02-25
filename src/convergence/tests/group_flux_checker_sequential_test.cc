@@ -60,17 +60,17 @@ TEST_F(GroupFluxCheckerSeqTestEmptyMock, Constructor) {
 }
 
 TEST_F(GroupFluxCheckerSeqTestEmptyMock, EmptyGroups) {
-  EXPECT_ANY_THROW(sequential_tester.isConverged(current, previous));
+  EXPECT_ANY_THROW(sequential_tester.CheckIfConverged(current, previous));
 }
 
 TEST_F(GroupFluxCheckerSeqTestEmptyMock, DifferentGroupSizes) {
   FillGroupFluxes(current, 5);
   FillGroupFluxes(previous, 4);
-  EXPECT_ANY_THROW(sequential_tester.isConverged(current, previous));
+  EXPECT_ANY_THROW(sequential_tester.CheckIfConverged(current, previous));
 }
 
 TEST_F(GroupFluxCheckerSequentialTest, GoodMatch) {
-  EXPECT_CALL(*tester_mock, isConverged(_,_)).
+  EXPECT_CALL(*tester_mock, CheckIfConverged(_,_)).
       WillRepeatedly(::testing::Return(true));
   
   MocksToPointers();
@@ -79,12 +79,11 @@ TEST_F(GroupFluxCheckerSequentialTest, GoodMatch) {
   FillGroupFluxes(current, 3);
   FillGroupFluxes(previous, 3);
 
-  EXPECT_TRUE(sequential_tester.isConverged(current, previous));
-  EXPECT_TRUE(sequential_tester.isConverged());
+  EXPECT_TRUE(sequential_tester.CheckIfConverged(current, previous));
 }
 
 TEST_F(GroupFluxCheckerSequentialTest, BadMatch) {
-  EXPECT_CALL(*tester_mock, isConverged(_,_)).
+  EXPECT_CALL(*tester_mock, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true)).
       WillOnce(::testing::Return(false));
   
@@ -94,7 +93,6 @@ TEST_F(GroupFluxCheckerSequentialTest, BadMatch) {
   FillGroupFluxes(current, 3);
   FillGroupFluxes(previous, 3);
 
-  EXPECT_FALSE(sequential_tester.isConverged(current, previous));
-  EXPECT_FALSE(sequential_tester.isConverged());
+  EXPECT_FALSE(sequential_tester.CheckIfConverged(current, previous));
   EXPECT_EQ(sequential_tester.GetFailedGroup(), 1);
 }
