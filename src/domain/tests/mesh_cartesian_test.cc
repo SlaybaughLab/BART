@@ -20,7 +20,7 @@ class MeshCartesianTest : public ::testing::Test {
 template <int dim>
 void MeshCartesianTest::FillTriangulationTest() {
   std::vector<double> spatial_max{btest::RandomVector(dim, 0, 100)};
-  std::vector<double> n_cells_double{btest::RandomVector(dim, 0, 20)};
+  std::vector<double> n_cells_double{btest::RandomVector(dim, 1, 20)};
   std::vector<int> n_cells{n_cells_double.begin(), n_cells_double.end()};
 
   int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1,
