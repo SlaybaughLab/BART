@@ -26,7 +26,7 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
   
   bool isConverged(data::GroupFluxPointers &current,
                    data::GroupFluxPointers &last);
-  bool isConverged() { return converged_; };
+  bool isConverged() const override { return converged_; };
   int GetFailedGroup() const { return failed_group_; };
 
  private:

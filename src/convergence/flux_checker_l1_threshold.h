@@ -14,10 +14,12 @@ class FluxCheckerL1Threshold : public FluxCheckerI {
   FluxCheckerL1Threshold() = default;
   ~FluxCheckerL1Threshold() = default;
   bool isConverged(data::Flux &, data::Flux &) override;
+  bool isConverged() const override { return converged_; }
   void SetThreshold(double value) { threshold_ = value; };
   double GetThreshold() const {return threshold_; };
  private:
-  double threshold_ = 1e-6;  
+  double threshold_ = 1e-6;
+  bool converged_ = false;
 };
   
 } // namespace convergence

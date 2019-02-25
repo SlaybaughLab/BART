@@ -13,6 +13,7 @@ class FluxCheckerI {
  public:
   virtual ~FluxCheckerI() = default;
   virtual bool isConverged(data::Flux &, data::Flux &) = 0;
+  virtual bool isConverged() const = 0;
 };
   
 } // namespace convergence

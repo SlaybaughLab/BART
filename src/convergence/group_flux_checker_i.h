@@ -15,6 +15,7 @@ class GroupFluxCheckerI {
   virtual ~GroupFluxCheckerI() = default;
   virtual bool isConverged(data::GroupFluxPointers &current,
                            data::GroupFluxPointers &last) = 0;
+  virtual bool isConverged() const = 0;
 };
   
 } // namespace convergence
