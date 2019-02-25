@@ -69,7 +69,6 @@ bool GroupFluxCheckerSequential::CheckIfConverged(data::AngularGroupFluxPtrs &cu
     }
   }
   return true;
-  
 }
 
 } // namespace convergence
