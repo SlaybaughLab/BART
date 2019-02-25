@@ -77,14 +77,19 @@ class GroupFluxCheckerSeqTestEmptyMock : public GroupFluxCheckerSequentialTest {
 };
 
 TEST_F(GroupFluxCheckerSeqTestEmptyMock, Constructor) {
+  // Verify constructor took ownership of the tester pointer
   EXPECT_EQ(tester_ptr, nullptr);
 }
 
 TEST_F(GroupFluxCheckerSeqTestEmptyMock, EmptyGroups) {
+  // Verify error thrown if empty group fluxes provided
   EXPECT_ANY_THROW(sequential_tester.CheckIfConverged(current, previous));
+  EXPECT_ANY_THROW(sequential_tester.CheckIfConverged(current_angular,
+                                                      previous_angular));
 }
 
 TEST_F(GroupFluxCheckerSeqTestEmptyMock, DifferentGroupSizes) {
+  // Verify error thrown if fluxes have different numbers of groups
   FillGroupFluxes(current, 5);
   FillGroupFluxes(previous, 4);
   FillGroupFluxes(current_angular, 3, 2);
@@ -94,7 +99,16 @@ TEST_F(GroupFluxCheckerSeqTestEmptyMock, DifferentGroupSizes) {
                                                  previous_angular));
 }
 
+TEST_F(GroupFluxCheckerSeqTestEmptyMock, DifferentAngleSizes) {
+  // Verify error thrown if fluxes have different numbers of angles
+  FillGroupFluxes(current_angular, 3, 3);
+  FillGroupFluxes(previous_angular, 3, 2);
+  EXPECT_ANY_THROW(sequential_tester.CheckIfConverged(current_angular,
+                                                 previous_angular));
+}
+
 TEST_F(GroupFluxCheckerSequentialTest, GoodMatch) {
+  // Verify good match
   EXPECT_CALL(*tester_mock, CheckIfConverged(_,_)).
       WillRepeatedly(::testing::Return(true));
   
@@ -113,6 +127,7 @@ TEST_F(GroupFluxCheckerSequentialTest, GoodMatch) {
 }
 
 TEST_F(GroupFluxCheckerSequentialTest, BadGroupMatch) {
+  // Verify error if group values are not the same
   EXPECT_CALL(*tester_mock, CheckIfConverged(_,_)).
       WillRepeatedly(::testing::Return(true));
   
@@ -122,10 +137,15 @@ TEST_F(GroupFluxCheckerSequentialTest, BadGroupMatch) {
   FillGroupFluxes(current, 3);
   FillGroupFluxes(previous, 3);
 
+  auto flux = current.extract(0);
+  flux.key() = 6;
+  current.insert(std::move(flux));
+
   EXPECT_ANY_THROW(sequential_tester.CheckIfConverged(current, previous));
 }
 
 TEST_F(GroupFluxCheckerSequentialTest, BadMatch) {
+  // Check if correct action on failed convergence 
   EXPECT_CALL(*tester_mock, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true)).
       WillOnce(::testing::Return(false));
@@ -141,6 +161,7 @@ TEST_F(GroupFluxCheckerSequentialTest, BadMatch) {
 }
 
 TEST_F(GroupFluxCheckerSequentialTest, BadAngularMatch) {
+  // Check correct action on failed convergence of angular
   EXPECT_CALL(*tester_mock, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true)).
       WillOnce(::testing::Return(true)).
@@ -156,4 +177,5 @@ TEST_F(GroupFluxCheckerSequentialTest, BadAngularMatch) {
   EXPECT_FALSE(sequential_tester.CheckIfConverged(current_angular,
                                                   previous_angular));
   EXPECT_EQ(sequential_tester.GetFailedGroup(), 1);
+  EXPECT_EQ(sequential_tester.GetFailedAngle(), 1);
 }

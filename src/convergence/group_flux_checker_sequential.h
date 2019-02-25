@@ -25,9 +25,10 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
     tester_ = std::move(tester); };
   
   bool CheckIfConverged(data::ScalarGroupFluxPtrs &current,
-                        data::ScalarGroupFluxPtrs &last);
+                        data::ScalarGroupFluxPtrs &last) override;
   bool CheckIfConverged(data::AngularGroupFluxPtrs &current,
-                        data::AngularGroupFluxPtrs &last);
+                        data::AngularGroupFluxPtrs &last) override;
+  
   int GetFailedGroup() const { return failed_group_; };
   int GetFailedAngle() const { return failed_angle_; };
 
