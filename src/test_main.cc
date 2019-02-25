@@ -1,6 +1,9 @@
 #include <unistd.h>
 #include <getopt.h>
+#include <stdlib.h>
+#include <time.h>
 #include <vector>
+
 
 #include <deal.II/base/mpi.h>
 #include "gtest/gtest.h"
@@ -63,6 +66,8 @@ int main(int argc, char** argv) {
   dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
   ::testing::InitGoogleMock(&argc, argv);
   
+  // Re-seed random number generator for random number tests
+  std::srand(time(NULL));
   return RUN_ALL_TESTS();
 }
 
