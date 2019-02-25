@@ -26,13 +26,16 @@ class GroupFluxCheckerSequential : public GroupFluxCheckerI {
   
   bool isConverged(data::GroupFluxPointers &current,
                    data::GroupFluxPointers &last);
+  bool isConverged() { return converged_; };
   int GetFailedGroup() const { return failed_group_; };
 
  private:
   /*! Flux convergence tester that will be used to check sequentially */
-  std::unique_ptr<FluxCheckerI> tester_;
+  std::unique_ptr<FluxCheckerI> tester_ = nullptr;
   /*! Stores the ID of the first group that failed the convergence check */
-  int failed_group_; 
+  int failed_group_ = 0;
+  /*! Stores value of last isConverged call */
+  bool converged_ = false;
 };
 
 } // namespace convergence
