@@ -29,13 +29,6 @@ class MultiChecker : public MultiCheckerI{
   int failed_index_ = 0;
 };
 
-std::optional<int> MultiChecker::GetFailedIndex() const {
-  if (!is_converged_)
-    return failed_index_;
-  else
-    return {};
-}
-
 } // namespace flux
 
 } // namespace convergence

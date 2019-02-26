@@ -20,7 +20,7 @@ namespace flux {
 class MultiCheckerSequential : public MultiChecker {
  public:
   MultiCheckerSequential() = default;
-  MultiCheckerSequential(std::unique_ptr<SingleCheckerI> &checker);
+  explicit MultiCheckerSequential(std::unique_ptr<SingleCheckerI> &checker);
   ~MultiCheckerSequential() = default; 
   bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
                         data::MultiFluxPtrs &previous_iteration) override;
