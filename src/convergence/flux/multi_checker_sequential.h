@@ -22,8 +22,8 @@ class MultiCheckerSequential : public MultiChecker {
   MultiCheckerSequential() = default;
   MultiCheckerSequential(std::unique_ptr<SingleCheckerI> &checker);
   ~MultiCheckerSequential() = default; 
-  virtual bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
-                                data::MultiFluxPtrs &previous_iteration);
+  bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
+                        data::MultiFluxPtrs &previous_iteration) override;
 };
 
 } // namespace flux

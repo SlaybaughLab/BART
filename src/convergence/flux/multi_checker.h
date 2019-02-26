@@ -21,8 +21,8 @@ class MultiChecker : public MultiCheckerI{
   ~MultiChecker() = default;
   void ProvideChecker(std::unique_ptr<SingleCheckerI> &checker) {
     checker_ = std::move(checker); };
-  bool is_converged() const { return is_converged_; }
-  std::optional<int> GetFailedIndex() const;
+  bool is_converged() const override { return is_converged_; }
+  std::optional<int> GetFailedIndex() const override;
  protected:
   std::unique_ptr<SingleCheckerI> checker_ = nullptr;
   bool is_converged_ = false;
