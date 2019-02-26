@@ -1,27 +1,35 @@
-#ifndef BART_SRC_CONVERGENCE_FLUX_CHECKER_L1_THRESHOLD_H_
-#define BART_SRC_CONVERGENCE_FLUX_CHECKER_L1_THRESHOLD_H_
+#ifndef BART_SRC_CONVERGENCE_FLUX_SINGLE_CHECKER_DELTA_L1_NORM_H_
+#define BART_SRC_CONVERGENCE_FLUX_SINGLE_CHECKER_DELTA_L1_NORM_H_
 
-#include "flux_checker_i.h"
+#include "single_checker_delta_i.h"
 
 namespace bart {
 
 namespace convergence {
 
-/*! \brief Checks for convergence between two provided fluxes. */
+namespace flux {
 
-class FluxCheckerL1Threshold : public FluxCheckerI {
+/*! \brief Checks for convergence between two fluxes using the percentage
+ * change in the L1 norms */
+
+class SingleCheckerDeltaL1Norm : public SingleCheckerDeltaI {
  public:
-  FluxCheckerL1Threshold() = default;
-  ~FluxCheckerL1Threshold() = default;
+  SingleCheckerDeltaL1Norm() = default;
+  ~SingleCheckerDeltaL1Norm() = default;
   bool CheckIfConverged(data::Flux &, data::Flux &) override;
-  void SetThreshold(double value) { threshold_ = value; };
-  double GetThreshold() const {return threshold_; };
+  bool is_converged() const { return is_converged_; } override;
+  void SetMaxDelta(double to_set) { max_delta_ = to_set; } override;
+  double max_delta() const { return max_delta_; };
+  double delta() const { return delta_; };  
+
  private:
-  double threshold_ = 1e-6;
+  bool is_converged_ = false;;
+  double max_delta_ = 1e-6;
+  double delta_ = 1e-3;
 };
   
 } // namespace convergence
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_FLUX_CHECKER_L1_THRESHOLD_H_
+#endif // BART_SRC_CONVERGENCE_FLUX_SINGLE_CHECKER_DELTA_L1_NORM_H_
