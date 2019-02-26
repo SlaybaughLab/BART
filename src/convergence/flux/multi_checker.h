@@ -26,7 +26,7 @@ class MultiChecker : public MultiCheckerI{
  protected:
   std::unique_ptr<SingleCheckerI> checker_ = nullptr;
   bool is_converged_ = false;
-  int failed_index_ = 0;
+  std::optional<int> failed_index_ = std::nullopt;
 };
 
 } // namespace flux

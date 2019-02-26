@@ -38,9 +38,11 @@ bool MultiCheckerSequential::CheckIfConverged(
     if (!checker_->CheckIfConverged(*current_group_flux_ptr,
                                     *previous_group_flux_ptr)) {
       failed_index_ = current_index;
+      is_converged_ = false;
       return false;
     }
   }
+  is_converged_ = true;
   return true;
 }
 
