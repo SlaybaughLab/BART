@@ -6,30 +6,37 @@ namespace convergence {
 
 namespace flux {
 
+MultiCheckerSequential::MultiCheckerSequential(
+    std::unique_ptr<SingleCheckerI> &checker) {
+  ProvideChecker(checker);
+}
+
 bool MultiCheckerSequential::CheckIfConverged(
     data::MultiFluxPtrs &current_iteration,
-    data::MultiFluxPtrs &last_iteration) {
+    data::MultiFluxPtrs &previous_iteration) {
   
-  AssertThrow(current.size() > 0,
+  AssertThrow(current_iteration.size() > 0,
               dealii::ExcMessage("Current iteration fluxes is empty"));
-  AssertThrow(last.size() > 0,
-              dealii::ExcMessage("Last iteration fluxes is empty"));
-  AssertThrow(last.size() == current.size(),
-              dealii::ExcMessage("Current & last group iteration fluxes have"
+  AssertThrow(previous_iteration.size() > 0,
+              dealii::ExcMessage("Previous iteration fluxes is empty"));
+  AssertThrow(previous_iteration.size() == current_iteration.size(),
+              dealii::ExcMessage("Current & previous group iteration fluxes have"
                                  "different sizes"));
 
-  for (auto current_pair = current.cbegin(), last_pair = last.cbegin();
-       current_pair != current.cend(), last_pair != last.cend();
-       ++current_pair, ++last_pair) {
+  for (auto current_pair = current_iteration.cbegin(),
+            previous_pair = previous_iteration.cbegin();
+            current_pair != current_iteration.cend(),
+            previous_pair != previous_iteration.cend();
+            ++current_pair, ++previous_pair) {
 
     auto &[current_index, current_group_flux_ptr] = *current_pair;
-    auto &[last_index, last_group_flux_ptr] = *last_pair;
+    auto &[previous_index, previous_group_flux_ptr] = *previous_pair;
     
-    AssertThrow(current_index == last_index,
-                dealii::ExcMessage("Current & last group indices mismatched"));
+    AssertThrow(current_index == previous_index,
+                dealii::ExcMessage("Current & previous group indices mismatched"));
 
-    if (!tester_->CheckIfConverged(*current_group_flux_ptr,
-                                   *last_group_flux_ptr)) {
+    if (!checker_->CheckIfConverged(*current_group_flux_ptr,
+                                    *previous_group_flux_ptr)) {
       failed_index_ = current_index;
       return false;
     }
