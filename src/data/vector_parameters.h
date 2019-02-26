@@ -11,10 +11,7 @@ namespace bart {
 namespace data {
 
 typedef dealii::PETScWrappers::MPI::Vector Flux;
-typedef int Group;
-typedef int Direction;
-typedef std::map<Group, std::unique_ptr<Flux>> ScalarGroupFluxPtrs;
-typedef std::map<std::pair<Group, Direction>, std::unique_ptr<Flux>> AngularGroupFluxPtrs;
+typedef std::map<int, std::unique_ptr<Flux>> MultiFluxPtrs;
 
 } // namespace data
 
