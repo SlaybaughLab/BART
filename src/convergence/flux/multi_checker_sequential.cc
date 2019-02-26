@@ -1,75 +1,43 @@
-#include "group_flux_checker_sequential.h"
+#include "multi_checker_sequential.h"
 
 namespace bart {
 
 namespace convergence {
 
-GroupFluxCheckerSequential::GroupFluxCheckerSequential(
-    std::unique_ptr<FluxCheckerI> &tester)
-    : tester_(std::move(tester)) {}
+namespace flux {
 
-bool GroupFluxCheckerSequential::CheckIfConverged(data::ScalarGroupFluxPtrs &current,
-                                                  data::ScalarGroupFluxPtrs &last) {
-  AssertThrow(current.size() > 0,
-              dealii::ExcMessage("Current iteration group fluxes has 0 groups"));
-  AssertThrow(last.size() > 0,
-              dealii::ExcMessage("Last iteration group fluxes has 0 groups"));
-  AssertThrow(last.size() == current.size(),
-              dealii::ExcMessage("Current & last group iteration fluxes have"
-                                 "different sizes"));
-
-  for (auto current_pair = current.cbegin(), last_pair = last.cbegin();
-       current_pair != current.cend(), last_pair != last.cend();
-       ++current_pair, ++last_pair) {
-
-    auto &[current_group_number, current_group_flux_ptr] = *current_pair;
-    auto &[last_group_number, last_group_flux_ptr] = *last_pair;
-    
-    AssertThrow(current_group_number == last_group_number,
-                dealii::ExcMessage("Current & last group numbers mismatched"));
-
-    if (!tester_->CheckIfConverged(*current_group_flux_ptr,
-                                   *last_group_flux_ptr)) {
-      failed_group_ = current_group_number;
-      return false;
-    }
-  }
-  return true;
-}
-
-bool GroupFluxCheckerSequential::CheckIfConverged(data::AngularGroupFluxPtrs &current,
-                                                  data::AngularGroupFluxPtrs &last) {
-  AssertThrow(current.size() > 0,
-              dealii::ExcMessage("Current iteration group fluxes has 0 groups & angles"));
-  AssertThrow(last.size() > 0,
-              dealii::ExcMessage("Last iteration group fluxes has 0 groups & angles"));
-  AssertThrow(last.size() == current.size(),
-              dealii::ExcMessage("Current & last group iteration fluxes have"
-                                 "different sizes"));
+bool MultiCheckerSequential::CheckIfConverged(
+    data::MultiFluxPtrs &current_iteration,
+    data::MultiFluxPtrs &last_iteration) {
   
+  AssertThrow(current.size() > 0,
+              dealii::ExcMessage("Current iteration fluxes is empty"));
+  AssertThrow(last.size() > 0,
+              dealii::ExcMessage("Last iteration fluxes is empty"));
+  AssertThrow(last.size() == current.size(),
+              dealii::ExcMessage("Current & last group iteration fluxes have"
+                                 "different sizes"));
+
   for (auto current_pair = current.cbegin(), last_pair = last.cbegin();
        current_pair != current.cend(), last_pair != last.cend();
        ++current_pair, ++last_pair) {
 
-    auto &[current_dof_pair, current_group_flux_ptr] = *current_pair;
-    auto &[last_dof_pair, last_group_flux_ptr] = *last_pair;
-    auto &[current_group_number, current_direction] = current_dof_pair;
-    auto &[last_group_number, last_direction] = last_dof_pair;
+    auto &[current_index, current_group_flux_ptr] = *current_pair;
+    auto &[last_index, last_group_flux_ptr] = *last_pair;
     
-    AssertThrow(current_group_number == last_group_number,
-                dealii::ExcMessage("Current & last group numbers mismatched"));
-    AssertThrow(current_direction == last_direction,
-                dealii::ExcMessage("Current & last directions mismatched"));
+    AssertThrow(current_index == last_index,
+                dealii::ExcMessage("Current & last group indices mismatched"));
 
     if (!tester_->CheckIfConverged(*current_group_flux_ptr,
                                    *last_group_flux_ptr)) {
-      failed_group_ = current_group_number;
-      failed_angle_ = current_direction;
+      failed_index_ = current_index;
       return false;
     }
   }
   return true;
 }
+
+} // namespace flux
 
 } // namespace convergence
 
