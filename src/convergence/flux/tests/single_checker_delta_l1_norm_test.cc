@@ -1,20 +1,20 @@
-#include "../flux_checker_l1_threshold.h"
+#include "../single_checker_delta_l1_norm.h"
 
 #include <deal.II/lac/petsc_parallel_vector.h>
 
-#include "../../test_helpers/test_helper_functions.h"
-#include "../../test_helpers/gmock_wrapper.h"
+#include "../../../test_helpers/test_helper_functions.h"
+#include "../../../test_helpers/gmock_wrapper.h"
 
-class FluxCheckerL1ThresholdTest : public ::testing::Test {
+class SingleCheckerDeltaL1NormTest : public ::testing::Test {
  protected:
-  bart::convergence::FluxCheckerL1Threshold test_convergence;
+  bart::convergence::flux::SingleCheckerDeltaL1Norm test_convergence;
   bart::data::Flux flux_one;
   bart::data::Flux flux_two;
   void SetUp() override;
   
 };
 
-void FluxCheckerL1ThresholdTest::SetUp() {
+void SingleCheckerDeltaL1NormTest::SetUp() {
   flux_one.reinit(MPI_COMM_WORLD, 5, 5);
   flux_two.reinit(MPI_COMM_WORLD, 5, 5);
   auto random_vector = btest::RandomVector(5, 0, 2);
@@ -26,31 +26,38 @@ void FluxCheckerL1ThresholdTest::SetUp() {
   flux_two.compress(dealii::VectorOperation::values::insert);
 }
 
-TEST_F(FluxCheckerL1ThresholdTest, SameVector) {
+TEST_F(SingleCheckerDeltaL1NormTest, SameVector) {
   EXPECT_TRUE(test_convergence.CheckIfConverged(flux_one, flux_one));
+  EXPECT_TRUE(test_convergence.is_converged());
 }
 
-TEST_F(FluxCheckerL1ThresholdTest, OneThresholdAway) {
-  double to_add = flux_one.l1_norm() * 0.99 * test_convergence.GetThreshold();
+TEST_F(SingleCheckerDeltaL1NormTest, OneThresholdAway) {
+  double to_add = flux_one.l1_norm() * 0.99 * test_convergence.max_delta();
   flux_two(2) += to_add;
   
   flux_two.compress(dealii::VectorOperation::values::add);
   EXPECT_TRUE(test_convergence.CheckIfConverged(flux_one, flux_two));
   EXPECT_TRUE(test_convergence.CheckIfConverged(flux_two, flux_one));
+  EXPECT_TRUE(test_convergence.is_converged());
+  EXPECT_DOUBLE_EQ(0.99*test_convergence.max_delta(),
+                   test_convergence.delta());
 }
 
-TEST_F(FluxCheckerL1ThresholdTest, TwoThresholdAway) {
-  double to_add = flux_one.l1_norm() * 2*test_convergence.GetThreshold();
+TEST_F(SingleCheckerDeltaL1NormTest, TwoThresholdAway) {
+  double to_add = flux_one.l1_norm() * 2*test_convergence.max_delta();
   flux_two(2) += to_add;
   flux_two.compress(dealii::VectorOperation::values::add);
   EXPECT_FALSE(test_convergence.CheckIfConverged(flux_one, flux_two));
   EXPECT_FALSE(test_convergence.CheckIfConverged(flux_two, flux_one));
+  EXPECT_FALSE(test_convergence.is_converged());
+  EXPECT_DOUBLE_EQ(2*test_convergence.max_delta(),
+                   test_convergence.delta());
 }
 
-TEST_F(FluxCheckerL1ThresholdTest, SetThreshold) {
+TEST_F(SingleCheckerDeltaL1NormTest, SetMaxDelta) {
   double to_set = 1e-5;
-  test_convergence.SetThreshold(to_set);
-  EXPECT_EQ(test_convergence.GetThreshold(), to_set);
+  test_convergence.SetMaxDelta(to_set);
+  EXPECT_EQ(test_convergence.max_delta(), to_set);
 
   double to_add = flux_one.l1_norm() * 0.99 * to_set;
   flux_two(2) += to_add;
