@@ -16,7 +16,8 @@ class SingleCheckerDeltaL1Norm : public SingleCheckerDeltaI {
  public:
   SingleCheckerDeltaL1Norm() = default;
   ~SingleCheckerDeltaL1Norm() = default;
-  bool CheckIfConverged(data::Flux &, data::Flux &) override;
+  bool CheckIfConverged(data::Flux &current_iteration,
+                        data::Flux &previous_iteration) override;
   bool is_converged() const { return is_converged_; } override;
   void SetMaxDelta(double to_set) { max_delta_ = to_set; } override;
   double max_delta() const { return max_delta_; };
