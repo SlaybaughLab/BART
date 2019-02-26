@@ -30,7 +30,7 @@ class MultiChecker : public MultiCheckerI{
 };
 
 std::optional<int> MultiChecker::GetFailedIndex() const {
-  if (is_converged_)
+  if (!is_converged_)
     return failed_index_;
   else
     return {};
