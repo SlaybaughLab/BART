@@ -15,7 +15,7 @@ class SingleCheckerDeltaI : public SingleCheckerI {
  public:
   virtual ~SingleCheckerDeltaI() = default;
   /* \brief Set the threshold value for convergence check */
-  virtual double SetMaxDelta() = 0;
+  virtual void SetMaxDelta(double to_set) = 0;
   /* \brief Get the threshold value for convergence check */
   virtual double max_delta() const = 0;
   /* \brief Get the delta value from the last convergence check */
