@@ -13,7 +13,6 @@ class SingleCheckerDeltaL1NormTest : public ::testing::Test {
   bart::data::Flux flux_one;
   bart::data::Flux flux_two;
   void SetUp() override;
-  
 };
 
 void SingleCheckerDeltaL1NormTest::SetUp() {
@@ -41,8 +40,8 @@ TEST_F(SingleCheckerDeltaL1NormTest, OneThresholdAway) {
   EXPECT_TRUE(test_convergence.CheckIfConverged(flux_one, flux_two));
   EXPECT_TRUE(test_convergence.CheckIfConverged(flux_two, flux_one));
   EXPECT_TRUE(test_convergence.is_converged());
-  EXPECT_DOUBLE_EQ(0.99*test_convergence.max_delta(),
-                   test_convergence.delta());
+  EXPECT_NEAR(0.99*test_convergence.max_delta(), test_convergence.delta(),
+              1e-6);
 }
 
 TEST_F(SingleCheckerDeltaL1NormTest, TwoThresholdAway) {
@@ -52,8 +51,8 @@ TEST_F(SingleCheckerDeltaL1NormTest, TwoThresholdAway) {
   EXPECT_FALSE(test_convergence.CheckIfConverged(flux_one, flux_two));
   EXPECT_FALSE(test_convergence.CheckIfConverged(flux_two, flux_one));
   EXPECT_FALSE(test_convergence.is_converged());
-  EXPECT_DOUBLE_EQ(2*test_convergence.max_delta(),
-                   test_convergence.delta());
+  EXPECT_NEAR(2*test_convergence.max_delta(), test_convergence.delta(),
+              1e-6);
 }
 
 TEST_F(SingleCheckerDeltaL1NormTest, SetMaxDelta) {
