@@ -1,7 +1,7 @@
-#ifndef BART_SRC_CONVERGENCE_FLUX_CHECKER_THRESHOLD_I_H_
-#define BART_SRC_CONVERGENCE_FLUX_CHECKER_THRESHOLD_I_H_
+#ifndef BART_SRC_CONVERGENCE_FLUX_SINGLE_CHECKER_DELTA_I_H_
+#define BART_SRC_CONVERGENCE_FLUX_SINGLE_CHECKER_DELTA_I_H_
 
-#include "single_checker_i.h"
+#include "single_checker.h"
 
 namespace bart {
 
@@ -11,7 +11,7 @@ namespace flux {
 
 /*! \brief Checks for convergence between two fluxes using the value of their
  * difference */
-class SingleCheckerDeltaI : public SingleCheckerI {
+class SingleCheckerDeltaI : public SingleChecker {
  public:
   virtual ~SingleCheckerDeltaI() = default;
   /* \brief Set the threshold value for convergence check */
@@ -28,4 +28,4 @@ class SingleCheckerDeltaI : public SingleCheckerI {
 
 } // namespace bart
 
-#endif  // BART_SRC_CONVERGENCE_FLUX_CHECKER_THRESHOLD_I_H_
+#endif  // BART_SRC_CONVERGENCE_FLUX_SINGLE_CHECKER_DELTA_I_H_

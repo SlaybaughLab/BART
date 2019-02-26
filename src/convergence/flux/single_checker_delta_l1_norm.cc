@@ -4,6 +4,8 @@ namespace bart {
 
 namespace convergence {
 
+namespace flux {
+
 bool SingleCheckerDeltaL1Norm::CheckIfConverged(data::Flux &current_iteration,
                                                 data::Flux &previous_iteration) {
   data::Flux difference{current_iteration};
@@ -12,6 +14,8 @@ bool SingleCheckerDeltaL1Norm::CheckIfConverged(data::Flux &current_iteration,
   is_converged_ = delta_ <= max_delta_;
   return is_converged_;
 }
+
+} // namespace flux
 
 } // namespace convergence
 

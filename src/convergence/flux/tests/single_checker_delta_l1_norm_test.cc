@@ -2,6 +2,8 @@
 
 #include <deal.II/lac/petsc_parallel_vector.h>
 
+#include <gtest/gtest.h>
+
 #include "../../../test_helpers/test_helper_functions.h"
 #include "../../../test_helpers/gmock_wrapper.h"
 
