@@ -21,9 +21,15 @@ class MultiCheckerI {
   /*! \brief Check for convergence of all fluxes provided */
   virtual bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
                                 data::MultiFluxPtrs &previous_iteration) = 0;
+  
   /* \brief Returns status of convergence (from last call to CheckIfConverged) */
   virtual bool is_converged() const = 0;
-  virtual std::optional<int> GetFailedIndex() const = 0;
+
+  /* \brief Returns the index of the flux that failed convergence check */
+  virtual std::optional<int> failed_index() const = 0;
+
+  /* \brief Returns the delta of the flux that failed convergence check */
+  virtual std::optional<double> failed_delta() const = 0;
 };
 
 } // namespace flux

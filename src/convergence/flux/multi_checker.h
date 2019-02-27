@@ -22,11 +22,13 @@ class MultiChecker : public MultiCheckerI{
   void ProvideChecker(std::unique_ptr<SingleCheckerI> &checker) {
     checker_ = std::move(checker); };
   bool is_converged() const override { return is_converged_; }
-  std::optional<int> GetFailedIndex() const override;
+  std::optional<int> failed_index() const override { return failed_index_; };
+  std::optional<double> failed_delta() const override { return failed_delta_; };
  protected:
   std::unique_ptr<SingleCheckerI> checker_ = nullptr;
   bool is_converged_ = false;
   std::optional<int> failed_index_ = std::nullopt;
+  std::optional<double> failed_delta_ = std::nullopt;
 };
 
 } // namespace flux

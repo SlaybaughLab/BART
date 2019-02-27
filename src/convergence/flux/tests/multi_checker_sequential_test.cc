@@ -78,7 +78,7 @@ TEST_F(MultiCheckerSeqTestEmptyMock, DifferentGroupSizes) {
   FillGroupFluxes(previous, 4);
   EXPECT_ANY_THROW(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_FALSE(sequential_checker.is_converged());
-  EXPECT_FALSE(sequential_checker.GetFailedIndex().has_value());
+  EXPECT_FALSE(sequential_checker.failed_index().has_value());
 }
 
 TEST_F(MultiCheckerSequentialTest, GoodMatch) {
@@ -113,7 +113,7 @@ TEST_F(MultiCheckerSequentialTest, BadGroupMatch) {
 
   EXPECT_ANY_THROW(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_FALSE(sequential_checker.is_converged());
-  EXPECT_FALSE(sequential_checker.GetFailedIndex().has_value());
+  EXPECT_FALSE(sequential_checker.failed_index().has_value());
 }
 
 TEST_F(MultiCheckerSequentialTest, BadMatch) {
@@ -130,6 +130,6 @@ TEST_F(MultiCheckerSequentialTest, BadMatch) {
 
   EXPECT_FALSE(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_FALSE(sequential_checker.is_converged());
-  EXPECT_TRUE(sequential_checker.GetFailedIndex().has_value());
-  EXPECT_EQ(sequential_checker.GetFailedIndex(), 1);
+  EXPECT_TRUE(sequential_checker.failed_index().has_value());
+  EXPECT_EQ(sequential_checker.failed_index().value(), 1);
 }
