@@ -1,6 +1,7 @@
 #include "../multi_checker_sequential.h"
 
 #include <memory>
+#include <optional>
 
 #include <deal.II/lac/petsc_parallel_vector.h>
 
@@ -79,6 +80,7 @@ TEST_F(MultiCheckerSeqTestEmptyMock, DifferentGroupSizes) {
   EXPECT_ANY_THROW(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_FALSE(sequential_checker.is_converged());
   EXPECT_FALSE(sequential_checker.failed_index().has_value());
+  EXPECT_FALSE(sequential_checker.failed_delta().has_value());
 }
 
 TEST_F(MultiCheckerSequentialTest, GoodMatch) {
@@ -94,6 +96,8 @@ TEST_F(MultiCheckerSequentialTest, GoodMatch) {
 
   EXPECT_TRUE(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_TRUE(sequential_checker.is_converged());
+  EXPECT_FALSE(sequential_checker.failed_index().has_value());
+  EXPECT_FALSE(sequential_checker.failed_delta().has_value());
 }
 
 TEST_F(MultiCheckerSequentialTest, BadGroupMatch) {
@@ -114,6 +118,7 @@ TEST_F(MultiCheckerSequentialTest, BadGroupMatch) {
   EXPECT_ANY_THROW(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_FALSE(sequential_checker.is_converged());
   EXPECT_FALSE(sequential_checker.failed_index().has_value());
+  EXPECT_FALSE(sequential_checker.failed_delta().has_value());
 }
 
 TEST_F(MultiCheckerSequentialTest, BadMatch) {
@@ -121,6 +126,9 @@ TEST_F(MultiCheckerSequentialTest, BadMatch) {
   EXPECT_CALL(*checker_mock, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true)).
       WillOnce(::testing::Return(false));
+
+  EXPECT_CALL(*checker_mock, delta()).
+      WillOnce(::testing::Return(std::make_optional(0.123)));
   
   MocksToPointers();
   sequential_checker.ProvideChecker(checker_ptr);
@@ -132,4 +140,6 @@ TEST_F(MultiCheckerSequentialTest, BadMatch) {
   EXPECT_FALSE(sequential_checker.is_converged());
   EXPECT_TRUE(sequential_checker.failed_index().has_value());
   EXPECT_EQ(sequential_checker.failed_index().value(), 1);
+  EXPECT_TRUE(sequential_checker.failed_delta().has_value());
+  EXPECT_EQ(sequential_checker.failed_delta().value(), 0.123);
 }

@@ -39,10 +39,12 @@ bool MultiCheckerSequential::CheckIfConverged(
                                     *previous_group_flux_ptr)) {
       failed_index_ = current_index;
       is_converged_ = false;
+      failed_delta_ = checker_->delta();
       return false;
     }
   }
   failed_index_ = std::nullopt;
+  failed_delta_ = std::nullopt;
   is_converged_ = true;
   return true;
 }
