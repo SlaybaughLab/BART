@@ -16,6 +16,8 @@ namespace flux {
 
 class SingleChecker : public SingleCheckerI {
  public:
+  SingleChecker() = default;
+  explicit SingleChecker(double max_delta) : max_delta_(max_delta) {}
   virtual ~SingleChecker() = default;
   bool is_converged() const override { return is_converged_; };
   void SetMaxDelta(double to_set) override { max_delta_ = to_set; };

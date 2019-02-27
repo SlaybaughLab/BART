@@ -6,10 +6,6 @@ namespace convergence {
 
 namespace flux {
 
-SingleCheckerL1Norm::SingleCheckerL1Norm(double max_delta) {
-  max_delta_ = max_delta;
-}
-
 bool SingleCheckerL1Norm::CheckIfConverged(data::Flux &current_iteration,
                                                 data::Flux &previous_iteration) {
   data::Flux difference{current_iteration};
