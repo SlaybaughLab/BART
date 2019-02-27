@@ -1,4 +1,4 @@
-#include "single_checker_delta_l1_norm.h"
+#include "single_checker_l1_norm.h"
 
 namespace bart {
 
@@ -6,7 +6,7 @@ namespace convergence {
 
 namespace flux {
 
-bool SingleCheckerDeltaL1Norm::CheckIfConverged(data::Flux &current_iteration,
+bool SingleCheckerL1Norm::CheckIfConverged(data::Flux &current_iteration,
                                                 data::Flux &previous_iteration) {
   data::Flux difference{current_iteration};
   difference -= previous_iteration;
