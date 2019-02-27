@@ -15,6 +15,7 @@ namespace flux {
 class SingleCheckerL1Norm : public SingleChecker {
  public:
   SingleCheckerL1Norm() = default;
+  explicit SingleCheckerL1Norm(double max_delta);
   ~SingleCheckerL1Norm() = default;
   bool CheckIfConverged(data::Flux &current_iteration,
                         data::Flux &previous_iteration) override;

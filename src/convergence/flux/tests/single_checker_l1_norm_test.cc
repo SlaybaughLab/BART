@@ -9,7 +9,7 @@
 
 class SingleCheckerL1NormTest : public ::testing::Test {
  protected:
-  bart::convergence::flux::SingleCheckerL1Norm test_convergence;
+  bart::convergence::flux::SingleCheckerL1Norm test_convergence{1e-6};
   bart::data::Flux flux_one;
   bart::data::Flux flux_two;
   void SetUp() override;
