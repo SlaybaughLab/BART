@@ -42,5 +42,11 @@ TEST_F(ConvergenceFinalFluxTest, BadMaxIterations) {
   EXPECT_ANY_THROW(flux_tester.SetMaxIterations(0));
   EXPECT_ANY_THROW(flux_tester.SetMaxIterations(-1));
 }
+
+TEST_F(ConvergenceFinalFluxTest, GiveMultiChecker) {
+  MockToPointer();
+  flux_tester.ProvideMultiChecker(multi_checker_ptr);
+  EXPECT_EQ(multi_checker_ptr, nullptr);
+}
   
 
