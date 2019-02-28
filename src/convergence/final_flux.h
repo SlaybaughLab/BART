@@ -16,7 +16,7 @@ class FinalFlux : public Final, private utility::Uncopyable {
   FinalFlux() = default;
   ~FinalFlux() = default;
 
-  Status CheckFinalConvergence() override { return convergence_status_; };
+  Status CheckFinalConvergence() override;
 };
 
 } // namespace convergence
