@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "../../data/vector_parameters.h"
+#include "data/vector_parameters.h"
 
 namespace bart {
 
