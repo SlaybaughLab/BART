@@ -3,6 +3,8 @@
 
 #include <optional>
 
+#include "convergence/status.h"
+
 namespace bart {
 
 namespace convergence {
@@ -13,14 +15,6 @@ namespace convergence {
 
 class FinalI {
  public:
-  /*! Contains the status of a convergence check */
-  struct Status {
-    int iteration_number = 0;
-    int max_iterations = 0;
-    bool is_complete = false;
-    std::optional<int> failed_index = std::nullopt;
-    std::optional<double> delta = std::nullopt;
-  };
   virtual ~FinalI() = default;
   virtual Status CheckFinalConvergence();
   virtual Status convergence_status() const;
