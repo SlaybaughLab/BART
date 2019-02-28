@@ -13,7 +13,20 @@ using ::testing::_;
 class ConvergenceFinalFluxTest : public ::testing::Test {
  protected:
   bart::convergence::FinalFlux flux_tester;
+  std::unique_ptr<bart::convergence::flux::MultiCheckerI> multi_checker_ptr;
+  std::unique_ptr<bart::convergence::flux::MultiCheckerMock> mock_multi_checker;
+  void SetUp();
+  void MockToPointer();
 };
+
+void ConvergenceFinalFluxTest::SetUp() {
+  mock_multi_checker =
+      std::make_unique<bart::convergence::flux::MultiCheckerMock>();
+}
+
+void ConvergenceFinalFluxTest::MockToPointer() {
+  multi_checker_ptr = std::move(mock_multi_checker);
+}
 
 TEST_F(ConvergenceFinalFluxTest, DefaultStatus) {
   bart::convergence::Status status;
@@ -24,3 +37,4 @@ TEST_F(ConvergenceFinalFluxTest, DefaultStatus) {
   ASSERT_FALSE(status.failed_index.has_value());
   ASSERT_FALSE(status.delta.has_value());
 }
+
