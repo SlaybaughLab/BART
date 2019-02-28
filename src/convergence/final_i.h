@@ -22,8 +22,9 @@ class FinalI {
   };
   virtual ~FinalI() = default;
   virtual Status CheckFinalConvergence();
-  virtual Status convergence_status();
-  virtual bool   convergence_is_complete();
+  virtual Status convergence_status() const;
+  virtual bool   convergence_is_complete() const;
+  virtual int    max_iterations() const;
   virtual void   SetMaxIterations(int to_set);
 };
 
