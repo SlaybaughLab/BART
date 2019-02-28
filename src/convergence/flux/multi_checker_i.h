@@ -4,8 +4,8 @@
 #include <memory>
 #include <optional>
 
-#include "../../data/vector_parameters.h"
-#include "single_checker_i.h"
+#include "data/vector_parameters.h"
+#include "convergence/flux/single_checker_i.h"
 
 namespace bart {
 

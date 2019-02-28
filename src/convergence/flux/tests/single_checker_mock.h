@@ -1,11 +1,10 @@
-#ifndef BART_SRC_CONVERGENCE_TESTS_FLUX_CHECKER_MOCK_H_
-#define BART_SRC_CONVERGENCE_TESTS_FLUX_CHECKER_MOCK_H_
-
-#include "../single_checker_i.h"
+#ifndef BART_SRC_CONVERGENCE_FLUX_TESTS_SINGLE_CHECKER_MOCK_H_
+#define BART_SRC_CONVERGENCE_FLUX_TESTS_SINGLE_CHECKER_MOCK_H_
 
 #include <optional>
 
-#include "../../../test_helpers/gmock_wrapper.h"
+#include "convergence/flux/single_checker_i.h"
+#include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
 
@@ -28,4 +27,4 @@ class SingleCheckerMock : public SingleCheckerI {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_TESTS_FLUX_CHECKER_MOCK_H_
+#endif // BART_SRC_CONVERGENCE_FLUX_TESTS_SINGLE_CHECKER_MOCK_H_
