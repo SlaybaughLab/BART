@@ -7,6 +7,7 @@
 #include "../../data/vector_parameters.h"
 #include "multi_checker_i.h"
 #include "single_checker_i.h"
+#include "../../utility/uncopyable.h"
 
 namespace bart {
 
@@ -16,8 +17,9 @@ namespace flux {
 
 /*! \brief Checks that all fluxes have converged */
 
-class MultiChecker : public MultiCheckerI{
+class MultiChecker : public MultiCheckerI, private utility::Uncopyable {
  public:
+  MultiChecker() = default;
   ~MultiChecker() = default;
   void ProvideChecker(std::unique_ptr<SingleCheckerI> &checker) {
     checker_ = std::move(checker); };
