@@ -4,13 +4,16 @@
 #include <optional>
 
 #include "convergence/final_i.h"
+#include "convergence/status.h"
 
 namespace bart {
 
 namespace convergence {
 
 class Final : public FinalI {
- public:  
+ public:
+  Final() = default;
+  virtual ~Final() = default;
   Status convergence_status() const override { return convergence_status_; };
   bool   convergence_is_complete() const override {
     return convergence_is_complete_; };

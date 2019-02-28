@@ -16,11 +16,11 @@ namespace convergence {
 class FinalI {
  public:
   virtual ~FinalI() = default;
-  virtual Status CheckFinalConvergence();
-  virtual Status convergence_status() const;
-  virtual bool   convergence_is_complete() const;
-  virtual int    max_iterations() const;
-  virtual void   SetMaxIterations(int to_set);
+  virtual Status CheckFinalConvergence() = 0;
+  virtual Status convergence_status() const = 0;
+  virtual bool   convergence_is_complete() const = 0;
+  virtual int    max_iterations() const = 0;
+  virtual void   SetMaxIterations(int to_set) = 0;
 };
 
 } // namespace convergence
