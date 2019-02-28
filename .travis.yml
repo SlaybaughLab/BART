@@ -9,16 +9,16 @@ services:
  - docker
 
 before_install:
- - sudo docker pull jsrehak/bart
+ - sudo docker pull jsrehak/bart:ubuntu18
  - ci_env=`bash <(curl -s https://codecov.io/env)`
 
 install:
- - sudo docker run jsrehak/bart
+ - sudo docker run jsrehak/bart:ubuntu18
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker cp ../BART $id:/home/dealii
+ - sudo docker cp ../BART $id:/home/bart
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker commit $id jsrehak/bart
- - sudo docker run $ci_env -it -u="root" -d -w="/home/dealii/BART" --name bart jsrehak/bart
+ - sudo docker commit $id jsrehak/bart:ubuntu18
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/bart/BART" --name bart jsrehak/bart:ubuntu18
 
 script:
  - docker exec bart cmake .
@@ -28,5 +28,5 @@ script:
 
 after_success:
  - docker exec bart bash -c "./coverage.sh"
- - docker cp bart:/home/dealii/BART/coverage.info .
+ - docker cp bart:/home/bart/BART/coverage.info .
  - bash <(curl -s https://codecov.io/bash)
