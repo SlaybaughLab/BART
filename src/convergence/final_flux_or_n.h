@@ -1,5 +1,5 @@
-#ifndef BART_SRC_CONVERGENCE_FINAL_FLUX_H_
-#define BART_SRC_CONVERGENCE_FINAL_FLUX_H_
+#ifndef BART_SRC_CONVERGENCE_FINAL_FLUX_OR_N_H_
+#define BART_SRC_CONVERGENCE_FINAL_FLUX_OR_N_H_
 
 #include <memory>
 
@@ -21,14 +21,13 @@ namespace convergence {
  * iterations are reached.
  *
  */
-class FinalFlux : public Final, private utility::Uncopyable {
+class FinalFluxOrN : public Final, private utility::Uncopyable {
  public:
-  FinalFlux(std::unique_ptr<flux::MultiCheckerI> checker,
+  FinalFluxOrN(std::unique_ptr<flux::MultiCheckerI> checker,
             std::shared_ptr<data::SystemFluxes> fluxes)
       : checker_(std::move(checker)),
         fluxes_(fluxes) {};
-  ~FinalFlux() = default;
-
+  ~FinalFluxOrN() = default;
 
   Status CheckFinalConvergence() override;
  private:
@@ -40,4 +39,4 @@ class FinalFlux : public Final, private utility::Uncopyable {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_FINAL_FLUX_H_
+#endif // BART_SRC_CONVERGENCE_FINAL_FLUX_OR_N_H_

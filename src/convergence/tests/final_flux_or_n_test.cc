@@ -1,4 +1,4 @@
-#include "convergence/final_flux.h"
+#include "convergence/final_flux_or_n.h"
 
 #include <memory>
 #include <optional>
@@ -11,7 +11,7 @@
 
 using ::testing::_;
 
-class ConvergenceFinalFluxTest : public ::testing::Test {
+class ConvergenceFinalFluxOrNTest : public ::testing::Test {
  protected:
   std::unique_ptr<bart::convergence::flux::MultiCheckerI> multi_checker_ptr;
   std::unique_ptr<bart::convergence::flux::MultiCheckerMock> mock_multi_checker;
@@ -20,18 +20,18 @@ class ConvergenceFinalFluxTest : public ::testing::Test {
   void MockToPointer();
 };
 
-void ConvergenceFinalFluxTest::SetUp() {
+void ConvergenceFinalFluxOrNTest::SetUp() {
   mock_multi_checker =
       std::make_unique<bart::convergence::flux::MultiCheckerMock>();
   system_fluxes = std::make_shared<bart::data::SystemFluxes>();
 }
 
-void ConvergenceFinalFluxTest::MockToPointer() {
+void ConvergenceFinalFluxOrNTest::MockToPointer() {
   multi_checker_ptr = std::move(mock_multi_checker);
 }
 
-TEST_F(ConvergenceFinalFluxTest, DefaultStatus) {
-  bart::convergence::FinalFlux flux_tester(std::move(mock_multi_checker),
+TEST_F(ConvergenceFinalFluxOrNTest, DefaultStatus) {
+  bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker),
                                            system_fluxes);
   bart::convergence::Status status;
   status = flux_tester.convergence_status();
@@ -42,13 +42,13 @@ TEST_F(ConvergenceFinalFluxTest, DefaultStatus) {
   ASSERT_FALSE(status.delta.has_value());
 }
 
-// TEST_F(ConvergenceFinalFluxTest, BadMaxIterations) {
+// TEST_F(ConvergenceFinalFluxOrNTest, BadMaxIterations) {
 //   EXPECT_ANY_THROW(flux_tester.SetMaxIterations(0));
 //   EXPECT_ANY_THROW(flux_tester.SetMaxIterations(-1));
 // }
 
-// TEST_F(ConvergenceFinalFluxTest, GiveMultiChecker) {
-//   bart::convergence::FinalFlux flux_tester(mock_multi_checker,
+// TEST_F(ConvergenceFinalFluxOrNTest, GiveMultiChecker) {
+//   bart::convergence::FinalFluxOrN flux_tester(mock_multi_checker,
 //                                            system_fluxes);
 //   EXPECT_EQ(multi_checker_ptr, nullptr);
 // }

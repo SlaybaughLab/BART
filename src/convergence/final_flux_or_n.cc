@@ -1,10 +1,10 @@
-#include "convergence/final_flux.h"
+#include "convergence/final_flux_or_n.h"
 
 namespace bart {
 
 namespace convergence {
 
-Status FinalFlux::CheckFinalConvergence() {
+Status FinalFluxOrN::CheckFinalConvergence() {
   return convergence_status_;
 }
 
