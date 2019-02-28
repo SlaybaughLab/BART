@@ -10,6 +10,8 @@ namespace bart {
 
 namespace data {
 
+struct SystemFluxes;
+
 using Flux = dealii::PETScWrappers::MPI::Vector;
 using MultiFluxPtrs = std::map<int, std::unique_ptr<Flux>>;
 
