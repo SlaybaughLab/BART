@@ -4,16 +4,13 @@
 #include <optional>
 
 #include "convergence/final_i.h"
-#include "utility/uncopyable.h"
 
 namespace bart {
 
 namespace convergence {
 
-class Final : public FinalI : private Uncopyable {
- public:
-
-  
+class Final : public FinalI {
+ public:  
   Status convergence_status() const override { return convergence_status_ };
   bool   convergence_is_complete() const override {
     return convergence_is_complete_; };
