@@ -11,7 +11,7 @@ namespace bart {
 
 namespace data {
 
-struct SystemFluxes : private Uncopyable {
+struct SystemFluxes : private utility::Uncopyable {
   MultiFluxPtrs current_iteration;
   MultiFluxPtrs previous_iteration;
 };
