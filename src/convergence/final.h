@@ -11,7 +11,7 @@ namespace convergence {
 
 class Final : public FinalI {
  public:  
-  Status convergence_status() const override { return convergence_status_ };
+  Status convergence_status() const override { return convergence_status_; };
   bool   convergence_is_complete() const override {
     return convergence_is_complete_; };
   int    max_iterations() const override { return max_iterations_; };

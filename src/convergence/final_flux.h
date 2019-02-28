@@ -10,7 +10,7 @@ namespace bart {
 
 namespace convergence {
 
-class FinalFlux : public Final, private Uncopyable {
+class FinalFlux : public Final, private utility::Uncopyable {
  public:
   FinalFlux() = default;
   ~FinalFlux() = default;

@@ -12,6 +12,7 @@ namespace convergence {
  */
 
 class FinalI {
+ public:
   /*! Contains the status of a convergence check */
   struct Status {
     int iteration_number = 0;
