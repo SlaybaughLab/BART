@@ -1,13 +1,13 @@
-#include "../multi_checker_sequential.h"
+#include "convergence/flux/multi_checker_sequential.h"
 
 #include <memory>
 #include <optional>
 
 #include <deal.II/lac/petsc_parallel_vector.h>
 
-#include "../../../test_helpers/test_helper_functions.h"
-#include "../../../test_helpers/gmock_wrapper.h"
-#include "single_checker_mock.h"
+#include "test_helpers/test_helper_functions.h"
+#include "test_helpers/gmock_wrapper.h"
+#include "convergence/flux/tests/single_checker_mock.h"
 
 using ::testing::_;
 
