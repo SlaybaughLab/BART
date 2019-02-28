@@ -10,7 +10,7 @@ namespace convergence {
 /*! Contains the status of a convergence check */
 struct Status {
   int iteration_number = 0;
-  int max_iterations = 0;
+  int max_iterations = 1;
   bool is_complete = false;
   std::optional<int> failed_index = std::nullopt;
   std::optional<double> delta = std::nullopt;
