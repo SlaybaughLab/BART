@@ -38,3 +38,9 @@ TEST_F(ConvergenceFinalFluxTest, DefaultStatus) {
   ASSERT_FALSE(status.delta.has_value());
 }
 
+TEST_F(ConvergenceFinalFluxTest, BadMaxIterations) {
+  EXPECT_ANY_THROW(flux_tester.SetMaxIterations(0));
+  EXPECT_ANY_THROW(flux_tester.SetMaxIterations(-1));
+}
+  
+

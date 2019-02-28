@@ -18,7 +18,7 @@ class Final : public FinalI {
   bool   convergence_is_complete() const override {
     return convergence_is_complete_; };
   int    max_iterations() const override { return max_iterations_; };
-  void   SetMaxIterations(int to_set) override { max_iterations_ = to_set; };
+  void   SetMaxIterations(int to_set) override;
  protected:
   Status convergence_status_;
   bool   convergence_is_complete_ = false;
