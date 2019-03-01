@@ -22,8 +22,8 @@ class FinalI {
   virtual bool   convergence_is_complete() const = 0;
   virtual IterationNumber max_iterations() const = 0;
   virtual IterationNumber iteration() const = 0;
-  virtual void SetMaxIterations(IterationNumber to_set) = 0;
-  virtual void SetIteration(IterationNumber to_set) = 0;
+  virtual FinalI& SetMaxIterations(IterationNumber to_set) = 0;
+  virtual FinalI& SetIteration(IterationNumber to_set) = 0;
 };
 
 } // namespace convergence

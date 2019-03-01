@@ -20,8 +20,8 @@ class Final : public FinalI {
     return convergence_is_complete_; };
   IterationNumber max_iterations() const override { return max_iterations_; };
   IterationNumber iteration() const override { return iteration_; };
-  void SetMaxIterations(IterationNumber to_set) override;
-  void SetIteration(IterationNumber to_set) override;
+  Final& SetMaxIterations(IterationNumber to_set) override;
+  Final& SetIteration(IterationNumber to_set) override;
  protected:
   Status convergence_status_;
   bool convergence_is_complete_ = false;
