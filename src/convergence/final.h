@@ -17,12 +17,12 @@ class Final : public FinalI {
   Status convergence_status() const override { return convergence_status_; };
   bool   convergence_is_complete() const override {
     return convergence_is_complete_; };
-  int    max_iterations() const override { return max_iterations_; };
-  void   SetMaxIterations(int to_set) override;
+  IterationNumber max_iterations() const override { return max_iterations_; };
+  void   SetMaxIterations(IterationNumber to_set) override;
  protected:
   Status convergence_status_;
-  bool   convergence_is_complete_ = false;
-  int    max_iterations_ = 1;
+  bool convergence_is_complete_ = false;
+  IterationNumber max_iterations_ = 1;
 };
 
 } // namespace convergence
