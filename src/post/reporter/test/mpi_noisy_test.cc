@@ -2,6 +2,7 @@
 
 #include <deal.II/base/conditional_ostream.h>
 
+#include "convergence/status.h"
 #include "test_helpers/gmock_wrapper.h"
 
 class ReporterMpiNoisyTest : public ::testing::Test {
@@ -28,4 +29,16 @@ TEST_F(ReporterMpiNoisyTest, StringReport) {
   std::string to_report = "report me";
   reporter.Report(to_report);
   EXPECT_EQ(string_stream.str(), to_report);
+}
+
+TEST_F(ReporterMpiNoisyTest, ConvergenceReport) {
+  bart::post::reporter::MpiNoisy reporter(std::move(pout_ptr));
+  bart::convergence::Status to_report;
+  to_report.iteration_number = 12;
+  to_report.max_iterations = 100;
+  to_report.delta = 1e-4;
+  to_report.failed_index = 4;
+  reporter.Report(to_report);
+  EXPECT_EQ(string_stream.str(),
+      "Iteration: 12/100\tdelta: 0.0001\tidx: 4\n");
 }

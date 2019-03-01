@@ -24,7 +24,7 @@ class MpiNoisy : public MpiI, private utility::Uncopyable {
       : pout_ptr_(std::move(pout_ptr)) {};
   ~MpiNoisy() = default;
 
-  void Report(const bart::convergence::Status &to_report) override {}
+  void Report(const bart::convergence::Status &to_report) override;
   void Report(const std::string &to_report) override {
     *pout_ptr_ << to_report;
   }
@@ -38,7 +38,6 @@ class MpiNoisy : public MpiI, private utility::Uncopyable {
 
 
 };
-
 } // namespace reporter
 
 } // namespace post
