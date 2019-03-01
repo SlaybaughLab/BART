@@ -6,7 +6,7 @@
 #include "convergence/final.h"
 #include "convergence/status.h"
 #include "convergence/flux/multi_checker_i.h"
-#include "data/forward_declarations.h"
+#include "data/system_fluxes.h"
 #include "utility/uncopyable.h"
 
 namespace bart {
