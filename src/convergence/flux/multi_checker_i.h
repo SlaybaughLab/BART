@@ -29,7 +29,7 @@ class MultiCheckerI {
   virtual std::optional<int> failed_index() const = 0;
 
   /* \brief Returns the delta of the flux that failed convergence check */
-  virtual std::optional<double> failed_delta() const = 0;
+  virtual std::optional<double> delta() const = 0;
 };
 
 } // namespace flux

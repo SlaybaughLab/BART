@@ -16,7 +16,7 @@ class MultiCheckerMock : public MultiCheckerI {
                                       data::MultiFluxPtrs &previous_iteration));
   MOCK_CONST_METHOD0(is_converged, bool());
   MOCK_CONST_METHOD0(failed_index, std::optional<int>());
-  MOCK_CONST_METHOD0(failed_delta, std::optional<double>());
+  MOCK_CONST_METHOD0(delta, std::optional<double>());
 };
 
 

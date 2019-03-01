@@ -63,8 +63,8 @@ TEST_F(ConvergenceFinalFluxOrNTest, BadIterations) {
 TEST_F(ConvergenceFinalFluxOrNTest, Convergence) {
   EXPECT_CALL(*mock_multi_checker_ptr, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true));
-  EXPECT_CALL(*mock_multi_checker_ptr, failed_delta()).
-      WillOnce(::testing::Return(std::nullopt));
+  EXPECT_CALL(*mock_multi_checker_ptr, delta()).
+      WillOnce(::testing::Return(1e-7));
   EXPECT_CALL(*mock_multi_checker_ptr, failed_index()).
       WillOnce(::testing::Return(std::nullopt));
 
@@ -76,7 +76,7 @@ TEST_F(ConvergenceFinalFluxOrNTest, Convergence) {
   EXPECT_TRUE(status.is_complete);
   EXPECT_EQ(status.iteration_number, 1);
   EXPECT_FALSE(status.failed_index.has_value());
-  EXPECT_FALSE(status.delta.has_value());
+  EXPECT_DOUBLE_EQ(status.delta.value(), 1e-7);
 }
 
 /* Checks for proper handling of the Multichecker returning a status of
@@ -86,7 +86,7 @@ TEST_F(ConvergenceFinalFluxOrNTest, NoConvergence) {
       WillOnce(::testing::Return(false));
   EXPECT_CALL(*mock_multi_checker_ptr, failed_index()).
       WillOnce(::testing::Return(std::make_optional(2)));
-  EXPECT_CALL(*mock_multi_checker_ptr, failed_delta()).
+  EXPECT_CALL(*mock_multi_checker_ptr, delta()).
       WillOnce(::testing::Return(std::make_optional(1.3)));
 
   bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker_ptr),
@@ -106,7 +106,7 @@ TEST_F(ConvergenceFinalFluxOrNTest, MaxIterNoConvergence) {
       WillOnce(::testing::Return(false));
   ON_CALL(*nice_mock_multi_checker_ptr, failed_index()).
       WillByDefault(::testing::Return(std::make_optional(2)));
-  ON_CALL(*nice_mock_multi_checker_ptr, failed_delta()).
+  ON_CALL(*nice_mock_multi_checker_ptr, delta()).
       WillByDefault(::testing::Return(std::make_optional(1.3)));
 
   bart::convergence::FinalFluxOrN flux_tester(
@@ -123,7 +123,7 @@ TEST_F(ConvergenceFinalFluxOrNTest, MaxIterNoConvergence) {
 TEST_F(ConvergenceFinalFluxOrNTest, MaxIterConvergence) {
   EXPECT_CALL(*mock_multi_checker_ptr, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true));
-  EXPECT_CALL(*mock_multi_checker_ptr, failed_delta()).
+  EXPECT_CALL(*mock_multi_checker_ptr, delta()).
       WillOnce(::testing::Return(std::nullopt));
   EXPECT_CALL(*mock_multi_checker_ptr, failed_index()).
       WillOnce(::testing::Return(std::nullopt));

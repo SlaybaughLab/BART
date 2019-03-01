@@ -20,7 +20,7 @@ namespace convergence {
  * compare the current and previous flux iterations contained in a
  * \ref bart::data::SystemFluxes object. Will also return a state of converged
  * if iterations are reached.
-*
+ *
  * \param checker a pointer to a \ref bart::convergence::flux::MultiCheckerI
  * object, this class takes ownership of the object.
  *
