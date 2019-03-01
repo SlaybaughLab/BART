@@ -52,7 +52,6 @@ TEST_F(ConvergenceFinalFluxOrNTest, BadMaxIterations) {
 TEST_F(ConvergenceFinalFluxOrNTest, BadIterations) {
   bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker_ptr),
                                               system_fluxes);
-  EXPECT_ANY_THROW(flux_tester.SetIteration(0));
   EXPECT_ANY_THROW(flux_tester.SetIteration(-1));
 }
 
@@ -61,9 +60,14 @@ TEST_F(ConvergenceFinalFluxOrNTest, BadIterations) {
 TEST_F(ConvergenceFinalFluxOrNTest, Convergence) {
   EXPECT_CALL(*mock_multi_checker_ptr, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true));
+  EXPECT_CALL(*mock_multi_checker_ptr, failed_delta()).
+      WillOnce(::testing::Return(std::nullopt));
+  EXPECT_CALL(*mock_multi_checker_ptr, failed_index()).
+      WillOnce(::testing::Return(std::nullopt));
 
   bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker_ptr),
                                               system_fluxes);
+
   flux_tester.SetMaxIterations(5).SetIteration(0);
   auto status = flux_tester.CheckFinalConvergence();
   EXPECT_TRUE(status.is_complete);
@@ -116,6 +120,10 @@ TEST_F(ConvergenceFinalFluxOrNTest, MaxIterNoConvergence) {
 TEST_F(ConvergenceFinalFluxOrNTest, MaxIterConvergence) {
   EXPECT_CALL(*mock_multi_checker_ptr, CheckIfConverged(_,_)).
       WillOnce(::testing::Return(true));
+  EXPECT_CALL(*mock_multi_checker_ptr, failed_delta()).
+      WillOnce(::testing::Return(std::nullopt));
+  EXPECT_CALL(*mock_multi_checker_ptr, failed_index()).
+      WillOnce(::testing::Return(std::nullopt));
 
   bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker_ptr),
                                               system_fluxes);
