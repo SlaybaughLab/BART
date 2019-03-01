@@ -40,6 +40,9 @@ TEST_F(ConvergenceFinalFluxOrNTest, DefaultStatus) {
   ASSERT_FALSE(status.is_complete);
   ASSERT_FALSE(status.failed_index.has_value());
   ASSERT_FALSE(status.delta.has_value());
+  ASSERT_EQ(status.iteration_number, flux_tester.iteration());
+  ASSERT_EQ(status.max_iterations, flux_tester.max_iterations());
+  ASSERT_EQ(status.is_complete, flux_tester.convergence_is_complete());
 }
 
 TEST_F(ConvergenceFinalFluxOrNTest, BadMaxIterations) {
