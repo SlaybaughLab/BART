@@ -13,22 +13,41 @@ namespace convergence {
 
 namespace flux {
 
-/*! \brief Checks that all fluxes have converged */
-
+/*! \brief Checks that all fluxes have converged.
+ *
+ * Fluxes are passed via data::MultiFluxPtrs, for the current and previous
+ * iteration.
+ * */
 class MultiCheckerI {
  public:
   virtual ~MultiCheckerI() = default;
-  /*! \brief Check for convergence of all fluxes provided */
+
+  /*! \brief Identifies if all fluxes provided have converged.
+   *
+   * \param current_iteration fluxes for the current iteration
+   * \param previous_iteration fluxes for the previous iteration
+   * \return bool indicating status of convergence
+   */
   virtual bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
                                 data::MultiFluxPtrs &previous_iteration) = 0;
   
-  /* \brief Returns status of convergence (from last call to CheckIfConverged) */
+  /*! \brief Returns status of previous call to CheckIfConverged
+   *
+   * \return bool indicating if convergence is reached.
+   */
   virtual bool is_converged() const = 0;
 
-  /* \brief Returns the index of the flux that failed convergence check */
+  /*! \brief Identifies the index that caused the convergence check to fail.
+   *
+   * \return failed index via std::optional<int>, will be empty if converged or
+   * other error.
+   */
   virtual std::optional<int> failed_index() const = 0;
 
-  /* \brief Returns the delta of the flux that failed convergence check */
+  /*! \brief Returns the delta that resulted in failed convergence.
+   *
+   * \return delta via std::optional<double>, will be empty if no delta.
+   */
   virtual std::optional<double> delta() const = 0;
 };
 

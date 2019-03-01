@@ -15,7 +15,9 @@ namespace convergence {
 
 namespace flux {
 
-/*! \brief Checks that all fluxes have converged */
+/*! \brief Implementation of most getting and setting base class funtions for
+ * convergence::flux::MultiCheckerI objects.
+ */
 
 class MultiChecker : public MultiCheckerI, private utility::Uncopyable {
  public:
