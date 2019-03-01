@@ -24,15 +24,11 @@ void ConvergenceFinalFluxOrNTest::SetUp() {
   mock_multi_checker =
       std::make_unique<bart::convergence::flux::MultiCheckerMock>();
   system_fluxes = std::make_shared<bart::data::SystemFluxes>();
-}
-
-void ConvergenceFinalFluxOrNTest::MockToPointer() {
-  multi_checker_ptr = std::move(mock_multi_checker);
-}
+}    
 
 TEST_F(ConvergenceFinalFluxOrNTest, DefaultStatus) {
   bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker),
-                                           system_fluxes);
+                                              system_fluxes);
   bart::convergence::Status status;
   status = flux_tester.convergence_status();
   ASSERT_EQ(status.iteration_number, 0);
@@ -42,15 +38,11 @@ TEST_F(ConvergenceFinalFluxOrNTest, DefaultStatus) {
   ASSERT_FALSE(status.delta.has_value());
 }
 
-// TEST_F(ConvergenceFinalFluxOrNTest, BadMaxIterations) {
-//   EXPECT_ANY_THROW(flux_tester.SetMaxIterations(0));
-//   EXPECT_ANY_THROW(flux_tester.SetMaxIterations(-1));
-// }
-
-// TEST_F(ConvergenceFinalFluxOrNTest, GiveMultiChecker) {
-//   bart::convergence::FinalFluxOrN flux_tester(mock_multi_checker,
-//                                            system_fluxes);
-//   EXPECT_EQ(multi_checker_ptr, nullptr);
-// }
+TEST_F(ConvergenceFinalFluxOrNTest, BadMaxIterations) {
+  bart::convergence::FinalFluxOrN flux_tester(std::move(mock_multi_checker),
+                                              system_fluxes);
+  EXPECT_ANY_THROW(flux_tester.SetMaxIterations(0));
+  EXPECT_ANY_THROW(flux_tester.SetMaxIterations(-1));
+}
   
 
