@@ -20,7 +20,7 @@ namespace convergence {
  * compare the current and previous flux iterations contained in a
  * \ref bart::data::SystemFluxes object. Will also return a state of converged if
  * iterations are reached.
- *
+*
  * \param checker a pointer to a \ref bart::convergence::flux::MultiCheckerI
  * object, this class takes ownership of the object.
  *
@@ -30,9 +30,7 @@ namespace convergence {
 class FinalFluxOrN : public Final, private utility::Uncopyable {
  public:
   FinalFluxOrN(std::unique_ptr<flux::MultiCheckerI> checker,
-            std::shared_ptr<data::SystemFluxes> fluxes)
-      : checker_(std::move(checker)),
-        fluxes_(fluxes) {};
+            std::shared_ptr<data::SystemFluxes> fluxes);
   ~FinalFluxOrN() = default;
 
   Status CheckFinalConvergence() override;
