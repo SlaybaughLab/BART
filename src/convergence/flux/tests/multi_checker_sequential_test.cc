@@ -87,7 +87,9 @@ TEST_F(MultiCheckerSequentialTest, GoodMatch) {
   // Verify good match
   EXPECT_CALL(*checker_mock, CheckIfConverged(_,_)).
       WillRepeatedly(::testing::Return(true));
-  
+  EXPECT_CALL(*checker_mock, delta()).
+      WillOnce(::testing::Return(std::make_optional(0.123)));
+
   MocksToPointers();
   sequential_checker.ProvideChecker(checker_ptr);
   
@@ -96,8 +98,9 @@ TEST_F(MultiCheckerSequentialTest, GoodMatch) {
 
   EXPECT_TRUE(sequential_checker.CheckIfConverged(current, previous));
   EXPECT_TRUE(sequential_checker.is_converged());
+  EXPECT_TRUE(sequential_checker.failed_delta().has_value());
   EXPECT_FALSE(sequential_checker.failed_index().has_value());
-  EXPECT_FALSE(sequential_checker.failed_delta().has_value());
+  EXPECT_DOUBLE_EQ(sequential_checker.failed_delta().value(), 0.123);
 }
 
 TEST_F(MultiCheckerSequentialTest, BadGroupMatch) {
