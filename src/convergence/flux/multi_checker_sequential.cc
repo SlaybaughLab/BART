@@ -44,7 +44,7 @@ bool MultiCheckerSequential::CheckIfConverged(
     }
   }
   failed_index_ = std::nullopt;
-  delta_ = std::nullopt;
+  delta_ = checker_->delta();
   is_converged_ = true;
   return true;
 }
