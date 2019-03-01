@@ -15,18 +15,22 @@ class Final : public FinalI {
   Final() = default;
   virtual ~Final() = default;
 
-  Status convergence_status() const override { return convergence_status_; };
+  Status convergence_status() const override {
+      return convergence_status_; };
+
   bool   convergence_is_complete() const override {
-    return convergence_is_complete_; };
-  IterationNumber max_iterations() const override { return max_iterations_; };
-  IterationNumber iteration() const override { return iteration_; };
+    return convergence_status_.is_complete; };
+
+  IterationNumber max_iterations() const override {
+      return convergence_status_.max_iterations; };
+
+  IterationNumber iteration() const override {
+      return convergence_status_.iteration_number; };
+
   Final& SetMaxIterations(IterationNumber to_set) override;
   Final& SetIteration(IterationNumber to_set) override;
  protected:
   Status convergence_status_;
-  bool convergence_is_complete_ = false;
-  IterationNumber max_iterations_ = 1;
-  IterationNumber iteration_ = 0;
 };
 
 } // namespace convergence
