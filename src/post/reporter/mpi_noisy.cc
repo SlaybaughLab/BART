@@ -14,6 +14,8 @@ void MpiNoisy::Report(const bart::convergence::Status &to_report) {
   *pout_ptr_ << status_report.str();
 }
 
+}
+
 } // namespace reporter
 
 } // namespace post

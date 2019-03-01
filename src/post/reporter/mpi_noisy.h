@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <deal.II/base/conditional_ostream.h>
+#include <ostream>
 
 #include "post/reporter/mpi_i.h"
 #include "utility/uncopyable.h"
@@ -28,10 +29,6 @@ class MpiNoisy : public MpiI, private utility::Uncopyable {
   void Report(const std::string &to_report) override {
     *pout_ptr_ << to_report;
   }
-
-//  void Report(const bart::convergence::Status &to_report) {};
-//
-//  void Report(const std::string &to_report) {};
 
  private:
   std::unique_ptr<dealii::ConditionalOStream> pout_ptr_;
