@@ -13,10 +13,6 @@ using ::testing::_;
 
 class MultiCheckerSequentialTest : public ::testing::Test {
  protected:
-
-  bart::convergence::flux::MultiCheckerSequential sequential_checker;
-  
-  std::unique_ptr<bart::convergence::flux::SingleCheckerI> checker_ptr;
   std::unique_ptr<bart::convergence::flux::SingleCheckerMock> checker_mock;
 
   bart::data::MultiFluxPtrs current;
@@ -25,10 +21,6 @@ class MultiCheckerSequentialTest : public ::testing::Test {
   void SetUp() override;
   void FillGroupFluxes(bart::data::MultiFluxPtrs &to_fill, int n_ptrs);
 
-  // Move the mock flux checker into the pointer
-  void MocksToPointers() {
-    checker_ptr = std::move(checker_mock);
-  };
 };
 /* Fills a MultiFluxPtrs object with n_ptrs random flux pointers */
 void MultiCheckerSequentialTest::FillGroupFluxes(
@@ -53,27 +45,24 @@ void MultiCheckerSequentialTest::SetUp() {
   checker_mock = std::make_unique<bart::convergence::flux::SingleCheckerMock>();
 }
 
-// Tests where there are no mock calls
-class MultiCheckerSeqTestEmptyMock : public MultiCheckerSequentialTest {
- protected:
-  bart::convergence::flux::MultiCheckerSequential sequential_checker;
-  void SetUp() override {
-    MocksToPointers();
-    sequential_checker.ProvideChecker(checker_ptr);
-  }
-};
 
-TEST_F(MultiCheckerSeqTestEmptyMock, Constructor) {
+TEST_F(MultiCheckerSequentialTest, Constructor) {
+  bart::convergence::flux::MultiCheckerSequential
+      sequential_checker(std::move(checker_mock));
   // Verify constructor took ownership of the checker pointer
-  EXPECT_EQ(checker_ptr, nullptr);
+  EXPECT_EQ(checker_mock, nullptr);
 }
 
-TEST_F(MultiCheckerSeqTestEmptyMock, EmptyGroups) {
+TEST_F(MultiCheckerSequentialTest, EmptyGroups) {
+  bart::convergence::flux::MultiCheckerSequential
+      sequential_checker(std::move(checker_mock));
   // Verify error thrown if empty fluxes provided
   EXPECT_ANY_THROW(sequential_checker.CheckIfConverged(current, previous));
 }
 
-TEST_F(MultiCheckerSeqTestEmptyMock, DifferentGroupSizes) {
+TEST_F(MultiCheckerSequentialTest, DifferentGroupSizes) {
+  bart::convergence::flux::MultiCheckerSequential
+      sequential_checker(std::move(checker_mock));
   // Verify error thrown if fluxes have different numbers of flux pointers
   FillGroupFluxes(current, 5);
   FillGroupFluxes(previous, 4);
@@ -84,14 +73,15 @@ TEST_F(MultiCheckerSeqTestEmptyMock, DifferentGroupSizes) {
 }
 
 TEST_F(MultiCheckerSequentialTest, GoodMatch) {
+
   // Verify good match
   EXPECT_CALL(*checker_mock, CheckIfConverged(_,_)).
       WillRepeatedly(::testing::Return(true));
   EXPECT_CALL(*checker_mock, delta()).
       WillOnce(::testing::Return(std::make_optional(0.123)));
 
-  MocksToPointers();
-  sequential_checker.ProvideChecker(checker_ptr);
+  bart::convergence::flux::MultiCheckerSequential
+      sequential_checker(std::move(checker_mock));
   
   FillGroupFluxes(current, 3);
   FillGroupFluxes(previous, 3);
@@ -107,9 +97,9 @@ TEST_F(MultiCheckerSequentialTest, BadGroupMatch) {
   // Verify error if group values are not the same
   EXPECT_CALL(*checker_mock, CheckIfConverged(_,_)).
       WillRepeatedly(::testing::Return(true));
-  
-  MocksToPointers();
-  sequential_checker.ProvideChecker(checker_ptr);
+
+  bart::convergence::flux::MultiCheckerSequential
+      sequential_checker(std::move(checker_mock));
   
   FillGroupFluxes(current, 3);
   FillGroupFluxes(previous, 3);
@@ -132,9 +122,9 @@ TEST_F(MultiCheckerSequentialTest, BadMatch) {
 
   EXPECT_CALL(*checker_mock, delta()).
       WillOnce(::testing::Return(std::make_optional(0.123)));
-  
-  MocksToPointers();
-  sequential_checker.ProvideChecker(checker_ptr);
+
+  bart::convergence::flux::MultiCheckerSequential
+      sequential_checker(std::move(checker_mock));
   
   FillGroupFluxes(current, 3);
   FillGroupFluxes(previous, 3);

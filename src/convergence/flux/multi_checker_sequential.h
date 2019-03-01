@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include "../../data/vector_parameters.h"
-#include "single_checker_i.h"
-#include "multi_checker.h"
+#include "convergence/flux/single_checker_i.h"
+#include "convergence/flux/multi_checker.h"
+#include "data/vector_parameters.h"
 
 
 namespace bart {
@@ -19,8 +19,8 @@ namespace flux {
 
 class MultiCheckerSequential : public MultiChecker {
  public:
-  MultiCheckerSequential() = default;
-  explicit MultiCheckerSequential(std::unique_ptr<SingleCheckerI> &checker);
+  explicit MultiCheckerSequential(std::unique_ptr<SingleCheckerI> checker)
+      : MultiChecker(std::move(checker)) {};
   ~MultiCheckerSequential() = default; 
   bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
                         data::MultiFluxPtrs &previous_iteration) override;

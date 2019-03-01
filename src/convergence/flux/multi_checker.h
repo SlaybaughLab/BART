@@ -4,10 +4,10 @@
 #include <memory>
 #include <optional>
 
-#include "../../data/vector_parameters.h"
-#include "multi_checker_i.h"
-#include "single_checker_i.h"
-#include "../../utility/uncopyable.h"
+#include "convergence/flux/multi_checker_i.h"
+#include "convergence/flux/single_checker_i.h"
+#include "data/vector_parameters.h"
+#include "utility/uncopyable.h"
 
 namespace bart {
 
@@ -19,15 +19,14 @@ namespace flux {
 
 class MultiChecker : public MultiCheckerI, private utility::Uncopyable {
  public:
-  MultiChecker() = default;
+  explicit MultiChecker(std::unique_ptr<SingleCheckerI> checker)
+      : checker_(std::move(checker)) {};
   ~MultiChecker() = default;
-  void ProvideChecker(std::unique_ptr<SingleCheckerI> &checker) {
-    checker_ = std::move(checker); };
   bool is_converged() const override { return is_converged_; }
   std::optional<int> failed_index() const override { return failed_index_; };
   std::optional<double> delta() const override { return delta_; };
  protected:
-  std::unique_ptr<SingleCheckerI> checker_ = nullptr;
+  std::unique_ptr<SingleCheckerI> checker_;
   bool is_converged_ = false;
   std::optional<int> failed_index_ = std::nullopt;
   std::optional<double> delta_ = std::nullopt;

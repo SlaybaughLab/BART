@@ -1,15 +1,10 @@
-#include "multi_checker_sequential.h"
+#include "convergence/flux/multi_checker_sequential.h"
 
 namespace bart {
 
 namespace convergence {
 
 namespace flux {
-
-MultiCheckerSequential::MultiCheckerSequential(
-    std::unique_ptr<SingleCheckerI> &checker) {
-  ProvideChecker(checker);
-}
 
 bool MultiCheckerSequential::CheckIfConverged(
     data::MultiFluxPtrs &current_iteration,
