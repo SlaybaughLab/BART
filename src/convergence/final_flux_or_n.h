@@ -13,13 +13,13 @@ namespace bart {
 
 namespace convergence {
 
-/*! \brief Checks for final convergence of flux, or max iterations reached.
+/*! \brief Checks for final convergence of system flux, or max iterations
+ * reached.
  *
- * Requires access to a
- * \ref flux::MultiCheckerI, which it will use to
+ * Requires access to a \ref flux::MultiCheckerI, which it will use to
  * compare the current and previous flux iterations contained in a
- * \ref bart::data::SystemFluxes object. Will also return a state of converged if
- * iterations are reached.
+ * \ref bart::data::SystemFluxes object. Will also return a state of converged
+ * if iterations are reached.
 *
  * \param checker a pointer to a \ref bart::convergence::flux::MultiCheckerI
  * object, this class takes ownership of the object.

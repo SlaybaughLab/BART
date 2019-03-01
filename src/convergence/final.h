@@ -10,6 +10,9 @@ namespace bart {
 
 namespace convergence {
 
+/*! \brief Implements getters and setters for final convergence interface.
+ *
+ */
 class Final : public FinalI {
  public:
   Final() = default;
@@ -28,7 +31,9 @@ class Final : public FinalI {
       return convergence_status_.iteration_number; };
 
   Final& SetMaxIterations(IterationNumber to_set) override;
+
   Final& SetIteration(IterationNumber to_set) override;
+
  protected:
   Status convergence_status_;
 };
