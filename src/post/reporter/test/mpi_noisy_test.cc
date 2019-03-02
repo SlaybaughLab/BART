@@ -1,6 +1,7 @@
 #include "post/reporter/mpi_noisy.h"
 
 #include <deal.II/base/conditional_ostream.h>
+#include <gtest/gtest.h>
 
 #include "convergence/status.h"
 #include "test_helpers/gmock_wrapper.h"
