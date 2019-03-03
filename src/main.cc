@@ -11,10 +11,14 @@ int main(int argc, char* argv[]) {
   try {
     if (argc != 2) {
       std::cerr
-          << "Call the program as mpirun -np num_proc xtrans input_file_name"
+          << "Call the program as mpirun -np num_proc bart input_file_name"
           << std::endl;
       return 1;
     }
+
+    std::cout << "BAY AREA RADIATION TRANSPORT\n"
+              << "Develped at the University of California, Berkeley"
+              << std::endl;
     dealii::ParameterHandler prm;
 
     // New parameters handler
