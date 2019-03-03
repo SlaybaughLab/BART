@@ -18,7 +18,7 @@ class ConvergenceFinalFluxOrNTest : public ::testing::Test {
       mock_multi_checker_ptr;
   std::unique_ptr<NiceMock<bart::convergence::flux::MultiCheckerMock>>
       nice_mock_multi_checker_ptr;
-  std::shared_ptr<bart::data::SystemFluxes> system_fluxes;
+  std::shared_ptr<bart::data::SystemScalarFluxes> system_fluxes;
   void SetUp();
 };
 
@@ -27,7 +27,7 @@ void ConvergenceFinalFluxOrNTest::SetUp() {
       std::make_unique<bart::convergence::flux::MultiCheckerMock>();
   nice_mock_multi_checker_ptr =
       std::make_unique<NiceMock<bart::convergence::flux::MultiCheckerMock>>();
-  system_fluxes = std::make_shared<bart::data::SystemFluxes>();
+  system_fluxes = std::make_shared<bart::data::SystemScalarFluxes>();
 }    
 
 TEST_F(ConvergenceFinalFluxOrNTest, DefaultStatus) {

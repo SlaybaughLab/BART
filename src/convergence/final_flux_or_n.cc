@@ -5,7 +5,7 @@ namespace bart {
 namespace convergence {
 
 FinalFluxOrN::FinalFluxOrN(std::unique_ptr<flux::MultiCheckerI> checker,
-                           std::shared_ptr<data::SystemFluxes> fluxes)
+                           std::shared_ptr<data::SystemScalarFluxes> fluxes)
     : checker_(std::move(checker)),
       fluxes_(fluxes) {}
 

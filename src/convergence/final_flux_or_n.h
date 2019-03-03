@@ -30,13 +30,13 @@ namespace convergence {
 class FinalFluxOrN : public Final, private utility::Uncopyable {
  public:
   FinalFluxOrN(std::unique_ptr<flux::MultiCheckerI> checker,
-            std::shared_ptr<data::SystemFluxes> fluxes);
+            std::shared_ptr<data::SystemScalarFluxes> fluxes);
   ~FinalFluxOrN() = default;
 
   Status CheckFinalConvergence() override;
  private:
   std::unique_ptr<flux::MultiCheckerI> checker_;
-  std::shared_ptr<data::SystemFluxes>  fluxes_;
+  std::shared_ptr<data::SystemScalarFluxes>  fluxes_;
 };
 
 } // namespace convergence
