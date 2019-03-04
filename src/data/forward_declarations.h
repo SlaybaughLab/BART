@@ -10,6 +10,12 @@ namespace bart {
 
 namespace data {
 
+// Variable types
+using GroupNumber = int;   //!< Problem group number.
+using OrdinateIndex = int; //!< Angular quadrature ordinate index
+using HarmonicL = int;     //!< Spherical harmonic \f$\ell\f$ value for moments
+using HarmonicM = int;     //!< Spherical harmonic \f$m\f$ value for moments
+
 struct CrossSections;
 struct SystemScalarFluxes;
 
