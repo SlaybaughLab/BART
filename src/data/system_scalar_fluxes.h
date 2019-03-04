@@ -12,9 +12,13 @@ namespace bart {
 namespace data {
 
 struct SystemScalarFluxes : private utility::Uncopyable {
-  ScalarFluxPtrs current_iteration;
-  ScalarFluxPtrs previous_iteration;
+  data::ScalarFluxPtrs current_iteration;
+  data::ScalarFluxPtrs previous_iteration;
 };
+
+std::unique_ptr<data::ScalarFluxPtrs> BuildSystemScalarFluxes(
+    int total_groups,
+    dealii::IndexSet locally_owned_dofs);
 
 } // namespace data
 
