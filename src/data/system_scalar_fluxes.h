@@ -16,7 +16,7 @@ struct SystemScalarFluxes : private utility::Uncopyable {
   data::ScalarFluxPtrs previous_iteration;
 };
 
-std::unique_ptr<data::ScalarFluxPtrs> BuildSystemScalarFluxes(
+std::shared_ptr<data::ScalarFluxPtrs> BuildSystemScalarFluxes(
     int total_groups,
     dealii::IndexSet locally_owned_dofs);
 

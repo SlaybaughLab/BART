@@ -4,11 +4,11 @@ namespace bart {
 
 namespace data {
 
-std::unique_ptr<data::ScalarFluxPtrs> BuildSystemScalarFluxes(
+std::shared_ptr<data::ScalarFluxPtrs> BuildSystemScalarFluxes(
     int total_groups,
     dealii::IndexSet locally_owned_dofs) {
 
-  auto flux_ptrs = std::make_unique<data::ScalarFluxPtrs>();
+  auto flux_ptrs = std::make_shared<data::ScalarFluxPtrs>();
 
   for (int group = 0; group < total_groups; ++group) {
 
