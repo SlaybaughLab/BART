@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DATA_SYSTEM_FLUXES_H_
-#define BART_SRC_DATA_SYSTEM_FLUXES_H_
+#ifndef BART_SRC_DATA_SYSTEM_SCALAR_FLUXES_H_
+#define BART_SRC_DATA_SYSTEM_SCALAR_FLUXES_H_
 
 #include <map>
 #include <memory>
@@ -12,12 +12,12 @@ namespace bart {
 namespace data {
 
 struct SystemScalarFluxes : private utility::Uncopyable {
-  MultiFluxPtrs current_iteration;
-  MultiFluxPtrs previous_iteration;
+  ScalarFluxPtrs current_iteration;
+  ScalarFluxPtrs previous_iteration;
 };
 
 } // namespace data
 
 } // namespace bart
 
-#endif // BART_SRC_DATA_SYSTEM_FLUXES_H_
+#endif // BART_SRC_DATA_SYSTEM_SCALAR_FLUXES_H_

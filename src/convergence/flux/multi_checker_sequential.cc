@@ -7,8 +7,8 @@ namespace convergence {
 namespace flux {
 
 bool MultiCheckerSequential::CheckIfConverged(
-    data::MultiFluxPtrs &current_iteration,
-    data::MultiFluxPtrs &previous_iteration) {
+    data::ScalarFluxPtrs &current_iteration,
+    data::ScalarFluxPtrs &previous_iteration) {
   
   AssertThrow(current_iteration.size() > 0,
               dealii::ExcMessage("Current iteration fluxes is empty"));

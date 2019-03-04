@@ -15,16 +15,16 @@ class MultiCheckerSequentialTest : public ::testing::Test {
  protected:
   std::unique_ptr<bart::convergence::flux::SingleCheckerMock> checker_mock;
 
-  bart::data::MultiFluxPtrs current;
-  bart::data::MultiFluxPtrs previous;
+  bart::data::ScalarFluxPtrs current;
+  bart::data::ScalarFluxPtrs previous;
 
   void SetUp() override;
-  void FillGroupFluxes(bart::data::MultiFluxPtrs &to_fill, int n_ptrs);
+  void FillGroupFluxes(bart::data::ScalarFluxPtrs &to_fill, int n_ptrs);
 
 };
-/* Fills a MultiFluxPtrs object with n_ptrs random flux pointers */
+/* Fills a ScalarFluxPtrs object with n_ptrs random flux pointers */
 void MultiCheckerSequentialTest::FillGroupFluxes(
-    bart::data::MultiFluxPtrs &to_fill, int n_ptrs) {
+    bart::data::ScalarFluxPtrs &to_fill, int n_ptrs) {
   
   for (int i = 0; i < n_ptrs; ++i) {
     auto flux = std::make_unique<bart::data::Flux>();    

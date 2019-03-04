@@ -12,8 +12,8 @@ namespace flux {
 
 class MultiCheckerMock : public MultiCheckerI {
  public:
-  MOCK_METHOD2(CheckIfConverged, bool(data::MultiFluxPtrs &current_iteration,
-                                      data::MultiFluxPtrs &previous_iteration));
+  MOCK_METHOD2(CheckIfConverged, bool(data::ScalarFluxPtrs &current_iteration,
+                                      data::ScalarFluxPtrs &previous_iteration));
   MOCK_CONST_METHOD0(is_converged, bool());
   MOCK_CONST_METHOD0(failed_index, std::optional<int>());
   MOCK_CONST_METHOD0(delta, std::optional<double>());

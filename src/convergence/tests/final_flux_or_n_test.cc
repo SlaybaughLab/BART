@@ -5,7 +5,7 @@
 
 #include "convergence/status.h"
 #include "convergence/flux/tests/multi_checker_mock.h"
-#include "data/system_fluxes.h"
+#include "data/system_scalar_fluxes.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
 

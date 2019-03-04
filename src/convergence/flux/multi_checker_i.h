@@ -28,8 +28,8 @@ class MultiCheckerI {
    * \param previous_iteration fluxes for the previous iteration
    * \return bool indicating status of convergence
    */
-  virtual bool CheckIfConverged(data::MultiFluxPtrs &current_iteration,
-                                data::MultiFluxPtrs &previous_iteration) = 0;
+  virtual bool CheckIfConverged(data::ScalarFluxPtrs &current_iteration,
+                                data::ScalarFluxPtrs &previous_iteration) = 0;
   
   /*! \brief Returns status of previous call to CheckIfConverged
    *

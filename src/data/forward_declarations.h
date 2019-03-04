@@ -19,8 +19,9 @@ using HarmonicM = int;     //!< Spherical harmonic \f$m\f$ value for moments
 struct CrossSections;
 struct SystemScalarFluxes;
 
+// Vector structures
 using Flux = dealii::PETScWrappers::MPI::Vector;
-using MultiFluxPtrs = std::map<int, std::unique_ptr<Flux>>;
+using ScalarFluxPtrs = std::map<GroupNumber, std::unique_ptr<Flux>>;
 
 } // namespace data
 
