@@ -27,7 +27,7 @@ void MultiCheckerSequentialTest::FillGroupFluxes(
     bart::data::ScalarFluxPtrs &to_fill, int n_ptrs) {
   
   for (int i = 0; i < n_ptrs; ++i) {
-    auto flux = std::make_unique<bart::data::Flux>();    
+    auto flux = std::make_unique<bart::data::FluxVector>();
     flux->reinit(MPI_COMM_WORLD, 5, 5);
     
     auto random_vector = btest::RandomVector(5, 0, 2);

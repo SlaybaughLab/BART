@@ -12,7 +12,7 @@ std::shared_ptr<data::ScalarFluxPtrs> BuildSystemScalarFluxes(
 
   for (int group = 0; group < total_groups; ++group) {
 
-    auto flux = std::make_unique<data::Flux>();
+    auto flux = std::make_unique<data::FluxVector>();
     flux->reinit(locally_owned_dofs, MPI_COMM_WORLD);
 
     flux_ptrs->insert(std::make_pair(group, std::move(flux)));

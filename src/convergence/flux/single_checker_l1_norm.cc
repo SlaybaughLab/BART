@@ -6,9 +6,9 @@ namespace convergence {
 
 namespace flux {
 
-bool SingleCheckerL1Norm::CheckIfConverged(data::Flux &current_iteration,
-                                           data::Flux &previous_iteration) {
-  data::Flux difference{current_iteration};
+bool SingleCheckerL1Norm::CheckIfConverged(data::FluxVector &current_iteration,
+                                           data::FluxVector &previous_iteration) {
+  data::FluxVector difference{current_iteration};
   difference -= previous_iteration;
   delta_ = difference.l1_norm()/current_iteration.l1_norm();
   is_converged_ = delta_ <= max_delta_;

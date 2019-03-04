@@ -20,7 +20,7 @@ class SingleCheckerI {
  public:
   virtual ~SingleCheckerI() = default;
   /* \brief Checks for convergence of two provided fluxes */
-  virtual bool CheckIfConverged(data::Flux &, data::Flux &) = 0;
+  virtual bool CheckIfConverged(data::FluxVector &, data::FluxVector &) = 0;
   /* \brief Returns status of convergence (from last call to CheckIfConverged */
   virtual bool is_converged() const = 0;
   /* \brief Set the threshold value for convergence check */

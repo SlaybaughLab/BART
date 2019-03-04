@@ -10,8 +10,8 @@ namespace bart {
 
 namespace data {
 
-using Flux = dealii::PETScWrappers::MPI::Vector;
-using ScalarFluxPtrs = std::map<int, std::unique_ptr<Flux>>;
+using FluxVector = dealii::PETScWrappers::MPI::Vector;
+using ScalarFluxPtrs = std::map<int, std::unique_ptr<FluxVector>>;
 
 } // namespace data
 
