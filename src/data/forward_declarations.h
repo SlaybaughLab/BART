@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
 namespace bart {
 
@@ -20,6 +21,10 @@ using HarmonicM = int;     //!< Spherical harmonic \f$m\f$ value for moments
 using FluxVector = dealii::PETScWrappers::MPI::Vector;
 using RightHandSideVector = dealii::PETScWrappers::MPI::Vector;
 using ScalarFluxPtrs = std::map<GroupNumber, std::unique_ptr<FluxVector>>;
+
+// System Matrices types
+using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+using ScalarSystemMatrices = std::map<GroupNumber, std::unique_ptr<MPISparseMatrix>>;
 
 // Flux data structures
 struct CrossSections;
