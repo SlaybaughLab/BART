@@ -12,6 +12,7 @@ namespace equation {
 
 template <int dim>
 class TransportScalar : public Transport<dim> {
+ public:
   virtual ~TransportScalar() = default;
 
   TransportScalar(const DiscretizationType discretization)
