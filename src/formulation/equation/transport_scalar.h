@@ -14,7 +14,7 @@ template <int dim>
 class TransportScalar : public Transport<dim> {
   virtual ~TransportScalar() = default;
 
-  TransportScalar(DiscretizationType discretization)
+  TransportScalar(const DiscretizationType discretization)
       : Transport<dim>(EquationType::kScalar, discretization) {};
 
   ScalarEquations scalar_equation() const { return scalar_equation_; };
