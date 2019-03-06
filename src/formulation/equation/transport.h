@@ -1,6 +1,9 @@
 #ifndef BART_SRC_FORMULATION_EQUATION_TRANSPORT_H_
 #define BART_SRC_FORMULATION_EQUATION_TRANSPORT_H_
 
+#include <memory>
+
+#include "domain/finite_element_i.h"
 #include "formulation/types.h"
 #include "formulation/equation/transport_i.h"
 
@@ -18,6 +21,11 @@ class Transport : public TransportI<dim> {
         discretization_type_(discretization_type) {}
   virtual ~Transport() = default;
 
+  Transport& ProvideFiniteElement(
+      std::shared_ptr<domain::FiniteElementI<dim>> finite_element) override {
+    finite_element_ = finite_element;
+  }
+
   EquationType equation_type() const override { return equation_type_; };
   DiscretizationType discretization_type() const override {
     return discretization_type_; };
@@ -25,6 +33,7 @@ class Transport : public TransportI<dim> {
  protected:
   EquationType equation_type_;
   DiscretizationType discretization_type_;
+  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
 
 };
 
