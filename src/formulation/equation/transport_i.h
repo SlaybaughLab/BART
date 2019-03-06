@@ -21,7 +21,7 @@ class TransportI {
   virtual EquationType equation_type() const = 0;
   virtual DiscretizationType discretization_type() const = 0;
   virtual TransportI& ProvideFiniteElement(
-      std::shared_ptr<domain::FiniteElementI>);
+      std::shared_ptr<domain::FiniteElementI<dim>>);
 };
 
 } // namespace formulation
