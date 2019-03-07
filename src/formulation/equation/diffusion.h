@@ -13,10 +13,20 @@ namespace equation {
 template <int dim>
 class Diffusion : public TransportScalar<dim> {
  public:
-  Diffusion(const DiscretizationType discretization)
+  using typename TransportScalar<dim>::CellPtr;
+  using typename TransportScalar<dim>::Matrix;
+  using typename TransportScalar<dim>::GroupNumber;
+
+  explicit Diffusion(const DiscretizationType discretization)
       : TransportScalar<dim>(discretization) {}
 
   virtual ~Diffusion() = default;
+
+  void FillCellBilinearTerm(Matrix& to_fill,
+                            const CellPtr &cell_ptr,
+                            const GroupNumber group) override;
+ protected:
+  using TransportScalar<dim>::finite_element_;
 };
 
 } // namespace equation
