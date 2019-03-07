@@ -13,6 +13,7 @@ namespace equation {
 template <int dim>
 class Diffusion : public TransportScalar<dim> {
  public:
+  using MaterialID = int;
   using typename TransportScalar<dim>::CellPtr;
   using typename TransportScalar<dim>::Matrix;
   using typename TransportScalar<dim>::GroupNumber;
@@ -27,6 +28,9 @@ class Diffusion : public TransportScalar<dim> {
                             const GroupNumber group) override;
  protected:
   using TransportScalar<dim>::finite_element_;
+  using TransportScalar<dim>::cross_sections_;
+  using TransportScalar<dim>::cell_degrees_of_freedom_;
+  using TransportScalar<dim>::cell_quadrature_points_;
 };
 
 } // namespace equation
