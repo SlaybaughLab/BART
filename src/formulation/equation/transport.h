@@ -33,6 +33,8 @@ class Transport : public TransportI<dim> {
   Transport& ProvideFiniteElement(
       std::shared_ptr<domain::FiniteElementI<dim>> finite_element) override {
     finite_element_ = finite_element;
+    cell_degrees_of_freedom_ = finite_element_->dofs_per_cell();
+    cell_quadrature_points_ = finite_element_->n_cell_quad_pts();
     return *this;
   }
 
@@ -52,6 +54,8 @@ class Transport : public TransportI<dim> {
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
   std::shared_ptr<data::CrossSections> cross_sections_;
 
+  int cell_degrees_of_freedom_ = 0;
+  int cell_quadrature_points_ = 0;
 };
 
 } // namespace equation
