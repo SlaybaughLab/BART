@@ -3,8 +3,10 @@
 
 #include <memory>
 
-#include "formulation/types.h"
+#include "data/forward_declarations.h"
+#include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
+#include "formulation/types.h"
 
 
 namespace bart {
@@ -32,8 +34,21 @@ class TransportI {
    */
   virtual DiscretizationType discretization_type() const = 0;
 
+  /*! \brief Provide the finite element object.
+   *
+   * \param finite_element shared pointer to finite element object
+   * \return this object
+   */
   virtual TransportI& ProvideFiniteElement(
-      std::shared_ptr<domain::FiniteElementI<dim>>) = 0;
+      std::shared_ptr<domain::FiniteElementI<dim>> finite_element) = 0;
+
+  /*! \brief Provide the cross-section object.
+   *
+   * \param cross_sections shared pointer to cross-section object.
+   * \return this object.
+   */
+  virtual TransportI& ProvideCrossSections(
+      std::shared_ptr<data::CrossSections> cross_sections) = 0;
 
   /*! \brief Set the formulation to a specific cell.
    *
@@ -42,7 +57,7 @@ class TransportI {
    * \param[in] to_set pointer to the cell to be set
    * \return this object
    */
-  virtual TransportI& SetCell(CellPtr &to_set) = 0;
+  virtual TransportI& SetCell(const CellPtr &to_set) = 0;
 };
 
 } // namespace formulation
