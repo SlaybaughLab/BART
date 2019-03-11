@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "data/system_scalar_fluxes.h"
 #include "data/forward_declarations.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
@@ -49,6 +50,9 @@ class TransportI {
    */
   virtual TransportI& ProvideCrossSections(
       std::shared_ptr<data::CrossSections> cross_sections) = 0;
+
+  virtual TransportI& ProvideScalarFluxes(
+      std::shared_ptr<data::ScalarFluxPtrs> scalar_fluxes) = 0;
 
   /*! \brief Set the formulation to a specific cell.
    *
