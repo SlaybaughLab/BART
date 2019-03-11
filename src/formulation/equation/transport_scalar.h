@@ -43,10 +43,19 @@ class TransportScalar : public Transport<dim> {
   virtual void FillCellBilinearTerm(Matrix& to_fill,
                                     const CellPtr &cell_ptr,
                                     const GroupNumber group) const = 0;
-
+  /*! \brief Fills a cell matrix with the integrated boundary term for a
+   * boundary cell.
+   *
+   * \param[in, out] to_fill local cell matrix to fill with the integrated term.
+   * \param[in] cell_ptr the boundary cell used to generate the local cell matrix.
+   * \param[in] group energy group number
+   * \param[in] face_number the face number for the boundary.
+   * \param boundary_type the type of boundary.
+   */
   virtual void FillBoundaryBilinearTerm(
       Matrix &to_fill,
       const CellPtr &cell_ptr,
+      const GroupNumber group,
       const FaceNumber face_number,
       const BoundaryType boundary_type) const = 0;
 

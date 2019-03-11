@@ -55,6 +55,7 @@ template<int dim>
 void Diffusion<dim>::FillBoundaryBilinearTerm(
     Matrix &to_fill,
     const CellPtr &cell_ptr,
+    const GroupNumber,
     const FaceNumber face_number,
     const BoundaryType boundary_type) const {
 
