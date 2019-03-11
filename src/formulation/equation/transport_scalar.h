@@ -59,6 +59,11 @@ class TransportScalar : public Transport<dim> {
       const FaceNumber face_number,
       const BoundaryType boundary_type) const = 0;
 
+  virtual void FillCellLinearFixedTerm(Vector& rhs_to_fill,
+                                       const CellPtr &cell_ptr,
+                                       const GroupNumber group
+                                       const bool is_eigen_problem) const = 0;
+
   /*! \brief Fills a RHS vector with the integreated linear scattering term.
    *
    * \param[in, out] rhs_to_fill right-hand-side vector to be filled

@@ -1,4 +1,5 @@
 #include "formulation/equation/diffusion.h"
+#include "diffusion.h"
 
 #include <vector>
 
@@ -78,6 +79,24 @@ void Diffusion<dim>::FillBoundaryBilinearTerm(
   }
 }
 
+template<int dim>
+void Diffusion<dim>::FillCellLinearFixedTerm(Vector &rhs_to_fill,
+                                             const CellPtr &cell_ptr,
+                                             const GroupNumber group,
+                                             const bool is_eigen_problem) const {
+  SetCell(cell_ptr);
+  MaterialID material_id = cell_ptr->material_id();
+
+  // Fixed source at each cell quadrature point
+  std::vector<double> cell_fixed_source(cell_quadrature_points_);
+
+  if (!is_eigen_problem) {
+    cell_fixed_source = std::vector<double>(
+        cell_quadrature_points_,
+        cross_sections_->q.at(material_id)[group]);
+  }
+}
+
 template <int dim>
 void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
                                                   const CellPtr &cell_ptr,
@@ -92,7 +111,7 @@ void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
 
   // Iterates over each group to provide contribution from each group
   for (int group_in = 0; group_in < total_groups; ++group_in) {
-    std::vector<double> group_cell_scatter_flux(cell_quadrature_points_);
+    std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
 
     if (group_in != group) {
       double sigma_s = cross_sections_->sigma_s.at(material_id)(group_in, group);
@@ -100,10 +119,10 @@ void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
       if (sigma_s >= 1e-15) {
         finite_element_->values()->get_function_values(
             *scalar_fluxes_->previous_iteration[group],
-            group_cell_scatter_flux);
+            group_cell_scalar_flux);
 
         for (int q = 0; q < cell_quadrature_points_; ++q) {
-          cell_scatter_flux[q] += sigma_s * group_cell_scatter_flux[q];
+          cell_scatter_flux[q] += sigma_s * group_cell_scalar_flux[q];
         }
       }
     }
@@ -118,6 +137,7 @@ void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
   }
 
 }
+
 
 template class Diffusion<1>;
 template class Diffusion<2>;
