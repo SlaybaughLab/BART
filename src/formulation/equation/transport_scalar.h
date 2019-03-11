@@ -50,7 +50,7 @@ class TransportScalar : public Transport<dim> {
    * \param[in] cell_ptr the boundary cell used to generate the local cell matrix.
    * \param[in] group energy group number
    * \param[in] face_number the face number for the boundary.
-   * \param boundary_type the type of boundary.
+   * \param[in] boundary_type the type of boundary.
    */
   virtual void FillBoundaryBilinearTerm(
       Matrix &to_fill,
@@ -59,6 +59,12 @@ class TransportScalar : public Transport<dim> {
       const FaceNumber face_number,
       const BoundaryType boundary_type) const = 0;
 
+  /*! \brief Fills a RHS vector with the integreated linear scattering term.
+   *
+   * \param[in, out] rhs_to_fill right-hand-side vector to be filled
+   * \param[in] cell_ptr the cell to use to generate the local cell rhs
+   * \param[in] group energy group number
+   */
   virtual void FillCellLinearScatteringTerm(Vector& rhs_to_fill,
                                             const CellPtr &cell_ptr,
                                             const GroupNumber group) const = 0;
