@@ -20,6 +20,7 @@ class Transport : public TransportI<dim> {
  public:
 
   using typename TransportI<dim>::CellPtr;
+  using typename TransportI<dim>::FaceNumber;Transport
 
   Transport(EquationType equation_type, DiscretizationType discretization_type)
       : equation_type_(equation_type),
@@ -52,6 +53,12 @@ class Transport : public TransportI<dim> {
   void SetCell(const CellPtr &to_set) const override {
     if (finite_element_->values()->get_cell() != to_set)
       finite_element_->values()->reinit(to_set);
+  }
+
+  void SetFace(const CellPtr &to_set, FaceNumber face) const override {
+    if (finite_element_->face_values()->get_cell() != to_set &&
+        finite_element_->face_values()->get_face_index() != face)
+      finite_element_->face_values()->reinit(to_set, face);
   }
 
  protected:

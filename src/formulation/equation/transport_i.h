@@ -20,6 +20,7 @@ template <int dim>
 class TransportI {
  public:
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
+  using int = FaceNumber;
 
   virtual ~TransportI() = default;
 
@@ -61,6 +62,8 @@ class TransportI {
    * \param[in] to_set pointer to the cell to be set
    */
   virtual void SetCell(const CellPtr &to_set) const = 0;
+
+  virtual void SetFace(const CellPtr &to_set, FaceNumber face) const = 0;
 };
 
 } // namespace formulation
