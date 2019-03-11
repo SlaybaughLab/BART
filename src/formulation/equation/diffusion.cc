@@ -70,12 +70,20 @@ void Diffusion<dim>::FillBoundaryBilinearTerm(
     const FaceNumber face_number,
     const BoundaryType boundary_type) const {
 
-  SetFace(cell_ptr, face_number);
+  if (boundary_type == BoundaryType::kVacuum) {
+    SetFace(cell_ptr, face_number);
 
-
-
-
-
+    for (int q = 0; q < face_quadrature_points_; ++q) {
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+          to_fill(i,j) += (
+              finite_element_->face_values()->shape_value(i, q) *
+              finite_element_->face_values()->shape_value(j,q)
+              ) * 0.5 * finite_element_->face_values()->JxW(q);
+        }
+      }
+    }
+  }
 }
 
 template class Diffusion<1>;

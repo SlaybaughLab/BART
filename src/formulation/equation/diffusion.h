@@ -53,6 +53,7 @@ class Diffusion : public TransportScalar<dim> {
   using TransportScalar<dim>::cross_sections_;
   using TransportScalar<dim>::cell_degrees_of_freedom_;
   using TransportScalar<dim>::cell_quadrature_points_;
+  using TransportScalar<dim>::face_quadrature_points_;
 };
 
 } // namespace equation
