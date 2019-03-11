@@ -46,6 +46,7 @@ class Diffusion : public TransportScalar<dim> {
 
   using TransportScalar<dim>::scalar_fluxes_;
   using TransportScalar<dim>::SetCell;
+  using TransportScalar<dim>::SetFace;
   using TransportScalar<dim>::finite_element_;
   using TransportScalar<dim>::cross_sections_;
   using TransportScalar<dim>::cell_degrees_of_freedom_;

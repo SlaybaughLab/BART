@@ -67,7 +67,7 @@ template<int dim>
 void Diffusion<dim>::FillBoundaryBilinearTerm(Matrix &to_fill,
                                               const CellPtr &cell_ptr,
                                               const FaceNumber face_number) const {
-  SetCell(cell_ptr);
+  SetFace(cell_ptr, face_number);
   int boundary_id = cell_ptr->face(face_number)->boundary_id();
 
 
