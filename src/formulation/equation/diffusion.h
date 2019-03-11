@@ -29,6 +29,9 @@ class Diffusion : public TransportScalar<dim> {
                             const CellPtr &cell_ptr,
                             const GroupNumber group) const override;
 
+  void FillCellLinearScatteringTerm(Matrix &to_fill,
+                                    const CellPtr &cell_ptr,
+                                    const GroupNumber group) const override;
 
 
  protected:

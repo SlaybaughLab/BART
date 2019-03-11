@@ -50,6 +50,15 @@ void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
   }
 }
 
+template <int dim>
+void Diffusion<dim>::FillCellLinearScatteringTerm(Matrix &to_fill,
+                                                  const CellPtr &cell_ptr,
+                                                  const GroupNumber group) const {
+  SetCell(cell_ptr);
+  MaterialID material_id = cell_ptr->material_id();
+
+}
+
 template class Diffusion<1>;
 template class Diffusion<2>;
 template class Diffusion<3>;

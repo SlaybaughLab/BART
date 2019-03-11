@@ -24,6 +24,16 @@ class TransportScalar : public Transport<dim> {
   TransportScalar(const DiscretizationType discretization)
       : Transport<dim>(EquationType::kScalar, discretization) {};
 
+  /*! \brief Pre-calculates any part of the formulation that is not cell and group
+   * dependent.
+   *
+   * \param[in] cell_ptr any cell in the current mesh. This is required to
+   * initialize the finite element object for the gradient and shape values
+   * (cell differences are determined by Jacobians and materials). This does not
+   * need to be called for every cell, just once at the beginning of assembly.
+   */
+  virtual void Precalculate(const CellPtr &cell_ptr) = 0;
+
   /*! \brief Fills a cell matrix with the integrated bilinear term for a cell.
    *
    * \param[in,out] to_fill local cell matrix to fill with the integrated term.
@@ -34,15 +44,9 @@ class TransportScalar : public Transport<dim> {
                                     const CellPtr &cell_ptr,
                                     const GroupNumber group) const = 0;
 
-  /*! \brief Pre-calculates any part of the formulation that is not cell and group
-   * dependent.
-   *
-   * \param[in] cell_ptr any cell in the current mesh. This is required to
-   * initialize the finite element object for the gradient and shape values
-   * (cell differences are determined by Jacobians and materials). This does not
-   * need to be called for every cell, just once at the beginning of assembly.
-   */
-  virtual void Precalculate(const CellPtr &cell_ptr) = 0;
+  virtual void FillCellLinearScatteringTerm(Matrix &to_fill,
+                                            const CellPtr &cell_ptr,
+                                            const GroupNumber group) const = 0;
 
   ScalarEquations scalar_equation() const { return scalar_equation_; };
  protected:
