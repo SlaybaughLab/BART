@@ -43,7 +43,7 @@ class Transport : public TransportI<dim> {
   }
 
   Transport& ProvideScalarFluxes(
-      std::shared_ptr<data::ScalarFluxPtrs> scalar_fluxes) override {
+      std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes) override {
     scalar_fluxes_ = scalar_fluxes;
     return *this;
   }
@@ -68,7 +68,7 @@ class Transport : public TransportI<dim> {
   DiscretizationType discretization_type_;
   mutable std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
   std::shared_ptr<data::CrossSections> cross_sections_;
-  std::shared_ptr<data::ScalarFluxPtrs> scalar_fluxes_;
+  std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes_;
 
   int cell_degrees_of_freedom_ = 0;
   int cell_quadrature_points_ = 0;

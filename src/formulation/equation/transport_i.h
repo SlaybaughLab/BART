@@ -53,7 +53,7 @@ class TransportI {
       std::shared_ptr<data::CrossSections> cross_sections) = 0;
 
   virtual TransportI& ProvideScalarFluxes(
-      std::shared_ptr<data::ScalarFluxPtrs> scalar_fluxes) = 0;
+      std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes) = 0;
 
   /*! \brief Set the formulation to a specific cell.
    *
