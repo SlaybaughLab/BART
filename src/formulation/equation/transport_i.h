@@ -20,7 +20,7 @@ template <int dim>
 class TransportI {
  public:
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
-  using int = FaceNumber;
+  using FaceNumber = int;
 
   virtual ~TransportI() = default;
 
