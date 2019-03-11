@@ -30,6 +30,7 @@ class Transport : public TransportI<dim> {
   Transport& ProvideCrossSections(
       std::shared_ptr<data::CrossSections> cross_sections) override {
     cross_sections_ = cross_sections;
+    return *this;
   }
 
   Transport& ProvideFiniteElement(
