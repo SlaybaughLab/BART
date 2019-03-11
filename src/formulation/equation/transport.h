@@ -42,7 +42,7 @@ class Transport : public TransportI<dim> {
   DiscretizationType discretization_type() const override {
     return discretization_type_; };
 
-  Transport& SetCell(const CellPtr &to_set) {
+  Transport& SetCell(const CellPtr &to_set) override {
     if (finite_element_->values()->get_cell() != to_set)
       finite_element_->values()->reinit(to_set);
     return *this;

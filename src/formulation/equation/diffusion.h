@@ -23,9 +23,14 @@ class Diffusion : public TransportScalar<dim> {
 
   virtual ~Diffusion() = default;
 
+  void Precalculate() override;
+
   void FillCellBilinearTerm(Matrix& to_fill,
                             const CellPtr &cell_ptr,
-                            const GroupNumber group) override;
+                            const GroupNumber group) const override;
+
+
+
  protected:
   using TransportScalar<dim>::finite_element_;
   using TransportScalar<dim>::cross_sections_;

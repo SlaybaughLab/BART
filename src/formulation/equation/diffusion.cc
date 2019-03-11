@@ -7,9 +7,14 @@ namespace formulation {
 namespace equation {
 
 template<int dim>
+void Diffusion<dim>::Precalculate() {
+
+}
+
+template<int dim>
 void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
                                           const CellPtr &cell_ptr,
-                                          const GroupNumber group) {
+                                          const GroupNumber group) const {
   MaterialID material_id = cell_ptr->material_id();
 
   double sigma_t = cross_sections_->sigma_t.at(material_id)[group];
@@ -25,10 +30,6 @@ void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
       }
     }
   }
-
-
-
-
 }
 
 template class Diffusion<1>;

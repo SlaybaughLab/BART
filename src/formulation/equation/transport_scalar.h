@@ -32,7 +32,12 @@ class TransportScalar : public Transport<dim> {
    */
   virtual void FillCellBilinearTerm(Matrix& to_fill,
                                     const CellPtr &cell_ptr,
-                                    const GroupNumber group) = 0;
+                                    const GroupNumber group) const = 0;
+
+  /*! \brief Pre-calculates any part of the formulation that is not cell and group
+   * dependent.
+   */
+  virtual void Precalculate() = 0;
 
   ScalarEquations scalar_equation() const { return scalar_equation_; };
  protected:
