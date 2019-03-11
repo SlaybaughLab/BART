@@ -16,6 +16,7 @@ class Diffusion : public TransportScalar<dim> {
   using MaterialID = int;
   using typename TransportScalar<dim>::CellPtr;
   using typename TransportScalar<dim>::Matrix;
+  using typename TransportScalar<dim>::Vector;
   using typename TransportScalar<dim>::GroupNumber;
   using typename TransportScalar<dim>::FaceNumber;
 
@@ -37,7 +38,7 @@ class Diffusion : public TransportScalar<dim> {
       const BoundaryType boundary_type) const override;
 
   void FillCellLinearScatteringTerm(
-      Matrix &to_fill,
+      Vector &to_fill,
       const CellPtr &cell_ptr,
       const GroupNumber) const override;
 

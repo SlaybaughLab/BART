@@ -51,18 +51,6 @@ void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
   }
 }
 
-
-
-template <int dim>
-void Diffusion<dim>::FillCellLinearScatteringTerm(Matrix &to_fill,
-                                                  const CellPtr &cell_ptr,
-                                                  const GroupNumber group) const {
-  SetCell(cell_ptr);
-  MaterialID material_id = cell_ptr->material_id();
-
-
-
-}
 template<int dim>
 void Diffusion<dim>::FillBoundaryBilinearTerm(
     Matrix &to_fill,
@@ -84,6 +72,15 @@ void Diffusion<dim>::FillBoundaryBilinearTerm(
       }
     }
   }
+}
+
+template <int dim>
+void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &to_fill,
+                                                  const CellPtr &cell_ptr,
+                                                  const GroupNumber group) const {
+  SetCell(cell_ptr);
+  MaterialID material_id = cell_ptr->material_id();
+
 }
 
 template class Diffusion<1>;

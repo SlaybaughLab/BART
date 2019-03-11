@@ -15,6 +15,7 @@ class TransportScalar : public Transport<dim> {
  public:
   using typename Transport<dim>::CellPtr;
   using Matrix = dealii::FullMatrix<double>;
+  using Vector = dealii::Vector<double>;
   using GroupNumber = int;
   using FaceNumber = int;
 
@@ -49,7 +50,7 @@ class TransportScalar : public Transport<dim> {
       const FaceNumber face_number,
       const BoundaryType boundary_type) const = 0;
 
-  virtual void FillCellLinearScatteringTerm(Matrix &to_fill,
+  virtual void FillCellLinearScatteringTerm(Vector& to_fill,
                                             const CellPtr &cell_ptr,
                                             const GroupNumber group) const = 0;
 
