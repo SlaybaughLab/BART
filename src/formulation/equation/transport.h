@@ -42,16 +42,15 @@ class Transport : public TransportI<dim> {
   DiscretizationType discretization_type() const override {
     return discretization_type_; };
 
-  Transport& SetCell(const CellPtr &to_set) override {
+  void SetCell(const CellPtr &to_set) const override {
     if (finite_element_->values()->get_cell() != to_set)
       finite_element_->values()->reinit(to_set);
-    return *this;
   }
 
  protected:
   EquationType equation_type_;
   DiscretizationType discretization_type_;
-  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
+  mutable std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
   std::shared_ptr<data::CrossSections> cross_sections_;
 
   int cell_degrees_of_freedom_ = 0;

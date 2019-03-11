@@ -23,7 +23,7 @@ class Diffusion : public TransportScalar<dim> {
 
   virtual ~Diffusion() = default;
 
-  void Precalculate() override;
+  void Precalculate(const CellPtr &cell_ptr) override;
 
   void FillCellBilinearTerm(Matrix& to_fill,
                             const CellPtr &cell_ptr,

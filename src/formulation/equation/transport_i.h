@@ -55,9 +55,8 @@ class TransportI {
    * This is how cell-specific matrices will be generated.
    *
    * \param[in] to_set pointer to the cell to be set
-   * \return this object
    */
-  virtual TransportI& SetCell(const CellPtr &to_set) = 0;
+  virtual void SetCell(const CellPtr &to_set) const = 0;
 };
 
 } // namespace formulation
