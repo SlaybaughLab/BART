@@ -17,6 +17,7 @@ class Diffusion : public TransportScalar<dim> {
   using typename TransportScalar<dim>::CellPtr;
   using typename TransportScalar<dim>::Matrix;
   using typename TransportScalar<dim>::GroupNumber;
+  using typename TransportScalar<dim>::FaceNumber;
 
   explicit Diffusion(const DiscretizationType discretization)
       : TransportScalar<dim>(discretization) {}
@@ -29,6 +30,10 @@ class Diffusion : public TransportScalar<dim> {
                             const CellPtr &cell_ptr,
                             const GroupNumber group) const override;
 
+  void FillBoundaryBilinearTerm(Matrix &to_fill,
+                                const CellPtr &cell_ptr,
+                                const FaceNumber face_number) const override;
+
   void FillCellLinearScatteringTerm(Matrix &to_fill,
                                     const CellPtr &cell_ptr,
                                     const GroupNumber group) const override;
@@ -39,6 +44,7 @@ class Diffusion : public TransportScalar<dim> {
   std::vector<Matrix> shape_squared_;
   std::vector<Matrix> gradient_squared_;
 
+  using TransportScalar<dim>::scalar_fluxes_;
   using TransportScalar<dim>::SetCell;
   using TransportScalar<dim>::finite_element_;
   using TransportScalar<dim>::cross_sections_;
