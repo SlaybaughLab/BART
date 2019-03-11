@@ -1,8 +1,6 @@
 #ifndef BART_SRC_FORMULATION_EQUATION_TRANSPORT_SCALAR_H_
 #define BART_SRC_FORMULATION_EQUATION_TRANSPORT_SCALAR_H_
 
-
-
 #include "formulation/types.h"
 #include "formulation/equation/transport.h"
 
@@ -45,9 +43,11 @@ class TransportScalar : public Transport<dim> {
                                     const CellPtr &cell_ptr,
                                     const GroupNumber group) const = 0;
 
-  virtual void FillBoundaryBilinearTerm(Matrix &to_fill,
-                                        const CellPtr &cell_ptr,
-                                        const FaceNumber face_number) const = 0;
+  virtual void FillBoundaryBilinearTerm(
+      Matrix &to_fill,
+      const CellPtr &cell_ptr,
+      const FaceNumber face_number,
+      const BoundaryType boundary_type) const = 0;
 
   virtual void FillCellLinearScatteringTerm(Matrix &to_fill,
                                             const CellPtr &cell_ptr,

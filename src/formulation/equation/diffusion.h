@@ -30,14 +30,16 @@ class Diffusion : public TransportScalar<dim> {
                             const CellPtr &cell_ptr,
                             const GroupNumber group) const override;
 
-  void FillBoundaryBilinearTerm(Matrix &to_fill,
-                                const CellPtr &cell_ptr,
-                                const FaceNumber face_number) const override;
+  void FillBoundaryBilinearTerm(
+      Matrix &to_fill,
+      const CellPtr &cell_ptr,
+      const FaceNumber face_number,
+      const BoundaryType boundary_type) const override;
 
-  void FillCellLinearScatteringTerm(Matrix &to_fill,
-                                    const CellPtr &cell_ptr,
-                                    const GroupNumber group) const override;
-
+  void FillCellLinearScatteringTerm(
+      Matrix &to_fill,
+      const CellPtr &cell_ptr,
+      const GroupNumber) const override;
 
  protected:
 

@@ -64,11 +64,16 @@ void Diffusion<dim>::FillCellLinearScatteringTerm(Matrix &to_fill,
 
 }
 template<int dim>
-void Diffusion<dim>::FillBoundaryBilinearTerm(Matrix &to_fill,
-                                              const CellPtr &cell_ptr,
-                                              const FaceNumber face_number) const {
+void Diffusion<dim>::FillBoundaryBilinearTerm(
+    Matrix &to_fill,
+    const CellPtr &cell_ptr,
+    const FaceNumber face_number,
+    const BoundaryType boundary_type) const {
+
   SetFace(cell_ptr, face_number);
-  int boundary_id = cell_ptr->face(face_number)->boundary_id();
+
+
+
 
 
 }
