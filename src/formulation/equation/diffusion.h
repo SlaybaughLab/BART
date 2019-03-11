@@ -32,6 +32,11 @@ class Diffusion : public TransportScalar<dim> {
 
 
  protected:
+
+  std::vector<Matrix> shape_squared_;
+  std::vector<Matrix> gradient_squared_;
+
+  using TransportScalar<dim>::SetCell;
   using TransportScalar<dim>::finite_element_;
   using TransportScalar<dim>::cross_sections_;
   using TransportScalar<dim>::cell_degrees_of_freedom_;
