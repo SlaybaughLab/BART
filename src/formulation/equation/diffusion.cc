@@ -34,6 +34,7 @@ template<int dim>
 void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
                                           const CellPtr &cell_ptr,
                                           const GroupNumber group) const {
+  SetCell(cell_ptr);
   MaterialID material_id = cell_ptr->material_id();
 
   double sigma_t = cross_sections_->sigma_t.at(material_id)[group];
@@ -43,11 +44,9 @@ void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
   double diff_coef = cross_sections_->diffusion_coef.at(material_id)[group];
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
-        to_fill(i,j) += 0;
-      }
-    }
+    double gradient = finite_element_->values()->JxW(q);
+    to_fill.add(diff_coef*gradient, gradient_squared_[q]);
+    to_fill.add(sigma_r*gradient, shape_squared_[q]);
   }
 }
 
