@@ -59,7 +59,7 @@ class TransportScalar : public Transport<dim> {
       const FaceNumber face_number,
       const BoundaryType boundary_type) const = 0;
 
-  virtual void FillCellLinearScatteringTerm(Vector& to_fill,
+  virtual void FillCellLinearScatteringTerm(Vector& rhs_to_fill,
                                             const CellPtr &cell_ptr,
                                             const GroupNumber group) const = 0;
 
