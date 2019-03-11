@@ -20,7 +20,7 @@ class Transport : public TransportI<dim> {
  public:
 
   using typename TransportI<dim>::CellPtr;
-  using typename TransportI<dim>::FaceNumber;Transport
+  using typename TransportI<dim>::FaceNumber;
 
   Transport(EquationType equation_type, DiscretizationType discretization_type)
       : equation_type_(equation_type),
@@ -37,6 +37,7 @@ class Transport : public TransportI<dim> {
     finite_element_ = finite_element;
     cell_degrees_of_freedom_ = finite_element_->dofs_per_cell();
     cell_quadrature_points_ = finite_element_->n_cell_quad_pts();
+    face_quadrature_points_ = finite_element_->n_face_quad_pts();
     return *this;
   }
 
@@ -70,6 +71,7 @@ class Transport : public TransportI<dim> {
 
   int cell_degrees_of_freedom_ = 0;
   int cell_quadrature_points_ = 0;
+  int face_quadrature_points_ = 0;
 };
 
 } // namespace equation
