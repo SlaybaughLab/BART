@@ -25,6 +25,12 @@ enum class ScalarEquations {
   kDiffusion,
 };
 
+/*! Types of boundaries that formulations can support */
+enum class BoundaryType {
+  kVacuum,
+  kReflective,
+};
+
 } // namespace formulation
 
 } // namespace bart
