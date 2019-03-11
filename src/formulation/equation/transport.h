@@ -59,7 +59,8 @@ class Transport : public TransportI<dim> {
 
   void SetFace(const CellPtr &to_set, FaceNumber face) const override {
     if (finite_element_->face_values()->get_cell() != to_set &&
-        finite_element_->face_values()->get_face_index() != face)
+        static_cast<int>(finite_element_->face_values()->get_face_index())
+            != face)
       finite_element_->face_values()->reinit(to_set, face);
   }
 
