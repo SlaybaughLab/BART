@@ -72,6 +72,12 @@ class Definition {
                                              finite_element_->dofs_per_cell());
     return return_matrix;
   }
+
+  /*! Get a cell vector */
+  dealii::Vector<double> GetCellVector() const {
+    dealii::Vector<double> return_vector(finite_element_->dofs_per_cell());
+    return return_vector;
+  }
   
  private:
   //! Internal owned mesh object.
