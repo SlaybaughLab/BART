@@ -43,6 +43,13 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
   dealii::DoFTools::make_hanging_node_constraints(dof_handler_,
                                                   constraint_matrix_);
   constraint_matrix_.close();
+
+  for (auto cell = dof_handler_.begin_active();
+       cell != dof_handler_.end(); ++cell) {
+    if (cell->is_locally_owned())
+      local_cells_.push_back(cell);
+  }
+
   return *this;
 }
 

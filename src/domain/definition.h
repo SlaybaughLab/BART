@@ -38,7 +38,7 @@ template <int dim>
 class Definition {
  public:
 
-  typedef dealii::IteratorRange<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
+  typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
   
   /*! \brief Constructor.
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
@@ -61,7 +61,7 @@ class Definition {
                             problem::DiscretizationType discretization) const;
 
   /*! Get a range of all cells to allow iterating over them */
-  CellRange Cells() const { return dof_handler_.active_cell_iterators(); };
+  CellRange Cells() const { return local_cells_; };
 
   /*! Get total degrees of freedom */
   int total_degrees_of_freedom() const;
@@ -92,7 +92,10 @@ class Definition {
   dealii::IndexSet locally_relevant_dofs_;
 
   /*! Constraint matrix */
-  dealii::ConstraintMatrix constraint_matrix_;  
+  dealii::ConstraintMatrix constraint_matrix_;
+
+  /*! local cells */
+  CellRange local_cells_;
 };
 
 } // namespace domain
