@@ -38,10 +38,14 @@ class Diffusion : public TransportScalar<dim> {
       const FaceNumber face_number,
       const BoundaryType boundary_type) const override;
 
-  void FillCellLinearFixedTerm(Vector& rhs_to_fill,
-                               const CellPtr &cell_ptr,
-                               const GroupNumber group,
-                               const bool is_eigen_problem) const override;
+  void FillCellFixedSourceLinearTerm(Vector &rhs_to_fill,
+                                     const CellPtr &cell_ptr,
+                                     const GroupNumber group) const override;
+
+  void FillCellFissionSourceLinearTerm(Vector &rhs_to_fill,
+                                       const CellPtr &cell_ptr,
+                                       const GroupNumber group,
+                                       const double keff) const override;
 
   void FillCellLinearScatteringTerm(Vector &rhs_to_fill,
                                     const CellPtr &cell_ptr,

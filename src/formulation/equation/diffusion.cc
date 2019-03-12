@@ -80,21 +80,33 @@ void Diffusion<dim>::FillBoundaryBilinearTerm(
 }
 
 template<int dim>
-void Diffusion<dim>::FillCellLinearFixedTerm(Vector &rhs_to_fill,
-                                             const CellPtr &cell_ptr,
-                                             const GroupNumber group,
-                                             const bool is_eigen_problem) const {
+void Diffusion<dim>::FillCellFixedSourceLinearTerm(Vector &rhs_to_fill,
+                                                   const CellPtr &cell_ptr,
+                                                   const GroupNumber group) const {
   SetCell(cell_ptr);
   MaterialID material_id = cell_ptr->material_id();
 
   // Fixed source at each cell quadrature point
   std::vector<double> cell_fixed_source(cell_quadrature_points_);
 
-  if (!is_eigen_problem) {
-    cell_fixed_source = std::vector<double>(
-        cell_quadrature_points_,
-        cross_sections_->q.at(material_id)[group]);
+  cell_fixed_source = std::vector<double>(
+      cell_quadrature_points_,
+      cross_sections_->q.at(material_id)[group]);
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    cell_fixed_source[q] *= finite_element_->values()->JxW(q);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      rhs_to_fill(i) += finite_element_->values()->shape_value(i,q) *
+          cell_fixed_source[q];
+    }
   }
+}
+template<int dim>
+void Diffusion<dim>::FillCellFissionSourceLinearTerm(Vector &rhs_to_fill,
+                                                     const CellPtr &cell_ptr,
+                                                     const GroupNumber group,
+                                                     const double keff) const {
+
 }
 
 template <int dim>
@@ -137,7 +149,6 @@ void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
   }
 
 }
-
 
 template class Diffusion<1>;
 template class Diffusion<2>;
