@@ -106,6 +106,32 @@ void Diffusion<dim>::FillCellFissionSourceLinearTerm(Vector &rhs_to_fill,
                                                      const CellPtr &cell_ptr,
                                                      const GroupNumber group,
                                                      const double keff) const {
+  SetCell(cell_ptr);
+  MaterialID material_id = cell_ptr->material_id();
+  int total_groups = scalar_fluxes_->previous_iteration.size();
+
+  std::vector<double> cell_fixed_source(cell_quadrature_points_);
+
+  for (int group_in = 0; group_in < total_groups; ++group_in) {
+    std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
+    finite_element_->values()->get_function_values(
+        *scalar_fluxes_->previous_iteration[group_in],
+        group_cell_scalar_flux);
+    double scaled_fission_transfer =
+        cross_sections_->fiss_transfer.at(material_id)(group_in, group)/keff;
+    for (int q = 0; q < cell_quadrature_points_; ++q) {
+      cell_fixed_source[q] += scaled_fission_transfer *
+          group_cell_scalar_flux[q];
+    }
+  }
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    cell_fixed_source[q] *= finite_element_->values()->JxW(q);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      rhs_to_fill(i) += finite_element_->values()->shape_value(i, q) *
+          cell_fixed_source[q];
+    }
+  }
 
 }
 
@@ -130,7 +156,7 @@ void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
 
       if (sigma_s >= 1e-15) {
         finite_element_->values()->get_function_values(
-            *scalar_fluxes_->previous_iteration[group],
+            *scalar_fluxes_->previous_iteration[group_in],
             group_cell_scalar_flux);
 
         for (int q = 0; q < cell_quadrature_points_; ++q) {
