@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FORMULATION_EQUATION_DIFFUSION_H_
 #define BART_SRC_FORMULATION_EQUATION_DIFFUSION_H_
 
+#include "problem/parameter_types.h"
 #include "formulation/types.h"
 #include "formulation/equation/transport_scalar.h"
 
@@ -20,39 +21,38 @@ class Diffusion : public TransportScalar<dim> {
   using typename TransportScalar<dim>::GroupNumber;
   using typename TransportScalar<dim>::FaceNumber;
 
-  explicit Diffusion(const DiscretizationType discretization)
-      : TransportScalar<dim>(discretization) {}
+  Diffusion(const DiscretizationType discretization,
+            problem::ProblemType problem_type,
+            std::shared_ptr<double> k_effective)
+      : TransportScalar<dim>(discretization),
+        problem_type_(problem_type),
+        k_effective_(k_effective) {}
 
   virtual ~Diffusion() = default;
 
   void Precalculate(const CellPtr &cell_ptr) override;
 
-  void FillCellBilinearTerm(Matrix& to_fill,
-                            const CellPtr &cell_ptr,
-                            const GroupNumber group) const override;
+  void FillCellFixedBilinear(Matrix &to_fill,
+                             const CellPtr &cell_ptr,
+                             const GroupNumber group) const override;
 
-  void FillBoundaryBilinearTerm(
-      Matrix &to_fill,
-      const CellPtr &cell_ptr,
-      const GroupNumber,
-      const FaceNumber face_number,
-      const BoundaryType boundary_type) const override;
+  void FillBoundaryFixedBilinear(Matrix &to_fill,
+                                 const CellPtr &cell_ptr,
+                                 const GroupNumber group,
+                                 const FaceNumber face_number,
+                                 const BoundaryType boundary_type) const override;
 
-  void FillCellFixedSourceLinearTerm(Vector &rhs_to_fill,
-                                     const CellPtr &cell_ptr,
-                                     const GroupNumber group) const override;
+  void FillCellFixedLinear(Vector &rhs_to_fill,
+                           const CellPtr &cell_ptr,
+                           const GroupNumber group) const override;
 
-  void FillCellFissionSourceLinearTerm(Vector &rhs_to_fill,
-                                       const CellPtr &cell_ptr,
-                                       const GroupNumber group,
-                                       const double keff) const override;
-
-  void FillCellLinearScatteringTerm(Vector &rhs_to_fill,
-                                    const CellPtr &cell_ptr,
-                                    const GroupNumber) const override;
+  void FillCellVariableLinear(Vector& rhs_to_fill,
+                              const CellPtr &cell_ptr,
+                              const GroupNumber group) const override;
 
  protected:
-
+  std::shared_ptr<double> k_effective_;
+  problem::ProblemType problem_type_;
   std::vector<Matrix> shape_squared_;
   std::vector<Matrix> gradient_squared_;
 

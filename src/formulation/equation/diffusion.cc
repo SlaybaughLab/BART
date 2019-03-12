@@ -36,7 +36,7 @@ void Diffusion<dim>::Precalculate(const CellPtr &cell_ptr) {
 }
 
 template<int dim>
-void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
+void Diffusion<dim>::FillCellFixedBilinear(Matrix &to_fill,
                                           const CellPtr &cell_ptr,
                                           const GroupNumber group) const {
   SetCell(cell_ptr);
@@ -56,7 +56,7 @@ void Diffusion<dim>::FillCellBilinearTerm(Matrix &to_fill,
 }
 
 template<int dim>
-void Diffusion<dim>::FillBoundaryBilinearTerm(
+void Diffusion<dim>::FillBoundaryFixedBilinear(
     Matrix &to_fill,
     const CellPtr &cell_ptr,
     const GroupNumber,
@@ -80,101 +80,70 @@ void Diffusion<dim>::FillBoundaryBilinearTerm(
 }
 
 template<int dim>
-void Diffusion<dim>::FillCellFixedSourceLinearTerm(Vector &rhs_to_fill,
-                                                   const CellPtr &cell_ptr,
-                                                   const GroupNumber group) const {
-  SetCell(cell_ptr);
-  MaterialID material_id = cell_ptr->material_id();
+void Diffusion<dim>::FillCellFixedLinear(Vector &rhs_to_fill,
+                                         const CellPtr &cell_ptr,
+                                         const GroupNumber group) const {
+  if (problem_type_ == problem::ProblemType::kFixedSource) {
+    SetCell(cell_ptr);
+    MaterialID material_id = cell_ptr->material_id();
 
-  // Fixed source at each cell quadrature point
-  std::vector<double> cell_fixed_source(cell_quadrature_points_);
+    // Fixed source at each cell quadrature point
+    std::vector<double> cell_fixed_source(cell_quadrature_points_);
 
-  cell_fixed_source = std::vector<double>(
-      cell_quadrature_points_,
-      cross_sections_->q.at(material_id)[group]);
+    cell_fixed_source = std::vector<double>(
+        cell_quadrature_points_,
+        cross_sections_->q.at(material_id)[group]);
 
-  for (int q = 0; q < cell_quadrature_points_; ++q) {
-    cell_fixed_source[q] *= finite_element_->values()->JxW(q);
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      rhs_to_fill(i) += finite_element_->values()->shape_value(i,q) *
-          cell_fixed_source[q];
+    for (int q = 0; q < cell_quadrature_points_; ++q) {
+      cell_fixed_source[q] *= finite_element_->values()->JxW(q);
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        rhs_to_fill(i) += finite_element_->values()->shape_value(i, q) *
+            cell_fixed_source[q];
+      }
     }
   }
 }
+
 template<int dim>
-void Diffusion<dim>::FillCellFissionSourceLinearTerm(Vector &rhs_to_fill,
-                                                     const CellPtr &cell_ptr,
-                                                     const GroupNumber group,
-                                                     const double keff) const {
+void Diffusion<dim>::FillCellVariableLinear(Vector &rhs_to_fill,
+                                            const CellPtr &cell_ptr,
+                                            const GroupNumber group) const {
   SetCell(cell_ptr);
   MaterialID material_id = cell_ptr->material_id();
   int total_groups = scalar_fluxes_->previous_iteration.size();
 
-  std::vector<double> cell_fixed_source(cell_quadrature_points_);
+  std::vector<double> cell_variable_source(cell_quadrature_points_);
 
   for (int group_in = 0; group_in < total_groups; ++group_in) {
     std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
+
     finite_element_->values()->get_function_values(
         *scalar_fluxes_->previous_iteration[group_in],
         group_cell_scalar_flux);
+
+    double sigma_s = 0;
+    if (group_in != group) {
+      sigma_s = cross_sections_->sigma_s.at(material_id)(group_in, group);
+    }
+
     double scaled_fission_transfer =
-        cross_sections_->fiss_transfer.at(material_id)(group_in, group)/keff;
+        cross_sections_->fiss_transfer.at(material_id)(group_in, group)/(*k_effective_);
+
     for (int q = 0; q < cell_quadrature_points_; ++q) {
-      cell_fixed_source[q] += scaled_fission_transfer *
+      cell_variable_source[q] += (scaled_fission_transfer + sigma_s ) *
           group_cell_scalar_flux[q];
     }
   }
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
-    cell_fixed_source[q] *= finite_element_->values()->JxW(q);
+    cell_variable_source[q] *= finite_element_->values()->JxW(q);
     for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
       rhs_to_fill(i) += finite_element_->values()->shape_value(i, q) *
-          cell_fixed_source[q];
+          cell_variable_source[q];
     }
   }
-
 }
 
-template <int dim>
-void Diffusion<dim>::FillCellLinearScatteringTerm(Vector &rhs_to_fill,
-                                                  const CellPtr &cell_ptr,
-                                                  const GroupNumber group) const {
-  SetCell(cell_ptr);
-  MaterialID material_id = cell_ptr->material_id();
-  int total_groups = scalar_fluxes_->previous_iteration.size();
-
-  // Scattering flux at each cell quadrature point, with a contribution from
-  // all other groups.
-  std::vector<double> cell_scatter_flux(cell_quadrature_points_);
-
-  // Iterates over each group to provide contribution from each group
-  for (int group_in = 0; group_in < total_groups; ++group_in) {
-    std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
-
-    if (group_in != group) {
-      double sigma_s = cross_sections_->sigma_s.at(material_id)(group_in, group);
-
-      if (sigma_s >= 1e-15) {
-        finite_element_->values()->get_function_values(
-            *scalar_fluxes_->previous_iteration[group_in],
-            group_cell_scalar_flux);
-
-        for (int q = 0; q < cell_quadrature_points_; ++q) {
-          cell_scatter_flux[q] += sigma_s * group_cell_scalar_flux[q];
-        }
-      }
-    }
-  }
-
-  for (int q = 0; q < cell_quadrature_points_; ++q) {
-    cell_scatter_flux[q] *= finite_element_->values()->JxW(q);
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      rhs_to_fill(i) += finite_element_->values()->shape_value(i, q) *
-          cell_scatter_flux[q];
-    }
-  }
-
-}
 
 template class Diffusion<1>;
 template class Diffusion<2>;
