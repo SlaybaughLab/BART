@@ -24,7 +24,7 @@ using ScalarFluxPtrs = std::map<GroupNumber, std::unique_ptr<FluxVector>>;
 
 // System Matrices types
 using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
-using ScalarSystemMatrices = std::map<GroupNumber, std::unique_ptr<MPISparseMatrix>>;
+using ScalarSystemMatrices = std::map<GroupNumber, MPISparseMatrix>;
 
 // Flux data structures
 struct CrossSections;
