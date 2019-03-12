@@ -18,14 +18,16 @@ template <int dim>
 class AssembleScalar : private utility::Uncopyable {
  public:
   using GroupNumber = int;
-  using Matrix = dealii::FullMatrix<double>;
+  using CellMatrix = dealii::FullMatrix<double>;
+  using CellVector = dealii::Vector<double>;
 
   AssembleScalar(
       std::unique_ptr<equation::TransportScalar<dim>> equation,
       std::unique_ptr<domain::Definition<dim>> domain,
       std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
       std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
-      std::shared_ptr<data::RightHandSideVector> right_hand_side,
+      std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side,
+      std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side,
       std::map<problem::Boundary, bool> reflective_boundary_map);
   ~AssembleScalar() = default;
 
@@ -40,10 +42,13 @@ class AssembleScalar : private utility::Uncopyable {
   // Shared pointers -> System data to assemble into
   std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes_;
   std::shared_ptr<data::ScalarSystemMatrices> system_matrices_;
-  std::shared_ptr<data::RightHandSideVector> right_hand_side_;\
+  std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side_;
+
+  // Internal storage for fixed RHS values
+  std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side_;
 
   // Other
-  std::map<problem::Boundary, bool>   reflective_boundary_map_;
+  std::map<problem::Boundary, bool> reflective_boundary_map_;
 };
 
 } // namespace formulation
