@@ -51,8 +51,8 @@ class Diffusion : public TransportScalar<dim> {
                               const GroupNumber group) const override;
 
  protected:
-  std::shared_ptr<double> k_effective_;
   problem::ProblemType problem_type_;
+  std::shared_ptr<double> k_effective_;
   std::vector<Matrix> shape_squared_;
   std::vector<Matrix> gradient_squared_;
 
