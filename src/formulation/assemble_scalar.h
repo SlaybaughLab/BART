@@ -7,6 +7,7 @@
 #include "data/system_scalar_fluxes.h"
 #include "domain/definition.h"
 #include "formulation/equation/transport_scalar.h"
+#include "problem/parameter_types.h"
 #include "utility/uncopyable.h"
 
 namespace bart {
@@ -16,13 +17,19 @@ namespace formulation {
 template <int dim>
 class AssembleScalar : private utility::Uncopyable {
  public:
+  using Matrix = dealii::FullMatrix<double>;
+
   AssembleScalar(
       std::unique_ptr<equation::TransportScalar<dim>> equation,
       std::unique_ptr<domain::Definition<dim>> domain,
       std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
       std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
-      std::shared_ptr<data::RightHandSideVector> right_hand_side);
+      std::shared_ptr<data::RightHandSideVector> right_hand_side,
+      std::map<problem::Boundary, bool> reflective_boundary_map);
   ~AssembleScalar() = default;
+
+  void AssembleBilinearTerms();
+
  private:
   // Unique pointers: equation and solver domain
   std::unique_ptr<equation::TransportScalar<dim>> equation_;
@@ -31,7 +38,10 @@ class AssembleScalar : private utility::Uncopyable {
   // Shared pointers -> System data to assemble into
   std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes_;
   std::shared_ptr<data::ScalarSystemMatrices> system_matrices_;
-  std::shared_ptr<data::RightHandSideVector> right_hand_side_;
+  std::shared_ptr<data::RightHandSideVector> right_hand_side_;\
+
+  // Other
+  std::map<problem::Boundary, bool>   reflective_boundary_map_;
 };
 
 } // namespace formulation
