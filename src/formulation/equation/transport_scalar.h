@@ -58,7 +58,7 @@ class TransportScalar : public Transport<dim> {
    */
   virtual void FillCellVariableBilinear(Matrix& to_fill,
                                         const CellPtr &cell_ptr,
-                                        const GroupNumber group) const {};
+                                        const GroupNumber group) const;
 
   /*! \brief Fills a cell matrix with the integrated fixed boundary bilinear
    * term for a boundary cell.
@@ -90,7 +90,7 @@ class TransportScalar : public Transport<dim> {
       const CellPtr &cell_ptr,
       const GroupNumber group,
       const FaceNumber face_number,
-      const BoundaryType boundary_type) const {};
+      const BoundaryType boundary_type) const;
 
   /*! \brief Fills a cell vector with the integrated fixed linear terms.
    *
