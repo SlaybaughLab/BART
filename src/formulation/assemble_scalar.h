@@ -17,6 +17,7 @@ namespace formulation {
 template <int dim>
 class AssembleScalar : private utility::Uncopyable {
  public:
+  using GroupNumber = int;
   using Matrix = dealii::FullMatrix<double>;
 
   AssembleScalar(
@@ -28,7 +29,8 @@ class AssembleScalar : private utility::Uncopyable {
       std::map<problem::Boundary, bool> reflective_boundary_map);
   ~AssembleScalar() = default;
 
-  void AssembleBilinearTerms();
+  void AssembleBilinearTerms(GroupNumber group);
+  void AssembleFixedSourceLinearTerm(GroupNumber group);
 
  private:
   // Unique pointers: equation and solver domain

@@ -19,45 +19,48 @@ AssembleScalar<dim>::AssembleScalar(
       scalar_fluxes_(scalar_fluxes),
       system_matrices_(system_matrices),
       right_hand_side_(right_hand_side),
-      reflective_boundary_map_(reflective_boundary_map) {}
+      reflective_boundary_map_(reflective_boundary_map) {
+  equation_->Precalculate(domain_->Cells()[0]);
+}
 
 template<int dim>
-void AssembleScalar<dim>::AssembleBilinearTerms() {
-  equation_->Precalculate(domain_->Cells()[0]);
-
+void AssembleScalar<dim>::AssembleBilinearTerms(GroupNumber group) {
   Matrix cell_matrix = domain_->GetCellMatrix();
   std::vector<dealii::types::global_dof_index> local_indices;
-  int total_groups = system_matrices_->size();
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
 
-  for (int group = 0; group < total_groups; ++group) {
-    (*system_matrices_)[group] = 0.0;
 
-    for (const auto &cell : domain_->Cells()) {
-      cell_matrix = 0.0;
-      equation_->FillCellBilinearTerm(cell_matrix, cell, group);
+  (*system_matrices_)[group] = 0.0;
 
-      for (int face_number = 0; face_number < faces_per_cell; ++face_number) {
+  for (const auto &cell : domain_->Cells()) {
+    cell_matrix = 0.0;
+    equation_->FillCellBilinearTerm(cell_matrix, cell, group);
 
-        if (cell->at_boundary(face_number)) {
-          auto boundary_type = BoundaryType::kVacuum;
-          auto boundary_name = static_cast<problem::Boundary>(
-              cell->face(face_number)->boundary_id());
-          bool is_reflective = reflective_boundary_map_[boundary_name];
+    for (int face_number = 0; face_number < faces_per_cell; ++face_number) {
 
-          if (is_reflective)
-            boundary_type = BoundaryType::kReflective;
+      if (cell->at_boundary(face_number)) {
+        auto boundary_type = BoundaryType::kVacuum;
+        auto boundary_name = static_cast<problem::Boundary>(
+            cell->face(face_number)->boundary_id());
+        bool is_reflective = reflective_boundary_map_[boundary_name];
 
-          equation_->FillBoundaryBilinearTerm(cell_matrix, cell, group,
-                                              face_number, boundary_type);
-        }
+        if (is_reflective)
+          boundary_type = BoundaryType::kReflective;
+
+        equation_->FillBoundaryBilinearTerm(cell_matrix, cell, group,
+                                                face_number, boundary_type);
       }
-
-      cell->get_dof_indices(local_indices);
-      (*system_matrices_)[group].add(local_indices, local_indices, cell_matrix);
     }
-    (*system_matrices_)[group].compress(dealii::VectorOperation::add);
+
+    cell->get_dof_indices(local_indices);
+    (*system_matrices_)[group].add(local_indices, local_indices, cell_matrix);
   }
+  (*system_matrices_)[group].compress(dealii::VectorOperation::add);
+}
+
+template<int dim>
+void AssembleScalar<dim>::AssembleFixedSourceLinearTerm(GroupNumber group) {
+  
 }
 
 template class AssembleScalar<1>;
