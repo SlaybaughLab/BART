@@ -30,12 +30,27 @@ AssembleScalar<dim>::AssembleScalar(
 
 template<int dim>
 void AssembleScalar<dim>::AssembleFixedBilinearTerms(GroupNumber group) {
+  AssembleBilinearTerms(group, TermType::kFixed);
+}
+
+template<int dim>
+void AssembleScalar<dim>::AssembleBilinearTerms(GroupNumber group,
+                                                TermType term_type) {
   CellMatrix cell_matrix = domain_->GetCellMatrix();
   std::vector<dealii::types::global_dof_index> local_indices;
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
 
+  data::ScalarSystemMatrices *system_matrix_ptr;
 
-  (*fixed_system_matrices_)[group] = 0.0;
+  if (term_type == TermType::kFixed) {
+    system_matrix_ptr = fixed_system_matrices_.get();
+    (*system_matrix_ptr)[group] = 0.0;
+  } else {
+    system_matrix_ptr = system_matrices_.get();
+    (*system_matrix_ptr)[group].copy_from((*fixed_system_matrices_)[group]);
+  }
+
+  (*system_matrix_ptr)[group] = 0.0;
 
   for (const auto &cell : domain_->Cells()) {
     cell_matrix = 0.0;
@@ -58,9 +73,9 @@ void AssembleScalar<dim>::AssembleFixedBilinearTerms(GroupNumber group) {
     }
 
     cell->get_dof_indices(local_indices);
-    (*fixed_system_matrices_)[group].add(local_indices, local_indices, cell_matrix);
+    (*system_matrix_ptr)[group].add(local_indices, local_indices, cell_matrix);
   }
-  (*fixed_system_matrices_)[group].compress(dealii::VectorOperation::add);
+  (*system_matrix_ptr)[group].compress(dealii::VectorOperation::add);
 }
 
 template<int dim>
