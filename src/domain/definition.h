@@ -65,6 +65,13 @@ class Definition {
 
   /*! Get total degrees of freedom */
   int total_degrees_of_freedom() const;
+
+  /*! Get a cell Matrix */
+  dealii::FullMatrix<double> GetCellMatrix() const {
+    dealii::FullMatrix<double> return_matrix(finite_element_->dofs_per_cell(),
+                                             finite_element_->dofs_per_cell());
+    return return_matrix;
+  }
   
  private:
   //! Internal owned mesh object.
