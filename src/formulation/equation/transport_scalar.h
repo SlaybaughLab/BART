@@ -47,19 +47,6 @@ class TransportScalar : public Transport<dim> {
                                      const CellPtr &cell_ptr,
                                      const GroupNumber group) const = 0;
 
-  /*! \brief Fills a cell matrix with the integrated variable bilinear term for
-   * a cell.
-   *
-   * These are the bilinear terms that vary from iteration to iteration.
-   *
-   * \param[in,out] to_fill local cell matrix to fill with the integrated term.
-   * \param[in] cell_ptr the cell to use to generate the local cell matrix.
-   * \param[in] group energy group number
-   */
-  virtual void FillCellVariableBilinear(Matrix& to_fill,
-                                        const CellPtr &cell_ptr,
-                                        const GroupNumber group) const;
-
   /*! \brief Fills a cell matrix with the integrated fixed boundary bilinear
    * term for a boundary cell.
    *
@@ -75,22 +62,6 @@ class TransportScalar : public Transport<dim> {
       const GroupNumber group,
       const FaceNumber face_number,
       const BoundaryType boundary_type) const = 0;
-
-  /*! \brief Fills a cell matrix with the integrated variable boundary bilinear
-   * term for a boundary cell.
-   *
-   * \param[in, out] to_fill local cell matrix to fill with the integrated term.
-   * \param[in] cell_ptr the boundary cell used to generate the local cell matrix.
-   * \param[in] group energy group number
-   * \param[in] face_number the face number for the boundary.
-   * \param[in] boundary_type the type of boundary.
-   */
-  virtual void FillBoundaryVariableBilinear(
-      Matrix &to_fill,
-      const CellPtr &cell_ptr,
-      const GroupNumber group,
-      const FaceNumber face_number,
-      const BoundaryType boundary_type) const;
 
   /*! \brief Fills a cell vector with the integrated fixed linear terms.
    *

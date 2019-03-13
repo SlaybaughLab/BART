@@ -13,14 +13,13 @@ AssembleScalar<dim>::AssembleScalar(
     std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
     std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
     std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side,
-    std::unique_ptr<data::ScalarSystemMatrices> fixed_system_matrices,
     std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side,
     std::map<problem::Boundary, bool> reflective_boundary_map)
     : equation_(std::move(equation)),
       domain_(std::move(domain)),
-      scalar_fluxes_(scalar_fluxes),      system_matrices_(system_matrices),
+      scalar_fluxes_(scalar_fluxes),
+      system_matrices_(system_matrices),
       right_hand_side_(right_hand_side),
-      fixed_system_matrices_(std::move(fixed_system_matrices)),
       fixed_right_hand_side_(std::move(fixed_right_hand_side)),
       reflective_boundary_map_(reflective_boundary_map) {
   equation_->Precalculate(domain_->Cells()[0]);
@@ -29,12 +28,7 @@ AssembleScalar<dim>::AssembleScalar(
 
 template<int dim>
 void AssembleScalar<dim>::AssembleFixedBilinearTerms(GroupNumber group) {
-  AssembleBilinearTerms(group, TermType::kFixed);
-}
-
-template<int dim>
-void AssembleScalar<dim>::AssembleVariableBilinearTerms(GroupNumber group) {
-  AssembleBilinearTerms(group, TermType::kVariable);
+  AssembleBilinearTerms(group);
 }
 
 template<int dim>
@@ -48,24 +42,13 @@ void AssembleScalar<dim>::AssembleVariableLinearTerms(GroupNumber group) {
 }
 
 
-
 template<int dim>
-void AssembleScalar<dim>::AssembleBilinearTerms(GroupNumber group,
-                                                TermType term_type) {
+void AssembleScalar<dim>::AssembleBilinearTerms(GroupNumber group) {
   CellMatrix cell_matrix = domain_->GetCellMatrix();
   std::vector<dealii::types::global_dof_index> local_indices;
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
 
-  data::ScalarSystemMatrices *system_matrix_ptr;
-
-  if (term_type == TermType::kFixed) {
-    system_matrix_ptr = fixed_system_matrices_.get();
-    (*system_matrix_ptr)[group] = 0.0;
-  } else {
-    system_matrix_ptr = system_matrices_.get();
-    (*system_matrix_ptr)[group].copy_from((*fixed_system_matrices_)[group]);
-  }
-
+  auto system_matrix_ptr = system_matrices_.get();
   (*system_matrix_ptr)[group] = 0.0;
 
   for (const auto &cell : domain_->Cells()) {

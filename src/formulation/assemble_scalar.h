@@ -27,13 +27,11 @@ class AssembleScalar : private utility::Uncopyable {
       std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
       std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
       std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side,
-      std::unique_ptr<data::ScalarSystemMatrices> fixed_system_matrices,
       std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side,
       std::map<problem::Boundary, bool> reflective_boundary_map);
   ~AssembleScalar() = default;
 
   void AssembleFixedBilinearTerms(GroupNumber group);
-  void AssembleVariableBilinearTerms(GroupNumber group);
   void AssembleFixedLinearTerms(GroupNumber group);
   void AssembleVariableLinearTerms(GroupNumber group);
 
@@ -41,7 +39,7 @@ class AssembleScalar : private utility::Uncopyable {
 
   enum class TermType {kFixed, kVariable};
 
-  void AssembleBilinearTerms(GroupNumber group, TermType term_type);
+  void AssembleBilinearTerms(GroupNumber group);
   void AssembleLinearTerms(GroupNumber group, TermType term_type);
 
   // Unique pointers: equation and solver domain
@@ -54,7 +52,6 @@ class AssembleScalar : private utility::Uncopyable {
   std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side_;
 
   // Internal storage for fixed values
-  std::unique_ptr<data::ScalarSystemMatrices> fixed_system_matrices_;
   std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side_;
 
   // Other
