@@ -3,8 +3,6 @@
 
 #include <vector>
 
-
-
 namespace bart {
 
 namespace formulation {
@@ -105,12 +103,14 @@ void Diffusion<dim>::FillCellFixedLinear(Vector &rhs_to_fill,
 }
 
 template<int dim>
-void Diffusion<dim>::FillCellVariableLinear(Vector &rhs_to_fill,
-                                            const CellPtr &cell_ptr,
-                                            const GroupNumber group) const {
+void Diffusion<dim>::FillCellVariableLinear(
+    Vector &rhs_to_fill,
+    const CellPtr &cell_ptr,
+    const GroupNumber group,
+    const data::ScalarFluxPtrs &scalar_flux) const {
   SetCell(cell_ptr);
   MaterialID material_id = cell_ptr->material_id();
-  int total_groups = scalar_fluxes_->previous_iteration.size();
+  int total_groups = scalar_flux.size();
 
   std::vector<double> cell_variable_source(cell_quadrature_points_);
 
@@ -118,7 +118,7 @@ void Diffusion<dim>::FillCellVariableLinear(Vector &rhs_to_fill,
     std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
 
     finite_element_->values()->get_function_values(
-        *scalar_fluxes_->previous_iteration[group_in],
+        (*scalar_flux.at(group_in)),
         group_cell_scalar_flux);
 
     double sigma_s = 0;

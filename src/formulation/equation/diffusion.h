@@ -48,7 +48,8 @@ class Diffusion : public ScalarFixedBilinear<dim> {
 
   void FillCellVariableLinear(Vector& rhs_to_fill,
                               const CellPtr &cell_ptr,
-                              const GroupNumber group) const override;
+                              const GroupNumber group,
+                              const data::ScalarFluxPtrs &scalar_flux) const override;
 
  protected:
   problem::ProblemType problem_type_;
@@ -56,7 +57,6 @@ class Diffusion : public ScalarFixedBilinear<dim> {
   std::vector<Matrix> shape_squared_;
   std::vector<Matrix> gradient_squared_;
 
-  using ScalarFixedBilinear<dim>::scalar_fluxes_;
   using ScalarFixedBilinear<dim>::SetCell;
   using ScalarFixedBilinear<dim>::SetFace;
   using ScalarFixedBilinear<dim>::finite_element_;

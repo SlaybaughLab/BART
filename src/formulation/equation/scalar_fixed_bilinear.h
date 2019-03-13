@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FORMULATION_EQUATION_SCALAR_FIXED_BILINEAR_H_
 #define BART_SRC_FORMULATION_EQUATION_SCALAR_FIXED_BILINEAR_H_
 
+#include "data/forward_declarations.h"
 #include "formulation/types.h"
 #include "formulation/equation/transport.h"
 
@@ -79,9 +80,11 @@ class ScalarFixedBilinear : public Transport<dim> {
    * \param[in] cell_ptr the cell used to generate the local cell matrix.
    * \param[in] group energy group number
    */
-  virtual void FillCellVariableLinear(Vector& rhs_to_fill,
-                                      const CellPtr &cell_ptr,
-                                      const GroupNumber group) const = 0;
+  virtual void FillCellVariableLinear(
+      Vector& rhs_to_fill,
+      const CellPtr &cell_ptr,
+      const GroupNumber group,
+      const data::ScalarFluxPtrs &scalar_flux) const = 0;
 
   ScalarEquations scalar_equation() const { return scalar_equation_; };
  protected:

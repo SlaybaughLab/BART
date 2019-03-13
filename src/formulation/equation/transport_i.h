@@ -52,9 +52,6 @@ class TransportI {
   virtual TransportI& ProvideCrossSections(
       std::shared_ptr<data::CrossSections> cross_sections) = 0;
 
-  virtual TransportI& ProvideScalarFluxes(
-      std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes) = 0;
-
   /*! \brief Set the formulation to a specific cell.
    *
    * This is how cell-specific matrices will be generated.

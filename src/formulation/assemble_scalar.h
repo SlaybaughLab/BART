@@ -24,7 +24,6 @@ class AssembleScalar : private utility::Uncopyable {
   AssembleScalar(
       std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation,
       std::unique_ptr<domain::Definition<dim>> domain,
-      std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
       std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
       std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side,
       std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side,
@@ -33,21 +32,15 @@ class AssembleScalar : private utility::Uncopyable {
 
   void AssembleFixedBilinearTerms(GroupNumber group);
   void AssembleFixedLinearTerms(GroupNumber group);
-  void AssembleVariableLinearTerms(GroupNumber group);
+  void AssembleVariableLinearTerms(GroupNumber group,
+                                   data::ScalarFluxPtrs &scalar_flux);
 
  private:
-
-  enum class TermType {kFixed, kVariable};
-
-  void AssembleBilinearTerms(GroupNumber group);
-  void AssembleLinearTerms(GroupNumber group, TermType term_type);
-
   // Unique pointers: equation and solver domain
   std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation_;
   std::unique_ptr<domain::Definition<dim>> domain_;
 
   // Shared pointers -> System data to assemble into
-  std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes_;
   std::shared_ptr<data::ScalarSystemMatrices> system_matrices_;
   std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side_;
 
