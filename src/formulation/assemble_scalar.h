@@ -33,13 +33,16 @@ class AssembleScalar : private utility::Uncopyable {
   ~AssembleScalar() = default;
 
   void AssembleFixedBilinearTerms(GroupNumber group);
-  void AssembleFixedLinearTerm(GroupNumber group);
+  void AssembleVariableBilinearTerms(GroupNumber group);
+  void AssembleFixedLinearTerms(GroupNumber group);
+  void AssembleVariableLinearTerms(GroupNumber group);
 
  private:
 
   enum class TermType {kFixed, kVariable};
 
   void AssembleBilinearTerms(GroupNumber group, TermType term_type);
+  void AssembleLinearTerms(GroupNumber group, TermType term_type);
 
   // Unique pointers: equation and solver domain
   std::unique_ptr<equation::TransportScalar<dim>> equation_;
