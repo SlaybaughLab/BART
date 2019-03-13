@@ -8,7 +8,7 @@ namespace formulation {
 
 template <int dim>
 AssembleScalar<dim>::AssembleScalar(
-    std::unique_ptr<equation::TransportScalar<dim>> equation,
+    std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation,
     std::unique_ptr<domain::Definition<dim>> domain,
     std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
     std::shared_ptr<data::ScalarSystemMatrices> system_matrices,

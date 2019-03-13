@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_EQUATION_TRANSPORT_SCALAR_H_
-#define BART_SRC_FORMULATION_EQUATION_TRANSPORT_SCALAR_H_
+#ifndef BART_SRC_FORMULATION_EQUATION_SCALAR_FIXED_BILINEAR_H_
+#define BART_SRC_FORMULATION_EQUATION_SCALAR_FIXED_BILINEAR_H_
 
 #include "formulation/types.h"
 #include "formulation/equation/transport.h"
@@ -11,7 +11,7 @@ namespace formulation {
 namespace equation {
 
 template <int dim>
-class TransportScalar : public Transport<dim> {
+class ScalarFixedBilinear : public Transport<dim> {
  public:
   using typename Transport<dim>::CellPtr;
   using Matrix = dealii::FullMatrix<double>;
@@ -19,9 +19,9 @@ class TransportScalar : public Transport<dim> {
   using GroupNumber = int;
   using FaceNumber = int;
 
-  virtual ~TransportScalar() = default;
+  virtual ~ScalarFixedBilinear() = default;
 
-  TransportScalar(const DiscretizationType discretization)
+  ScalarFixedBilinear(const DiscretizationType discretization)
       : Transport<dim>(EquationType::kScalar, discretization) {};
 
   /*! \brief Pre-calculates any part of the formulation that is not cell and group

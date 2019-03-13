@@ -3,7 +3,7 @@
 
 #include "problem/parameter_types.h"
 #include "formulation/types.h"
-#include "formulation/equation/transport_scalar.h"
+#include "formulation/equation/scalar_fixed_bilinear.h"
 
 namespace bart {
 
@@ -12,19 +12,19 @@ namespace formulation {
 namespace equation {
 
 template <int dim>
-class Diffusion : public TransportScalar<dim> {
+class Diffusion : public ScalarFixedBilinear<dim> {
  public:
   using MaterialID = int;
-  using typename TransportScalar<dim>::CellPtr;
-  using typename TransportScalar<dim>::Matrix;
-  using typename TransportScalar<dim>::Vector;
-  using typename TransportScalar<dim>::GroupNumber;
-  using typename TransportScalar<dim>::FaceNumber;
+  using typename ScalarFixedBilinear<dim>::CellPtr;
+  using typename ScalarFixedBilinear<dim>::Matrix;
+  using typename ScalarFixedBilinear<dim>::Vector;
+  using typename ScalarFixedBilinear<dim>::GroupNumber;
+  using typename ScalarFixedBilinear<dim>::FaceNumber;
 
   Diffusion(const DiscretizationType discretization,
             problem::ProblemType problem_type,
             std::shared_ptr<double> k_effective)
-      : TransportScalar<dim>(discretization),
+      : ScalarFixedBilinear<dim>(discretization),
         problem_type_(problem_type),
         k_effective_(k_effective) {}
 
@@ -56,14 +56,14 @@ class Diffusion : public TransportScalar<dim> {
   std::vector<Matrix> shape_squared_;
   std::vector<Matrix> gradient_squared_;
 
-  using TransportScalar<dim>::scalar_fluxes_;
-  using TransportScalar<dim>::SetCell;
-  using TransportScalar<dim>::SetFace;
-  using TransportScalar<dim>::finite_element_;
-  using TransportScalar<dim>::cross_sections_;
-  using TransportScalar<dim>::cell_degrees_of_freedom_;
-  using TransportScalar<dim>::cell_quadrature_points_;
-  using TransportScalar<dim>::face_quadrature_points_;
+  using ScalarFixedBilinear<dim>::scalar_fluxes_;
+  using ScalarFixedBilinear<dim>::SetCell;
+  using ScalarFixedBilinear<dim>::SetFace;
+  using ScalarFixedBilinear<dim>::finite_element_;
+  using ScalarFixedBilinear<dim>::cross_sections_;
+  using ScalarFixedBilinear<dim>::cell_degrees_of_freedom_;
+  using ScalarFixedBilinear<dim>::cell_quadrature_points_;
+  using ScalarFixedBilinear<dim>::face_quadrature_points_;
 };
 
 } // namespace equation

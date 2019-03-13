@@ -6,7 +6,7 @@
 #include "data/forward_declarations.h"
 #include "data/system_scalar_fluxes.h"
 #include "domain/definition.h"
-#include "formulation/equation/transport_scalar.h"
+#include "formulation/equation/scalar_fixed_bilinear.h"
 #include "problem/parameter_types.h"
 #include "utility/uncopyable.h"
 
@@ -22,7 +22,7 @@ class AssembleScalar : private utility::Uncopyable {
   using CellVector = dealii::Vector<double>;
 
   AssembleScalar(
-      std::unique_ptr<equation::TransportScalar<dim>> equation,
+      std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation,
       std::unique_ptr<domain::Definition<dim>> domain,
       std::shared_ptr<data::SystemScalarFluxes> scalar_fluxes,
       std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
@@ -43,7 +43,7 @@ class AssembleScalar : private utility::Uncopyable {
   void AssembleLinearTerms(GroupNumber group, TermType term_type);
 
   // Unique pointers: equation and solver domain
-  std::unique_ptr<equation::TransportScalar<dim>> equation_;
+  std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation_;
   std::unique_ptr<domain::Definition<dim>> domain_;
 
   // Shared pointers -> System data to assemble into
