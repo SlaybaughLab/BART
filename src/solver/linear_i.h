@@ -5,6 +5,11 @@ namespace bart {
 
 namespace solver {
 
+/*! \brief Linear solver class.
+ *
+ * This class is all solvers that solve an equation in the form \f$Ax = b\f$.
+ *
+ */
 class LinearI {
  public:
   virtual ~LinearI() = default;
