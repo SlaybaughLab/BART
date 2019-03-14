@@ -22,7 +22,7 @@ class GMRES : public LinearI {
   void Solve(dealii::PETScWrappers::MatrixBase *A,
              dealii::PETScWrappers::VectorBase *x,
              dealii::PETScWrappers::VectorBase *b,
-             dealii::PETScWrappers::PreconditionerBase *preconditioner);
+             dealii::PETScWrappers::PreconditionerBase *preconditioner) override;
 
  private:
   int max_iterations_ = 100;
