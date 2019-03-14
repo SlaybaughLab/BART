@@ -20,12 +20,14 @@ using HarmonicM = int;     //!< Spherical harmonic \f$m\f$ value for moments
 // System flux types
 using FluxVector = dealii::PETScWrappers::MPI::Vector;
 using RightHandSideVector = dealii::PETScWrappers::MPI::Vector;
-using ScalarRightHandSideVectors = std::map<GroupNumber, RightHandSideVector>;
+
+using ScalarRightHandSidePtrs =
+    std::map<GroupNumber, std::unique_ptr<RightHandSideVector>>;
 using ScalarFluxPtrs = std::map<GroupNumber, std::unique_ptr<FluxVector>>;
 
-// System Matrices types
-using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
-using ScalarSystemMatrices = std::map<GroupNumber, MPISparseMatrix>;
+// System Matrices
+using SystemMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+using ScalarSystemMatrixPtrs = std::map<GroupNumber, std::unique_ptr<SystemMatrix>>;
 
 // Flux data structures
 struct CrossSections;
