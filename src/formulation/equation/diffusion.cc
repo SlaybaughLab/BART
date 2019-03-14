@@ -101,37 +101,46 @@ void Diffusion<dim>::FillCellFixedLinear(Vector &rhs_to_fill,
     }
   }
 }
-
 template<int dim>
-void Diffusion<dim>::FillCellVariableLinear(
+void Diffusion<dim>::FillCellVariableOutGroupLinear(
     Vector &rhs_to_fill,
     const CellPtr &cell_ptr,
     const GroupNumber group,
-    const data::ScalarFluxPtrs &scalar_flux) const {
+    const data::ScalarFluxPtrs &other_group_fluxes) const {
+
   SetCell(cell_ptr);
   MaterialID material_id = cell_ptr->material_id();
-  int total_groups = scalar_flux.size();
+  int total_groups = other_group_fluxes.size();
 
   std::vector<double> cell_variable_source(cell_quadrature_points_);
 
   for (int group_in = 0; group_in < total_groups; ++group_in) {
-    std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
-
-    finite_element_->values()->get_function_values(
-        (*scalar_flux.at(group_in)),
-        group_cell_scalar_flux);
-
-    double sigma_s = 0;
     if (group_in != group) {
+
+      std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
+      double sigma_s = 0;
+      double scaled_fission_transfer = 0;
+
       sigma_s = cross_sections_->sigma_s.at(material_id)(group_in, group);
-    }
 
-    double scaled_fission_transfer =
-        cross_sections_->fiss_transfer.at(material_id)(group_in, group)/(*k_effective_);
 
-    for (int q = 0; q < cell_quadrature_points_; ++q) {
-      cell_variable_source[q] += (scaled_fission_transfer + sigma_s ) *
-          group_cell_scalar_flux[q];
+      if (problem_type_ == problem::ProblemType::kEigenvalue) {
+        scaled_fission_transfer =
+            cross_sections_->fiss_transfer.at(material_id)(group_in, group)
+                / (*k_effective_);
+      }
+
+      if (sigma_s != 0 || scaled_fission_transfer != 0) {
+
+        finite_element_->values()->get_function_values(
+            (*other_group_fluxes.at(group_in)),
+            group_cell_scalar_flux);
+
+        for (int q = 0; q < cell_quadrature_points_; ++q) {
+          cell_variable_source[q] += (scaled_fission_transfer + sigma_s) *
+              group_cell_scalar_flux[q];
+        }
+      }
     }
   }
 
@@ -144,6 +153,42 @@ void Diffusion<dim>::FillCellVariableLinear(
   }
 }
 
+
+template<int dim>
+void Diffusion<dim>::FillCellVariableInGroupLinear(
+    Vector &rhs_to_fill,
+    const CellPtr &cell_ptr,
+    const GroupNumber group,
+    const data::FluxVector &in_group_flux) const {
+
+  if (problem_type_ == problem::ProblemType::kEigenvalue) {
+    SetCell(cell_ptr);
+    MaterialID material_id = cell_ptr->material_id();
+
+    std::vector<double> cell_variable_source(cell_quadrature_points_);
+
+    std::vector<double> group_cell_scalar_flux(cell_quadrature_points_);
+
+    finite_element_->values()->get_function_values(
+        in_group_flux,
+        group_cell_scalar_flux);
+
+    double scaled_fission_transfer =
+        cross_sections_->fiss_transfer.at(material_id)(group, group)/(*k_effective_);
+
+    for (int q = 0; q < cell_quadrature_points_; ++q) {
+      cell_variable_source[q] += scaled_fission_transfer * group_cell_scalar_flux[q];
+    }
+
+    for (int q = 0; q < cell_quadrature_points_; ++q) {
+      cell_variable_source[q] *= finite_element_->values()->JxW(q);
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        rhs_to_fill(i) += finite_element_->values()->shape_value(i, q) *
+            cell_variable_source[q];
+      }
+    }
+  }
+}
 
 template class Diffusion<1>;
 template class Diffusion<2>;

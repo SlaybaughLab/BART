@@ -10,15 +10,15 @@ template <int dim>
 AssembleScalar<dim>::AssembleScalar(
     std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation,
     std::unique_ptr<domain::Definition<dim>> domain,
-    std::shared_ptr<data::ScalarSystemMatrices> system_matrices,
-    std::shared_ptr<data::ScalarRightHandSideVectors> right_hand_side,
-    std::unique_ptr<data::ScalarRightHandSideVectors> fixed_right_hand_side,
+    std::shared_ptr<data::ScalarSystemMatrixPtrs> system_matrix_ptrs,
+    std::shared_ptr<data::ScalarRightHandSidePtrs> right_hand_side_ptrs,
+    std::unique_ptr<data::ScalarRightHandSidePtrs> fixed_right_hand_side_ptrs,
     std::map<problem::Boundary, bool> reflective_boundary_map)
     : equation_(std::move(equation)),
       domain_(std::move(domain)),
-      system_matrices_(system_matrices),
-      right_hand_side_(right_hand_side),
-      fixed_right_hand_side_(std::move(fixed_right_hand_side)),
+      system_matrix_ptrs_(system_matrix_ptrs),
+      right_hand_side_ptrs_(right_hand_side_ptrs),
+      fixed_right_hand_side_ptrs_(std::move(fixed_right_hand_side_ptrs)),
       reflective_boundary_map_(reflective_boundary_map) {
   equation_->Precalculate(domain_->Cells()[0]);
 
@@ -30,8 +30,9 @@ void AssembleScalar<dim>::AssembleFixedBilinearTerms(GroupNumber group) {
   std::vector<dealii::types::global_dof_index> local_indices;
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
 
-  auto system_matrix_ptr = system_matrices_.get();
-  (*system_matrix_ptr)[group] = 0.0;
+  auto &system_matrix = *(system_matrix_ptrs_->at(group));
+
+  system_matrix = 0.0;
 
   for (const auto &cell : domain_->Cells()) {
     cell_matrix = 0.0;
@@ -54,9 +55,9 @@ void AssembleScalar<dim>::AssembleFixedBilinearTerms(GroupNumber group) {
     }
 
     cell->get_dof_indices(local_indices);
-    (*system_matrix_ptr)[group].add(local_indices, local_indices, cell_matrix);
+    system_matrix.add(local_indices, local_indices, cell_matrix);
   }
-  (*system_matrix_ptr)[group].compress(dealii::VectorOperation::add);
+  system_matrix.compress(dealii::VectorOperation::add);
 }
 
 template<int dim>
@@ -64,36 +65,40 @@ void AssembleScalar<dim>::AssembleFixedLinearTerms(GroupNumber group) {
   CellVector cell_vector = domain_->GetCellVector();
   std::vector<dealii::types::global_dof_index> local_indices;
 
-  (*fixed_right_hand_side_)[group] = 0.0;
+  auto &fixed_rhs = *(fixed_right_hand_side_ptrs_->at(group));
 
   for (const auto &cell : domain_->Cells()) {
     cell_vector = 0.0;
     cell->get_dof_indices(local_indices);
     equation_->FillCellFixedLinear(cell_vector, cell, group);
-    (*fixed_right_hand_side_)[group].add(local_indices, cell_vector);
+    fixed_rhs.add(local_indices, cell_vector);
   }
 
-  (*fixed_right_hand_side_)[group].compress(dealii::VectorOperation::add);
+  fixed_rhs.compress(dealii::VectorOperation::add);
 }
 
 template<int dim>
 void AssembleScalar<dim>::AssembleVariableLinearTerms(
     GroupNumber group,
-    data::ScalarFluxPtrs &scalar_flux) {
+    data::FluxVector &in_group_flux,
+    data::ScalarFluxPtrs &out_group_fluxes) {
+
   CellVector cell_vector = domain_->GetCellVector();
   std::vector<dealii::types::global_dof_index> local_indices;
 
-  (*right_hand_side_)[group] = (*fixed_right_hand_side_)[group];
-
+  auto &rhs = *(right_hand_side_ptrs_->at(group));
 
   for (const auto &cell : domain_->Cells()) {
     cell_vector = 0.0;
     cell->get_dof_indices(local_indices);
-    equation_->FillCellVariableLinear(cell_vector, cell, group, scalar_flux);
-    (*right_hand_side_)[group].add(local_indices, cell_vector);
+    equation_->FillCellVariableInGroupLinear(cell_vector, cell, group,
+                                             in_group_flux);
+    equation_->FillCellVariableOutGroupLinear(cell_vector, cell, group,
+                                              out_group_fluxes);
+    rhs.add(local_indices, cell_vector);
   }
 
-  (*right_hand_side_)[group].compress(dealii::VectorOperation::add);
+  rhs.compress(dealii::VectorOperation::add);
 }
 
 template class AssembleScalar<1>;

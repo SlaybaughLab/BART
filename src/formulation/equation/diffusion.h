@@ -46,10 +46,17 @@ class Diffusion : public ScalarFixedBilinear<dim> {
                            const CellPtr &cell_ptr,
                            const GroupNumber group) const override;
 
-  void FillCellVariableLinear(Vector& rhs_to_fill,
-                              const CellPtr &cell_ptr,
-                              const GroupNumber group,
-                              const data::ScalarFluxPtrs &scalar_flux) const override;
+  void FillCellVariableOutGroupLinear(
+      Vector &rhs_to_fill,
+      const CellPtr &cell_ptr,
+      const GroupNumber group,
+      const data::ScalarFluxPtrs &other_group_fluxes) const override;
+
+  void FillCellVariableInGroupLinear(
+      Vector &rhs_to_fill,
+      const CellPtr &cell_ptr,
+      const GroupNumber group,
+      const data::FluxVector &in_group_flux) const override;
 
  protected:
   problem::ProblemType problem_type_;

@@ -42,7 +42,7 @@ class ScalarFixedBilinear : public Transport<dim> {
    *
    * \param[in,out] to_fill local cell matrix to fill with the integrated term.
    * \param[in] cell_ptr the cell to use to generate the local cell matrix.
-   * \param[in] group energy group number
+   * \param[in] group energy group number used to get proper cross-sections
    */
   virtual void FillCellFixedBilinear(Matrix& to_fill,
                                      const CellPtr &cell_ptr,
@@ -74,17 +74,35 @@ class ScalarFixedBilinear : public Transport<dim> {
                                    const CellPtr &cell_ptr,
                                    const GroupNumber group) const = 0;
 
-  /*! \brief Fills a cell vector with the integrated variable linear term.
+  /*! \brief Fills a cell vector with the integrated variable linear term that
+   *         results from other group contributions.
    *
    * \param[in, out] rhs_to_fill vector to fill with the integrated term.
    * \param[in] cell_ptr the cell used to generate the local cell matrix.
    * \param[in] group energy group number
+   * \param[in] group_flux flux for the current group.
+   * \param[in] other_group_fluxes fluxes for the other groups.
    */
-  virtual void FillCellVariableLinear(
+  virtual void FillCellVariableOutGroupLinear(
       Vector& rhs_to_fill,
       const CellPtr &cell_ptr,
       const GroupNumber group,
-      const data::ScalarFluxPtrs &scalar_flux) const = 0;
+      const data::ScalarFluxPtrs &other_group_fluxes) const = 0;
+
+  /*! \brief Fills a cell vector with the integrated variable linear term that
+   *         results from in-group contributions.
+   *
+   * \param[in, out] rhs_to_fill vector to fill with the integrated term.
+   * \param[in] cell_ptr the cell used to generate the local cell matrix.
+   * \param[in] group energy group number
+   * \param[in] group_flux flux for the current group.
+   * \param[in] other_group_fluxes fluxes for the other groups.
+   */
+  virtual void FillCellVariableInGroupLinear(
+      Vector& rhs_to_fill,
+      const CellPtr &cell_ptr,
+      const GroupNumber group,
+      const data::FluxVector &in_group_flux) const = 0;
 
   ScalarEquations scalar_equation() const { return scalar_equation_; };
  protected:
