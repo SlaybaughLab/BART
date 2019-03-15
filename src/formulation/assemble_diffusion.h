@@ -31,11 +31,14 @@ class AssembleDiffusion : private utility::Uncopyable {
       std::map<problem::Boundary, bool> reflective_boundary_map);
   ~AssembleDiffusion() = default;
 
-//  void AssembleFixedBilinearTerms(GroupNumber group);
-//  void AssembleFixedLinearTerms(GroupNumber group);
-//  void AssembleVariableLinearTerms(GroupNumber group,
-//                                   data::FluxVector &in_group_flux,
-//                                   data::ScalarFluxPtrs &out_group_fluxes);
+  void AssembleFixedBilinearTerms(const GroupNumber group);
+  void AssembleFixedLinearTerms(const GroupNumber group);
+  void AssembleFissionTerm(const GroupNumber group,
+                           const double k_effective,
+                           const data::ScalarFluxPtrs &scalar_flux_ptrs);
+  void AssembleScatteringSourceTerm(
+      const GroupNumber group,
+      const data::ScalarFluxPtrs &scalar_flux_ptrs);
 
  private:
   // Unique pointers: equation and solver domain
