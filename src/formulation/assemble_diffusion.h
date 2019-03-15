@@ -22,6 +22,11 @@ class AssembleDiffusion : private utility::Uncopyable {
   using CellMatrix = dealii::FullMatrix<double>;
   using CellVector = dealii::Vector<double>;
 
+  enum class TermType {
+    kFixed,
+    kVariable,
+  };
+
   AssembleDiffusion(
       std::unique_ptr<equation::Diffusion<dim>> equation,
       std::unique_ptr<domain::Definition<dim>> domain,
@@ -33,14 +38,30 @@ class AssembleDiffusion : private utility::Uncopyable {
 
   void AssembleFixedBilinearTerms(const GroupNumber group);
   void AssembleFixedLinearTerms(const GroupNumber group);
+
   void AssembleFissionTerm(const GroupNumber group,
                            const double k_effective,
-                           const data::ScalarFluxPtrs &scalar_flux_ptrs);
+                           const data::ScalarFluxPtrs &scalar_flux_ptrs,
+                           const TermType term_type);
   void AssembleScatteringSourceTerm(
       const GroupNumber group,
-      const data::ScalarFluxPtrs &scalar_flux_ptrs);
+      const data::ScalarFluxPtrs &scalar_flux_ptrs,
+      const TermType term_type);
+
+  void ResetRhs(GroupNumber group) {
+    *(right_hand_side_ptrs_->at(group)) =
+        *(fixed_right_hand_side_ptrs_->at(group));
+  }
 
  private:
+
+  data::RightHandSideVector& GetRhs(TermType term_type, GroupNumber group) {
+    if (term_type == TermType::kFixed)
+      return *(right_hand_side_ptrs_->at(group));
+    else
+      return *(fixed_right_hand_side_ptrs_->at(group));
+  }
+
   // Unique pointers: equation and solver domain
   std::unique_ptr<equation::Diffusion<dim>> equation_;
   std::unique_ptr<domain::Definition<dim>> domain_;

@@ -85,12 +85,13 @@ template <int dim>
 void AssembleDiffusion<dim>::AssembleFissionTerm(
     const GroupNumber group,
     const double k_effective,
-    const data::ScalarFluxPtrs &scalar_flux_ptrs) {
+    const data::ScalarFluxPtrs &scalar_flux_ptrs,
+    const TermType term_type) {
 
   CellVector cell_vector = domain_->GetCellVector();
   std::vector<dealii::types::global_dof_index> local_indices;
 
-  auto &rhs = *(right_hand_side_ptrs_->at(group));
+  auto &rhs = GetRhs(term_type, group);
 
   for (const auto &cell : domain_->Cells()) {
     cell_vector = 0.0;
@@ -106,12 +107,13 @@ void AssembleDiffusion<dim>::AssembleFissionTerm(
 template <int dim>
 void AssembleDiffusion<dim>::AssembleScatteringSourceTerm(
     const GroupNumber group,
-    const data::ScalarFluxPtrs &scalar_flux_ptrs) {
+    const data::ScalarFluxPtrs &scalar_flux_ptrs,
+    const TermType term_type) {
 
   CellVector cell_vector = domain_->GetCellVector();
   std::vector<dealii::types::global_dof_index> local_indices;
 
-  auto &rhs = *(right_hand_side_ptrs_->at(group));
+  auto &rhs = GetRhs(term_type, group);
 
   for (const auto &cell : domain_->Cells()) {
     cell_vector = 0.0;
