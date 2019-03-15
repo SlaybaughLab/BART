@@ -3,10 +3,11 @@
 
 #include <memory>
 
+#include "formulation/equation/diffusion.h"
+
 #include "data/forward_declarations.h"
 #include "data/system_scalar_fluxes.h"
 #include "domain/definition.h"
-#include "formulation/equation/scalar_fixed_bilinear.h"
 #include "problem/parameter_types.h"
 #include "utility/uncopyable.h"
 
@@ -15,30 +16,30 @@ namespace bart {
 namespace formulation {
 
 template <int dim>
-class AssembleScalar : private utility::Uncopyable {
+class AssembleDiffusion : private utility::Uncopyable {
  public:
   using GroupNumber = int;
   using CellMatrix = dealii::FullMatrix<double>;
   using CellVector = dealii::Vector<double>;
 
-  AssembleScalar(
-      std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation,
+  AssembleDiffusion(
+      std::unique_ptr<equation::Diffusion<dim>> equation,
       std::unique_ptr<domain::Definition<dim>> domain,
       std::shared_ptr<data::ScalarSystemMatrixPtrs> system_matrix_ptrs,
       std::shared_ptr<data::ScalarRightHandSidePtrs> right_hand_side_ptrs,
       std::unique_ptr<data::ScalarRightHandSidePtrs> fixed_right_hand_side_ptrs,
       std::map<problem::Boundary, bool> reflective_boundary_map);
-  ~AssembleScalar() = default;
+  ~AssembleDiffusion() = default;
 
-  void AssembleFixedBilinearTerms(GroupNumber group);
-  void AssembleFixedLinearTerms(GroupNumber group);
-  void AssembleVariableLinearTerms(GroupNumber group,
-                                   data::FluxVector &in_group_flux,
-                                   data::ScalarFluxPtrs &out_group_fluxes);
+//  void AssembleFixedBilinearTerms(GroupNumber group);
+//  void AssembleFixedLinearTerms(GroupNumber group);
+//  void AssembleVariableLinearTerms(GroupNumber group,
+//                                   data::FluxVector &in_group_flux,
+//                                   data::ScalarFluxPtrs &out_group_fluxes);
 
  private:
   // Unique pointers: equation and solver domain
-  std::unique_ptr<equation::ScalarFixedBilinear<dim>> equation_;
+  std::unique_ptr<equation::Diffusion<dim>> equation_;
   std::unique_ptr<domain::Definition<dim>> domain_;
 
   // Shared pointers -> System data to assemble into

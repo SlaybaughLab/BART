@@ -1,9 +1,13 @@
 #ifndef BART_SRC_FORMULATION_EQUATION_DIFFUSION_H_
 #define BART_SRC_FORMULATION_EQUATION_DIFFUSION_H_
 
+#include <memory>
+
+#include "data/cross_sections.h"
+#include "domain/finite_element_i.h"
 #include "problem/parameter_types.h"
 #include "formulation/types.h"
-#include "formulation/equation/scalar_fixed_bilinear.h"
+#include "formulation/equation/transport.h"
 
 namespace bart {
 
@@ -12,65 +16,79 @@ namespace formulation {
 namespace equation {
 
 template <int dim>
-class Diffusion : public ScalarFixedBilinear<dim> {
+class Diffusion : public Transport<dim> {
  public:
   using MaterialID = int;
-  using typename ScalarFixedBilinear<dim>::CellPtr;
-  using typename ScalarFixedBilinear<dim>::Matrix;
-  using typename ScalarFixedBilinear<dim>::Vector;
-  using typename ScalarFixedBilinear<dim>::GroupNumber;
-  using typename ScalarFixedBilinear<dim>::FaceNumber;
+  using GroupNumber = int;
+  using FaceNumber = int;
+  using FullMatrix = dealii::FullMatrix<double>;
+  using Vector = dealii::Vector<double>;
+  using typename Transport<dim>::CellPtr;
 
+  /*! \brief Constructor.
+   *
+   * Requires pointers to dependent objects required for assembly of the
+   * equation.
+   *
+   * \param discretization type of discretization (CFEM/DFEM)
+   * \param problem_type either a fixed source problem or an eigenvalue problem.
+   * \param cross_sections object holding all material cross-sections.
+   * \param finite_element object holding finite element information.
+   */
   Diffusion(const DiscretizationType discretization,
-            problem::ProblemType problem_type,
-            std::shared_ptr<double> k_effective)
-      : ScalarFixedBilinear<dim>(discretization),
-        problem_type_(problem_type),
-        k_effective_(k_effective) {}
+            std::shared_ptr<data::CrossSections> cross_sections,
+            std::shared_ptr<domain::FiniteElementI<dim>> finite_element)
+      : Transport<dim>(EquationType::kScalar, discretization) {
+    Transport<dim>::ProvideCrossSections(cross_sections);
+    Transport<dim>::ProvideFiniteElement(finite_element);
+  }
 
   virtual ~Diffusion() = default;
 
-  void Precalculate(const CellPtr &cell_ptr) override;
+  void Precalculate(const CellPtr &cell_ptr);
 
-  void FillCellFixedBilinear(Matrix &to_fill,
+  void FillCellStreamingTerm(FullMatrix &to_fill,
                              const CellPtr &cell_ptr,
-                             const GroupNumber group) const override;
+                             const GroupNumber group) const;
 
-  void FillBoundaryFixedBilinear(Matrix &to_fill,
-                                 const CellPtr &cell_ptr,
-                                 const GroupNumber group,
-                                 const FaceNumber face_number,
-                                 const BoundaryType boundary_type) const override;
+  void FillCellCollisionTerm(FullMatrix &to_fill,
+                             const CellPtr &cell_ptr,
+                             const GroupNumber group) const;
 
-  void FillCellFixedLinear(Vector &rhs_to_fill,
+  void FillBoundaryTerm(FullMatrix &to_fill,
+                        const CellPtr &cell_ptr,
+                        const GroupNumber group,
+                        const FaceNumber face_number,
+                        const BoundaryType boundary_type) const;
+
+  void FillCellFixedSource(Vector &rhs_to_fill,
                            const CellPtr &cell_ptr,
-                           const GroupNumber group) const override;
+                           const GroupNumber group) const;
 
-  void FillCellVariableOutGroupLinear(
+  void FillCellScatteringSource(
       Vector &rhs_to_fill,
       const CellPtr &cell_ptr,
       const GroupNumber group,
-      const data::ScalarFluxPtrs &other_group_fluxes) const override;
+      const data::ScalarFluxPtrs &scalar_flux_ptrs) const;
 
-  void FillCellVariableInGroupLinear(
+  void FillCellFissionSource(
       Vector &rhs_to_fill,
       const CellPtr &cell_ptr,
       const GroupNumber group,
-      const data::FluxVector &in_group_flux) const override;
+      const double k_effective,
+      const data::ScalarFluxPtrs &scalar_flux_ptrs) const;
 
  protected:
-  problem::ProblemType problem_type_;
-  std::shared_ptr<double> k_effective_;
-  std::vector<Matrix> shape_squared_;
-  std::vector<Matrix> gradient_squared_;
+  std::vector<FullMatrix> shape_squared_;
+  std::vector<FullMatrix> gradient_squared_;
 
-  using ScalarFixedBilinear<dim>::SetCell;
-  using ScalarFixedBilinear<dim>::SetFace;
-  using ScalarFixedBilinear<dim>::finite_element_;
-  using ScalarFixedBilinear<dim>::cross_sections_;
-  using ScalarFixedBilinear<dim>::cell_degrees_of_freedom_;
-  using ScalarFixedBilinear<dim>::cell_quadrature_points_;
-  using ScalarFixedBilinear<dim>::face_quadrature_points_;
+  using Transport<dim>::SetCell;
+  using Transport<dim>::SetFace;
+  using Transport<dim>::finite_element_;
+  using Transport<dim>::cross_sections_;
+  using Transport<dim>::cell_degrees_of_freedom_;
+  using Transport<dim>::cell_quadrature_points_;
+  using Transport<dim>::face_quadrature_points_;
 };
 
 } // namespace equation
