@@ -9,10 +9,10 @@ namespace moments {
 bool SingleMomentCheckerL1Norm::CheckIfConverged(
     const data::MomentVector &current_iteration,
     const data::MomentVector &previous_iteration) {
-//  data::FluxVector difference{current_iteration};
-//  difference -= previous_iteration;
-//  delta_ = difference.l1_norm()/current_iteration.l1_norm();
-//  is_converged_ = delta_ <= max_delta_;
+  data::MomentVector difference{current_iteration};
+  difference -= previous_iteration;
+  delta_ = difference.l1_norm()/current_iteration.l1_norm();
+  is_converged_ = delta_ <= max_delta_;
   return is_converged_;
 }
 
