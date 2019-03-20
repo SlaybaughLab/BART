@@ -1,6 +1,8 @@
 #ifndef BART_SRC_UTILITY_NAMED_TYPE_H_
 #define BART_SRC_UTILITY_NAMED_TYPE_H_
 
+#include <memory>
+
 namespace bart {
 
 namespace utility {
