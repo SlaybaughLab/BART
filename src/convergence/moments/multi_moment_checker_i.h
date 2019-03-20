@@ -18,9 +18,9 @@ namespace moments {
  * Fluxes are passed via a data::MomentsMap. Which moments are checked is up to
  * the implementation of the checker.
  * */
-class MultiCheckerI {
+class MultiMomentCheckerI {
  public:
-  virtual ~MultiCheckerI() = default;
+  virtual ~MultiMomentCheckerI() = default;
 
   /*! \brief Identifies if all moments provided have converged.
    *

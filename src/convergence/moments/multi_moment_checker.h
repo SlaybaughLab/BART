@@ -2,7 +2,7 @@
 #define BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_H
 
 #include "data/moment_types.h"
-#include "convergence/moments/single_moment_checker_i.h"
+#include "convergence/moments/multi_moment_checker_i.h"
 #include "utility/uncopyable.h"
 
 namespace bart {
@@ -19,7 +19,7 @@ class MultiMomentChecker : public MultiMomentCheckerI, private utility::Uncopyab
  public:
   /*! \brief Constructor, taking a SingleChecker that will be used to compare
    * moments for convergence.
-   * 
+   *
    * \param checker to use.
    */
   explicit MultiMomentChecker(std::unique_ptr<SingleMomentCheckerI> checker)
