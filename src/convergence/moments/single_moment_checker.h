@@ -14,13 +14,13 @@ namespace moments {
 
 /*! \brief Checks for convergence between two provided moments. */
 
-class SingleChecker : public SingleCheckerI {
+class SingleMomentChecker : public SingleMomentCheckerI {
  public:
-  SingleChecker() = default;
-  explicit SingleChecker(const double max_delta)
+  SingleMomentChecker() = default;
+  explicit SingleMomentChecker(const double max_delta)
       : max_delta_(max_delta) {}
 
-  virtual ~SingleChecker() = default;
+  virtual ~SingleMomentChecker() = default;
 
   bool is_converged() const override { return is_converged_; };
   void SetMaxDelta(const double to_set) override { max_delta_ = to_set; };
@@ -35,7 +35,6 @@ class SingleChecker : public SingleCheckerI {
   
   /*! Maximum delta for convergence */
   double max_delta_ = 0;
-
 };
 
 } // namespace moments

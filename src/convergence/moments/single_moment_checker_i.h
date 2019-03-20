@@ -5,7 +5,7 @@
 
 namespace bart {
 
-namespace data {
+namespace convergence {
 
 namespace moments {
 
@@ -18,8 +18,8 @@ class SingleMomentCheckerI {
  public:
   virtual ~SingleMomentCheckerI() = default;
   /* \brief Checks for convergence of two provided fluxes */
-  virtual bool CheckIfConverged(const data::MomentVector &,
-                                const data::MomentVector&) = 0;
+  virtual bool CheckIfConverged(const data::MomentVector& current_iteration,
+                                const data::MomentVector& previous_iteration) = 0;
   /* \brief Returns status of convergence (from last call to CheckIfConverged */
   virtual bool is_converged() const = 0;
   /* \brief Set the threshold value for convergence check */
@@ -33,7 +33,7 @@ class SingleMomentCheckerI {
 
 } // namespace moments
 
-} // namespace data
+} // namespace convergence
 
 } // namespace bart
 
