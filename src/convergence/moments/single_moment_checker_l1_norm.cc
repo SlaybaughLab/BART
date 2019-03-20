@@ -1,4 +1,4 @@
-#include "convergence/moments/single_moment_l1_norm.h"
+#include "convergence/moments/single_moment_checker_l1_norm.h"
 
 namespace bart {
 
@@ -6,7 +6,7 @@ namespace convergence {
 
 namespace moments {
 
-bool SingleMomentL1Norm::CheckIfConverged(
+bool SingleMomentCheckerL1Norm::CheckIfConverged(
     const data::MomentVector &current_iteration,
     const data::MomentVector &previous_iteration) {
 //  data::FluxVector difference{current_iteration};

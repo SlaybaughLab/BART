@@ -12,16 +12,16 @@ namespace moments {
 /*! \brief Checks for convergence between two fluxes using the percentage
  * change in the L1 norms */
 
-class SingleMomentL1Norm : public SingleMomentChecker {
+class SingleMomentCheckerL1Norm : public SingleMomentChecker {
  public:
   /*! \brief Default constructor, setting max delta to \f$10^{-6}\f$. */
-  SingleMomentL1Norm()
+  SingleMomentCheckerL1Norm()
       : SingleMomentChecker(1e-6) {}
 
-  explicit SingleMomentL1Norm(const double max_delta)
+  explicit SingleMomentCheckerL1Norm(const double max_delta)
       : SingleMomentChecker(max_delta) {};
 
-  ~SingleMomentL1Norm() = default;
+  ~SingleMomentCheckerL1Norm() = default;
 
   bool CheckIfConverged(
       const data::MomentVector &current_iteration,
