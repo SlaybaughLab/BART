@@ -23,7 +23,7 @@ class SingleMomentCheckerI {
   /* \brief Returns status of convergence (from last call to CheckIfConverged */
   virtual bool is_converged() const = 0;
   /* \brief Set the threshold value for convergence check */
-  virtual void SetMaxDelta(double to_set) = 0;
+  virtual void SetMaxDelta(const double to_set) = 0;
   /* \brief Get the threshold value for convergence check */
   virtual double max_delta() const = 0;
   /* \brief Get the delta value from the last convergence check. May be empty
