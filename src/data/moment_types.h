@@ -26,7 +26,7 @@ using MomentIndex = std::array<int, 3>;
 
 using MomentVector = dealii::Vector<double>; //!< Vector for storing moments
 
-using AllMomentsMap = std::map<MomentIndex, MomentVector>;
+using MomentsMap = std::map<MomentIndex, MomentVector>;
 
 } // namespace data
 
