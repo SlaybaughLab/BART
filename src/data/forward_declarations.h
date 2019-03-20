@@ -14,11 +14,12 @@ namespace data {
 // Variable types
 using GroupNumber = int;   //!< Problem group number.
 using OrdinateIndex = int; //!< Angular quadrature ordinate index
-using HarmonicL = int;     //!< Spherical harmonic \f$\ell\f$ value for moments
-using HarmonicM = int;     //!< Spherical harmonic \f$m\f$ value for moments
+
+
 
 // System flux types
 using FluxVector = dealii::PETScWrappers::MPI::Vector;
+using FluxVectorPtr = std::unique_ptr<data::FluxVector>;
 using RightHandSideVector = dealii::PETScWrappers::MPI::Vector;
 
 using ScalarRightHandSidePtrs =
