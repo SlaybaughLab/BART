@@ -10,6 +10,7 @@
 using ::testing::_;
 using ::testing::Return;
 using ::testing::ByRef;
+using ::testing::Sequence;
 
 class MultiMomentCheckerMaxTest : public ::testing::Test {
  protected:
@@ -65,16 +66,28 @@ TEST_F(MultiMomentCheckerMaxTest, GoodMatch) {
   EXPECT_EQ(test_checker.delta(), std::nullopt);
 }
 
+/* Bad match, and with multiple failing groups, only the one with the highest
+ * error will be recorded.
+ */
 TEST_F(MultiMomentCheckerMaxTest, BadMatch) {
+
+  Sequence s;
+
+  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .WillByDefault(Return(false));
+  ON_CALL(*checker_ptr, delta())
+      .WillByDefault(Return(0.1));
+
   int failing_group = 2;
-  // Set up mock to indicate that a specific group will fail
+
   bart::data::MomentVector failing_moment =
       moments_map_two[{failing_group, 0, 0}];
 
   EXPECT_CALL(*checker_ptr,
       CheckIfConverged(failing_moment, failing_moment))
-      .WillOnce(Return(false));
+      .InSequence(s);
   EXPECT_CALL(*checker_ptr, delta())
+      .InSequence(s)
       .WillOnce(Return(0.123));
 
   MultiMomentCheckerMax test_checker(std::move(checker_ptr));
