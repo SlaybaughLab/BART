@@ -9,8 +9,8 @@ namespace bart {
 
 namespace convergence {
 
-/*! \brief Interface for classes that check for final convergence of a
- * framework.
+/*! \brief Interface for classes that determines the status of final
+ * convergence.
  *
  * Generally, it will check for the status of some system parameter (such as
  * flux or eigenvalue), or that a maximum number of iterations has been reached.
