@@ -1,6 +1,7 @@
 #include "convergence/moments/multi_moment_checker_max.h"
 
 #include <memory>
+#include <optional>
 
 #include "convergence/moments/tests/single_moment_checker_mock.h"
 #include "data/moment_types.h"
@@ -10,7 +11,9 @@
 using ::testing::_;
 using ::testing::Return;
 using ::testing::ByRef;
+using ::testing::Ne;
 using ::testing::Sequence;
+using ::testing::Expectation;
 
 class MultiMomentCheckerMaxTest : public ::testing::Test {
  protected:
@@ -71,12 +74,40 @@ TEST_F(MultiMomentCheckerMaxTest, GoodMatch) {
  */
 TEST_F(MultiMomentCheckerMaxTest, BadMatch) {
 
-  Sequence s;
+  int failing_group = 2;
 
-  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
-      .WillByDefault(Return(false));
-  ON_CALL(*checker_ptr, delta())
-      .WillByDefault(Return(0.1));
+  bart::data::MomentVector failing_moment =
+      moments_map_two[{failing_group, 0, 0}];
+
+  EXPECT_CALL(*checker_ptr,
+              CheckIfConverged(Ne(failing_moment), Ne(failing_moment)))
+              .WillRepeatedly(Return(false));
+  EXPECT_CALL(*checker_ptr, delta())
+      .WillRepeatedly(Return(std::make_optional<double>(0.1)));
+
+  Expectation max_group =
+      EXPECT_CALL(*checker_ptr,
+          CheckIfConverged(failing_moment, failing_moment))
+      .WillOnce(Return(false));
+  Expectation max_delta =
+      EXPECT_CALL(*checker_ptr, delta())
+      .After(max_group)
+      .WillOnce(Return(std::make_optional<double>(0.123)));
+
+  EXPECT_CALL(*checker_ptr, delta())
+      .After(max_delta)
+      .WillRepeatedly(Return(std::make_optional<double>(0.1)));
+
+  MultiMomentCheckerMax test_checker(std::move(checker_ptr));
+
+  EXPECT_FALSE(test_checker.CheckIfConverged(moments_map_one, moments_map_two));
+  EXPECT_FALSE(test_checker.is_converged());
+  EXPECT_EQ(test_checker.failed_index().value_or(-1), failing_group);
+  EXPECT_EQ(test_checker.delta().value_or(-1), 0.123);
+}
+
+// Good match after bad should clear delta and indices
+TEST_F(MultiMomentCheckerMaxTest, ConvergeAfterBad) {
 
   int failing_group = 2;
 
@@ -84,18 +115,34 @@ TEST_F(MultiMomentCheckerMaxTest, BadMatch) {
       moments_map_two[{failing_group, 0, 0}];
 
   EXPECT_CALL(*checker_ptr,
-      CheckIfConverged(failing_moment, failing_moment))
-      .InSequence(s);
+              CheckIfConverged(Ne(failing_moment), Ne(failing_moment)))
+      .WillRepeatedly(Return(false));
   EXPECT_CALL(*checker_ptr, delta())
-      .InSequence(s)
-      .WillOnce(Return(0.123));
+      .WillRepeatedly(Return(std::make_optional<double>(0.1)));
+
+  Expectation max_group =
+      EXPECT_CALL(*checker_ptr,
+                  CheckIfConverged(failing_moment, failing_moment))
+          .WillOnce(Return(false));
+  EXPECT_CALL(*checker_ptr, delta())
+      .After(max_group)
+      .WillOnce(Return(std::make_optional<double>(0.123)));
+
+  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .After(max_group)
+      .WillRepeatedly(Return(true));
 
   MultiMomentCheckerMax test_checker(std::move(checker_ptr));
 
+  EXPECT_FALSE(test_checker.CheckIfConverged(moments_map_one, moments_map_two));
+  EXPECT_FALSE(test_checker.is_converged());
+  EXPECT_EQ(test_checker.failed_index().value_or(-1), failing_group);
+  EXPECT_EQ(test_checker.delta().value_or(-1), 0.123);
+
   EXPECT_TRUE(test_checker.CheckIfConverged(moments_map_one, moments_map_two));
   EXPECT_TRUE(test_checker.is_converged());
-  EXPECT_EQ(test_checker.failed_index(), failing_group);
-  EXPECT_EQ(test_checker.delta(), 0.123);
+  EXPECT_EQ(test_checker.failed_index(), std::nullopt);
+  EXPECT_EQ(test_checker.delta(), std::nullopt);
 }
 
 // -- ERRORS --
@@ -107,12 +154,20 @@ TEST_F(MultiMomentCheckerMaxTest, EmptyMoments) {
   EXPECT_ANY_THROW(test_checker.CheckIfConverged(empty_map, empty_map));
 }
 
-// Passing a moment maps where one is missing a group should throw an error
-TEST_F(MultiMomentCheckerMaxTest, WrongGroups) {
+// Passing a moment maps where current is a different length should throw
+TEST_F(MultiMomentCheckerMaxTest, WrongLength) {
   MultiMomentCheckerMax test_checker(std::move(checker_ptr));
-  auto iterator_to_delete = moments_map_one.find({2, 0, 0});
+  auto iterator_to_delete = moments_map_one.find({2, 1, 1});
   moments_map_one.erase(iterator_to_delete);
   EXPECT_ANY_THROW(
       test_checker.CheckIfConverged(moments_map_one, moments_map_two));
+}
 
+// Passing a moment maps where one is missing a group should throw an error
+TEST_F(MultiMomentCheckerMaxTest, WrongGroup) {
+  MultiMomentCheckerMax test_checker(std::move(checker_ptr));
+  auto entry_to_change = moments_map_one.extract({2, 0, 0});
+  entry_to_change.key() = {2, 10, 10};
+  EXPECT_ANY_THROW(
+      test_checker.CheckIfConverged(moments_map_one, moments_map_two));
 }
