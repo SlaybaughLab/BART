@@ -9,17 +9,14 @@ namespace bart {
 namespace convergence {
 
 template <typename CheckerType>
-class FinalOrN : public Final<CheckerType> {
+class FinalOrN : public Final{
  public:
-  using Final<CheckerType>::IterationNumber;
-
   FinalOrN() = default;
   ~FinalOrN() = default;
 
   Status CheckFinalConvergence() override;
 
  protected:
-  using Final<CheckerType>::convergence_status_;
 
 };
 

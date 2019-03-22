@@ -1,4 +1,4 @@
-#include "convergence/final_or_n.h"
+#include "convergence/final_checker_or_n.h"
 
 #include <gtest/gtest.h>
 
@@ -11,7 +11,7 @@ using testing::Types;
 
 class ConvergenceSingleMomentFinalOrNTest : public ::testing::Test {
  protected:
-  
+
 };
 
 

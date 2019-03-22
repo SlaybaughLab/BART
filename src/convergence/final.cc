@@ -8,8 +8,7 @@ namespace bart {
 
 namespace convergence {
 
-template <typename CheckerType>
-Final<CheckerType>& Final<CheckerType>::SetMaxIterations(
+Final& Final::SetMaxIterations(
     IterationNumber to_set) {
 
     AssertThrow(to_set > 0,
@@ -18,8 +17,7 @@ Final<CheckerType>& Final<CheckerType>::SetMaxIterations(
     return *this;
 }
 
-template <typename CheckerType>
-Final<CheckerType>& Final<CheckerType>::SetIteration(
+Final& Final::SetIteration(
     IterationNumber to_set) {
 
     AssertThrow(to_set >= 0,
@@ -28,7 +26,6 @@ Final<CheckerType>& Final<CheckerType>::SetIteration(
     return *this;
 }
 
-template class Final<moments::SingleMomentCheckerI>;
 
 } // namespace convergence
 
