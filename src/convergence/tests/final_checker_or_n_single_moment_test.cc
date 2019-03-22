@@ -13,6 +13,8 @@
 namespace {
 
 using ::testing::_;
+using ::testing::Expectation;
+using ::testing::NiceMock;
 using ::testing::Return;
 using namespace bart::convergence;
 
@@ -20,13 +22,13 @@ class ConvergenceFinalCheckerOrNSingleMomentTest : public ::testing::Test {
  protected:
   using FinalSingleMomentChecker =
       FinalCheckerOrN<bart::data::MomentVector, moments::SingleMomentCheckerI>;
-  std::unique_ptr<moments::SingleMomentCheckerMock> checker_ptr;
+  std::unique_ptr<NiceMock<moments::SingleMomentCheckerMock>> checker_ptr;
   bart::data::MomentVector moment_one, moment_two;
   void SetUp() override;
 };
 
 void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
-  checker_ptr = std::make_unique<moments::SingleMomentCheckerMock>();
+  checker_ptr = std::make_unique<NiceMock<moments::SingleMomentCheckerMock>>();
   ON_CALL(*checker_ptr, CheckIfConverged(_,_)).
       WillByDefault(Return(true));
 }
@@ -85,6 +87,58 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergence) {
   auto result = test_checker.CheckFinalConvergence(moment_one, moment_two);
   EXPECT_TRUE(CompareStatus(result, good_convergence));
 }
+
+TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
+  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .Times(5)
+      .WillRepeatedly(Return(false));
+  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .WillOnce(Return(true));
+
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
+  Status result, good_convergence = {6, 100, true, std::nullopt, std::nullopt};
+
+  for (int i = 0; i < 6; ++i)
+    result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+
+  EXPECT_TRUE(CompareStatus(result, good_convergence));
+}
+
+TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BadConvergenceAfterGood) {
+  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .Times(5)
+      .WillRepeatedly(Return(true));
+  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .WillOnce(Return(false));
+  EXPECT_CALL(*checker_ptr, delta())
+      .After(bad_convergence)
+      .WillOnce(Return(std::make_optional<double>(0.123)));
+
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
+  Status result, expected = {6, 100, false, std::nullopt,
+                             std::make_optional<double>(0.123)};
+
+  for (int i = 0; i < 6; ++i)
+    result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+
+  EXPECT_TRUE(CompareStatus(result, expected));
+}
+
+TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, MaxIterationsReached) {
+  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .WillByDefault(Return(false));
+
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
+  Status result, expected = {10, 10, true, std::nullopt, std::nullopt};
+
+  test_checker.SetMaxIterations(10).SetIteration(9);
+
+  result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+
+  EXPECT_TRUE(CompareStatus(result, expected));
+}
+
+
 
 // -- ERRORS --
 // Verify setters and getters throw the correct errors
