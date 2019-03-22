@@ -15,21 +15,23 @@ namespace convergence {
  * \tparam CheckerType type of checker used to determine convergence.
  */
 
-template <typename CheckerType>
-class FinalCheckerOrN : public Final{
+template <typename CompareType, typename CheckerType>
+class FinalCheckerOrN : public Final<CompareType>{
  public:
   /*! \brief Constructor.
    *
    * \param checker_ptr pointer to the convergence checker that this class
    * will take ownership of.
    */
-  FinalCheckerOrN(std::unique_ptr<CheckerType> checker_ptr)
+  explicit FinalCheckerOrN(std::unique_ptr<CheckerType> checker_ptr)
       : checker_ptr_(std::move(checker_ptr)) {}
   ~FinalCheckerOrN() = default;
 
-  Status CheckFinalConvergence() override;
+  Status CheckFinalConvergence(CompareType& current_iteration,
+                               CompareType& previous_iteration) override;
 
  protected:
+  using Final<CompareType>::convergence_status_;
   std::unique_ptr<CheckerType> checker_ptr_;
 };
 

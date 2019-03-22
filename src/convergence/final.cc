@@ -1,6 +1,7 @@
 #include "convergence/final.h"
 
 #include "convergence/moments/single_moment_checker_i.h"
+#include "data/moment_types.h"
 
 #include <deal.II/base/exceptions.h>
 
@@ -8,7 +9,8 @@ namespace bart {
 
 namespace convergence {
 
-Final& Final::SetMaxIterations(
+template <typename CompareType>
+Final<CompareType>& Final<CompareType>::SetMaxIterations(
     IterationNumber to_set) {
 
     AssertThrow(to_set > 0,
@@ -17,7 +19,8 @@ Final& Final::SetMaxIterations(
     return *this;
 }
 
-Final& Final::SetIteration(
+template <typename CompareType>
+Final<CompareType>& Final<CompareType>::SetIteration(
     IterationNumber to_set) {
 
     AssertThrow(to_set >= 0,
@@ -25,6 +28,8 @@ Final& Final::SetIteration(
     convergence_status_.iteration_number = to_set;
     return *this;
 }
+
+template class Final<data::MomentVector>;
 
 
 } // namespace convergence

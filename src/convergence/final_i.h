@@ -15,8 +15,12 @@ namespace convergence {
  * Generally, it will check for the status of some system parameter (such as
  * flux or eigenvalue), or that a maximum number of iterations has been reached.
  *
+ * \tparam CompareType the types of the objects or values that will be compared
+ * to determine final convergence. (i.e. fluxes, integers, etc).
+ *
  */
 
+template <typename CompareType>
 class FinalI {
  public:
   //! Typedef for value used for indexing iterations
@@ -30,7 +34,8 @@ class FinalI {
    * \return a convergence::Status struct that contains the status of the
    * system convergence
    */
-  virtual Status CheckFinalConvergence() = 0;
+  virtual Status CheckFinalConvergence(CompareType& current_iteration,
+                                       CompareType& previous_iteration) = 0;
 
   /*! \brief Get status of system convergence
    *

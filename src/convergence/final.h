@@ -13,9 +13,10 @@ namespace convergence {
 /*! \brief Implements getters and setters for final convergence interface.
  *
  */
-class Final : public FinalI {
+template <typename CompareType>
+class Final : public FinalI<CompareType> {
  public:
-  using typename FinalI::IterationNumber;
+  using typename FinalI<CompareType>::IterationNumber;
 
   virtual ~Final() = default;
 
@@ -31,9 +32,9 @@ class Final : public FinalI {
   IterationNumber iteration() const override {
       return convergence_status_.iteration_number; };
 
-  Final& SetMaxIterations(IterationNumber to_set) override;
+  Final<CompareType>& SetMaxIterations(IterationNumber to_set) override;
 
-  Final& SetIteration(IterationNumber to_set) override;
+  Final<CompareType>& SetIteration(IterationNumber to_set) override;
 
  protected:
   Status convergence_status_;
