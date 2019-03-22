@@ -125,11 +125,16 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BadConvergenceAfterGood) {
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, MaxIterationsReached) {
+
+  auto delta = std::make_optional<double>(0.123);
+
   ON_CALL(*checker_ptr, CheckIfConverged(_,_))
       .WillByDefault(Return(false));
+  ON_CALL(*checker_ptr, delta())
+      .WillByDefault(Return(delta));
 
   FinalSingleMomentChecker test_checker(std::move(checker_ptr));
-  Status result, expected = {10, 10, true, std::nullopt, std::nullopt};
+  Status result, expected = {10, 10, true, std::nullopt, delta};
 
   test_checker.SetMaxIterations(10).SetIteration(9);
 
