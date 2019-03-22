@@ -1,4 +1,4 @@
-#include "convergence/final_or_n.h"
+#include "convergence/final_checker_or_n.h"
 
 #include "convergence/moments/single_moment_checker_i.h"
 
@@ -7,11 +7,11 @@ namespace bart {
 namespace convergence {
 
 template <typename CheckerType>
-Status FinalOrN<CheckerType>::CheckFinalConvergence() {
+Status FinalCheckerOrN<CheckerType>::CheckFinalConvergence() {
   return convergence_status_;
 }
 
-template class FinalOrN<convergence::moments::SingleMomentCheckerI>;
+template class FinalCheckerOrN<convergence::moments::SingleMomentCheckerI>;
 
 } // namespace convergence
 
