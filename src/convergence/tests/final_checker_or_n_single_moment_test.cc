@@ -6,21 +6,24 @@
 
 #include "convergence/status.h"
 #include "convergence/moments/tests/single_moment_checker_mock.h"
-#include "convergence/moments/single_moment_checker_i.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
 
+using ::testing::_;
+using ::testing::Return;
 using namespace bart::convergence;
 
 class ConvergenceFinalCheckerOrNSingleMomentTest : public ::testing::Test {
  protected:
-  std::unique_ptr<moments::SingleMomentCheckerI> checker_ptr;
+  std::unique_ptr<moments::SingleMomentCheckerMock> checker_ptr;
   void SetUp() override;
 };
 
 void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
   checker_ptr = std::make_unique<moments::SingleMomentCheckerMock>();
+  ON_CALL(*checker_ptr, CheckIfConverged(_,_)).
+      WillByDefault(Return(true));
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, Constructor) {
@@ -30,6 +33,7 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, Constructor) {
   EXPECT_EQ(checker_ptr, nullptr);
 }
 
+// Verify setters and getters work properly
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, SettersAndGetters) {
   FinalCheckerOrN<moments::SingleMomentCheckerI>
       test_checker(std::move(checker_ptr));
@@ -41,6 +45,20 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, SettersAndGetters) {
   EXPECT_EQ(test_checker.iteration(), 0);
   test_checker.SetIteration(10);
   EXPECT_EQ(test_checker.iteration(), 10);
+}
+
+// -- CONVERGENCE TESTS --
+
+// -- ERRORS --
+// Verify setters and getters throw the correct errors
+TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, SettersBadValues) {
+  FinalCheckerOrN<moments::SingleMomentCheckerI>
+      test_checker(std::move(checker_ptr));
+
+  EXPECT_ANY_THROW(test_checker.SetIteration(-10));
+  EXPECT_ANY_THROW(test_checker.SetMaxIterations(-10));
+  EXPECT_ANY_THROW(test_checker.SetMaxIterations(0));
+
 }
 
 
