@@ -29,8 +29,10 @@ class ConvergenceFinalCheckerOrNSingleMomentTest : public ::testing::Test {
 
 void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
   checker_ptr = std::make_unique<NiceMock<moments::SingleMomentCheckerMock>>();
-  ON_CALL(*checker_ptr, CheckIfConverged(_,_)).
-      WillByDefault(Return(true));
+  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .WillByDefault(Return(true));
+  ON_CALL(*checker_ptr, delta())
+      .WillByDefault(Return(std::nullopt));
 }
 
 // -- CUSTOM ASSERTION FOR COMPARING STATUS STRUCTS --
@@ -54,8 +56,8 @@ void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
                                          << rhs.failed_index.value_or(-1);
   } else if (lhs.delta != rhs.delta) {
     return ::testing::AssertionFailure() << "Delta mismatch "
-                                         << lhs.failed_index.value_or(-1) << " != "
-                                         << rhs.failed_index.value_or(-1);
+                                         << lhs.delta.value_or(-1) << " != "
+                                         << rhs.delta.value_or(-1);
   }
   return ::testing::AssertionSuccess();
 }
@@ -89,10 +91,11 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergence) {
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
-  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
       .Times(5)
       .WillRepeatedly(Return(false));
   EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .After(bad_convergence)
       .WillOnce(Return(true));
 
   FinalSingleMomentChecker test_checker(std::move(checker_ptr));
@@ -105,18 +108,24 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BadConvergenceAfterGood) {
-  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+
+  auto delta = std::make_optional<double>(0.123);
+
+  Expectation good_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
       .Times(5)
       .WillRepeatedly(Return(true));
+  EXPECT_CALL(*checker_ptr, delta())
+      .Times(5)
+      .WillRepeatedly(::testing::DoDefault());
   Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+      .After(good_convergence)
       .WillOnce(Return(false));
   EXPECT_CALL(*checker_ptr, delta())
       .After(bad_convergence)
-      .WillOnce(Return(std::make_optional<double>(0.123)));
+      .WillOnce(Return(delta));
 
   FinalSingleMomentChecker test_checker(std::move(checker_ptr));
-  Status result, expected = {6, 100, false, std::nullopt,
-                             std::make_optional<double>(0.123)};
+  Status result, expected = {6, 100, false, std::nullopt, delta};
 
   for (int i = 0; i < 6; ++i)
     result = test_checker.CheckFinalConvergence(moment_one, moment_two);
