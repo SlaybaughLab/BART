@@ -7,16 +7,29 @@ namespace bart {
 
 namespace convergence {
 
-template <typename CompareType, typename CheckerType>
-Status FinalCheckerOrN<CompareType, CheckerType>::CheckFinalConvergence(
-    CompareType& current_iteration,
-    CompareType& previous_iteration
-    ) {
+template <>
+Status FinalCheckerOrN<data::MomentVector ,
+                       moments::SingleMomentCheckerI>::CheckFinalConvergence(
+                           data::MomentVector & current_iteration,
+                           data::MomentVector & previous_iteration) {
+
+  convergence_status_.is_complete =
+      checker_ptr_->CheckIfConverged(current_iteration, previous_iteration);
+
+  convergence_status_.delta = checker_ptr_->delta();
+
+  ++convergence_status_.iteration_number;
+
+  if (convergence_status_.iteration_number ==
+      convergence_status_.max_iterations)
+
+    convergence_status_.is_complete = true;
+
   return convergence_status_;
 }
 
 template class FinalCheckerOrN<data::MomentVector,
-                               convergence::moments::SingleMomentCheckerI>;
+                               moments::SingleMomentCheckerI>;
 
 
 } // namespace convergence
