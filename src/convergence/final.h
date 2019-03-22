@@ -22,7 +22,7 @@ class Final : public FinalI {
   Status convergence_status() const override {
       return convergence_status_; };
 
-  bool   convergence_is_complete() const override {
+  bool convergence_is_complete() const override {
     return convergence_status_.is_complete; };
 
   IterationNumber max_iterations() const override {

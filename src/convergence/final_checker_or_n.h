@@ -10,9 +10,19 @@ namespace bart {
 
 namespace convergence {
 
+/*! \brief Check convergence via a checker class, or N iterations.
+ *
+ * \tparam CheckerType type of checker used to determine convergence.
+ */
+
 template <typename CheckerType>
 class FinalCheckerOrN : public Final{
  public:
+  /*! \brief Constructor.
+   *
+   * \param checker_ptr pointer to the convergence checker that this class
+   * will take ownership of.
+   */
   FinalCheckerOrN(std::unique_ptr<CheckerType> checker_ptr)
       : checker_ptr_(std::move(checker_ptr)) {}
   ~FinalCheckerOrN() = default;
