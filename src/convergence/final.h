@@ -13,9 +13,11 @@ namespace convergence {
 /*! \brief Implements getters and setters for final convergence interface.
  *
  */
-class Final : public FinalI {
+template <typename CheckerType>
+class Final : public FinalI<CheckerType> {
  public:
-  Final() = default;
+  using typename FinalI<CheckerType>::IterationNumber;
+
   virtual ~Final() = default;
 
   Status convergence_status() const override {
@@ -30,9 +32,9 @@ class Final : public FinalI {
   IterationNumber iteration() const override {
       return convergence_status_.iteration_number; };
 
-  Final& SetMaxIterations(IterationNumber to_set) override;
+  Final<CheckerType>& SetMaxIterations(IterationNumber to_set) override;
 
-  Final& SetIteration(IterationNumber to_set) override;
+  Final<CheckerType>& SetIteration(IterationNumber to_set) override;
 
  protected:
   Status convergence_status_;

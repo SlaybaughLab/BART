@@ -16,7 +16,7 @@ namespace convergence {
  * flux or eigenvalue), or that a maximum number of iterations has been reached.
  *
  */
-
+template <typename CheckerType>
 class FinalI {
  public:
   //! Typedef for value used for indexing iterations
@@ -62,14 +62,14 @@ class FinalI {
    * \param to_set value to set as maximum iterations.
    * \return reference to this object.
    */
-  virtual FinalI& SetMaxIterations(IterationNumber to_set) = 0;
+  virtual FinalI<CheckerType>& SetMaxIterations(IterationNumber to_set) = 0;
 
   /*! \brief Set the current iteration.
    *
    * \param to_set value to set as the current iteration.
    * \return reference to this object.
    */
-  virtual FinalI& SetIteration(IterationNumber to_set) = 0;
+  virtual FinalI<CheckerType>& SetIteration(IterationNumber to_set) = 0;
 };
 
 } // namespace convergence
