@@ -11,13 +11,18 @@ namespace bart {
 
 namespace convergence {
 
+namespace moments {
+
 class MultiMomentCheckerMock : public MultiMomentCheckerI {
+ public:
   MOCK_METHOD2(CheckIfConverged, bool(const data::MomentsMap&,
       const data::MomentsMap&));
   MOCK_CONST_METHOD0(is_converged, bool());
   MOCK_CONST_METHOD0(failed_index, std::optional<int>());
   MOCK_CONST_METHOD0(delta, std::optional<double>());
 };
+
+} // namespace moments
 
 } // namespace convergence
 
