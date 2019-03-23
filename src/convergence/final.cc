@@ -1,6 +1,5 @@
 #include "convergence/final.h"
 
-#include "convergence/moments/single_moment_checker_i.h"
 #include "data/moment_types.h"
 
 #include <deal.II/base/exceptions.h>
@@ -30,6 +29,7 @@ Final<CompareType>& Final<CompareType>::SetIteration(
 }
 
 template class Final<data::MomentVector>;
+template class Final<data::MomentsMap>;
 
 
 } // namespace convergence
