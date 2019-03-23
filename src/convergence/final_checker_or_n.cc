@@ -14,18 +14,7 @@ Status FinalCheckerOrN<data::MomentVector ,
     data::MomentVector & current_iteration,
     data::MomentVector & previous_iteration) {
 
-  convergence_status_.is_complete =
-      checker_ptr_->CheckIfConverged(current_iteration, previous_iteration);
-
-  convergence_status_.delta = checker_ptr_->delta();
-
-  ++convergence_status_.iteration_number;
-
-  if (convergence_status_.iteration_number ==
-      convergence_status_.max_iterations) {
-    convergence_status_.is_complete = true;
-  }
-
+  StatusDeltaAndIterate(current_iteration, previous_iteration);
   return convergence_status_;
 }
 
@@ -35,11 +24,20 @@ Status FinalCheckerOrN<data::MomentsMap ,
     data::MomentsMap & current_iteration,
     data::MomentsMap & previous_iteration) {
 
+  StatusDeltaAndIterate(current_iteration, previous_iteration);
+  convergence_status_.failed_index = checker_ptr_->failed_index();
+  return convergence_status_;
+}
+
+template<typename CompareType, typename CheckerType>
+void FinalCheckerOrN<CompareType, CheckerType>::StatusDeltaAndIterate(
+    CompareType &current_iteration,
+    CompareType &previous_iteration) {
+
   convergence_status_.is_complete =
       checker_ptr_->CheckIfConverged(current_iteration, previous_iteration);
 
   convergence_status_.delta = checker_ptr_->delta();
-  convergence_status_.failed_index = checker_ptr_->failed_index();
 
   ++convergence_status_.iteration_number;
 
@@ -47,8 +45,6 @@ Status FinalCheckerOrN<data::MomentsMap ,
       convergence_status_.max_iterations) {
     convergence_status_.is_complete = true;
   }
-
-  return convergence_status_;
 }
 
 template class FinalCheckerOrN<data::MomentVector,

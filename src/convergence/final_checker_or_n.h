@@ -12,6 +12,8 @@ namespace convergence {
 
 /*! \brief Check convergence via a checker class, or N iterations.
  *
+ * \tparam CompareType the types of objects that will be compared to determine
+ * convergence.
  * \tparam CheckerType type of checker used to determine convergence.
  */
 
@@ -31,6 +33,17 @@ class FinalCheckerOrN : public Final<CompareType>{
                                CompareType& previous_iteration) override;
 
  protected:
+  /*! \brief Do the standard checks for convergence.
+   *
+   * This includes status of convergence, delta until convergence, and
+   * iterates.
+   *
+   * \param current_iteration current iteration
+   * \param previous_iteration previous iteration
+   */
+  void StatusDeltaAndIterate(CompareType& current_iteration,
+                             CompareType& previous_iteration);
+
   using Final<CompareType>::convergence_status_;
   std::unique_ptr<CheckerType> checker_ptr_;
 };
