@@ -7,6 +7,7 @@
 
 #include "convergence/status.h"
 #include "convergence/moments/tests/multi_moment_checker_mock.h"
+#include "convergence/tests/final_test.h"
 #include "data/moment_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -17,8 +18,10 @@ using ::testing::Expectation;
 using ::testing::NiceMock;
 using ::testing::Return;
 using namespace bart::convergence;
+using bart::convergence::testing::CompareStatus;
 
-class ConvergenceFinalCheckerOrNMultiMomentTest : public ::testing::Test {
+class ConvergenceFinalCheckerOrNMultiMomentTest :
+    public bart::convergence::testing::ConvergenceFinalTest<bart::data::MomentsMap> {
  protected:
   using FinalMultiMomentChecker =
       FinalCheckerOrN<bart::data::MomentsMap , moments::MultiMomentCheckerI>;
@@ -39,50 +42,15 @@ void ConvergenceFinalCheckerOrNMultiMomentTest::SetUp() {
       .WillByDefault(Return(std::nullopt));
 }
 
-// -- CUSTOM ASSERTION FOR COMPARING STATUS STRUCTS --
-
-::testing::AssertionResult CompareStatus(const Status lhs, const Status rhs) {
-  if (lhs.iteration_number != rhs.iteration_number) {
-    return ::testing::AssertionFailure() << "Iteration number mismatch "
-                                         << lhs.iteration_number << " != "
-                                         << rhs.iteration_number;
-  } else if (lhs.max_iterations != rhs.max_iterations) {
-    return ::testing::AssertionFailure() << "Max iteration number mismatch "
-                                         << lhs.max_iterations << " != "
-                                         << rhs.max_iterations;
-  } else if (lhs.is_complete != rhs.is_complete) {
-    return ::testing::AssertionFailure() << "Convergence completion mismatch "
-                                         << lhs.is_complete << " != "
-                                         << rhs.is_complete;
-  } else if (lhs.failed_index != rhs.failed_index) {
-    return ::testing::AssertionFailure() << "Failed index mismatch "
-                                         << lhs.failed_index.value_or(-1) << " != "
-                                         << rhs.failed_index.value_or(-1);
-  } else if (lhs.delta != rhs.delta) {
-    return ::testing::AssertionFailure() << "Delta mismatch "
-                                         << lhs.delta.value_or(-1) << " != "
-                                         << rhs.delta.value_or(-1);
-  }
-  return ::testing::AssertionSuccess();
+TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, BaseClassTests) {
+  FinalMultiMomentChecker test_checker(std::move(checker_ptr));
+  TestBaseMethods(&test_checker);
 }
 
 TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, Constructor) {
   FinalMultiMomentChecker test_checker(std::move(checker_ptr));
 
   EXPECT_EQ(checker_ptr, nullptr);
-}
-
-// Verify setters and getters work properly
-TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, SettersAndGetters) {
-  FinalMultiMomentChecker test_checker(std::move(checker_ptr));
-
-  EXPECT_EQ(test_checker.max_iterations(), 100);
-  test_checker.SetMaxIterations(50);
-  EXPECT_EQ(test_checker.max_iterations(), 50);
-
-  EXPECT_EQ(test_checker.iteration(), 0);
-  test_checker.SetIteration(10);
-  EXPECT_EQ(test_checker.iteration(), 10);
 }
 
 // -- CONVERGENCE TESTS --
@@ -172,20 +140,6 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, MaxIterationsReached) {
   EXPECT_TRUE(CompareStatus(result, expected));
   EXPECT_TRUE(test_checker.convergence_is_complete());
 }
-
-
-
-// -- ERRORS --
-// Verify setters and getters throw the correct errors
-TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, SettersBadValues) {
-  FinalMultiMomentChecker test_checker(std::move(checker_ptr));
-
-  EXPECT_ANY_THROW(test_checker.SetIteration(-10));
-  EXPECT_ANY_THROW(test_checker.SetMaxIterations(-10));
-  EXPECT_ANY_THROW(test_checker.SetMaxIterations(0));
-
-}
-
 
 } // namespace
 
