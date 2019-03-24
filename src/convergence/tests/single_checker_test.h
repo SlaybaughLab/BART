@@ -24,7 +24,7 @@ class SingleCheckerTest : public ::testing::Test {
     auto delta = std::make_optional<double>(0.185);
 
     checker->SetMaxDelta(0.185);
-    EXPECT_EQ(checker->delta(), delta);
+    EXPECT_EQ(checker->max_delta(), delta);
     EXPECT_ANY_THROW(checker->SetMaxDelta(-0.185));
   }
 
