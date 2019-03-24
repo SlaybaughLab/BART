@@ -30,6 +30,7 @@ Final<CompareType>& Final<CompareType>::SetIteration(
 
 template class Final<data::MomentVector>;
 template class Final<data::MomentsMap>;
+template class Final<double>;
 
 
 } // namespace convergence

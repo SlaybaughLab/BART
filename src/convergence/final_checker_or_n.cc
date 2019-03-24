@@ -3,6 +3,7 @@
 #include "data/moment_types.h"
 #include "convergence/moments/single_moment_checker_i.h"
 #include "convergence/moments/multi_moment_checker_i.h"
+#include "convergence/parameters/single_parameter_checker.h"
 
 namespace bart {
 
@@ -50,6 +51,7 @@ template class FinalCheckerOrN<data::MomentVector,
                                moments::SingleMomentCheckerI>;
 template class FinalCheckerOrN<data::MomentsMap,
                                moments::MultiMomentCheckerI>;
+template class FinalCheckerOrN<double, parameters::SingleParameterChecker>;
 
 
 } // namespace convergence
