@@ -168,6 +168,7 @@ TEST_F(MultiMomentCheckerMaxTest, WrongGroup) {
   MultiMomentCheckerMax test_checker(std::move(checker_ptr));
   auto entry_to_change = moments_map_one.extract({2, 0, 0});
   entry_to_change.key() = {2, 10, 10};
+  moments_map_one.insert(std::move(entry_to_change));
   EXPECT_ANY_THROW(
       test_checker.CheckIfConverged(moments_map_one, moments_map_two));
 }
