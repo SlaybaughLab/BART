@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_L1_NORM_H_
 #define BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_L1_NORM_H_
 
-#include "convergence/moments/single_moment_checker.h"
+#include "convergence/moments/single_moment_checker_i.h"
 
 namespace bart {
 
@@ -12,14 +12,13 @@ namespace moments {
 /*! \brief Checks for convergence between two fluxes using the percentage
  * change in the L1 norms */
 
-class SingleMomentCheckerL1Norm : public SingleMomentChecker {
+class SingleMomentCheckerL1Norm : public SingleMomentCheckerI {
  public:
   /*! \brief Default constructor, setting max delta to \f$10^{-6}\f$. */
-  SingleMomentCheckerL1Norm()
-      : SingleMomentChecker(1e-6) {}
 
-  explicit SingleMomentCheckerL1Norm(const double max_delta)
-      : SingleMomentChecker(max_delta) {};
+  explicit SingleMomentCheckerL1Norm(const double max_delta = 1e-6) {
+    max_delta_ = max_delta;
+  };
 
   ~SingleMomentCheckerL1Norm() = default;
 

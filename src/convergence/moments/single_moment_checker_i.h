@@ -1,6 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 #define BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 
+#include "convergence/single_checker.h"
 #include "data/moment_types.h"
 
 namespace bart {
@@ -14,21 +15,14 @@ namespace moments {
  * (generally using norms) and comparing them to a maximum allowed delta.
  */
 
-class SingleMomentCheckerI {
+class SingleMomentCheckerI : public SingleChecker<data::MomentVector> {
  public:
   virtual ~SingleMomentCheckerI() = default;
-  /* \brief Checks for convergence of two provided fluxes */
-  virtual bool CheckIfConverged(const data::MomentVector& current_iteration,
-                                const data::MomentVector& previous_iteration) = 0;
-  /* \brief Returns status of convergence (from last call to CheckIfConverged */
-  virtual bool is_converged() const = 0;
-  /* \brief Set the threshold value for convergence check */
-  virtual void SetMaxDelta(const double to_set) = 0;
-  /* \brief Get the threshold value for convergence check */
-  virtual double max_delta() const = 0;
-  /* \brief Get the delta value from the last convergence check. May be empty
-   * if convergence has not be checked. */
-  virtual std::optional<double> delta() const = 0;
+
+ protected:
+  using SingleChecker<data::MomentVector>::max_delta_;
+  using SingleChecker<data::MomentVector>::delta_;
+  using SingleChecker<data::MomentVector>::is_converged_;
 };
 
 } // namespace moments
