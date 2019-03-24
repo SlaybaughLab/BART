@@ -1,6 +1,8 @@
 #ifndef BART_SRC_CONVERGENCE_PARAMETERS_SINGLE_PARAMETER_CHECKER_H_
 #define BART_SRC_CONVERGENCE_PARAMETERS_SINGLE_PARAMETER_CHECKER_H_
 
+#include <cstdlib>
+
 #include "convergence/single_checker.h"
 
 namespace bart {
@@ -17,7 +19,8 @@ class SingleParameterChecker : public SingleChecker<double> {
 
   bool CheckIfConverged(const double &current_iteration,
                         const double &previous_iteration) override {
-    return false;
+    double diff = std::abs(current_iteration - previous_iteration);
+    return (diff/std::abs(current_iteration) <= max_delta_);
   }
 
  protected:
