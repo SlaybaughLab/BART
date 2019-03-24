@@ -1,5 +1,5 @@
-#ifndef BART_SRC_POST_REPORTER_MPI_I_H_
-#define BART_SRC_POST_REPORTER_MPI_I_H_
+#ifndef BART_SRC_CONVERGENCE_REPORTER_MPI_I_H_
+#define BART_SRC_CONVERGENCE_REPORTER_MPI_I_H_
 
 #include <string>
 
@@ -7,7 +7,7 @@
 
 namespace bart {
 
-namespace post {
+namespace convergence {
 
 namespace reporter {
 
@@ -35,8 +35,8 @@ class MpiI {
 
 } // namespace reporter
 
-} // namespace post
+} // namespace convergence
 
 } // namespace bart
 
-#endif // BART_SRC_POST_REPORTER_MPI_I_H_
+#endif // BART_SRC_CONVERGENCE_REPORTER_MPI_I_H_

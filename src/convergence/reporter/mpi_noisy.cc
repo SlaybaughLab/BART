@@ -1,8 +1,8 @@
-#include "mpi_noisy.h"
+#include "convergence/reporter/mpi_noisy.h"
 
 namespace bart {
 
-namespace post {
+namespace convergence {
 
 namespace reporter {
 
@@ -16,6 +16,6 @@ void MpiNoisy::Report(const bart::convergence::Status &to_report) {
 
 } // namespace reporter
 
-} // namespace post
+} // namespace convergence
 
 } // namespace bart

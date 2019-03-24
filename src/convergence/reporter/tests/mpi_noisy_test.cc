@@ -1,4 +1,4 @@
-#include "post/reporter/mpi_noisy.h"
+#include "convergence/reporter/mpi_noisy.h"
 
 #include <deal.II/base/conditional_ostream.h>
 #include <gtest/gtest.h>
@@ -20,20 +20,20 @@ void ReporterMpiNoisyTest::SetUp() {
 /* Verifies that the constructor takes ownership of the conditional ostream
  * pointer */
 TEST_F(ReporterMpiNoisyTest, Constructor) {
-  bart::post::reporter::MpiNoisy reporter(std::move(pout_ptr));
+  bart::convergence::reporter::MpiNoisy reporter(std::move(pout_ptr));
   EXPECT_EQ(pout_ptr, nullptr);
 }
 
 /* Verifies that the reporter sends the string to the ostream */
 TEST_F(ReporterMpiNoisyTest, StringReport) {
-  bart::post::reporter::MpiNoisy reporter(std::move(pout_ptr));
+  bart::convergence::reporter::MpiNoisy reporter(std::move(pout_ptr));
   std::string to_report = "report me";
   reporter.Report(to_report);
   EXPECT_EQ(string_stream.str(), to_report);
 }
 
 TEST_F(ReporterMpiNoisyTest, ConvergenceReport) {
-  bart::post::reporter::MpiNoisy reporter(std::move(pout_ptr));
+  bart::convergence::reporter::MpiNoisy reporter(std::move(pout_ptr));
   bart::convergence::Status to_report;
   to_report.iteration_number = 12;
   to_report.max_iterations = 100;

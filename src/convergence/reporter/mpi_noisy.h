@@ -1,4 +1,4 @@
-#ifndef BART_SRC_POST_REPORTER_MPI_NOISY_H_
+#ifndef BART_SRC_CONVERGENCE_REPORTER_MPI_NOISY_H_
 #define BART_SRC_POST_REPORTER_MPI_NOISY_H_
 
 #include <memory>
@@ -6,12 +6,12 @@
 #include <deal.II/base/conditional_ostream.h>
 #include <ostream>
 
-#include "post/reporter/mpi_i.h"
+#include "convergence/reporter/mpi_i.h"
 #include "utility/uncopyable.h"
 
 namespace bart {
 
-namespace post {
+namespace convergence {
 
 namespace reporter {
 
@@ -37,8 +37,8 @@ class MpiNoisy : public MpiI, private utility::Uncopyable {
 };
 } // namespace reporter
 
-} // namespace post
+} // namespace convergence
 
 } // namespace bart
 
-#endif // BART_SRC_POST_REPORTER_MPI_NOISY_H_
+#endif // BART_SRC_CONVERGENCE_REPORTER_MPI_NOISY_H_
