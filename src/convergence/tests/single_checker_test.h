@@ -11,14 +11,16 @@
 
 namespace bart {
 
+namespace convergence {
+
 namespace testing {
 
-template <typename CompareType>
+template<typename CompareType>
 class SingleCheckerTest : public ::testing::Test {
  protected:
   using SingleChecker = bart::convergence::SingleChecker<CompareType>;
 
-  void TestBaseMethods(SingleChecker* checker) {
+  void TestBaseMethods(SingleChecker *checker) {
     auto delta = std::make_optional<double>(0.185);
 
     checker->SetMaxDelta(0.185);
@@ -28,9 +30,9 @@ class SingleCheckerTest : public ::testing::Test {
 
 };
 
-
-
 } // namespace testing
+
+} // namespace convergence
 
 } // namespace bart
 

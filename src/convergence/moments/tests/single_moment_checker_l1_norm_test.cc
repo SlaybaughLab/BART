@@ -11,7 +11,7 @@
 namespace {
 
 class SingleMomentCheckerL1NormTest :
-    public bart::testing::SingleCheckerTest<bart::data::MomentVector> {
+    public bart::convergence::testing::SingleCheckerTest<bart::data::MomentVector> {
  protected:
   bart::convergence::moments::SingleMomentCheckerL1Norm checker{1e-6};
   bart::data::MomentVector moment_one;
