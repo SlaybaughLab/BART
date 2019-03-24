@@ -8,11 +8,10 @@ namespace bart {
 
 namespace convergence {
 
-template <>
-Status FinalCheckerOrN<data::MomentVector ,
-                       moments::SingleMomentCheckerI>::CheckFinalConvergence(
-    data::MomentVector & current_iteration,
-    data::MomentVector & previous_iteration) {
+template <typename CompareType, typename CheckerType>
+Status FinalCheckerOrN<CompareType, CheckerType>::CheckFinalConvergence(
+    CompareType& current_iteration,
+    CompareType& previous_iteration) {
 
   StatusDeltaAndIterate(current_iteration, previous_iteration);
   return convergence_status_;
