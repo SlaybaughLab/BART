@@ -13,7 +13,7 @@ namespace testing {
 
 // -- CUSTOM ASSERTION FOR COMPARING STATUS STRUCTS --
 
-::testing::AssertionResult CompareStatus(const Status lhs, const Status rhs) {
+inline ::testing::AssertionResult CompareStatus(const Status lhs, const Status rhs) {
   if (lhs.iteration_number != rhs.iteration_number) {
     return ::testing::AssertionFailure() << "Iteration number mismatch "
                                          << lhs.iteration_number << " != "
