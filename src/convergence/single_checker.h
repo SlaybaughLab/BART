@@ -3,6 +3,8 @@
 
 #include <optional>
 
+#include "deal.II/base/exceptions.h"
+
 #include "convergence/single_checker_i.h"
 
 namespace bart {
@@ -15,7 +17,10 @@ class SingleChecker : public SingleCheckerI<CompareType> {
   virtual ~SingleChecker() = default;
 
   bool is_converged() const override { return is_converged_; };
-  void SetMaxDelta(const double to_set) override { max_delta_ = to_set; };
+  void SetMaxDelta(const double to_set) override {
+    AssertThrow(to_set >= 0,
+        dealii::ExcMessage("Max delta value must be >= 0"));
+    max_delta_ = to_set; };
   double max_delta() const override { return max_delta_; }
   std::optional<double> delta() const { return delta_; };
 
