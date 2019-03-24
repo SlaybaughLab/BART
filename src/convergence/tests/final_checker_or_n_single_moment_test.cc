@@ -7,6 +7,7 @@
 
 #include "convergence/status.h"
 #include "convergence/moments/tests/single_moment_checker_mock.h"
+#include "convergence/tests/final_test.h"
 #include "data/moment_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -17,11 +18,15 @@ using ::testing::Expectation;
 using ::testing::NiceMock;
 using ::testing::Return;
 using namespace bart::convergence;
+using bart::convergence::testing::CompareStatus;
+using bart::data::MomentVector;
 
-class ConvergenceFinalCheckerOrNSingleMomentTest : public ::testing::Test {
+
+class ConvergenceFinalCheckerOrNSingleMomentTest :
+    public bart::convergence::testing::ConvergenceFinalTest<MomentVector> {
  protected:
   using FinalSingleMomentChecker =
-      FinalCheckerOrN<bart::data::MomentVector, moments::SingleMomentCheckerI>;
+      FinalCheckerOrN<MomentVector, moments::SingleMomentCheckerI>;
   std::unique_ptr<NiceMock<moments::SingleMomentCheckerMock>> checker_ptr;
   bart::data::MomentVector moment_one, moment_two;
   void SetUp() override;
@@ -35,50 +40,17 @@ void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
       .WillByDefault(Return(std::nullopt));
 }
 
-// -- CUSTOM ASSERTION FOR COMPARING STATUS STRUCTS --
+// -- BASE CLASS METHODS
 
-::testing::AssertionResult CompareStatus(const Status lhs, const Status rhs) {
-  if (lhs.iteration_number != rhs.iteration_number) {
-    return ::testing::AssertionFailure() << "Iteration number mismatch "
-                                         << lhs.iteration_number << " != "
-                                         << rhs.iteration_number;
-  } else if (lhs.max_iterations != rhs.max_iterations) {
-    return ::testing::AssertionFailure() << "Max iteration number mismatch "
-                                         << lhs.max_iterations << " != "
-                                         << rhs.max_iterations;
-  } else if (lhs.is_complete != rhs.is_complete) {
-    return ::testing::AssertionFailure() << "Convergence completion mismatch "
-                                         << lhs.is_complete << " != "
-                                         << rhs.is_complete;
-  } else if (lhs.failed_index != rhs.failed_index) {
-    return ::testing::AssertionFailure() << "Failed index mismatch "
-                                         << lhs.failed_index.value_or(-1) << " != "
-                                         << rhs.failed_index.value_or(-1);
-  } else if (lhs.delta != rhs.delta) {
-    return ::testing::AssertionFailure() << "Delta mismatch "
-                                         << lhs.delta.value_or(-1) << " != "
-                                         << rhs.delta.value_or(-1);
-  }
-  return ::testing::AssertionSuccess();
+TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BaseClass) {
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
+  TestBaseMethods(&test_checker);
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, Constructor) {
   FinalSingleMomentChecker test_checker(std::move(checker_ptr));
 
   EXPECT_EQ(checker_ptr, nullptr);
-}
-
-// Verify setters and getters work properly
-TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, SettersAndGetters) {
-  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
-
-  EXPECT_EQ(test_checker.max_iterations(), 100);
-  test_checker.SetMaxIterations(50);
-  EXPECT_EQ(test_checker.max_iterations(), 50);
-
-  EXPECT_EQ(test_checker.iteration(), 0);
-  test_checker.SetIteration(10);
-  EXPECT_EQ(test_checker.iteration(), 10);
 }
 
 // -- CONVERGENCE TESTS --
@@ -150,19 +122,6 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, MaxIterationsReached) {
   result = test_checker.CheckFinalConvergence(moment_one, moment_two);
 
   EXPECT_TRUE(CompareStatus(result, expected));
-}
-
-
-
-// -- ERRORS --
-// Verify setters and getters throw the correct errors
-TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, SettersBadValues) {
-  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
-
-  EXPECT_ANY_THROW(test_checker.SetIteration(-10));
-  EXPECT_ANY_THROW(test_checker.SetMaxIterations(-10));
-  EXPECT_ANY_THROW(test_checker.SetMaxIterations(0));
-
 }
 
 
