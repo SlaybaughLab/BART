@@ -9,8 +9,17 @@ namespace convergence {
 
 namespace moments {
 
-/*! \brief Checks for convergence between two fluxes using the percentage
- * change in the L1 norms */
+/*! \brief Checks for convergence between flux moments using the percentage
+ * change in the L1 norm, compared to the current iteration (\f$i\f$):
+ *
+ * \f[
+ *
+ * \Delta_i = \frac{|\phi_i - \phi_{i-1}|_{1}}{|\phi_{i}|_{1}}
+ *
+ * \f]
+ *
+ * Convergence is achieved if \f$\Delta_i \leq \Delta_{\text{max}}\f$.
+ * */
 
 class SingleMomentCheckerL1Norm : public SingleMomentCheckerI {
  public:

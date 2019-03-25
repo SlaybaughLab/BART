@@ -11,6 +11,19 @@ namespace convergence {
 
 namespace parameters {
 
+/*! \brief Checks for convergence of any parameter expressed as a double.
+ *
+ * Convergence of a value \f$x\f$ after the \f$i\f$th iteration is determined by
+ * a percentage change from the current iteration value:
+ *
+ * \f[
+ * \Delta_i = \frac{|x_i - x_{i-1}|}{|x_i|}
+ * \f]
+ *
+ * Convergence is achieved if \f$ \Delta_i \leq \Delta_{\text{max}}\f$.
+ *
+ */
+
 class SingleParameterChecker : public SingleChecker<double> {
  public:
   explicit SingleParameterChecker(double max_delta = 1e-6) {
