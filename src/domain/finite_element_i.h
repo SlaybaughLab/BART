@@ -42,8 +42,7 @@ class FiniteElementI {
    */
   virtual bool SetCell(const CellPtr &to_set) = 0;
 
-
-  virtual bool SetFace(const CellPtr &to_set, FaceNumber face) = 0;
+  virtual bool SetFace(const FaceNumber face) = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.

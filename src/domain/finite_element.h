@@ -24,7 +24,7 @@ class FiniteElement : public FiniteElementI<dim> {
     return already_set;
   }
 
-  bool SetFace(const CellPtr &to_set, FaceNumber face) override {
+  bool SetFace(const FaceNumber face) override {
     return false;
   }
 //    if (finite_element_->face_values()->get_cell() != to_set &&
