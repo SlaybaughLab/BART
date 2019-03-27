@@ -19,6 +19,7 @@ template <int dim>
 class FiniteElementI {
  public:
   virtual ~FiniteElementI() = default;
+  using FaceNumber = int;
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
 
   // Basic FE properties
@@ -40,6 +41,9 @@ class FiniteElementI {
    * \return bool indicating if the cell was changed.
    */
   virtual bool SetCell(const CellPtr &to_set) = 0;
+
+
+  virtual bool SetFace(const CellPtr &to_set, FaceNumber face) = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.

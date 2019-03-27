@@ -16,6 +16,7 @@ class FiniteElementMock : public FiniteElementI<dim> {
  public:
 
   using typename FiniteElementI<dim>::CellPtr;
+  using typename FiniteElementI<dim>::FaceNumber;
 
   MOCK_CONST_METHOD0_T(polynomial_degree, int());
 
@@ -26,6 +27,8 @@ class FiniteElementMock : public FiniteElementI<dim> {
   MOCK_CONST_METHOD0_T(n_face_quad_pts, int());
 
   MOCK_METHOD1_T(SetCell, bool(const CellPtr &));
+
+  MOCK_METHOD2_T(SetFace, bool(const CellPtr &to_set, FaceNumber face));
 
   MOCK_METHOD0_T(finite_element, dealii::FiniteElement<dim, dim>*());
 
