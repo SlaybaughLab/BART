@@ -20,6 +20,10 @@ class CFEM_Diffusion : public CFEM_I {
                  std::shared_ptr<data::CrossSections> cross_sections);
 
  protected:
+
+  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
+  std::shared_ptr<data::CrossSections> cross_sections_;
+
   int cell_degrees_of_freedom_ = 0;
   int cell_quadrature_points_ = 0;
   int face_quadrature_points_ = 0;

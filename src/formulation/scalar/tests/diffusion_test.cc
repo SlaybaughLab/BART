@@ -49,6 +49,8 @@ TEST_F(FormulationCFEMDiffusionTest, ConstructorTest) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
+  EXPECT_EQ(fe_mock_ptr.use_count(), 2);
+  EXPECT_EQ(cross_sections_ptr.use_count(), 2);
 }
 
 } // namespace
