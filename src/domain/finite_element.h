@@ -14,8 +14,23 @@ class FiniteElement : public FiniteElementI<dim> {
   virtual ~FiniteElement() = default;
 
   bool SetCell(const CellPtr &to_set) override {
+    bool already_set = (values().get_cell() == to_set);
 
+    if (!already_set)
+      values()->reinit(to_set);
+
+    return already_set;
   }
+
+//  void SetFace(const CellPtr &to_set, FaceNumber face) const override {
+//    if (finite_element_->face_values()->get_cell() != to_set &&
+//        static_cast<int>(finite_element_->face_values()->get_face_index())
+//            != face)
+//      finite_element_->face_values()->reinit(to_set, face);
+//  }
+
+ protected:
+  using FiniteElementI<dim>::values;
 
 };
 

@@ -32,6 +32,13 @@ class FiniteElementI {
   virtual int n_face_quad_pts() const = 0;
 
   // Various methods to access the underlying finite element object
+  /*! \brief Sets the cell for finite element values.
+   *
+   * Does nothing if the cell is already set to the passed value.
+   *
+   * \param to_set cell to set
+   * \return bool indicating if the cell was changed.
+   */
   virtual bool SetCell(const CellPtr &to_set) = 0;
 
   // DealII Finite element object access. These methods access the underlying
