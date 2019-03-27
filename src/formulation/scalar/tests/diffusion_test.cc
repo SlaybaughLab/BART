@@ -11,6 +11,7 @@
 
 namespace {
 
+using ::testing::NiceMock;
 using namespace bart;
 
 class FormulationCFEMDiffusionTest : public ::testing::Test {
@@ -23,7 +24,7 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
 void FormulationCFEMDiffusionTest::SetUp() {
   // Make mock objects. Cross-sections is a struct that cannot be mocked, but
   // we can mock the material object it is based on.
-  btest::MockMaterial mock_material;
+  NiceMock<btest::MockMaterial> mock_material;
   fe_mock_ptr = std::make_shared<domain::FiniteElementMock<2>>();
   cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 }
