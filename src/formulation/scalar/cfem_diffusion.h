@@ -9,6 +9,8 @@ namespace formulation {
 
 namespace scalar {
 
+class CFEM_Diffusion : public CFEM_I {};
+
 } // namespace scalar
 
 } // namespace formulation

@@ -7,6 +7,11 @@ namespace formulation {
 
 namespace scalar {
 
+class CFEM_I {
+ public:
+  virtual ~CFEM_I() = default;
+};
+
 } // namespace scalar
 
 } // namespace formulation
