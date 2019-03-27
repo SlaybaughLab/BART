@@ -25,16 +25,21 @@ class FiniteElement : public FiniteElementI<dim> {
   }
 
   bool SetFace(const FaceNumber face) override {
-    return false;
+
+    bool already_set =
+        (static_cast<int>(face_values()->get_face_index()) == face);
+
+    if (!already_set) {
+      auto cell = values()->get_cell();
+      face_values()->reinit(cell, face);
+    }
+
+    return already_set;
   }
-//    if (finite_element_->face_values()->get_cell() != to_set &&
-//        static_cast<int>(finite_element_->face_values()->get_face_index())
-//            != face)
-//      finite_element_->face_values()->reinit(to_set, face);
-//  }
 
  protected:
   using FiniteElementI<dim>::values;
+  using FiniteElementI<dim>::face_values;
 
 };
 
