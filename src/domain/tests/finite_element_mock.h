@@ -14,6 +14,9 @@ namespace domain {
 template <int dim>
 class FiniteElementMock : public FiniteElementI<dim> {
  public:
+
+  using typename FiniteElementI<dim>::CellPtr;
+
   MOCK_CONST_METHOD0_T(polynomial_degree, int());
 
   MOCK_CONST_METHOD0_T(dofs_per_cell, int());
@@ -21,6 +24,8 @@ class FiniteElementMock : public FiniteElementI<dim> {
   MOCK_CONST_METHOD0_T(n_cell_quad_pts, int());
 
   MOCK_CONST_METHOD0_T(n_face_quad_pts, int());
+
+  MOCK_METHOD1_T(SetCell, bool(const CellPtr &));
 
   MOCK_METHOD0_T(finite_element, dealii::FiniteElement<dim, dim>*());
 

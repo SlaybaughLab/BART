@@ -19,6 +19,7 @@ template <int dim>
 class FiniteElementI {
  public:
   virtual ~FiniteElementI() = default;
+  using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
 
   // Basic FE properties
   /*! \brief Gets polynomial degree */
@@ -29,6 +30,9 @@ class FiniteElementI {
   virtual int n_cell_quad_pts() const = 0;
   /*! \brief Gets number of quadrature points per face */
   virtual int n_face_quad_pts() const = 0;
+
+  // Various methods to access the underlying finite element object
+  virtual bool SetCell(const CellPtr &to_set) = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.

@@ -6,15 +6,15 @@
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/fe/fe_values.h>
 
-#include "finite_element_i.h"
-#include "../problem/parameter_types.h"
+#include "domain/finite_element.h"
+#include "problem/parameter_types.h"
 
 namespace bart {
 
 namespace domain {
 
 template <int dim>
-class FiniteElementGaussian : public FiniteElementI<dim>{
+class FiniteElementGaussian : public FiniteElement<dim>{
  public:
   using DiscretizationType = problem::DiscretizationType;
   FiniteElementGaussian(DiscretizationType discretization,
