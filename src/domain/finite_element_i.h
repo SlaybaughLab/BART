@@ -46,10 +46,19 @@ class FiniteElementI {
    *
    * Does nothing if the face is already set to the passed value.
    *
-   * \param face face number to se
-   * \return bool indicating if the cell was changed
+   * \param face face number to set
+   * \return bool indicating if the face was changed.
    */
   virtual bool SetFace(const FaceNumber face) = 0;
+
+  /*! \brief Sets the face and cell.
+   *
+   * \param to_set cell to set
+   * \param face face number to set
+   * \return indicating if the cell was changed.
+   */
+  virtual bool SetFace(const CellPtr &to_set,
+                       const FaceNumber face) = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.

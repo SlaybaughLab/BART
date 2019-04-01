@@ -37,6 +37,19 @@ class FiniteElement : public FiniteElementI<dim> {
     return already_set;
   }
 
+  bool SetFace(const CellPtr &to_set, const FaceNumber face) override {
+    bool cell_already_set = (values()->get_cell() == to_set);
+    bool face_already_set =
+        (static_cast<int>(face_values()->get_face_index()) == face);
+    bool already_set = (!cell_already_set && !face_already_set);
+
+    if (!already_set) {
+      face_values()->reinit(to_set, face);
+    }
+
+    return already_set;
+  }
+
  protected:
   using FiniteElementI<dim>::values;
   using FiniteElementI<dim>::face_values;
