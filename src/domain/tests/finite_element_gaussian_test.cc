@@ -76,6 +76,8 @@ TEST_F(FiniteElementGaussianTest, SetCellTest) {
   auto cell = dof_handler.begin_active();
   auto cell_id = cell->id();
 
+  EXPECT_NO_THROW(test_fe.SetCell(cell));
+
   test_fe.values()->reinit(cell);
 
   EXPECT_FALSE(test_fe.SetCell(cell)); // Shouldn't change anything
