@@ -2,15 +2,18 @@
 
 #include <vector>
 
+#include <deal.II/grid/grid_generator.h>
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/fe/fe_values.h>
 #include <gtest/gtest.h>
 
-#include "../../problem/parameter_types.h"
+#include "problem/parameter_types.h"
 
-#include "../../test_helpers/gmock_wrapper.h"
+#include "test_helpers/gmock_wrapper.h"
+
+namespace {
 
 class FiniteElementGaussianTest : public ::testing::Test {
  protected:
@@ -59,3 +62,68 @@ TEST_F(FiniteElementGaussianTest, ConstructorNone) {
       bart::domain::FiniteElementGaussian<2> test_fe(DiscretizationType::kNone, 2);
     });
 }
+
+TEST_F(FiniteElementGaussianTest, SetCellTest) {
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+  dealii::Triangulation<2> triangulation;
+
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  auto cell = dof_handler.begin_active();
+  auto cell_id = cell->id();
+
+  test_fe.values()->reinit(cell);
+
+  EXPECT_FALSE(test_fe.SetCell(cell)); // Shouldn't change anything
+  EXPECT_EQ(cell_id, test_fe.values()->get_cell()->id()); // Cell didn't change
+
+  auto next_cell = cell;
+  ++next_cell;
+  auto next_cell_id = next_cell->id();
+
+  EXPECT_TRUE(test_fe.SetCell(next_cell));
+  // Check changed
+  EXPECT_NE(cell_id, test_fe.values()->get_cell()->id());
+  EXPECT_EQ(next_cell_id, test_fe.values()->get_cell()->id());
+}
+
+TEST_F(FiniteElementGaussianTest, SetCellAndFace) {
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+  dealii::Triangulation<2> triangulation;
+
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  auto cell = dof_handler.begin_active();
+  auto cell_id = cell->id();
+  int face = 0;
+  int face_index = cell->face_index(face);
+
+  test_fe.face_values()->reinit(cell, face);
+
+  EXPECT_FALSE(test_fe.SetFace(cell, face));
+  EXPECT_EQ(cell_id, test_fe.face_values()->get_cell()->id());
+  EXPECT_EQ(face_index, test_fe.face_values()->get_face_index());
+
+  auto next_cell = cell;
+  ++next_cell;
+  auto next_cell_id = next_cell->id();
+  int next_face = face + 1;
+  int next_face_index = next_cell->face_index(next_face);
+
+  EXPECT_TRUE(test_fe.SetFace(next_cell, next_face));
+  EXPECT_EQ(next_cell_id, test_fe.face_values()->get_cell()->id());
+  EXPECT_NE(face_index, test_fe.face_values()->get_face_index());
+  EXPECT_EQ(next_face_index, test_fe.face_values()->get_face_index());
+}
+
+
+
+} // namespace
