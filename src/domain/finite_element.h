@@ -25,20 +25,6 @@ class FiniteElement : public FiniteElementI<dim> {
     return !already_set;
   }
 
-  bool SetFace(const FaceNumber face) override {
-
-//    bool already_set =
-//        (static_cast<int>(face_values()->get_face_index()) == face);
-//
-//    if (!already_set) {
-//      auto cell = values()->get_cell();
-//      face_values()->reinit(cell, face);
-//    }
-//
-//    return !already_set;
-    return true;
-  }
-
   bool SetFace(const CellPtr &to_set, const FaceNumber face) override {
     bool cell_already_set = (face_values()->get_cell()->id() == to_set->id());
     bool face_already_set =

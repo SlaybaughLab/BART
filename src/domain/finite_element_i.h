@@ -42,15 +42,6 @@ class FiniteElementI {
    */
   virtual bool SetCell(const CellPtr &to_set) = 0;
 
-  /*! \brief Sets the face for the current cell.
-   *
-   * Does nothing if the face is already set to the passed value.
-   *
-   * \param face face number to set
-   * \return bool indicating if the face was changed.
-   */
-  virtual bool SetFace(const FaceNumber face) = 0;
-
   /*! \brief Sets the face and cell.
    *
    * \param to_set cell to set

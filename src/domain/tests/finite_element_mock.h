@@ -28,8 +28,6 @@ class FiniteElementMock : public FiniteElementI<dim> {
 
   MOCK_METHOD1_T(SetCell, bool(const CellPtr &));
 
-  MOCK_METHOD1_T(SetFace, bool(const FaceNumber face));
-
   MOCK_METHOD2_T(SetFace, bool(const CellPtr &to_set, const FaceNumber face));
 
   MOCK_METHOD0_T(finite_element, dealii::FiniteElement<dim, dim>*());
