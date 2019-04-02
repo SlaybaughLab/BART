@@ -23,35 +23,14 @@ class FiniteElementGaussian : public FiniteElement<dim>{
 
   int polynomial_degree() const override { return polynomial_degree_; };
   
-  dealii::FiniteElement<dim, dim> *finite_element() override {
-    return finite_element_.get(); };
-
-  int dofs_per_cell() const override { return finite_element_->dofs_per_cell; }
-
-  int n_cell_quad_pts() const override { return cell_quadrature_->size(); }
-
-  int n_face_quad_pts() const override { return face_quadrature_->size(); }
-
-  dealii::FEValues<dim> *values() override { return values_.get(); };
-
-  dealii::FEFaceValues<dim> *face_values() override {
-    return face_values_.get(); };
-
-  dealii::FEFaceValues<dim> *neighbor_face_values() override {
-    return neighbor_face_values_.get(); };
-  
-  dealii::QGauss<dim> *cell_quadrature() { return cell_quadrature_.get(); };
-
-  dealii::QGauss<dim - 1> *face_quadrature() { return face_quadrature_.get(); };
-
  private:
   const int polynomial_degree_;
-  std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
-  std::shared_ptr<dealii::FEValues<dim>> values_;
-  std::shared_ptr<dealii::FEFaceValues<dim>> face_values_;
-  std::shared_ptr<dealii::FEFaceValues<dim>> neighbor_face_values_;
-  std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
-  std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
+  using FiniteElement<dim>::finite_element_;
+  using FiniteElement<dim>::values_;
+  using FiniteElement<dim>::face_values_;
+  using FiniteElement<dim>::neighbor_face_values_;
+  using FiniteElement<dim>::cell_quadrature_;
+  using FiniteElement<dim>::face_quadrature_;
 
   std::shared_ptr<dealii::FiniteElement<dim, dim>>
   GetFiniteElement(DiscretizationType discretization);
