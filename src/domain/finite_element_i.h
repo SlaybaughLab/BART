@@ -58,6 +58,8 @@ class FiniteElementI {
       const int cell_degree_of_freedom,
       const int cell_quadrature_point) const = 0;
 
+  virtual double Jacobian(const int cell_quadrature_point) const = 0;
+
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.

@@ -55,6 +55,10 @@ class FiniteElement : public FiniteElementI<dim> {
     return values_->shape_grad(cell_degree_of_freedom, cell_quadrature_point);
   }
 
+  double Jacobian(const int cell_quadrature_point) const override {
+    return values_->JxW(cell_quadrature_point);
+  }
+
  protected:
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
   std::shared_ptr<dealii::FEValues<dim>> values_;

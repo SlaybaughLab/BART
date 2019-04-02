@@ -111,6 +111,27 @@ TEST_F(FiniteElementGaussianTest, BasisGradTest) {
   }
 }
 
+TEST_F(FiniteElementGaussianTest, BasisJacobianTest) {
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+  dealii::Triangulation<2> triangulation;
+
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  test_fe.values()->reinit(dof_handler.begin_active());
+
+  int cell_quad_points = test_fe.n_cell_quad_pts();
+
+  for (int q = 0; q < cell_quad_points; ++q) {
+    EXPECT_DOUBLE_EQ(test_fe.values()->JxW(q),
+                     test_fe.Jacobian(q));
+  }
+}
+
+
 // BASE CLASS TESTS
 
 class FiniteElementGaussianBaseMethods1D :
