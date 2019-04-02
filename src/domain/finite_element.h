@@ -16,29 +16,42 @@ class FiniteElement : public FiniteElementI<dim> {
   virtual ~FiniteElement() = default;
 
   bool SetCell(const CellPtr &to_set) override {
+    bool already_set = false;
 
-    bool already_set = (values()->get_cell()->id() == to_set->id());
+    if (reinit_has_been_called_) {
+      already_set = (values()->get_cell()->id() == to_set->id());
+    }
 
-    if (!already_set)
+    if (!already_set) {
       values()->reinit(to_set);
+      reinit_has_been_called_ = true;
+    }
 
     return !already_set;
   }
 
   bool SetFace(const CellPtr &to_set, const FaceNumber face) override {
-    bool cell_already_set = (face_values()->get_cell()->id() == to_set->id());
-    bool face_already_set =
-        (static_cast<int>(face_values()->get_face_index()) == face);
-    bool already_set = (cell_already_set && face_already_set);
+    bool already_set = false;
+    bool cell_already_set = false;
+
+    if (reinit_has_been_called_) {
+      cell_already_set = (face_values()->get_cell()->id() == to_set->id());
+      bool face_already_set =
+          (static_cast<int>(face_values()->get_face_index()) == face);
+
+      already_set = (cell_already_set && face_already_set);
+    }
 
     if (!already_set) {
       face_values()->reinit(to_set, face);
+      reinit_has_been_called_ = true;
     }
 
     return !cell_already_set;
   }
 
  protected:
+  bool reinit_has_been_called_ = false;
   using FiniteElementI<dim>::values;
   using FiniteElementI<dim>::face_values;
 
