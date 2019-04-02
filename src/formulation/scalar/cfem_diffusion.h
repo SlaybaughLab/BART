@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <deal.II/lac/full_matrix.h>
+
 #include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
 #include "formulation/scalar/cfem_i.h"
@@ -16,17 +18,47 @@ namespace scalar {
 template <int dim>
 class CFEM_Diffusion : public CFEM_I {
  public:
+  //! Pointer to a cell iterator returned by a dof object.
+  using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
+  using Matrix = dealii::FullMatrix<double>;
+
+
   CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>> finite_element,
                  std::shared_ptr<data::CrossSections> cross_sections);
 
- protected:
+  void Precalculate(const CellPtr cell_ptr);
 
+  // Getters & Setters
+  /*! \brief Get precalculated matrices for the square of the shape function.
+   *
+   * \return Vector containing matrices corresponding to each quadrature point.
+   */
+  std::vector<Matrix> GetShapeSquared() const {
+    return shape_squared_;
+  }
+
+  /*! \brief Get precalculated matrices for the square of the gradient
+   * of the shape function.
+   *
+   * \return Vector containing matrices corresponding to each quadrature point.
+   */
+  std::vector<Matrix> GetGradientSquared() const {
+    return gradient_squared_;
+  }
+
+ protected:
+  //! Finite element object to provide shape function values
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
+  //! Cross-sections object for cross-section data
   std::shared_ptr<data::CrossSections> cross_sections_;
 
-  int cell_degrees_of_freedom_ = 0;
-  int cell_quadrature_points_ = 0;
-  int face_quadrature_points_ = 0;
+  //Precalculated matrices
+  std::vector<Matrix> shape_squared_;
+  std::vector<Matrix> gradient_squared_;
+
+  int cell_degrees_of_freedom_ = 0; //!< Number of degrees of freedom per cell
+  int cell_quadrature_points_ = 0; //!< Number of quadrature points per cell
+  int face_quadrature_points_ = 0; //!< Number of quadrature points per face
 };
 
 

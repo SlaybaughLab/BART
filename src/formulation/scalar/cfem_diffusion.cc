@@ -15,7 +15,25 @@ CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>>
       cell_quadrature_points_(finite_element->n_cell_quad_pts()),
       face_quadrature_points_(finite_element->n_face_quad_pts()) {}
 
+template <int dim>
+void CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    Matrix new_matrix(cell_degrees_of_freedom_,
+                      cell_degrees_of_freedom_);
+
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+        shape_squared_.push_back(new_matrix);
+        gradient_squared_.push_back(new_matrix);
+      }
+    }
+  }
+}
+
+template class CFEM_Diffusion<1>;
 template class CFEM_Diffusion<2>;
+template class CFEM_Diffusion<3>;
 
 } // namespace scalar
 
