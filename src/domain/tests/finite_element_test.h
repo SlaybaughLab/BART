@@ -21,13 +21,18 @@ class FiniteElementBaseClassTest : public ::testing::Test {
   dealii::DoFHandler<dim> dof_handler_;
 
   void TestSetCell(domain::FiniteElement<dim>* test_fe);
-
+  void TestSetCellAndFace(domain::FiniteElement<dim>* test_fe);
+  void SetUp() override {
+    dealii::GridGenerator::hyper_cube(triangulation_, -1, 1);
+    triangulation_.refine_global(2);
+  }
 };
 
 template <int dim>
 void FiniteElementBaseClassTest<dim>::TestSetCell(
     FiniteElement<dim> *test_fe) {
-  dof_handler_.distribute_dofs(test_fe->finite_element());
+
+  dof_handler_.distribute_dofs(*test_fe->finite_element());
 
   auto cell = dof_handler_.begin_active();
   auto cell_id = cell->id();
@@ -47,6 +52,37 @@ void FiniteElementBaseClassTest<dim>::TestSetCell(
   // Check changed
   EXPECT_NE(cell_id, test_fe->values()->get_cell()->id());
   EXPECT_EQ(next_cell_id, test_fe->values()->get_cell()->id());
+
+}
+
+template <int dim>
+void FiniteElementBaseClassTest<dim>::TestSetCellAndFace(
+    FiniteElement<dim> *test_fe) {
+  dof_handler_.distribute_dofs(*test_fe->finite_element());
+
+  auto cell = dof_handler_.begin_active();
+  auto cell_id = cell->id();
+  int face = 0;
+  int face_index = cell->face_index(face);
+
+  test_fe->SetFace(cell, face);
+
+  test_fe->face_values()->reinit(cell, face);
+
+  EXPECT_FALSE(test_fe->SetFace(cell, face));
+  EXPECT_EQ(cell_id, test_fe->face_values()->get_cell()->id());
+  EXPECT_EQ(face_index, test_fe->face_values()->get_face_index());
+
+  auto next_cell = cell;
+  ++next_cell;
+  auto next_cell_id = next_cell->id();
+  int next_face = face + 1;
+  int next_face_index = next_cell->face_index(next_face);
+
+  EXPECT_TRUE(test_fe->SetFace(next_cell, next_face));
+  EXPECT_EQ(next_cell_id, test_fe->face_values()->get_cell()->id());
+  EXPECT_NE(face_index, test_fe->face_values()->get_face_index());
+  EXPECT_EQ(next_face_index, test_fe->face_values()->get_face_index());
 }
 
 } // namespace testing
