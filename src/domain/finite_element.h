@@ -50,6 +50,11 @@ class FiniteElement : public FiniteElementI<dim> {
     return !cell_already_set;
   }
 
+  double ShapeValue(const int cell_degree_of_freedom,
+                    const int cell_quadrature_point) const override {
+    return 0;
+  }
+
  protected:
   bool reinit_has_been_called_ = false;
   using FiniteElementI<dim>::values;

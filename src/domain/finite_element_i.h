@@ -51,6 +51,9 @@ class FiniteElementI {
   virtual bool SetFace(const CellPtr &to_set,
                        const FaceNumber face) = 0;
 
+  virtual double ShapeValue(const int cell_degree_of_freedom,
+                            const int cell_quadrature_point) const = 0;
+
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
   /*! \brief Gets pointer to the underlying finite element object */
