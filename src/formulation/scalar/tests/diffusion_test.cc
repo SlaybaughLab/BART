@@ -47,8 +47,8 @@ void FormulationCFEMDiffusionTest::SetUp() {
 AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
                                 const dealii::FullMatrix<double>& result,
                                 const double tol = 1e-6) {
-  int rows = expected.m();
-  int cols = expected.n();
+  unsigned int rows = expected.m();
+  unsigned int cols = expected.n();
 
   if (result.m() != rows)
     return AssertionFailure() << "Result has wrong number of rows: "
@@ -57,8 +57,8 @@ AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
     return AssertionFailure() << "Result has wrong number of columns: "
                               << result.n() << ", expected" << cols;
 
-  for (int i = 0; i < rows; ++i) {
-    for (int j = 0; j < cols; ++j) {
+  for (unsigned int i = 0; i < rows; ++i) {
+    for (unsigned int j = 0; j < cols; ++j) {
       if ((result(i, j) - expected(i, j)) > tol) {
         return AssertionFailure() << "Entry (" << i << ", " << j <<
                                   ") has value: " << result(i, j) <<
@@ -92,18 +92,6 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateShapeTest) {
   std::vector<double> shape_q_0{btest::RandomVector(4, 1, 10)};
   std::vector<double> shape_q_1{btest::RandomVector(4, 1, 10)};
 
-  // Set expectations
-
-  for (int i = 0; i < 4; ++i) {
-    EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, 0))
-        .Times(8)
-        .WillRepeatedly(Return(shape_q_0[i]));
-
-    EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, 1))
-        .Times(8)
-        .WillRepeatedly(Return(shape_q_1[i]));
-  }
-
   // Calculate expected values
   dealii::Vector<double> vec_shape_q_0{shape_q_0.begin(), shape_q_0.end()};
   dealii::Vector<double> vec_shape_q_1{shape_q_1.begin(), shape_q_1.end()};
@@ -117,9 +105,23 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateShapeTest) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
   dealii::DoFHandler<2>::active_cell_iterator it;
+
+  // Set expectations
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, 0))
+        .Times(8)
+        .WillRepeatedly(Return(shape_q_0[i]));
+
+    EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, 1))
+        .Times(8)
+        .WillRepeatedly(Return(shape_q_1[i]));
+  }
+  EXPECT_CALL(*fe_mock_ptr, SetCell(it))
+      .Times(1);
+
   test_diffusion.Precalculate(it);
   auto shape_squared = test_diffusion.GetShapeSquared();
-  
+
   EXPECT_TRUE(CompareMatrices(shape_squared.at(0), shape_matrix_q_0));
   EXPECT_TRUE(CompareMatrices(shape_squared.at(1), shape_matrix_q_1));
 }
