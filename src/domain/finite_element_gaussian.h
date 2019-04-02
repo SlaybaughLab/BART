@@ -3,9 +3,6 @@
 
 #include <memory>
 
-#include <deal.II/base/quadrature_lib.h>
-#include <deal.II/fe/fe_values.h>
-
 #include "domain/finite_element.h"
 #include "problem/parameter_types.h"
 
@@ -22,7 +19,7 @@ class FiniteElementGaussian : public FiniteElement<dim>{
   ~FiniteElementGaussian() = default;
 
   int polynomial_degree() const override { return polynomial_degree_; };
-  
+
  private:
   const int polynomial_degree_;
   using FiniteElement<dim>::finite_element_;
