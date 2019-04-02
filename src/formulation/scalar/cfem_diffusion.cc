@@ -21,13 +21,17 @@ void CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     Matrix new_matrix(cell_degrees_of_freedom_,
                       cell_degrees_of_freedom_);
+    Matrix shape_squared(cell_degrees_of_freedom_,
+                         cell_degrees_of_freedom_);
 
     for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
       for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
-        shape_squared_.push_back(new_matrix);
+        shape_squared(i, j) = finite_element_->ShapeValue(i, q) *
+                              finite_element_->ShapeValue(j, q);
         gradient_squared_.push_back(new_matrix);
       }
     }
+    shape_squared_.push_back(shape_squared);
   }
 }
 
