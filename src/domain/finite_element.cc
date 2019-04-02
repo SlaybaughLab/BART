@@ -8,13 +8,13 @@ template <int dim>
 bool FiniteElement<dim>::SetCell(const CellPtr &to_set) {
   bool already_set = false;
 
-  if (reinit_has_been_called_) {
-  already_set = (values()->get_cell()->id() == to_set->id());
+  if (values_reinit_called_) {
+    already_set = (values_->get_cell()->id() == to_set->id());
   }
 
   if (!already_set) {
-  values()->reinit(to_set);
-  reinit_has_been_called_ = true;
+    values_->reinit(to_set);
+    values_reinit_called_ = true;
   }
 
   return !already_set;
@@ -25,17 +25,17 @@ bool FiniteElement<dim>::SetFace(const CellPtr &to_set, const FaceNumber face) {
   bool already_set = false;
   bool cell_already_set = false;
 
-  if (reinit_has_been_called_) {
-  cell_already_set = (face_values()->get_cell()->id() == to_set->id());
-  bool face_already_set =
-      (static_cast<int>(face_values()->get_face_index()) == face);
+  if (face_values_reinit_called_) {
+    cell_already_set = (face_values_->get_cell()->id() == to_set->id());
+    bool face_already_set =
+        (static_cast<int>(face_values_->get_face_index()) == face);
 
-  already_set = (cell_already_set && face_already_set);
+    already_set = (cell_already_set && face_already_set);
   }
 
   if (!already_set) {
-  face_values()->reinit(to_set, face);
-  reinit_has_been_called_ = true;
+    face_values_->reinit(to_set, face);
+    face_values_reinit_called_ = true;
   }
 
   return !cell_already_set;

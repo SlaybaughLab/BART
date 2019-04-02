@@ -133,6 +133,8 @@ TEST_F(FiniteElementGaussianTest, SetCellAndFace) {
   int face = 0;
   int face_index = cell->face_index(face);
 
+  test_fe.SetFace(cell, face);
+
   test_fe.face_values()->reinit(cell, face);
 
   EXPECT_FALSE(test_fe.SetFace(cell, face));

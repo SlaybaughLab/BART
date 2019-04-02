@@ -47,7 +47,7 @@ class FiniteElement : public FiniteElementI<dim> {
 
   double ShapeValue(const int cell_degree_of_freedom,
                     const int cell_quadrature_point) const override {
-    return 0;//values()->shape_value(cell_degree_of_freedom, cell_quadrature_point);
+    return values_->shape_value(cell_degree_of_freedom, cell_quadrature_point);
   }
 
  protected:
@@ -58,7 +58,9 @@ class FiniteElement : public FiniteElementI<dim> {
   std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
   std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
 
-  bool reinit_has_been_called_ = false;
+  bool values_reinit_called_ = false;
+  bool face_values_reinit_called_ = false;
+  bool neighbor_face_values_reinit_called_ = false;
   using FiniteElementI<dim>::values;
   using FiniteElementI<dim>::face_values;
 
