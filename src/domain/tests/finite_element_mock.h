@@ -32,6 +32,8 @@ class FiniteElementMock : public FiniteElementI<dim> {
 
   MOCK_CONST_METHOD2_T(ShapeValue, double(const int, const int));
 
+  MOCK_CONST_METHOD2_T(ShapeGradient, dealii::Tensor<1, dim>(const int, const int));
+
   MOCK_METHOD0_T(finite_element, dealii::FiniteElement<dim, dim>*());
 
   MOCK_METHOD0_T(values, dealii::FEValues<dim>*());

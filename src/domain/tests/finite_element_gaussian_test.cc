@@ -63,6 +63,54 @@ TEST_F(FiniteElementGaussianTest, ConstructorNone) {
     });
 }
 
+TEST_F(FiniteElementGaussianTest, BasisValueTest) {
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+  dealii::Triangulation<2> triangulation;
+
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  test_fe.values()->reinit(dof_handler.begin_active());
+
+  int cell_dofs = test_fe.dofs_per_cell();
+  int cell_quad_points = test_fe.n_cell_quad_pts();
+
+  for (int i = 0; i < cell_dofs; ++i) {
+    for (int q = 0; q < cell_quad_points; ++q) {
+      EXPECT_DOUBLE_EQ(test_fe.values()->shape_value(i, q),
+                       test_fe.ShapeValue(i, q));
+
+    }
+  }
+}
+
+TEST_F(FiniteElementGaussianTest, BasisGradTest) {
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
+  dealii::Triangulation<2> triangulation;
+
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  test_fe.values()->reinit(dof_handler.begin_active());
+
+  int cell_dofs = test_fe.dofs_per_cell();
+  int cell_quad_points = test_fe.n_cell_quad_pts();
+
+  for (int i = 0; i < cell_dofs; ++i) {
+    for (int q = 0; q < cell_quad_points; ++q) {
+      EXPECT_TRUE(test_fe.values()->shape_grad(i, q)
+                      == test_fe.ShapeGradient(i, q));
+
+    }
+  }
+}
+
 // BASE CLASS TESTS
 
 class FiniteElementGaussianBaseMethods1D :
@@ -93,30 +141,6 @@ TEST_F(FiniteElementGaussianBaseMethods2D, BaseTests) {
   bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
   TestSetCell(&test_fe);
   TestSetCellAndFace(&test_fe);
-}
-
-TEST_F(FiniteElementGaussianTest, BasisValueTest) {
-  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 2};
-  dealii::Triangulation<2> triangulation;
-
-  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
-  triangulation.refine_global(2);
-
-  dealii::DoFHandler dof_handler(triangulation);
-  dof_handler.distribute_dofs(*test_fe.finite_element());
-
-  test_fe.values()->reinit(dof_handler.begin_active());
-
-  int cell_dofs = test_fe.dofs_per_cell();
-  int cell_quad_points = test_fe.n_cell_quad_pts();
-
-  for (int i = 0; i < cell_dofs; ++i) {
-    for (int q = 0; q < cell_quad_points; ++q) {
-      EXPECT_DOUBLE_EQ(test_fe.values()->shape_value(i, q),
-                       test_fe.ShapeValue(i, q));
-
-    }
-  }
 }
 
 

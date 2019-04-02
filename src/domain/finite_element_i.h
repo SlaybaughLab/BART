@@ -54,6 +54,11 @@ class FiniteElementI {
   virtual double ShapeValue(const int cell_degree_of_freedom,
                             const int cell_quadrature_point) const = 0;
 
+  virtual dealii::Tensor<1, dim> ShapeGradient(
+      const int cell_degree_of_freedom,
+      const int cell_quadrature_point) const = 0;
+
+
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
   /*! \brief Gets pointer to the underlying finite element object */
