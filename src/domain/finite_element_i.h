@@ -51,13 +51,44 @@ class FiniteElementI {
   virtual bool SetFace(const CellPtr &to_set,
                        const FaceNumber face) = 0;
 
+  /*! \brief Get the value of shape functions.
+   *
+   * Returns the value of the \f$i\f$-th shape function, \f$\varphi_i\f$, that
+   * corresponds to the \f$i\f$-th cell degree of freedom, evaluated at cell
+   * quadrature point, \f$q\f$.
+   *
+   * \param cell_degree_of_freedom value of \f$i\f$.
+   * \param cell_quadrature_point cell quadrature point \f$q\f$ to evaluate the
+   * shape function.
+   * \return double corresponding to the value.
+   */
   virtual double ShapeValue(const int cell_degree_of_freedom,
                             const int cell_quadrature_point) const = 0;
 
+  /*! \brief Get the value of gradient of the shape function.
+   *
+   * Returns the value of the gradient of the \f$i\f$-th shape function,
+   * \f$\nabla\varphi_i\f$, that corresponds to the \f$i\f$-th cell degree of
+   * freedom, evaluated at cell quadrature point, \f$q\f$.
+   *
+   * \param cell_degree_of_freedom value of \f$i\f$.
+   * \param cell_quadrature_point cell quadrature point \f$q\f$ to evaluate the
+   * shape function.
+   * \return dealii::Tensor with the value of the gradient.
+   */
   virtual dealii::Tensor<1, dim> ShapeGradient(
       const int cell_degree_of_freedom,
       const int cell_quadrature_point) const = 0;
 
+  /*! \brief Get the value of the Jacobian for the current cell.
+   *
+   * Returns the Jacobian evaluated at the specified quadrature point, needed
+   * for all integrations.
+   *
+   * \param cell_quadrature_point cell quadrature point \f$q\f$ to evaluate the
+   * Jacobian function.
+   * \return double corresponding to the value.
+   */
   virtual double Jacobian(const int cell_quadrature_point) const = 0;
 
 
