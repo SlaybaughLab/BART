@@ -16,7 +16,8 @@ CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>>
       face_quadrature_points_(finite_element->n_face_quad_pts()) {}
 
 template <int dim>
-void CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
+typename CFEM_Diffusion<dim>::InitializationToken
+CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
 
   finite_element_->SetCell(cell_ptr);
 
@@ -39,10 +40,13 @@ void CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
     shape_squared_.push_back(shape_squared);
     gradient_squared_.push_back(gradient_squared);
   }
+  InitializationToken token;
+  return token;
 }
 
 template <int dim>
 void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
+                                                const InitializationToken,
                                                 const CellPtr cell_ptr,
                                                 const MaterialID material_id,
                                                 const GroupNumber group) const {

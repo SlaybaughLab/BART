@@ -18,6 +18,8 @@ namespace scalar {
 template <int dim>
 class CFEM_Diffusion : public CFEM_I {
  public:
+  struct InitializationToken{};
+
   //! Pointer to a cell iterator returned by a dof object.
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
   using Matrix = dealii::FullMatrix<double>;
@@ -32,9 +34,10 @@ class CFEM_Diffusion : public CFEM_I {
    *
    * \param cell_ptr any cell, no Jacobian is used so this is arbitrary.
    */
-  void Precalculate(const CellPtr cell_ptr);
+  InitializationToken Precalculate(const CellPtr cell_ptr);
 
   void FillCellStreamingTerm(Matrix& to_fill,
+                             const InitializationToken init_token,
                              const CellPtr cell_ptr,
                              const MaterialID material_id,
                              const GroupNumber group) const;

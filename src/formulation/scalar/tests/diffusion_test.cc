@@ -177,7 +177,8 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
-  test_diffusion.Precalculate(it);
+
+  auto init_token = test_diffusion.Precalculate(it);
 
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
@@ -185,7 +186,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   EXPECT_CALL(*fe_mock_ptr, SetCell(it))
       .Times(1);
 
-  test_diffusion.FillCellStreamingTerm(test_matrix, it, 0, 0);
+  test_diffusion.FillCellStreamingTerm(test_matrix, init_token, it, 0, 0);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
