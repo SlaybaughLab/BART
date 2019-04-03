@@ -298,7 +298,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
       .Times(4)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.FillCellFixedSource(test_vector, cell, 0);
+  test_diffusion.FillCellFixedSource(test_vector, cell, 0, 0);
 
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
 

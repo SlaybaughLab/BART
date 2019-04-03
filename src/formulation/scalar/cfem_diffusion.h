@@ -62,6 +62,7 @@ class CFEM_Diffusion : public CFEM_I {
 
   void FillCellFixedSource(Vector& to_fill,
                            const CellPtr& cell_ptr,
+                           const MaterialID material_id,
                            const GroupNumber group) const;
 
   // Getters & Setters

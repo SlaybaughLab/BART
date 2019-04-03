@@ -113,8 +113,20 @@ void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
 template <int dim>
 void CFEM_Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
                                               const CellPtr& cell_ptr,
+                                              const MaterialID material_id,
                                               const GroupNumber group) const {
-  
+
+  finite_element_->SetCell(cell_ptr);
+
+  const double q{cross_sections_->q.at(material_id)[group]};
+  std::vector<double> cell_fixed_source(cell_quadrature_points_, q);
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double jacobian = finite_element_->Jacobian(q);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      to_fill[i] += finite_element_->ShapeValue(i, q) * jacobian;
+    }
+  }
 }
 
 
