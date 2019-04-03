@@ -50,6 +50,8 @@ void FormulationCFEMDiffusionTest::SetUp() {
       .WillByDefault(Return(2));
 
   for (int q = 0; q < 2; ++q) {
+    ON_CALL(*fe_mock_ptr, Jacobian(q))
+        .WillByDefault(Return((1 + q)*3));
     for (int i = 0; i < 2; ++i) {
       ON_CALL(*fe_mock_ptr, ShapeValue(i, q))
           .WillByDefault(Return(i + q));
@@ -62,6 +64,22 @@ void FormulationCFEMDiffusionTest::SetUp() {
           .WillByDefault(Return(gradient_tensor));
     }
   }
+
+
+
+
+  // Cross-section data for fake two-group, with one material (id = 0)
+  std::array<double, 4> sigma_s_values{1.0, 1.0, 1.0, 2.0}; // (i*j + 1)
+  dealii::FullMatrix<double> sigma_s_matrix{2,2, sigma_s_values.begin()};
+  std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}}; // i + 1
+  std::unordered_map<int, dealii::FullMatrix<double>> sigma_s{{0, sigma_s_matrix}};
+
+  ON_CALL(mock_material, GetSigT())
+      .WillByDefault(Return(sigma_t));
+  ON_CALL(mock_material, GetSigS())
+      .WillByDefault(Return(sigma_s));
+  ON_CALL(mock_material, GetDiffusionCoef())
+      .WillByDefault(Return(sigma_t));
 }
 
 AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
@@ -140,7 +158,7 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
   EXPECT_CALL(*fe_mock_ptr, ShapeGradient(_,_))
       .Times(16)
       .WillRepeatedly(DoDefault());
-  
+
   test_diffusion.Precalculate(it);
   auto shape_squared = test_diffusion.GetShapeSquared();
   auto gradient_squared = test_diffusion.GetGradientSquared();
@@ -150,5 +168,29 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
   EXPECT_TRUE(CompareMatrices(gradient_matrix_q_0, gradient_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(gradient_matrix_q_1, gradient_squared.at(1)));
 }
+
+TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
+  dealii::FullMatrix<double> test_matrix(2,2);
+  dealii::DoFHandler<2>::active_cell_iterator it;
+
+  std::array<double, 4> expected_values{6, 6,
+                                        6, 11};
+  dealii::FullMatrix<double> expected_matrix(2, 2, expected_values.begin());
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+  test_diffusion.Precalculate(it);
+
+  EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*fe_mock_ptr, SetCell(it))
+      .Times(1);
+
+  test_diffusion.FillCellStreamingTerm(test_matrix, it, 0, 0);
+
+  EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
+}
+
 
 } // namespace
