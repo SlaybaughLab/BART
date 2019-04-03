@@ -222,7 +222,8 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestReflective) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
-  test_diffusion.FillBoundaryTerm(test_matrix, cell, 0, 0, boundary);
+  auto init_token = test_diffusion.Precalculate(cell);
+  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell, 0, boundary);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -239,13 +240,15 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
+  auto init_token = test_diffusion.Precalculate(cell);
+
   EXPECT_CALL(*fe_mock_ptr, SetFace(cell, 0))
       .Times(1);
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.FillBoundaryTerm(test_matrix, cell, 0, 0, boundary);
+  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell, 0, boundary);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 

@@ -92,10 +92,22 @@ void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
 
 template <int dim>
 void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
+                                           const InitializationToken,
                                            const CellPtr& cell_ptr,
                                            const FaceNumber face_number,
                                            const BoundaryType boundary_type) const {
+  if (boundary_type == BoundaryType::kVacuum) {
+    finite_element_->SetFace(cell_ptr, face_number);
 
+    for (int q = 0; q < cell_quadrature_points_; ++q) {
+      const double jacobian = finite_element_->Jacobian(q);
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+          to_fill(i, j) += 0.5 * shape_squared_[q](i, j) * jacobian;
+        }
+      }
+    }
+  }
 }
 
 

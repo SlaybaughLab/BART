@@ -42,18 +42,19 @@ class CFEM_Diffusion : public CFEM_I {
   InitializationToken Precalculate(const CellPtr& cell_ptr);
 
   void FillCellStreamingTerm(Matrix& to_fill,
-                             const InitializationToken init_token,
+                             const InitializationToken,
                              const CellPtr& cell_ptr,
                              const MaterialID material_id,
                              const GroupNumber group) const;
 
   void FillCellCollisionTerm(Matrix& to_fill,
-                             const InitializationToken init_token,
+                             const InitializationToken,
                              const CellPtr& cell_ptr,
                              const MaterialID material_id,
                              const GroupNumber group) const;
 
   void FillBoundaryTerm(Matrix& to_fill,
+                        const InitializationToken,
                         const CellPtr& cell_ptr,
                         const FaceNumber face_number,
                         const BoundaryType boundary_type) const;
