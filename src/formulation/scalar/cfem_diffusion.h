@@ -21,12 +21,23 @@ class CFEM_Diffusion : public CFEM_I {
   //! Pointer to a cell iterator returned by a dof object.
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
   using Matrix = dealii::FullMatrix<double>;
+  using GroupNumber = int;
+  using MaterialID = int;
 
 
   CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>> finite_element,
                  std::shared_ptr<data::CrossSections> cross_sections);
 
+  /*! \brief Precalculate matrices.
+   *
+   * \param cell_ptr any cell, no Jacobian is used so this is arbitrary.
+   */
   void Precalculate(const CellPtr cell_ptr);
+
+  void FillCellStreamingTerm(Matrix& to_fill,
+                             const CellPtr cell_ptr,
+                             const MaterialID material_id,
+                             const GroupNumber group) const;
 
   // Getters & Setters
   /*! \brief Get precalculated matrices for the square of the shape function.

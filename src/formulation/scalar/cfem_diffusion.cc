@@ -41,6 +41,14 @@ void CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
   }
 }
 
+template <int dim>
+void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
+                                                const CellPtr cell_ptr,
+                                                const MaterialID material_id,
+                                                const GroupNumber group) const {
+
+}
+
 template class CFEM_Diffusion<1>;
 template class CFEM_Diffusion<2>;
 template class CFEM_Diffusion<3>;
