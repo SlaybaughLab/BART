@@ -36,7 +36,21 @@ class CFEM_Diffusion : public CFEM_I {
    */
   InitializationToken Precalculate(const CellPtr cell_ptr);
 
+  /*! \brief Fill cell streaming term
+   *
+   * \param to_fill matrix to fill with cell values
+   * \param init_token token indicating that Precalculate has been run
+   * \param cell_ptr pointer to current cell
+   * \param material_id material ID
+   * \param group group number
+   */
   void FillCellStreamingTerm(Matrix& to_fill,
+                             const InitializationToken init_token,
+                             const CellPtr cell_ptr,
+                             const MaterialID material_id,
+                             const GroupNumber group) const;
+
+  void FillCellCollisionTerm(Matrix& to_fill,
                              const InitializationToken init_token,
                              const CellPtr cell_ptr,
                              const MaterialID material_id,
