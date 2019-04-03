@@ -30,8 +30,6 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
   std::shared_ptr<domain::FiniteElementMock<2>> fe_mock_ptr;
   std::shared_ptr<data::CrossSections> cross_sections_ptr;
 
-  int *a, *b;
-
   void SetUp() override;
 };
 
@@ -65,7 +63,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   }
 
   // Cross-section data for fake two-group, with one material (id = 0)
-  std::array<double, 4> sigma_s_values{1.0, 1.0, 1.0, 2.0}; // (i*j + 1)
+  std::array<double, 4> sigma_s_values{0.25, 0.25, 0.25, 0.5}; // (i*j + 1)/4
   dealii::FullMatrix<double> sigma_s_matrix{2,2, sigma_s_values.begin()};
   std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}}; // i + 1
   std::unordered_map<int, dealii::FullMatrix<double>> sigma_s{{0, sigma_s_matrix}};
@@ -191,5 +189,28 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
 
+TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
+  dealii::FullMatrix<double> test_matrix(2,2);
+  dealii::DoFHandler<2>::active_cell_iterator it;
+
+  std::array<double, 4> expected_values{4.5, 9.0,
+                                        9.0, 20.25};
+  dealii::FullMatrix<double> expected_matrix(2, 2, expected_values.begin());
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+
+  auto init_token = test_diffusion.Precalculate(it);
+
+  EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*fe_mock_ptr, SetCell(it))
+      .Times(1);
+
+  test_diffusion.FillCellCollisionTerm(test_matrix, init_token, it, 0, 0);
+
+  EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
+}
 
 } // namespace
