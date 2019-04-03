@@ -58,7 +58,11 @@ void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     double jacobian = finite_element_->Jacobian(q);
-    to_fill.add(diffusion_coef*jacobian, gradient_squared_[q]);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+        to_fill(i, j) += diffusion_coef * gradient_squared_[q](i, j) *jacobian;
+      }
+    }
   }
 
 }
@@ -78,7 +82,11 @@ void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     const double jacobian = finite_element_->Jacobian(q);
-    to_fill.add(sigma_r*jacobian, shape_squared_[q]);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+        to_fill(i, j) += sigma_r * shape_squared_[q](i, j) * jacobian;
+      }
+    }
   }
 }
 
