@@ -81,7 +81,7 @@ void Definition<dim>::FillMatrixParameters(
                                                      locally_owned_per_proc,
                                                      MPI_COMM_WORLD,
                                                      locally_relevant_dofs_);
-  to_fill.dsp = dsp;
+  to_fill.sparsity_pattern.copy_from(dsp);
 }
 
 template <int dim>

@@ -6,8 +6,12 @@ namespace data {
 
 std::shared_ptr<MPISparseMatrix> BuildMatrix(MatrixParameters &parameters) {
   auto matrix = std::make_shared<MPISparseMatrix>();
-  matrix->reinit(parameters.rows, parameters.columns, parameters.dsp,
+
+  matrix->reinit(parameters.rows,
+                 parameters.columns,
+                 parameters.sparsity_pattern,
                  MPI_COMM_WORLD);
+
   return matrix;
 }
 
