@@ -65,8 +65,11 @@ void FormulationCFEMDiffusionTest::SetUp() {
   // Cross-section data for fake two-group, with one material (id = 0)
   std::array<double, 4> sigma_s_values{0.25, 0.25, 0.25, 0.5}; // (i*j + 1)/4
   dealii::FullMatrix<double> sigma_s_matrix{2,2, sigma_s_values.begin()};
-  std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}}; // i + 1
   std::unordered_map<int, dealii::FullMatrix<double>> sigma_s{{0, sigma_s_matrix}};
+
+  std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}}; // i + 1
+
+  std::unordered_map<int, std::vector<double>> q{{0, {1.0, 2.0}}};
 
   ON_CALL(mock_material, GetSigT())
       .WillByDefault(Return(sigma_t));
@@ -74,6 +77,8 @@ void FormulationCFEMDiffusionTest::SetUp() {
       .WillByDefault(Return(sigma_s));
   ON_CALL(mock_material, GetDiffusionCoef())
       .WillByDefault(Return(sigma_t));
+  ON_CALL(mock_material, GetQ())
+      .WillByDefault(Return(q));
 
   cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 }
@@ -272,5 +277,32 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 
 }
+
+TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
+  std::vector<double> expected_values{6, 15};
+
+  dealii::Vector<double> expected_vector{expected_values.begin(),
+                                         expected_values.end()};
+  dealii::Vector<double> test_vector(2);
+  dealii::DoFHandler<2>::active_cell_iterator cell;
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+
+  EXPECT_CALL(*fe_mock_ptr, SetCell(_))
+      .Times(1);
+  EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*fe_mock_ptr, ShapeValue(_,_))
+      .Times(4)
+      .WillRepeatedly(DoDefault());
+
+  test_diffusion.FillCellFixedSource(test_vector, cell, 0);
+
+  EXPECT_TRUE(CompareVector(expected_vector, test_vector));
+
+}
+
 
 } // namespace
