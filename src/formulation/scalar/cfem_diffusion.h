@@ -27,6 +27,7 @@ class CFEM_Diffusion : public CFEM_I {
   //! Pointer to a cell iterator returned by a dof object.
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
   using Matrix = dealii::FullMatrix<double>;
+  using Vector = dealii::Vector<double>;
   using GroupNumber = int;
   using MaterialID = int;
   using FaceNumber = int;
@@ -58,6 +59,10 @@ class CFEM_Diffusion : public CFEM_I {
                         const CellPtr& cell_ptr,
                         const FaceNumber face_number,
                         const BoundaryType boundary_type) const;
+
+  void FillCellFixedSource(Vector& to_fill,
+                           const CellPtr& cell_ptr,
+                           const GroupNumber group) const;
 
   // Getters & Setters
   /*! \brief Get precalculated matrices for the square of the shape function.
