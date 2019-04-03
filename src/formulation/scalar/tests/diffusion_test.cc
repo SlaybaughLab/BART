@@ -213,4 +213,42 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
 
+TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestReflective) {
+  dealii::FullMatrix<double> test_matrix(2,2);
+  dealii::FullMatrix<double> expected_matrix(2,2);
+  dealii::DoFHandler<2>::active_cell_iterator cell;
+  auto boundary = formulation::scalar::CFEM_Diffusion<2>::BoundaryType::kReflective;
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+
+  test_diffusion.FillBoundaryTerm(test_matrix, cell, 0, 0, boundary);
+
+  EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
+}
+
+TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
+  dealii::FullMatrix<double> test_matrix(2,2);
+  dealii::DoFHandler<2>::active_cell_iterator cell;
+  auto boundary = formulation::scalar::CFEM_Diffusion<2>::BoundaryType::kVacuum;
+
+  std::array<double, 4> expected_values{3, 6,
+                                        6, 13.5};
+  dealii::FullMatrix<double> expected_matrix(2, 2, expected_values.begin());
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+
+  EXPECT_CALL(*fe_mock_ptr, SetFace(cell, 0))
+      .Times(1);
+  EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+
+  test_diffusion.FillBoundaryTerm(test_matrix, cell, 0, 0, boundary);
+
+  EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
+
+}
+
 } // namespace
