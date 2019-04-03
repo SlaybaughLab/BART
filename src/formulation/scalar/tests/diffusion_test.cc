@@ -1,6 +1,8 @@
 #include "formulation/scalar/cfem_diffusion.h"
 
+#include <array>
 #include <memory>
+#include <cstdlib>
 
 #include "data/cross_sections.h"
 #include "domain/tests/finite_element_mock.h"
@@ -19,6 +21,7 @@ using ::testing::Ge;
 using ::testing::DoDefault;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::_;
 using namespace bart;
 
 class FormulationCFEMDiffusionTest : public ::testing::Test {
@@ -26,6 +29,9 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
   using Matrix = dealii::FullMatrix<double>;
   std::shared_ptr<domain::FiniteElementMock<2>> fe_mock_ptr;
   std::shared_ptr<data::CrossSections> cross_sections_ptr;
+
+  int *a, *b;
+
   void SetUp() override;
 };
 
@@ -37,7 +43,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 
   ON_CALL(*fe_mock_ptr, dofs_per_cell())
-      .WillByDefault(Return(4));
+      .WillByDefault(Return(2));
   ON_CALL(*fe_mock_ptr, n_cell_quad_pts())
       .WillByDefault(Return(2));
   ON_CALL(*fe_mock_ptr, n_face_quad_pts())
@@ -59,7 +65,7 @@ AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
 
   for (unsigned int i = 0; i < rows; ++i) {
     for (unsigned int j = 0; j < cols; ++j) {
-      if ((result(i, j) - expected(i, j)) > tol) {
+      if (abs(result(i, j) - expected(i, j)) > tol) {
         return AssertionFailure() << "Entry (" << i << ", " << j <<
                                   ") has value: " << result(i, j) <<
                                   ", expected: " << expected(i, j);
@@ -86,44 +92,35 @@ TEST_F(FormulationCFEMDiffusionTest, ConstructorTest) {
 }
 
 TEST_F(FormulationCFEMDiffusionTest, PrecalculateShapeTest) {
+  // Shape call, by default, returns (quadrature point index + degree of freedom)
 
-  // Random vectors for quadrature point 1 and point 2, we will swap them for
-  // the gradient test
-  std::vector<double> shape_q_0{btest::RandomVector(4, 1, 10)};
-  std::vector<double> shape_q_1{btest::RandomVector(4, 1, 10)};
+  for (int q = 0; q < 2; ++q) {
+    for (int i = 0; i < 2; ++i) {
+      EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, q))
+      .Times(4)
+      .WillRepeatedly(Return(i + q));
+    }
+  }
 
-  // Calculate expected values
-  dealii::Vector<double> vec_shape_q_0{shape_q_0.begin(), shape_q_0.end()};
-  dealii::Vector<double> vec_shape_q_1{shape_q_1.begin(), shape_q_1.end()};
+  std::array<double, 4> shape_matrix_q_0_values = {0, 0,
+                                                   0, 1};
+  std::array<double, 4> shape_matrix_q_1_values = {1, 2,
+                                                   2, 4};
 
-  dealii::FullMatrix<double> shape_matrix_q_0;
-  shape_matrix_q_0.outer_product(vec_shape_q_0, vec_shape_q_0);
-
-  dealii::FullMatrix<double> shape_matrix_q_1;
-  shape_matrix_q_1.outer_product(vec_shape_q_1, vec_shape_q_1);
+  dealii::FullMatrix<double> shape_matrix_q_0{2,2, shape_matrix_q_0_values.begin()};
+  dealii::FullMatrix<double> shape_matrix_q_1{2,2, shape_matrix_q_1_values.begin()};
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
   dealii::DoFHandler<2>::active_cell_iterator it;
 
-  // Set expectations
-  for (int i = 0; i < 4; ++i) {
-    EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, 0))
-        .Times(8)
-        .WillRepeatedly(Return(shape_q_0[i]));
-
-    EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, 1))
-        .Times(8)
-        .WillRepeatedly(Return(shape_q_1[i]));
-  }
-  EXPECT_CALL(*fe_mock_ptr, SetCell(it))
-      .Times(1);
-
   test_diffusion.Precalculate(it);
   auto shape_squared = test_diffusion.GetShapeSquared();
 
-  EXPECT_TRUE(CompareMatrices(shape_squared.at(0), shape_matrix_q_0));
-  EXPECT_TRUE(CompareMatrices(shape_squared.at(1), shape_matrix_q_1));
+  EXPECT_TRUE(CompareMatrices(shape_matrix_q_0, shape_squared.at(0)));
+  EXPECT_TRUE(CompareMatrices(shape_matrix_q_1, shape_squared.at(1)));
 }
+
+
 
 } // namespace
