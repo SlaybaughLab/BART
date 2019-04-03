@@ -103,6 +103,25 @@ AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
   return AssertionSuccess();
 }
 
+AssertionResult CompareVector(const dealii::Vector<double>& expected,
+                              const dealii::Vector<double>& result,
+                              const double tol = 1e-6) {
+  unsigned int size = expected.size();
+
+  if (result.size() != size)
+    return AssertionFailure() << "Result has wrong number of entries: "
+                              << result.size() << ", expected" << size;
+
+  for (unsigned int i = 0; i < size; ++i) {
+    if (abs(result[i] - expected[i]) > tol) {
+      return AssertionFailure() << "Entry (" << i <<
+                                ") has value: " << result[i] <<
+                                ", expected: " << expected[i];
+    }
+  }
+  return AssertionSuccess();
+}
+
 
 TEST_F(FormulationCFEMDiffusionTest, ConstructorTest) {
   EXPECT_CALL(*fe_mock_ptr, dofs_per_cell())
