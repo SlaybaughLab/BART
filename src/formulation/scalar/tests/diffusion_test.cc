@@ -40,7 +40,6 @@ void FormulationCFEMDiffusionTest::SetUp() {
   // we can mock the material object it is based on.
   NiceMock<btest::MockMaterial> mock_material;
   fe_mock_ptr = std::make_shared<NiceMock<domain::FiniteElementMock<2>>>();
-  cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 
   ON_CALL(*fe_mock_ptr, dofs_per_cell())
       .WillByDefault(Return(2));
@@ -65,9 +64,6 @@ void FormulationCFEMDiffusionTest::SetUp() {
     }
   }
 
-
-
-
   // Cross-section data for fake two-group, with one material (id = 0)
   std::array<double, 4> sigma_s_values{1.0, 1.0, 1.0, 2.0}; // (i*j + 1)
   dealii::FullMatrix<double> sigma_s_matrix{2,2, sigma_s_values.begin()};
@@ -80,6 +76,8 @@ void FormulationCFEMDiffusionTest::SetUp() {
       .WillByDefault(Return(sigma_s));
   ON_CALL(mock_material, GetDiffusionCoef())
       .WillByDefault(Return(sigma_t));
+
+  cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 }
 
 AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
@@ -174,7 +172,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   dealii::DoFHandler<2>::active_cell_iterator it;
 
   std::array<double, 4> expected_values{6, 6,
-                                        6, 11};
+                                        6, 15};
   dealii::FullMatrix<double> expected_matrix(2, 2, expected_values.begin());
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,

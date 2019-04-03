@@ -47,6 +47,16 @@ void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
                                                 const MaterialID material_id,
                                                 const GroupNumber group) const {
 
+  finite_element_->SetCell(cell_ptr);
+
+  const double diffusion_coef =
+      cross_sections_->diffusion_coef.at(material_id)[group];
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    double jacobian = finite_element_->Jacobian(q);
+    to_fill.add(diffusion_coef*jacobian, gradient_squared_[q]);
+  }
+
 }
 
 template class CFEM_Diffusion<1>;
