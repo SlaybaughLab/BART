@@ -48,6 +48,20 @@ void FormulationCFEMDiffusionTest::SetUp() {
       .WillByDefault(Return(2));
   ON_CALL(*fe_mock_ptr, n_face_quad_pts())
       .WillByDefault(Return(2));
+
+  for (int q = 0; q < 2; ++q) {
+    for (int i = 0; i < 2; ++i) {
+      ON_CALL(*fe_mock_ptr, ShapeValue(i, q))
+          .WillByDefault(Return(i + q));
+
+      dealii::Tensor<1, 2> gradient_tensor;
+      gradient_tensor[0] = i;
+      gradient_tensor[1] = q;
+
+      ON_CALL(*fe_mock_ptr, ShapeGradient(i, q))
+          .WillByDefault(Return(gradient_tensor));
+    }
+  }
 }
 
 AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
@@ -91,36 +105,50 @@ TEST_F(FormulationCFEMDiffusionTest, ConstructorTest) {
   EXPECT_EQ(cross_sections_ptr.use_count(), 2);
 }
 
-TEST_F(FormulationCFEMDiffusionTest, PrecalculateShapeTest) {
+TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
   // Shape call, by default, returns (quadrature point index + degree of freedom)
-
-  for (int q = 0; q < 2; ++q) {
-    for (int i = 0; i < 2; ++i) {
-      EXPECT_CALL(*fe_mock_ptr, ShapeValue(i, q))
-      .Times(4)
-      .WillRepeatedly(Return(i + q));
-    }
-  }
-
+  // Gradient call will return a tensor of [i, q]
+  // Expected results, we need to make arrays to put them into dealii matrices
   std::array<double, 4> shape_matrix_q_0_values = {0, 0,
                                                    0, 1};
   std::array<double, 4> shape_matrix_q_1_values = {1, 2,
                                                    2, 4};
+  std::array<double, 4> gradient_matrix_q_0_values = {0, 0,
+                                                      0, 1};
+  std::array<double, 4> gradient_matrix_q_1_values = {1, 1,
+                                                      1, 2};
 
-  dealii::FullMatrix<double> shape_matrix_q_0{2,2, shape_matrix_q_0_values.begin()};
-  dealii::FullMatrix<double> shape_matrix_q_1{2,2, shape_matrix_q_1_values.begin()};
+  dealii::FullMatrix<double> shape_matrix_q_0{2,2,
+                                              shape_matrix_q_0_values.begin()};
+  dealii::FullMatrix<double> shape_matrix_q_1{2,2,
+                                              shape_matrix_q_1_values.begin()};
+  dealii::FullMatrix<double> gradient_matrix_q_0{2,2,
+                                                 gradient_matrix_q_0_values.begin()};
+  dealii::FullMatrix<double> gradient_matrix_q_1{2,2,
+                                                 gradient_matrix_q_1_values.begin()};
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
   dealii::DoFHandler<2>::active_cell_iterator it;
 
+  // Set call expectations
+  EXPECT_CALL(*fe_mock_ptr, SetCell(_))
+      .Times(1);
+  EXPECT_CALL(*fe_mock_ptr, ShapeValue(_,_))
+      .Times(16)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*fe_mock_ptr, ShapeGradient(_,_))
+      .Times(16)
+      .WillRepeatedly(DoDefault());
+  
   test_diffusion.Precalculate(it);
   auto shape_squared = test_diffusion.GetShapeSquared();
+  auto gradient_squared = test_diffusion.GetGradientSquared();
 
   EXPECT_TRUE(CompareMatrices(shape_matrix_q_0, shape_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(shape_matrix_q_1, shape_squared.at(1)));
+  EXPECT_TRUE(CompareMatrices(gradient_matrix_q_0, gradient_squared.at(0)));
+  EXPECT_TRUE(CompareMatrices(gradient_matrix_q_1, gradient_squared.at(1)));
 }
-
-
 
 } // namespace
