@@ -90,6 +90,15 @@ void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
   }
 }
 
+template <int dim>
+void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
+                                           const CellPtr& cell_ptr,
+                                           const FaceNumber face_number,
+                                           const BoundaryType boundary_type) const {
+
+}
+
+
 template class CFEM_Diffusion<1>;
 template class CFEM_Diffusion<2>;
 template class CFEM_Diffusion<3>;

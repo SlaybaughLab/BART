@@ -19,12 +19,17 @@ template <int dim>
 class CFEM_Diffusion : public CFEM_I {
  public:
   struct InitializationToken{};
+  enum class BoundaryType {
+    kVacuum,
+    kReflective
+  };
 
   //! Pointer to a cell iterator returned by a dof object.
   using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
   using Matrix = dealii::FullMatrix<double>;
   using GroupNumber = int;
   using MaterialID = int;
+  using FaceNumber = int;
 
 
   CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>> finite_element,
@@ -36,14 +41,6 @@ class CFEM_Diffusion : public CFEM_I {
    */
   InitializationToken Precalculate(const CellPtr& cell_ptr);
 
-  /*! \brief Fill cell streaming term
-   *
-   * \param to_fill matrix to fill with cell values
-   * \param init_token token indicating that Precalculate has been run
-   * \param cell_ptr pointer to current cell
-   * \param material_id material ID
-   * \param group group number
-   */
   void FillCellStreamingTerm(Matrix& to_fill,
                              const InitializationToken init_token,
                              const CellPtr& cell_ptr,
@@ -55,6 +52,11 @@ class CFEM_Diffusion : public CFEM_I {
                              const CellPtr& cell_ptr,
                              const MaterialID material_id,
                              const GroupNumber group) const;
+
+  void FillBoundaryTerm(Matrix& to_fill,
+                        const CellPtr& cell_ptr,
+                        const FaceNumber face_number,
+                        const BoundaryType boundary_type) const;
 
   // Getters & Setters
   /*! \brief Get precalculated matrices for the square of the shape function.
