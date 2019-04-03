@@ -17,7 +17,7 @@ CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>>
 
 template <int dim>
 typename CFEM_Diffusion<dim>::InitializationToken
-CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
+CFEM_Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
 
   finite_element_->SetCell(cell_ptr);
 
@@ -47,7 +47,7 @@ CFEM_Diffusion<dim>::Precalculate(const CellPtr cell_ptr) {
 template <int dim>
 void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
                                                 const InitializationToken,
-                                                const CellPtr cell_ptr,
+                                                const CellPtr& cell_ptr,
                                                 const MaterialID material_id,
                                                 const GroupNumber group) const {
 
@@ -66,9 +66,20 @@ void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
 template <int dim>
 void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
                                                 const InitializationToken,
-                                                const CellPtr cell_ptr,
+                                                const CellPtr& cell_ptr,
                                                 const MaterialID material_id,
                                                 const GroupNumber group) const {
+
+  finite_element_->SetCell(cell_ptr);
+
+  const double sigma_t = cross_sections_->sigma_t.at(material_id)[group];
+  const double sigma_s = cross_sections_->sigma_s.at(material_id)(group, group);
+  double sigma_r = sigma_t - sigma_s;
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double jacobian = finite_element_->Jacobian(q);
+    to_fill.add(sigma_r*jacobian, shape_squared_[q]);
+  }
 }
 
 template class CFEM_Diffusion<1>;

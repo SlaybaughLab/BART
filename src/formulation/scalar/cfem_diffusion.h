@@ -34,7 +34,7 @@ class CFEM_Diffusion : public CFEM_I {
    *
    * \param cell_ptr any cell, no Jacobian is used so this is arbitrary.
    */
-  InitializationToken Precalculate(const CellPtr cell_ptr);
+  InitializationToken Precalculate(const CellPtr& cell_ptr);
 
   /*! \brief Fill cell streaming term
    *
@@ -46,13 +46,13 @@ class CFEM_Diffusion : public CFEM_I {
    */
   void FillCellStreamingTerm(Matrix& to_fill,
                              const InitializationToken init_token,
-                             const CellPtr cell_ptr,
+                             const CellPtr& cell_ptr,
                              const MaterialID material_id,
                              const GroupNumber group) const;
 
   void FillCellCollisionTerm(Matrix& to_fill,
                              const InitializationToken init_token,
-                             const CellPtr cell_ptr,
+                             const CellPtr& cell_ptr,
                              const MaterialID material_id,
                              const GroupNumber group) const;
 
