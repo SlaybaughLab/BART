@@ -164,6 +164,11 @@ TEST_F(FiniteElementGaussianBaseMethods2D, BaseTests) {
   TestSetCellAndFace(&test_fe);
 }
 
+TEST_F(FiniteElementGaussianBaseMethods2D, BaseTestValueAtQuadrature) {
+  bart::domain::FiniteElementGaussian<2> test_fe{DiscretizationType::kDiscontinuousFEM, 1};
+  TestValueAtQuadrature(&test_fe);
+}
+
 
 
 } // namespace

@@ -10,6 +10,15 @@ namespace bart {
 
 namespace domain {
 
+/*! \brief Provides finite element information using a Gaussian cell quadrature.
+ *
+ * For a continuous FEM basis, this object uses the FE_Q<dim> object, and
+ * FE_DGQ for a discontinuous basis.
+ *
+ *
+ * \tparam dim dimension.
+ */
+
 template <int dim>
 class FiniteElementGaussian : public FiniteElement<dim>{
  public:

@@ -36,6 +36,9 @@ class FiniteElementMock : public FiniteElementI<dim> {
 
   MOCK_CONST_METHOD1_T(Jacobian, double(const int));
 
+  MOCK_CONST_METHOD1_T(ValueAtQuadrature, std::vector<double>(
+      const data::MomentVector moment));
+
   MOCK_METHOD0_T(finite_element, dealii::FiniteElement<dim, dim>*());
 
   MOCK_METHOD0_T(values, dealii::FEValues<dim>*());

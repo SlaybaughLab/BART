@@ -40,6 +40,11 @@ bool FiniteElement<dim>::SetFace(const CellPtr &to_set, const FaceNumber face) {
 
   return !cell_already_set;
 }
+template<int dim>
+std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
+    const data::MomentVector moment) const {
+  return std::vector<double>();
+}
 
 template class FiniteElement<1>;
 template class FiniteElement<2>;

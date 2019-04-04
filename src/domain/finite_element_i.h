@@ -1,6 +1,8 @@
 #ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 #define BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 
+#include "data/moment_types.h"
+
 #include <deal.II/fe/fe_values.h>
 
 /*! \brief Interface for a finite element object based on the dealii library.
@@ -91,6 +93,8 @@ class FiniteElementI {
    */
   virtual double Jacobian(const int cell_quadrature_point) const = 0;
 
+  virtual std::vector<double> ValueAtQuadrature(
+      const data::MomentVector moment) const = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
