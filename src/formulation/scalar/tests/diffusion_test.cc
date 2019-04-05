@@ -339,8 +339,8 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
   out_group_moments[{1,0,0}] = group_1_moment;
 
   // Expected answer
-  std::vector<double> expected_values{4.285714287,
-                                      10.714285714};
+  std::vector<double> expected_values{3.57142857142,
+                                      8.92857142855};
   dealii::Vector<double> expected_vector{expected_values.begin(),
                                          expected_values.end()};
 
