@@ -359,5 +359,53 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
 
 }
 
+TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
+  dealii::DoFHandler<2>::active_cell_iterator cell;
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+
+  dealii::Vector<double> test_vector(2);
+  int material_id = 0;
+  int group = 0;
+  // Make in-group moment
+  std::vector<double> in_group_moment_values{0.5, 0.5};
+  data::MomentVector in_group_moment(in_group_moment_values.begin(),
+                                     in_group_moment_values.end());
+
+  /* Make out-group moments (specifically in-group values in this are different
+   * This is a somewhat tortured process due to the way dealii::Vectors are
+   * defined (data::MomentVector is an alias) */
+  std::vector<double> group_0_moment_values{0.75, 0.75};
+  std::vector<double> group_1_moment_values{1.0, 1.0};
+  data::MomentVector group_0_moment{group_0_moment_values.begin(),
+                                    group_0_moment_values.end()};
+  data::MomentVector group_1_moment{group_1_moment_values.begin(),
+                                    group_1_moment_values.end()};
+  data::MomentsMap out_group_moments;
+  out_group_moments[{0,0,0}] = group_0_moment;
+  out_group_moments[{1,0,0}] = group_1_moment;
+
+  // Expected answer
+  std::vector<double> expected_values{3.75,
+                                      9.375};
+  dealii::Vector<double> expected_vector{expected_values.begin(),
+                                         expected_values.end()};
+
+  EXPECT_CALL(*fe_mock_ptr, SetCell(_))
+      .Times(1);
+  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(group_1_moment))
+      .WillOnce(Return(group_1_moment_values));
+  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
+      .WillOnce(Return(in_group_moment_values));
+
+  test_diffusion.FillCellScatteringSource(test_vector, cell, material_id, group,
+                                       in_group_moment,
+                                       out_group_moments);
+
+  EXPECT_TRUE(CompareVector(expected_vector, test_vector));
+
+}
+
 
 } // namespace
