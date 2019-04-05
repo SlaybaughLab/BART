@@ -71,6 +71,7 @@ class CFEM_Diffusion : public CFEM_I {
                              const MaterialID material_id,
                              const GroupNumber group,
                              const double k_effective,
+                             const data::MomentVector& in_group_moment,
                              const data::MomentsMap& group_moments) const;
 
   // Getters & Setters

@@ -130,12 +130,16 @@ void CFEM_Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillCellFissionSource(Vector& to_fill,
-                                                const CellPtr& cell_ptr,
-                                                const MaterialID material_id,
-                                                const GroupNumber group,
-                                                const double k_effective,
-                                                const data::MomentsMap& group_moments) const {
+void CFEM_Diffusion<dim>::FillCellFissionSource(
+    Vector& to_fill,
+    const CellPtr& cell_ptr,
+    const MaterialID material_id,
+    const GroupNumber group,
+    const double k_effective,
+    const data::MomentVector& in_group_moment,
+    const data::MomentsMap& group_moments) const {
+
+
 
 }
 
