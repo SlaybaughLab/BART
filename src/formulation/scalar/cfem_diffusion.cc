@@ -139,6 +139,46 @@ void CFEM_Diffusion<dim>::FillCellFissionSource(
     const data::MomentVector& in_group_moment,
     const data::MomentsMap& group_moments) const {
 
+  if (cross_sections_->is_material_fissile.at(material_id)) {
+    finite_element_->SetCell(cell_ptr);
+
+    std::vector<double> fission_source_at_quad_points(cell_quadrature_points_);
+
+    // Get fission source contribution from each group at each quadrature point
+    for (const auto& moment_pair : group_moments) {
+      auto &[index, moment] = moment_pair;
+      int group_in = index[0];
+      if (index[1] == 0 && index[2] == 0) {
+        std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
+
+        if (group_in == group) {
+          scalar_flux_at_quad_points =
+              finite_element_->ValueAtQuadrature(in_group_moment);
+        } else {
+          scalar_flux_at_quad_points =
+              finite_element_->ValueAtQuadrature(moment);
+        }
+
+        auto fission_transfer =
+            cross_sections_->fiss_transfer.at(material_id)(group, group_in);
+
+        for (int q = 0; q < cell_quadrature_points_; ++q)
+          fission_source_at_quad_points[q] +=
+              fission_transfer * scalar_flux_at_quad_points[q];
+      }
+    }
+
+    // Integrate for each degree of freedom
+    for (int q = 0; q < cell_quadrature_points_; ++q) {
+      fission_source_at_quad_points[q] *=
+          finite_element_->Jacobian(q) / k_effective;
+
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i)
+        to_fill(i) +=
+            finite_element_->ShapeValue(i, q) * fission_source_at_quad_points[q];
+
+    }
+  }
 
 
 }
