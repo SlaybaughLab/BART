@@ -64,6 +64,8 @@ class DOFTest : public DefinitionTest {
   DOFTest() : fe(1) {};
   dealii::Triangulation<2> triangulation;
   dealii::FE_Q<2>          fe;
+  int n_cells_;
+
   void SetUp() override;
   static void SetTriangulation(dealii::Triangulation<2> &to_fill) {
     dealii::GridGenerator::hyper_cube(to_fill, -1, 1);
@@ -87,4 +89,5 @@ TEST_F(DOFTest, SetUpDOFTest) {
   test_domain.SetUpDOF();
 
   EXPECT_EQ(test_domain.total_degrees_of_freedom(), 25);
+  EXPECT_EQ(test_domain.Cells().size(), 16);
 }
