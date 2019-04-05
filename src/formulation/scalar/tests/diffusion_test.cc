@@ -338,13 +338,23 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
   out_group_moments[{0,0,0}] = group_0_moment;
   out_group_moments[{1,0,0}] = group_1_moment;
 
-  test_diffusion.FillCellFissionSource(test_vector, cell, material_id, group,
-                                       k_effective, in_group_moment,
-                                       out_group_moments);
+  // Expected answer
   std::vector<double> expected_values{4.285714287,
                                       10.714285714};
   dealii::Vector<double> expected_vector{expected_values.begin(),
                                          expected_values.end()};
+
+  EXPECT_CALL(*fe_mock_ptr, SetCell(_))
+      .Times(1);
+  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(group_1_moment))
+      .WillOnce(Return(group_1_moment_values));
+  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
+      .WillOnce(Return(in_group_moment_values));
+
+  test_diffusion.FillCellFissionSource(test_vector, cell, material_id, group,
+                                       k_effective, in_group_moment,
+                                       out_group_moments);
+
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
 
 }
