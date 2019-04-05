@@ -189,7 +189,43 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
       const GroupNumber group,
       const data::MomentVector& in_group_moment,
       const data::MomentsMap& group_moments) const {
+  finite_element_->SetCell(cell_ptr);
 
+  std::vector<double> scattering_source_at_quad_points(cell_quadrature_points_);
+
+  // Get fission source contribution from each group at each quadrature point
+  for (const auto& moment_pair : group_moments) {
+    auto &[index, moment] = moment_pair;
+    int group_in = index[0];
+    if (index[1] == 0 && index[2] == 0) {
+      std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
+
+      if (group_in == group) {
+        scalar_flux_at_quad_points =
+            finite_element_->ValueAtQuadrature(in_group_moment);
+      } else {
+        scalar_flux_at_quad_points =
+            finite_element_->ValueAtQuadrature(moment);
+      }
+
+      const auto sigma_s =
+          cross_sections_->sigma_s.at(material_id)(group, group_in);
+
+      for (int q = 0; q < cell_quadrature_points_; ++q)
+        scattering_source_at_quad_points[q] +=
+            sigma_s * scalar_flux_at_quad_points[q];
+    }
+  }
+
+  // Integrate for each degree of freedom
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    scattering_source_at_quad_points[q] *= finite_element_->Jacobian(q);
+
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i)
+      to_fill(i) +=
+          finite_element_->ShapeValue(i, q) * scattering_source_at_quad_points[q];
+
+  }
 }
 
 
