@@ -9,10 +9,11 @@
 #include <deal.II/distributed/tria.h>
 #include <deal.II/lac/constraint_matrix.h>
 
-#include "../problem/parameter_types.h"
-#include "../data/matrix_parameters.h"
-#include "../domain/mesh_i.h"
-#include "../domain/finite_element_i.h"
+#include "data/matrix_parameters.h"
+#include "domain/definition_i.h"
+#include "domain/finite_element_i.h"
+#include "domain/mesh_i.h"
+#include "problem/parameter_types.h"
 
 namespace bart {
 
@@ -35,7 +36,7 @@ namespace domain {
  */  
 
 template <int dim>
-class Definition {
+class Definition : public DefinitionI {
  public:
 
   typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
