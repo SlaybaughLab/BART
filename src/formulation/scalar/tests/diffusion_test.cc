@@ -63,13 +63,15 @@ void FormulationCFEMDiffusionTest::SetUp() {
   }
 
   // Cross-section data for fake two-group, with one material (id = 0)
-  std::array<double, 4> sigma_s_values{0.25, 0.25, 0.25, 0.5}; // (i*j + 1)/4
+  std::array<double, 4> sigma_s_values{0.25, 0.5, 0.75, 1.0};
   dealii::FullMatrix<double> sigma_s_matrix{2,2, sigma_s_values.begin()};
   std::unordered_map<int, dealii::FullMatrix<double>> sigma_s{{0, sigma_s_matrix}};
 
   std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}}; // i + 1
 
   std::unordered_map<int, std::vector<double>> q{{0, {1.0, 2.0}}};
+
+  std::unordered_map<int, bool> fissile_id{{0, true}};
 
   ON_CALL(mock_material, GetSigT())
       .WillByDefault(Return(sigma_t));
@@ -79,6 +81,10 @@ void FormulationCFEMDiffusionTest::SetUp() {
       .WillByDefault(Return(sigma_t));
   ON_CALL(mock_material, GetQ())
       .WillByDefault(Return(q));
+  ON_CALL(mock_material, GetFissileIDMap())
+      .WillByDefault(Return(fissile_id));
+  ON_CALL(mock_material, GetChiNuSigF())
+      .WillByDefault(Return(sigma_s));
 
   cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 }
@@ -300,6 +306,45 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
 
   test_diffusion.FillCellFixedSource(test_vector, cell, 0, 0);
 
+  EXPECT_TRUE(CompareVector(expected_vector, test_vector));
+
+}
+
+TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
+  dealii::DoFHandler<2>::active_cell_iterator cell;
+
+  formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                        cross_sections_ptr);
+
+  dealii::Vector<double> test_vector(2);
+  int material_id = 0;
+  int group = 0;
+  double k_effective = 1.05;
+  // Make in-group moment
+  std::vector<double> in_group_moment_values{0.5, 0.5};
+  data::MomentVector in_group_moment(in_group_moment_values.begin(),
+                                     in_group_moment_values.end());
+
+  /* Make out-group moments (specifically in-group values in this are different
+   * This is a somewhat tortured process due to the way dealii::Vectors are
+   * defined (data::MomentVector is an alias) */
+  std::vector<double> group_0_moment_values{0.75, 0.75};
+  std::vector<double> group_1_moment_values{1.0, 1.0};
+  data::MomentVector group_0_moment{group_0_moment_values.begin(),
+                                    group_0_moment_values.end()};
+  data::MomentVector group_1_moment{group_1_moment_values.begin(),
+                                    group_1_moment_values.end()};
+  data::MomentsMap out_group_moments;
+  out_group_moments[{0,0,0}] = group_0_moment;
+  out_group_moments[{1,0,0}] = group_1_moment;
+
+  test_diffusion.FillCellFissionSource(test_vector, cell, material_id, group,
+                                       k_effective, in_group_moment,
+                                       out_group_moments);
+  std::vector<double> expected_values{4.285714287,
+                                      10.714285714};
+  dealii::Vector<double> expected_vector{expected_values.begin(),
+                                         expected_values.end()};
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
 
 }
