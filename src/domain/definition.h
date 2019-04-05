@@ -44,8 +44,8 @@ class Definition : public DefinitionI {
   /*! \brief Constructor.
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
    */
-  Definition(std::unique_ptr<domain::MeshI<dim>> &mesh,
-             std::unique_ptr<domain::FiniteElementI<dim>> &finite_element);
+  Definition(std::unique_ptr<domain::MeshI<dim>> mesh,
+             std::shared_ptr<domain::FiniteElementI<dim>> finite_element);
   ~Definition() = default;
   
   /*! Fills triangulation with mesh defined in MeshI object
@@ -85,7 +85,7 @@ class Definition : public DefinitionI {
   std::unique_ptr<domain::MeshI<dim>> mesh_;
   
   //! Internal owned finite element object
-  std::unique_ptr<domain::FiniteElementI<dim>> finite_element_;
+  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
 
   //! Internal distributed triangulation object
   dealii::parallel::distributed::Triangulation<dim> triangulation_;
