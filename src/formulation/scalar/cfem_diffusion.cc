@@ -179,7 +179,16 @@ void CFEM_Diffusion<dim>::FillCellFissionSource(
 
     }
   }
+}
 
+template <int dim>
+void CFEM_Diffusion<dim>::FillCellScatteringSource(
+      Vector& to_fill,
+      const CellPtr& cell_ptr,
+      const MaterialID material_id,
+      const GroupNumber group,
+      const data::MomentVector& in_group_moment,
+      const data::MomentsMap& group_moments) const {
 
 }
 

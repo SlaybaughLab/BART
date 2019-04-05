@@ -74,6 +74,13 @@ class CFEM_Diffusion : public CFEM_I {
                              const data::MomentVector& in_group_moment,
                              const data::MomentsMap& group_moments) const;
 
+  void FillCellScatteringSource(Vector& to_fill,
+                                const CellPtr& cell_ptr,
+                                const MaterialID material_id,
+                                const GroupNumber group,
+                                const data::MomentVector& in_group_moment,
+                                const data::MomentsMap& group_moments) const;
+
   // Getters & Setters
   /*! \brief Get precalculated matrices for the square of the shape function.
    *
