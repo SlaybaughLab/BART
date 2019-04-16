@@ -14,7 +14,6 @@
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
-#include "formulation/assembler.h"
 #include "formulation/scalar/cfem_diffusion.h"
 
 #include "test_helpers/gmock_wrapper.h"
