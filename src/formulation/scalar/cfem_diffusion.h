@@ -19,19 +19,15 @@ namespace scalar {
 template <int dim>
 class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
  public:
-  struct InitializationToken{};
-  enum class BoundaryType {
-    kVacuum,
-    kReflective
-  };
+  using typename CFEM_DiffusionI<dim>::InitializationToken;
+  using typename CFEM_DiffusionI<dim>::BoundaryType;
 
-  //! Pointer to a cell iterator returned by a dof object.
-  using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
-  using Matrix = dealii::FullMatrix<double>;
-  using Vector = dealii::Vector<double>;
-  using GroupNumber = int;
-  using MaterialID = int;
-  using FaceNumber = int;
+  using typename CFEM_DiffusionI<dim>::CellPtr;
+  using typename CFEM_DiffusionI<dim>::Matrix;
+  using typename CFEM_DiffusionI<dim>::Vector;
+  using typename CFEM_DiffusionI<dim>::GroupNumber;
+  using typename CFEM_DiffusionI<dim>::MaterialID;
+  using typename CFEM_DiffusionI<dim>::FaceNumber;
 
 
   CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>> finite_element,
@@ -41,30 +37,30 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
    *
    * \param cell_ptr any cell, no Jacobian is used so this is arbitrary.
    */
-  InitializationToken Precalculate(const CellPtr& cell_ptr);
+  InitializationToken Precalculate(const CellPtr& cell_ptr) override;
 
   void FillCellStreamingTerm(Matrix& to_fill,
                              const InitializationToken,
                              const CellPtr& cell_ptr,
                              const MaterialID material_id,
-                             const GroupNumber group) const;
+                             const GroupNumber group) const override;
 
   void FillCellCollisionTerm(Matrix& to_fill,
                              const InitializationToken,
                              const CellPtr& cell_ptr,
                              const MaterialID material_id,
-                             const GroupNumber group) const;
+                             const GroupNumber group) const override;
 
   void FillBoundaryTerm(Matrix& to_fill,
                         const InitializationToken,
                         const CellPtr& cell_ptr,
                         const FaceNumber face_number,
-                        const BoundaryType boundary_type) const;
+                        const BoundaryType boundary_type) const override;
 
   void FillCellFixedSource(Vector& to_fill,
                            const CellPtr& cell_ptr,
                            const MaterialID material_id,
-                           const GroupNumber group) const;
+                           const GroupNumber group) const override;
 
   void FillCellFissionSource(Vector& to_fill,
                              const CellPtr& cell_ptr,
@@ -72,14 +68,14 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
                              const GroupNumber group,
                              const double k_effective,
                              const data::MomentVector& in_group_moment,
-                             const data::MomentsMap& group_moments) const;
+                             const data::MomentsMap& group_moments) const override;
 
   void FillCellScatteringSource(Vector& to_fill,
                                 const CellPtr& cell_ptr,
                                 const MaterialID material_id,
                                 const GroupNumber group,
                                 const data::MomentVector& in_group_moment,
-                                const data::MomentsMap& group_moments) const;
+                                const data::MomentsMap& group_moments) const override;
 
   // Getters & Setters
   /*! \brief Get precalculated matrices for the square of the shape function.
