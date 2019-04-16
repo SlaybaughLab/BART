@@ -44,7 +44,7 @@ class CFEM_DiffusionMock : public CFEM_DiffusionI<dim> {
       const InitializationToken,
       const CellPtr&,
       const FaceNumber,
-      const GroupNumber));
+      const BoundaryType));
 
   MOCK_CONST_METHOD4_T(FillCellFixedSource, void(Vector& to_fill,
       const CellPtr&,

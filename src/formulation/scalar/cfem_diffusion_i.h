@@ -4,6 +4,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
+#include "data/moment_types.h"
 #include "formulation/scalar/cfem_i.h"
 
 namespace bart {
