@@ -1,7 +1,10 @@
 #ifndef BART_SRC_DOMAIN_DEFINITION_I_H_
 #define BART_SRC_DOMAIN_DEFINITION_I_H_
 
+#include <vector>
+
 #include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
 
 #include "data/matrix_parameters.h"
 #include "problem/parameter_types.h"
@@ -14,7 +17,8 @@ template <int dim>
 class DefinitionI {
  public:
 
-  typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
+  using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
+  using CellRange = std::vector<Cell>;
 
   virtual ~DefinitionI() = default;
 
