@@ -93,6 +93,11 @@ class FiniteElementI {
    */
   virtual double Jacobian(const int cell_quadrature_point) const = 0;
 
+  /*! \brief Get the value of a flux moment at the interior cell quadrature points.
+   *
+   * \param moment flux moment to get the value of.
+   * \return a vector holding the value of the moment at each quadrature point.
+   */
   virtual std::vector<double> ValueAtQuadrature(
       const data::MomentVector moment) const = 0;
 
