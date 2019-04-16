@@ -36,9 +36,8 @@ namespace domain {
  */  
 
 template <int dim>
-class Definition : public DefinitionI {
+class Definition : public DefinitionI<dim> {
  public:
-
   typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
   
   /*! \brief Constructor.
@@ -52,20 +51,21 @@ class Definition : public DefinitionI {
    * Creates mesh shape, sets up boundary ids and material ids. Requires that 
    * the mesh has a material mapping setup.
    */ 
-  Definition<dim>& SetUpMesh();
+  Definition<dim>& SetUpMesh() override;
 
   /*! Set up the DOF handler, to access sparsity patterns, etc */
-  Definition<dim>& SetUpDOF();
+  Definition<dim>& SetUpDOF() override;
 
   /*! Get the parameters required to build a system matrix for this domain */
-  void FillMatrixParameters(data::MatrixParameters &to_fill,
-                            problem::DiscretizationType discretization) const;
+  void FillMatrixParameters(
+      data::MatrixParameters &to_fill,
+      problem::DiscretizationType discretization) const override;
 
   /*! Get a range of all cells to allow iterating over them */
-  CellRange Cells() const { return local_cells_; };
+  CellRange Cells() const override { return local_cells_; };
 
   /*! Get total degrees of freedom */
-  int total_degrees_of_freedom() const;
+  int total_degrees_of_freedom() const override ;
   
  private:
   //! Internal owned mesh object.
