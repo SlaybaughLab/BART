@@ -8,7 +8,7 @@
 #include "data/moment_types.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
-#include "formulation/scalar/cfem_i.h"
+#include "formulation/scalar/cfem_diffusion_i.h"
 
 namespace bart {
 
@@ -17,7 +17,7 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class CFEM_Diffusion : public CFEM_I {
+class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
  public:
   struct InitializationToken{};
   enum class BoundaryType {
