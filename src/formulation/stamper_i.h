@@ -5,6 +5,12 @@ namespace bart {
 
 namespace formulation {
 
+template <int dim>
+class StamperI {
+ public:
+  virtual ~StamperI() = default;
+};
+
 } // namespace formulation
 
 } // namespace bart
