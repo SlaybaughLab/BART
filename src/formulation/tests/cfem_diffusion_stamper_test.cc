@@ -8,6 +8,8 @@
 
 namespace {
 
+using ::testing::DoDefault;
+using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::_;
 using namespace bart;
@@ -16,26 +18,29 @@ using InitToken = formulation::scalar::CFEM_DiffusionI<2>::InitializationToken;
 
 class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
-  std::unique_ptr<domain::DefinitionMock<2>> mock_definition_ptr;
-  std::unique_ptr<formulation::scalar::CFEM_DiffusionMock<2>> mock_diffusion_ptr;
+  std::unique_ptr<NiceMock<domain::DefinitionMock<2>>> mock_definition_ptr;
+  std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>> mock_diffusion_ptr;
   void SetUp() override;
+  InitToken init_token_;
 };
 
 void CFEMDiffusionStamperTest::SetUp() {
-  mock_definition_ptr = std::make_unique<domain::DefinitionMock<2>>();
+  mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<2>>>();
   mock_diffusion_ptr =
-      std::make_unique<formulation::scalar::CFEM_DiffusionMock<2>>();
+      std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>>();
+
+  ON_CALL(*mock_diffusion_ptr, Precalculate(_))
+      .WillByDefault(Return(init_token_));
 }
 
 TEST_F(CFEMDiffusionStamperTest, Constructor) {
-  InitToken init_token;
   Cell test_cell;
   std::vector<Cell> cells{test_cell};
 
   EXPECT_CALL(*mock_definition_ptr, Cells())
       .WillOnce(Return(cells));
   EXPECT_CALL(*mock_diffusion_ptr, Precalculate(_))
-      .WillOnce(Return(init_token));
+      .WillOnce(DoDefault());
 
   formulation::CFEM_DiffusionStamper<2> test_stamper(
       std::move(mock_diffusion_ptr),
@@ -43,6 +48,10 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
 
   EXPECT_EQ(mock_diffusion_ptr, nullptr);
   EXPECT_EQ(mock_definition_ptr, nullptr);
+}
+
+TEST_F(CFEMDiffusionStamperTest, FillCellStreamingTest) {
+
 }
 
 
