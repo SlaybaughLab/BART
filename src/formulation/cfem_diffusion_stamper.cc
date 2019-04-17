@@ -11,8 +11,9 @@ CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
     : diffusion_ptr_(std::move(diffusion_ptr)),
       definition_ptr_(std::move(definition_ptr)) {
 
-
-      }
+      cells_ = definition_ptr_->Cells();
+      diffusion_init_token_ = diffusion_ptr_->Precalculate(cells_[0]);
+}
 
 template class CFEM_DiffusionStamper<1>;
 template class CFEM_DiffusionStamper<2>;
