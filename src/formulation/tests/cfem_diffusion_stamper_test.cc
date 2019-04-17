@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <deal.II/lac/full_matrix.h>
+
 #include "domain/tests/definition_mock.h"
 #include "formulation/scalar/tests/cfem_diffusion_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -9,12 +11,16 @@
 namespace {
 
 using ::testing::DoDefault;
+using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::Unused;
 using ::testing::_;
+
 using namespace bart;
 using Cell = domain::DefinitionI<2>::Cell;
 using InitToken = formulation::scalar::CFEM_DiffusionI<2>::InitializationToken;
+using Matrix = dealii::FullMatrix<double>;
 
 class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
@@ -24,6 +30,15 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
   InitToken init_token_;
 };
 
+// TODO(Josh) Move this to a header where other stamper tests can use it
+void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused, Unused) {
+  for (int i = 0; i < to_fill.n_rows(); ++i) {
+    for (int j = 0; j < to_fill.n_cols(); ++j) {
+      to_fill(i,j) = 1;
+    }
+  }
+}
+
 void CFEMDiffusionStamperTest::SetUp() {
   mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<2>>>();
   mock_diffusion_ptr =
@@ -31,6 +46,8 @@ void CFEMDiffusionStamperTest::SetUp() {
 
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
+  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _, _))
+      .WillByDefault(Invoke(FillMatrixWithOnes));
 }
 
 TEST_F(CFEMDiffusionStamperTest, Constructor) {
