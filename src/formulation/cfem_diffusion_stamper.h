@@ -16,11 +16,11 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
  public:
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
-      std::unique_ptr<domain::DefinitionI<dim>> domain_ptr);
+      std::unique_ptr<domain::DefinitionI<dim>> definition_ptr);
 
  private:
   std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr_;
-  std::unique_ptr<domain::DefinitionI<dim>> domain_ptr_;
+  std::unique_ptr<domain::DefinitionI<dim>> definition_ptr_;
 };
 
 } // namespace formulation

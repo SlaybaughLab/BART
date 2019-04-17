@@ -7,9 +7,9 @@ namespace formulation {
 template<int dim>
 CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
     std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
-    std::unique_ptr<domain::DefinitionI<dim>> domain_ptr)
+    std::unique_ptr<domain::DefinitionI<dim>> definition_ptr)
     : diffusion_ptr_(std::move(diffusion_ptr)),
-      domain_ptr_(std::move(domain_ptr)) {
+      definition_ptr_(std::move(definition_ptr)) {
 
 
       }
