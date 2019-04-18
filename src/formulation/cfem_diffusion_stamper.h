@@ -23,7 +23,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr);
 
   void StampStreamingTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
-
+  void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
 
  private:
   using InitializationToken =
