@@ -55,8 +55,6 @@ void CFEMDiffusionStamperTest::SetUp() {
 
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
-  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _, _))
-      .WillByDefault(Invoke(FillMatrixWithOnes));
 }
 
 TEST_F(CFEMDiffusionStamperTest, Constructor) {
@@ -106,7 +104,13 @@ CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
       fe_(1) {}
 
 void CFEMDiffusionStamperMPITests::SetUp() {
+  CFEMDiffusionStamperTest::SetUp();
   SetUpDealii();
+
+  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _, _))
+      .WillByDefault(Invoke(FillMatrixWithOnes));
+  ON_CALL(*mock_definition_ptr, Cells())
+      .WillByDefault(Return(cells_));
 }
 
 void CFEMDiffusionStamperMPITests::SetUpDealii() {
