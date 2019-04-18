@@ -5,6 +5,7 @@
 
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/lac/full_matrix.h>
 
 #include "data/matrix_parameters.h"
 #include "problem/parameter_types.h"
@@ -29,6 +30,8 @@ class DefinitionI {
   virtual void FillMatrixParameters(
       data::MatrixParameters &to_fill,
       problem::DiscretizationType discretization) const = 0;
+
+  virtual dealii::FullMatrix<double> GetCellMatrix() const = 0;
 
   virtual CellRange Cells() const = 0;
 

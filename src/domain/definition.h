@@ -61,6 +61,12 @@ class Definition : public DefinitionI<dim> {
       data::MatrixParameters &to_fill,
       problem::DiscretizationType discretization) const override;
 
+  /*! Get a matrix suitible for a cell matrix.
+   *
+   * \return a dealii FullMatrix<double> of appropriate size.
+   */
+  dealii::FullMatrix<double> GetCellMatrix() const override {}
+
   /*! Get a range of all cells to allow iterating over them */
   CellRange Cells() const override { return local_cells_; };
 

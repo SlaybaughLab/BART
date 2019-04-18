@@ -3,6 +3,7 @@
 
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/lac/full_matrix.h>
 
 #include "data/matrix_parameters.h"
 #include "domain/definition_i.h"
@@ -23,6 +24,7 @@ class DefinitionMock : public DefinitionI<dim> {
   MOCK_METHOD0_T(SetUpDOF, DefinitionMock<dim>&());
   MOCK_CONST_METHOD2_T(FillMatrixParameters, void(data::MatrixParameters &to_fill,
       problem::DiscretizationType discretization));
+  MOCK_CONST_METHOD0_T(GetCellMatrix, dealii::FullMatrix<double>());
   MOCK_CONST_METHOD0_T(Cells, typename DefinitionI<dim>::CellRange());
   MOCK_CONST_METHOD0_T(total_degrees_of_freedom, int());
 
