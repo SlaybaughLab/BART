@@ -65,7 +65,11 @@ class Definition : public DefinitionI<dim> {
    *
    * \return a dealii FullMatrix<double> of appropriate size.
    */
-  dealii::FullMatrix<double> GetCellMatrix() const override {}
+  dealii::FullMatrix<double> GetCellMatrix() const override {
+    int cell_dofs = finite_element_->dofs_per_cell();
+    dealii::FullMatrix<double> full_matrix(cell_dofs, cell_dofs);
+    return full_matrix;
+  }
 
   /*! Get a range of all cells to allow iterating over them */
   CellRange Cells() const override { return local_cells_; };
