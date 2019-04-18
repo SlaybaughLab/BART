@@ -216,6 +216,28 @@ TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
   EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
 }
 
+TEST_F(CFEMDiffusionStamperMPITests, StampCollision) {
+
+  int group_number = 1;
+
+  for (auto const& cell : cells_) {
+    EXPECT_CALL(*mock_diffusion_ptr,
+                FillCellCollisionTerm(_, _, cell, cell->material_id(), group_number))
+        .WillOnce(Invoke(FillMatrixWithOnes));
+  }
+  EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
+      .WillOnce(DoDefault());
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampCollisionTerm(system_matrix_, group_number);
+
+  EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
+}
+
+
 
 
 
