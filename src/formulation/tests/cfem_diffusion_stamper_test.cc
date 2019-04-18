@@ -19,6 +19,8 @@
 
 namespace {
 
+using ::testing::AssertionResult;
+using ::testing::AssertionFailure, ::testing::AssertionSuccess;
 using ::testing::DoDefault;
 using ::testing::Invoke;
 using ::testing::NiceMock;
@@ -83,6 +85,9 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
 
   void SetUp() override;
   void SetUpDealii();
+  AssertionResult CompareMPIMatrices(
+      const dealii::PETScWrappers::MPI::SparseMatrix& expected,
+      const dealii::PETScWrappers::MPI::SparseMatrix& result);
 
   dealii::ConstraintMatrix constraint_matrix_;
   dealii::parallel::distributed::Triangulation<2> triangulation_;
@@ -94,6 +99,25 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   std::vector<Cell> cells_;
 };
 
+AssertionResult CFEMDiffusionStamperMPITests::CompareMPIMatrices(
+    const dealii::PETScWrappers::MPI::SparseMatrix& expected,
+    const dealii::PETScWrappers::MPI::SparseMatrix& result) {
+
+  for (const auto& cell : cells_) {
+    std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
+    cell->get_dof_indices(local_dof_indices);
+    for (const auto &index_i : local_dof_indices) {
+      for (const auto &index_j : local_dof_indices) {
+        if (result(index_i, index_j) != expected(index_i, index_j)) {
+          return AssertionFailure() << "Entry (" << index_i << ", " << index_j <<
+                                    ") has value: " << result(index_i, index_j) <<
+                                    ", expected: " << expected(index_i, index_j);
+        }
+      }
+    }
+  }
+  return AssertionSuccess();
+}
 
 CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
     : triangulation_(MPI_COMM_WORLD,
@@ -161,8 +185,20 @@ void CFEMDiffusionStamperMPITests::SetUpDealii() {
 }
 
 
-TEST_F(CFEMDiffusionStamperMPITests, DummyMPI) {
-  EXPECT_TRUE(true);
+TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
+
+  for (auto const& cell : cells_) {
+    EXPECT_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, cell, _, _))
+        .WillOnce(DoDefault());
+  }
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampStreamingTerm(system_matrix_, 1);
+
+  EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
 }
 
 } // namespace
