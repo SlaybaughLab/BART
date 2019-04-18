@@ -105,16 +105,15 @@ AssertionResult CFEMDiffusionStamperMPITests::CompareMPIMatrices(
     const dealii::PETScWrappers::MPI::SparseMatrix& expected,
     const dealii::PETScWrappers::MPI::SparseMatrix& result) {
 
-  for (const auto& cell : cells_) {
-    std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
-    cell->get_dof_indices(local_dof_indices);
-    for (const auto &index_i : local_dof_indices) {
-      for (const auto &index_j : local_dof_indices) {
-        if (result(index_i, index_j) != expected(index_i, index_j)) {
-          return AssertionFailure() << "Entry (" << index_i << ", " << index_j <<
-                                    ") has value: " << result(index_i, index_j) <<
-                                    ", expected: " << expected(index_i, index_j);
-        }
+  auto [first_local_row, last_local_row] = expected.local_range();
+  unsigned int n_columns = expected.n();
+
+  for (unsigned int i = first_local_row; i < last_local_row; ++i) {
+    for (unsigned int j = 0; j < n_columns; ++j) {
+      if (result(i, j) != expected(i, j)) {
+        return AssertionFailure() << "Entry (" << i << ", " << j <<
+                                  ") has value: " << result.el(i, j) <<
+                                  ", expected: " << expected.el(i, j);
       }
     }
   }
