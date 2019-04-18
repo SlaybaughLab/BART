@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
   } else if (use_mpi) {
       new_argv.push_back("--gtest_filter=*MPI*");
   } else {
-    new_argv.push_back("--gtest_filter=-*MPI*");
+    new_argv.push_back("--gtest_filter=-*MPIOnly*");
   }
 
   new_argv.push_back(nullptr);
@@ -65,6 +65,16 @@ int main(int argc, char** argv) {
 
   dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
   ::testing::InitGoogleMock(&argc, argv);
+
+  ::testing::TestEventListeners& listeners =
+      ::testing::UnitTest::GetInstance()->listeners();
+
+  int world_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+  if (world_rank != 0) {
+    delete listeners.Release(listeners.default_result_printer());
+  }
   
   // Re-seed random number generator for random number tests
   std::srand(time(NULL));
