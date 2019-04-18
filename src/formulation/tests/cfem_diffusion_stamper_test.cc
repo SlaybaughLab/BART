@@ -44,8 +44,8 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
 
 // TODO(Josh) Move this to a header where other stamper tests can use it
 void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused, Unused) {
-  for (int i = 0; i < to_fill.n_rows(); ++i) {
-    for (int j = 0; j < to_fill.n_cols(); ++j) {
+  for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
+    for (unsigned int j = 0; j < to_fill.n_cols(); ++j) {
       to_fill(i,j) = 1;
     }
   }
