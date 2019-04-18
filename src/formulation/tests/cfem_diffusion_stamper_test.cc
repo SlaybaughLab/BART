@@ -143,6 +143,10 @@ void CFEMDiffusionStamperMPITests::SetUp() {
       .WillByDefault(Invoke(FillMatrixWithOnes));
   ON_CALL(*mock_definition_ptr, Cells())
       .WillByDefault(Return(cells_));
+  dealii::FullMatrix<double> cell_matrix(fe_.dofs_per_cell,
+                                         fe_.dofs_per_cell);
+  ON_CALL(*mock_definition_ptr, GetCellMatrix())
+      .WillByDefault(Return(cell_matrix));
 }
 
 void CFEMDiffusionStamperMPITests::SetUpDealii() {
@@ -202,6 +206,8 @@ TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
         FillCellStreamingTerm(_, _, cell, cell->material_id(), group_number))
         .WillOnce(DoDefault());
   }
+  EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
+      .WillOnce(DoDefault());
 
   formulation::CFEM_DiffusionStamper<2> test_stamper(
       std::move(mock_diffusion_ptr),
