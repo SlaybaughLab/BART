@@ -139,8 +139,6 @@ void CFEMDiffusionStamperMPITests::SetUp() {
     cell->set_material_id(mat_id);
   }
 
-  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _, _))
-      .WillByDefault(Invoke(FillMatrixWithOnes));
   ON_CALL(*mock_definition_ptr, Cells())
       .WillByDefault(Return(cells_));
   dealii::FullMatrix<double> cell_matrix(fe_.dofs_per_cell,
@@ -204,7 +202,7 @@ TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
   for (auto const& cell : cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
         FillCellStreamingTerm(_, _, cell, cell->material_id(), group_number))
-        .WillOnce(DoDefault());
+        .WillOnce(Invoke(FillMatrixWithOnes));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillOnce(DoDefault());
@@ -217,5 +215,9 @@ TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
 
   EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
 }
+
+
+
+
 
 } // namespace
