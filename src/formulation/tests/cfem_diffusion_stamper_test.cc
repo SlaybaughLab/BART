@@ -16,6 +16,7 @@
 #include "domain/tests/definition_mock.h"
 #include "formulation/scalar/tests/cfem_diffusion_mock.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace {
 
@@ -97,6 +98,7 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   dealii::IndexSet locally_owned_dofs_;
   dealii::PETScWrappers::MPI::SparseMatrix system_matrix_, index_hits_;
   std::vector<Cell> cells_;
+  std::vector<int> material_ids_;
 };
 
 AssertionResult CFEMDiffusionStamperMPITests::CompareMPIMatrices(
@@ -130,6 +132,12 @@ CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
 void CFEMDiffusionStamperMPITests::SetUp() {
   CFEMDiffusionStamperTest::SetUp();
   SetUpDealii();
+
+  for (const auto& cell : cells_) {
+    int mat_id = btest::RandomDouble(0, 10);
+    material_ids_.push_back(mat_id);
+    cell->set_material_id(mat_id);
+  }
 
   ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _, _))
       .WillByDefault(Invoke(FillMatrixWithOnes));
@@ -187,8 +195,11 @@ void CFEMDiffusionStamperMPITests::SetUpDealii() {
 
 TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
 
+  int group_number = 1;
+
   for (auto const& cell : cells_) {
-    EXPECT_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, cell, _, _))
+    EXPECT_CALL(*mock_diffusion_ptr,
+        FillCellStreamingTerm(_, _, cell, cell->material_id(), group_number))
         .WillOnce(DoDefault());
   }
 
@@ -196,7 +207,7 @@ TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
       std::move(mock_diffusion_ptr),
       std::move(mock_definition_ptr));
 
-  test_stamper.StampStreamingTerm(system_matrix_, 1);
+  test_stamper.StampStreamingTerm(system_matrix_, group_number);
 
   EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
 }
