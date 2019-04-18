@@ -76,6 +76,7 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
   EXPECT_EQ(mock_definition_ptr, nullptr);
 }
 
+// TODO(Josh) Put this in it's own header file?
 class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
  protected:
   using Cell = typename dealii::DoFHandler<2>::active_cell_iterator;
@@ -83,6 +84,7 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   CFEMDiffusionStamperMPITests();
 
   void SetUp() override;
+  void SetUpDealii();
 
   dealii::ConstraintMatrix constraint_matrix_;
   dealii::parallel::distributed::Triangulation<2> triangulation_;
@@ -94,7 +96,20 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   std::vector<Cell> cells_;
 };
 
+
+CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
+    : triangulation_(MPI_COMM_WORLD,
+                     typename dealii::Triangulation<2>::MeshSmoothing(
+                         dealii::Triangulation<2>::smoothing_on_refinement |
+                             dealii::Triangulation<2>::smoothing_on_coarsening)),
+      dof_handler_(triangulation_),
+      fe_(1) {}
+
 void CFEMDiffusionStamperMPITests::SetUp() {
+  SetUpDealii();
+}
+
+void CFEMDiffusionStamperMPITests::SetUpDealii() {
   // Create triangulation
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
   triangulation_.refine_global(2);
@@ -141,13 +156,6 @@ void CFEMDiffusionStamperMPITests::SetUp() {
   }
 }
 
-CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
-    : triangulation_(MPI_COMM_WORLD,
-                   typename dealii::Triangulation<2>::MeshSmoothing(
-                       dealii::Triangulation<2>::smoothing_on_refinement |
-                           dealii::Triangulation<2>::smoothing_on_coarsening)),
-      dof_handler_(triangulation_),
-      fe_(1) {}
 
 TEST_F(CFEMDiffusionStamperMPITests, DummyMPI) {
   EXPECT_TRUE(true);
