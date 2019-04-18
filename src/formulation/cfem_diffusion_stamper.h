@@ -15,9 +15,15 @@ namespace formulation {
 template <int dim>
 class CFEM_DiffusionStamper : public StamperI<dim> {
  public:
+  using GroupNumber = int;
+  using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr);
+
+  void StampStreamingTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
+
 
  private:
   using InitializationToken =
