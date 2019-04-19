@@ -23,12 +23,13 @@ void CFEM_DiffusionStamper<dim>::StampStreamingTerm(MPISparseMatrix &to_stamp,
   auto streaming_function =
       [&](dealii::FullMatrix<double>& matrix,
           const Cell& cell_ptr) -> void
-  {
-    this->diffusion_ptr_->FillCellStreamingTerm(matrix,
-                                                this->diffusion_init_token_,
-                                                cell_ptr,
-                                                group);
-  };
+      {
+        this->diffusion_ptr_->FillCellStreamingTerm(matrix,
+                                                    this->diffusion_init_token_,
+                                                    cell_ptr,
+                                                    group);
+      };
+
   StampMatrix(to_stamp, streaming_function);
 }
 
@@ -39,12 +40,12 @@ void CFEM_DiffusionStamper<dim>::StampCollisionTerm(MPISparseMatrix &to_stamp,
   auto collision_function =
       [&](dealii::FullMatrix<double>& matrix,
           const Cell& cell_ptr) -> void
-  {
-    this->diffusion_ptr_->FillCellCollisionTerm(matrix,
-                                                this->diffusion_init_token_,
-                                                cell_ptr,
-                                                group);
-  };
+      {
+        this->diffusion_ptr_->FillCellCollisionTerm(matrix,
+                                                    this->diffusion_init_token_,
+                                                    cell_ptr,
+                                                    group);
+      };
 
   StampMatrix(to_stamp, collision_function);
 }
@@ -58,12 +59,14 @@ void CFEM_DiffusionStamper<dim>::StampMatrix(
   std::vector<dealii::types::global_dof_index> local_dof_indices(cell_matrix.n_cols());
 
   for (const auto& cell : cells_) {
+    cell_matrix = 0;
     cell->get_dof_indices(local_dof_indices);
     function(cell_matrix, cell);
     to_stamp.add(local_dof_indices, local_dof_indices, cell_matrix);
   }
   to_stamp.compress(dealii::VectorOperation::add);
 }
+
 
 template class CFEM_DiffusionStamper<1>;
 template class CFEM_DiffusionStamper<2>;
