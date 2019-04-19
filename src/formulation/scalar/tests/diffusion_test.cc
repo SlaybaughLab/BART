@@ -206,7 +206,6 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
-  dealii::DoFHandler<2>::active_cell_iterator it;
 
   // Set call expectations
   EXPECT_CALL(*fe_mock_ptr, SetCell(_))
@@ -218,7 +217,7 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
       .Times(16)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.Precalculate(it);
+  test_diffusion.Precalculate(cell_ptr_);
   auto shape_squared = test_diffusion.GetShapeSquared();
   auto gradient_squared = test_diffusion.GetGradientSquared();
 
@@ -230,7 +229,6 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
 
 TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   dealii::FullMatrix<double> test_matrix(2,2);
-  dealii::DoFHandler<2>::active_cell_iterator it;
 
   std::array<double, 4> expected_values{6, 6,
                                         6, 15};
@@ -239,22 +237,21 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(it);
+  auto init_token = test_diffusion.Precalculate(cell_ptr_);
 
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
-  EXPECT_CALL(*fe_mock_ptr, SetCell(it))
+  EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_))
       .Times(1);
 
-  test_diffusion.FillCellStreamingTerm(test_matrix, init_token, it, 0, 0);
+  test_diffusion.FillCellStreamingTerm(test_matrix, init_token, cell_ptr_, 0, 0);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
   dealii::FullMatrix<double> test_matrix(2,2);
-  dealii::DoFHandler<2>::active_cell_iterator it;
 
   std::array<double, 4> expected_values{4.5, 9.0,
                                         9.0, 20.25};
@@ -263,15 +260,15 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(it);
+  auto init_token = test_diffusion.Precalculate(cell_ptr_);
 
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
-  EXPECT_CALL(*fe_mock_ptr, SetCell(it))
+  EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_))
       .Times(1);
 
-  test_diffusion.FillCellCollisionTerm(test_matrix, init_token, it, 0, 0);
+  test_diffusion.FillCellCollisionTerm(test_matrix, init_token, cell_ptr_, 0, 0);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -279,21 +276,21 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
 TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestReflective) {
   dealii::FullMatrix<double> test_matrix(2,2);
   dealii::FullMatrix<double> expected_matrix(2,2);
-  dealii::DoFHandler<2>::active_cell_iterator cell;
+
   auto boundary = formulation::scalar::CFEM_Diffusion<2>::BoundaryType::kReflective;
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(cell);
-  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell, 0, boundary);
+  auto init_token = test_diffusion.Precalculate(cell_ptr_);
+  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell_ptr_, 0, boundary);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
   dealii::FullMatrix<double> test_matrix(2,2);
-  dealii::DoFHandler<2>::active_cell_iterator cell;
+
   auto boundary = formulation::scalar::CFEM_Diffusion<2>::BoundaryType::kVacuum;
 
   std::array<double, 4> expected_values{3, 6,
@@ -303,15 +300,15 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(cell);
+  auto init_token = test_diffusion.Precalculate(cell_ptr_);
 
-  EXPECT_CALL(*fe_mock_ptr, SetFace(cell, 0))
+  EXPECT_CALL(*fe_mock_ptr, SetFace(cell_ptr_, 0))
       .Times(1);
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell, 0, boundary);
+  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell_ptr_, 0, boundary);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 
@@ -323,7 +320,6 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
   dealii::Vector<double> expected_vector{expected_values.begin(),
                                          expected_values.end()};
   dealii::Vector<double> test_vector(2);
-  dealii::DoFHandler<2>::active_cell_iterator cell;
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
@@ -337,14 +333,13 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
       .Times(4)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.FillCellFixedSource(test_vector, cell, 0, 0);
+  test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0, 0);
 
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
 
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
-  dealii::DoFHandler<2>::active_cell_iterator cell;
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
@@ -384,7 +379,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
   EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
       .WillOnce(Return(in_group_moment_values));
 
-  test_diffusion.FillCellFissionSource(test_vector, cell, material_id, group,
+  test_diffusion.FillCellFissionSource(test_vector, cell_ptr_, material_id, group,
                                        k_effective, in_group_moment,
                                        out_group_moments);
 
@@ -393,7 +388,6 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
-  dealii::DoFHandler<2>::active_cell_iterator cell;
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
                                                         cross_sections_ptr);
@@ -432,7 +426,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
   EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
       .WillOnce(Return(in_group_moment_values));
 
-  test_diffusion.FillCellScatteringSource(test_vector, cell, material_id, group,
+  test_diffusion.FillCellScatteringSource(test_vector, cell_ptr_, material_id, group,
                                        in_group_moment,
                                        out_group_moments);
 
