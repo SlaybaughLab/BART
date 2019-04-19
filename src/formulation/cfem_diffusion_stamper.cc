@@ -21,12 +21,10 @@ void CFEM_DiffusionStamper<dim>::StampStreamingTerm(MPISparseMatrix &to_stamp,
                                                     GroupNumber group) {
 
   auto streaming_function = [&](dealii::FullMatrix<double>& matrix,
-                                   const Cell& cell_ptr,
-                                   const int material_id) -> void
+                                   const Cell& cell_ptr) -> void
   { this->diffusion_ptr_->FillCellStreamingTerm(matrix,
                                                 this->diffusion_init_token_,
                                                 cell_ptr,
-                                                material_id,
                                                 group);};
   StampMatrix(to_stamp, streaming_function);
 }
@@ -36,12 +34,10 @@ void CFEM_DiffusionStamper<dim>::StampCollisionTerm(MPISparseMatrix &to_stamp,
                                                     GroupNumber group) {
 
   auto collision_function = [&](dealii::FullMatrix<double>& matrix,
-                                const Cell& cell_ptr,
-                                const int material_id) -> void
+                                const Cell& cell_ptr) -> void
   { this->diffusion_ptr_->FillCellCollisionTerm(matrix,
                                                 this->diffusion_init_token_,
                                                 cell_ptr,
-                                                material_id,
                                                 group);};
   StampMatrix(to_stamp, collision_function);
 }
@@ -49,16 +45,14 @@ void CFEM_DiffusionStamper<dim>::StampCollisionTerm(MPISparseMatrix &to_stamp,
 template <int dim>
 void CFEM_DiffusionStamper<dim>::StampMatrix(
     MPISparseMatrix &to_stamp,
-    std::function<void(dealii::FullMatrix<double>&, const Cell&, const int)> function) {
+    std::function<void(dealii::FullMatrix<double>&, const Cell&)> function) {
 
   auto cell_matrix = definition_ptr_->GetCellMatrix();
-  int material_id = 0;
   std::vector<dealii::types::global_dof_index> local_dof_indices(cell_matrix.n_cols());
 
   for (const auto& cell : cells_) {
-    material_id = cell->material_id();
     cell->get_dof_indices(local_dof_indices);
-    function(cell_matrix, cell, material_id);
+    function(cell_matrix, cell);
     to_stamp.add(local_dof_indices, local_dof_indices, cell_matrix);
   }
   to_stamp.compress(dealii::VectorOperation::add);

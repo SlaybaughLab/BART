@@ -26,7 +26,6 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
   using typename CFEM_DiffusionI<dim>::Matrix;
   using typename CFEM_DiffusionI<dim>::Vector;
   using typename CFEM_DiffusionI<dim>::GroupNumber;
-  using typename CFEM_DiffusionI<dim>::MaterialID;
   using typename CFEM_DiffusionI<dim>::FaceNumber;
 
 
@@ -42,13 +41,11 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
   void FillCellStreamingTerm(Matrix& to_fill,
                              const InitializationToken,
                              const CellPtr& cell_ptr,
-                             const MaterialID material_id,
                              const GroupNumber group) const override;
 
   void FillCellCollisionTerm(Matrix& to_fill,
                              const InitializationToken,
                              const CellPtr& cell_ptr,
-                             const MaterialID material_id,
                              const GroupNumber group) const override;
 
   void FillBoundaryTerm(Matrix& to_fill,
@@ -59,12 +56,10 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
 
   void FillCellFixedSource(Vector& to_fill,
                            const CellPtr& cell_ptr,
-                           const MaterialID material_id,
                            const GroupNumber group) const override;
 
   void FillCellFissionSource(Vector& to_fill,
                              const CellPtr& cell_ptr,
-                             const MaterialID material_id,
                              const GroupNumber group,
                              const double k_effective,
                              const data::MomentVector& in_group_moment,
@@ -72,7 +67,6 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
 
   void FillCellScatteringSource(Vector& to_fill,
                                 const CellPtr& cell_ptr,
-                                const MaterialID material_id,
                                 const GroupNumber group,
                                 const data::MomentVector& in_group_moment,
                                 const data::MomentsMap& group_moments) const override;

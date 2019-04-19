@@ -43,7 +43,7 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
 };
 
 // TODO(Josh) Move this to a header where other stamper tests can use it
-void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused, Unused) {
+void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused) {
   for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
     for (unsigned int j = 0; j < to_fill.n_cols(); ++j) {
       to_fill(i,j) = 1;
@@ -200,7 +200,7 @@ TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
 
   for (auto const& cell : cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
-        FillCellStreamingTerm(_, _, cell, cell->material_id(), group_number))
+        FillCellStreamingTerm(_, _, cell, group_number))
         .WillOnce(Invoke(FillMatrixWithOnes));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
@@ -221,7 +221,7 @@ TEST_F(CFEMDiffusionStamperMPITests, StampCollision) {
 
   for (auto const& cell : cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
-                FillCellCollisionTerm(_, _, cell, cell->material_id(), group_number))
+                FillCellCollisionTerm(_, _, cell, group_number))
         .WillOnce(Invoke(FillMatrixWithOnes));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())

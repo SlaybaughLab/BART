@@ -28,7 +28,6 @@ class CFEM_DiffusionI : public CFEM_I {
   using Matrix = dealii::FullMatrix<double>;
   using Vector = dealii::Vector<double>;
   using GroupNumber = int;
-  using MaterialID = int;
   using FaceNumber = int;
 
 
@@ -39,13 +38,11 @@ class CFEM_DiffusionI : public CFEM_I {
   virtual void FillCellStreamingTerm(Matrix& to_fill,
                              const InitializationToken,
                              const CellPtr& cell_ptr,
-                             const MaterialID material_id,
                              const GroupNumber group) const = 0;
 
   virtual void FillCellCollisionTerm(Matrix& to_fill,
                              const InitializationToken,
                              const CellPtr& cell_ptr,
-                             const MaterialID material_id,
                              const GroupNumber group) const = 0;
 
   virtual void FillBoundaryTerm(Matrix& to_fill,
@@ -56,12 +53,10 @@ class CFEM_DiffusionI : public CFEM_I {
 
   virtual void FillCellFixedSource(Vector& to_fill,
                            const CellPtr& cell_ptr,
-                           const MaterialID material_id,
                            const GroupNumber group) const = 0;
 
   virtual void FillCellFissionSource(Vector& to_fill,
                              const CellPtr& cell_ptr,
-                             const MaterialID material_id,
                              const GroupNumber group,
                              const double k_effective,
                              const data::MomentVector& in_group_moment,
@@ -69,7 +64,6 @@ class CFEM_DiffusionI : public CFEM_I {
 
   virtual void FillCellScatteringSource(Vector& to_fill,
                                 const CellPtr& cell_ptr,
-                                const MaterialID material_id,
                                 const GroupNumber group,
                                 const data::MomentVector& in_group_moment,
                                 const data::MomentsMap& group_moments) const = 0;

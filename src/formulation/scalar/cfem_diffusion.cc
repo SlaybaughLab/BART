@@ -48,7 +48,6 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
                                                 const InitializationToken,
                                                 const CellPtr& cell_ptr,
-                                                const MaterialID,
                                                 const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
@@ -72,7 +71,6 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
                                                 const InitializationToken,
                                                 const CellPtr& cell_ptr,
-                                                const MaterialID,
                                                 const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
@@ -115,7 +113,6 @@ void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
 template <int dim>
 void CFEM_Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
                                               const CellPtr& cell_ptr,
-                                              const MaterialID,
                                               const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
@@ -136,7 +133,6 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellFissionSource(
     Vector& to_fill,
     const CellPtr& cell_ptr,
-    const MaterialID,
     const GroupNumber group,
     const double k_effective,
     const data::MomentVector& in_group_moment,
@@ -190,7 +186,6 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellScatteringSource(
       Vector& to_fill,
       const CellPtr& cell_ptr,
-      const MaterialID,
       const GroupNumber group,
       const data::MomentVector& in_group_moment,
       const data::MomentsMap& group_moments) const {

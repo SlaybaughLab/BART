@@ -33,7 +33,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
 
   void StampMatrix(
       MPISparseMatrix& to_stamp,
-      std::function<void(dealii::FullMatrix<double>&, const Cell&, const int)> function);
+      std::function<void(dealii::FullMatrix<double>&, const Cell&)> function);
 
   std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr_;
   std::unique_ptr<domain::DefinitionI<dim>> definition_ptr_;

@@ -245,7 +245,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_))
       .Times(1);
 
-  test_diffusion.FillCellStreamingTerm(test_matrix, init_token, cell_ptr_, 0, 0);
+  test_diffusion.FillCellStreamingTerm(test_matrix, init_token, cell_ptr_, 0);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -268,7 +268,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
   EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_))
       .Times(1);
 
-  test_diffusion.FillCellCollisionTerm(test_matrix, init_token, cell_ptr_, 0, 0);
+  test_diffusion.FillCellCollisionTerm(test_matrix, init_token, cell_ptr_, 0);
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -333,7 +333,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
       .Times(4)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0, 0);
+  test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0);
 
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
 
@@ -379,7 +379,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
   EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
       .WillOnce(Return(in_group_moment_values));
 
-  test_diffusion.FillCellFissionSource(test_vector, cell_ptr_, material_id, group,
+  test_diffusion.FillCellFissionSource(test_vector, cell_ptr_, group,
                                        k_effective, in_group_moment,
                                        out_group_moments);
 
@@ -426,7 +426,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
   EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
       .WillOnce(Return(in_group_moment_values));
 
-  test_diffusion.FillCellScatteringSource(test_vector, cell_ptr_, material_id, group,
+  test_diffusion.FillCellScatteringSource(test_vector, cell_ptr_, group,
                                        in_group_moment,
                                        out_group_moments);
 

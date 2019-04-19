@@ -24,20 +24,17 @@ class CFEM_DiffusionMock : public CFEM_DiffusionI<dim> {
   using typename CFEM_DiffusionI<dim>::Matrix;
   using typename CFEM_DiffusionI<dim>::Vector;
   using typename CFEM_DiffusionI<dim>::GroupNumber;
-  using typename CFEM_DiffusionI<dim>::MaterialID;
   using typename CFEM_DiffusionI<dim>::FaceNumber;
 
   MOCK_METHOD1_T(Precalculate, InitializationToken(const CellPtr& cell_ptr));
-  MOCK_CONST_METHOD5_T(FillCellStreamingTerm, void(Matrix&,
+  MOCK_CONST_METHOD4_T(FillCellStreamingTerm, void(Matrix&,
       const InitializationToken,
       const CellPtr&,
-      const MaterialID,
       const GroupNumber));
 
-  MOCK_CONST_METHOD5_T(FillCellCollisionTerm, void(Matrix&,
+  MOCK_CONST_METHOD4_T(FillCellCollisionTerm, void(Matrix&,
       const InitializationToken,
       const CellPtr&,
-      const MaterialID,
       const GroupNumber));
 
   MOCK_CONST_METHOD5_T(FillBoundaryTerm, void(Matrix&,
@@ -46,22 +43,19 @@ class CFEM_DiffusionMock : public CFEM_DiffusionI<dim> {
       const FaceNumber,
       const BoundaryType));
 
-  MOCK_CONST_METHOD4_T(FillCellFixedSource, void(Vector& to_fill,
+  MOCK_CONST_METHOD3_T(FillCellFixedSource, void(Vector& to_fill,
       const CellPtr&,
-      const MaterialID,
       const GroupNumber));
 
-  MOCK_CONST_METHOD7_T(FillCellFissionSource, void(Vector&,
+  MOCK_CONST_METHOD6_T(FillCellFissionSource, void(Vector&,
       const CellPtr&,
-      const MaterialID,
       const GroupNumber,
       const double,
       const data::MomentVector&,
       const data::MomentsMap&));
 
-  MOCK_CONST_METHOD6_T(FillCellScatteringSource, void(Vector&,
+  MOCK_CONST_METHOD5_T(FillCellScatteringSource, void(Vector&,
       const CellPtr&,
-      const MaterialID,
       const GroupNumber,
       const data::MomentVector&,
       const data::MomentsMap&));
