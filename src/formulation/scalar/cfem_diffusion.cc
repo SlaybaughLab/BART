@@ -48,10 +48,11 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
                                                 const InitializationToken,
                                                 const CellPtr& cell_ptr,
-                                                const MaterialID material_id,
+                                                const MaterialID,
                                                 const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
+  int material_id = cell_ptr->material_id();
 
   const double diffusion_coef =
       cross_sections_->diffusion_coef.at(material_id)[group];
@@ -71,10 +72,11 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
                                                 const InitializationToken,
                                                 const CellPtr& cell_ptr,
-                                                const MaterialID material_id,
+                                                const MaterialID,
                                                 const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
+  int material_id = cell_ptr->material_id();
 
   const double sigma_t = cross_sections_->sigma_t.at(material_id)[group];
   const double sigma_s = cross_sections_->sigma_s.at(material_id)(group, group);
@@ -113,10 +115,11 @@ void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
 template <int dim>
 void CFEM_Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
                                               const CellPtr& cell_ptr,
-                                              const MaterialID material_id,
+                                              const MaterialID,
                                               const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
+  int material_id = cell_ptr->material_id();
 
   const double q{cross_sections_->q.at(material_id)[group]};
   std::vector<double> cell_fixed_source(cell_quadrature_points_, q);
@@ -133,14 +136,16 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellFissionSource(
     Vector& to_fill,
     const CellPtr& cell_ptr,
-    const MaterialID material_id,
+    const MaterialID,
     const GroupNumber group,
     const double k_effective,
     const data::MomentVector& in_group_moment,
     const data::MomentsMap& group_moments) const {
 
+  int material_id = cell_ptr->material_id();
   if (cross_sections_->is_material_fissile.at(material_id)) {
     finite_element_->SetCell(cell_ptr);
+
 
     std::vector<double> fission_source_at_quad_points(cell_quadrature_points_);
 
@@ -185,11 +190,13 @@ template <int dim>
 void CFEM_Diffusion<dim>::FillCellScatteringSource(
       Vector& to_fill,
       const CellPtr& cell_ptr,
-      const MaterialID material_id,
+      const MaterialID,
       const GroupNumber group,
       const data::MomentVector& in_group_moment,
       const data::MomentsMap& group_moments) const {
+
   finite_element_->SetCell(cell_ptr);
+  int material_id = cell_ptr->material_id();
 
   std::vector<double> scattering_source_at_quad_points(cell_quadrature_points_);
 
