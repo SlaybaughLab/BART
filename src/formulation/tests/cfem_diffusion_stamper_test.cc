@@ -329,6 +329,24 @@ TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
   test_stamper.StampBoundaryTerm(system_matrix_);
 
   EXPECT_TRUE(CompareMPIMatrices(boundary_hits_, system_matrix_));
+}
+
+TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumAndStreaming) {
+  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _))
+      .WillByDefault(Invoke(FillMatrixWithOnes));
+  ON_CALL(*mock_diffusion_ptr, FillBoundaryTerm(_, _, _, _, _))
+      .WillByDefault(Invoke(FillMatrixWithOnesBoundary));
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampStreamingTerm(system_matrix_, 0);
+  test_stamper.StampBoundaryTerm(system_matrix_);
+
+  index_hits_.add(1, boundary_hits_);
+
+  EXPECT_TRUE(CompareMPIMatrices(index_hits_, system_matrix_));
 
 }
 
