@@ -1,5 +1,6 @@
 #include "formulation/cfem_diffusion_stamper.h"
 
+#include <map>
 #include <memory>
 
 #include <deal.II/base/mpi.h>
@@ -107,8 +108,8 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   dealii::FE_Q<2> fe_;
   dealii::IndexSet locally_relevant_dofs;
   dealii::IndexSet locally_owned_dofs_;
-  dealii::PETScWrappers::MPI::SparseMatrix system_matrix_;
-  dealii::PETScWrappers::MPI::SparseMatrix index_hits_, boundary_hits_;
+  dealii::PETScWrappers::MPI::SparseMatrix system_matrix_, index_hits_;
+  dealii::PETScWrappers::MPI::SparseMatrix boundary_hits_;
   std::vector<Cell> cells_;
   std::vector<int> material_ids_;
 };
@@ -143,7 +144,6 @@ CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
 void CFEMDiffusionStamperMPITests::SetUp() {
   CFEMDiffusionStamperTest::SetUp();
   SetUpDealii();
-  SetUpBoundaries();
 
   for (const auto& cell : cells_) {
     int mat_id = btest::RandomDouble(0, 10);
@@ -201,38 +201,11 @@ void CFEMDiffusionStamperMPITests::SetUpDealii() {
     for (auto index_i : local_dof_indices) {
       for (auto index_j : local_dof_indices) {
         index_hits_.add(index_i, index_j, 1);
-        if (cell->at_boundary())
-          boundary_hits_.add(index_i, index_j, 1);
       }
     }
     index_hits_.compress(dealii::VectorOperation::add);
-    boundary_hits_.compress(dealii::VectorOperation::add);
   }
 }
-
-void CFEMDiffusionStamperMPITests::SetUpBoundaries() {
-  using Boundary = bart::problem::Boundary;
-  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
-  double zero_tol = 1.0e-14;
-
-  for (auto &cell : cells_) {
-    for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
-      auto face = cell->face(face_id);
-      dealii::Point<2> face_center = face->center();
-
-      if (std::fabs(face_center[1]) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kYMin));
-      } else if (std::fabs(face_center[1] - 1) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kYMax));
-      } else if (std::fabs(face_center[0]) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kXMin));
-      } else if (std::fabs(face_center[0] - 1) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kXMax));
-      }
-    }
-  }
-}
-
 
 TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
 
@@ -276,7 +249,86 @@ TEST_F(CFEMDiffusionStamperMPITests, StampCollision) {
   EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
 }
 
+class CFEMDiffusionStamperBoundaryMPITests
+    : public CFEMDiffusionStamperMPITests {
+ protected:
 
+  void SetUp() override;
+};
+
+void CFEMDiffusionStamperBoundaryMPITests::SetUp() {
+  CFEMDiffusionStamperMPITests::SetUp();
+  SetUpBoundaries();
+
+  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
+  std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
+
+  for (auto &cell : cells_) {
+    if (cell->at_boundary()) {
+      cell->get_dof_indices(local_dof_indices);
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          for (auto index_i : local_dof_indices) {
+            for (auto index_j : local_dof_indices) {
+              boundary_hits_.add(index_i, index_j, 1);
+            }
+          }
+        }
+      }
+    }
+    boundary_hits_.compress(dealii::VectorOperation::add);
+  }
+}
+
+void CFEMDiffusionStamperMPITests::SetUpBoundaries() {
+  using Boundary = bart::problem::Boundary;
+  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
+  double zero_tol = 1.0e-14;
+
+  for (auto &cell : cells_) {
+    for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
+      auto face = cell->face(face_id);
+      dealii::Point<2> face_center = face->center();
+
+      if (std::fabs(face_center[1]) < zero_tol) {
+        face->set_boundary_id(static_cast<int>(Boundary::kYMin));
+      } else if (std::fabs(face_center[1] - 1) < zero_tol) {
+        face->set_boundary_id(static_cast<int>(Boundary::kYMax));
+      } else if (std::fabs(face_center[0]) < zero_tol) {
+        face->set_boundary_id(static_cast<int>(Boundary::kXMin));
+      } else if (std::fabs(face_center[0] - 1) < zero_tol) {
+        face->set_boundary_id(static_cast<int>(Boundary::kXMax));
+      }
+    }
+  }
+}
+
+TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
+  using BoundaryType = formulation::scalar::CFEM_DiffusionI<2>::BoundaryType;
+  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
+
+  for (auto const& cell : cells_) {
+    for (int face = 0; face < faces_per_cell; ++face) {
+      if (cell->face(face)->at_boundary()) {
+        EXPECT_CALL(*mock_diffusion_ptr,
+                    FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
+            .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+      }
+    }
+  }
+
+  EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
+      .WillOnce(DoDefault());
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampBoundaryTerm(system_matrix_);
+
+  EXPECT_TRUE(CompareMPIMatrices(system_matrix_, boundary_hits_));
+
+}
 
 
 
