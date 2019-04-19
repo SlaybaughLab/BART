@@ -50,6 +50,29 @@ void CFEM_DiffusionStamper<dim>::StampCollisionTerm(MPISparseMatrix &to_stamp,
   StampMatrix(to_stamp, collision_function);
 }
 
+template<int dim>
+void CFEM_DiffusionStamper<dim>::StampBoundaryTerm(MPISparseMatrix &to_stamp) {
+
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  auto boundary_function =
+      [&, faces_per_cell](dealii::FullMatrix<double>& matrix,
+          const Cell& cell_ptr) -> void
+      {
+        if (cell_ptr->at_boundary()) {
+          for (int face = 0; face < faces_per_cell; ++face) {
+            if (cell_ptr->face(face)->at_boundary()) {
+              diffusion_ptr_->FillBoundaryTerm(matrix,
+                                               diffusion_init_token_,
+                                               cell_ptr,
+                                               face,
+                                               BoundaryType::kVacuum);
+            }
+          }
+        }
+      };
+  StampMatrix(to_stamp, boundary_function);
+}
+
 template <int dim>
 void CFEM_DiffusionStamper<dim>::StampMatrix(
     MPISparseMatrix &to_stamp,

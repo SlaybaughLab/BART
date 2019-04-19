@@ -18,6 +18,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
  public:
   using GroupNumber = int;
   using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+  using BoundaryType = typename formulation::scalar::CFEM_DiffusionI<dim>::BoundaryType;
 
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
@@ -25,6 +26,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
 
   void StampStreamingTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
+  void StampBoundaryTerm(MPISparseMatrix& to_stamp);
 
  private:
   using InitializationToken =
