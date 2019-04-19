@@ -49,7 +49,7 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
 void OnesFill(Matrix& to_fill) {
   for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
     for (unsigned int j = 0; j < to_fill.n_cols(); ++j) {
-      to_fill(i,j) = 1;
+      to_fill(i,j) += 1;
     }
   }
 }
@@ -308,11 +308,13 @@ TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
   int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
 
   for (auto const& cell : cells_) {
-    for (int face = 0; face < faces_per_cell; ++face) {
-      if (cell->face(face)->at_boundary()) {
-        EXPECT_CALL(*mock_diffusion_ptr,
-                    FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
-            .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+    if (cell->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          EXPECT_CALL(*mock_diffusion_ptr,
+                      FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
+              .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+        }
       }
     }
   }
@@ -326,7 +328,7 @@ TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
 
   test_stamper.StampBoundaryTerm(system_matrix_);
 
-  EXPECT_TRUE(CompareMPIMatrices(system_matrix_, boundary_hits_));
+  EXPECT_TRUE(CompareMPIMatrices(boundary_hits_, system_matrix_));
 
 }
 
