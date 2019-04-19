@@ -41,15 +41,24 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
   std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>> mock_diffusion_ptr;
   void SetUp() override;
   InitToken init_token_;
+
 };
 
 // TODO(Josh) Move this to a header where other stamper tests can use it
-void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused) {
+void OnesFill(Matrix& to_fill) {
   for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
     for (unsigned int j = 0; j < to_fill.n_cols(); ++j) {
       to_fill(i,j) = 1;
     }
   }
+}
+
+void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused) {
+  OnesFill(to_fill);
+}
+
+void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused) {
+  OnesFill(to_fill);
 }
 
 void CFEMDiffusionStamperTest::SetUp() {
@@ -98,7 +107,8 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   dealii::FE_Q<2> fe_;
   dealii::IndexSet locally_relevant_dofs;
   dealii::IndexSet locally_owned_dofs_;
-  dealii::PETScWrappers::MPI::SparseMatrix system_matrix_, index_hits_;
+  dealii::PETScWrappers::MPI::SparseMatrix system_matrix_;
+  dealii::PETScWrappers::MPI::SparseMatrix index_hits_, boundary_hits_;
   std::vector<Cell> cells_;
   std::vector<int> material_ids_;
 };
@@ -182,6 +192,7 @@ void CFEMDiffusionStamperMPITests::SetUpDealii() {
   // Set up MPI matrices
   system_matrix_.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
   index_hits_.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
+  boundary_hits_.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
 
   std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
 
@@ -190,9 +201,12 @@ void CFEMDiffusionStamperMPITests::SetUpDealii() {
     for (auto index_i : local_dof_indices) {
       for (auto index_j : local_dof_indices) {
         index_hits_.add(index_i, index_j, 1);
+        if (cell->at_boundary())
+          boundary_hits_.add(index_i, index_j, 1);
       }
     }
     index_hits_.compress(dealii::VectorOperation::add);
+    boundary_hits_.compress(dealii::VectorOperation::add);
   }
 }
 
