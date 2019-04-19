@@ -4,6 +4,11 @@
 #include <memory>
 #include <cstdlib>
 
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/grid/tria.h>
+
 #include "data/cross_sections.h"
 #include "domain/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
@@ -26,14 +31,26 @@ using namespace bart;
 
 class FormulationCFEMDiffusionTest : public ::testing::Test {
  protected:
+  FormulationCFEMDiffusionTest();
   using Matrix = dealii::FullMatrix<double>;
   std::shared_ptr<domain::FiniteElementMock<2>> fe_mock_ptr;
   std::shared_ptr<data::CrossSections> cross_sections_ptr;
 
+  dealii::DoFHandler<2>::active_cell_iterator cell_ptr_;
+  dealii::Triangulation<2> triangulation_;
+  dealii::DoFHandler<2> dof_handler_;
+  dealii::FE_Q<2> fe_;
+
   void SetUp() override;
+  void SetUpDealii();
 };
 
+FormulationCFEMDiffusionTest::FormulationCFEMDiffusionTest()
+    : dof_handler_(triangulation_),
+      fe_(1) {}
+
 void FormulationCFEMDiffusionTest::SetUp() {
+  SetUpDealii();
   // Make mock objects. Cross-sections is a struct that cannot be mocked, but
   // we can mock the material object it is based on.
   NiceMock<btest::MockMaterial> mock_material;
@@ -88,6 +105,22 @@ void FormulationCFEMDiffusionTest::SetUp() {
 
   cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
 }
+
+// Set up a simple deal.ii problem so that the cell points to something, this
+// is for material ID
+void FormulationCFEMDiffusionTest::SetUpDealii() {
+  dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
+  dof_handler_.distribute_dofs(fe_);
+  for (auto cell = dof_handler_.begin_active();
+       cell != dof_handler_.end();
+       ++cell) {
+    if (cell->is_locally_owned()) {
+      cell_ptr_ = cell;
+      cell_ptr_->set_material_id(0);
+    }
+  }
+}
+
 
 AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
                                 const dealii::FullMatrix<double>& result,
