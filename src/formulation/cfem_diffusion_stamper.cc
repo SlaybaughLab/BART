@@ -20,12 +20,15 @@ template<int dim>
 void CFEM_DiffusionStamper<dim>::StampStreamingTerm(MPISparseMatrix &to_stamp,
                                                     GroupNumber group) {
 
-  auto streaming_function = [&](dealii::FullMatrix<double>& matrix,
-                                   const Cell& cell_ptr) -> void
-  { this->diffusion_ptr_->FillCellStreamingTerm(matrix,
+  auto streaming_function =
+      [&](dealii::FullMatrix<double>& matrix,
+          const Cell& cell_ptr) -> void
+  {
+    this->diffusion_ptr_->FillCellStreamingTerm(matrix,
                                                 this->diffusion_init_token_,
                                                 cell_ptr,
-                                                group);};
+                                                group);
+  };
   StampMatrix(to_stamp, streaming_function);
 }
 
@@ -33,12 +36,16 @@ template<int dim>
 void CFEM_DiffusionStamper<dim>::StampCollisionTerm(MPISparseMatrix &to_stamp,
                                                     GroupNumber group) {
 
-  auto collision_function = [&](dealii::FullMatrix<double>& matrix,
-                                const Cell& cell_ptr) -> void
-  { this->diffusion_ptr_->FillCellCollisionTerm(matrix,
+  auto collision_function =
+      [&](dealii::FullMatrix<double>& matrix,
+          const Cell& cell_ptr) -> void
+  {
+    this->diffusion_ptr_->FillCellCollisionTerm(matrix,
                                                 this->diffusion_init_token_,
                                                 cell_ptr,
-                                                group);};
+                                                group);
+  };
+
   StampMatrix(to_stamp, collision_function);
 }
 
