@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FORMULATION_CFEM_DIFFUSION_STAMPER_H_
 #define BART_SRC_FORMULATION_CFEM_DIFFUSION_STAMPER_H_
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -29,6 +30,10 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   using InitializationToken =
       typename formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
   using Cell = typename domain::DefinitionI<dim>::Cell;
+
+  void StampMatrix(
+      MPISparseMatrix& to_stamp,
+      std::function<void(dealii::FullMatrix<double>&, const Cell&, const int)> function);
 
   std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr_;
   std::unique_ptr<domain::DefinitionI<dim>> definition_ptr_;
