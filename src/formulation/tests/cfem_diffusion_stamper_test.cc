@@ -95,7 +95,7 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
 }
 
 TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflective) {
-  std::vector<problem::Boundary> reflective_boundaries = {
+  std::unordered_set<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kYMax,
       problem::Boundary::kXMin,
   };

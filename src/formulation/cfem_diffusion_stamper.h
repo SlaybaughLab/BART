@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 #include "domain/definition_i.h"
@@ -25,7 +26,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
-      const std::vector<Boundary> reflective_boundaries = {});
+      const std::unordered_set<Boundary> reflective_boundaries = {});
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
@@ -36,7 +37,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampBoundaryTerm(MPISparseMatrix& to_stamp);
 
-  std::vector<Boundary> reflective_boundaries() const {
+  std::unordered_set<Boundary> reflective_boundaries() const {
     return reflective_boundaries_; };
 
  private:
@@ -52,7 +53,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   std::unique_ptr<domain::DefinitionI<dim>> definition_ptr_;
   InitializationToken diffusion_init_token_;
   std::vector<Cell> cells_;
-  std::vector<Boundary> reflective_boundaries_ = {};
+  std::unordered_set<Boundary> reflective_boundaries_ = {};
 };
 
 } // namespace formulation

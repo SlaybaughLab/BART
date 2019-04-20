@@ -9,7 +9,7 @@ template<int dim>
 CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
     std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
     std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
-    const std::vector<Boundary> reflective_boundaries)
+    const std::unordered_set<Boundary> reflective_boundaries)
       : diffusion_ptr_(std::move(diffusion_ptr)),
         definition_ptr_(std::move(definition_ptr)),
         reflective_boundaries_(reflective_boundaries) {
@@ -28,7 +28,7 @@ CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
   for (auto const pair : reflective_boundary_map) {
     auto [boundary, is_reflective] = pair;
     if (is_reflective)
-      reflective_boundaries_.push_back(boundary);
+      reflective_boundaries_.insert(boundary);
   }
 }
 
