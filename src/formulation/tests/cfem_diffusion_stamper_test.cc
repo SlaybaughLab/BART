@@ -28,6 +28,7 @@ using ::testing::DoDefault;
 using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::UnorderedElementsAreArray;
 using ::testing::Unused;
 using ::testing::_;
 
@@ -86,6 +87,9 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
 
   EXPECT_EQ(mock_diffusion_ptr, nullptr);
   EXPECT_EQ(mock_definition_ptr, nullptr);
+
+  EXPECT_TRUE(test_stamper.reflective_boundaries().empty());
+
 }
 
 // TODO(Josh) Put this in it's own header file?
