@@ -70,14 +70,17 @@ void CFEMDiffusionStamperTest::SetUp() {
 
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
-}
 
-TEST_F(CFEMDiffusionStamperTest, Constructor) {
   Cell test_cell;
   std::vector<Cell> cells{test_cell};
 
+  ON_CALL(*mock_definition_ptr, Cells())
+      .WillByDefault(Return(cells));
+}
+
+TEST_F(CFEMDiffusionStamperTest, Constructor) {
   EXPECT_CALL(*mock_definition_ptr, Cells())
-      .WillOnce(Return(cells));
+      .WillOnce(DoDefault());
   EXPECT_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillOnce(DoDefault());
 
