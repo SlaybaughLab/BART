@@ -26,6 +26,11 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::vector<Boundary> reflective_boundaries = {});
+  CFEM_DiffusionStamper(
+      std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
+      std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
+      const std::map<Boundary, bool> reflective_boundary_map);
+
 
   void StampStreamingTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);

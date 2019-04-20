@@ -106,7 +106,30 @@ TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflective) {
       reflective_boundaries);
 
   EXPECT_THAT(test_stamper.reflective_boundaries(),
-      UnorderedElementsAreArray(reflective_boundaries));
+              UnorderedElementsAreArray(reflective_boundaries));
+
+}
+
+TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflectiveMap) {
+  std::vector<problem::Boundary> reflective_boundaries = {
+      problem::Boundary::kYMax,
+      problem::Boundary::kXMin,
+  };
+
+  std::map<problem::Boundary, bool> reflective_boundary_map = {
+      {problem::Boundary::kXMin, true},
+      {problem::Boundary::kXMax, false},
+      {problem::Boundary::kYMin, false},
+      {problem::Boundary::kYMax, true}
+  };
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper_2(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr),
+      reflective_boundary_map);
+
+  EXPECT_THAT(test_stamper_2.reflective_boundaries(),
+              UnorderedElementsAreArray(reflective_boundaries));
 }
 
 // TODO(Josh) Put this in it's own header file?

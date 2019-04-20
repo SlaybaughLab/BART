@@ -19,6 +19,21 @@ CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
 }
 
 template<int dim>
+CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
+    std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
+    std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
+    const std::map<Boundary, bool> reflective_boundary_map)
+    : CFEM_DiffusionStamper<dim>(std::move(diffusion_ptr),
+                                 std::move(definition_ptr)) {
+  for (auto const pair : reflective_boundary_map) {
+    auto [boundary, is_reflective] = pair;
+    if (is_reflective)
+      reflective_boundaries_.push_back(boundary);
+  }
+}
+
+
+template<int dim>
 void CFEM_DiffusionStamper<dim>::StampStreamingTerm(MPISparseMatrix &to_stamp,
                                                     GroupNumber group) {
 
