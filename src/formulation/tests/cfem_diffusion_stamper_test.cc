@@ -92,7 +92,21 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
   EXPECT_EQ(mock_definition_ptr, nullptr);
 
   EXPECT_TRUE(test_stamper.reflective_boundaries().empty());
+}
 
+TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflective) {
+  std::vector<problem::Boundary> reflective_boundaries = {
+      problem::Boundary::kYMax,
+      problem::Boundary::kXMin,
+  };
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr),
+      reflective_boundaries);
+
+  EXPECT_THAT(test_stamper.reflective_boundaries(),
+      UnorderedElementsAreArray(reflective_boundaries));
 }
 
 // TODO(Josh) Put this in it's own header file?
