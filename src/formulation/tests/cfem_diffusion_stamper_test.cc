@@ -94,6 +94,32 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
   EXPECT_TRUE(test_stamper.reflective_boundaries().empty());
 }
 
+TEST_F(CFEMDiffusionStamperTest, SetReflective) {
+  using Boundary = bart::problem::Boundary;
+
+  std::unordered_set<problem::Boundary> reflective_boundaries = {
+      problem::Boundary::kXMin,
+  };
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.AddReflectiveBoundary(Boundary::kXMin);
+  EXPECT_THAT(test_stamper.reflective_boundaries(),
+              UnorderedElementsAreArray(reflective_boundaries));
+
+  reflective_boundaries.erase(Boundary::kXMin);
+  reflective_boundaries.insert(Boundary::kXMax);
+
+  test_stamper.AddReflectiveBoundary(Boundary::kXMax)
+      .RemoveReflectiveBoundary(Boundary::kXMin);
+
+  EXPECT_THAT(test_stamper.reflective_boundaries(),
+              UnorderedElementsAreArray(reflective_boundaries));
+
+}
+
 TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflective) {
   std::unordered_set<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kYMax,

@@ -37,6 +37,17 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampBoundaryTerm(MPISparseMatrix& to_stamp);
 
+  CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) {
+    reflective_boundaries_.insert(boundary);
+    return *this;
+  }
+
+  CFEM_DiffusionStamper& RemoveReflectiveBoundary(Boundary boundary) {
+    reflective_boundaries_.erase(boundary);
+    return *this;
+  }
+
+
   std::unordered_set<Boundary> reflective_boundaries() const {
     return reflective_boundaries_; };
 
