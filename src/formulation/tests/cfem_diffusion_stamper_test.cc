@@ -401,6 +401,43 @@ TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
   EXPECT_TRUE(CompareMPIMatrices(boundary_hits_, system_matrix_));
 }
 
+TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumReflectiveBoundaryTerm) {
+  using BoundaryType = formulation::scalar::CFEM_DiffusionI<2>::BoundaryType;
+  using Boundary = problem::Boundary;
+  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
+
+  for (auto const& cell : cells_) {
+    if (cell->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          if (cell->face(face)->boundary_id() == static_cast<int>(Boundary::kXMin)) {
+            EXPECT_CALL(*mock_diffusion_ptr,
+                        FillBoundaryTerm(_, _, cell, face, BoundaryType::kReflective))
+                .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+          } else {
+            EXPECT_CALL(*mock_diffusion_ptr,
+                        FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
+                .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+          }
+        }
+      }
+    }
+  }
+
+  EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
+      .WillOnce(DoDefault());
+
+  formulation::CFEM_DiffusionStamper<2> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.AddReflectiveBoundary(Boundary::kXMin);
+
+  test_stamper.StampBoundaryTerm(system_matrix_);
+}
+
+
+
 TEST_F(CFEMDiffusionStamperBoundaryMPITests, StampVacuumAndStreaming) {
   ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _))
       .WillByDefault(Invoke(FillMatrixWithOnes));

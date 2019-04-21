@@ -78,11 +78,18 @@ void CFEM_DiffusionStamper<dim>::StampBoundaryTerm(MPISparseMatrix &to_stamp) {
         if (cell_ptr->at_boundary()) {
           for (int face = 0; face < faces_per_cell; ++face) {
             if (cell_ptr->face(face)->at_boundary()) {
+
+              Boundary boundary = static_cast<Boundary>(cell_ptr->face(face)->boundary_id());
+              BoundaryType boundary_type = BoundaryType::kVacuum;
+
+              if (reflective_boundaries_.count(boundary) == 1)
+                boundary_type = BoundaryType::kReflective;
+
               diffusion_ptr_->FillBoundaryTerm(matrix,
                                                diffusion_init_token_,
                                                cell_ptr,
                                                face,
-                                               BoundaryType::kVacuum);
+                                               boundary_type);
             }
           }
         }
