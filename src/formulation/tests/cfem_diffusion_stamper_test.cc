@@ -18,6 +18,7 @@
 #include "formulation/scalar/tests/cfem_diffusion_mock.h"
 #include "problem/parameter_types.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_assertions.h"
 #include "test_helpers/test_helper_functions.h"
 
 namespace {
@@ -33,6 +34,7 @@ using ::testing::Unused;
 using ::testing::_;
 
 using namespace bart;
+using bart::testing::CompareMPIMatrices;
 using Cell = domain::DefinitionI<2>::Cell;
 using InitToken = formulation::scalar::CFEM_DiffusionI<2>::InitializationToken;
 using Matrix = dealii::FullMatrix<double>;
@@ -168,9 +170,6 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   void SetUp() override;
   void SetUpDealii();
   void SetUpBoundaries();
-  AssertionResult CompareMPIMatrices(
-      const dealii::PETScWrappers::MPI::SparseMatrix& expected,
-      const dealii::PETScWrappers::MPI::SparseMatrix& result);
 
   dealii::ConstraintMatrix constraint_matrix_;
   dealii::parallel::distributed::Triangulation<2> triangulation_;
@@ -183,25 +182,6 @@ class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest {
   std::vector<Cell> cells_;
   std::vector<int> material_ids_;
 };
-
-AssertionResult CFEMDiffusionStamperMPITests::CompareMPIMatrices(
-    const dealii::PETScWrappers::MPI::SparseMatrix& expected,
-    const dealii::PETScWrappers::MPI::SparseMatrix& result) {
-
-  auto [first_local_row, last_local_row] = expected.local_range();
-  unsigned int n_columns = expected.n();
-
-  for (unsigned int i = first_local_row; i < last_local_row; ++i) {
-    for (unsigned int j = 0; j < n_columns; ++j) {
-      if (result(i, j) != expected(i, j)) {
-        return AssertionFailure() << "Entry (" << i << ", " << j <<
-                                  ") has value: " << result.el(i, j) <<
-                                  ", expected: " << expected.el(i, j);
-      }
-    }
-  }
-  return AssertionSuccess();
-}
 
 CFEMDiffusionStamperMPITests::CFEMDiffusionStamperMPITests()
     : triangulation_(MPI_COMM_WORLD,

@@ -2,6 +2,8 @@
 #define BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_H_
 
 #include <deal.II/lac/vector.h>
+#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
+
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
@@ -14,30 +16,15 @@ using ::testing::AssertionSuccess;
 
 AssertionResult CompareVector(const dealii::Vector<double>& expected,
                               const dealii::Vector<double>& result,
-                              const double tol = 1e-6) {
-  unsigned int size = expected.size();
-
-  if (result.size() != size)
-    return AssertionFailure() << "Result has wrong number of entries: "
-                              << result.size() << ", expected" << size;
-
-  for (unsigned int i = 0; i < size; ++i) {
-    if (abs(result[i] - expected[i]) > tol) {
-      return AssertionFailure() << "Entry (" << i <<
-                                ") has value: " << result[i] <<
-                                ", expected: " << expected[i];
-    }
-  }
-  return AssertionSuccess();
-}
+                              const double tol = 1e-6);
 
 AssertionResult CompareVector(const std::vector<double> expected,
                               const std::vector<double> result,
-                              const double tol = 1e-6) {
-  dealii::Vector<double> expected_vec{expected.begin(), expected.end()};
-  dealii::Vector<double> result_vec{result.begin(), result.end()};
-   return CompareVector(expected_vec, result_vec, tol);
-}
+                              const double tol = 1e-6);
+
+AssertionResult CompareMPIMatrices(
+    const dealii::PETScWrappers::MPI::SparseMatrix& expected,
+    const dealii::PETScWrappers::MPI::SparseMatrix& result);
 
 } // namespace testing
 
