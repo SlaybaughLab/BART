@@ -95,7 +95,6 @@ TestAssertionsMPIMatricesTests::TestAssertionsMPIMatricesTests()
 
 void TestAssertionsMPIMatricesTests::SetUp() {
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
-  triangulation_.refine_global(2);
   dof_handler_.distribute_dofs(fe_);
   dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
                                                   locally_relevant_dofs);
@@ -134,14 +133,15 @@ void TestAssertionsMPIMatricesTests::SetUp() {
         matrix_2.add(index_i, index_j, 2);
       }
     }
-    matrix_1.compress(dealii::VectorOperation::add);
-    matrix_2.compress(dealii::VectorOperation::add);
   }
+
+  matrix_1.compress(dealii::VectorOperation::add);
+  matrix_2.compress(dealii::VectorOperation::add);
 }
 
 TEST_F(TestAssertionsMPIMatricesTests, CompareMPIMatrices) {
   EXPECT_EQ(AssertionSuccess(),
-            bart::testing::CompareMPIMatrices(matrix_1, matrix_1));
+            bart::testing::CompareMPIMatrices(matrix_2, matrix_2));
   EXPECT_EQ(AssertionFailure(),
             bart::testing::CompareMPIMatrices(matrix_1, matrix_2));
 }
