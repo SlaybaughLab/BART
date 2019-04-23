@@ -24,7 +24,7 @@ script:
  - docker exec bart cmake .
  - docker exec bart make -j4
  - docker exec bart bash -c "./bart_test"
- - docker exec bart bash -c "mpirun -np 2 --allow-run-as-root ./bart_test --mpi"
+ - docker exec bart bash -c "mpirun -np 2 --allow-run-as-root ./bart_test --mpi -l 0"
 
 after_success:
  - docker exec bart bash -c "./coverage.sh"
