@@ -1,5 +1,7 @@
 #include "test_helpers/test_assertions.h"
 
+#include <deal.II/base/mpi.h>
+
 namespace bart {
 
 namespace testing {
@@ -37,17 +39,32 @@ AssertionResult CompareMPIMatrices(
 
   auto [first_local_row, last_local_row] = expected.local_range();
   unsigned int n_columns = expected.n();
+  bool has_failed = false;
+
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  dealii::PETScWrappers::MPI::Vector results(MPI_COMM_WORLD,
+                                             n_processes, 1);
 
   for (unsigned int i = first_local_row; i < last_local_row; ++i) {
     for (unsigned int j = 0; j < n_columns; ++j) {
       if (result(i, j) != expected(i, j)) {
-        return AssertionFailure() << "Entry (" << i << ", " << j <<
-                                  ") has value: " << result.el(i, j) <<
-                                  ", expected: " << expected.el(i, j);
+        results(this_process) += 1;
+        has_failed = true;
       }
+      if (has_failed)
+        break;
     }
+    if (has_failed)
+      break;
   }
-  return AssertionSuccess();
+
+  results(this_process) += 0;
+  if (results.l1_norm() > 0) {
+    return AssertionFailure();
+  } else {
+    return AssertionSuccess();
+  }
 }
 
 
