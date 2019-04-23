@@ -212,7 +212,7 @@ void CFEMDiffusionStamperMPITests::SetUp() {
 void CFEMDiffusionStamperMPITests::SetUpDealii() {
   // Create triangulation
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
-  triangulation_.refine_global(2);
+  triangulation_.refine_global(1);
   // Distribute DOFS, get local index sets and cells
   dof_handler_.distribute_dofs(fe_);
   dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
@@ -253,8 +253,8 @@ void CFEMDiffusionStamperMPITests::SetUpDealii() {
         index_hits_.add(index_i, index_j, 1);
       }
     }
-    index_hits_.compress(dealii::VectorOperation::add);
   }
+  index_hits_.compress(dealii::VectorOperation::add);
 }
 
 TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
@@ -326,8 +326,8 @@ void CFEMDiffusionStamperBoundaryMPITests::SetUp() {
         }
       }
     }
-    boundary_hits_.compress(dealii::VectorOperation::add);
   }
+  boundary_hits_.compress(dealii::VectorOperation::add);
 }
 
 void CFEMDiffusionStamperMPITests::SetUpBoundaries() {
