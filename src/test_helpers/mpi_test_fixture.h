@@ -11,14 +11,12 @@
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
-#include "test_helpers/gmock_wrapper.h"
-
 namespace bart {
 
 namespace testing {
 
 template <int dim>
- class MPI_TestFixture : public ::testing::Test {
+ class MPI_TestFixture {
   protected:
    MPI_TestFixture()
    : triangulation_(MPI_COMM_WORLD,
