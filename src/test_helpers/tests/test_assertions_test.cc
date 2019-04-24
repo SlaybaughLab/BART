@@ -70,7 +70,8 @@ TEST_F(TestAssertionsTest, BadComparisonDealiiVector) {
             bart::testing::CompareVector(dealii_vector_2, dealii_vector_1));
 }
 
-class TestAssertionsMPIMatricesTests : public bart::testing::MPI_TestFixture<2> {
+class TestAssertionsMPIMatricesTests : public ::testing::Test,
+                                       public bart::testing::MPI_TestFixture<2> {
  protected:
   void SetUp() override;
 };
