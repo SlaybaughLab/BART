@@ -2,16 +2,9 @@
 
 #include <map>
 #include <memory>
+#include <type_traits>
 
-#include <deal.II/base/mpi.h>
-#include <deal.II/dofs/dof_tools.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/lac/full_matrix.h>
-#include <deal.II/distributed/tria.h>
-#include <deal.II/fe/fe_q.h>
-#include <deal.II/grid/grid_generator.h>
-#include <deal.II/grid/grid_tools.h>
-#include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
 #include "domain/tests/definition_mock.h"
@@ -20,7 +13,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.h"
 #include "test_helpers/test_helper_functions.h"
-#include "test_helpers/mpi_test_fixture.h"
+#include "test_helpers/dealii_test_domain.h"
 
 namespace {
 
@@ -40,15 +33,6 @@ using Cell = domain::DefinitionI<2>::Cell;
 using InitToken = formulation::scalar::CFEM_DiffusionI<2>::InitializationToken;
 using Matrix = dealii::FullMatrix<double>;
 
-class CFEMDiffusionStamperTest : public ::testing::Test {
- protected:
-  std::unique_ptr<NiceMock<domain::DefinitionMock<2>>> mock_definition_ptr;
-  std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>> mock_diffusion_ptr;
-  void SetUp() override;
-  InitToken init_token_;
-
-};
-
 // TODO(Josh) Move this to a header where other stamper tests can use it
 void OnesFill(Matrix& to_fill) {
   for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
@@ -66,10 +50,24 @@ void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused)
   OnesFill(to_fill);
 }
 
-void CFEMDiffusionStamperTest::SetUp() {
-  mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<2>>>();
+template <typename DimensionWrapper>
+class CFEMDiffusionStamperTestExperimental : public ::testing::Test {
+ protected:
+  static constexpr int dim = DimensionWrapper::value;
+  using Cell = typename domain::DefinitionI<dim>::Cell;
+  using InitToken = typename
+      formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
+  std::unique_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
+  std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>> mock_diffusion_ptr;
+  void SetUp() override;
+  InitToken init_token_;
+};
+
+template <typename DimensionWrapper>
+void CFEMDiffusionStamperTestExperimental<DimensionWrapper>::SetUp() {
+  mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<dim>>>();
   mock_diffusion_ptr =
-      std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>>();
+      std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>>();
 
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
@@ -81,13 +79,21 @@ void CFEMDiffusionStamperTest::SetUp() {
       .WillByDefault(Return(cells));
 }
 
-TEST_F(CFEMDiffusionStamperTest, Constructor) {
+
+TYPED_TEST_CASE(CFEMDiffusionStamperTestExperimental,
+    bart::testing::AllDimensions);
+
+TYPED_TEST(CFEMDiffusionStamperTestExperimental, Constructor) {
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
+  auto& dim = this->dim;
+
   EXPECT_CALL(*mock_definition_ptr, Cells())
       .WillOnce(DoDefault());
   EXPECT_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillOnce(DoDefault());
 
-  formulation::CFEM_DiffusionStamper<2> test_stamper(
+  formulation::CFEM_DiffusionStamper<dim> test_stamper(
       std::move(mock_diffusion_ptr),
       std::move(mock_definition_ptr));
 
@@ -97,14 +103,17 @@ TEST_F(CFEMDiffusionStamperTest, Constructor) {
   EXPECT_TRUE(test_stamper.reflective_boundaries().empty());
 }
 
-TEST_F(CFEMDiffusionStamperTest, SetReflective) {
+TYPED_TEST(CFEMDiffusionStamperTestExperimental, SetReflective) {
   using Boundary = bart::problem::Boundary;
+  auto& dim = this->dim;
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
 
   std::unordered_set<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kXMin,
   };
 
-  formulation::CFEM_DiffusionStamper<2> test_stamper(
+  formulation::CFEM_DiffusionStamper<dim> test_stamper(
       std::move(mock_diffusion_ptr),
       std::move(mock_definition_ptr));
 
@@ -123,15 +132,15 @@ TEST_F(CFEMDiffusionStamperTest, SetReflective) {
 
 }
 
-TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflective) {
+TYPED_TEST(CFEMDiffusionStamperTestExperimental, ConstructorWithReflective) {
   std::unordered_set<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kYMax,
       problem::Boundary::kXMin,
   };
 
-  formulation::CFEM_DiffusionStamper<2> test_stamper(
-      std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr),
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
+      std::move(this->mock_diffusion_ptr),
+      std::move(this->mock_definition_ptr),
       reflective_boundaries);
 
   EXPECT_THAT(test_stamper.reflective_boundaries(),
@@ -139,7 +148,7 @@ TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflective) {
 
 }
 
-TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflectiveMap) {
+TYPED_TEST(CFEMDiffusionStamperTestExperimental, ConstructorWithReflectiveMap) {
   std::vector<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kYMax,
       problem::Boundary::kXMin,
@@ -152,18 +161,59 @@ TEST_F(CFEMDiffusionStamperTest, ConstructorWithReflectiveMap) {
       {problem::Boundary::kYMax, true}
   };
 
-  formulation::CFEM_DiffusionStamper<2> test_stamper_2(
-      std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr),
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper_2(
+      std::move(this->mock_diffusion_ptr),
+      std::move(this->mock_definition_ptr),
       reflective_boundary_map);
 
   EXPECT_THAT(test_stamper_2.reflective_boundaries(),
               UnorderedElementsAreArray(reflective_boundaries));
 }
 
+
+class CFEMDiffusionStamperTest : public ::testing::Test {
+ protected:
+  std::unique_ptr<NiceMock<domain::DefinitionMock<2>>> mock_definition_ptr;
+  std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>> mock_diffusion_ptr;
+  void SetUp() override;
+  InitToken init_token_;
+
+};
+
+
+void CFEMDiffusionStamperTest::SetUp() {
+  mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<2>>>();
+  mock_diffusion_ptr =
+      std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>>();
+
+  ON_CALL(*mock_diffusion_ptr, Precalculate(_))
+      .WillByDefault(Return(init_token_));
+
+  Cell test_cell;
+  std::vector<Cell> cells{test_cell};
+
+  ON_CALL(*mock_definition_ptr, Cells())
+      .WillByDefault(Return(cells));
+}
+
+
+template <typename T>
+class CFEMDiffusionStamperMPIExperiment
+    : public ::testing::Test ,
+      public T
+{};
+
+
+TYPED_TEST_CASE(CFEMDiffusionStamperMPIExperiment,
+                bart::testing::DealiiTestDomains);
+
+TYPED_TEST(CFEMDiffusionStamperMPIExperiment, Experiment) {
+  EXPECT_TRUE(true);
+}
+
 // TODO(Josh) Put this in it's own header file?
 class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest,
-                                     public bart::testing::MPI_TestFixture<2> {
+                                     public bart::testing::DealiiTestDomain<2> {
  protected:
 
   dealii::PETScWrappers::MPI::SparseMatrix& system_matrix_ = matrix_1;
