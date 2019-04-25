@@ -12,7 +12,7 @@
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
-#include "test_helpers/mpi_test_fixture.h"
+#include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -71,7 +71,7 @@ TEST_F(TestAssertionsTest, BadComparisonDealiiVector) {
 }
 
 class TestAssertionsMPIMatricesTests : public ::testing::Test,
-                                       public bart::testing::MPI_TestFixture<2> {
+                                       public bart::testing::DealiiTestDomain<2> {
  protected:
   void SetUp() override;
 };

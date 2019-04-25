@@ -30,9 +30,9 @@ template struct TriangulationType<2>;
 template struct TriangulationType<3>;
 
 template <int dim>
- class MPI_TestFixture {
+ class DealiiTestDomain {
   public:
-   MPI_TestFixture();
+   DealiiTestDomain();
    void SetUpDealii();
 
    using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
@@ -48,7 +48,7 @@ template <int dim>
 };
 
 template <int dim>
-inline MPI_TestFixture<dim>::MPI_TestFixture()
+inline DealiiTestDomain<dim>::DealiiTestDomain()
     : triangulation_(MPI_COMM_WORLD,
                      typename dealii::Triangulation<dim>::MeshSmoothing(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
@@ -57,7 +57,7 @@ inline MPI_TestFixture<dim>::MPI_TestFixture()
       fe_(1) {}
 
 template <>
-inline MPI_TestFixture<1>::MPI_TestFixture()
+inline DealiiTestDomain<1>::DealiiTestDomain()
     : triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(
     dealii::Triangulation<1>::smoothing_on_refinement |
         dealii::Triangulation<1>::smoothing_on_coarsening)),
@@ -65,7 +65,7 @@ inline MPI_TestFixture<1>::MPI_TestFixture()
       fe_(1) {}
 
 template <int dim>
-inline void MPI_TestFixture<dim>::SetUpDealii() {
+inline void DealiiTestDomain<dim>::SetUpDealii() {
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
   dof_handler_.distribute_dofs(fe_);
   dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
