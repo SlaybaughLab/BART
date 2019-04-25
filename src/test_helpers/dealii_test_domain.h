@@ -4,6 +4,7 @@
 #include <deal.II/base/mpi.h>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_renumbering.h>
 #include <deal.II/distributed/tria.h>
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/grid/grid_generator.h>
@@ -70,10 +71,25 @@ inline DealiiTestDomain<1>::DealiiTestDomain()
 template <int dim>
 inline void DealiiTestDomain<dim>::SetUpDealii() {
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
-  dof_handler_.distribute_dofs(fe_);
+  triangulation_.refine_global(1);
+
+  auto n_mpi_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+
+  if (dim == 1) {
+    dealii::GridTools::partition_triangulation(n_mpi_processes, triangulation_);
+    dof_handler_.distribute_dofs(fe_);
+    dealii::DoFRenumbering::subdomain_wise(dof_handler_);
+    locally_owned_dofs_ =
+        dealii::DoFTools::locally_owned_dofs_per_subdomain(dof_handler_)[this_process];
+
+  } else {
+    dof_handler_.distribute_dofs(fe_);
+    locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
+  }
+
   dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
                                                   locally_relevant_dofs);
-  locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
 
   for (auto cell = dof_handler_.begin_active(); cell != dof_handler_.end(); ++ cell) {
     if (cell->is_locally_owned())
