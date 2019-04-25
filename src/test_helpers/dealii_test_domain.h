@@ -109,7 +109,7 @@ inline void DealiiTestDomain<1>::SetUpDealii() {
   auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
-  triangulation_.refine_global(1);
+  triangulation_.refine_global(4);
 
   dealii::GridTools::partition_triangulation(n_mpi_processes, triangulation_);
   dof_handler_.distribute_dofs(fe_);
@@ -118,19 +118,14 @@ inline void DealiiTestDomain<1>::SetUpDealii() {
   auto locally_owned_dofs_vector =
       dealii::DoFTools::locally_owned_dofs_per_subdomain(dof_handler_);
 
-  try {
-    locally_owned_dofs_ = locally_owned_dofs_vector.at(this_process);
-  } catch (std::out_of_range &exc) {
-    std::cout << "Rank " << this_process << " unused" << std::endl;
-    return;
-  }
+  locally_owned_dofs_ = locally_owned_dofs_vector.at(this_process);
 
   constraint_matrix_.clear();
   dealii::DoFTools::make_hanging_node_constraints(dof_handler_,
                                                   constraint_matrix_);
   constraint_matrix_.close();
 
-  dealii::DynamicSparsityPattern dsp(dof_handler_.n_dofs());
+  dealii::DynamicSparsityPattern dsp(dof_handler_.n_dofs(), dof_handler_.n_dofs());
   dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp,
                                           constraint_matrix_, false);
 
