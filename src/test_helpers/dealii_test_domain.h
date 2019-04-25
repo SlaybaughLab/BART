@@ -12,6 +12,8 @@
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
+#include <gtest/gtest.h>
+
 namespace bart {
 
 namespace testing {
@@ -96,6 +98,10 @@ inline void DealiiTestDomain<dim>::SetUpDealii() {
   matrix_2.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
   matrix_3.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
   }
+
+using DealiiTestDomains = ::testing::Types<bart::testing::DealiiTestDomain<1>,
+                                            bart::testing::DealiiTestDomain<2>,
+                                            bart::testing::DealiiTestDomain<3>>;
 
 } // namespace testing
 
