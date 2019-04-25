@@ -29,8 +29,6 @@ using ::testing::_;
 
 using namespace bart;
 using bart::testing::CompareMPIMatrices;
-using Cell = domain::DefinitionI<2>::Cell;
-using InitToken = formulation::scalar::CFEM_DiffusionI<2>::InitializationToken;
 using Matrix = dealii::FullMatrix<double>;
 
 // TODO(Josh) Move this to a header where other stamper tests can use it
@@ -51,7 +49,7 @@ void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused)
 }
 
 template <typename DimensionWrapper>
-class CFEMDiffusionStamperTestExperimental : public ::testing::Test {
+class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   using Cell = typename domain::DefinitionI<dim>::Cell;
@@ -64,7 +62,7 @@ class CFEMDiffusionStamperTestExperimental : public ::testing::Test {
 };
 
 template <typename DimensionWrapper>
-void CFEMDiffusionStamperTestExperimental<DimensionWrapper>::SetUp() {
+void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
   mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<dim>>>();
   mock_diffusion_ptr =
       std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>>();
@@ -79,10 +77,10 @@ void CFEMDiffusionStamperTestExperimental<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(cells));
 }
 
-TYPED_TEST_CASE(CFEMDiffusionStamperTestExperimental,
+TYPED_TEST_CASE(CFEMDiffusionStamperTest,
     bart::testing::AllDimensions);
 
-TYPED_TEST(CFEMDiffusionStamperTestExperimental, Constructor) {
+TYPED_TEST(CFEMDiffusionStamperTest, Constructor) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
   auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
   auto& dim = this->dim;
@@ -102,7 +100,7 @@ TYPED_TEST(CFEMDiffusionStamperTestExperimental, Constructor) {
   EXPECT_TRUE(test_stamper.reflective_boundaries().empty());
 }
 
-TYPED_TEST(CFEMDiffusionStamperTestExperimental, SetReflective) {
+TYPED_TEST(CFEMDiffusionStamperTest, SetReflective) {
   using Boundary = bart::problem::Boundary;
   auto& dim = this->dim;
   auto& mock_definition_ptr = this->mock_definition_ptr;
@@ -131,7 +129,7 @@ TYPED_TEST(CFEMDiffusionStamperTestExperimental, SetReflective) {
 
 }
 
-TYPED_TEST(CFEMDiffusionStamperTestExperimental, ConstructorWithReflective) {
+TYPED_TEST(CFEMDiffusionStamperTest, ConstructorWithReflective) {
   std::unordered_set<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kYMax,
       problem::Boundary::kXMin,
@@ -147,7 +145,7 @@ TYPED_TEST(CFEMDiffusionStamperTestExperimental, ConstructorWithReflective) {
 
 }
 
-TYPED_TEST(CFEMDiffusionStamperTestExperimental, ConstructorWithReflectiveMap) {
+TYPED_TEST(CFEMDiffusionStamperTest, ConstructorWithReflectiveMap) {
   std::vector<problem::Boundary> reflective_boundaries = {
       problem::Boundary::kYMax,
       problem::Boundary::kXMin,
@@ -169,37 +167,10 @@ TYPED_TEST(CFEMDiffusionStamperTestExperimental, ConstructorWithReflectiveMap) {
               UnorderedElementsAreArray(reflective_boundaries));
 }
 
-
-class CFEMDiffusionStamperTest : public ::testing::Test {
- protected:
-  std::unique_ptr<NiceMock<domain::DefinitionMock<2>>> mock_definition_ptr;
-  std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>> mock_diffusion_ptr;
-  void SetUp() override;
-  InitToken init_token_;
-
-};
-
-
-void CFEMDiffusionStamperTest::SetUp() {
-  mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<2>>>();
-  mock_diffusion_ptr =
-      std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<2>>>();
-
-  ON_CALL(*mock_diffusion_ptr, Precalculate(_))
-      .WillByDefault(Return(init_token_));
-
-  Cell test_cell;
-  std::vector<Cell> cells{test_cell};
-
-  ON_CALL(*mock_definition_ptr, Cells())
-      .WillByDefault(Return(cells));
-}
-
-
 template <typename TestDomain>
-class CFEMDiffusionStamperMPITestsExperimental
+class CFEMDiffusionStamperMPITests
     : public TestDomain,
-      public CFEMDiffusionStamperTestExperimental<std::integral_constant<int, TestDomain::dimension>> {
+      public CFEMDiffusionStamperTest<std::integral_constant<int, TestDomain::dimension>> {
  protected:
   static constexpr int dim = TestDomain::dimension;
   dealii::PETScWrappers::MPI::SparseMatrix& system_matrix_ = TestDomain::matrix_1;
@@ -210,9 +181,9 @@ class CFEMDiffusionStamperMPITestsExperimental
 };
 
 template <typename TestDomain>
-void CFEMDiffusionStamperMPITestsExperimental<TestDomain>::SetUp() {
+void CFEMDiffusionStamperMPITests<TestDomain>::SetUp() {
   auto &mock_definition_ptr = this->mock_definition_ptr;
-  CFEMDiffusionStamperTestExperimental<std::integral_constant<int, dim>>::SetUp();
+  CFEMDiffusionStamperTest<std::integral_constant<int, dim>>::SetUp();
   TestDomain::SetUpDealii();
 
   for (const auto& cell : this->cells_) {
@@ -240,10 +211,10 @@ void CFEMDiffusionStamperMPITestsExperimental<TestDomain>::SetUp() {
   index_hits_.compress(dealii::VectorOperation::add);
 }
 
-TYPED_TEST_CASE(CFEMDiffusionStamperMPITestsExperimental,
+TYPED_TEST_CASE(CFEMDiffusionStamperMPITests,
                 bart::testing::DealiiTestDomains);
 
-TYPED_TEST(CFEMDiffusionStamperMPITestsExperimental, StampStreaming) {
+TYPED_TEST(CFEMDiffusionStamperMPITests, StampStreaming) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
   auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
 
@@ -266,7 +237,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITestsExperimental, StampStreaming) {
   EXPECT_TRUE(CompareMPIMatrices(this->system_matrix_, this->index_hits_));
 }
 
-TYPED_TEST(CFEMDiffusionStamperMPITestsExperimental, StampCollision) {
+TYPED_TEST(CFEMDiffusionStamperMPITests, StampCollision) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
   auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
 
@@ -290,8 +261,8 @@ TYPED_TEST(CFEMDiffusionStamperMPITestsExperimental, StampCollision) {
 }
 
 template <typename TestDomain>
-class CFEMDiffusionStamperBoundaryMPITestsExperimental :
-    public CFEMDiffusionStamperMPITestsExperimental<TestDomain> {
+class CFEMDiffusionStamperBoundaryMPITests :
+    public CFEMDiffusionStamperMPITests<TestDomain> {
  protected:
   void SetUp() override;
   void SetUpBoundaries();
@@ -299,8 +270,8 @@ class CFEMDiffusionStamperBoundaryMPITestsExperimental :
 
 
 template <typename TestDomain>
-void CFEMDiffusionStamperBoundaryMPITestsExperimental<TestDomain>::SetUp() {
-  CFEMDiffusionStamperMPITestsExperimental<TestDomain>::SetUp();
+void CFEMDiffusionStamperBoundaryMPITests<TestDomain>::SetUp() {
+  CFEMDiffusionStamperMPITests<TestDomain>::SetUp();
   SetUpBoundaries();
 
   int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
@@ -324,7 +295,7 @@ void CFEMDiffusionStamperBoundaryMPITestsExperimental<TestDomain>::SetUp() {
 }
 
 template <typename TestDomain>
-void CFEMDiffusionStamperBoundaryMPITestsExperimental<TestDomain>::SetUpBoundaries() {
+void CFEMDiffusionStamperBoundaryMPITests<TestDomain>::SetUpBoundaries() {
   using Boundary = bart::problem::Boundary;
   int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
   double zero_tol = 1.0e-14;
@@ -369,10 +340,10 @@ void CFEMDiffusionStamperBoundaryMPITestsExperimental<TestDomain>::SetUpBoundari
   }
 }
 
-TYPED_TEST_CASE(CFEMDiffusionStamperBoundaryMPITestsExperimental,
+TYPED_TEST_CASE(CFEMDiffusionStamperBoundaryMPITests,
                 bart::testing::DealiiTestDomains);
 
-TYPED_TEST(CFEMDiffusionStamperBoundaryMPITestsExperimental, StampVacuumBoundaryTerm) {
+TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
   using BoundaryType =
       typename formulation::scalar::CFEM_DiffusionI<this->dim>::BoundaryType;
   int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
@@ -403,7 +374,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITestsExperimental, StampVacuumBoundary
   EXPECT_TRUE(CompareMPIMatrices(this->boundary_hits_, this->system_matrix_));
 }
 
-TYPED_TEST(CFEMDiffusionStamperBoundaryMPITestsExperimental, StampVacuumReflectiveBoundaryTerm) {
+TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumReflectiveBoundaryTerm) {
   using BoundaryType =
       typename formulation::scalar::CFEM_DiffusionI<this->dim>::BoundaryType;
   using Boundary = problem::Boundary;
@@ -441,7 +412,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITestsExperimental, StampVacuumReflecti
   test_stamper.StampBoundaryTerm(this->system_matrix_);
 }
 
-TYPED_TEST(CFEMDiffusionStamperBoundaryMPITestsExperimental, StampVacuumAndStreaming) {
+TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumAndStreaming) {
   auto &mock_diffusion_ptr = this->mock_diffusion_ptr;
   auto &mock_definition_ptr = this->mock_definition_ptr;
 
@@ -462,109 +433,5 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITestsExperimental, StampVacuumAndStrea
   EXPECT_TRUE(CompareMPIMatrices(this->index_hits_, this->system_matrix_));
 
 }
-
-// TODO(Josh) Put this in it's own header file?
-class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest,
-                                     public bart::testing::DealiiTestDomain<2> {
- protected:
-
-  dealii::PETScWrappers::MPI::SparseMatrix& system_matrix_ = matrix_1;
-  dealii::PETScWrappers::MPI::SparseMatrix& index_hits_ = matrix_2;
-  dealii::PETScWrappers::MPI::SparseMatrix& boundary_hits_ = matrix_3;
-
-  void SetUp() override;
-  void SetUpBoundaries();
-};
-
-void CFEMDiffusionStamperMPITests::SetUp() {
-  CFEMDiffusionStamperTest::SetUp();
-  SetUpDealii();
-
-  for (const auto& cell : cells_) {
-    int mat_id = btest::RandomDouble(0, 10);
-    cell->set_material_id(mat_id);
-  }
-
-  ON_CALL(*mock_definition_ptr, Cells())
-      .WillByDefault(Return(cells_));
-  dealii::FullMatrix<double> cell_matrix(fe_.dofs_per_cell,
-                                         fe_.dofs_per_cell);
-  ON_CALL(*mock_definition_ptr, GetCellMatrix())
-      .WillByDefault(Return(cell_matrix));
-
-  std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
-
-  for (auto cell : cells_) {
-    cell->get_dof_indices(local_dof_indices);
-    for (auto index_i : local_dof_indices) {
-      for (auto index_j : local_dof_indices) {
-        index_hits_.add(index_i, index_j, 1);
-      }
-    }
-  }
-  index_hits_.compress(dealii::VectorOperation::add);
-}
-
-
-class CFEMDiffusionStamperBoundaryMPITests
-    : public CFEMDiffusionStamperMPITests {
- protected:
-
-  void SetUp() override;
-};
-
-void CFEMDiffusionStamperBoundaryMPITests::SetUp() {
-  CFEMDiffusionStamperMPITests::SetUp();
-  SetUpBoundaries();
-
-  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
-  std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
-
-  for (auto &cell : cells_) {
-    if (cell->at_boundary()) {
-      cell->get_dof_indices(local_dof_indices);
-      for (int face = 0; face < faces_per_cell; ++face) {
-        if (cell->face(face)->at_boundary()) {
-          for (auto index_i : local_dof_indices) {
-            for (auto index_j : local_dof_indices) {
-              boundary_hits_.add(index_i, index_j, 1);
-            }
-          }
-        }
-      }
-    }
-  }
-  boundary_hits_.compress(dealii::VectorOperation::add);
-}
-
-void CFEMDiffusionStamperMPITests::SetUpBoundaries() {
-  using Boundary = bart::problem::Boundary;
-  int faces_per_cell = dealii::GeometryInfo<2>::faces_per_cell;
-  double zero_tol = 1.0e-14;
-
-  for (auto &cell : cells_) {
-    for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
-      auto face = cell->face(face_id);
-      dealii::Point<2> face_center = face->center();
-
-      if (std::fabs(face_center[1]) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kYMin));
-      } else if (std::fabs(face_center[1] - 1) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kYMax));
-      } else if (std::fabs(face_center[0]) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kXMin));
-      } else if (std::fabs(face_center[0] - 1) < zero_tol) {
-        face->set_boundary_id(static_cast<int>(Boundary::kXMax));
-      }
-    }
-  }
-}
-
-
-
-
-
-
-
 
 } // namespace
