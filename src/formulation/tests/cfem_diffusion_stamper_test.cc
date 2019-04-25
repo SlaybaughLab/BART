@@ -48,13 +48,44 @@ void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused)
   OnesFill(to_fill);
 }
 
+/* =============================================================================
+ *
+ * CFEM_DiffusionStamper Tests
+ *
+ * Tests the operation of the CFEM_DiffusionStamper. Test fixtures are divided
+ * into the following:
+ *
+ * CFEMDiffusionStamperTest: contains pointers for the two dependencies of
+ * CFEM_DiffusionStamper, but not much else. Templated to run in all three
+ * dimensions.
+ *
+ * CFEMDiffusionStamperMPITests: derives from the previous, also sets up a full
+ * dealii test domain to check that the stamper is stamping matrices and vectors
+ * properly given MPI matrices or vectos and a list of cells.
+ *
+ * CFEMDiffusionStamperBoundaryMPITests: derives from the previous, checks the
+ * stamping operation for boundary terms.
+ *
+ * =============================================================================
+ */
+
+/*
+ * CFEMDiffusionStamperTest: Tests basic functionality
+ *
+ * Template type DimensionWrapper is intented to be a
+ * std::integral_constant<int, N> where N is the dimension. This enables
+ * automatic testing in all three dimensions.
+ *
+ */
 template <typename DimensionWrapper>
 class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
-  static constexpr int dim = DimensionWrapper::value;
+  static constexpr int dim = DimensionWrapper::value; // Problem dimension
+
   using Cell = typename domain::DefinitionI<dim>::Cell;
   using InitToken = typename
       formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
+
   std::unique_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
   std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>> mock_diffusion_ptr;
   void SetUp() override;
@@ -77,8 +108,8 @@ void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(cells));
 }
 
-TYPED_TEST_CASE(CFEMDiffusionStamperTest,
-    bart::testing::AllDimensions);
+// Initialize this as a typed test case, testing across 1D/2D/3D
+TYPED_TEST_CASE(CFEMDiffusionStamperTest, bart::testing::AllDimensions);
 
 TYPED_TEST(CFEMDiffusionStamperTest, Constructor) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
@@ -167,6 +198,16 @@ TYPED_TEST(CFEMDiffusionStamperTest, ConstructorWithReflectiveMap) {
               UnorderedElementsAreArray(reflective_boundaries));
 }
 
+/* =============================================================================
+ *
+ * CFEMDiffusionStamperMPITests
+ *
+ * Tests using Dealii TestDomains in 1D/2D/3D just to get the cells, matrices,
+ * and sparsity patterns.
+ *
+ * ============================================================================
+ */
+
 template <typename TestDomain>
 class CFEMDiffusionStamperMPITests
     : public TestDomain,
@@ -211,8 +252,7 @@ void CFEMDiffusionStamperMPITests<TestDomain>::SetUp() {
   index_hits_.compress(dealii::VectorOperation::add);
 }
 
-TYPED_TEST_CASE(CFEMDiffusionStamperMPITests,
-                bart::testing::DealiiTestDomains);
+TYPED_TEST_CASE(CFEMDiffusionStamperMPITests, bart::testing::DealiiTestDomains);
 
 TYPED_TEST(CFEMDiffusionStamperMPITests, StampStreaming) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
@@ -260,6 +300,16 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampCollision) {
   EXPECT_TRUE(CompareMPIMatrices(this->system_matrix_, this->index_hits_));
 }
 
+/* =============================================================================
+ *
+ * CFEMDiffusionStamperBoundaryMPITests
+ *
+ * Tests using Dealii TestDomains in 1D/2D/3D just to get the cells, matrices,
+ * and sparsity patterns.
+ *
+ * ============================================================================
+ */
+
 template <typename TestDomain>
 class CFEMDiffusionStamperBoundaryMPITests :
     public CFEMDiffusionStamperMPITests<TestDomain> {
@@ -267,7 +317,6 @@ class CFEMDiffusionStamperBoundaryMPITests :
   void SetUp() override;
   void SetUpBoundaries();
 };
-
 
 template <typename TestDomain>
 void CFEMDiffusionStamperBoundaryMPITests<TestDomain>::SetUp() {
