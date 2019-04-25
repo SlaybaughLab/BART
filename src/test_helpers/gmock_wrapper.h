@@ -1,6 +1,8 @@
 #ifndef BART_SRC_TEST_HELPERS_GMOCK_WRAPPER_H_
 #define BART_SRC_TEST_HELPERS_GMOCK_WRAPPER_H_
 
+#include <type_traits>
+
 /*
   deal.II defines a global Assert() macro that clashes with a
   gmock_internal_utils function.
@@ -21,5 +23,19 @@
 #else
 #include "gmock/gmock.h"
 #endif /*ifdef Assert*/
+
+namespace bart {
+
+namespace testing {
+
+using OneD = std::integral_constant<int, 1>;
+using TwoD = std::integral_constant<int, 2>;
+using ThreeD = std::integral_constant<int,3>;
+
+using AllDimensions = ::testing::Types<OneD, TwoD, ThreeD>;
+
+} // namespace testing
+
+} // namespace bart
 
 #endif // BART_SRC_TEST_HELPERS_GMOCK_WRAPPER_H_
