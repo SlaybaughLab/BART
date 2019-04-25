@@ -79,7 +79,6 @@ void CFEMDiffusionStamperTestExperimental<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(cells));
 }
 
-
 TYPED_TEST_CASE(CFEMDiffusionStamperTestExperimental,
     bart::testing::AllDimensions);
 
@@ -197,52 +196,40 @@ void CFEMDiffusionStamperTest::SetUp() {
 }
 
 
-template <typename T>
-class CFEMDiffusionStamperMPIExperiment
-    : public ::testing::Test ,
-      public T
-{};
-
-
-TYPED_TEST_CASE(CFEMDiffusionStamperMPIExperiment,
-                bart::testing::DealiiTestDomains);
-
-TYPED_TEST(CFEMDiffusionStamperMPIExperiment, Experiment) {
-  EXPECT_TRUE(true);
-}
-
-// TODO(Josh) Put this in it's own header file?
-class CFEMDiffusionStamperMPITests : public CFEMDiffusionStamperTest,
-                                     public bart::testing::DealiiTestDomain<2> {
+template <typename TestDomain>
+class CFEMDiffusionStamperMPITestsExperimental
+    : public TestDomain,
+      public CFEMDiffusionStamperTestExperimental<std::integral_constant<int, TestDomain::dimension>> {
  protected:
-
-  dealii::PETScWrappers::MPI::SparseMatrix& system_matrix_ = matrix_1;
-  dealii::PETScWrappers::MPI::SparseMatrix& index_hits_ = matrix_2;
-  dealii::PETScWrappers::MPI::SparseMatrix& boundary_hits_ = matrix_3;
+  static constexpr int dim = TestDomain::dimension;
+  dealii::PETScWrappers::MPI::SparseMatrix& system_matrix_ = TestDomain::matrix_1;
+  dealii::PETScWrappers::MPI::SparseMatrix& index_hits_    = TestDomain::matrix_2;
+  dealii::PETScWrappers::MPI::SparseMatrix& boundary_hits_ = TestDomain::matrix_3;
 
   void SetUp() override;
-  void SetUpBoundaries();
 };
 
-void CFEMDiffusionStamperMPITests::SetUp() {
-  CFEMDiffusionStamperTest::SetUp();
-  SetUpDealii();
+template <typename TestDomain>
+void CFEMDiffusionStamperMPITestsExperimental<TestDomain>::SetUp() {
+  auto &mock_definition_ptr = this->mock_definition_ptr;
+  CFEMDiffusionStamperTestExperimental<std::integral_constant<int, dim>>::SetUp();
+  TestDomain::SetUpDealii();
 
-  for (const auto& cell : cells_) {
+  for (const auto& cell : this->cells_) {
     int mat_id = btest::RandomDouble(0, 10);
     cell->set_material_id(mat_id);
   }
 
   ON_CALL(*mock_definition_ptr, Cells())
-      .WillByDefault(Return(cells_));
-  dealii::FullMatrix<double> cell_matrix(fe_.dofs_per_cell,
-                                         fe_.dofs_per_cell);
+      .WillByDefault(Return(this->cells_));
+  dealii::FullMatrix<double> cell_matrix(this->fe_.dofs_per_cell,
+                                         this->fe_.dofs_per_cell);
   ON_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillByDefault(Return(cell_matrix));
 
-  std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
+  std::vector<dealii::types::global_dof_index> local_dof_indices(this->fe_.dofs_per_cell);
 
-  for (auto cell : cells_) {
+  for (auto cell : this->cells_) {
     cell->get_dof_indices(local_dof_indices);
     for (auto index_i : local_dof_indices) {
       for (auto index_j : local_dof_indices) {
@@ -253,32 +240,39 @@ void CFEMDiffusionStamperMPITests::SetUp() {
   index_hits_.compress(dealii::VectorOperation::add);
 }
 
-TEST_F(CFEMDiffusionStamperMPITests, StampStreaming) {
+TYPED_TEST_CASE(CFEMDiffusionStamperMPITestsExperimental,
+                bart::testing::DealiiTestDomains);
+
+TYPED_TEST(CFEMDiffusionStamperMPITestsExperimental, StampStreaming) {
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
 
   int group_number = 1;
 
-  for (auto const& cell : cells_) {
+  for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
-        FillCellStreamingTerm(_, _, cell, group_number))
+                FillCellStreamingTerm(_, _, cell, group_number))
         .WillOnce(Invoke(FillMatrixWithOnes));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillOnce(DoDefault());
 
-  formulation::CFEM_DiffusionStamper<2> test_stamper(
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
       std::move(mock_definition_ptr));
 
-  test_stamper.StampStreamingTerm(system_matrix_, group_number);
+  test_stamper.StampStreamingTerm(this->system_matrix_, group_number);
 
-  EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
+  EXPECT_TRUE(CompareMPIMatrices(this->system_matrix_, this->index_hits_));
 }
 
-TEST_F(CFEMDiffusionStamperMPITests, StampCollision) {
+TYPED_TEST(CFEMDiffusionStamperMPITestsExperimental, StampCollision) {
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
 
   int group_number = 1;
 
-  for (auto const& cell : cells_) {
+  for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellCollisionTerm(_, _, cell, group_number))
         .WillOnce(Invoke(FillMatrixWithOnes));
@@ -286,13 +280,13 @@ TEST_F(CFEMDiffusionStamperMPITests, StampCollision) {
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillOnce(DoDefault());
 
-  formulation::CFEM_DiffusionStamper<2> test_stamper(
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
       std::move(mock_definition_ptr));
 
-  test_stamper.StampCollisionTerm(system_matrix_, group_number);
+  test_stamper.StampCollisionTerm(this->system_matrix_, group_number);
 
-  EXPECT_TRUE(CompareMPIMatrices(system_matrix_, index_hits_));
+  EXPECT_TRUE(CompareMPIMatrices(this->system_matrix_, this->index_hits_));
 }
 
 class CFEMDiffusionStamperBoundaryMPITests
