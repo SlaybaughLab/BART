@@ -34,6 +34,7 @@ template struct TriangulationType<3>;
 template <int dim>
  class DealiiTestDomain {
   public:
+   static constexpr int dimension = dim;
    DealiiTestDomain();
    void SetUpDealii();
 
