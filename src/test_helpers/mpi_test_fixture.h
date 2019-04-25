@@ -8,6 +8,7 @@
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/grid_tools.h>
+#include <deal.II/grid/tria.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
@@ -16,21 +17,27 @@ namespace bart {
 namespace testing {
 
 template <int dim>
- class MPI_TestFixture {
-  protected:
-   MPI_TestFixture()
-   : triangulation_(MPI_COMM_WORLD,
-                    typename dealii::Triangulation<2>::MeshSmoothing(
-                        dealii::Triangulation<2>::smoothing_on_refinement |
-                            dealii::Triangulation<2>::smoothing_on_coarsening)),
-     dof_handler_(triangulation_),
-     fe_(1) {};
+struct TriangulationType {
+  using type = dealii::parallel::distributed::Triangulation<dim>;
+};
 
+template <>
+struct TriangulationType<1> {
+  using type = dealii::Triangulation<1>;
+};
+
+template struct TriangulationType<2>;
+template struct TriangulationType<3>;
+
+template <int dim>
+ class MPI_TestFixture {
+  public:
+   MPI_TestFixture();
    void SetUpDealii();
 
    using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
    dealii::ConstraintMatrix constraint_matrix_;
-   dealii::parallel::distributed::Triangulation<dim> triangulation_;
+   typename TriangulationType<dim>::type triangulation_;
    dealii::DoFHandler<dim> dof_handler_;
    dealii::FE_Q<dim> fe_;
    dealii::IndexSet locally_relevant_dofs;
@@ -39,6 +46,23 @@ template <int dim>
 
    dealii::PETScWrappers::MPI::SparseMatrix matrix_1, matrix_2, matrix_3;
 };
+
+template <int dim>
+inline MPI_TestFixture<dim>::MPI_TestFixture()
+    : triangulation_(MPI_COMM_WORLD,
+                     typename dealii::Triangulation<dim>::MeshSmoothing(
+                         dealii::Triangulation<dim>::smoothing_on_refinement |
+                             dealii::Triangulation<dim>::smoothing_on_coarsening)),
+      dof_handler_(triangulation_),
+      fe_(1) {}
+
+template <>
+inline MPI_TestFixture<1>::MPI_TestFixture()
+    : triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(
+    dealii::Triangulation<1>::smoothing_on_refinement |
+        dealii::Triangulation<1>::smoothing_on_coarsening)),
+      dof_handler_(triangulation_),
+      fe_(1) {}
 
 template <int dim>
 inline void MPI_TestFixture<dim>::SetUpDealii() {
