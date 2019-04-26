@@ -47,8 +47,12 @@ template <int dim>
    dealii::IndexSet locally_relevant_dofs;
    dealii::IndexSet locally_owned_dofs_;
    std::vector<Cell> cells_;
+   dealii::DynamicSparsityPattern dsp_;
 
    dealii::PETScWrappers::MPI::SparseMatrix matrix_1, matrix_2, matrix_3;
+
+  private:
+   void SetUpDofs();
 };
 
 template <int dim>
@@ -71,17 +75,30 @@ inline DealiiTestDomain<1>::DealiiTestDomain()
 template <int dim>
 inline void DealiiTestDomain<dim>::SetUpDealii() {
   dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
-  triangulation_.refine_global(1);
 
-  dof_handler_.distribute_dofs(fe_);
-  locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
-  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
-                                                  locally_relevant_dofs);
+  if (dim == 1)
+    triangulation_.refine_global(4);
+  else
+    triangulation_.refine_global(2);
+
+  SetUpDofs();
 
   for (auto cell = dof_handler_.begin_active(); cell != dof_handler_.end(); ++ cell) {
     if (cell->is_locally_owned())
       cells_.push_back(cell);
   }
+
+  matrix_1.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp_, MPI_COMM_WORLD);
+  matrix_2.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp_, MPI_COMM_WORLD);
+  matrix_3.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp_, MPI_COMM_WORLD);
+}
+
+template <int dim>
+inline void DealiiTestDomain<dim>::SetUpDofs() {
+  dof_handler_.distribute_dofs(fe_);
+  locally_owned_dofs_ = dof_handler_.locally_owned_dofs();
+  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_,
+                                                  locally_relevant_dofs);
 
   constraint_matrix_.clear();
   constraint_matrix_.reinit(locally_relevant_dofs);
@@ -89,27 +106,24 @@ inline void DealiiTestDomain<dim>::SetUpDealii() {
                                                   constraint_matrix_);
   constraint_matrix_.close();
 
-  dealii::DynamicSparsityPattern dsp(locally_relevant_dofs);
-  dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp,
+  dsp_.reinit(locally_relevant_dofs.size(),
+              locally_relevant_dofs.size(),
+              locally_relevant_dofs);
+  dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp_,
                                           constraint_matrix_, false);
+
   dealii::SparsityTools::distribute_sparsity_pattern(
-      dsp,
+      dsp_,
       dof_handler_.n_locally_owned_dofs_per_processor(),
       MPI_COMM_WORLD, locally_relevant_dofs);
-  constraint_matrix_.condense(dsp);
 
-  matrix_1.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
-  matrix_2.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
-  matrix_3.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
+  constraint_matrix_.condense(dsp_);
 }
 
 template <>
-inline void DealiiTestDomain<1>::SetUpDealii() {
+inline void DealiiTestDomain<1>::SetUpDofs() {
   auto n_mpi_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-
-  dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
-  triangulation_.refine_global(4);
 
   dealii::GridTools::partition_triangulation(n_mpi_processes, triangulation_);
   dof_handler_.distribute_dofs(fe_);
@@ -125,13 +139,9 @@ inline void DealiiTestDomain<1>::SetUpDealii() {
                                                   constraint_matrix_);
   constraint_matrix_.close();
 
-  dealii::DynamicSparsityPattern dsp(dof_handler_.n_dofs(), dof_handler_.n_dofs());
-  dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp,
+  dsp_.reinit(dof_handler_.n_dofs(), dof_handler_.n_dofs());
+  dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp_,
                                           constraint_matrix_, false);
-
-  matrix_1.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
-  matrix_2.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
-  matrix_3.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp, MPI_COMM_WORLD);
 }
 
 using DealiiTestDomains = ::testing::Types<bart::testing::DealiiTestDomain<1>,
