@@ -30,6 +30,7 @@ using ::testing::_;
 using namespace bart;
 using bart::testing::CompareMPIMatrices;
 using Matrix = dealii::FullMatrix<double>;
+using Vector = dealii::Vector<double>;
 
 // TODO(Josh) Move this to a header where other stamper tests can use it
 void OnesFill(Matrix& to_fill) {
@@ -40,11 +41,21 @@ void OnesFill(Matrix& to_fill) {
   }
 }
 
+void OnesFill(Vector& to_fill) {
+  for (unsigned int i = 0; i < to_fill.size(); ++i) {
+    to_fill(i) += 1;
+  }
+}
+
 void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused) {
   OnesFill(to_fill);
 }
 
 void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused) {
+  OnesFill(to_fill);
+}
+
+void FillVectorWithOnes3(Vector& to_fill, Unused, Unused) {
   OnesFill(to_fill);
 }
 
@@ -218,6 +229,9 @@ class CFEMDiffusionStamperMPITests
   dealii::PETScWrappers::MPI::SparseMatrix& index_hits_    = TestDomain::matrix_2;
   dealii::PETScWrappers::MPI::SparseMatrix& boundary_hits_ = TestDomain::matrix_3;
 
+  dealii::PETScWrappers::MPI::Vector& system_rhs_        = TestDomain::vector_1;
+  dealii::PETScWrappers::MPI::Vector& index_hits_vector_ = TestDomain::vector_2;
+
   void SetUp() override;
 };
 
@@ -244,12 +258,14 @@ void CFEMDiffusionStamperMPITests<TestDomain>::SetUp() {
   for (auto cell : this->cells_) {
     cell->get_dof_indices(local_dof_indices);
     for (auto index_i : local_dof_indices) {
+      index_hits_vector_(index_i) += 1;
       for (auto index_j : local_dof_indices) {
         index_hits_.add(index_i, index_j, 1);
       }
     }
   }
   index_hits_.compress(dealii::VectorOperation::add);
+  index_hits_vector_.compress(dealii::VectorOperation::add);
 }
 
 TYPED_TEST_CASE(CFEMDiffusionStamperMPITests, bart::testing::DealiiTestDomains);
