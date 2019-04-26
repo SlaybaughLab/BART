@@ -67,6 +67,11 @@ AssertionResult CompareMPIMatrices(
   }
 }
 
+AssertionResult CompareMPIVectors(
+    const dealii::PETScWrappers::MPI::Vector& expected,
+    const dealii::PETScWrappers::MPI::Vector& result) {
+  return AssertionFailure();
+}
 
 } // namespace testing
 

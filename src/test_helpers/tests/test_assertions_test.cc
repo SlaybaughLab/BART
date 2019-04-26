@@ -101,5 +101,44 @@ TEST_F(TestAssertionsMPIMatricesTests, CompareMPIMatrices) {
             bart::testing::CompareMPIMatrices(matrix_1, matrix_2));
 }
 
+class TestAssertionsMPIVectorTests : public ::testing::Test,
+                                     public bart::testing::DealiiTestDomain<2> {
+ protected:
+  void SetUp() override;
+};
+
+void TestAssertionsMPIVectorTests::SetUp() {
+  SetUpDealii();
+  std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
+
+  for (auto cell : cells_) {
+    cell->get_dof_indices(local_dof_indices);
+    for (auto index_i : local_dof_indices) {
+      vector_1(index_i) += 1;
+      vector_2(index_i) += 2;
+      vector_3(index_i) += 1;
+    }
+  }
+
+  vector_1.compress(dealii::VectorOperation::add);
+  vector_2.compress(dealii::VectorOperation::add);
+  vector_3.compress(dealii::VectorOperation::add);
+}
+
+TEST_F(TestAssertionsMPIVectorTests, CompareMPIVectors) {
+  EXPECT_EQ(AssertionSuccess(),
+            bart::testing::CompareMPIVectors(vector_1, vector_1));
+  EXPECT_EQ(AssertionSuccess(),
+            bart::testing::CompareMPIVectors(vector_1, vector_3));
+  EXPECT_EQ(AssertionFailure(),
+            bart::testing::CompareMPIVectors(vector_1, vector_2));
+
+  int random_index = btest::RandomDouble(0, vector_1.size());
+  vector_3(random_index) = 2;
+
+  EXPECT_EQ(AssertionFailure(),
+            bart::testing::CompareMPIVectors(vector_1, vector_3));
+}
+
 } // namespace
 

@@ -26,6 +26,10 @@ AssertionResult CompareMPIMatrices(
     const dealii::PETScWrappers::MPI::SparseMatrix& expected,
     const dealii::PETScWrappers::MPI::SparseMatrix& result);
 
+AssertionResult CompareMPIVectors(
+    const dealii::PETScWrappers::MPI::Vector& expected,
+    const dealii::PETScWrappers::MPI::Vector& result);
+
 } // namespace testing
 
 } // namespace bart
