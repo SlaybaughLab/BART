@@ -70,6 +70,15 @@ class Definition : public DefinitionI<dim> {
     dealii::FullMatrix<double> full_matrix(cell_dofs, cell_dofs);
     return full_matrix;
   }
+  /*! Get a matrix suitible for a cell rhs.
+   *
+   * \return a dealii Vector<double> of appropriate size.
+   */
+  dealii::Vector<double> GetCellVector() const override {
+    int cell_dofs = finite_element_->dofs_per_cell();
+    dealii::Vector<double> vector(cell_dofs);
+    return vector;
+  }
 
   /*! Get a range of all cells to allow iterating over them */
   CellRange Cells() const override { return local_cells_; };

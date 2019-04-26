@@ -87,7 +87,8 @@ TEST_F(DOFTest, SetUpDOFTest) {
   EXPECT_CALL(*fe_ptr, finite_element())
       .WillOnce(::testing::Return(&fe));
   EXPECT_CALL(*fe_ptr, dofs_per_cell())
-      .WillOnce(::testing::Return(4));
+      .Times(2)
+      .WillRepeatedly(::testing::Return(4));
 
   bart::domain::Definition<2> test_domain(std::move(nice_mesh_ptr), fe_ptr);
   test_domain.SetUpMesh();
@@ -99,6 +100,9 @@ TEST_F(DOFTest, SetUpDOFTest) {
   auto matrix = test_domain.GetCellMatrix();
   EXPECT_EQ(matrix.n_rows(), 4);
   EXPECT_EQ(matrix.n_cols(), 4);
+
+  auto vector = test_domain.GetCellVector();
+  EXPECT_EQ(vector.size(), 4);
 
 
 }
