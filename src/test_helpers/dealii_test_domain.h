@@ -50,6 +50,7 @@ template <int dim>
    dealii::DynamicSparsityPattern dsp_;
 
    dealii::PETScWrappers::MPI::SparseMatrix matrix_1, matrix_2, matrix_3;
+   dealii::PETScWrappers::MPI::Vector vector_1, vector_2, vector_3;
 
   private:
    void SetUpDofs();
@@ -91,6 +92,9 @@ inline void DealiiTestDomain<dim>::SetUpDealii() {
   matrix_1.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp_, MPI_COMM_WORLD);
   matrix_2.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp_, MPI_COMM_WORLD);
   matrix_3.reinit(locally_owned_dofs_, locally_owned_dofs_, dsp_, MPI_COMM_WORLD);
+  vector_1.reinit(locally_owned_dofs_, MPI_COMM_WORLD);
+  vector_2.reinit(locally_owned_dofs_, MPI_COMM_WORLD);
+  vector_3.reinit(locally_owned_dofs_, MPI_COMM_WORLD);
 }
 
 template <int dim>
