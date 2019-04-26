@@ -97,6 +97,12 @@ void CFEM_DiffusionStamper<dim>::StampBoundaryTerm(MPISparseMatrix &to_stamp) {
   StampMatrix(to_stamp, boundary_function);
 }
 
+template<int dim>
+void CFEM_DiffusionStamper<dim>::StampFixedSource(MPIVector &to_stamp,
+                                                  const GroupNumber group) {
+
+}
+
 template <int dim>
 void CFEM_DiffusionStamper<dim>::StampMatrix(
     MPISparseMatrix &to_stamp,
@@ -112,6 +118,12 @@ void CFEM_DiffusionStamper<dim>::StampMatrix(
     to_stamp.add(local_dof_indices, local_dof_indices, cell_matrix);
   }
   to_stamp.compress(dealii::VectorOperation::add);
+}
+template<int dim>
+void CFEM_DiffusionStamper<dim>::StampVector(
+    MPIVector &to_stamp,
+    std::function<void(dealii::Vector<double> &, const Cell &)> function) {
+
 }
 
 

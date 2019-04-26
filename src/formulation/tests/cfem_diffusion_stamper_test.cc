@@ -29,6 +29,7 @@ using ::testing::_;
 
 using namespace bart;
 using bart::testing::CompareMPIMatrices;
+using bart::testing::CompareMPIVectors;
 using Matrix = dealii::FullMatrix<double>;
 using Vector = dealii::Vector<double>;
 
@@ -331,6 +332,28 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampCollision) {
   test_stamper.StampCollisionTerm(this->system_matrix_, group_number);
 
   EXPECT_TRUE(CompareMPIMatrices(this->system_matrix_, this->index_hits_));
+}
+
+TYPED_TEST(CFEMDiffusionStamperMPITests, StampFixedSource) {
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
+  int group_number = 1;
+
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*mock_diffusion_ptr,
+                FillCellFixedSource(_, cell, group_number))
+        .WillOnce(Invoke(FillVectorWithOnes3));
+  }
+
+  EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
+      .WillOnce(DoDefault());
+
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampFixedSource(this->system_rhs_, group_number);
+  EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));
 }
 
 /* =============================================================================

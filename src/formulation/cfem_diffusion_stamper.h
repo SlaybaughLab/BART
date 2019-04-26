@@ -20,6 +20,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
  public:
   using GroupNumber = int;
   using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+  using MPIVector = dealii::PETScWrappers::MPI::Vector;
   using Boundary = bart::problem::Boundary;
   using BoundaryType = typename formulation::scalar::CFEM_DiffusionI<dim>::BoundaryType;
 
@@ -36,6 +37,7 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   void StampStreamingTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampBoundaryTerm(MPISparseMatrix& to_stamp);
+  void StampFixedSource(MPIVector& to_stamp, const GroupNumber group);
 
   CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) {
     reflective_boundaries_.insert(boundary);
@@ -59,6 +61,10 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   void StampMatrix(
       MPISparseMatrix& to_stamp,
       std::function<void(dealii::FullMatrix<double>&, const Cell&)> function);
+
+  void StampVector(
+      MPIVector& to_stamp,
+      std::function<void(dealii::Vector<double>&, const Cell&)> function);
 
   std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr_;
   std::unique_ptr<domain::DefinitionI<dim>> definition_ptr_;
