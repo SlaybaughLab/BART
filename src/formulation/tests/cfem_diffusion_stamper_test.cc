@@ -345,7 +345,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFixedSource) {
         .WillOnce(Invoke(FillVectorWithOnes3));
   }
 
-  EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
+  EXPECT_CALL(*mock_definition_ptr, GetCellVector())
       .WillOnce(DoDefault());
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
