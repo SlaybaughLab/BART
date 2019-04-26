@@ -235,23 +235,40 @@ class CFEMDiffusionStamperMPITests
   void SetUp() override;
 };
 
+/* Sets up tests to verify various stamping functions. This includes setting
+ * default behavior of the two dependency pointers inherited from
+ * CFEMDiffusinStamperTest, and setting up index_hits_ and index_hits_vector_.
+ * The values of that matrix and vector, respectively, will indicate how many
+ * times that index (or two indices for the matrix) should be stamped if all
+ * cells are stamped. This should be identical to if every cell stamps nothing
+ * but full matrices or vectors of 1s.
+ */
 template <typename TestDomain>
 void CFEMDiffusionStamperMPITests<TestDomain>::SetUp() {
   auto &mock_definition_ptr = this->mock_definition_ptr;
+  // Set up the inherited base class (creates mock dependencies)
   CFEMDiffusionStamperTest<std::integral_constant<int, dim>>::SetUp();
+  // Set up the inherited test domain
   TestDomain::SetUpDealii();
 
+  // Set all cell material IDs
   for (const auto& cell : this->cells_) {
     int mat_id = btest::RandomDouble(0, 10);
     cell->set_material_id(mat_id);
   }
 
+  // Set default behaviors
   ON_CALL(*mock_definition_ptr, Cells())
       .WillByDefault(Return(this->cells_));
+
   dealii::FullMatrix<double> cell_matrix(this->fe_.dofs_per_cell,
                                          this->fe_.dofs_per_cell);
   ON_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillByDefault(Return(cell_matrix));
+
+  dealii::Vector<double> cell_vector(this->fe_.dofs_per_cell);
+  ON_CALL(*mock_definition_ptr, GetCellVector())
+      .WillByDefault(Return(cell_vector));
 
   std::vector<dealii::types::global_dof_index> local_dof_indices(this->fe_.dofs_per_cell);
 
