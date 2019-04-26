@@ -70,7 +70,30 @@ AssertionResult CompareMPIMatrices(
 AssertionResult CompareMPIVectors(
     const dealii::PETScWrappers::MPI::Vector& expected,
     const dealii::PETScWrappers::MPI::Vector& result) {
-  return AssertionFailure();
+
+  auto [first_local_row, last_local_row] = expected.local_range();
+  bool has_failed = false;
+
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  dealii::PETScWrappers::MPI::Vector results(MPI_COMM_WORLD,
+                                             n_processes, 1);
+
+  for (unsigned int i = first_local_row; i < last_local_row; ++i) {
+    if (result(i) != expected(i)) {
+      results(this_process) += 1;
+      has_failed = true;
+    }
+    if (has_failed)
+      break;
+  }
+
+  results(this_process) += 0;
+  if (results.l1_norm() > 0) {
+    return AssertionFailure();
+  } else {
+    return AssertionSuccess();
+  }
 }
 
 } // namespace testing
