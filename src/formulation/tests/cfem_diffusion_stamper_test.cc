@@ -62,6 +62,10 @@ void FillVectorWithOnes3(Vector& to_fill, Unused, Unused) {
   OnesFill(to_fill);
 }
 
+void FillVectorWithOnes5(Vector& to_fill, Unused, Unused, Unused, Unused) {
+  OnesFill(to_fill);
+}
+
 void FillVectorWithOnes6(Vector& to_fill, Unused, Unused, Unused, Unused, Unused) {
   OnesFill(to_fill);
 }
@@ -393,6 +397,35 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFissionSource) {
                                   k_effective,
                                   in_group_moment,
                                   group_moments);
+
+  EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));
+}
+
+TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
+  int group_number = 1;
+  data::MomentVector in_group_moment;
+  data::MomentsMap group_moments;
+
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*mock_diffusion_ptr,
+                FillCellScatteringSource(_, cell, group_number,
+                                         Ref(in_group_moment), Ref(group_moments)))
+        .WillOnce(Invoke(FillVectorWithOnes5));
+  }
+
+  EXPECT_CALL(*mock_definition_ptr, GetCellVector())
+      .WillOnce(DoDefault());
+
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampScatteringSource(this->system_rhs_,
+                                     group_number,
+                                     in_group_moment,
+                                     group_moments);
 
   EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));
 }

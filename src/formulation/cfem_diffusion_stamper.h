@@ -44,6 +44,10 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
                           const double k_effective,
                           const data::MomentVector& in_group_moment,
                           const data::MomentsMap& group_moments);
+  void StampScatteringSource(MPIVector& to_stamp,
+                             const GroupNumber group,
+                             const data::MomentVector& in_group_moment,
+                             const data::MomentsMap& group_moments);
 
   CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) {
     reflective_boundaries_.insert(boundary);
