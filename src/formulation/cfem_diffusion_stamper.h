@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "data/moment_types.h"
 #include "domain/definition_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
 #include "formulation/stamper_i.h"
@@ -38,6 +39,11 @@ class CFEM_DiffusionStamper : public StamperI<dim> {
   void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
   void StampBoundaryTerm(MPISparseMatrix& to_stamp);
   void StampFixedSource(MPIVector& to_stamp, const GroupNumber group);
+  void StampFissionSource(MPIVector& to_stamp,
+                          const GroupNumber group,
+                          const double k_effective,
+                          const data::MomentVector& in_group_moment,
+                          const data::MomentsMap& group_moments);
 
   CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) {
     reflective_boundaries_.insert(boundary);

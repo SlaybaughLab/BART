@@ -107,6 +107,14 @@ void CFEM_DiffusionStamper<dim>::StampFixedSource(MPIVector &to_stamp,
   StampVector(to_stamp, fixed_source_function);
 }
 
+template<int dim>
+void CFEM_DiffusionStamper<dim>::StampFissionSource(
+    MPIVector& to_stamp,
+    const GroupNumber group,
+    const double k_effective,
+    const data::MomentVector& in_group_moment,
+    const data::MomentsMap& group_moments) {}
+
 template <int dim>
 void CFEM_DiffusionStamper<dim>::StampMatrix(
     MPISparseMatrix &to_stamp,

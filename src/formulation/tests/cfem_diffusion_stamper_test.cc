@@ -7,6 +7,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
+#include "data/moment_types.h"
 #include "domain/tests/definition_mock.h"
 #include "formulation/scalar/tests/cfem_diffusion_mock.h"
 #include "problem/parameter_types.h"
@@ -57,6 +58,10 @@ void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused)
 }
 
 void FillVectorWithOnes3(Vector& to_fill, Unused, Unused) {
+  OnesFill(to_fill);
+}
+
+void FillVectorWithOnes6(Vector& to_fill, Unused, Unused, Unused, Unused, Unused) {
   OnesFill(to_fill);
 }
 
@@ -353,6 +358,41 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFixedSource) {
       std::move(mock_definition_ptr));
 
   test_stamper.StampFixedSource(this->system_rhs_, group_number);
+  EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));
+}
+
+TYPED_TEST(CFEMDiffusionStamperMPITests, StampFissionSource) {
+  auto& mock_definition_ptr = this->mock_definition_ptr;
+  auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
+  int group_number = 1;
+  double k_effective = 1.04;
+  /* Moments for call; it doesn't matter if the moments are uninitialized and
+   * empty. We will just be using them as dummys that are caught by the mock, we
+   * are just ensuring that the correct things are passed through.
+   */
+  data::MomentVector in_group_moment;
+  data::MomentsMap group_moments;
+
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*mock_diffusion_ptr,
+                FillCellFissionSource(_, cell, group_number, k_effective,
+                                      in_group_moment, group_moments))
+        .WillOnce(Invoke(FillVectorWithOnes6));
+  }
+
+  EXPECT_CALL(*mock_definition_ptr, GetCellVector())
+      .WillOnce(DoDefault());
+
+  formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
+      std::move(mock_diffusion_ptr),
+      std::move(mock_definition_ptr));
+
+  test_stamper.StampFissionSource(this->system_rhs_,
+                                  group_number,
+                                  k_effective,
+                                  in_group_moment,
+                                  group_moments);
+
   EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));
 }
 
