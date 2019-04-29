@@ -132,7 +132,15 @@ void CFEM_DiffusionStamper<dim>::StampScatteringSource(MPIVector& to_stamp,
                            const GroupNumber group,
                            const data::MomentVector& in_group_moment,
                            const data::MomentsMap& group_moments) {
-
+  auto scattering_source_function =
+      [&](dealii::Vector<double> &vector, const Cell& cell_ptr) -> void {
+        this->diffusion_ptr_->FillCellScatteringSource(vector,
+                                                       cell_ptr,
+                                                       group,
+                                                       in_group_moment,
+                                                       group_moments);
+      };
+  StampVector(to_stamp, scattering_source_function);
 }
 
 template <int dim>
