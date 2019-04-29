@@ -113,7 +113,19 @@ void CFEM_DiffusionStamper<dim>::StampFissionSource(
     const GroupNumber group,
     const double k_effective,
     const data::MomentVector& in_group_moment,
-    const data::MomentsMap& group_moments) {}
+    const data::MomentsMap& group_moments) {
+
+  auto fission_source_function =
+      [&](dealii::Vector<double> &vector, const Cell& cell_ptr) -> void {
+    this->diffusion_ptr_->FillCellFissionSource(vector,
+                                                cell_ptr,
+                                                group,
+                                                k_effective,
+                                                in_group_moment,
+                                                group_moments);
+  };
+  StampVector(to_stamp, fission_source_function);
+}
 
 template <int dim>
 void CFEM_DiffusionStamper<dim>::StampMatrix(
