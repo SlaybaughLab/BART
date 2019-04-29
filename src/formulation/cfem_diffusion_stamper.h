@@ -25,42 +25,65 @@ class CFEM_DiffusionStamper : public CFEM_DiffusionStamperI<dim> {
   using Boundary = bart::problem::Boundary;
   using BoundaryType = typename formulation::scalar::CFEM_DiffusionI<dim>::BoundaryType;
 
+  /*! Constructor, using a provided set of reflective boundary conditions.
+   *
+   * Maintains ownership of a problem domain, and some CFEM Diffusion
+   * formulation.
+   *
+   * @param diffusion_ptr pointer to diffusion formulation.
+   * @param definition_ptr pointer to problem definition.
+   * @param reflective_boundaries unordered set containing system reflective
+   *        boundaries.
+   */
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::unordered_set<Boundary> reflective_boundaries = {});
+
+  /*! Constructor, using a provided set of reflective boundary conditions.
+   *
+   * This constructor accepts a mapping of each boundary to a bool indicating
+   * if it is reflective. This is compatible with the output of
+   * bart::problem::ParametersI::ReflectiveBoundary().
+   *
+   * @param diffusion_ptr pointer to diffusion formulation.
+   * @param definition_ptr pointer to problem definition.
+   * @param reflective_boundary_map mapping of reflective boundaries.
+   */
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
       std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::map<Boundary, bool> reflective_boundary_map);
 
 
-  void StampStreamingTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
-  void StampCollisionTerm(MPISparseMatrix& to_stamp, const GroupNumber group);
-  void StampBoundaryTerm(MPISparseMatrix& to_stamp);
-  void StampFixedSource(MPIVector& to_stamp, const GroupNumber group);
+  void StampStreamingTerm(MPISparseMatrix& to_stamp,
+                          const GroupNumber group) override;
+  void StampCollisionTerm(MPISparseMatrix& to_stamp,
+                          const GroupNumber group) override;
+  void StampBoundaryTerm(MPISparseMatrix& to_stamp) override;
+  void StampFixedSource(MPIVector& to_stamp, const GroupNumber group) override;
   void StampFissionSource(MPIVector& to_stamp,
                           const GroupNumber group,
                           const double k_effective,
                           const data::MomentVector& in_group_moment,
-                          const data::MomentsMap& group_moments);
+                          const data::MomentsMap& group_moments) override;
   void StampScatteringSource(MPIVector& to_stamp,
                              const GroupNumber group,
                              const data::MomentVector& in_group_moment,
-                             const data::MomentsMap& group_moments);
+                             const data::MomentsMap& group_moments) override;
 
-  CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) {
+  CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) override {
     reflective_boundaries_.insert(boundary);
     return *this;
   }
 
-  CFEM_DiffusionStamper& RemoveReflectiveBoundary(Boundary boundary) {
+  CFEM_DiffusionStamper& RemoveReflectiveBoundary(Boundary boundary)  override {
     reflective_boundaries_.erase(boundary);
     return *this;
   }
 
 
-  std::unordered_set<Boundary> reflective_boundaries() const {
+  std::unordered_set<Boundary> reflective_boundaries() const override {
     return reflective_boundaries_; };
 
  private:
