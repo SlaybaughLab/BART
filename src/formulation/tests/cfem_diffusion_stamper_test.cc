@@ -20,6 +20,7 @@ namespace {
 
 using ::testing::AssertionResult;
 using ::testing::AssertionFailure, ::testing::AssertionSuccess;
+using ::testing::Ref;
 using ::testing::DoDefault;
 using ::testing::Invoke;
 using ::testing::NiceMock;
@@ -376,7 +377,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFissionSource) {
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellFissionSource(_, cell, group_number, k_effective,
-                                      in_group_moment, group_moments))
+                                      Ref(in_group_moment), Ref(group_moments)))
         .WillOnce(Invoke(FillVectorWithOnes6));
   }
 
