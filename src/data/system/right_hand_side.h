@@ -2,7 +2,7 @@
 #define BART_SRC_DATA_SYSTEM_RIGHT_HAND_SIDE_FIXED_H_
 
 #include <memory>
-#include <vector>
+#include <map>
 
 #include "data/system/rhs_lhs_types.h"
 #include "data/system/right_hand_side_i.h"
@@ -33,7 +33,12 @@ class RightHandSide : public RightHandSideI {
 
  private:
   const std::unordered_set<VariableTerms> variable_terms_;
-  std::map<Index, std::shared_ptr<MPIVector>> fixed_right_hand_side_ptrs_;
+
+  using RightHandSidePtrMap = std::map<Index, std::shared_ptr<MPIVector>>;
+
+  RightHandSidePtrMap fixed_right_hand_side_ptrs_;
+
+  std::map<VariableTerms, RightHandSidePtrMap> variable_right_hand_side_terms_;
 };
 
 

@@ -90,7 +90,7 @@ TEST_F(SystemRightHandSideTest, SetVariablePtrTest) {
   test_rhs.SetVariablePtr({0,0}, VariableTerms::kScatteringSource, test_vector);
   EXPECT_EQ(test_vector.use_count(), 2);
 
-  EXPECT_ANY_THROW(test_rhs.SetVariablePtr({0,0}, 
+  EXPECT_ANY_THROW(test_rhs.SetVariablePtr({0,0},
                                            VariableTerms::kFissionSource,
                                            test_vector));
 }

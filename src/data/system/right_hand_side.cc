@@ -1,5 +1,7 @@
 #include "data/system/right_hand_side.h"
 
+#include <utility>
+
 namespace bart {
 
 namespace data {
@@ -8,7 +10,12 @@ namespace system {
 
 RightHandSide::RightHandSide(std::unordered_set<VariableTerms> variable_terms)
     : variable_terms_(variable_terms)
-{}
+{
+  for (auto term : variable_terms) {
+    RightHandSidePtrMap variable_term_map;
+    variable_right_hand_side_terms_[term] = variable_term_map;
+  }
+}
 
 
 void RightHandSide::SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) {
@@ -34,7 +41,10 @@ std::shared_ptr<MPIVector> RightHandSide::GetFixedPtr(GroupNumber group) {
 void RightHandSide::SetVariablePtr(Index index,
                                    VariableTerms term,
                                    std::shared_ptr<MPIVector> to_set) {
-
+  AssertThrow(variable_terms_.count(term) != 0,
+              dealii::ExcMessage("Tried to set a right hand side with a variable "
+                                 "term that it does not have set as variable"));
+  variable_right_hand_side_terms_[term][index] = to_set;
 }
 
 } // namespace system
