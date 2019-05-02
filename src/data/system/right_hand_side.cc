@@ -47,6 +47,14 @@ void RightHandSide::SetVariablePtr(Index index,
   variable_right_hand_side_terms_[term][index] = to_set;
 }
 
+void RightHandSide::SetVariablePtr(GroupNumber group,
+                                   VariableTerms term,
+                                   std::shared_ptr<MPIVector> to_set) {
+  SetVariablePtr({group, 0}, term, to_set);
+}
+
+
+
 } // namespace system
 
 } // namespace data

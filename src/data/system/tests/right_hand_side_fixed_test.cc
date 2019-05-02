@@ -88,9 +88,16 @@ TEST_F(SystemRightHandSideTest, GetFixedPtrGroupTest) {
 
 TEST_F(SystemRightHandSideTest, SetVariablePtrTest) {
   test_rhs.SetVariablePtr({0,0}, VariableTerms::kScatteringSource, test_vector);
+  test_rhs.SetVariablePtr(1,
+                          VariableTerms::kScatteringSource,
+                          double_test_vector);
   EXPECT_EQ(test_vector.use_count(), 2);
+  EXPECT_EQ(double_test_vector.use_count(), 2);
 
   EXPECT_ANY_THROW(test_rhs.SetVariablePtr({0,0},
+                                           VariableTerms::kFissionSource,
+                                           test_vector));
+  EXPECT_ANY_THROW(test_rhs.SetVariablePtr(1,
                                            VariableTerms::kFissionSource,
                                            test_vector));
 }

@@ -30,6 +30,9 @@ class RightHandSide : public RightHandSideI {
   void SetVariablePtr(Index index,
                       VariableTerms term,
                       std::shared_ptr<MPIVector> to_set) override;
+  void SetVariablePtr(GroupNumber group,
+                      VariableTerms term,
+                      std::shared_ptr<MPIVector> to_set) override;
 
  private:
   const std::unordered_set<VariableTerms> variable_terms_;

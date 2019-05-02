@@ -30,6 +30,9 @@ class RightHandSideI {
   virtual void SetVariablePtr(Index index,
                               VariableTerms term,
                               std::shared_ptr<MPIVector> to_set) = 0;
+  virtual void SetVariablePtr(GroupNumber group,
+                              VariableTerms term,
+                              std::shared_ptr<MPIVector> to_set) = 0;
 
 };
 
