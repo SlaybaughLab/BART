@@ -65,6 +65,11 @@ std::shared_ptr<MPIVector> RightHandSide::GetVariablePtr(Index index,
   }
 }
 
+std::shared_ptr<MPIVector> RightHandSide::GetVariablePtr(GroupNumber group,
+                                                         VariableTerms term) {
+  return GetVariablePtr({group, 0}, term);
+}
+
 
 } // namespace system
 

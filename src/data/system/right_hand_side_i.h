@@ -35,6 +35,8 @@ class RightHandSideI {
                               std::shared_ptr<MPIVector> to_set) = 0;
   virtual std::shared_ptr<MPIVector> GetVariablePtr(Index index,
                                                     VariableTerms term) = 0;
+  virtual std::shared_ptr<MPIVector> GetVariablePtr(GroupNumber group,
+                                                    VariableTerms term) = 0;
 
 };
 

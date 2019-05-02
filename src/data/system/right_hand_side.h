@@ -35,6 +35,8 @@ class RightHandSide : public RightHandSideI {
                       std::shared_ptr<MPIVector> to_set) override;
   std::shared_ptr<MPIVector> GetVariablePtr(Index index,
                                             VariableTerms term) override;
+  std::shared_ptr<MPIVector> GetVariablePtr(GroupNumber group,
+                                            VariableTerms term) override;
 
 
 

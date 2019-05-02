@@ -115,7 +115,23 @@ TEST_F(SystemRightHandSideTest, GetVariablePtrIndexTest) {
                                            VariableTerms::kFissionSource));
 }
 
+TEST_F(SystemRightHandSideTest, GetVariablePtrGroupTest) {
+  auto term = VariableTerms::kScatteringSource;
 
+  test_rhs.SetVariablePtr(0, term, test_vector);
+  test_rhs.SetVariablePtr({0,1}, term, double_test_vector);
+  test_rhs.SetVariablePtr(1, term, double_test_vector);
+  test_rhs.SetVariablePtr({1,1}, term, test_vector);
+
+  EXPECT_EQ(test_rhs.GetVariablePtr(0, term), test_vector);
+  EXPECT_EQ(test_rhs.GetVariablePtr({0,1}, term), double_test_vector);
+  EXPECT_EQ(test_rhs.GetVariablePtr(1, term), double_test_vector);
+  EXPECT_EQ(test_rhs.GetVariablePtr({1,1}, term), test_vector);
+
+  EXPECT_EQ(test_rhs.GetVariablePtr(2, term), nullptr);
+  EXPECT_ANY_THROW(test_rhs.GetVariablePtr(0,
+                                           VariableTerms::kFissionSource));
+}
 
 } // namespace
 
