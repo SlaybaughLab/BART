@@ -44,5 +44,12 @@ TEST_F(SystemRightHandSideFixedTest, SetFixedPtrTest) {
   EXPECT_EQ(test_vector.use_count(), 2);
 }
 
+TEST_F(SystemRightHandSideFixedTest, GetFixedPtrTest) {
+  test_rhs.SetFixedPtr({0,0}, test_vector);
+
+  EXPECT_EQ(test_vector, test_rhs.GetFixedPtr({0,0}));
+  EXPECT_EQ(nullptr, test_rhs.GetFixedPtr({1,0}));
+}
+
 } // namespace
 

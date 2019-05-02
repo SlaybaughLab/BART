@@ -12,6 +12,7 @@ namespace system {
 class RightHandSideI {
  public:
   virtual ~RightHandSideI() = default;
+  virtual std::shared_ptr<MPIVector> GetFixedPtr(Index index) = 0;
   virtual void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) = 0;
 };
 
