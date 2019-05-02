@@ -10,6 +10,13 @@ namespace data {
 
 namespace system {
 
+//! Group number for rhs and lhs
+using GroupNumber = int;
+//! Angle index for rhs and lhs
+using AngleIndex = int;
+//! Index used to store and access rhs vectors and lhs matrices
+using Index = std::pair<GroupNumber, AngleIndex>;
+
 //! Sparse MPI matrix used for left-hand-side matrices
 using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
 //! Sparse MPI vector used for ride-hand-side vectors
