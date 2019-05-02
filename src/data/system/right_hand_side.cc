@@ -55,7 +55,14 @@ void RightHandSide::SetVariablePtr(GroupNumber group,
 
 std::shared_ptr<MPIVector> RightHandSide::GetVariablePtr(Index index,
                                                          VariableTerms term) {
-  return nullptr;
+  AssertThrow(variable_terms_.count(term) != 0,
+              dealii::ExcMessage("Tried to access a right hand side with a variable "
+                                 "term that it does not have set as variable"));
+  try {
+    return variable_right_hand_side_terms_[term].at(index);
+  } catch (std::out_of_range &exc) {
+    return nullptr;
+  }
 }
 
 

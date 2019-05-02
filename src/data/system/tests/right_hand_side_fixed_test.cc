@@ -111,6 +111,8 @@ TEST_F(SystemRightHandSideTest, GetVariablePtrIndexTest) {
   EXPECT_EQ(test_rhs.GetVariablePtr({0,1}, term), double_test_vector);
 
   EXPECT_EQ(test_rhs.GetVariablePtr({2,0}, term), nullptr);
+  EXPECT_ANY_THROW(test_rhs.GetVariablePtr({0,0},
+                                           VariableTerms::kFissionSource));
 }
 
 
