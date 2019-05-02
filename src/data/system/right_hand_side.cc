@@ -31,6 +31,12 @@ std::shared_ptr<MPIVector> RightHandSide::GetFixedPtr(GroupNumber group) {
   return GetFixedPtr({group, 0});
 }
 
+void RightHandSide::SetVariablePtr(Index index,
+                                   VariableTerms term,
+                                   std::shared_ptr<MPIVector> to_set) {
+
+}
+
 } // namespace system
 
 } // namespace data

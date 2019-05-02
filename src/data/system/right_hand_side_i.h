@@ -22,10 +22,14 @@ class RightHandSideI {
 
   virtual std::unordered_set<VariableTerms> GetVariableTerms() const = 0;
 
-  virtual std::shared_ptr<MPIVector> GetFixedPtr(Index index) = 0;
-  virtual std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) = 0;
   virtual void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) = 0;
   virtual void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) = 0;
+  virtual std::shared_ptr<MPIVector> GetFixedPtr(Index index) = 0;
+  virtual std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) = 0;
+
+  virtual void SetVariablePtr(Index index,
+                              VariableTerms term,
+                              std::shared_ptr<MPIVector> to_set) = 0;
 
 };
 
