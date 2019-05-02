@@ -1,4 +1,4 @@
-#include "data/system/right_hand_side_fixed.h"
+#include "data/system/right_hand_side.h"
 
 #include <deal.II/base/mpi.h>
 #include <memory>
@@ -10,15 +10,15 @@ namespace  {
 using namespace bart;
 using data::system::MPIVector;
 
-class SystemRightHandSideFixedTest : public ::testing::Test {
+class SystemRightHandSideTest : public ::testing::Test {
  protected:
-  data::system::RightHandSideFixed test_rhs;
+  data::system::RightHandSide test_rhs;
   std::shared_ptr<MPIVector> test_vector, double_test_vector;
   void SetUp() override;
   void FillVector(MPIVector& to_fill, int multiple = 1);
 };
 
-void SystemRightHandSideFixedTest::SetUp() {
+void SystemRightHandSideTest::SetUp() {
   const int entries_per_processor = 10;
   const int n_processors =
       dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
@@ -33,7 +33,7 @@ void SystemRightHandSideFixedTest::SetUp() {
   FillVector(*double_test_vector, 2);
 }
 
-void SystemRightHandSideFixedTest::FillVector(MPIVector& to_fill,
+void SystemRightHandSideTest::FillVector(MPIVector& to_fill,
                                               const int multiple) {
   auto [first_entry, last_entry] = to_fill.local_range();
   for (unsigned int i = first_entry; i < last_entry; ++i) {
@@ -42,7 +42,7 @@ void SystemRightHandSideFixedTest::FillVector(MPIVector& to_fill,
   to_fill.compress(dealii::VectorOperation::insert);
 }
 
-TEST_F(SystemRightHandSideFixedTest, SetFixedPtrTest) {
+TEST_F(SystemRightHandSideTest, SetFixedPtrTest) {
   test_rhs.SetFixedPtr({0,0}, test_vector);
   test_rhs.SetFixedPtr(1, double_test_vector);
 
@@ -50,7 +50,7 @@ TEST_F(SystemRightHandSideFixedTest, SetFixedPtrTest) {
   EXPECT_EQ(double_test_vector.use_count(), 2);
 }
 
-TEST_F(SystemRightHandSideFixedTest, GetFixedPtrIndexTest) {
+TEST_F(SystemRightHandSideTest, GetFixedPtrIndexTest) {
   test_rhs.SetFixedPtr({0,0}, test_vector);
   test_rhs.SetFixedPtr({0,1}, double_test_vector);
 
@@ -60,7 +60,7 @@ TEST_F(SystemRightHandSideFixedTest, GetFixedPtrIndexTest) {
   EXPECT_EQ(test_rhs.GetFixedPtr({2,0}), nullptr);
 }
 
-TEST_F(SystemRightHandSideFixedTest, GetFixedPtrGroupTest) {
+TEST_F(SystemRightHandSideTest, GetFixedPtrGroupTest) {
   test_rhs.SetFixedPtr(0, test_vector);
   test_rhs.SetFixedPtr({0,1}, double_test_vector);
   test_rhs.SetFixedPtr(1, double_test_vector);

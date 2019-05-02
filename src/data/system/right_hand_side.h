@@ -12,11 +12,15 @@ namespace data {
 
 namespace system {
 
-class RightHandSideFixed : public RightHandSideI {
+class RightHandSide : public RightHandSideI {
  public:
-  virtual ~RightHandSideFixed() = default;
+  virtual ~RightHandSide() = default;
 
-  virtual std::shared_ptr<MPIVector> GetFixedPtr(Index index) {
+  std::unordered_set<VariableTerms> GetVariableTerms() const override {
+    return variable_terms_;
+  };
+
+  std::shared_ptr<MPIVector> GetFixedPtr(Index index) override {
     try {
       return fixed_right_hand_side_.at(index);
     } catch (std::out_of_range &exc) {
@@ -24,20 +28,21 @@ class RightHandSideFixed : public RightHandSideI {
     }
   };
 
-  virtual std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) {
+  std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) override {
     return GetFixedPtr({group, 0});
   };
 
-  void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) {
+  void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) override {
     fixed_right_hand_side_[index] = to_set;
   };
 
-  void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) {
+  void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) override {
     SetFixedPtr({group, 0}, to_set);
   }
 
 
  private:
+  std::unordered_set<VariableTerms> variable_terms_;
   std::map<Index, std::shared_ptr<MPIVector>> fixed_right_hand_side_;
 };
 
