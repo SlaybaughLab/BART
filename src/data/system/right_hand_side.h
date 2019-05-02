@@ -29,7 +29,7 @@ class RightHandSide : public RightHandSideI {
 
  private:
   const std::unordered_set<VariableTerms> variable_terms_;
-  std::map<Index, std::shared_ptr<MPIVector>> fixed_right_hand_side_;
+  std::map<Index, std::shared_ptr<MPIVector>> fixed_right_hand_side_ptrs_;
 };
 
 
