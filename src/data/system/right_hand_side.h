@@ -14,6 +14,7 @@ namespace system {
 
 class RightHandSide : public RightHandSideI {
  public:
+  explicit RightHandSide(std::unordered_set<VariableTerms> = {});
   virtual ~RightHandSide() = default;
 
   std::unordered_set<VariableTerms> GetVariableTerms() const override {
@@ -42,7 +43,7 @@ class RightHandSide : public RightHandSideI {
 
 
  private:
-  std::unordered_set<VariableTerms> variable_terms_;
+  const std::unordered_set<VariableTerms> variable_terms_;
   std::map<Index, std::shared_ptr<MPIVector>> fixed_right_hand_side_;
 };
 

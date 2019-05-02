@@ -1,7 +1,9 @@
 #include "data/system/right_hand_side.h"
 
-#include <deal.II/base/mpi.h>
 #include <memory>
+#include <unordered_set>
+
+#include <deal.II/base/mpi.h>
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -9,9 +11,12 @@ namespace  {
 
 using namespace bart;
 using data::system::MPIVector;
+using VariableTerms = data::system::RightHandSide::VariableTerms;
 
 class SystemRightHandSideTest : public ::testing::Test {
  protected:
+  SystemRightHandSideTest()
+      : test_rhs({VariableTerms::kScatteringSource}) {};
   data::system::RightHandSide test_rhs;
   std::shared_ptr<MPIVector> test_vector, double_test_vector;
   void SetUp() override;
@@ -40,6 +45,13 @@ void SystemRightHandSideTest::FillVector(MPIVector& to_fill,
     to_fill(i) = i * multiple;
   }
   to_fill.compress(dealii::VectorOperation::insert);
+}
+
+TEST_F(SystemRightHandSideTest, Constructor) {
+  std::unordered_set<VariableTerms> variable_terms =
+      {VariableTerms::kScatteringSource};
+
+  EXPECT_EQ(test_rhs.GetVariableTerms(), variable_terms);
 }
 
 TEST_F(SystemRightHandSideTest, SetFixedPtrTest) {
