@@ -13,7 +13,7 @@ using data::system::MPIVector;
 class SystemRightHandSideFixedTest : public ::testing::Test {
  protected:
   data::system::RightHandSideFixed test_rhs;
-  std::shared_ptr<MPIVector> test_vector;
+  std::shared_ptr<MPIVector> test_vector, double_test_vector;
   void SetUp() override;
   void FillVector(MPIVector& to_fill, int multiple = 1);
 };
@@ -26,7 +26,11 @@ void SystemRightHandSideFixedTest::SetUp() {
   test_vector = std::make_shared<MPIVector>(MPI_COMM_WORLD,
                                             entries_per_processor*n_processors,
                                             entries_per_processor);
+  double_test_vector = std::make_shared<MPIVector>();
+  double_test_vector->reinit(*test_vector);
+
   FillVector(*test_vector);
+  FillVector(*double_test_vector, 2);
 }
 
 void SystemRightHandSideFixedTest::FillVector(MPIVector& to_fill,
@@ -40,15 +44,34 @@ void SystemRightHandSideFixedTest::FillVector(MPIVector& to_fill,
 
 TEST_F(SystemRightHandSideFixedTest, SetFixedPtrTest) {
   test_rhs.SetFixedPtr({0,0}, test_vector);
+  test_rhs.SetFixedPtr(1, double_test_vector);
 
   EXPECT_EQ(test_vector.use_count(), 2);
+  EXPECT_EQ(double_test_vector.use_count(), 2);
 }
 
-TEST_F(SystemRightHandSideFixedTest, GetFixedPtrTest) {
+TEST_F(SystemRightHandSideFixedTest, GetFixedPtrIndexTest) {
   test_rhs.SetFixedPtr({0,0}, test_vector);
+  test_rhs.SetFixedPtr({0,1}, double_test_vector);
 
-  EXPECT_EQ(test_vector, test_rhs.GetFixedPtr({0,0}));
-  EXPECT_EQ(nullptr, test_rhs.GetFixedPtr({1,0}));
+  EXPECT_EQ(test_rhs.GetFixedPtr({0,0}), test_vector);
+  EXPECT_EQ(test_rhs.GetFixedPtr({0,1}), double_test_vector);
+
+  EXPECT_EQ(test_rhs.GetFixedPtr({2,0}), nullptr);
+}
+
+TEST_F(SystemRightHandSideFixedTest, GetFixedPtrGroupTest) {
+  test_rhs.SetFixedPtr(0, test_vector);
+  test_rhs.SetFixedPtr({0,1}, double_test_vector);
+  test_rhs.SetFixedPtr(1, double_test_vector);
+  test_rhs.SetFixedPtr({1,1}, test_vector);
+
+  EXPECT_EQ(test_rhs.GetFixedPtr(0), test_vector);
+  EXPECT_EQ(test_rhs.GetFixedPtr({0,1}), double_test_vector);
+  EXPECT_EQ(test_rhs.GetFixedPtr(1), double_test_vector);
+  EXPECT_EQ(test_rhs.GetFixedPtr({1,1}), test_vector);
+
+  EXPECT_EQ(test_rhs.GetFixedPtr(2), nullptr);
 }
 
 } // namespace

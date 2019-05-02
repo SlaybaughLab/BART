@@ -24,10 +24,17 @@ class RightHandSideFixed : public RightHandSideI {
     }
   };
 
+  virtual std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) {
+    return GetFixedPtr({group, 0});
+  };
+
   void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) {
     fixed_right_hand_side_[index] = to_set;
   };
 
+  void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) {
+    SetFixedPtr({group, 0}, to_set);
+  }
 
 
  private:
