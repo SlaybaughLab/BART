@@ -53,6 +53,10 @@ void RightHandSide::SetVariablePtr(GroupNumber group,
   SetVariablePtr({group, 0}, term, to_set);
 }
 
+std::shared_ptr<MPIVector> RightHandSide::GetVariablePtr(Index index,
+                                                         VariableTerms term) {
+  return nullptr;
+}
 
 
 } // namespace system

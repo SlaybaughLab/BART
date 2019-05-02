@@ -102,6 +102,18 @@ TEST_F(SystemRightHandSideTest, SetVariablePtrTest) {
                                            test_vector));
 }
 
+TEST_F(SystemRightHandSideTest, GetVariablePtrIndexTest) {
+  auto term = VariableTerms::kScatteringSource;
+  test_rhs.SetVariablePtr({0,0}, term, test_vector);
+  test_rhs.SetVariablePtr({0,1}, term, double_test_vector);
+
+  EXPECT_EQ(test_rhs.GetVariablePtr({0,0}, term), test_vector);
+  EXPECT_EQ(test_rhs.GetVariablePtr({0,1}, term), double_test_vector);
+
+  EXPECT_EQ(test_rhs.GetVariablePtr({2,0}, term), nullptr);
+}
+
+
 
 } // namespace
 
