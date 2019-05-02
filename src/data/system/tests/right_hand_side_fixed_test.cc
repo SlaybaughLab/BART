@@ -86,5 +86,7 @@ TEST_F(SystemRightHandSideTest, GetFixedPtrGroupTest) {
   EXPECT_EQ(test_rhs.GetFixedPtr(2), nullptr);
 }
 
+
+
 } // namespace
 

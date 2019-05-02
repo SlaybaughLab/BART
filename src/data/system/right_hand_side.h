@@ -21,26 +21,11 @@ class RightHandSide : public RightHandSideI {
     return variable_terms_;
   };
 
-  std::shared_ptr<MPIVector> GetFixedPtr(Index index) override {
-    try {
-      return fixed_right_hand_side_.at(index);
-    } catch (std::out_of_range &exc) {
-      return nullptr;
-    }
-  };
+  void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) override;
+  void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) override;
 
-  std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) override {
-    return GetFixedPtr({group, 0});
-  };
-
-  void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) override {
-    fixed_right_hand_side_[index] = to_set;
-  };
-
-  void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) override {
-    SetFixedPtr({group, 0}, to_set);
-  }
-
+  std::shared_ptr<MPIVector> GetFixedPtr(Index index) override;
+  std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) override;
 
  private:
   const std::unordered_set<VariableTerms> variable_terms_;
