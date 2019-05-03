@@ -11,7 +11,7 @@ namespace updater {
 
 class SourceUpdaterGaussSeidel : public SourceUpdater {
  public:
-
+  void UpdateScatteringSource(System& system);
 };
 
 } // namespace updater

@@ -12,6 +12,7 @@ namespace updater {
 class SourceUpdater : public SourceUpdaterI {
  public:
   virtual ~SourceUpdater() = default;
+
 };
 
 } // namespace updater

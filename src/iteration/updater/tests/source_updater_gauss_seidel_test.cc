@@ -4,8 +4,11 @@
 
 namespace  {
 
+using namespace bart;
+
 class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  protected:
+  iteration::updater::SourceUpdaterGaussSeidel test_updater;
 };
 
 TEST_F(IterationSourceUpdaterGaussSeidelTest, Dummy) {
