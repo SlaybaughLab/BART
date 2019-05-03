@@ -4,7 +4,7 @@
 #include <unordered_set>
 
 #include "data/moment_types.h"
-#include "formulation/stamper_i.h"
+#include "formulation/basic_stamper_i.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
@@ -20,8 +20,8 @@ namespace formulation {
  *
  * @tparam dim spatial dimension of the problem.
  */
-template <int dim>
-class CFEM_DiffusionStamperI : public StamperI<dim> {
+
+class CFEM_DiffusionStamperI : public BasicStamperI {
  public:
   using GroupNumber = int;
   using Boundary = bart::problem::Boundary;

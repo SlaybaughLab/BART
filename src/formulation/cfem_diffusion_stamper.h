@@ -17,7 +17,7 @@ namespace bart {
 namespace formulation {
 
 template <int dim>
-class CFEM_DiffusionStamper : public CFEM_DiffusionStamperI<dim> {
+class CFEM_DiffusionStamper : public CFEM_DiffusionStamperI {
  public:
   using GroupNumber = int;
   using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
