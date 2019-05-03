@@ -1,34 +1,46 @@
-#ifndef BART_SRC_FORMULATION_CFEM_DIFFUSION_STAMPER_I_H_
-#define BART_SRC_FORMULATION_CFEM_DIFFUSION_STAMPER_I_H_
+#ifndef BART_SRC_FORMULATION_CFEM_STAMPER_I_H_
+#define BART_SRC_FORMULATION_CFEM_STAMPER_I_H_
 
 #include <unordered_set>
 
 #include "data/moment_types.h"
-#include "formulation/basic_stamper_i.h"
+#include "formulation/stamper_i.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
 
 namespace formulation {
 
-/*! Stamps terms of the CFEM Diffusion equation onto MPI matrices and vectors.
+/*! Stamps terms of a basic CFEM formulation onto MPI matrices and vectors.
  *
  * Functions in this class take input matrices or vectors, and stamps the
  * contribution from each cell in the mesh. In general, this class will iterate
  * over all the cells, call the formulation to get a cell matrix, and then
  * stamp that onto the MPI matrix.
  *
- * @tparam dim spatial dimension of the problem.
+ * The basic stamper stamps the following terms:
+ *
+ * Bilinear (take a matrix as an input)
+ *  - Streaming
+ *  - Collision
+ *  - Boundary
+ *
+ * Linear (take a vector as an input)
+ *  - Fixed source
+ *  - Fission source
+ *  - Scattering source
+ *
+ * Source terms are calculated using moments.
  */
 
-class CFEM_DiffusionStamperI : public BasicStamperI {
+class CFEMStamperI : public StamperI {
  public:
   using GroupNumber = int;
   using Boundary = bart::problem::Boundary;
   using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
   using MPIVector = dealii::PETScWrappers::MPI::Vector;
 
-  virtual ~CFEM_DiffusionStamperI() = default;
+  virtual ~CFEMStamperI() = default;
 
   /*! Stamps all cell streaming term matrices onto the system matrix.
    *
@@ -95,14 +107,14 @@ class CFEM_DiffusionStamperI : public BasicStamperI {
    * @param boundary boundary to add.
    * @return this object
    */
-  virtual CFEM_DiffusionStamperI& AddReflectiveBoundary(Boundary boundary) = 0;
+  virtual CFEMStamperI& AddReflectiveBoundary(Boundary boundary) = 0;
 
   /*! Removes a system reflective boundary.
    *
    * @param boundary boundary to remove.
    * @return this object
    */
-  virtual CFEM_DiffusionStamperI& RemoveReflectiveBoundary(Boundary boundary) = 0;
+  virtual CFEMStamperI& RemoveReflectiveBoundary(Boundary boundary) = 0;
 
   /*! Returns the reflective boundary conditions.
    *
@@ -116,4 +128,4 @@ class CFEM_DiffusionStamperI : public BasicStamperI {
 
 } // namespace bart
 
-#endif // BART_SRC_FORMULATION_CFEM_DIFFUSION_STAMPER_I_H_
+#endif // BART_SRC_FORMULATION_CFEM_STAMPER_I_H_

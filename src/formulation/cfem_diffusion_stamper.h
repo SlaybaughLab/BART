@@ -9,7 +9,7 @@
 #include "data/moment_types.h"
 #include "domain/definition_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
-#include "formulation/cfem_diffusion_stamper_i.h"
+#include "formulation/cfem_stamper_i.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
@@ -17,7 +17,7 @@ namespace bart {
 namespace formulation {
 
 template <int dim>
-class CFEM_DiffusionStamper : public CFEM_DiffusionStamperI {
+class CFEM_DiffusionStamper : public CFEMStamperI {
  public:
   using GroupNumber = int;
   using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
