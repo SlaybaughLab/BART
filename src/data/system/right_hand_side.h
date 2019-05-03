@@ -4,7 +4,7 @@
 #include <memory>
 #include <map>
 
-#include "data/system/rhs_lhs_types.h"
+#include "data/system/system_types.h"
 #include "data/system/right_hand_side_i.h"
 
 namespace bart {
