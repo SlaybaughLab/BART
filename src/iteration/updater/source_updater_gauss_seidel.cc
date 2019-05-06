@@ -6,9 +6,12 @@ namespace iteration {
 
 namespace updater {
 
-void SourceUpdaterGaussSeidel::UpdateScatteringSource(System& system) {
+template <typename StamperType>
+void SourceUpdaterGaussSeidel<StamperType>::UpdateScatteringSource(System& system) {
 
 }
+
+template class SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
 
 } // namespace updater
 
