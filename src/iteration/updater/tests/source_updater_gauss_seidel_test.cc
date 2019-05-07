@@ -72,15 +72,20 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
    */
   data::system::MomentsMap current_iteration, previous_iteration;
 
+  int l_max = 2;
+
   for (data::system::GroupNumber group = 0; group < 5; ++group) {
-    for (data::system::HarmonicL l = 0; l < 2; ++l) {
-      for (data::system::HarmonicM m = -l; m <= l; ++m) {
+    for (data::system::HarmonicL l = 0; l < l_max; ++l) {
+      for (data::system::HarmonicM m = -l_max; m <= l_max; ++m) {
         data::system::MomentVector current_moment, previous_moment;
         current_iteration[{group, l, m}] = current_moment;
         previous_iteration[{group, l, m}] = previous_moment;
       }
     }
   }
+
+  test_system_.current_iteration_moments = current_iteration;
+  test_system_.previous_iteration_moments = previous_iteration;
 
   /* Initialize MPI Vectors */
   source_vector_ptr_ = std::make_shared<MPIVector>();
@@ -180,6 +185,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadRHS) {
       .WillOnce(Return(nullptr));
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  test_system_.k_effective = 1.0;
   CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
 
   EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
@@ -192,6 +198,21 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadMoment) {
   CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
 
   EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 10, 0));
+}
+
+// Verify a bad keffective value (0, negative, or nullopt) returns an error
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadKeff) {
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+
+  // k_effective is still nullopt
+  EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
+
+  test_system_.k_effective = 0;
+  EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
+
+  test_system_.k_effective = -1;
+  EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
 }
 
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
