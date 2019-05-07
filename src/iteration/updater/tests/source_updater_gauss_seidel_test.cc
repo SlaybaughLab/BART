@@ -13,6 +13,7 @@
 #include "data/system/tests/right_hand_side_mock.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "formulation/cfem_stamper_i.h"
+#include "test_helpers/test_assertions.h"
 
 
 namespace  {
@@ -23,8 +24,10 @@ using data::system::MPIVector;
 using ::testing::An;
 using ::testing::Ref;
 using ::testing::DoDefault;
+using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::WithArgs;
 using ::testing::_;
 
 /* This test class verifies the operation of the SourceUpdaterGaussSeidel class.
@@ -44,6 +47,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
   // Vector returned by the mock RightHandSide object when the variable
   // right hand side vector is requested. This is what should be stamped.
   std::shared_ptr<MPIVector> source_vector_ptr_;
+  MPIVector expected_vector_;
 
   // Required mocks
   std::unique_ptr<formulation::CFEM_StamperMock> mock_stamper_ptr_;
@@ -67,6 +71,10 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
   ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::GroupNumber>(),_))
       .WillByDefault(Return(source_vector_ptr_));
 
+  /* Create and populate moment maps. The inserted MomentVectors can be empty
+   * because we will check that the correct ones are passed by reference not
+   * entries.
+   */
   data::system::MomentsMap current_iteration, previous_iteration;
 
   for (data::system::GroupNumber group = 0; group < 5; ++group) {
@@ -78,6 +86,21 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
       }
     }
   }
+
+  /* Initialize MPI Vectors */
+  source_vector_ptr_ = std::make_shared<MPIVector>();
+  auto n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  source_vector_ptr_->reinit(MPI_COMM_WORLD,
+                             n_processes*5,
+                             5);
+  expected_vector_.reinit(*source_vector_ptr_);
+}
+// Fills an MPI vector with value
+void StampMPIVector(MPIVector &to_fill, double value = 2) {
+  auto [local_begin, local_end] = to_fill.local_range();
+  for (unsigned int i = local_begin; i < local_end; ++i)
+    to_fill(i) += value;
+  to_fill.compress(dealii::VectorOperation::add);
 }
 
 // Verifies that the Updater takes ownership of the stamper.
@@ -92,20 +115,34 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTest) {
   data::system::GroupNumber group = btest::RandomDouble(0, 6);
   data::system::AngleIndex angle = btest::RandomDouble(0, 10);
+  data::system::Index index = {group, angle};
+  // Fill source vector with the value 2
+  StampMPIVector(*source_vector_ptr_, 3);
+  StampMPIVector(expected_vector_, group + 3);
 
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(group, VariableTerms::kScatteringSource))
+
+  /* Call expectations, expect to retrieve the scattering term vector from RHS
+   * and then stamp it. We invoke the StampMPIVector function, which STAMPS a
+   * vector. We make sure that the original value of 3, filled above, was zerod
+   * out and replace by the default call value of 2.
+   */
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(index,
+                                             VariableTerms::kScatteringSource))
       .WillOnce(DoDefault());
   EXPECT_CALL(*mock_stamper_ptr_,
       StampScatteringSource(Ref(*source_vector_ptr_), // Vector to stamp from mock RHS
                             group,                    // Group specified by the test
                             Ref(test_system_.current_iteration[{group, 0, 0}]), // Current scalar flux for in-group
-                            Ref(test_system_.current_iteration)));              // Current moments for out-group
+                            Ref(test_system_.current_iteration)))               // Current moments for out-group
+      .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
+
 
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
   CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
   test_updater.UpdateScatteringSource(test_system_, group, angle);
 
+  EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
+                                               expected_vector_));
 
 }
-
 } // namespace
