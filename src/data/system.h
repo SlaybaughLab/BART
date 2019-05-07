@@ -10,14 +10,9 @@ namespace bart {
 
 namespace data {
 
-namespace system {
-
 struct System {
-  std::unique_ptr<RightHandSideI> right_hand_side_ptr_;
+  std::unique_ptr<system::RightHandSideI> right_hand_side_ptr_;
 };
-
-} // namespace system
-
 } // namespace data
 
 } // namespace bart

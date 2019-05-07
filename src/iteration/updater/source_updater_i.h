@@ -2,7 +2,7 @@
 #define BART_SRC_ITERATION_UPDATER_SOURCE_UPDATER_I_H_
 
 #include "data/system/system_types.h"
-#include "data/system/system.h"
+#include "data/system.h"
 
 namespace bart {
 
@@ -12,10 +12,9 @@ namespace updater {
 
 class SourceUpdaterI {
  public:
-  using System = data::system::System;
   virtual ~SourceUpdaterI() = default;
 
-  virtual void UpdateScatteringSource(System& system,
+  virtual void UpdateScatteringSource(data::System& system,
                                       data::system::Index index) = 0;
 };
 

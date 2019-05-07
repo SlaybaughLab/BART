@@ -7,7 +7,7 @@
 
 #include "test_helpers/gmock_wrapper.h"
 #include "data/moment_types.h"
-#include "data/system/system.h"
+#include "data/system.h"
 #include "data/system/system_types.h"
 #include "data/system/tests/right_hand_side_mock.h"
 #include "formulation/tests/cfem_stamper_mock.h"
@@ -36,7 +36,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
   using CFEMSourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
 
   // Required objects
-  data::system::System test_system_;
+  data::System test_system_;
   std::shared_ptr<MPIVector> source_vector_ptr_;
 
   // Required mocks

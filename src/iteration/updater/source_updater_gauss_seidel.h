@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "data/system/system.h"
+#include "data/system.h"
 #include "data/system/system_types.h"
 #include "iteration/updater/source_updater.h"
 
@@ -20,7 +20,7 @@ class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
   explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
 
-  void UpdateScatteringSource(data::system::System& system,
+  void UpdateScatteringSource(data::System& system,
                               data::system::Index index) override;
 };
 
