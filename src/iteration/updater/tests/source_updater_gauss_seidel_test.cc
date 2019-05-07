@@ -5,6 +5,7 @@
 #include <deal.II/base/mpi.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 
+#include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "data/moment_types.h"
 #include "data/system.h"
@@ -20,7 +21,8 @@ using namespace bart;
 using data::system::MPIVector;
 
 using ::testing::An;
-using ::testing::ByRef;
+using ::testing::Ref;
+using ::testing::DoDefault;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::_;
@@ -34,9 +36,13 @@ using ::testing::_;
 class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  protected:
   using CFEMSourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
+  using VariableTerms = data::system::RightHandSideI::VariableTerms;
 
   // Required objects
+  // Test system
   data::System test_system_;
+  // Vector returned by the mock RightHandSide object when the variable
+  // right hand side vector is requested. This is what should be stamped.
   std::shared_ptr<MPIVector> source_vector_ptr_;
 
   // Required mocks
@@ -61,8 +67,6 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
   ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::GroupNumber>(),_))
       .WillByDefault(Return(source_vector_ptr_));
 
-  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-
   data::system::MomentsMap current_iteration, previous_iteration;
 
   for (data::system::GroupNumber group = 0; group < 5; ++group) {
@@ -79,12 +83,29 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
 // Verifies that the Updater takes ownership of the stamper.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
   CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+
   EXPECT_EQ(mock_stamper_ptr_, nullptr);
 }
 
 // Verifies operation of the UpdateScatteringSource function
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTest) {
+  data::system::GroupNumber group = btest::RandomDouble(0, 6);
+  data::system::AngleIndex angle = btest::RandomDouble(0, 10);
+
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(group, VariableTerms::kScatteringSource))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*mock_stamper_ptr_,
+      StampScatteringSource(Ref(*source_vector_ptr_), // Vector to stamp from mock RHS
+                            group,                    // Group specified by the test
+                            Ref(test_system_.current_iteration[{group, 0, 0}]), // Current scalar flux for in-group
+                            Ref(test_system_.current_iteration)));              // Current moments for out-group
+
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
   CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  test_updater.UpdateScatteringSource(test_system_, group, angle);
+
+
 }
 
 } // namespace
