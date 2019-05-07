@@ -62,6 +62,18 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
       .WillByDefault(Return(source_vector_ptr_));
 
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+
+  data::system::MomentsMap current_iteration, previous_iteration;
+
+  for (data::system::GroupNumber group = 0; group < 5; ++group) {
+    for (data::system::HarmonicL l = 0; l < 2; ++l) {
+      for (data::system::HarmonicM m = -l; m <= l; ++m) {
+        data::system::MomentVector current_moment, previous_moment;
+        current_iteration[{group, l, m}] = current_moment;
+        previous_iteration[{group, l, m}] = previous_moment;
+      }
+    }
+  }
 }
 
 // Verifies that the Updater takes ownership of the stamper.
