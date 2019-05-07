@@ -7,7 +7,9 @@ namespace iteration {
 namespace updater {
 
 template <typename StamperType>
-void SourceUpdaterGaussSeidel<StamperType>::UpdateScatteringSource(System& system) {
+void SourceUpdaterGaussSeidel<StamperType>::UpdateScatteringSource(
+    data::system::System& system,
+    data::system::Index index) {
 
 }
 

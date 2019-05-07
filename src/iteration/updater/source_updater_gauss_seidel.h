@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "data/system/system.h"
+#include "data/system/system_types.h"
 #include "iteration/updater/source_updater.h"
 
 
@@ -15,11 +17,11 @@ namespace updater {
 template <typename StamperType>
 class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
-  using typename SourceUpdaterI::System;
-
   explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
-  void UpdateScatteringSource(System& system) override;
+
+  void UpdateScatteringSource(data::system::System& system,
+                              data::system::Index index) override;
 };
 
 } // namespace updater
