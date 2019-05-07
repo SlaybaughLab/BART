@@ -63,7 +63,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  * required dependency, it is passed in the constructor.
  */
 void IterationSourceUpdaterGaussSeidelTest::SetUp() {
-  mock_stamper_ptr_ = std::make_unique<formulation::CFEM_StamperMock>();
+  mock_stamper_ptr_ = std::make_unique<NiceMock<formulation::CFEM_StamperMock>>();
   mock_rhs_ptr_ = std::make_unique<NiceMock<data::system::RightHandSideMock>>();
 
   /* Create and populate moment maps. The inserted MomentVectors can be empty
@@ -111,6 +111,26 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
   EXPECT_EQ(mock_stamper_ptr_, nullptr);
 }
 
+// Verifies UpdateScatteringSource throws if RHS returns a null vector.
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadRHS) {
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
+      .WillOnce(Return(nullptr));
+  // Final Set up
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+
+  EXPECT_ANY_THROW(test_updater.UpdateScatteringSource(test_system_, 0, 0));
+}
+
+// Verify trying to update a group that has no moment returns an error
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadMoment) {
+  // Final Set up
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+
+  EXPECT_ANY_THROW(test_updater.UpdateScatteringSource(test_system_, 10, 0));
+}
+
 // Verifies operation of the UpdateScatteringSource function
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
   data::system::GroupNumber group = btest::RandomDouble(1, 3);
@@ -124,7 +144,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
   /* Call expectations, expect to retrieve the scattering term vector from RHS
    * and then stamp it. We invoke the StampMPIVector function, which STAMPS a
    * vector. We make sure that the original value of 3, filled above, was zerod
-   * out and replace by the default call value of 2.
+   * out and replaced by the random group number.
    */
   EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(index,
                                              VariableTerms::kScatteringSource))
@@ -136,13 +156,15 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
                             Ref(test_system_.current_iteration_moments)))
       .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
 
-
+  // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
   CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  // Tested call
   test_updater.UpdateScatteringSource(test_system_, group, angle);
 
   EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
                                                expected_vector_));
-
 }
+
+
 } // namespace
