@@ -111,6 +111,10 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
   EXPECT_EQ(mock_stamper_ptr_, nullptr);
 }
 
+/*
+ * ======== UpdateScatteringSource Tests =======================================
+ */
+
 // Verifies UpdateScatteringSource throws if RHS returns a null vector.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadRHS) {
   EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
@@ -166,5 +170,66 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
                                                expected_vector_));
 }
 
+/*
+ * ======== UpdateFissionSource Tests ==========================================
+ */
+
+// Verifies UpdateFissionSource throws if RHS returns a null vector.
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadRHS) {
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
+      .WillOnce(Return(nullptr));
+  // Final Set up
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+
+  EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
+}
+
+// Verify trying to update a group that has no moment returns an error
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadMoment) {
+  // Final Set up
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+
+  EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 10, 0));
+}
+
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
+  data::system::GroupNumber group = btest::RandomDouble(1, 3);
+  data::system::AngleIndex angle = btest::RandomDouble(0, 10);
+  data::system::Index index = {group, angle};
+  // Fill source vector with the value 3
+  StampMPIVector(*source_vector_ptr_, 3);
+  // Expected value identical to the group, which is [1, 3)
+  StampMPIVector(expected_vector_, group);
+  double k_effective = 1.05;
+  test_system_.k_effective = k_effective;
+
+
+  /* Call expectations, expect to retrieve the fission term vector from RHS
+   * and then stamp it. We invoke the StampMPIVector function, which STAMPS a
+   * vector. We make sure that the original value of 3, filled above, was zerod
+   * out and replaced by the random group number.
+   */
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(index,
+                                             VariableTerms::kFissionSource))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*mock_stamper_ptr_,
+              StampFissionSource(Ref(*source_vector_ptr_),
+                                 group,
+                                 k_effective,
+                                 Ref(test_system_.current_iteration_moments[{group, 0, 0}]),
+                                 Ref(test_system_.current_iteration_moments)))
+      .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
+
+  // Final Set up
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
+  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  // Tested call
+  test_updater.UpdateFissionSource(test_system_, group, angle);
+
+  EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
+                                               expected_vector_));
+}
 
 } // namespace
