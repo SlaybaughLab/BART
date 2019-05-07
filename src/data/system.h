@@ -12,6 +12,10 @@ namespace data {
 
 struct System {
   std::unique_ptr<system::RightHandSideI> right_hand_side_ptr_;
+  //! Flux moments for the current iteration
+  system::MomentsMap current_iteration = {};
+  //! Flux moments for the previous iteration
+  system::MomentsMap previous_iteration = {};
 };
 } // namespace data
 
