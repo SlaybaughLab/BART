@@ -21,7 +21,8 @@ class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
 
   void UpdateScatteringSource(data::System& system,
-                              data::system::Index index) override;
+                              data::system::GroupNumber group,
+                              data::system::AngleIndex angle) override;
 };
 
 } // namespace updater

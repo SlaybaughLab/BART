@@ -9,7 +9,8 @@ namespace updater {
 template <typename StamperType>
 void SourceUpdaterGaussSeidel<StamperType>::UpdateScatteringSource(
     data::System& system,
-    data::system::Index index) {
+    data::system::GroupNumber group,
+    data::system::AngleIndex angle) {
 
 }
 

@@ -15,7 +15,8 @@ class SourceUpdaterI {
   virtual ~SourceUpdaterI() = default;
 
   virtual void UpdateScatteringSource(data::System& system,
-                                      data::system::Index index) = 0;
+                                      data::system::GroupNumber group,
+                                      data::system::AngleIndex angle) = 0;
 };
 
 } // namespace updater
