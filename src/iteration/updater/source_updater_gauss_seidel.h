@@ -23,6 +23,9 @@ class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
   void UpdateScatteringSource(data::System& system,
                               data::system::GroupNumber group,
                               data::system::AngleIndex angle) override;
+  void UpdateFissionSource(data::System& system,
+                           data::system::GroupNumber group,
+                           data::system::AngleIndex angle) override;
 };
 
 } // namespace updater

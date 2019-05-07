@@ -17,6 +17,9 @@ class SourceUpdaterI {
   virtual void UpdateScatteringSource(data::System& system,
                                       data::system::GroupNumber group,
                                       data::system::AngleIndex angle) = 0;
+  virtual void UpdateFissionSource(data::System& system,
+                                   data::system::GroupNumber group,
+                                   data::system::AngleIndex angle) = 0;
 };
 
 } // namespace updater
