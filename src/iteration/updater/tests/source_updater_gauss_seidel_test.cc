@@ -66,11 +66,6 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
   mock_stamper_ptr_ = std::make_unique<formulation::CFEM_StamperMock>();
   mock_rhs_ptr_ = std::make_unique<NiceMock<data::system::RightHandSideMock>>();
 
-  ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
-      .WillByDefault(Return(source_vector_ptr_));
-  ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::GroupNumber>(),_))
-      .WillByDefault(Return(source_vector_ptr_));
-
   /* Create and populate moment maps. The inserted MomentVectors can be empty
    * because we will check that the correct ones are passed by reference not
    * entries.
@@ -94,6 +89,11 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
                              n_processes*5,
                              5);
   expected_vector_.reinit(*source_vector_ptr_);
+
+  ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
+      .WillByDefault(Return(source_vector_ptr_));
+  ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::GroupNumber>(),_))
+      .WillByDefault(Return(source_vector_ptr_));
 }
 // Fills an MPI vector with value
 void StampMPIVector(MPIVector &to_fill, double value = 2) {
@@ -112,13 +112,13 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
 }
 
 // Verifies operation of the UpdateScatteringSource function
-TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTest) {
-  data::system::GroupNumber group = btest::RandomDouble(0, 6);
+TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
+  data::system::GroupNumber group = btest::RandomDouble(1, 3);
   data::system::AngleIndex angle = btest::RandomDouble(0, 10);
   data::system::Index index = {group, angle};
   // Fill source vector with the value 2
   StampMPIVector(*source_vector_ptr_, 3);
-  StampMPIVector(expected_vector_, group + 3);
+  StampMPIVector(expected_vector_, group);
 
 
   /* Call expectations, expect to retrieve the scattering term vector from RHS
@@ -130,10 +130,10 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTest) {
                                              VariableTerms::kScatteringSource))
       .WillOnce(DoDefault());
   EXPECT_CALL(*mock_stamper_ptr_,
-      StampScatteringSource(Ref(*source_vector_ptr_), // Vector to stamp from mock RHS
-                            group,                    // Group specified by the test
-                            Ref(test_system_.current_iteration[{group, 0, 0}]), // Current scalar flux for in-group
-                            Ref(test_system_.current_iteration)))               // Current moments for out-group
+      StampScatteringSource(Ref(*source_vector_ptr_),
+                            group,
+                            Ref(test_system_.current_iteration_moments[{group, 0, 0}]),
+                            Ref(test_system_.current_iteration_moments)))
       .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
 
 
