@@ -2,6 +2,7 @@
 #define BART_DATA_SYSTEM_SYSTEM_H_
 
 #include <memory>
+#include <optional>
 
 #include "data/system/system_types.h"
 #include "data/system/right_hand_side_i.h"
@@ -16,6 +17,8 @@ struct System {
   system::MomentsMap current_iteration_moments = {};
   //! Flux moments for the previous iteration
   system::MomentsMap previous_iteration_moments = {};
+  //! System k_effective
+  std::optional<double> k_effective = std::nullopt;
 };
 } // namespace data
 
