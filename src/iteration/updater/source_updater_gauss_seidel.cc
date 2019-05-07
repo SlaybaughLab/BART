@@ -1,5 +1,7 @@
 #include "iteration/updater/source_updater_gauss_seidel.h"
 
+#include <sstream>
+
 namespace bart {
 
 namespace iteration {
@@ -18,7 +20,16 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource
       system.right_hand_side_ptr_->GetVariablePtr({group, angle},
                                                   VariableTerms::kScatteringSource);
 
-  data::MomentVector& in_group_moment = system.current_iteration_moments[{group, 0, 0}];
+  if (scattering_source_vector_ptr_ == nullptr) {
+    std::ostringstream oss;
+    oss << "Right hand sidse returned nullptr for group " << group << " angle"
+        << angle << "combination";
+    AssertThrow(false, dealii::ExcMessage(oss.str()));
+  }
+
+  data::MomentVector &in_group_moment =
+      system.current_iteration_moments.at({group, 0, 0});
+
   data::MomentsMap& out_group_moments = system.current_iteration_moments;
 
   *scattering_source_vector_ptr_ = 0;
