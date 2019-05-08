@@ -17,6 +17,9 @@ namespace updater {
 template <typename StamperType>
 class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
+
+  using VariableTerms = data::system::RightHandSideI::VariableTerms;
+
   explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
 
