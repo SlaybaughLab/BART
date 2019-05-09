@@ -15,8 +15,8 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource
     data::system::AngleIndex angle) {
 
   auto scattering_source_vector_ptr_ =
-      this->GetSourceVectorPtr(system, group, angle,
-                               VariableTerms::kScatteringSource);
+      this->GetSourceVectorPtr(VariableTerms::kScatteringSource,
+                               system, group, angle);
 
   *scattering_source_vector_ptr_ = 0;
 
@@ -49,8 +49,9 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateFissionSource(
   AssertThrow(k_effective > 0, dealii::ExcMessage("Bad k_effective value"));
 
   auto scattering_source_vector_ptr_ =
-      this->GetSourceVectorPtr(system, group, angle,
-                               VariableTerms::kFissionSource);
+      this->GetSourceVectorPtr(VariableTerms::kFissionSource,
+                               system, group, angle);
+
 
   *scattering_source_vector_ptr_ = 0;
 

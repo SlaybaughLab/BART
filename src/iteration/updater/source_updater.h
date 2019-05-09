@@ -23,22 +23,18 @@ class SourceUpdater : public SourceUpdaterI {
       : stamper_ptr_(std::move(stamper_ptr)) {};
   virtual ~SourceUpdater() override = default;
 
-  std::shared_ptr<MPIVector> GetSourceVectorPtr(data::System& system,
+  /*! Returns the right hand side vector from the system for a specific source term.
+   *
+   * @param term source term
+   * @param system system holding the right hand side data
+   * @param group right hand side group
+   * @param angle right hand side angle
+   * @return
+   */
+  std::shared_ptr<MPIVector> GetSourceVectorPtr(VariableTerms term,
+                                                data::System& system,
                                                 data::system::GroupNumber group,
-                                                data::system::AngleIndex angle,
-                                                VariableTerms term) {
-    auto source_vector_ptr =
-        system.right_hand_side_ptr_->GetVariablePtr({group, angle}, term);
-
-    if (source_vector_ptr == nullptr) {
-      std::ostringstream oss;
-      oss << "Right hand sidse returned nullptr for group " << group << " angle"
-          << angle << "combination";
-      AssertThrow(false, dealii::ExcMessage(oss.str()));
-    }
-    return source_vector_ptr;
-  }
-
+                                                data::system::AngleIndex angle);
  protected:
   std::unique_ptr<StamperType> stamper_ptr_;
 
