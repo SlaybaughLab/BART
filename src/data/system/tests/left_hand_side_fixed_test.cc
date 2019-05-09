@@ -4,8 +4,10 @@
 
 namespace  {
 
-class SystemLeftHandSideFixedTest : public ::testing::Test {
+using namespace bart;
 
+class SystemLeftHandSideFixedTest : public ::testing::Test {
+  data::system::LeftHandSideFixed test_lhs_;
 };
 
 TEST_F(SystemLeftHandSideFixedTest, Dummy) {
