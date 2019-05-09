@@ -17,16 +17,16 @@ class RightHandSideMock : public RightHandSideI {
   using RightHandSideI::VariableTerms;
 
   MOCK_CONST_METHOD0(GetVariableTerms, std::unordered_set<VariableTerms>());
-  MOCK_METHOD2(SetFixedPtr, void(Index, std::shared_ptr<MPIVector>));
-  MOCK_METHOD2(SetFixedPtr, void(GroupNumber, std::shared_ptr<MPIVector>));
-  MOCK_METHOD1(GetFixedPtr, std::shared_ptr<MPIVector>(Index));
-  MOCK_METHOD1(GetFixedPtr, std::shared_ptr<MPIVector>(GroupNumber));
-  MOCK_METHOD3(SetVariablePtr, void(Index, VariableTerms,
+  MOCK_METHOD2(SetFixedTermPtr, void(Index, std::shared_ptr<MPIVector>));
+  MOCK_METHOD2(SetFixedTermPtr, void(GroupNumber, std::shared_ptr<MPIVector>));
+  MOCK_METHOD1(GetFixedTermPtr, std::shared_ptr<MPIVector>(Index));
+  MOCK_METHOD1(GetFixedTermPtr, std::shared_ptr<MPIVector>(GroupNumber));
+  MOCK_METHOD3(SetVariableTermPtr, void(Index, VariableTerms,
       std::shared_ptr<MPIVector>));
-  MOCK_METHOD3(SetVariablePtr, void(GroupNumber, VariableTerms,
+  MOCK_METHOD3(SetVariableTermPtr, void(GroupNumber, VariableTerms,
       std::shared_ptr<MPIVector>));
-  MOCK_METHOD2(GetVariablePtr, std::shared_ptr<MPIVector>(Index, VariableTerms));
-  MOCK_METHOD2(GetVariablePtr, std::shared_ptr<MPIVector>(GroupNumber, VariableTerms));
+  MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPIVector>(Index, VariableTerms));
+  MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPIVector>(GroupNumber, VariableTerms));
 };
 
 } // namespace system

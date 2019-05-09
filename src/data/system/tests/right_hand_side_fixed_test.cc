@@ -55,82 +55,82 @@ TEST_F(SystemRightHandSideTest, Constructor) {
 }
 
 TEST_F(SystemRightHandSideTest, SetFixedPtrTest) {
-  test_rhs.SetFixedPtr({0,0}, test_vector);
-  test_rhs.SetFixedPtr(1, double_test_vector);
+  test_rhs.SetFixedTermPtr({0, 0}, test_vector);
+  test_rhs.SetFixedTermPtr(1, double_test_vector);
 
   EXPECT_EQ(test_vector.use_count(), 2);
   EXPECT_EQ(double_test_vector.use_count(), 2);
 }
 
 TEST_F(SystemRightHandSideTest, GetFixedPtrIndexTest) {
-  test_rhs.SetFixedPtr({0,0}, test_vector);
-  test_rhs.SetFixedPtr({0,1}, double_test_vector);
+  test_rhs.SetFixedTermPtr({0, 0}, test_vector);
+  test_rhs.SetFixedTermPtr({0, 1}, double_test_vector);
 
-  EXPECT_EQ(test_rhs.GetFixedPtr({0,0}), test_vector);
-  EXPECT_EQ(test_rhs.GetFixedPtr({0,1}), double_test_vector);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr({0, 0}), test_vector);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr({0, 1}), double_test_vector);
 
-  EXPECT_EQ(test_rhs.GetFixedPtr({2,0}), nullptr);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr({2, 0}), nullptr);
 }
 
 TEST_F(SystemRightHandSideTest, GetFixedPtrGroupTest) {
-  test_rhs.SetFixedPtr(0, test_vector);
-  test_rhs.SetFixedPtr({0,1}, double_test_vector);
-  test_rhs.SetFixedPtr(1, double_test_vector);
-  test_rhs.SetFixedPtr({1,1}, test_vector);
+  test_rhs.SetFixedTermPtr(0, test_vector);
+  test_rhs.SetFixedTermPtr({0, 1}, double_test_vector);
+  test_rhs.SetFixedTermPtr(1, double_test_vector);
+  test_rhs.SetFixedTermPtr({1, 1}, test_vector);
 
-  EXPECT_EQ(test_rhs.GetFixedPtr(0), test_vector);
-  EXPECT_EQ(test_rhs.GetFixedPtr({0,1}), double_test_vector);
-  EXPECT_EQ(test_rhs.GetFixedPtr(1), double_test_vector);
-  EXPECT_EQ(test_rhs.GetFixedPtr({1,1}), test_vector);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr(0), test_vector);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr({0, 1}), double_test_vector);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr(1), double_test_vector);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr({1, 1}), test_vector);
 
-  EXPECT_EQ(test_rhs.GetFixedPtr(2), nullptr);
+  EXPECT_EQ(test_rhs.GetFixedTermPtr(2), nullptr);
 }
 
 TEST_F(SystemRightHandSideTest, SetVariablePtrTest) {
-  test_rhs.SetVariablePtr({0,0}, VariableTerms::kScatteringSource, test_vector);
-  test_rhs.SetVariablePtr(1,
-                          VariableTerms::kScatteringSource,
-                          double_test_vector);
+  test_rhs.SetVariableTermPtr({0, 0}, VariableTerms::kScatteringSource, test_vector);
+  test_rhs.SetVariableTermPtr(1,
+                              VariableTerms::kScatteringSource,
+                              double_test_vector);
   EXPECT_EQ(test_vector.use_count(), 2);
   EXPECT_EQ(double_test_vector.use_count(), 2);
 
-  EXPECT_ANY_THROW(test_rhs.SetVariablePtr({0,0},
-                                           VariableTerms::kFissionSource,
-                                           test_vector));
-  EXPECT_ANY_THROW(test_rhs.SetVariablePtr(1,
-                                           VariableTerms::kFissionSource,
-                                           test_vector));
+  EXPECT_ANY_THROW(test_rhs.SetVariableTermPtr({0, 0},
+                                               VariableTerms::kFissionSource,
+                                               test_vector));
+  EXPECT_ANY_THROW(test_rhs.SetVariableTermPtr(1,
+                                               VariableTerms::kFissionSource,
+                                               test_vector));
 }
 
 TEST_F(SystemRightHandSideTest, GetVariablePtrIndexTest) {
   auto term = VariableTerms::kScatteringSource;
-  test_rhs.SetVariablePtr({0,0}, term, test_vector);
-  test_rhs.SetVariablePtr({0,1}, term, double_test_vector);
+  test_rhs.SetVariableTermPtr({0, 0}, term, test_vector);
+  test_rhs.SetVariableTermPtr({0, 1}, term, double_test_vector);
 
-  EXPECT_EQ(test_rhs.GetVariablePtr({0,0}, term), test_vector);
-  EXPECT_EQ(test_rhs.GetVariablePtr({0,1}, term), double_test_vector);
+  EXPECT_EQ(test_rhs.GetVariableTermPtr({0, 0}, term), test_vector);
+  EXPECT_EQ(test_rhs.GetVariableTermPtr({0, 1}, term), double_test_vector);
 
-  EXPECT_EQ(test_rhs.GetVariablePtr({2,0}, term), nullptr);
-  EXPECT_ANY_THROW(test_rhs.GetVariablePtr({0,0},
-                                           VariableTerms::kFissionSource));
+  EXPECT_EQ(test_rhs.GetVariableTermPtr({2, 0}, term), nullptr);
+  EXPECT_ANY_THROW(test_rhs.GetVariableTermPtr({0, 0},
+                                               VariableTerms::kFissionSource));
 }
 
 TEST_F(SystemRightHandSideTest, GetVariablePtrGroupTest) {
   auto term = VariableTerms::kScatteringSource;
 
-  test_rhs.SetVariablePtr(0, term, test_vector);
-  test_rhs.SetVariablePtr({0,1}, term, double_test_vector);
-  test_rhs.SetVariablePtr(1, term, double_test_vector);
-  test_rhs.SetVariablePtr({1,1}, term, test_vector);
+  test_rhs.SetVariableTermPtr(0, term, test_vector);
+  test_rhs.SetVariableTermPtr({0, 1}, term, double_test_vector);
+  test_rhs.SetVariableTermPtr(1, term, double_test_vector);
+  test_rhs.SetVariableTermPtr({1, 1}, term, test_vector);
 
-  EXPECT_EQ(test_rhs.GetVariablePtr(0, term), test_vector);
-  EXPECT_EQ(test_rhs.GetVariablePtr({0,1}, term), double_test_vector);
-  EXPECT_EQ(test_rhs.GetVariablePtr(1, term), double_test_vector);
-  EXPECT_EQ(test_rhs.GetVariablePtr({1,1}, term), test_vector);
+  EXPECT_EQ(test_rhs.GetVariableTermPtr(0, term), test_vector);
+  EXPECT_EQ(test_rhs.GetVariableTermPtr({0, 1}, term), double_test_vector);
+  EXPECT_EQ(test_rhs.GetVariableTermPtr(1, term), double_test_vector);
+  EXPECT_EQ(test_rhs.GetVariableTermPtr({1, 1}, term), test_vector);
 
-  EXPECT_EQ(test_rhs.GetVariablePtr(2, term), nullptr);
-  EXPECT_ANY_THROW(test_rhs.GetVariablePtr(0,
-                                           VariableTerms::kFissionSource));
+  EXPECT_EQ(test_rhs.GetVariableTermPtr(2, term), nullptr);
+  EXPECT_ANY_THROW(test_rhs.GetVariableTermPtr(0,
+                                               VariableTerms::kFissionSource));
 }
 
 } // namespace

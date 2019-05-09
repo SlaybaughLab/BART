@@ -22,21 +22,21 @@ class RightHandSide : public RightHandSideI {
     return variable_terms_;
   };
 
-  void SetFixedPtr(Index index, std::shared_ptr<MPIVector> to_set) override;
-  void SetFixedPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) override;
-  std::shared_ptr<MPIVector> GetFixedPtr(Index index) override;
-  std::shared_ptr<MPIVector> GetFixedPtr(GroupNumber group) override;
+  void SetFixedTermPtr(Index index, std::shared_ptr<MPIVector> to_set) override;
+  void SetFixedTermPtr(GroupNumber group, std::shared_ptr<MPIVector> to_set) override;
+  std::shared_ptr<MPIVector> GetFixedTermPtr(Index index) override;
+  std::shared_ptr<MPIVector> GetFixedTermPtr(GroupNumber group) override;
 
-  void SetVariablePtr(Index index,
-                      VariableTerms term,
-                      std::shared_ptr<MPIVector> to_set) override;
-  void SetVariablePtr(GroupNumber group,
-                      VariableTerms term,
-                      std::shared_ptr<MPIVector> to_set) override;
-  std::shared_ptr<MPIVector> GetVariablePtr(Index index,
-                                            VariableTerms term) override;
-  std::shared_ptr<MPIVector> GetVariablePtr(GroupNumber group,
-                                            VariableTerms term) override;
+  void SetVariableTermPtr(Index index,
+                          VariableTerms term,
+                          std::shared_ptr<MPIVector> to_set) override;
+  void SetVariableTermPtr(GroupNumber group,
+                          VariableTerms term,
+                          std::shared_ptr<MPIVector> to_set) override;
+  std::shared_ptr<MPIVector> GetVariableTermPtr(Index index,
+                                                VariableTerms term) override;
+  std::shared_ptr<MPIVector> GetVariableTermPtr(GroupNumber group,
+                                                VariableTerms term) override;
 
 
 

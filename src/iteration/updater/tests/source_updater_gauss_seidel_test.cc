@@ -95,9 +95,9 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
                              5);
   expected_vector_.reinit(*source_vector_ptr_);
 
-  ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
+  ON_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::Index>(),_))
       .WillByDefault(Return(source_vector_ptr_));
-  ON_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::GroupNumber>(),_))
+  ON_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::GroupNumber>(),_))
       .WillByDefault(Return(source_vector_ptr_));
 }
 // Fills an MPI vector with value
@@ -122,7 +122,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
 
 // Verifies UpdateScatteringSource throws if RHS returns a null vector.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadRHS) {
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::Index>(),_))
       .WillOnce(Return(nullptr));
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
@@ -155,8 +155,8 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
    * vector. We make sure that the original value of 3, filled above, was zerod
    * out and replaced by the random group number.
    */
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(index,
-                                             VariableTerms::kScatteringSource))
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(index,
+                                                 VariableTerms::kScatteringSource))
       .WillOnce(DoDefault());
   EXPECT_CALL(*mock_stamper_ptr_,
       StampScatteringSource(Ref(*source_vector_ptr_),
@@ -181,7 +181,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
 
 // Verifies UpdateFissionSource throws if RHS returns a null vector.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadRHS) {
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(An<data::system::Index>(),_))
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::Index>(),_))
       .WillOnce(Return(nullptr));
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
@@ -232,8 +232,8 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
    * vector. We make sure that the original value of 3, filled above, was zerod
    * out and replaced by the random group number.
    */
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariablePtr(index,
-                                             VariableTerms::kFissionSource))
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(index,
+                                                 VariableTerms::kFissionSource))
       .WillOnce(DoDefault());
   EXPECT_CALL(*mock_stamper_ptr_,
               StampFissionSource(Ref(*source_vector_ptr_),

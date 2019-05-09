@@ -14,7 +14,7 @@ std::shared_ptr<data::system::MPIVector> SourceUpdater<StamperType>::GetSourceVe
     data::system::GroupNumber group,
     data::system::AngleIndex angle) {
   auto source_vector_ptr =
-      system.right_hand_side_ptr_->GetVariablePtr({group, angle}, term);
+      system.right_hand_side_ptr_->GetVariableTermPtr({group, angle}, term);
 
   if (source_vector_ptr == nullptr) {
     std::ostringstream oss;
