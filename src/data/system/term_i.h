@@ -37,9 +37,9 @@ class TermI {
   using VariableTermType = typename TermPair::second_type;
   virtual ~TermI() = default;
 
-//  /*! \brief Returns the set of terms that are set as variable. */
-//  virtual std::unordered_set<VariableTermType> GetVariableTerms() const = 0;
-//
+  /*! \brief Returns the set of terms that are set as variable. */
+  virtual std::unordered_set<VariableTermType> GetVariableTerms() const = 0;
+
 //  /*! \brief Sets the MPIVector (a pointer to the data object) used to store the fixed term.
 //   *
 //   * @param index corresponding index for the MPIVector

@@ -8,15 +8,15 @@ namespace data {
 
 namespace system {
 
-//template <typename StorageType, typename VariableTermType>
-//Term::Term(std::unordered_set<VariableTermType> variable_terms)
-//    : variable_terms_(variable_terms)
-//{
-//  for (auto term : variable_terms) {
-//    TermPtrMap variable_term_map;
-//    variable_right_hand_side_terms_[term] = variable_term_map;
-//  }
-//}
+template <typename TermPair>
+Term<TermPair>::Term(std::unordered_set<VariableTermType> variable_terms)
+    : variable_terms_(variable_terms)
+{
+  for (auto term : variable_terms) {
+    TermPtrMap variable_term_map;
+    variable_term_ptrs_[term] = variable_term_map;
+  }
+}
 //
 //template <typename StorageType, typename VariableTermType>
 //void Term::SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) {
@@ -78,6 +78,7 @@ namespace system {
 //  return GetVariableTermPtr({group, 0}, term);
 //}
 
+template class Term<data::system::MPILinearTermPair>;
 
 } // namespace system
 

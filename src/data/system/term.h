@@ -18,12 +18,13 @@ class Term : public TermI<TermPair> {
  public:
   using StorageType = typename TermPair::first_type;
   using VariableTermType = typename TermPair::second_type;
-//  explicit Term(std::unordered_set<VariableTermType> = {});
-//  virtual ~Term() = default;
-//
-//  std::unordered_set<VariableTermType> GetVariableTerms() const override {
-//    return variable_terms_;
-//  };
+
+  explicit Term(std::unordered_set<VariableTermType> = {});
+  virtual ~Term() = default;
+
+  std::unordered_set<VariableTermType> GetVariableTerms() const override {
+    return variable_terms_;
+  };
 //
 //  void SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) override;
 //  void SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) override;
@@ -43,16 +44,17 @@ class Term : public TermI<TermPair> {
 //
 //
 //
-// private:
-//  const std::unordered_set<VariableTermType> variable_terms_;
-//
-//  using TermPtrMap = std::map<Index, std::shared_ptr<StorageType>>;
-//
-//  TermPtrMap fixed_right_hand_side_ptrs_;
-//
-//  std::map<VariableTermType, TermPtrMap> variable_right_hand_side_terms_;
+ private:
+  const std::unordered_set<VariableTermType> variable_terms_;
+
+  using TermPtrMap = std::map<Index, std::shared_ptr<StorageType>>;
+
+  TermPtrMap fixed_term_ptrs_;
+
+  std::map<VariableTermType, TermPtrMap> variable_term_ptrs_;
 };
 
+using MPILinearTerm = Term<data::system::MPILinearTermPair>;
 
 } // namespace system
 
