@@ -13,9 +13,11 @@ namespace data {
 
 namespace system {
 
-template <typename StorageType, typename VariableTermType>
-class Term : public TermI<StorageType, VariableTermType> {
+template <typename TermPair>
+class Term : public TermI<TermPair> {
  public:
+  using StorageType = typename TermPair::first_type;
+  using VariableTermType = typename TermPair::second_type;
 //  explicit Term(std::unordered_set<VariableTermType> = {});
 //  virtual ~Term() = default;
 //

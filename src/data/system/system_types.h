@@ -45,6 +45,10 @@ enum class VariableBilinearTerms {
 
 };
 
+//! Standard pair types for terms
+using MPILinearTermPair = std::pair<MPIVector, VariableLinearTerms>;
+using MPIBilinearTermPair = std::pair<MPISparseMatrix, VariableBilinearTerms>;
+
 // ===== HARMONICS =============================================================
 
 using HarmonicL = int;

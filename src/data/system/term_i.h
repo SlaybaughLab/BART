@@ -26,10 +26,15 @@ namespace system {
  * an index, comprised of the group number, and the _index_ of the angle.
  * Overloads are provided that only require group number, which will retrieve
  * and store those with an angle index of zero.
+ *
+ * @tparam TermPair
+ *
  */
-template <typename StorageType, typename VariableTermType>
+template <typename TermPair>
 class TermI {
  public:
+  using StorageType = typename TermPair::first_type;
+  using VariableTermType = typename TermPair::second_type;
   virtual ~TermI() = default;
 
 //  /*! \brief Returns the set of terms that are set as variable. */
