@@ -67,5 +67,76 @@ TEST_F(SystemLinearTermTest, SetFixedPtrTest) {
 }
 
 
+TEST_F(SystemLinearTermTest, GetFixedPtrIndexTest) {
+  test_linear_term.SetFixedTermPtr({0, 0}, test_vector);
+  test_linear_term.SetFixedTermPtr({0, 1}, double_test_vector);
+
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr({0, 0}), test_vector);
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr({0, 1}), double_test_vector);
+
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr({2, 0}), nullptr);
+}
+
+TEST_F(SystemLinearTermTest, GetFixedPtrGroupTest) {
+  test_linear_term.SetFixedTermPtr(0, test_vector);
+  test_linear_term.SetFixedTermPtr({0, 1}, double_test_vector);
+  test_linear_term.SetFixedTermPtr(1, double_test_vector);
+  test_linear_term.SetFixedTermPtr({1, 1}, test_vector);
+
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr(0), test_vector);
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr({0, 1}), double_test_vector);
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr(1), double_test_vector);
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr({1, 1}), test_vector);
+
+  EXPECT_EQ(test_linear_term.GetFixedTermPtr(2), nullptr);
+}
+
+TEST_F(SystemLinearTermTest, SetVariablePtrTest) {
+  test_linear_term.SetVariableTermPtr({0, 0}, VariableLinearTerms::kScatteringSource, test_vector);
+  test_linear_term.SetVariableTermPtr(1,
+                              VariableLinearTerms::kScatteringSource,
+                              double_test_vector);
+  EXPECT_EQ(test_vector.use_count(), 2);
+  EXPECT_EQ(double_test_vector.use_count(), 2);
+
+  EXPECT_ANY_THROW(test_linear_term.SetVariableTermPtr({0, 0},
+                                               VariableLinearTerms::kFissionSource,
+                                               test_vector));
+  EXPECT_ANY_THROW(test_linear_term.SetVariableTermPtr(1,
+                                               VariableLinearTerms::kFissionSource,
+                                               test_vector));
+}
+
+TEST_F(SystemLinearTermTest, GetVariablePtrIndexTest) {
+  auto term = VariableLinearTerms::kScatteringSource;
+  test_linear_term.SetVariableTermPtr({0, 0}, term, test_vector);
+  test_linear_term.SetVariableTermPtr({0, 1}, term, double_test_vector);
+
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr({0, 0}, term), test_vector);
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr({0, 1}, term), double_test_vector);
+
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr({2, 0}, term), nullptr);
+  EXPECT_ANY_THROW(test_linear_term.GetVariableTermPtr({0, 0},
+                                               VariableLinearTerms::kFissionSource));
+}
+
+TEST_F(SystemLinearTermTest, GetVariablePtrGroupTest) {
+  auto term = VariableLinearTerms::kScatteringSource;
+
+  test_linear_term.SetVariableTermPtr(0, term, test_vector);
+  test_linear_term.SetVariableTermPtr({0, 1}, term, double_test_vector);
+  test_linear_term.SetVariableTermPtr(1, term, double_test_vector);
+  test_linear_term.SetVariableTermPtr({1, 1}, term, test_vector);
+
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr(0, term), test_vector);
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr({0, 1}, term), double_test_vector);
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr(1, term), double_test_vector);
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr({1, 1}, term), test_vector);
+
+  EXPECT_EQ(test_linear_term.GetVariableTermPtr(2, term), nullptr);
+  EXPECT_ANY_THROW(test_linear_term.GetVariableTermPtr(0,
+                                               VariableLinearTerms::kFissionSource));
+}
+
 } // namespace
 

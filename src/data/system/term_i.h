@@ -54,53 +54,53 @@ class TermI {
   virtual void SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) = 0;
   /*! \brief Returns a pointer to the fixed term for a given index
    *
-//   * @param index index for the fixed term
-//   * @return a pointer to the fixed term
-//   */
-//  virtual std::shared_ptr<StorageType> GetFixedTermPtr(Index index) = 0;
-//  /*! \brief Returns a pointer to the fixed term for a given group.
-//   *
-//   * @param group group to return
-//   * @return a pointer to the fixed term
-//   */
-//  virtual std::shared_ptr<StorageType> GetFixedTermPtr(GroupNumber group) = 0;
-//
-//  /*! \brief Sets the MPIVector (a pointer to the data object) used to store the
-//   *         specified fixed term.
-//   *
-//   * @param index index to be set
-//   * @param term specifies the variable term to be set
-//   * @param to_set pointer to the data object to be set
-//   */
-//  virtual void SetVariableTermPtr(Index index,
-//                                  VariableTermType term,
-//                                  std::shared_ptr<StorageType> to_set) = 0;
-//  /*! \brief Sets the MPIVector (a pointer to the data object) used to store the
-//   *         specified fixed term.
-//   *
-//   * @param group group number to be set
-//   * @param term specifies the variable term to be set
-//   * @param to_set pointer to the data object to be set
-//   */
-//  virtual void SetVariableTermPtr(GroupNumber group,
-//                                  VariableTermType term,
-//                                  std::shared_ptr<StorageType> to_set) = 0;
-//  /*! \brief Returns a pointer to the specified variable term.
-//   *
-//   * @param index index for the variable term
-//   * @param term variable term to return
-//   * @return pointer to the variable term.
-//   */
-//  virtual std::shared_ptr<StorageType> GetVariableTermPtr(Index index,
-//                                                          VariableTermType term) = 0;
-//  /*! \brief Returns a pointer to the specified variable term.
-//   *
-//   * @param group group to return
-//   * @param term variable term to return
-//   * @return pointer to the variable term.
-//   */
-//  virtual std::shared_ptr<StorageType> GetVariableTermPtr(GroupNumber group,
-//                                                          VariableTermType term) = 0;
+   * @param index index for the fixed term
+   * @return a pointer to the fixed term
+   */
+  virtual std::shared_ptr<StorageType> GetFixedTermPtr(Index index) = 0;
+  /*! \brief Returns a pointer to the fixed term for a given group.
+   *
+   * @param group group to return
+   * @return a pointer to the fixed term
+   */
+  virtual std::shared_ptr<StorageType> GetFixedTermPtr(GroupNumber group) = 0;
+
+  /*! \brief Sets the MPIVector (a pointer to the data object) used to store the
+   *         specified fixed term.
+   *
+   * @param index index to be set
+   * @param term specifies the variable term to be set
+   * @param to_set pointer to the data object to be set
+   */
+  virtual void SetVariableTermPtr(Index index,
+                                  VariableTermType term,
+                                  std::shared_ptr<StorageType> to_set) = 0;
+  /*! \brief Sets the MPIVector (a pointer to the data object) used to store the
+   *         specified fixed term.
+   *
+   * @param group group number to be set
+   * @param term specifies the variable term to be set
+   * @param to_set pointer to the data object to be set
+   */
+  virtual void SetVariableTermPtr(GroupNumber group,
+                                  VariableTermType term,
+                                  std::shared_ptr<StorageType> to_set) = 0;
+  /*! \brief Returns a pointer to the specified variable term.
+   *
+   * @param index index for the variable term
+   * @param term variable term to return
+   * @return pointer to the variable term.
+   */
+  virtual std::shared_ptr<StorageType> GetVariableTermPtr(Index index,
+                                                          VariableTermType term) = 0;
+  /*! \brief Returns a pointer to the specified variable term.
+   *
+   * @param group group to return
+   * @param term variable term to return
+   * @return pointer to the variable term.
+   */
+  virtual std::shared_ptr<StorageType> GetVariableTermPtr(GroupNumber group,
+                                                          VariableTermType term) = 0;
 
 };
 

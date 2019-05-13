@@ -28,22 +28,22 @@ class Term : public TermI<TermPair> {
 
   void SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) override;
   void SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) override;
-//  std::shared_ptr<StorageType> GetFixedTermPtr(Index index) override;
-//  std::shared_ptr<StorageType> GetFixedTermPtr(GroupNumber group) override;
-//
-//  void SetVariableTermPtr(Index index,
-//                          VariableTermType term,
-//                          std::shared_ptr<StorageType> to_set) override;
-//  void SetVariableTermPtr(GroupNumber group,
-//                          VariableTermType term,
-//                          std::shared_ptr<StorageType> to_set) override;
-//  std::shared_ptr<StorageType> GetVariableTermPtr(Index index,
-//                                                VariableTermType term) override;
-//  std::shared_ptr<StorageType> GetVariableTermPtr(GroupNumber group,
-//                                                VariableTermType term) override;
-//
-//
-//
+  std::shared_ptr<StorageType> GetFixedTermPtr(Index index) override;
+  std::shared_ptr<StorageType> GetFixedTermPtr(GroupNumber group) override;
+
+  void SetVariableTermPtr(Index index,
+                          VariableTermType term,
+                          std::shared_ptr<StorageType> to_set) override;
+  void SetVariableTermPtr(GroupNumber group,
+                          VariableTermType term,
+                          std::shared_ptr<StorageType> to_set) override;
+  std::shared_ptr<StorageType> GetVariableTermPtr(Index index,
+                                                  VariableTermType term) override;
+  std::shared_ptr<StorageType> GetVariableTermPtr(GroupNumber group,
+                                                  VariableTermType term) override;
+
+
+
  private:
   const std::unordered_set<VariableTermType> variable_terms_;
 
