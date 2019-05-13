@@ -17,17 +17,16 @@ Term<TermPair>::Term(std::unordered_set<VariableTermType> variable_terms)
     variable_term_ptrs_[term] = variable_term_map;
   }
 }
-//
-//template <typename StorageType, typename VariableTermType>
-//void Term::SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) {
-//  fixed_right_hand_side_ptrs_[index] = to_set;
-//}
-//
-//template <typename StorageType, typename VariableTermType>
-//void Term::SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) {
-//  SetFixedTermPtr({group, 0}, to_set);
-//}
-//
+template <typename TermPair>
+void Term<TermPair>::SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) {
+  fixed_term_ptrs_[index] = to_set;
+}
+
+template <typename TermPair>
+void Term<TermPair>::SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) {
+  SetFixedTermPtr({group, 0}, to_set);
+}
+
 //template <typename StorageType, typename VariableTermType>
 //std::shared_ptr<StorageType> Term::GetFixedTermPtr(Index index) {
 //  try {

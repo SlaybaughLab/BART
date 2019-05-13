@@ -58,6 +58,14 @@ TEST_F(SystemLinearTermTest, Constructor) {
   EXPECT_EQ(test_linear_term.GetVariableTerms(), variable_terms);
 }
 
+TEST_F(SystemLinearTermTest, SetFixedPtrTest) {
+  test_linear_term.SetFixedTermPtr({0, 0}, test_vector);
+  test_linear_term.SetFixedTermPtr(1, double_test_vector);
+
+  EXPECT_EQ(test_vector.use_count(), 2);
+  EXPECT_EQ(double_test_vector.use_count(), 2);
+}
+
 
 } // namespace
 

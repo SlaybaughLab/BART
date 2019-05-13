@@ -25,9 +25,9 @@ class Term : public TermI<TermPair> {
   std::unordered_set<VariableTermType> GetVariableTerms() const override {
     return variable_terms_;
   };
-//
-//  void SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) override;
-//  void SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) override;
+
+  void SetFixedTermPtr(Index index, std::shared_ptr<StorageType> to_set) override;
+  void SetFixedTermPtr(GroupNumber group, std::shared_ptr<StorageType> to_set) override;
 //  std::shared_ptr<StorageType> GetFixedTermPtr(Index index) override;
 //  std::shared_ptr<StorageType> GetFixedTermPtr(GroupNumber group) override;
 //
