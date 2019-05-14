@@ -16,7 +16,7 @@ namespace updater {
 template <typename StamperType>
 class SourceUpdater : public SourceUpdaterI {
  public:
-  using VariableTerms = data::system::RightHandSideI::VariableTerms;
+  using VariableTerms = data::system::VariableLinearTerms;
   using MPIVector = data::system::MPIVector;
 
   explicit SourceUpdater(std::unique_ptr<StamperType> stamper_ptr)

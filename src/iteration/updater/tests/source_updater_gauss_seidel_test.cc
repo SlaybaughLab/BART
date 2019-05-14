@@ -10,7 +10,7 @@
 #include "data/moment_types.h"
 #include "data/system.h"
 #include "data/system/system_types.h"
-#include "data/system/tests/right_hand_side_mock.h"
+#include "data/system/tests/linear_term_mock.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "formulation/cfem_stamper_i.h"
 #include "test_helpers/test_assertions.h"
@@ -39,7 +39,7 @@ using ::testing::_;
 class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  protected:
   using CFEMSourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
-  using VariableTerms = data::system::RightHandSideI::VariableTerms;
+  using VariableTerms = data::system::VariableLinearTerms;
 
   // Required objects
   // Test system
@@ -51,7 +51,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
 
   // Required mocks
   std::unique_ptr<formulation::CFEM_StamperMock> mock_stamper_ptr_;
-  std::unique_ptr<data::system::RightHandSideMock> mock_rhs_ptr_;
+  std::unique_ptr<data::system::LinearTermMock> mock_rhs_ptr_;
 
   void SetUp() override;
 };
@@ -64,7 +64,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  */
 void IterationSourceUpdaterGaussSeidelTest::SetUp() {
   mock_stamper_ptr_ = std::make_unique<NiceMock<formulation::CFEM_StamperMock>>();
-  mock_rhs_ptr_ = std::make_unique<NiceMock<data::system::RightHandSideMock>>();
+  mock_rhs_ptr_ = std::make_unique<NiceMock<data::system::LinearTermMock>>();
 
   /* Create and populate moment maps. The inserted MomentVectors can be empty
    * because we will check that the correct ones are passed by reference not

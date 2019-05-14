@@ -7,7 +7,6 @@
 #include "data/system/system_types.h"
 #include "iteration/updater/source_updater.h"
 
-
 namespace bart {
 
 namespace iteration {
@@ -18,7 +17,7 @@ template <typename StamperType>
 class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
 
-  using VariableTerms = data::system::RightHandSideI::VariableTerms;
+  using VariableTerms = data::system::VariableLinearTerms;
 
   explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
