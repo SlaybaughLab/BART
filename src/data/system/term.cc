@@ -78,6 +78,7 @@ auto Term<TermPair>::GetVariableTermPtr(GroupNumber group,
 }
 
 template class Term<data::system::MPILinearTermPair>;
+template class Term<data::system::MPIBilinearTermPair>;
 
 } // namespace system
 

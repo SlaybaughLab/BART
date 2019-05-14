@@ -100,6 +100,7 @@ class Term : public TermI<TermPair> {
 };
 
 using MPILinearTerm = Term<data::system::MPILinearTermPair>;
+using MPIBilinearTerm = Term<data::system::MPIBilinearTermPair>;
 
 } // namespace system
 
