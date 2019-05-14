@@ -11,25 +11,6 @@ namespace data {
 
 namespace system {
 
-/*! \brief Stores and provides linear and bilinear terms.
- *
- * This class enables storage of any data storage type, but in general uses 
- * matrices for bilinear terms, and vectors for linear terms. 
- * 
- * Data objects are stored differently if they are fixed (will not change iteration
- * to iteration) or variable (do change iteration to iteration). A single one
- * is stored for the fixed terms, as they can all be stamped once and left. Each
- * variable term has its own data object, so that they can be individually updated
- * when needed.
- *
- * Each group and angle requires its own data object, so storage is based on
- * an index, comprised of the group number, and the _index_ of the angle.
- * Overloads are provided that only require group number, which will retrieve
- * and store those with an angle index of zero.
- *
- * @tparam TermPair
- *
- */
 template <typename TermPair>
 class TermI {
  public:
