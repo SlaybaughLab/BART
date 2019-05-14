@@ -5,14 +5,14 @@
 #include <optional>
 
 #include "data/system/system_types.h"
-#include "data/system/right_hand_side_i.h"
+#include "data/system/term_i.h"
 
 namespace bart {
 
 namespace data {
 
 struct System {
-  std::unique_ptr<system::RightHandSideI> right_hand_side_ptr_;
+  std::unique_ptr<system::MPILinearTermI> right_hand_side_ptr_;
   //! Flux moments for the current iteration
   system::MomentsMap current_iteration_moments = {};
   //! Flux moments for the previous iteration

@@ -85,6 +85,9 @@ class TermI {
 
 };
 
+using MPILinearTermI = TermI<data::system::MPILinearTermPair>;
+using MPIBilinearTermI = TermI<data::system::MPIBilinearTermPair>;
+
 } // namespace system
 
 } // namespace data
