@@ -1,3 +1,4 @@
+#include <data/system.h>
 #include "iteration/updater/fixed_updater.h"
 #include "formulation/cfem_stamper_i.h"
 
@@ -16,11 +17,24 @@ FixedUpdater<StamperType>::FixedUpdater(
   stamper_ptr_ = std::move(stamper_ptr);
 }
 
-template <typename StamperType>
-void FixedUpdater<StamperType>::UpdateFixedTerms(data::System& system,
-                                                 data::system::GroupNumber group,
-                                                 data::system::AngleIndex angle) {
+template <>
+void FixedUpdater<formulation::CFEMStamperI>::UpdateFixedTerms(
+    data::System& system,
+    data::system::GroupNumber group,
+    data::system::AngleIndex angle) {
 
+  auto fixed_matrix_ptr_ =
+      system.left_hand_side_ptr_->GetFixedTermPtr({group, angle});
+
+  AssertThrow(fixed_matrix_ptr_ != nullptr,
+      dealii::ExcMessage("Error in FixedUpdater::UpdateFixedTerms, "
+                         "fixed term pointer from lhs is null"));
+
+  *fixed_matrix_ptr_ = 0;
+
+  stamper_ptr_->StampStreamingTerm(*fixed_matrix_ptr_, group);
+  stamper_ptr_->StampCollisionTerm(*fixed_matrix_ptr_, group);
+  stamper_ptr_->StampBoundaryTerm(*fixed_matrix_ptr_);
 }
 
 template class FixedUpdater<formulation::CFEMStamperI>;

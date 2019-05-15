@@ -127,7 +127,7 @@ void IterationFixedUpdaterDomainTest::SetUp() {
  * the LHS object in the passed system. If that pointer is null, an exception
  * should be thrown.
  */
-TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedNullptr) {
+TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedNullptrMPI) {
   EXPECT_CALL(*mock_lhs_obs_ptr_, GetFixedTermPtr(index_))
       .WillOnce(Return(nullptr));
 
@@ -144,19 +144,25 @@ TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedNullptr) {
  * the final matrix will have a value of 3, equal to matrix_1 (set to 1 in
  * SetUp).
  */
-TEST_F(IterationFixedUpdaterDomainTest, UpdateFixed) {
+TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedMPI) {
   EXPECT_CALL(*mock_lhs_obs_ptr_, GetFixedTermPtr(index_))
       .WillOnce(DoDefault());
   EXPECT_CALL(*stamper_obs_ptr_, StampStreamingTerm(Ref(*matrix_ptr_),
                                                     group_number_))
       .WillOnce(WithArg<0>(Invoke(this,
                                   &IterationFixedUpdaterDomainTest::StampOne)));
+  EXPECT_CALL(*stamper_obs_ptr_, StampCollisionTerm(Ref(*matrix_ptr_),
+                                                    group_number_))
+      .WillOnce(WithArg<0>(Invoke(this,
+                                  &IterationFixedUpdaterDomainTest::StampOne)));
+  EXPECT_CALL(*stamper_obs_ptr_, StampBoundaryTerm(Ref(*matrix_ptr_)))
+      .WillOnce(WithArg<0>(Invoke(this,
+                                  &IterationFixedUpdaterDomainTest::StampOne)));
 
   test_updater_ptr_->UpdateFixedTerms(test_system_,
                                       group_number_,
                                       angle_index_);
-  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_1,
-                                                *matrix_ptr_));
+  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_1, *matrix_ptr_));
 }
 
 
