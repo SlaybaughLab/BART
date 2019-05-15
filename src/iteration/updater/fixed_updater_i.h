@@ -14,10 +14,21 @@ struct System;
 namespace iteration {
 
 namespace updater {
-
+/*! \brief Interface for classes that update fixed terms in systems.
+ */
 class FixedUpdaterI {
  public:
   virtual ~FixedUpdaterI() = default;
+  /*! \brief Updates the fixed term in the provided system.
+   *
+   * Depending on implementation, this function will access the bilinear (left
+   * hand side), linear (right hand side), or both terms and update them with
+   * the appropriate fixed terms. The terms may depend on group, angle, or both.
+   *
+   * @param system system to update.
+   * @param group group to update.
+   * @param angle angle to update.
+   */
   virtual void UpdateFixedTerms(data::System& system,
                                 data::system::GroupNumber group,
                                 data::system::AngleIndex angle) = 0;
