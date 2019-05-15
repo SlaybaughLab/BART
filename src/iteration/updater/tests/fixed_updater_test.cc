@@ -16,8 +16,8 @@ namespace {
 
 using namespace bart;
 
-using ::testing::An, ::testing::DoDefault, ::testing::NiceMock,
-::testing::Return;
+using ::testing::An, ::testing::DoDefault, ::testing::Invoke,
+::testing::NiceMock, ::testing::Ref, ::testing::Return, ::testing::WithArg;
 
 /*
  * ===== BASIC TESTS ===========================================================
@@ -37,7 +37,7 @@ class IterationFixedUpdaterBasicTest : public ::testing::Test {
 
   std::unique_ptr<MockStamperType> mock_stamper_ptr_;
   std::unique_ptr<FixedUpdaterType> test_updater_ptr_;
-  StamperType* stamper_obs_ptr_ = nullptr;
+  MockStamperType* stamper_obs_ptr_ = nullptr;
 
   void SetUp() override;
 };
@@ -45,7 +45,8 @@ class IterationFixedUpdaterBasicTest : public ::testing::Test {
 void IterationFixedUpdaterBasicTest::SetUp() {
   mock_stamper_ptr_ = std::make_unique<NiceMock<MockStamperType>>();
   test_updater_ptr_ = std::make_unique<FixedUpdaterType>(std::move(mock_stamper_ptr_));
-  stamper_obs_ptr_ = test_updater_ptr_->GetStamperPtr();
+  stamper_obs_ptr_ =
+      dynamic_cast<MockStamperType*>(test_updater_ptr_->GetStamperPtr());
 }
 
 TEST_F(IterationFixedUpdaterBasicTest, Constructor) {
@@ -70,6 +71,10 @@ TEST_F(IterationFixedUpdaterBasicTest, Constructor) {
 
 class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
                                         public bart::testing::DealiiTestDomain<2> {
+ public:
+  void StampOne(data::system::MPISparseMatrix& to_stamp) {
+    StampMatrix(to_stamp, 1);
+  }
  protected:
   IterationFixedUpdaterDomainTest()
   : group_number_(btest::RandomDouble(0, 10)),
@@ -94,7 +99,7 @@ void IterationFixedUpdaterDomainTest::SetUp() {
   IterationFixedUpdaterBasicTest::SetUp();
   SetUpDealii();
   // Stamp matrices with specified values
-  StampMatrix(matrix_1, 1);
+  StampMatrix(matrix_1, 3);
 
   // This mock left hand side will be stored in our system and will return
   // our class matrix_ptr_ by default.
@@ -136,15 +141,22 @@ TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedNullptr) {
  * stamp it with the new value. By default, the matrix_ptr_ object is returned,
  * which was stamped with the value 2 in setup. This test invokes the stamper
  * with the default value of 1. If the matrix is properly zero'd and restamped,
- * the final matrix will have a value of 1, equal to matrix_1 (set to 1 in
+ * the final matrix will have a value of 3, equal to matrix_1 (set to 1 in
  * SetUp).
  */
 TEST_F(IterationFixedUpdaterDomainTest, UpdateFixed) {
   EXPECT_CALL(*mock_lhs_obs_ptr_, GetFixedTermPtr(index_))
       .WillOnce(DoDefault());
+  EXPECT_CALL(*stamper_obs_ptr_, StampStreamingTerm(Ref(*matrix_ptr_),
+                                                    group_number_))
+      .WillOnce(WithArg<0>(Invoke(this,
+                                  &IterationFixedUpdaterDomainTest::StampOne)));
+
   test_updater_ptr_->UpdateFixedTerms(test_system_,
                                       group_number_,
                                       angle_index_);
+  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_1,
+                                                *matrix_ptr_));
 }
 
 
