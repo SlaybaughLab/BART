@@ -38,6 +38,8 @@ template <int dim>
    static constexpr int dimension = dim;
    DealiiTestDomain();
    void SetUpDealii();
+   void StampMatrix(dealii::PETScWrappers::MPI::SparseMatrix& to_stamp,
+                    double value = 1);
 
    using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
    dealii::ConstraintMatrix constraint_matrix_;
@@ -146,6 +148,29 @@ inline void DealiiTestDomain<1>::SetUpDofs() {
   dsp_.reinit(dof_handler_.n_dofs(), dof_handler_.n_dofs());
   dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp_,
                                           constraint_matrix_, false);
+}
+
+// Stamps a matrix with a given value or 1
+template <int dim>
+inline void DealiiTestDomain<dim>::StampMatrix(
+    dealii::PETScWrappers::MPI::SparseMatrix &to_stamp,
+    const double value) {
+
+  dealii::FullMatrix<double> cell_matrix(fe_.dofs_per_cell, fe_.dofs_per_cell);
+
+  for (unsigned int i = 0; i < cell_matrix.m(); ++i) {
+    for (unsigned int j = 0; j < cell_matrix.n(); ++j) {
+      cell_matrix(i,j) = value;
+    }
+  }
+
+  for (const auto& cell : cells_) {
+    std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
+    cell->get_dof_indices(local_dof_indices);
+    to_stamp.add(local_dof_indices, cell_matrix);
+  }
+
+  to_stamp.compress(dealii::VectorOperation::add);
 }
 
 using DealiiTestDomains = ::testing::Types<bart::testing::DealiiTestDomain<1>,
