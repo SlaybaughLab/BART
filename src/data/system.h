@@ -12,7 +12,10 @@ namespace bart {
 namespace data {
 
 struct System {
+  //! Pointer to right hand side linear term
   std::unique_ptr<system::MPILinearTermI> right_hand_side_ptr_;
+  //! Pointer to left hand side bilinear term
+  std::unique_ptr<system::MPIBilinearTermI> left_hand_side_ptr_;
   //! Flux moments for the current iteration
   system::MomentsMap current_iteration_moments = {};
   //! Flux moments for the previous iteration
