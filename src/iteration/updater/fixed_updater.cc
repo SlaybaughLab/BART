@@ -16,6 +16,13 @@ FixedUpdater<StamperType>::FixedUpdater(
   stamper_ptr_ = std::move(stamper_ptr);
 }
 
+template <typename StamperType>
+void FixedUpdater<StamperType>::UpdateFixedTerms(data::System& system,
+                                                 data::system::GroupNumber group,
+                                                 data::system::AngleIndex angle) {
+
+}
+
 template class FixedUpdater<formulation::CFEMStamperI>;
 
 } // namespace updater

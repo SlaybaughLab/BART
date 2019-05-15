@@ -19,7 +19,7 @@ class FixedUpdater : public FixedUpdaterI {
 
   void UpdateFixedTerms(data::System& system,
                         data::system::GroupNumber group,
-                        data::system::AngleIndex angle) override {};
+                        data::system::AngleIndex angle) override;
   StamperType* GetStamperPtr() const {
     return stamper_ptr_.get();
   };
