@@ -15,7 +15,7 @@ namespace {
 
 using namespace bart;
 
-using ::testing::NiceMock;
+using ::testing::An, ::testing::NiceMock, ::testing::Return;
 
 /*
  * ===== BASIC TESTS ===========================================================
@@ -59,42 +59,44 @@ TEST_F(IterationFixedUpdaterBasicTest, Constructor) {
 
 /* ===== DOMAIN TESTS ==========================================================
  * Tests updating of system matrices. DealiiTestDomain is used to provide
- * matrices with sparsity patterns that can be stamped properly.
+ * matrices with sparsity patterns that can be stamped properly. A test system
+ * struct will be instantiated (populated with mock classes) and passed to
+ * the updater to verify it mediates actions between the system and the
+ * stamper correctly.
  */
 
 
 class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
                                         public bart::testing::DealiiTestDomain<2> {
  protected:
+
+  data::System test_system_;
+  std::unique_ptr<data::system::BilinearTermMock> mock_lhs_ptr_;
+  std::shared_ptr<data::system::MPISparseMatrix> matrix_ptr_;
+
   void SetUp() override;
-  void StampMatrix(data::system::MPISparseMatrix& to_stamp, double value);
 };
 
 void IterationFixedUpdaterDomainTest::SetUp() {
   IterationFixedUpdaterBasicTest::SetUp();
   SetUpDealii();
+  // Stamp matrices with specified values
   StampMatrix(matrix_1, 1);
-  StampMatrix(matrix_2, 2);
-}
-// Stamps a matrix with a given value or 1
-void IterationFixedUpdaterDomainTest::StampMatrix(
-    data::system::MPISparseMatrix &to_stamp,
-    const double value = 1) {
-  dealii::FullMatrix<double> cell_matrix(fe_.dofs_per_cell, fe_.dofs_per_cell);
 
-  for (unsigned int i = 0; i < cell_matrix.m(); ++i) {
-    for (unsigned int j = 0; j < cell_matrix.n(); ++j) {
-      cell_matrix(i,j) = value;
-    }
-  }
+  // This mock left hand side will be stored in our system and will return
+  // our class matrix_ptr_ by default.
+  mock_lhs_ptr_ = std::make_unique<NiceMock<data::system::BilinearTermMock>>();
 
-  for (const auto& cell : cells_) {
-    std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
-    cell->get_dof_indices(local_dof_indices);
-    to_stamp.add(local_dof_indices, cell_matrix);
-  }
+  // Setup matrix_ptr to make it identical to the DealiiTestDomain matrices,
+  // then stamp with the value 2
+  matrix_ptr_ = std::make_shared<data::system::MPISparseMatrix>();
+  matrix_ptr_->reinit(matrix_1);
+  StampMatrix(*matrix_ptr_, 2);
 
-  to_stamp.compress(dealii::VectorOperation::add);
+  ON_CALL(*mock_lhs_ptr_, GetFixedTermPtr(An<data::system::Index>()))
+      .WillByDefault(Return(matrix_ptr_));
+  ON_CALL(*mock_lhs_ptr_, GetFixedTermPtr(An<data::system::GroupNumber>()))
+      .WillByDefault(Return(matrix_ptr_));
 }
 
 TEST_F(IterationFixedUpdaterDomainTest, Dummy) {
