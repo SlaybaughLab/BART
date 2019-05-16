@@ -12,7 +12,7 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::NiceMock;
+using ::testing::NiceMock, ::testing::Ref, ::testing::Return;
 
 class IterationInitializerSetFixedTermsTest : public ::testing::Test {
  protected:
@@ -29,7 +29,7 @@ class IterationInitializerSetFixedTermsTest : public ::testing::Test {
 
   // Supporting objects
   data::System test_system_;
-  data::system::MPISparseMatrix mpi_matrix_;
+  std::shared_ptr<data::system::MPISparseMatrix> mpi_matrix_ptr_;
 
   // Pointers for observing mocks owned by other objects
   MockBilinearTermType* bilinear_term_obs_ptr_ = nullptr;
@@ -54,6 +54,7 @@ void IterationInitializerSetFixedTermsTest::SetUp() {
   // Set up supporting objects
   auto mock_bilinear_term = std::make_unique<MockBilinearTermType>();
   test_system_.left_hand_side_ptr_ = std::move(mock_bilinear_term);
+  mpi_matrix_ptr_ = std::make_shared<data::system::MPISparseMatrix>();
 
   // Set up observing pointers
   updater_obs_ptr_ =
@@ -97,7 +98,15 @@ TEST_F(IterationInitializerSetFixedTermsTest, ConstructorThrows) {
 }
 
 TEST_F(IterationInitializerSetFixedTermsTest, Initialize) {
+  // Initializer should access all left hand side terms (all groups/angles)
+  for (int group = 0; group < total_groups_; ++group) {
+    for (int angle = 0; angle < total_angles_; ++angle) {
+      EXPECT_CALL(*updater_obs_ptr_, UpdateFixedTerms(Ref(test_system_),
+                                                      group, angle));
+    }
+  }
 
+  test_initializer_->Initialize(test_system_);
 }
 
 } // namespace
