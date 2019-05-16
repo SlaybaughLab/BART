@@ -29,10 +29,8 @@ class IterationInitializerSetFixedTermsTest : public ::testing::Test {
 
   // Supporting objects
   data::System test_system_;
-  std::shared_ptr<data::system::MPISparseMatrix> mpi_matrix_ptr_;
 
   // Pointers for observing mocks owned by other objects
-  MockBilinearTermType* bilinear_term_obs_ptr_ = nullptr;
   MockFixedUpdaterType* updater_obs_ptr_ = nullptr;
 
   // Random values for testing
@@ -54,13 +52,10 @@ void IterationInitializerSetFixedTermsTest::SetUp() {
   // Set up supporting objects
   auto mock_bilinear_term = std::make_unique<MockBilinearTermType>();
   test_system_.left_hand_side_ptr_ = std::move(mock_bilinear_term);
-  mpi_matrix_ptr_ = std::make_shared<data::system::MPISparseMatrix>();
 
   // Set up observing pointers
   updater_obs_ptr_ =
       dynamic_cast<MockFixedUpdaterType*>(test_initializer_->fixed_updater_ptr());
-  bilinear_term_obs_ptr_ =
-      dynamic_cast<MockBilinearTermType*>(test_system_.left_hand_side_ptr_.get());
 }
 
 TEST_F(IterationInitializerSetFixedTermsTest, Constructor) {
@@ -72,28 +67,19 @@ TEST_F(IterationInitializerSetFixedTermsTest, Constructor) {
 TEST_F(IterationInitializerSetFixedTermsTest, ConstructorThrows) {
   // Constructor should throw if fixed updater ptr is null
   std::unique_ptr<MockFixedUpdaterType> null_fixed_updater = nullptr;
-  EXPECT_ANY_THROW(
-      InitializerType initializer(std::move(null_fixed_updater),
-                                  total_groups_,
-                                  total_angles_);
-  );
+  EXPECT_ANY_THROW(InitializerType initializer(std::move(null_fixed_updater),
+                                               total_groups_, total_angles_););
 
   // Constructor should throw for bad groups and angle values
   std::array<int, 2> bad_values = {0, -1};
 
   for (int value : bad_values) {
     auto fixed_updater = std::make_unique<MockFixedUpdaterType>();
-    EXPECT_ANY_THROW(
-        InitializerType initializer(std::move(fixed_updater),
-                                    value,
-                                    total_angles_);
-    );
+    EXPECT_ANY_THROW(InitializerType initializer(std::move(fixed_updater),
+                                                 value, total_angles_););
     fixed_updater = std::make_unique<MockFixedUpdaterType>();
-    EXPECT_ANY_THROW(
-        InitializerType initializer(std::move(fixed_updater),
-                                    total_groups_,
-                                    value);
-    );
+    EXPECT_ANY_THROW(InitializerType initializer(std::move(fixed_updater),
+                                                 total_groups_, value););
   }
 }
 
