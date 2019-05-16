@@ -25,10 +25,7 @@ class SetFixedTerms : public InitializerI {
  public:
   SetFixedTerms(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr,
                 const int total_groups,
-                const int total_angles)
-      : fixed_updater_ptr_(std::move(fixed_updater_ptr)),
-        total_groups_(0),
-        total_angles_(0) {};
+                const int total_angles);
 
   virtual ~SetFixedTerms() = default;
   virtual void Initialize(data::System& sys) override {};

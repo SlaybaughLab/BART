@@ -1,5 +1,7 @@
 #include "iteration/initializer/set_fixed_terms.h"
 
+#include <array>
+
 #include "data/system.h"
 #include "data/system/tests/bilinear_term_mock.h"
 #include "iteration/updater/tests/fixed_updater_mock.h"
@@ -64,6 +66,34 @@ TEST_F(IterationInitializerSetFixedTermsTest, Constructor) {
   EXPECT_TRUE(updater_obs_ptr_ != nullptr);
   EXPECT_EQ(test_initializer_->total_angles(), total_angles_);
   EXPECT_EQ(test_initializer_->total_groups(), total_groups_);
+}
+
+TEST_F(IterationInitializerSetFixedTermsTest, ConstructorThrows) {
+  // Constructor should throw if fixed updater ptr is null
+  std::unique_ptr<MockFixedUpdaterType> null_fixed_updater = nullptr;
+  EXPECT_ANY_THROW(
+      InitializerType initializer(std::move(null_fixed_updater),
+                                  total_groups_,
+                                  total_angles_);
+  );
+
+  // Constructor should throw for bad groups and angle values
+  std::array<int, 2> bad_values = {0, -1};
+
+  for (int value : bad_values) {
+    auto fixed_updater = std::make_unique<MockFixedUpdaterType>();
+    EXPECT_ANY_THROW(
+        InitializerType initializer(std::move(fixed_updater),
+                                    value,
+                                    total_angles_);
+    );
+    fixed_updater = std::make_unique<MockFixedUpdaterType>();
+    EXPECT_ANY_THROW(
+        InitializerType initializer(std::move(fixed_updater),
+                                    total_groups_,
+                                    value);
+    );
+  }
 }
 
 TEST_F(IterationInitializerSetFixedTermsTest, Initialize) {
