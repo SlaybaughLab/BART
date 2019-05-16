@@ -23,6 +23,15 @@ namespace initializer {
  */
 class SetFixedTerms : public InitializerI {
  public:
+  /*! \brief Constructor, takes ownership of fixed updater.
+   *
+   * Move semantics must be used in construction.
+   *
+   * @param fixed_updater_ptr fixed updater that will be owned by this
+   *                          initializer.
+   * @param total_groups total energy groups
+   * @param total_angles total angles
+   */
   SetFixedTerms(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr,
                 const int total_groups,
                 const int total_angles);
@@ -30,10 +39,22 @@ class SetFixedTerms : public InitializerI {
   virtual ~SetFixedTerms() = default;
   virtual void Initialize(data::System& sys) override;
 
+  /*! \brief Get pointer to the owned fixed updater.
+   *
+   * @return pointer to owned fixed updater.
+   */
   updater::FixedUpdaterI* fixed_updater_ptr() const {
     return fixed_updater_ptr_.get(); };
 
+  /*! \brief Get total energy groups.
+   *
+   * @return total energy groups.
+   */
   int total_groups() const { return total_groups_; }
+  /*! \brief Get total angles.
+   *
+   * @return total angles.
+   */
   int total_angles() const { return total_angles_; }
 
  protected:
