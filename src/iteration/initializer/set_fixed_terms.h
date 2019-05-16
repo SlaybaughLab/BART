@@ -23,17 +23,26 @@ namespace initializer {
  */
 class SetFixedTerms : public InitializerI {
  public:
-  SetFixedTerms(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr)
-      : fixed_updater_ptr_(std::move(fixed_updater_ptr)) {};
+  SetFixedTerms(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr,
+                const int total_groups,
+                const int total_angles)
+      : fixed_updater_ptr_(std::move(fixed_updater_ptr)),
+        total_groups_(0),
+        total_angles_(0) {};
 
   virtual ~SetFixedTerms() = default;
   virtual void Initialize(data::System& sys) override {};
 
-  updater::FixedUpdaterI* GetUpdater() const {
+  updater::FixedUpdaterI* fixed_updater_ptr() const {
     return fixed_updater_ptr_.get(); };
+
+  int total_groups() const { return total_groups_; }
+  int total_angles() const { return total_angles_; }
 
  protected:
   std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr_;
+  const int total_groups_;
+  const int total_angles_;
 };
 
 } // namespace initializer
