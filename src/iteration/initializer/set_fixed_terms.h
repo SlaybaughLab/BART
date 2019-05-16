@@ -23,7 +23,8 @@ namespace initializer {
  */
 class SetFixedTerms : public InitializerI {
  public:
-  SetFixedTerms(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr) {};
+  SetFixedTerms(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr)
+      : fixed_updater_ptr_(std::move(fixed_updater_ptr)) {};
 
   virtual ~SetFixedTerms() = default;
   virtual void Initialize(data::System& sys) override {};
