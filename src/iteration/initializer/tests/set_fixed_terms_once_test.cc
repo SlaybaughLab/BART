@@ -91,8 +91,21 @@ TEST_F(IterationInitializerSetFixedTermsOnceTest, Initialize) {
                                                       group, angle));
     }
   }
-
+  EXPECT_FALSE(test_initializer_->initialize_was_called());
   test_initializer_->Initialize(test_system_);
+
+  // Initialize shouldn't do anything because initialize has been called
+  EXPECT_TRUE(test_initializer_->initialize_was_called());
+  test_initializer_->Initialize(test_system_);
+
+  // Reset status of initialize called
+  test_initializer_->set_initialize_was_called(false);
+  for (int group = 0; group < total_groups_; ++group) {
+    for (int angle = 0; angle < total_angles_; ++angle) {
+      EXPECT_CALL(*updater_obs_ptr_, UpdateFixedTerms(Ref(test_system_),
+                                                      group, angle));
+    }
+  }
   test_initializer_->Initialize(test_system_);
 }
 

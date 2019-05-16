@@ -22,6 +22,12 @@ class SetFixedTermsOnce : public SetFixedTerms {
                     const int total_angles)
       : SetFixedTerms(std::move(fixed_updater_ptr), total_groups, total_angles)
       {}
+
+  void set_initialize_was_called(const bool to_set) {
+    initialize_was_called_ = to_set; }
+  bool initialize_was_called() const { return initialize_was_called_; }
+ protected:
+  bool initialize_was_called_ = false;
 };
 
 } // namespace initializer
