@@ -13,6 +13,19 @@ namespace iteration {
 
 namespace updater {
 
+/*! \brief Updates the source terms in a system using the provided stamper and
+ *         the current iteration moments.
+ *
+ * Implementation of this class must be created for each stamper, as they may
+ * have different methods for updating source terms. The entire system is passed
+ * to the member functions, allowing for updating or accessing of any part of
+ * the system.
+ *
+ * When moments are used to update the sources, the moments from the current
+ * solve are used, making this a *Gauss-Seidel-like* update.
+ *
+ * @tparam StamperType
+ */
 template <typename StamperType>
 class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
