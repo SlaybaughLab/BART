@@ -21,7 +21,15 @@ class SetFixedTermsOnce : public SetFixedTerms {
                     const int total_groups,
                     const int total_angles)
       : SetFixedTerms(std::move(fixed_updater_ptr), total_groups, total_angles)
-      {}
+      {};
+
+
+  void Initialize(data::System& sys) override {
+    if (!initialize_was_called_) {
+      SetFixedTerms::Initialize(sys);
+      initialize_was_called_ = true;
+    }
+  }
 
   void set_initialize_was_called(const bool to_set) {
     initialize_was_called_ = to_set; }
