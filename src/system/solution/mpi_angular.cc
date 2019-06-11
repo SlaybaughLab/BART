@@ -15,7 +15,15 @@ MPIAngular::MPIAngular(const int total_groups, const int total_angles)
       solutions_.insert(std::make_pair<Index, MPIVector>({group, angle}, {}));
     }
   }
-};
+}
+const MPIAngularI::MPIVector& MPIAngular::operator[](const Index index) const {
+  return solutions_.at(index);
+}
+MPIAngularI::MPIVector& MPIAngular::operator[](const Index index) {
+  return solutions_.at(index);
+}
+
+
 
 } // namespace solution
 

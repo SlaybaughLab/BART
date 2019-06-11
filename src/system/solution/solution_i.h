@@ -23,6 +23,11 @@ template <typename IndexType, typename SolutionType>
 class SolutionI {
  public:
   using SolutionMap = std::map<IndexType, SolutionType>;
+
+  virtual const SolutionMap& solutions() const = 0;
+
+  virtual const SolutionType& operator[](const IndexType) const = 0;
+  virtual       SolutionType& operator[](const IndexType) = 0;
 };
 
 } // namespace solution

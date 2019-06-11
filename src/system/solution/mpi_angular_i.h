@@ -21,7 +21,6 @@ class MPIAngularI :
 
   virtual int total_groups() const = 0;
   virtual int total_angles() const = 0;
-  virtual const SolutionMap& solutions() const = 0;
 };
 
 
