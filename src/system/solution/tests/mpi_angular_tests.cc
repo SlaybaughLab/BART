@@ -21,6 +21,7 @@ class SolutionMPIAngularTests : public ::testing::Test {
 TEST_F(SolutionMPIAngularTests, Constructor) {
   EXPECT_EQ(test_solution.total_angles(), test_angles_);
   EXPECT_EQ(test_solution.total_groups(), test_groups_);
+  EXPECT_EQ(test_solution.solutions().size(), test_groups_*test_angles_);
 }
 
 } // namespace
