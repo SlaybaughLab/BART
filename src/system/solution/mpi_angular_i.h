@@ -12,7 +12,9 @@ namespace solution {
 
 class MPIAngularI :
     public SolutionI<data::system::Index, data::system::MPIVector> {
-
+ public:
+  virtual int total_groups() const = 0;
+  virtual int total_angles() const = 0;
 };
 
 
