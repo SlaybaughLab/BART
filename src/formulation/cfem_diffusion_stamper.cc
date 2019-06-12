@@ -112,8 +112,8 @@ void CFEM_DiffusionStamper<dim>::StampFissionSource(
     MPIVector& to_stamp,
     const GroupNumber group,
     const double k_effective,
-    const data::MomentVector& in_group_moment,
-    const data::MomentsMap& group_moments) {
+    const system::moments::MomentVector& in_group_moment,
+    const system::moments::MomentsMap& group_moments) {
 
   auto fission_source_function =
       [&](dealii::Vector<double> &vector, const Cell& cell_ptr) -> void {
@@ -130,8 +130,8 @@ void CFEM_DiffusionStamper<dim>::StampFissionSource(
 template<int dim>
 void CFEM_DiffusionStamper<dim>::StampScatteringSource(MPIVector& to_stamp,
                            const GroupNumber group,
-                           const data::MomentVector& in_group_moment,
-                           const data::MomentsMap& group_moments) {
+                           const system::moments::MomentVector& in_group_moment,
+                           const system::moments::MomentsMap& group_moments) {
   auto scattering_source_function =
       [&](dealii::Vector<double> &vector, const Cell& cell_ptr) -> void {
         this->diffusion_ptr_->FillCellScatteringSource(vector,

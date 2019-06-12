@@ -18,10 +18,10 @@ class CFEM_StamperMock : public CFEMStamperI {
   MOCK_METHOD2(StampFixedSource, void(MPIVector&, const GroupNumber));
   MOCK_METHOD5(StampFissionSource,
                void(MPIVector&, const GroupNumber, const double,
-                   const data::MomentVector&, const data::MomentsMap&));
+                   const system::moments::MomentVector&, const system::moments::MomentsMap&));
   MOCK_METHOD4(StampScatteringSource,
                void(MPIVector&, const GroupNumber,
-                   const data::MomentVector&, const data::MomentsMap&));
+                   const system::moments::MomentVector&, const system::moments::MomentsMap&));
   MOCK_METHOD1(AddReflectiveBoundary, CFEM_StamperMock&(Boundary));
   MOCK_METHOD1(RemoveReflectiveBoundary, CFEM_StamperMock&(Boundary));
   MOCK_CONST_METHOD0(reflective_boundaries, std::unordered_set<Boundary>());

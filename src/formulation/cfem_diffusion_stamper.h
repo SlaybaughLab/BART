@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "domain/definition_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
 #include "formulation/cfem_stamper_i.h"
@@ -65,12 +65,12 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
   void StampFissionSource(MPIVector& to_stamp,
                           const GroupNumber group,
                           const double k_effective,
-                          const data::MomentVector& in_group_moment,
-                          const data::MomentsMap& group_moments) override;
+                          const system::moments::MomentVector& in_group_moment,
+                          const system::moments::MomentsMap& group_moments) override;
   void StampScatteringSource(MPIVector& to_stamp,
                              const GroupNumber group,
-                             const data::MomentVector& in_group_moment,
-                             const data::MomentsMap& group_moments) override;
+                             const system::moments::MomentVector& in_group_moment,
+                             const system::moments::MomentsMap& group_moments) override;
 
   CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) override {
     reflective_boundaries_.insert(boundary);

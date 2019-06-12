@@ -9,8 +9,8 @@ namespace convergence {
 namespace moments {
 
 bool MultiMomentCheckerMax::CheckIfConverged(
-    const data::MomentsMap &current_iteration,
-    const data::MomentsMap &previous_iteration) {
+    const system::moments::MomentsMap &current_iteration,
+    const system::moments::MomentsMap &previous_iteration) {
   AssertThrow(current_iteration.size() > 0,
               dealii::ExcMessage("Current iteration moments map is empty"));
   AssertThrow(previous_iteration.size() > 0,

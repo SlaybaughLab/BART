@@ -135,8 +135,8 @@ void CFEM_Diffusion<dim>::FillCellFissionSource(
     const CellPtr& cell_ptr,
     const GroupNumber group,
     const double k_effective,
-    const data::MomentVector& in_group_moment,
-    const data::MomentsMap& group_moments) const {
+    const system::moments::MomentVector& in_group_moment,
+    const system::moments::MomentsMap& group_moments) const {
 
   int material_id = cell_ptr->material_id();
   if (cross_sections_->is_material_fissile.at(material_id)) {
@@ -187,8 +187,8 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
       Vector& to_fill,
       const CellPtr& cell_ptr,
       const GroupNumber group,
-      const data::MomentVector& in_group_moment,
-      const data::MomentsMap& group_moments) const {
+      const system::moments::MomentVector& in_group_moment,
+      const system::moments::MomentsMap& group_moments) const {
 
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();

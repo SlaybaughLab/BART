@@ -5,7 +5,7 @@
 #include <optional>
 
 #include "convergence/moments/single_moment_checker_i.h"
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 
 namespace bart {
 
@@ -15,7 +15,7 @@ namespace moments {
 
 /*! \brief Checks that all fluxes have converged.
  *
- * Fluxes are passed via a data::MomentsMap. Which moments are checked is up to
+ * Fluxes are passed via a system::moments::MomentsMap. Which moments are checked is up to
  * the implementation of the checker.
  * */
 class MultiMomentCheckerI {
@@ -28,8 +28,8 @@ class MultiMomentCheckerI {
    * \param previous_iteration all moments for previous iteration
    * \return bool indicating if convergence has been reached.
    */
-  virtual bool CheckIfConverged(const data::MomentsMap &current_iteration,
-                                const data::MomentsMap &previous_iteration) = 0;
+  virtual bool CheckIfConverged(const system::moments::MomentsMap &current_iteration,
+                                const system::moments::MomentsMap &previous_iteration) = 0;
   
   /*! \brief Returns status of previous call to CheckIfConverged
    *

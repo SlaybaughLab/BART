@@ -350,19 +350,19 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
   double k_effective = 1.05;
   // Make in-group moment
   std::vector<double> in_group_moment_values{0.5, 0.5};
-  data::MomentVector in_group_moment(in_group_moment_values.begin(),
+  system::moments::MomentVector in_group_moment(in_group_moment_values.begin(),
                                      in_group_moment_values.end());
 
   /* Make out-group moments (specifically in-group values in this are different
    * This is a somewhat tortured process due to the way dealii::Vectors are
-   * defined (data::MomentVector is an alias) */
+   * defined (system::moments::MomentVector is an alias) */
   std::vector<double> group_0_moment_values{0.75, 0.75};
   std::vector<double> group_1_moment_values{1.0, 1.0};
-  data::MomentVector group_0_moment{group_0_moment_values.begin(),
+  system::moments::MomentVector group_0_moment{group_0_moment_values.begin(),
                                     group_0_moment_values.end()};
-  data::MomentVector group_1_moment{group_1_moment_values.begin(),
+  system::moments::MomentVector group_1_moment{group_1_moment_values.begin(),
                                     group_1_moment_values.end()};
-  data::MomentsMap out_group_moments;
+  system::moments::MomentsMap out_group_moments;
   out_group_moments[{0,0,0}] = group_0_moment;
   out_group_moments[{1,0,0}] = group_1_moment;
 
@@ -397,19 +397,19 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
   int group = 0;
   // Make in-group moment
   std::vector<double> in_group_moment_values{0.5, 0.5};
-  data::MomentVector in_group_moment(in_group_moment_values.begin(),
+  system::moments::MomentVector in_group_moment(in_group_moment_values.begin(),
                                      in_group_moment_values.end());
 
   /* Make out-group moments (specifically in-group values in this are different
    * This is a somewhat tortured process due to the way dealii::Vectors are
-   * defined (data::MomentVector is an alias) */
+   * defined (system::moments::MomentVector is an alias) */
   std::vector<double> group_0_moment_values{0.75, 0.75};
   std::vector<double> group_1_moment_values{1.0, 1.0};
-  data::MomentVector group_0_moment{group_0_moment_values.begin(),
+  system::moments::MomentVector group_0_moment{group_0_moment_values.begin(),
                                     group_0_moment_values.end()};
-  data::MomentVector group_1_moment{group_1_moment_values.begin(),
+  system::moments::MomentVector group_1_moment{group_1_moment_values.begin(),
                                     group_1_moment_values.end()};
-  data::MomentsMap out_group_moments;
+  system::moments::MomentsMap out_group_moments;
   out_group_moments[{0,0,0}] = group_0_moment;
   out_group_moments[{1,0,0}] = group_1_moment;
 

@@ -7,7 +7,7 @@
 
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "data/system.h"
 #include "data/system/system_types.h"
 #include "data/system/tests/linear_term_mock.h"

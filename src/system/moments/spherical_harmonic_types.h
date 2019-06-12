@@ -1,16 +1,15 @@
-#ifndef BART_SRC_DATA_MOMENT_TYPES_H_
-#define BART_SRC_DATA_MOMENT_TYPES_H_
+#ifndef BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_TYPES_H_
+#define BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_TYPES_H_
 
 #include <map>
 
 #include <deal.II/lac/vector.h>
 
-#include "utility/named_type.h"
-
-
 namespace bart {
 
-namespace data {
+namespace system {
+
+namespace moments {
 
 using HarmonicL = int;
 //!< Spherical harmonic \f$\ell\f$ value for moments
@@ -28,8 +27,10 @@ using MomentVector = dealii::Vector<double>; //!< Vector for storing moments
 
 using MomentsMap = std::map<MomentIndex, MomentVector>;
 
-} // namespace data
+} // namespace moments
+
+} // namespace system
 
 } // namespace bart
 
-#endif // BART_SRC_DATA_MOMENT_TYPES_H_
+#endif // BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_TYPES_H_

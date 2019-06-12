@@ -20,10 +20,10 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource
 
   *scattering_source_vector_ptr_ = 0;
 
-  data::MomentVector &in_group_moment =
+  system::moments::MomentVector &in_group_moment =
       system.current_iteration_moments.at({group, 0, 0});
 
-  data::MomentsMap& out_group_moments = system.current_iteration_moments;
+  system::moments::MomentsMap& out_group_moments = system.current_iteration_moments;
 
 
   stamper_ptr_->StampScatteringSource(*scattering_source_vector_ptr_,
@@ -55,10 +55,10 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateFissionSource(
 
   *scattering_source_vector_ptr_ = 0;
 
-  data::MomentVector &in_group_moment =
+  system::moments::MomentVector &in_group_moment =
       system.current_iteration_moments.at({group, 0, 0});
 
-  data::MomentsMap& out_group_moments = system.current_iteration_moments;
+  system::moments::MomentsMap& out_group_moments = system.current_iteration_moments;
 
   stamper_ptr_->StampFissionSource(*scattering_source_vector_ptr_,
                                    group,

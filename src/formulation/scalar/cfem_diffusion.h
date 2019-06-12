@@ -5,7 +5,7 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
@@ -62,14 +62,14 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
                              const CellPtr& cell_ptr,
                              const GroupNumber group,
                              const double k_effective,
-                             const data::MomentVector& in_group_moment,
-                             const data::MomentsMap& group_moments) const override;
+                             const system::moments::MomentVector& in_group_moment,
+                             const system::moments::MomentsMap& group_moments) const override;
 
   void FillCellScatteringSource(Vector& to_fill,
                                 const CellPtr& cell_ptr,
                                 const GroupNumber group,
-                                const data::MomentVector& in_group_moment,
-                                const data::MomentsMap& group_moments) const override;
+                                const system::moments::MomentVector& in_group_moment,
+                                const system::moments::MomentsMap& group_moments) const override;
 
   // Getters & Setters
   /*! \brief Get precalculated matrices for the square of the shape function.

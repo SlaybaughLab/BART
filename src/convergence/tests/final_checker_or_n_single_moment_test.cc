@@ -8,7 +8,7 @@
 #include "convergence/status.h"
 #include "convergence/moments/tests/single_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
@@ -19,7 +19,7 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using namespace bart::convergence;
 using bart::convergence::testing::CompareStatus;
-using bart::data::MomentVector;
+using bart::system::moments::MomentVector;
 
 
 class ConvergenceFinalCheckerOrNSingleMomentTest :
@@ -28,7 +28,7 @@ class ConvergenceFinalCheckerOrNSingleMomentTest :
   using FinalSingleMomentChecker =
       FinalCheckerOrN<MomentVector, moments::SingleMomentCheckerI>;
   std::unique_ptr<NiceMock<moments::SingleMomentCheckerMock>> checker_ptr;
-  bart::data::MomentVector moment_one, moment_two;
+  bart::system::moments::MomentVector moment_one, moment_two;
   void SetUp() override;
 };
 

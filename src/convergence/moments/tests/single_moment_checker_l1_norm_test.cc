@@ -4,18 +4,18 @@
 #include <gtest/gtest.h>
 
 #include "convergence/tests/single_checker_test.h"
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
 
 class SingleMomentCheckerL1NormTest :
-    public bart::convergence::testing::SingleCheckerTest<bart::data::MomentVector> {
+    public bart::convergence::testing::SingleCheckerTest<bart::system::moments::MomentVector> {
  protected:
   bart::convergence::moments::SingleMomentCheckerL1Norm checker{1e-6};
-  bart::data::MomentVector moment_one;
-  bart::data::MomentVector moment_two;
+  bart::system::moments::MomentVector moment_one;
+  bart::system::moments::MomentVector moment_two;
   void SetUp() override;
 };
 

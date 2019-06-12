@@ -100,7 +100,7 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
   int n_dofs = dof_handler_.n_dofs();
 
   std::vector<double> moment_values(n_dofs, 0.5);
-  data::MomentVector test_moment(moment_values.begin(), moment_values.end());
+  system::moments::MomentVector test_moment(moment_values.begin(), moment_values.end());
 
   std::vector<double> expected_vector(test_fe->dofs_per_cell(), 0.5);
 

@@ -8,7 +8,7 @@
 #include "convergence/status.h"
 #include "convergence/moments/tests/multi_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
@@ -21,14 +21,14 @@ using namespace bart::convergence;
 using bart::convergence::testing::CompareStatus;
 
 class ConvergenceFinalCheckerOrNMultiMomentTest :
-    public bart::convergence::testing::ConvergenceFinalTest<bart::data::MomentsMap> {
+    public bart::convergence::testing::ConvergenceFinalTest<bart::system::moments::MomentsMap> {
  protected:
   using FinalMultiMomentChecker =
-      FinalCheckerOrN<bart::data::MomentsMap , moments::MultiMomentCheckerI>;
+      FinalCheckerOrN<bart::system::moments::MomentsMap , moments::MultiMomentCheckerI>;
   
   std::unique_ptr<NiceMock<moments::MultiMomentCheckerMock>> checker_ptr;
   
-  bart::data::MomentsMap moment_map_one, moment_map_two;
+  bart::system::moments::MomentsMap moment_map_one, moment_map_two;
   void SetUp() override;
 };
 

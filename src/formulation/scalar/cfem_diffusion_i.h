@@ -4,7 +4,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "formulation/scalar/cfem_i.h"
 
 namespace bart {
@@ -59,14 +59,14 @@ class CFEM_DiffusionI : public CFEM_I {
                              const CellPtr& cell_ptr,
                              const GroupNumber group,
                              const double k_effective,
-                             const data::MomentVector& in_group_moment,
-                             const data::MomentsMap& group_moments) const = 0;
+                             const system::moments::MomentVector& in_group_moment,
+                             const system::moments::MomentsMap& group_moments) const = 0;
 
   virtual void FillCellScatteringSource(Vector& to_fill,
                                 const CellPtr& cell_ptr,
                                 const GroupNumber group,
-                                const data::MomentVector& in_group_moment,
-                                const data::MomentsMap& group_moments) const = 0;
+                                const system::moments::MomentVector& in_group_moment,
+                                const system::moments::MomentsMap& group_moments) const = 0;
 
 };
 

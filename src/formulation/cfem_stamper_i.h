@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "formulation/stamper_i.h"
 #include "problem/parameter_types.h"
 
@@ -83,8 +83,8 @@ class CFEMStamperI : public StamperI {
   virtual void StampFissionSource(MPIVector& to_stamp,
                                   const GroupNumber group,
                                   const double k_effective,
-                                  const data::MomentVector& in_group_moment,
-                                  const data::MomentsMap& group_moments) = 0;
+                                  const system::moments::MomentVector& in_group_moment,
+                                  const system::moments::MomentsMap& group_moments) = 0;
 
   /*! Stamps all cell scattering source terms onto a system vector.
    *
@@ -95,8 +95,8 @@ class CFEMStamperI : public StamperI {
    */
   virtual void StampScatteringSource(MPIVector& to_stamp,
                                      const GroupNumber group,
-                                     const data::MomentVector& in_group_moment,
-                                     const data::MomentsMap& group_moments) = 0;
+                                     const system::moments::MomentVector& in_group_moment,
+                                     const system::moments::MomentsMap& group_moments) = 0;
 
 
   /*! Adds a system reflective boundary.

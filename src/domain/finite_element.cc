@@ -42,7 +42,7 @@ bool FiniteElement<dim>::SetFace(const CellPtr &to_set, const FaceNumber face) {
 }
 template<int dim>
 std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
-    const data::MomentVector moment) const {
+    const system::moments::MomentVector moment) const {
 
   std::vector<double> return_vector(finite_element_->dofs_per_cell, 0);
 

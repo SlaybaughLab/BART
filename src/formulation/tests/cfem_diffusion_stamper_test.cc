@@ -7,7 +7,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "domain/tests/definition_mock.h"
 #include "formulation/scalar/tests/cfem_diffusion_mock.h"
 #include "problem/parameter_types.h"
@@ -375,8 +375,8 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFissionSource) {
    * empty. We will just be using them as dummys that are caught by the mock, we
    * are just ensuring that the correct things are passed through.
    */
-  data::MomentVector in_group_moment;
-  data::MomentsMap group_moments;
+  system::moments::MomentVector in_group_moment;
+  system::moments::MomentsMap group_moments;
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
@@ -405,8 +405,8 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
   auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
   int group_number = 1;
-  data::MomentVector in_group_moment;
-  data::MomentsMap group_moments;
+  system::moments::MomentVector in_group_moment;
+  system::moments::MomentsMap group_moments;
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,

@@ -4,7 +4,7 @@
 #include <optional>
 
 #include "convergence/moments/tests/single_moment_checker_mock.h"
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
@@ -22,8 +22,8 @@ class MultiMomentCheckerMaxTest : public ::testing::Test {
   using SingleMomentCheckerMock =
       bart::convergence::moments::SingleMomentCheckerMock;
 
-  bart::data::MomentsMap moments_map_one;
-  bart::data::MomentsMap moments_map_two;
+  bart::system::moments::MomentsMap moments_map_one;
+  bart::system::moments::MomentsMap moments_map_two;
 
   std::unique_ptr<SingleMomentCheckerMock> checker_ptr;
 
@@ -38,7 +38,7 @@ void MultiMomentCheckerMaxTest::SetUp() {
     for (int l = 0; l <= max_l; ++l) {
       for (int m = -l; m <= max_l; ++m) {
         auto random_vector = btest::RandomVector(5, 0, 10);
-        bart::data::MomentVector temp_moment(random_vector.cbegin(),
+        bart::system::moments::MomentVector temp_moment(random_vector.cbegin(),
                                              random_vector.cend());
         moments_map_one[{group, l, m}] = temp_moment;
         moments_map_two[{group, l, m}] = temp_moment;
@@ -76,7 +76,7 @@ TEST_F(MultiMomentCheckerMaxTest, BadMatch) {
 
   int failing_group = 2;
 
-  bart::data::MomentVector failing_moment =
+  bart::system::moments::MomentVector failing_moment =
       moments_map_two[{failing_group, 0, 0}];
 
   EXPECT_CALL(*checker_ptr,
@@ -111,7 +111,7 @@ TEST_F(MultiMomentCheckerMaxTest, ConvergeAfterBad) {
 
   int failing_group = 2;
 
-  bart::data::MomentVector failing_moment =
+  bart::system::moments::MomentVector failing_moment =
       moments_map_two[{failing_group, 0, 0}];
 
   EXPECT_CALL(*checker_ptr,
@@ -150,7 +150,7 @@ TEST_F(MultiMomentCheckerMaxTest, ConvergeAfterBad) {
 // Passing empty moments map should throw an error
 TEST_F(MultiMomentCheckerMaxTest, EmptyMoments) {
   MultiMomentCheckerMax test_checker(std::move(checker_ptr));
-  bart::data::MomentsMap empty_map;
+  bart::system::moments::MomentsMap empty_map;
   EXPECT_ANY_THROW(test_checker.CheckIfConverged(empty_map, empty_map));
 }
 

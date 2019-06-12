@@ -59,7 +59,7 @@ class FiniteElement : public FiniteElementI<dim> {
     return values_->JxW(cell_quadrature_point);
   }
 
-  std::vector<double> ValueAtQuadrature(const data::MomentVector moment) const override;
+  std::vector<double> ValueAtQuadrature(const system::moments::MomentVector moment) const override;
 
  protected:
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;

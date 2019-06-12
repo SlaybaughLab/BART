@@ -4,7 +4,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -51,14 +51,14 @@ class CFEM_DiffusionMock : public CFEM_DiffusionI<dim> {
       const CellPtr&,
       const GroupNumber,
       const double,
-      const data::MomentVector&,
-      const data::MomentsMap&));
+      const system::moments::MomentVector&,
+      const system::moments::MomentsMap&));
 
   MOCK_CONST_METHOD5_T(FillCellScatteringSource, void(Vector&,
       const CellPtr&,
       const GroupNumber,
-      const data::MomentVector&,
-      const data::MomentsMap&));
+      const system::moments::MomentVector&,
+      const system::moments::MomentsMap&));
 };
 
 

@@ -12,8 +12,8 @@ namespace moments {
 
 class SingleMomentCheckerMock : public SingleMomentCheckerI {
  public:
-  MOCK_METHOD2(CheckIfConverged, bool(const data::MomentVector&,
-      const data::MomentVector&));
+  MOCK_METHOD2(CheckIfConverged, bool(const system::moments::MomentVector&,
+      const system::moments::MomentVector&));
   MOCK_CONST_METHOD0(is_converged, bool());
   MOCK_METHOD1(SetMaxDelta, void(const double to_set));
   MOCK_CONST_METHOD0(max_delta, double());

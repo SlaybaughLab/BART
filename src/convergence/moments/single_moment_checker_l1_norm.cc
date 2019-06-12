@@ -7,9 +7,9 @@ namespace convergence {
 namespace moments {
 
 bool SingleMomentCheckerL1Norm::CheckIfConverged(
-    const data::MomentVector &current_iteration,
-    const data::MomentVector &previous_iteration) {
-  data::MomentVector difference{current_iteration};
+    const system::moments::MomentVector &current_iteration,
+    const system::moments::MomentVector &previous_iteration) {
+  system::moments::MomentVector difference{current_iteration};
   difference -= previous_iteration;
   delta_ = difference.l1_norm()/current_iteration.l1_norm();
   is_converged_ = delta_ <= max_delta_;

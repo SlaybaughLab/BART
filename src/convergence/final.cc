@@ -1,6 +1,6 @@
 #include "convergence/final.h"
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 
 #include <deal.II/base/exceptions.h>
 
@@ -28,8 +28,8 @@ Final<CompareType>& Final<CompareType>::SetIteration(
     return *this;
 }
 
-template class Final<data::MomentVector>;
-template class Final<data::MomentsMap>;
+template class Final<system::moments::MomentVector>;
+template class Final<system::moments::MomentsMap>;
 template class Final<double>;
 
 

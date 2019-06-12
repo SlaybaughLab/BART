@@ -1,7 +1,7 @@
 #ifndef BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
 #define BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/spherical_harmonic_i.h"
 
 namespace bart {

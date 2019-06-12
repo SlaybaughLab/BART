@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 #define BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 
 #include <deal.II/fe/fe_values.h>
 
@@ -99,7 +99,7 @@ class FiniteElementI {
    * \return a vector holding the value of the moment at each quadrature point.
    */
   virtual std::vector<double> ValueAtQuadrature(
-      const data::MomentVector moment) const = 0;
+      const system::moments::MomentVector moment) const = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.

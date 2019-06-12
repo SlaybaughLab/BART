@@ -1,6 +1,6 @@
 #include "convergence/final_checker_or_n.h"
 
-#include "system/moments/moment_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "convergence/moments/single_moment_checker_i.h"
 #include "convergence/moments/multi_moment_checker_i.h"
 #include "convergence/parameters/single_parameter_checker.h"
@@ -19,10 +19,10 @@ Status FinalCheckerOrN<CompareType, CheckerType>::CheckFinalConvergence(
 }
 
 template <>
-Status FinalCheckerOrN<data::MomentsMap ,
+Status FinalCheckerOrN<system::moments::MomentsMap ,
                        moments::MultiMomentCheckerI>::CheckFinalConvergence(
-    data::MomentsMap & current_iteration,
-    data::MomentsMap & previous_iteration) {
+    system::moments::MomentsMap & current_iteration,
+    system::moments::MomentsMap & previous_iteration) {
 
   StatusDeltaAndIterate(current_iteration, previous_iteration);
   convergence_status_.failed_index = checker_ptr_->failed_index();
@@ -47,9 +47,9 @@ void FinalCheckerOrN<CompareType, CheckerType>::StatusDeltaAndIterate(
   }
 }
 
-template class FinalCheckerOrN<data::MomentVector,
+template class FinalCheckerOrN<system::moments::MomentVector,
                                moments::SingleMomentCheckerI>;
-template class FinalCheckerOrN<data::MomentsMap,
+template class FinalCheckerOrN<system::moments::MomentsMap,
                                moments::MultiMomentCheckerI>;
 template class FinalCheckerOrN<double, parameters::SingleParameterChecker>;
 
