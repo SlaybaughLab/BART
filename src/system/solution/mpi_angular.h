@@ -18,8 +18,8 @@ class MPIAngular : public MPIAngularI {
   int total_groups() const override { return total_groups_; }
   const SolutionMap& solutions() const override { return solutions_; };
 
-  virtual const MPIVector& operator[](const Index index) const override;
-  virtual       MPIVector& operator[](const Index index) override;
+  const MPIVector& operator[](const Index index) const override;
+        MPIVector& operator[](const Index index) override;
 
  private:
   SolutionMap solutions_;
