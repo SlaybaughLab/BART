@@ -24,9 +24,25 @@ class SolutionI {
  public:
   using SolutionMap = std::map<IndexType, SolutionType>;
 
+  /*! \brief Returns the full mapping of solutions.
+   *
+   * This method is intended to expose the internally managed resource to allow
+   * the user to use std::map methods directly.
+   *
+   * @return reference to the internal solutions map.
+   */
   virtual const SolutionMap& solutions() const = 0;
 
+  /*! \brief Returns the solution that corresponds to a provided index.
+   *
+   * @return a constant reference to the solution.
+   */
   virtual const SolutionType& operator[](const IndexType) const = 0;
+
+  /*! \brief Returns the solution that corresponds to a provided index.
+   *
+   * @return a reference to the solution.
+   */
   virtual       SolutionType& operator[](const IndexType) = 0;
 };
 
