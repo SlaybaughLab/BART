@@ -23,7 +23,7 @@ template <typename IndexType, typename SolutionType>
 class SolutionI {
  public:
   using SolutionMap = std::map<IndexType, SolutionType>;
-
+  virtual ~SolutionI() = default;
   /*! \brief Returns the full mapping of solutions.
    *
    * This method is intended to expose the internally managed resource to allow

@@ -25,6 +25,8 @@ class MPIAngularI :
   using MPIVector = data::system::MPIVector;
   using Index = data::system::Index;
 
+  virtual ~MPIAngularI() = default;
+
   /*! \brief Returns the total number of energy groups. */
   virtual int total_groups() const = 0;
   /*! \brief Returns the total number of angles */

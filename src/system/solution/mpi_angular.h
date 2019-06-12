@@ -20,6 +20,7 @@ class MPIAngular : public MPIAngularI {
  public:
 
   MPIAngular(const int total_groups, const int total_angles = 1);
+  virtual ~MPIAngular() = default;
 
   int total_angles() const override { return total_angles_; }
   int total_groups() const override { return total_groups_; }
