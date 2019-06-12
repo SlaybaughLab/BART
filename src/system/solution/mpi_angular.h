@@ -9,6 +9,13 @@ namespace system {
 
 namespace solution {
 
+/*! \brief Creates and stores angular system solutions as PETSc MPI vectors.
+ *
+ * This default implementation instantiates the MPI Vectors during construction
+ * based on the provided total number of angles and groups, which are assumed
+ * to be constant.
+ *
+ */
 class MPIAngular : public MPIAngularI {
  public:
 
@@ -18,7 +25,9 @@ class MPIAngular : public MPIAngularI {
   int total_groups() const override { return total_groups_; }
   const SolutionMap& solutions() const override { return solutions_; };
 
+  /*! \brief Returns the system solution identified by the provided index */
   const MPIVector& operator[](const Index index) const override;
+  /*! \brief Returns the system solution identified by the provided index */
         MPIVector& operator[](const Index index) override;
 
  private:
