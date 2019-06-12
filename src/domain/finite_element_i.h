@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 #define BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 
 #include <deal.II/fe/fe_values.h>
 

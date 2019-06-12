@@ -5,7 +5,7 @@
 #include <optional>
 
 #include "convergence/moments/single_moment_checker_i.h"
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 
 namespace bart {
 

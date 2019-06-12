@@ -4,7 +4,7 @@
 #include <optional>
 
 #include "convergence/moments/tests/single_moment_checker_mock.h"
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 

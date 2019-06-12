@@ -4,7 +4,7 @@
 #include <optional>
 
 #include "convergence/moments/multi_moment_checker_i.h"
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {

@@ -7,7 +7,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "domain/tests/definition_mock.h"
 #include "formulation/scalar/tests/cfem_diffusion_mock.h"
 #include "problem/parameter_types.h"

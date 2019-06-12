@@ -1,6 +1,6 @@
 #include "convergence/final_checker_or_n.h"
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "convergence/moments/single_moment_checker_i.h"
 #include "convergence/moments/multi_moment_checker_i.h"
 #include "convergence/parameters/single_parameter_checker.h"

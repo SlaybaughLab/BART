@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_H_
 #define BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_H
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "convergence/moments/multi_moment_checker_i.h"
 #include "utility/uncopyable.h"
 

@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "formulation/stamper_i.h"
 #include "problem/parameter_types.h"
 

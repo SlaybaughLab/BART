@@ -5,7 +5,7 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"

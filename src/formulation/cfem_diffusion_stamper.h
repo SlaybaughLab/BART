@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "domain/definition_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
 #include "formulation/cfem_stamper_i.h"

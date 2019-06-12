@@ -2,7 +2,7 @@
 #define BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 
 #include "convergence/single_checker.h"
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 
 namespace bart {
 

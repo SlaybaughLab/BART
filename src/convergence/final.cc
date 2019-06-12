@@ -1,6 +1,6 @@
 #include "convergence/final.h"
 
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 
 #include <deal.II/base/exceptions.h>
 

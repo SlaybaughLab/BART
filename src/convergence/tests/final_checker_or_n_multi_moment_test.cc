@@ -8,7 +8,7 @@
 #include "convergence/status.h"
 #include "convergence/moments/tests/multi_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
-#include "data/moment_types.h"
+#include "system/moments/moment_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
