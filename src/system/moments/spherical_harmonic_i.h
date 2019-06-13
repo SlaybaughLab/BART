@@ -33,7 +33,7 @@ class SphericalHarmonicI {
   //virtual MomentVector& operator[](const MomentIndex index) = 0;
   /*! \brief Returns the total number of energy groups. */
   virtual int total_groups() const = 0;
-  /*! \brief Returns the maximum value of \f$\ell\f$. */
+  /*! \brief Returns the value of \f$\ell_{\text{max}}\f$. */
   virtual int max_harmonic_l() const = 0;
 };
 
