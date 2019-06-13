@@ -36,9 +36,11 @@ class SphericalHarmonicI {
    * map (it is returned as a constant).
    *
    */
-   virtual const MomentsMap& moments() const = 0;
+  virtual const MomentsMap& moments() const = 0;
 
-  //virtual MomentVector& operator[](const MomentIndex index) = 0;
+  virtual const MomentVector& operator[](const MomentIndex) const = 0;
+
+
   /*! \brief Returns the total number of energy groups. */
   virtual int total_groups() const = 0;
   /*! \brief Returns the value of \f$\ell_{\text{max}}\f$. */

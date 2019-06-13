@@ -37,6 +37,11 @@ class SphericalHarmonic : public SphericalHarmonicI {
   virtual ~SphericalHarmonic() = default;
 
   const MomentsMap& moments() const override { return moments_; }
+
+  const MomentVector& operator[](const MomentIndex index) const {
+    return moments_.at(index);
+  };
+
   int total_groups() const override { return total_groups_; }
   int max_harmonic_l() const override { return max_harmonic_l_;}
  private:

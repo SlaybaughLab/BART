@@ -8,6 +8,8 @@ namespace  {
 
 using namespace bart;
 
+using ::testing::Ref;
+
 class SystemMomentsSphericalHarmonicTest : public ::testing::Test {
  protected:
 
@@ -39,6 +41,13 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BadGroupsAndHarmonics) {
         system::moments::SphericalHarmonic bad_moment(group, max_harmonic_l);
       });
     }
+  }
+}
+
+TEST_F(SystemMomentsSphericalHarmonicTest, BracketOperator) {
+  for (const auto& moment_pair : test_moments.moments()) {
+    const auto& moment = test_moments[moment_pair.first];
+    EXPECT_THAT(moment, Ref(moment_pair.second));
   }
 }
 
