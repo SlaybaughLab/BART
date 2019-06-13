@@ -51,5 +51,13 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BracketOperator) {
   }
 }
 
+TEST_F(SystemMomentsSphericalHarmonicTest, Assignment) {
+  system::moments::MomentVector moment{10};
+  system::moments::MomentIndex index{0,0,0};
+  moment = 5;
+
+  test_moments[index] = moment;
+  EXPECT_EQ(test_moments[index], moment);
+}
 
 } // namespace

@@ -42,6 +42,10 @@ class SphericalHarmonic : public SphericalHarmonicI {
     return moments_.at(index);
   };
 
+  MomentVector& operator[](const MomentIndex index) {
+    return moments_.at(index);
+  };
+
   int total_groups() const override { return total_groups_; }
   int max_harmonic_l() const override { return max_harmonic_l_;}
  private:
