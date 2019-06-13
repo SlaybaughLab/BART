@@ -15,7 +15,8 @@ namespace moments {
  * using a unique index made up of the group, degree, and order of the moment
  * (See the documentation for system::moments::SphericalHarmonicI for the
  * definition of these values). After construction, the value of
- * \f$\ell_{\text{max}}\f$ and \f$g\f$ cannot be changed.
+ * \f$\ell_{\text{max}}\f$ and \f$g\f$ cannot be changed. The moments map will
+ * be of length \f$g\cdot(\ell + 1)^2\f$.
  *
  * The underlying vectors are stored as type dealii::Vector<double> and are
  * constructed but unitialized. The `reinit` function must be called or they
@@ -32,14 +33,14 @@ namespace moments {
 class SphericalHarmonic : public SphericalHarmonicI {
  public:
   SphericalHarmonic(const int total_groups,
-                    const int max_harmonic_l)
-      : total_groups_(total_groups),
-        max_harmonic_l_(max_harmonic_l) {};
+                    const int max_harmonic_l);
   virtual ~SphericalHarmonic() = default;
 
+  const MomentsMap& moments() const override { return moments_; }
   int total_groups() const override { return total_groups_; }
   int max_harmonic_l() const override { return max_harmonic_l_;}
  private:
+  MomentsMap moments_ = {};
   const int total_groups_ = 0;
   const int max_harmonic_l_ = 0;
 };

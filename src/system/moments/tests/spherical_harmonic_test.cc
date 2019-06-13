@@ -23,6 +23,8 @@ class SystemMomentsSphericalHarmonicTest : public ::testing::Test {
 TEST_F(SystemMomentsSphericalHarmonicTest, Constructor) {
   EXPECT_EQ(test_moments.total_groups(), total_groups);
   EXPECT_EQ(test_moments.max_harmonic_l(), max_harmonic_l);
+  int total_moments = total_groups * (max_harmonic_l + 1) * (max_harmonic_l + 1);
+  EXPECT_EQ(test_moments.moments().size(), total_moments);
 }
 
 

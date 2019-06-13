@@ -24,11 +24,19 @@ namespace moments {
  * \f$Y_{\ell}^{m}\f$ are the spherical harmonics of degree
  * \f$ \{\ell \in \mathbb{Z} \mid 0 \leq \ell \leq \ell_{\text{max}}\} \f$
  * and order
- * \f$ \{m \in \mathbb{Z} \mid  |m| \leq \ell_{\text{max}}\} \f$
+ * \f$ \{m \in \mathbb{Z} \mid  |m| \leq \ell}\} \f$.
  */
 class SphericalHarmonicI {
  public:
   virtual ~SphericalHarmonicI() = default;
+
+  /*! \brief Returns the full mapping of moments.
+   *
+   * By default this interface does not provide a method for modifying the
+   * map (it is returned as a constant).
+   *
+   */
+   virtual const MomentsMap& moments() const = 0;
 
   //virtual MomentVector& operator[](const MomentIndex index) = 0;
   /*! \brief Returns the total number of energy groups. */
