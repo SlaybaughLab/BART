@@ -12,7 +12,17 @@ namespace moments {
 
 class SphericalHarmonic : public SphericalHarmonicI {
  public:
+  SphericalHarmonic(const int total_groups,
+                    const int max_harmonic_l)
+      : total_groups_(total_groups),
+        max_harmonic_l_(max_harmonic_l) {};
   virtual ~SphericalHarmonic() = default;
+
+  int total_groups() const override { return total_groups_; }
+  int max_harmonic_l() const override { return max_harmonic_l_;}
+ private:
+  const int total_groups_ = 0;
+  const int max_harmonic_l_ = 0;
 };
 
 } // namespace moments

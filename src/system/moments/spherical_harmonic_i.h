@@ -16,6 +16,11 @@ namespace moments {
 class SphericalHarmonicI {
  public:
   virtual ~SphericalHarmonicI() = default;
+
+  //virtual MomentVector& operator[](const MomentIndex index) = 0;
+
+  virtual int total_groups() const = 0;
+  virtual int max_harmonic_l() const = 0;
 };
 
 } // namespace moments
