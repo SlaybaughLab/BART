@@ -14,9 +14,9 @@ class SystemMomentsSphericalHarmonicTest : public ::testing::Test {
  protected:
 
   SystemMomentsSphericalHarmonicTest()
-      : test_moments(total_groups, max_harmonic_l) {};
+      : test_moments(total_groups, max_harmonic_l) {}
 
-  // Test object
+  // Test objects
   system::moments::SphericalHarmonic test_moments;
 
   // Test parameters
@@ -49,6 +49,14 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BracketOperator) {
     const auto& moment = test_moments[moment_pair.first];
     EXPECT_THAT(moment, Ref(moment_pair.second));
   }
+
+  const auto& const_test_moments = test_moments;
+
+  for (const auto& moment_pair : const_test_moments.moments()) {
+    const auto& moment = const_test_moments[moment_pair.first];
+    EXPECT_THAT(moment, Ref(moment_pair.second));
+  }
+
 }
 
 TEST_F(SystemMomentsSphericalHarmonicTest, Assignment) {
