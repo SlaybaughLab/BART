@@ -34,11 +34,16 @@ TEST_F(SolutionMPIAngularTests, Constructor) {
 }
 
 TEST_F(SolutionMPIAngularTests, OperatorBraketsPair) {
+
+  const auto& const_test_solution = test_solution;
+
   for (int group = 0; group < test_groups_; ++group) {
     for (int angle = 0; angle < test_angles_; ++angle) {
       std::pair<int, int> test_pair{group, angle};
       EXPECT_THAT(test_solution[test_pair],
                   Ref(test_solution.solutions().at(test_pair)));
+      EXPECT_THAT(const_test_solution[test_pair],
+                  Ref(const_test_solution.solutions().at(test_pair)));
     }
   }
 }
