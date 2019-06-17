@@ -12,18 +12,19 @@ namespace angular {
 template <int dim>
 class AngularQuadratureSet : public AngularQuadratureSetI<dim> {
  public:
+  AngularQuadratureSet() = default;
   ~AngularQuadratureSet() = default;
 
   std::vector<QuadraturePoint<dim>> quadrature_points() const override {
-    return std::vector<QuadraturePoint<dim>>();
+    return quadrature_points_;
   }
 
   int total_quadrature_points() const override {
-    return total_quadrature_points_;
+    return quadrature_points_.size();
   }
 
  protected:
-  int total_quadrature_points_ = 0;
+  std::vector<QuadraturePoint<dim>> quadrature_points_ = {};
 };
 
 } // namespace angular

@@ -25,8 +25,14 @@ namespace angular {
 template <int dim>
 class AngularQuadratureScalar : public AngularQuadratureSet<dim> {
  public:
-  AngularQuadratureScalar() = default;
+  AngularQuadratureScalar() {
+    Ordinate<dim> zero_ordinate;
+    for (auto& angle : zero_ordinate)
+      angle = 0;
+    this->quadrature_points_ = {{1.0, zero_ordinate}};
+  }
   virtual ~AngularQuadratureScalar() = default;
+
 
 };
 
