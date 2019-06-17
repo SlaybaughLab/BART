@@ -29,6 +29,7 @@ TYPED_TEST(AngularQuadratureScalarTests, Constructor) {
   constexpr int dim = this->dim;
   using QuadraturePoint = quadrature::angular::QuadraturePoint<dim>;
   using Ordinate = quadrature::angular::Ordinate<dim>;
+  using Weight = quadrature::angular::Weight;
   using data::system::AngleIndex;
 
   EXPECT_EQ(test_scalar_quad_.total_quadrature_points(), 1);
@@ -38,15 +39,19 @@ TYPED_TEST(AngularQuadratureScalarTests, Constructor) {
   for (auto& angle_coordinate : zero_ordinate)
     angle_coordinate = 0;
 
+  std::map<AngleIndex, QuadraturePoint> expected_quad_pt_map{{0, {1.0, zero_ordinate}}};
   std::vector<QuadraturePoint> expected_quadrature_points{{1.0, zero_ordinate}};
+  std::vector<Weight> expected_weights{1.0};
 
   EXPECT_THAT(test_scalar_quad_.quadrature_points(),
               ContainerEq(expected_quadrature_points));
 
-  std::map<AngleIndex, QuadraturePoint> expected_quad_pt_map{{0, {1.0, zero_ordinate}}};
 
   EXPECT_THAT(test_scalar_quad_.quadrature_points_map(),
               ContainerEq(expected_quad_pt_map));
+
+  EXPECT_THAT(test_scalar_quad_.quadrature_weights(),
+              ContainerEq(expected_weights));
 }
 
 

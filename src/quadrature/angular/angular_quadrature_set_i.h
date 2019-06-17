@@ -37,9 +37,21 @@ class AngularQuadratureSetI {
   /*! \brief Map of quadrature points to system angle indices. */
   virtual std::map<AngleIndex, QuadraturePoint<dim>> quadrature_points_map() const = 0;
 
-  /*! \brief Returns a vector holding the quadrature points */
+  /*! \brief Returns a vector holding the quadrature points
+   *
+   * Position in the vector corresponds to the AngleIndex used by solutions.
+   *
+   * */
   virtual std::vector<QuadraturePoint<dim>> quadrature_points() const = 0;
+  /*! \brief Returns a vector holding the quadrature weights
+   *
+   * Position in the vector corresponds to the AngleIndex used by solutions.
+   *
+   * */
+  virtual std::vector<Weight> quadrature_weights() const = 0;
+
   virtual int total_quadrature_points() const = 0;
+
 };
 
 } // namespace angular
