@@ -1,5 +1,6 @@
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 
+#include "quadrature/angular/tests/angular_quadrature_set_mock.h"
 #include "system/solution/tests/mpi_angular_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
