@@ -22,7 +22,8 @@ namespace angular {
  * the problem.
  *
  */
-class AngularQuadratureScalar : public AngularQuadratureSet {
+template <int dim>
+class AngularQuadratureScalar : public AngularQuadratureSet<dim> {
  public:
   AngularQuadratureScalar() = default;
   virtual ~AngularQuadratureScalar() = default;

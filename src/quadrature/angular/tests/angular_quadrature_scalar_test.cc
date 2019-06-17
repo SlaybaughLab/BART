@@ -7,14 +7,20 @@ namespace  {
 
 using namespace bart;
 
+template <typename DimensionWrapper>
 class AngularQuadratureScalarTests : public ::testing::Test {
  protected:
+  static constexpr int dim = DimensionWrapper::value;
   // Tested object
-  quadrature::angular::AngularQuadratureScalar test_scalar_quad_;
+  quadrature::angular::AngularQuadratureScalar<dim> test_scalar_quad_;
 };
 
-TEST_F(AngularQuadratureScalarTests, Constructor) {
-  EXPECT_TRUE(true);
+TYPED_TEST_CASE(AngularQuadratureScalarTests, bart::testing::AllDimensions);
+
+TYPED_TEST(AngularQuadratureScalarTests, Constructor) {
+  auto& test_scalar_quad_ = this->test_scalar_quad_;
+  auto dim = this->dim;
+  EXPECT_EQ(test_scalar_quad_.total_quadrature_points(), 1);
 }
 
 

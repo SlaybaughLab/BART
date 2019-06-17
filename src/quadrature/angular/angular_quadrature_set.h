@@ -9,9 +9,21 @@ namespace quadrature {
 
 namespace angular {
 
-class AngularQuadratureSet : public AngularQuadratureSetI {
+template <int dim>
+class AngularQuadratureSet : public AngularQuadratureSetI<dim> {
  public:
   ~AngularQuadratureSet() = default;
+
+  std::vector<QuadraturePoint<dim>> quadrature_points() const override {
+    return std::vector<QuadraturePoint<dim>>();
+  }
+
+  int total_quadrature_points() const override {
+    return total_quadrature_points_;
+  }
+
+ protected:
+  int total_quadrature_points_ = 0;
 };
 
 } // namespace angular
