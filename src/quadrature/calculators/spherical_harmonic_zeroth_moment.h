@@ -12,6 +12,10 @@ namespace calculators {
 template <int dim>
 class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
  public:
+  SphericalHarmonicZerothMoment(
+      std::shared_ptr<angular::AngularQuadratureSetI<dim>> angular_quadrature_ptr)
+      : SphericalHarmonicMoments<dim>(angular_quadrature_ptr) {}
+
   virtual ~SphericalHarmonicZerothMoment() = default;
 };
 

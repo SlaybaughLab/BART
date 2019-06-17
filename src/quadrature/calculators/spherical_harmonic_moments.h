@@ -13,9 +13,16 @@ namespace quadrature {
 namespace calculators {
 
 template <int dim>
-class SphericalHarmonicMoments : public SphericalHarmonicMomentsI {
+class SphericalHarmonicMoments : public SphericalHarmonicMomentsI<dim> {
  public:
+  SphericalHarmonicMoments(
+      std::shared_ptr<angular::AngularQuadratureSetI<dim>> angular_quadrature_ptr)
+      : angular_quadrature_ptr_(angular_quadrature_ptr) {};
   virtual ~SphericalHarmonicMoments() = default;
+
+  angular::AngularQuadratureSetI<dim> *angular_quadrature_set_ptr() const override {
+    return angular_quadrature_ptr_.get();
+  }
 
  protected:
   std::shared_ptr<angular::AngularQuadratureSetI<dim>> angular_quadrature_ptr_;
