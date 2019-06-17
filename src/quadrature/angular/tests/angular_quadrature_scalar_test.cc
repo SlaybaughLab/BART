@@ -13,7 +13,7 @@ class AngularQuadratureScalarTests : public ::testing::Test {
   quadrature::angular::AngularQuadratureScalar test_scalar_quad_;
 };
 
-TEST_F(AngularQuadratureScalarTests, Dummy) {
+TEST_F(AngularQuadratureScalarTests, Constructor) {
   EXPECT_TRUE(true);
 }
 

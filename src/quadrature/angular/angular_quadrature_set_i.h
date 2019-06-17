@@ -28,6 +28,8 @@ class AngularQuadratureSetI {
  public:
   virtual ~AngularQuadratureSetI() = default;
 
+
+
 };
 
 } // namespace angular

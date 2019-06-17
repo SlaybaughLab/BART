@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_ANGULAR_ANGULAR_QUADRATURE_SCALAR_H_
 #define BART_SRC_QUADRATURE_ANGULAR_ANGULAR_QUADRATURE_SCALAR_H_
 
-#include "quadrature/angular/angular_quadrature_set_i.h"
+#include "quadrature/angular/angular_quadrature_set.h"
 
 namespace bart {
 
@@ -22,9 +22,11 @@ namespace angular {
  * the problem.
  *
  */
-class AngularQuadratureScalar : public AngularQuadratureSetI {
+class AngularQuadratureScalar : public AngularQuadratureSet {
  public:
+  AngularQuadratureScalar() = default;
   virtual ~AngularQuadratureScalar() = default;
+
 };
 
 } // namespace angular
