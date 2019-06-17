@@ -16,6 +16,11 @@ class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
       std::shared_ptr<angular::AngularQuadratureSetI<dim>> angular_quadrature_ptr)
       : SphericalHarmonicMoments<dim>(angular_quadrature_ptr) {}
 
+  system::moments::MomentVector CalculateMoment(
+      system::solution::MPIAngularI* solution,
+      system::moments::HarmonicL harmonic_l,
+      system::moments::HarmonicL harmonic_m) const override;
+
   virtual ~SphericalHarmonicZerothMoment() = default;
 };
 

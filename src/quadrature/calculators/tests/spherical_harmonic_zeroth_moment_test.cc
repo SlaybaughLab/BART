@@ -25,6 +25,8 @@ class QuadCalcSphericalHarmonicMomentsOnlyScalar : public ::testing::Test {
 
   // Supporting objects
   system::solution::MPIAngularMock mock_solution_;
+
+  // Test object dependency
   std::shared_ptr<AngularQuadratureSetType> mock_angular_quad_;
 
   // Observing pointers
