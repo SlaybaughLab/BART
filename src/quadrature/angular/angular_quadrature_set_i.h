@@ -2,7 +2,9 @@
 #define BART_SRC_QUADRATURE_ANGULAR_ANGULAR_QUADRATURE_SET_I_H_
 
 #include "quadrature/angular/angular_quadrature_types.h"
+#include "data/system/system_types.h"
 
+#include <map>
 #include <vector>
 
 namespace bart {
@@ -29,8 +31,13 @@ namespace angular {
 template <int dim>
 class AngularQuadratureSetI {
  public:
+  using AngleIndex = data::system::AngleIndex;
   virtual ~AngularQuadratureSetI() = default;
 
+  /*! \brief Map of quadrature points to system angle indices. */
+  virtual std::map<AngleIndex, QuadraturePoint<dim>> quadrature_points_map() const = 0;
+
+  /*! \brief Returns a vector holding the quadrature points */
   virtual std::vector<QuadraturePoint<dim>> quadrature_points() const = 0;
   virtual int total_quadrature_points() const = 0;
 };

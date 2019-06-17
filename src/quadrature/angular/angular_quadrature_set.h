@@ -12,8 +12,13 @@ namespace angular {
 template <int dim>
 class AngularQuadratureSet : public AngularQuadratureSetI<dim> {
  public:
+  using typename AngularQuadratureSetI<dim>::AngleIndex;
   AngularQuadratureSet() = default;
   ~AngularQuadratureSet() = default;
+
+  std::map<AngleIndex, QuadraturePoint<dim>> quadrature_points_map() const override {
+    return quadrature_points_map_;
+  }
 
   std::vector<QuadraturePoint<dim>> quadrature_points() const override {
     return quadrature_points_;
@@ -25,6 +30,7 @@ class AngularQuadratureSet : public AngularQuadratureSetI<dim> {
 
  protected:
   std::vector<QuadraturePoint<dim>> quadrature_points_ = {};
+  std::map<AngleIndex, QuadraturePoint<dim>> quadrature_points_map_ = {};
 };
 
 } // namespace angular

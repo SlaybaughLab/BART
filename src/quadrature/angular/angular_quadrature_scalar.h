@@ -29,7 +29,10 @@ class AngularQuadratureScalar : public AngularQuadratureSet<dim> {
     Ordinate<dim> zero_ordinate;
     for (auto& angle : zero_ordinate)
       angle = 0;
-    this->quadrature_points_ = {{1.0, zero_ordinate}};
+    QuadraturePoint<dim> scalar_quad_point{1.0, zero_ordinate};
+
+    this->quadrature_points_map_[0] = scalar_quad_point;
+    this->quadrature_points_[0] = this->quadrature_points_map_[0];
   }
   virtual ~AngularQuadratureScalar() = default;
 

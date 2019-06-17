@@ -1,8 +1,10 @@
 #include "quadrature/angular/angular_quadrature_scalar.h"
 
 #include <array>
+#include <map>
 #include <vector>
 
+#include "data/system/system_types.h"
 #include "quadrature/angular/angular_quadrature_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -27,7 +29,7 @@ TYPED_TEST(AngularQuadratureScalarTests, Constructor) {
   constexpr int dim = this->dim;
   using QuadraturePoint = quadrature::angular::QuadraturePoint<dim>;
   using Ordinate = quadrature::angular::Ordinate<dim>;
-
+  using data::system::AngleIndex;
 
   EXPECT_EQ(test_scalar_quad_.total_quadrature_points(), 1);
 
@@ -40,6 +42,11 @@ TYPED_TEST(AngularQuadratureScalarTests, Constructor) {
 
   EXPECT_THAT(test_scalar_quad_.quadrature_points(),
               ContainerEq(expected_quadrature_points));
+
+  std::map<AngleIndex, QuadraturePoint> expected_quad_pt_map{{0, {1.0, zero_ordinate}}};
+
+  EXPECT_THAT(test_scalar_quad_.quadrature_points_map(),
+              ContainerEq(expected_quad_pt_map));
 }
 
 
