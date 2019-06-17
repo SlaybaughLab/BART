@@ -21,16 +21,25 @@ class AngularQuadratureSet : public AngularQuadratureSetI<dim> {
   }
 
   std::vector<QuadraturePoint<dim>> quadrature_points() const override {
+    if (quadrature_points_.empty()) {
+      quadrature_points_.resize(quadrature_points_map_.size());
+      for (auto map_pair : quadrature_points_map_) {
+        auto [angle_index, quadrature_point] = map_pair;
+        quadrature_points_[angle_index] = quadrature_point;
+      }
+    }
     return quadrature_points_;
   }
 
   int total_quadrature_points() const override {
-    return quadrature_points_.size();
+    return quadrature_points_map_.size();
   }
 
  protected:
-  std::vector<QuadraturePoint<dim>> quadrature_points_ = {};
   std::map<AngleIndex, QuadraturePoint<dim>> quadrature_points_map_ = {};
+
+ private:
+  mutable std::vector<QuadraturePoint<dim>> quadrature_points_ = {};
 };
 
 } // namespace angular
