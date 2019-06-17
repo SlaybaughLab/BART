@@ -1,7 +1,6 @@
 #ifndef BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 #define BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 
-#include "quadrature/angular/angular_quadrature_set_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 
 namespace bart {
@@ -17,6 +16,13 @@ class MPIAngularI;
 } // namespace system
 
 namespace quadrature {
+
+namespace angular {
+
+template <int dim>
+class AngularQuadratureSetI;
+
+} // namespace angular
 
 namespace calculators {
 
