@@ -15,6 +15,9 @@ namespace system {
 //! Sparse MPI vector for use in various system terms.
 using MPIVector = dealii::PETScWrappers::MPI::Vector;
 
+//! Sparse MPI matrix used for left-hand-side matrices
+using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+
 } // namespace system
 
 namespace data {
@@ -36,7 +39,7 @@ using Index = std::pair<GroupNumber, AngleIndex>;
 // Term Data Types
 
 //! Sparse MPI matrix used for left-hand-side matrices
-using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
+//using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
 //! Sparse MPI vector used for ride-hand-side vectors
 //using MPIVector = dealii::PETScWrappers::MPI::Vector;
 
@@ -55,7 +58,7 @@ enum class VariableBilinearTerms {
 
 //! Standard pair types for terms
 using MPILinearTermPair = std::pair<bart::system::MPIVector, VariableLinearTerms>;
-using MPIBilinearTermPair = std::pair<MPISparseMatrix, VariableBilinearTerms>;
+using MPIBilinearTermPair = std::pair<bart::system::MPISparseMatrix, VariableBilinearTerms>;
 
 
 // ===== HARMONICS =============================================================

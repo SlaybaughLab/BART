@@ -72,7 +72,7 @@ TEST_F(IterationFixedUpdaterBasicTest, Constructor) {
 class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
                                         public bart::testing::DealiiTestDomain<2> {
  public:
-  void StampOne(data::system::MPISparseMatrix& to_stamp) {
+  void StampOne(system::MPISparseMatrix& to_stamp) {
     StampMatrix(to_stamp, 1);
   }
  protected:
@@ -82,7 +82,7 @@ class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
     index_({group_number_, angle_index_}) {};
 
   system::System test_system_;
-  std::shared_ptr<data::system::MPISparseMatrix> matrix_ptr_;
+  std::shared_ptr<system::MPISparseMatrix> matrix_ptr_;
   // Pointer to access the mock left hand side object stored in test_system
   data::system::BilinearTermMock* mock_lhs_obs_ptr_;
 
@@ -107,7 +107,7 @@ void IterationFixedUpdaterDomainTest::SetUp() {
 
   // Setup matrix_ptr to make it identical to the DealiiTestDomain matrices,
   // then stamp with the value 2
-  matrix_ptr_ = std::make_shared<data::system::MPISparseMatrix>();
+  matrix_ptr_ = std::make_shared<system::MPISparseMatrix>();
   matrix_ptr_->reinit(matrix_1);
   StampMatrix(*matrix_ptr_, 2);
 

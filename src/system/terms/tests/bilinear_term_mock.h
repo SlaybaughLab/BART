@@ -16,7 +16,7 @@ namespace system {
 
 class BilinearTermMock : public TermI<data::system::MPIBilinearTermPair> {
  public:
-  using MPISparseMatrix = data::system::MPISparseMatrix;
+  using MPISparseMatrix = bart::system::MPISparseMatrix;
   using VariableBilinearTerms = data::system::VariableBilinearTerms;
 
   MOCK_CONST_METHOD0(GetVariableTerms, std::unordered_set<VariableBilinearTerms>());
