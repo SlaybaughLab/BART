@@ -15,12 +15,13 @@ namespace {
 
 using namespace bart;
 
-using ::testing::Ref, ::testing::Return;
+using ::testing::Ref, ::testing::Return, ::testing::ReturnRef;
 
 void SetVector(system::MPIVector& to_set, double value) {
   auto [first_row, last_row] = to_set.local_range();
   for (unsigned int i = first_row; i < last_row; ++i)
     to_set[i] = value;
+  to_set.compress(dealii::VectorOperation::insert);
 }
 
 template <typename DimensionWrapper>
@@ -100,12 +101,33 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateBandAngleNumber)
 }
 
 TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
+  auto& angular_quad_mock = *(this->angular_quad_obs_ptr_);
+  auto& test_calculator = this->test_calculator;
+  auto& mock_solution = this->mock_solution_;
+
+  const int n_angles = 3;
   const int group = 0;
-  const int total_angles = 3;
 
-  for (int angle = 0; angle < total_angles; ++angle) {
+  EXPECT_CALL(angular_quad_mock, total_quadrature_points())
+      .WillOnce(Return(n_angles));
+  EXPECT_CALL(mock_solution, total_angles())
+      .WillOnce(Return(n_angles));
 
+  for (int angle = 0; angle < n_angles; ++angle) {
+    data::system::Index index{group, angle};
+    EXPECT_CALL(mock_solution, BracketOp(index))
+        .WillOnce(ReturnRef(this->mpi_vectors_[angle]));
   }
+
+  std::vector<quadrature::angular::Weight> weights{2.2, 3.3, 4.4};
+  EXPECT_CALL(angular_quad_mock, quadrature_weights())
+      .WillOnce(Return(weights));
+
+  data::system::MomentVector expected_result(this->n_entries_per_proc);
+  expected_result = 4.4*100 + 3.3*10 + 2.2;
+
+  auto result = test_calculator->CalculateMoment(&mock_solution, group, 0, 0);
+  EXPECT_EQ(result, expected_result);
 }
 
 
