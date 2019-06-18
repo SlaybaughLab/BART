@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DATA_SYSTEM_TESTS_BILINEAR_TERM_MOCK_H_
 #define BART_SRC_DATA_SYSTEM_TESTS_BILINEAR_TERM_MOCK_H_
 
-#include "data/system/term_i.h"
+#include "system/terms/term_i.h"
 
 #include <unordered_set>
 

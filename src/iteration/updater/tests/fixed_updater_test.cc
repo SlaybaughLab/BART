@@ -5,7 +5,7 @@
 #include <deal.II/lac/full_matrix.h>
 
 #include "system/system.h"
-#include "data/system/tests/bilinear_term_mock.h"
+#include "system/terms/tests/bilinear_term_mock.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"

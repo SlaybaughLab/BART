@@ -3,7 +3,7 @@
 #include <array>
 
 #include "system/system.h"
-#include "data/system/tests/bilinear_term_mock.h"
+#include "system/terms/tests/bilinear_term_mock.h"
 #include "iteration/updater/tests/fixed_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"

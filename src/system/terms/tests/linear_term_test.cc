@@ -1,4 +1,4 @@
-#include "data/system/term.h"
+#include "system/terms/term.h"
 
 #include <memory>
 #include <unordered_set>
