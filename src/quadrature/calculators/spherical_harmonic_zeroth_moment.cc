@@ -9,6 +9,7 @@ namespace calculators {
 template<int dim>
 system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMoment(
     system::solution::MPIAngularI* solution,
+    data::system::GroupNumber group,
     system::moments::HarmonicL harmonic_l,
     system::moments::HarmonicL harmonic_m) const {
 

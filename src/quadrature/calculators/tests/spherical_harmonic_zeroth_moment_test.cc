@@ -61,4 +61,9 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, Constructor) {
   EXPECT_THAT(*mock_angular_quad_, Ref(*angular_quad_obs_ptr_));
 }
 
+TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMoment) {
+
+}
+
+
 } // namespace

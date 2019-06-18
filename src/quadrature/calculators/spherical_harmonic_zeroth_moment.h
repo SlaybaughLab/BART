@@ -18,6 +18,7 @@ class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
 
   system::moments::MomentVector CalculateMoment(
       system::solution::MPIAngularI* solution,
+      data::system::GroupNumber group,
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const override;
 
