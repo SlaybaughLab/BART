@@ -84,11 +84,11 @@ class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
   system::System test_system_;
   std::shared_ptr<system::MPISparseMatrix> matrix_ptr_;
   // Pointer to access the mock left hand side object stored in test_system
-  data::system::BilinearTermMock* mock_lhs_obs_ptr_;
+  system::terms::BilinearTermMock* mock_lhs_obs_ptr_;
 
-  const data::system::GroupNumber group_number_;
-  const data::system::AngleIndex angle_index_;
-  const data::system::Index index_;
+  const system::GroupNumber group_number_;
+  const system::AngleIndex angle_index_;
+  const system::Index index_;
 
   void SetUp() override;
 };
@@ -103,7 +103,7 @@ void IterationFixedUpdaterDomainTest::SetUp() {
 
   // This mock left hand side will be stored in our system and will return
   // our class matrix_ptr_ by default.
-  auto mock_lhs_ptr_ = std::make_unique<NiceMock<data::system::BilinearTermMock>>();
+  auto mock_lhs_ptr_ = std::make_unique<NiceMock<system::terms::BilinearTermMock>>();
 
   // Setup matrix_ptr to make it identical to the DealiiTestDomain matrices,
   // then stamp with the value 2
@@ -111,13 +111,13 @@ void IterationFixedUpdaterDomainTest::SetUp() {
   matrix_ptr_->reinit(matrix_1);
   StampMatrix(*matrix_ptr_, 2);
 
-  ON_CALL(*mock_lhs_ptr_, GetFixedTermPtr(An<data::system::Index>()))
+  ON_CALL(*mock_lhs_ptr_, GetFixedTermPtr(An<system::Index>()))
       .WillByDefault(Return(matrix_ptr_));
-  ON_CALL(*mock_lhs_ptr_, GetFixedTermPtr(An<data::system::GroupNumber>()))
+  ON_CALL(*mock_lhs_ptr_, GetFixedTermPtr(An<system::GroupNumber>()))
       .WillByDefault(Return(matrix_ptr_));
   test_system_.left_hand_side_ptr_ = std::move(mock_lhs_ptr_);
 
-  mock_lhs_obs_ptr_ = dynamic_cast<data::system::BilinearTermMock*>(
+  mock_lhs_obs_ptr_ = dynamic_cast<system::terms::BilinearTermMock*>(
       test_system_.left_hand_side_ptr_.get());
 }
 

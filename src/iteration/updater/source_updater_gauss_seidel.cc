@@ -11,8 +11,8 @@ namespace updater {
 template <>
 void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource(
     system::System& system,
-    data::system::GroupNumber group,
-    data::system::AngleIndex angle) {
+    system::GroupNumber group,
+    system::AngleIndex angle) {
 
   auto scattering_source_vector_ptr_ =
       this->GetSourceVectorPtr(VariableTerms::kScatteringSource,
@@ -35,8 +35,8 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource
 template <>
 void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateFissionSource(
     system::System& system,
-    data::system::GroupNumber group,
-    data::system::AngleIndex angle) {
+    system::GroupNumber group,
+    system::AngleIndex angle) {
 
     double k_effective;
 

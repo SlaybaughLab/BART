@@ -30,17 +30,17 @@ template <typename StamperType>
 class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
 
-  using VariableTerms = data::system::VariableLinearTerms;
+  using VariableTerms = system::terms::VariableLinearTerms;
 
   explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
 
   void UpdateScatteringSource(system::System& system,
-                              data::system::GroupNumber group,
-                              data::system::AngleIndex angle) override;
+                              system::GroupNumber group,
+                              system::AngleIndex angle) override;
   void UpdateFissionSource(system::System& system,
-                           data::system::GroupNumber group,
-                           data::system::AngleIndex angle) override;
+                           system::GroupNumber group,
+                           system::AngleIndex angle) override;
 };
 
 } // namespace updater

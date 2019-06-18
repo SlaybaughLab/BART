@@ -18,7 +18,7 @@ class IterationInitializerSetFixedTermsOnceTest : public ::testing::Test {
  protected:
   using InitializerType = iteration::initializer::SetFixedTermsOnce;
   using MockFixedUpdaterType = iteration::updater::FixedUpdaterMock;
-  using MockBilinearTermType = data::system::BilinearTermMock;
+  using MockBilinearTermType = system::terms::BilinearTermMock;
 
   IterationInitializerSetFixedTermsOnceTest()
       : total_groups_(btest::RandomDouble(1, 5)),

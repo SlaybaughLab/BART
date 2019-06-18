@@ -39,7 +39,7 @@ using ::testing::_;
 class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  protected:
   using CFEMSourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
-  using VariableTerms = data::system::VariableLinearTerms;
+  using VariableTerms = system::terms::VariableLinearTerms;
 
   // Required objects
   // Test system
@@ -51,7 +51,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
 
   // Required mocks
   std::unique_ptr<formulation::CFEM_StamperMock> mock_stamper_ptr_;
-  std::unique_ptr<data::system::LinearTermMock> mock_rhs_ptr_;
+  std::unique_ptr<system::terms::LinearTermMock> mock_rhs_ptr_;
 
   void SetUp() override;
 };
@@ -64,20 +64,20 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  */
 void IterationSourceUpdaterGaussSeidelTest::SetUp() {
   mock_stamper_ptr_ = std::make_unique<NiceMock<formulation::CFEM_StamperMock>>();
-  mock_rhs_ptr_ = std::make_unique<NiceMock<data::system::LinearTermMock>>();
+  mock_rhs_ptr_ = std::make_unique<NiceMock<system::terms::LinearTermMock>>();
 
   /* Create and populate moment maps. The inserted MomentVectors can be empty
    * because we will check that the correct ones are passed by reference not
    * entries.
    */
-  data::system::MomentsMap current_iteration, previous_iteration;
+  system::moments::MomentsMap current_iteration, previous_iteration;
 
   int l_max = 2;
 
-  for (data::system::GroupNumber group = 0; group < 5; ++group) {
-    for (data::system::HarmonicL l = 0; l < l_max; ++l) {
-      for (data::system::HarmonicM m = -l_max; m <= l_max; ++m) {
-        data::system::MomentVector current_moment, previous_moment;
+  for (system::GroupNumber group = 0; group < 5; ++group) {
+    for (system::moments::HarmonicL l = 0; l < l_max; ++l) {
+      for (system::moments::HarmonicM m = -l_max; m <= l_max; ++m) {
+        system::moments::MomentVector current_moment, previous_moment;
         current_iteration[{group, l, m}] = current_moment;
         previous_iteration[{group, l, m}] = previous_moment;
       }
@@ -95,9 +95,9 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
                              5);
   expected_vector_.reinit(*source_vector_ptr_);
 
-  ON_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::Index>(),_))
+  ON_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<system::Index>(),_))
       .WillByDefault(Return(source_vector_ptr_));
-  ON_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::GroupNumber>(),_))
+  ON_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<system::GroupNumber>(),_))
       .WillByDefault(Return(source_vector_ptr_));
 }
 // Fills an MPI vector with value
@@ -122,7 +122,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
 
 // Verifies UpdateScatteringSource throws if RHS returns a null vector.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadRHS) {
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::Index>(),_))
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<system::Index>(),_))
       .WillOnce(Return(nullptr));
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
@@ -142,9 +142,9 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadMoment) {
 
 // Verifies operation of the UpdateScatteringSource function
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
-  data::system::GroupNumber group = btest::RandomDouble(1, 3);
-  data::system::AngleIndex angle = btest::RandomDouble(0, 10);
-  data::system::Index index = {group, angle};
+  system::GroupNumber group = btest::RandomDouble(1, 3);
+  system::AngleIndex angle = btest::RandomDouble(0, 10);
+  system::Index index = {group, angle};
   // Fill source vector with the value 2
   StampMPIVector(*source_vector_ptr_, 3);
   StampMPIVector(expected_vector_, group);
@@ -181,7 +181,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
 
 // Verifies UpdateFissionSource throws if RHS returns a null vector.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadRHS) {
-  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<data::system::Index>(),_))
+  EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(An<system::Index>(),_))
       .WillOnce(Return(nullptr));
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
@@ -216,9 +216,9 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadKeff) {
 }
 
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
-  data::system::GroupNumber group = btest::RandomDouble(1, 3);
-  data::system::AngleIndex angle = btest::RandomDouble(0, 10);
-  data::system::Index index = {group, angle};
+  system::GroupNumber group = btest::RandomDouble(1, 3);
+  system::AngleIndex angle = btest::RandomDouble(0, 10);
+  system::Index index = {group, angle};
   // Fill source vector with the value 3
   StampMPIVector(*source_vector_ptr_, 3);
   // Expected value identical to the group, which is [1, 3)

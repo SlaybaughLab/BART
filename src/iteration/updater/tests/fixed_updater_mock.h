@@ -22,8 +22,8 @@ class FixedUpdaterMock : public FixedUpdaterI {
  public:
   MOCK_METHOD3(UpdateFixedTerms, void(
       system::System& system,
-      data::system::GroupNumber group,
-      data::system::AngleIndex angle));
+      system::GroupNumber group,
+      system::AngleIndex angle));
 };
 
 } // namespace updater

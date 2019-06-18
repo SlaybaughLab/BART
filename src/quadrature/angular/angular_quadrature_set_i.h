@@ -31,7 +31,7 @@ namespace angular {
 template <int dim>
 class AngularQuadratureSetI {
  public:
-  using AngleIndex = data::system::AngleIndex;
+  using AngleIndex = system::AngleIndex;
   virtual ~AngularQuadratureSetI() = default;
 
   /*! \brief Map of quadrature points to system angle indices. */

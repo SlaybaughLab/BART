@@ -12,23 +12,6 @@ namespace bart {
 
 namespace system {
 
-//! Sparse MPI vector for use in various system terms.
-using MPIVector = dealii::PETScWrappers::MPI::Vector;
-
-//! Sparse MPI matrix used for left-hand-side matrices
-using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
-
-} // namespace system
-
-namespace data {
-
-namespace system {
-//TODO: Move these using declarations to the system namespace
-
-// ===== TERMS =================================================================
-
-// Term indices
-
 //! Group number for rhs and lhs
 using GroupNumber = int;
 //! Angle index for rhs and lhs
@@ -36,52 +19,13 @@ using AngleIndex = int;
 //! Index used to store and access rhs vectors and lhs matrices
 using Index = std::pair<GroupNumber, AngleIndex>;
 
-// Term Data Types
+//! Sparse MPI vector for use in various system terms.
+using MPIVector = dealii::PETScWrappers::MPI::Vector;
 
 //! Sparse MPI matrix used for left-hand-side matrices
-//using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
-//! Sparse MPI vector used for ride-hand-side vectors
-//using MPIVector = dealii::PETScWrappers::MPI::Vector;
-
-// Term VariableTerms
-
-//! Linear Terms that may vary iteration-to-iteration
-enum class VariableLinearTerms {
-  kScatteringSource = 0, //!< Scattering source
-  kFissionSource = 1,    //!< Fission source
-};
-
-//! Bilinear Terms that may vary iteration-to-iteration
-enum class VariableBilinearTerms {
-
-};
-
-//! Standard pair types for terms
-using MPILinearTermPair = std::pair<bart::system::MPIVector, VariableLinearTerms>;
-using MPIBilinearTermPair = std::pair<bart::system::MPISparseMatrix, VariableBilinearTerms>;
-
-
-// ===== HARMONICS =============================================================
-
-using HarmonicL = int;
-//!< Spherical harmonic \f$\ell\f$ value for moments
-
-using HarmonicM = int;
-//!< Spherical harmonic \f$m\f$ value for moments
-
-/*! \typedef HarmonicIndex
- * \brief Index of a spherical harmonic in the form \f$[g, \ell, m]\f$.
- *
- */
-using MomentIndex = std::array<int, 3>;
-
-using MomentVector = dealii::Vector<double>; //!< Vector for storing moments
-
-using MomentsMap = std::map<MomentIndex, MomentVector>;
+using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
 
 } // namespace system
-
-} // namespace data
 
 } // namespace bart
 

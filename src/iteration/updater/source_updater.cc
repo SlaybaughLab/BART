@@ -11,8 +11,8 @@ template <typename StamperType>
 std::shared_ptr<system::MPIVector> SourceUpdater<StamperType>::GetSourceVectorPtr(
     VariableTerms term,
     system::System& system,
-    data::system::GroupNumber group,
-    data::system::AngleIndex angle) {
+    system::GroupNumber group,
+    system::AngleIndex angle) {
   auto source_vector_ptr =
       system.right_hand_side_ptr_->GetVariableTermPtr({group, angle}, term);
 

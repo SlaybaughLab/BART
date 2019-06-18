@@ -9,9 +9,9 @@
 
 namespace bart {
 
-namespace data {
-
 namespace system {
+
+namespace terms {
 /*! \brief Stores and provides linear and bilinear terms.
  *
  * This class enables storage of any data storage type, but in general uses
@@ -40,7 +40,7 @@ namespace system {
  * using system::MPIVector;
  * enum class VariableTerms = { kNewVariableTerm };
  *
- * data::system::Term<MPIVector, VariableTerms> new_term({kNewVariableTerm});
+ * system::terms::Term<MPIVector, VariableTerms> new_term({kNewVariableTerm});
  *
  * \endcode
  *
@@ -99,12 +99,12 @@ class Term : public TermI<TermPair> {
   std::map<VariableTermType, TermPtrMap> variable_term_ptrs_;
 };
 
-using MPILinearTerm = Term<data::system::MPILinearTermPair>;
-using MPIBilinearTerm = Term<data::system::MPIBilinearTermPair>;
+using MPILinearTerm = Term<system::terms::MPILinearTermPair>;
+using MPIBilinearTerm = Term<system::terms::MPIBilinearTermPair>;
+
+} // namespace terms
 
 } // namespace system
-
-} // namespace data
 
 } // namespace bart
 

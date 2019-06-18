@@ -3,13 +3,14 @@
 
 #include <unordered_set>
 
+#include "system/terms/term_types.h"
 #include "system/system_types.h"
 
 namespace bart {
 
-namespace data {
-
 namespace system {
+
+namespace terms {
 
 template <typename TermPair>
 class TermI {
@@ -85,12 +86,12 @@ class TermI {
 
 };
 
-using MPILinearTermI = TermI<data::system::MPILinearTermPair>;
-using MPIBilinearTermI = TermI<data::system::MPIBilinearTermPair>;
+using MPILinearTermI = TermI<system::terms::MPILinearTermPair>;
+using MPIBilinearTermI = TermI<system::terms::MPIBilinearTermPair>;
+
+} // namespace terms
 
 } // namespace system
-
-} // namespace data
 
 } // namespace bart
 

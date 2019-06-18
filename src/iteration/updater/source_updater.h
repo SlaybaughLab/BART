@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "system/system_types.h"
+#include "system/terms/term_types.h"
 #include "iteration/updater/source_updater_i.h"
 #include "formulation/cfem_stamper_i.h"
 
@@ -26,7 +27,7 @@ namespace updater {
 template <typename StamperType>
 class SourceUpdater : public SourceUpdaterI {
  public:
-  using VariableTerms = data::system::VariableLinearTerms;
+  using VariableTerms = system::terms::VariableLinearTerms;
   using MPIVector = system::MPIVector;
 
   /*! \brief Constructor, takes ownership of stamper.
@@ -62,8 +63,8 @@ class SourceUpdater : public SourceUpdaterI {
    */
   std::shared_ptr<MPIVector> GetSourceVectorPtr(VariableTerms term,
                                                 system::System& system,
-                                                data::system::GroupNumber group,
-                                                data::system::AngleIndex angle);
+                                                system::GroupNumber group,
+                                                system::AngleIndex angle);
  protected:
   std::unique_ptr<StamperType> stamper_ptr_;
 

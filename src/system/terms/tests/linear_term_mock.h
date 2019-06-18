@@ -3,19 +3,20 @@
 
 #include <unordered_set>
 
-#include "system/terms/term_i.h"
 #include "system/system_types.h"
+#include "system/terms/term_i.h"
+#include "system/terms/term_types.h"
 
 namespace bart {
 
-namespace data {
-
 namespace system {
 
-class LinearTermMock : public TermI<data::system::MPILinearTermPair> {
+namespace terms {
+
+class LinearTermMock : public TermI<system::terms::MPILinearTermPair> {
  public:
   using MPIVector = bart::system::MPIVector;
-  using VariableLinearTerms = data::system::VariableLinearTerms;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
 
   MOCK_CONST_METHOD0(GetVariableTerms, std::unordered_set<VariableLinearTerms>());
   MOCK_METHOD2(SetFixedTermPtr, void(Index, std::shared_ptr<MPIVector>));
@@ -30,9 +31,9 @@ class LinearTermMock : public TermI<data::system::MPILinearTermPair> {
   MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPIVector>(GroupNumber, VariableLinearTerms));
 };
 
-} // namespace system
+} // namespace terms
 
-} // namespace data
+} // namespace system
 
 } // namespace bart
 

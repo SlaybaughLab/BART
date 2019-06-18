@@ -4,9 +4,9 @@
 
 namespace bart {
 
-namespace data {
-
 namespace system {
+
+namespace terms {
 
 template <typename TermPair>
 Term<TermPair>::Term(std::unordered_set<VariableTermType> variable_terms)
@@ -77,11 +77,11 @@ auto Term<TermPair>::GetVariableTermPtr(GroupNumber group,
   return GetVariableTermPtr({group, 0}, term);
 }
 
-template class Term<data::system::MPILinearTermPair>;
-template class Term<data::system::MPIBilinearTermPair>;
+template class Term<system::terms::MPILinearTermPair>;
+template class Term<system::terms::MPIBilinearTermPair>;
+
+} // namespace terms
 
 } // namespace system
-
-} // namespace data
 
 } // namespace bart

@@ -26,8 +26,8 @@ class SourceUpdaterI {
    * @param angle angle to update.
    */
   virtual void UpdateScatteringSource(system::System& system,
-                                      data::system::GroupNumber group,
-                                      data::system::AngleIndex angle) = 0;
+                                      system::GroupNumber group,
+                                      system::AngleIndex angle) = 0;
   /*! \brief Updates the fission source term in the provided system.
    *
    * Depending on implementation, this function will access the bilinear (left
@@ -39,8 +39,8 @@ class SourceUpdaterI {
    * @param angle angle to update.
    */
   virtual void UpdateFissionSource(system::System& system,
-                                   data::system::GroupNumber group,
-                                   data::system::AngleIndex angle) = 0;
+                                   system::GroupNumber group,
+                                   system::AngleIndex angle) = 0;
 };
 
 } // namespace updater

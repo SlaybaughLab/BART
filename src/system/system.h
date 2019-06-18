@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 
+#include "system/moments/spherical_harmonic_types.h"
 #include "system/system_types.h"
 #include "system/terms/term_i.h"
 
@@ -13,13 +14,13 @@ namespace system {
 
 struct System {
   //! Pointer to right hand side linear term
-  std::unique_ptr<data::system::MPILinearTermI> right_hand_side_ptr_;
+  std::unique_ptr<system::terms::MPILinearTermI> right_hand_side_ptr_;
   //! Pointer to left hand side bilinear term
-  std::unique_ptr<data::system::MPIBilinearTermI> left_hand_side_ptr_;
+  std::unique_ptr<system::terms::MPIBilinearTermI> left_hand_side_ptr_;
   //! Flux moments for the current iteration
-  data::system::MomentsMap current_iteration_moments = {};
+  system::moments::MomentsMap current_iteration_moments = {};
   //! Flux moments for the previous iteration
-  data::system::MomentsMap previous_iteration_moments = {};
+  system::moments::MomentsMap previous_iteration_moments = {};
   //! System k_effective
   std::optional<double> k_effective = std::nullopt;
 };

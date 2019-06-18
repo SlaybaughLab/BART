@@ -6,18 +6,19 @@
 #include <unordered_set>
 
 #include "system/system_types.h"
+#include "system/terms/term_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
 
-namespace data {
-
 namespace system {
 
-class BilinearTermMock : public TermI<data::system::MPIBilinearTermPair> {
+namespace terms {
+
+class BilinearTermMock : public TermI<system::terms::MPIBilinearTermPair> {
  public:
   using MPISparseMatrix = bart::system::MPISparseMatrix;
-  using VariableBilinearTerms = data::system::VariableBilinearTerms;
+  using VariableBilinearTerms = system::terms::VariableBilinearTerms;
 
   MOCK_CONST_METHOD0(GetVariableTerms, std::unordered_set<VariableBilinearTerms>());
   MOCK_METHOD2(SetFixedTermPtr, void(Index, std::shared_ptr<MPISparseMatrix>));
@@ -32,9 +33,9 @@ class BilinearTermMock : public TermI<data::system::MPIBilinearTermPair> {
   MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPISparseMatrix>(GroupNumber, VariableBilinearTerms));
 };
 
-} // namespace system
+} // namespace terms
 
-} // namespace data
+} // namespace system
 
 } // namespace bart
 

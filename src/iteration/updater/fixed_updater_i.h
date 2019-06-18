@@ -31,8 +31,8 @@ class FixedUpdaterI {
    * @param angle angle to update.
    */
   virtual void UpdateFixedTerms(system::System& system,
-                                data::system::GroupNumber group,
-                                data::system::AngleIndex angle) = 0;
+                                system::GroupNumber group,
+                                system::AngleIndex angle) = 0;
 };
 
 } // namespace updater

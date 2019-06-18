@@ -33,8 +33,8 @@ FixedUpdater<StamperType>::FixedUpdater(
 template <>
 void FixedUpdater<formulation::CFEMStamperI>::UpdateFixedTerms(
     system::System& system,
-    const data::system::GroupNumber group,
-    const data::system::AngleIndex angle) {
+    const system::GroupNumber group,
+    const system::AngleIndex angle) {
 
   auto fixed_matrix_ptr_ =
       system.left_hand_side_ptr_->GetFixedTermPtr({group, angle});

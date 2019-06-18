@@ -30,7 +30,7 @@ TYPED_TEST(AngularQuadratureScalarTests, Constructor) {
   using QuadraturePoint = quadrature::angular::QuadraturePoint<dim>;
   using Ordinate = quadrature::angular::Ordinate<dim>;
   using Weight = quadrature::angular::Weight;
-  using data::system::AngleIndex;
+  using system::AngleIndex;
 
   EXPECT_EQ(test_scalar_quad_.total_quadrature_points(), 1);
 

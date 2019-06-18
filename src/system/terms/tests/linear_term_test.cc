@@ -13,14 +13,14 @@ namespace  {
 
 using namespace bart;
 using system::MPIVector;
-using VariableLinearTerms = data::system::VariableLinearTerms;
+using VariableLinearTerms = system::terms::VariableLinearTerms;
 
 class SystemLinearTermTest : public ::testing::Test {
  protected:
   SystemLinearTermTest()
       : test_linear_term({VariableLinearTerms::kScatteringSource}) {};
 
-  data::system::MPILinearTerm test_linear_term;
+  system::terms::MPILinearTerm test_linear_term;
 
   std::shared_ptr<MPIVector> test_vector, double_test_vector;
   void SetUp() override;

@@ -10,7 +10,7 @@ namespace calculators {
 template<int dim>
 system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMoment(
     system::solution::MPIAngularI* solution,
-    data::system::GroupNumber group,
+    system::GroupNumber group,
     system::moments::HarmonicL,
     system::moments::HarmonicL) const {
 
@@ -26,11 +26,11 @@ system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMomen
 
   auto weights = angular_quadrature_ptr_->quadrature_weights();
 
-  data::system::MomentVector return_vector;
+  system::moments::MomentVector return_vector;
 
   for (int angle = 0; angle < total_angles; ++angle) {
     auto mpi_solution = (*solution)[{group, angle}];
-    data::system::MomentVector angle_vector(mpi_solution);
+    system::moments::MomentVector angle_vector(mpi_solution);
 
     if (return_vector.size() == 0) {
       return_vector.reinit(angle_vector);
