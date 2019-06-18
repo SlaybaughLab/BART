@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "system/solution/solution_i.h"
 
 namespace bart {

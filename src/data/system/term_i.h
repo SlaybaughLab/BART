@@ -3,7 +3,7 @@
 
 #include <unordered_set>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 
 namespace bart {
 

@@ -5,7 +5,7 @@
 
 #include <unordered_set>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {

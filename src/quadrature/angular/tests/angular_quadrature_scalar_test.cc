@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "quadrature/angular/angular_quadrature_types.h"
 #include "test_helpers/gmock_wrapper.h"
 

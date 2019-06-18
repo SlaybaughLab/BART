@@ -9,7 +9,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "data/system.h"
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "data/system/tests/linear_term_mock.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "formulation/cfem_stamper_i.h"

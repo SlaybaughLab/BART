@@ -4,7 +4,7 @@
 #include <unordered_set>
 
 #include "data/system/term_i.h"
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 
 namespace bart {
 

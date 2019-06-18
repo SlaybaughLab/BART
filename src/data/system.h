@@ -4,7 +4,7 @@
 #include <memory>
 #include <optional>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "data/system/term_i.h"
 
 namespace bart {

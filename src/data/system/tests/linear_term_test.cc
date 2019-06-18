@@ -6,7 +6,7 @@
 #include <deal.II/lac/petsc_parallel_vector.h>
 #include <deal.II/base/mpi.h>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {

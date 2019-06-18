@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "iteration/updater/source_updater_i.h"
 #include "formulation/cfem_stamper_i.h"
 

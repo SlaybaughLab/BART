@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "data/system.h"
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 #include "iteration/updater/source_updater.h"
 
 namespace bart {

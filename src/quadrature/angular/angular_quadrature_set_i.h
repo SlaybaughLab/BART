@@ -2,7 +2,7 @@
 #define BART_SRC_QUADRATURE_ANGULAR_ANGULAR_QUADRATURE_SET_I_H_
 
 #include "quadrature/angular/angular_quadrature_types.h"
-#include "data/system/system_types.h"
+#include "system/system_types.h"
 
 #include <map>
 #include <vector>
