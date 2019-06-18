@@ -19,10 +19,10 @@ namespace solution {
  * wrapper for PETSc MPI Vectors.
  */
 class MPIAngularI :
-    public SolutionI<data::system::Index, data::system::MPIVector> {
+    public SolutionI<data::system::Index, system::MPIVector> {
  public:
-  using SolutionMap = std::map<data::system::Index, data::system::MPIVector>;
-  using MPIVector = data::system::MPIVector;
+  using SolutionMap = std::map<data::system::Index, system::MPIVector>;
+  using MPIVector = system::MPIVector;
   using Index = data::system::Index;
 
   virtual ~MPIAngularI() = default;

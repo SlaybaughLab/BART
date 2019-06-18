@@ -8,7 +8,7 @@ namespace iteration {
 namespace updater {
 
 template <typename StamperType>
-std::shared_ptr<data::system::MPIVector> SourceUpdater<StamperType>::GetSourceVectorPtr(
+std::shared_ptr<system::MPIVector> SourceUpdater<StamperType>::GetSourceVectorPtr(
     VariableTerms term,
     data::System& system,
     data::system::GroupNumber group,

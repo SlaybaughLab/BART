@@ -12,7 +12,7 @@
 namespace  {
 
 using namespace bart;
-using data::system::MPIVector;
+using system::MPIVector;
 using VariableLinearTerms = data::system::VariableLinearTerms;
 
 class SystemLinearTermTest : public ::testing::Test {

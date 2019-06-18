@@ -14,7 +14,7 @@ namespace system {
 
 class LinearTermMock : public TermI<data::system::MPILinearTermPair> {
  public:
-  using MPIVector = data::system::MPIVector;
+  using MPIVector = bart::system::MPIVector;
   using VariableLinearTerms = data::system::VariableLinearTerms;
 
   MOCK_CONST_METHOD0(GetVariableTerms, std::unordered_set<VariableLinearTerms>());

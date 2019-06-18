@@ -19,7 +19,7 @@
 namespace  {
 
 using namespace bart;
-using data::system::MPIVector;
+using system::MPIVector;
 
 using ::testing::An;
 using ::testing::Ref;

@@ -37,7 +37,7 @@ namespace system {
  *
  * \code{.cpp}
  *
- * using data::system::MPIVector;
+ * using system::MPIVector;
  * enum class VariableTerms = { kNewVariableTerm };
  *
  * data::system::Term<MPIVector, VariableTerms> new_term({kNewVariableTerm});

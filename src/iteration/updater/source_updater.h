@@ -27,7 +27,7 @@ template <typename StamperType>
 class SourceUpdater : public SourceUpdaterI {
  public:
   using VariableTerms = data::system::VariableLinearTerms;
-  using MPIVector = data::system::MPIVector;
+  using MPIVector = system::MPIVector;
 
   /*! \brief Constructor, takes ownership of stamper.
    *
