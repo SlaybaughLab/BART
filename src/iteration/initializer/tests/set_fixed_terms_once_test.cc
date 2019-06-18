@@ -28,7 +28,7 @@ class IterationInitializerSetFixedTermsOnceTest : public ::testing::Test {
   std::unique_ptr<InitializerType> test_initializer_;
 
   // Supporting objects
-  data::System test_system_;
+  system::System test_system_;
 
   // Pointers for observing mocks owned by other objects
   MockFixedUpdaterType* updater_obs_ptr_ = nullptr;

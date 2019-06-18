@@ -43,7 +43,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
 
   // Required objects
   // Test system
-  data::System test_system_;
+  system::System test_system_;
   // Vector returned by the mock RightHandSide object when the variable
   // right hand side vector is requested. This is what should be stamped.
   std::shared_ptr<MPIVector> source_vector_ptr_;

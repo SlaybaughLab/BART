@@ -28,7 +28,7 @@ SetFixedTerms::SetFixedTerms(
                                  "constructor: fixed updater ptr is nullptr"));
 }
 
-void SetFixedTerms::Initialize(data::System &sys) {
+void SetFixedTerms::Initialize(system::System &sys) {
   for (int group = 0; group < total_groups_; ++group) {
     for (int angle = 0; angle < total_angles_; ++angle) {
       fixed_updater_ptr_->UpdateFixedTerms(sys, group, angle);

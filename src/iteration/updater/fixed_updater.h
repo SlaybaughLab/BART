@@ -44,7 +44,7 @@ class FixedUpdater : public FixedUpdaterI {
    *
    */
   virtual ~FixedUpdater() = default;
-  void UpdateFixedTerms(data::System& system,
+  void UpdateFixedTerms(system::System& system,
                         data::system::GroupNumber group,
                         data::system::AngleIndex angle) override;
   /*! \brief Returns a pointer to the stored stamper.

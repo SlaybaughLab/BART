@@ -10,7 +10,7 @@ namespace updater {
 template <typename StamperType>
 std::shared_ptr<system::MPIVector> SourceUpdater<StamperType>::GetSourceVectorPtr(
     VariableTerms term,
-    data::System& system,
+    system::System& system,
     data::system::GroupNumber group,
     data::system::AngleIndex angle) {
   auto source_vector_ptr =

@@ -9,21 +9,22 @@
 
 namespace bart {
 
-namespace data {
+namespace system {
 
 struct System {
   //! Pointer to right hand side linear term
-  std::unique_ptr<system::MPILinearTermI> right_hand_side_ptr_;
+  std::unique_ptr<data::system::MPILinearTermI> right_hand_side_ptr_;
   //! Pointer to left hand side bilinear term
-  std::unique_ptr<system::MPIBilinearTermI> left_hand_side_ptr_;
+  std::unique_ptr<data::system::MPIBilinearTermI> left_hand_side_ptr_;
   //! Flux moments for the current iteration
-  system::MomentsMap current_iteration_moments = {};
+  data::system::MomentsMap current_iteration_moments = {};
   //! Flux moments for the previous iteration
-  system::MomentsMap previous_iteration_moments = {};
+  data::system::MomentsMap previous_iteration_moments = {};
   //! System k_effective
   std::optional<double> k_effective = std::nullopt;
 };
-} // namespace data
+
+} // namespace system
 
 } // namespace bart
 

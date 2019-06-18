@@ -35,10 +35,10 @@ class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
   explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
       : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
 
-  void UpdateScatteringSource(data::System& system,
+  void UpdateScatteringSource(system::System& system,
                               data::system::GroupNumber group,
                               data::system::AngleIndex angle) override;
-  void UpdateFissionSource(data::System& system,
+  void UpdateFissionSource(system::System& system,
                            data::system::GroupNumber group,
                            data::system::AngleIndex angle) override;
 };

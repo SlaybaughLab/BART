@@ -10,7 +10,7 @@ namespace updater {
 
 template <>
 void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource(
-    data::System& system,
+    system::System& system,
     data::system::GroupNumber group,
     data::system::AngleIndex angle) {
 
@@ -34,7 +34,7 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource
 
 template <>
 void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateFissionSource(
-    data::System& system,
+    system::System& system,
     data::system::GroupNumber group,
     data::system::AngleIndex angle) {
 

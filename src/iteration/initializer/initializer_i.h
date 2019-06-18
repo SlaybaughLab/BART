@@ -18,7 +18,7 @@ namespace initializer {
 class InitializerI {
  public:
   virtual ~InitializerI() = default;
-  virtual void Initialize(data::System& sys) = 0;
+  virtual void Initialize(system::System& sys) = 0;
 };
 
 } // namespace initializer

@@ -25,7 +25,7 @@ class SourceUpdaterI {
    * @param group group to update.
    * @param angle angle to update.
    */
-  virtual void UpdateScatteringSource(data::System& system,
+  virtual void UpdateScatteringSource(system::System& system,
                                       data::system::GroupNumber group,
                                       data::system::AngleIndex angle) = 0;
   /*! \brief Updates the fission source term in the provided system.
@@ -38,7 +38,7 @@ class SourceUpdaterI {
    * @param group group to update.
    * @param angle angle to update.
    */
-  virtual void UpdateFissionSource(data::System& system,
+  virtual void UpdateFissionSource(system::System& system,
                                    data::system::GroupNumber group,
                                    data::system::AngleIndex angle) = 0;
 };

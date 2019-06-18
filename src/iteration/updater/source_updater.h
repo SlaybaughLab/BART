@@ -61,7 +61,7 @@ class SourceUpdater : public SourceUpdaterI {
    * @return pointer to the right hand side
    */
   std::shared_ptr<MPIVector> GetSourceVectorPtr(VariableTerms term,
-                                                data::System& system,
+                                                system::System& system,
                                                 data::system::GroupNumber group,
                                                 data::system::AngleIndex angle);
  protected:

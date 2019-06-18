@@ -1,6 +1,7 @@
 #ifndef BART_SRC_ITERATION_UPDATER_FIXED_UDPATER_I_H_
 #define BART_SRC_ITERATION_UPDATER_FIXED_UDPATER_I_H_
 
+#include "system/system.h"
 #include "system/system_types.h"
 
 namespace bart {
@@ -29,7 +30,7 @@ class FixedUpdaterI {
    * @param group group to update.
    * @param angle angle to update.
    */
-  virtual void UpdateFixedTerms(data::System& system,
+  virtual void UpdateFixedTerms(system::System& system,
                                 data::system::GroupNumber group,
                                 data::system::AngleIndex angle) = 0;
 };

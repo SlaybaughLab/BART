@@ -37,7 +37,7 @@ class SetFixedTerms : public InitializerI {
                 const int total_angles);
 
   virtual ~SetFixedTerms() = default;
-  virtual void Initialize(data::System& sys) override;
+  virtual void Initialize(system::System& sys) override;
 
   /*! \brief Get pointer to the owned fixed updater.
    *

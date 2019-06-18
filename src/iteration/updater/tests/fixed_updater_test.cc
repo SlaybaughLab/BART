@@ -81,7 +81,7 @@ class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
     angle_index_(btest::RandomDouble(0, 10)),
     index_({group_number_, angle_index_}) {};
 
-  data::System test_system_;
+  system::System test_system_;
   std::shared_ptr<data::system::MPISparseMatrix> matrix_ptr_;
   // Pointer to access the mock left hand side object stored in test_system
   data::system::BilinearTermMock* mock_lhs_obs_ptr_;

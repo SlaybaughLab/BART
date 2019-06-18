@@ -24,7 +24,7 @@ class SetFixedTermsOnce : public SetFixedTerms {
       {};
 
 
-  void Initialize(data::System& sys) override {
+  void Initialize(system::System& sys) override {
     if (!initialize_was_called_) {
       SetFixedTerms::Initialize(sys);
       initialize_was_called_ = true;

@@ -32,7 +32,7 @@ FixedUpdater<StamperType>::FixedUpdater(
  */
 template <>
 void FixedUpdater<formulation::CFEMStamperI>::UpdateFixedTerms(
-    data::System& system,
+    system::System& system,
     const data::system::GroupNumber group,
     const data::system::AngleIndex angle) {
 
