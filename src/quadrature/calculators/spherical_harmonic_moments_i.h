@@ -26,6 +26,29 @@ class AngularQuadratureSetI;
 
 namespace calculators {
 
+/*! \brief Interface for classes that calculate spherical harmonic moments.
+ *
+ * This class provides the interface for classes that will take a solution
+ * and calculate the spherical harmonic moments of that solution. The spherical
+ * harmonic moment for group \f$g\f$, degree \f$\ell$\f$ and order \f$m\f$ is
+ * given by:
+ *
+ * \f[
+ *
+ * \phi_{g}^{\ell, m}(\vec{r}) = \sum_{i = 0}^{N}w_i\psi_{g}(\vec{r}, \hat{\Omega}_i)Y_{\ell}^{m}(\hat{\Omega}_i)\;.
+ *
+ * \f]
+ *
+ * The angular quadrature is provided as a dependency to this class, which
+ * provides the weights and angles for the calculation. The solutions \f$\psi\f$
+ * are provided by a class derived from system::solution::MPIAngular, and must
+ * have solutions at each angle \f$\hat{\Omega}\f$. This is ensured by solving
+ * using collocation at each angle.
+ *
+ *
+ * @tparam dim angular dimension of the calculator, based on the angular
+ *         dimension of the angular quadrature set.
+ */
 template <int dim>
 class SphericalHarmonicMomentsI {
  public:
