@@ -1,6 +1,6 @@
 #include "iteration/initializer/set_fixed_terms.h"
 
-#include "data/system.h"
+#include "system/system.h"
 #include "iteration/updater/fixed_updater_i.h"
 
 namespace bart {

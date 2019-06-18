@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "data/system.h"
+#include "system/system.h"
 #include "system/system_types.h"
 #include "iteration/updater/source_updater.h"
 

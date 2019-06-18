@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "data/system.h"
+#include "system/system.h"
 #include "iteration/initializer/initializer_i.h"
 
 namespace bart {
