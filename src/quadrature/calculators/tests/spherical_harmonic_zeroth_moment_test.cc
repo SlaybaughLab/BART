@@ -15,7 +15,7 @@ namespace {
 
 using namespace bart;
 
-using ::testing::Ref;
+using ::testing::Ref, ::testing::Return;
 
 void SetVector(system::MPIVector& to_set, double value) {
   auto [first_row, last_row] = to_set.local_range();
@@ -87,6 +87,17 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, Constructor) {
   EXPECT_THAT(*mock_angular_quad_, Ref(*angular_quad_obs_ptr_));
 }
 
+TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateBandAngleNumber) {
+  auto& angular_quad_mock = *(this->angular_quad_obs_ptr_);
+  auto& test_calculator = this->test_calculator;
+  auto& mock_solution = this->mock_solution_;
+
+  EXPECT_CALL(angular_quad_mock, total_quadrature_points())
+      .WillOnce(Return(4));
+  EXPECT_CALL(mock_solution, total_angles())
+      .WillOnce(Return(3));
+  EXPECT_ANY_THROW(test_calculator->CalculateMoment(&mock_solution, 0, 0, 0));
+}
 
 TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
   const int group = 0;

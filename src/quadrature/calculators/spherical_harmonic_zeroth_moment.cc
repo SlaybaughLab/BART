@@ -1,4 +1,5 @@
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
+#include "system/solution/mpi_angular_i.h"
 
 namespace bart {
 
@@ -10,8 +11,16 @@ template<int dim>
 system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMoment(
     system::solution::MPIAngularI* solution,
     data::system::GroupNumber group,
-    system::moments::HarmonicL harmonic_l,
-    system::moments::HarmonicL harmonic_m) const {
+    system::moments::HarmonicL,
+    system::moments::HarmonicL) const {
+
+  // Verify that the solution and the angular quadrature set have the same
+  // number of angles.
+
+  AssertThrow(
+      angular_quadrature_ptr_->total_quadrature_points() == solution->total_angles(),
+      dealii::ExcMessage("Error: angular quadrature set and solution must "
+                         "have the same number of angles."));
 
   return bart::system::moments::MomentVector();
 }

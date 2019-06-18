@@ -23,6 +23,9 @@ class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
       system::moments::HarmonicL harmonic_m) const override;
 
   virtual ~SphericalHarmonicZerothMoment() = default;
+
+ protected:
+  using SphericalHarmonicMoments<dim>::angular_quadrature_ptr_;
 };
 
 } // namespace calculators
