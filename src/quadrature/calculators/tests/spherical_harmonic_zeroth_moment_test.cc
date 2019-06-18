@@ -123,7 +123,9 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
   EXPECT_CALL(angular_quad_mock, quadrature_weights())
       .WillOnce(Return(weights));
 
-  data::system::MomentVector expected_result(this->n_entries_per_proc);
+  data::system::MomentVector expected_result(
+      this->n_entries_per_proc*this->n_processes);
+
   expected_result = 4.4*100 + 3.3*10 + 2.2;
 
   auto result = test_calculator->CalculateMoment(&mock_solution, group, 0, 0);
