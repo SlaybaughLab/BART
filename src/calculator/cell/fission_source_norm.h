@@ -4,10 +4,17 @@
 #include <memory>
 
 #include "calculator/cell/fission_source_norm_i.h"
-#include "data/cross_sections.h"
-#include "domain/finite_element_i.h"
 
 namespace bart {
+
+// Forward declarations of dependencies
+namespace data {
+struct CrossSections;
+} // namespace data
+
+namespace domain {
+template <int dim> class FiniteElementI;
+} // namespace domain
 
 namespace calculator {
 
