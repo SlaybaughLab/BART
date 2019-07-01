@@ -30,17 +30,15 @@ class FissionSourceNorm : public FissionSourceNormI<dim> {
  public:
   FissionSourceNorm(
       std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr,
-      std::shared_ptr<data::CrossSections> cross_sections_ptr)
-      : finite_element_ptr_(finite_element_ptr),
-        cross_sections_ptr_(cross_sections_ptr)
-      {};
+      std::shared_ptr<data::CrossSections> cross_sections_ptr);
   ~FissionSourceNorm() = default;
 
-  double GetCellNorm(domain::CellPtr<dim> cell_ptr) const override {};
+  double GetCellNorm(domain::CellPtr<dim> cell_ptr) const override;
 
  private:
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr_;
   std::shared_ptr<data::CrossSections> cross_sections_ptr_;
+  const int cell_quadrature_points_;
 };
 
 } // namespace cell
