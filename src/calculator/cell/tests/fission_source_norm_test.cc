@@ -7,6 +7,7 @@
 #include "domain/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/dealii_test_domain.h"
 
 
 namespace  {
@@ -16,13 +17,13 @@ using namespace bart;
 using ::testing::Return, ::testing::DoDefault, ::testing::NiceMock;
 
 template <typename DimensionWrapper>
-class CalcCellFissionSourceNormTest :public ::testing::Test {
+class CalcCellFissionSourceNormTest :
+    public ::testing::Test,
+    public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   using FiniteElementType = typename domain::FiniteElementMock<dim>;
   using FissionSourceNormType = typename calculator::cell::FissionSourceNorm<dim>;
-
-  domain::CellPtr<dim> cell_ptr_;
 
   // Supporting objects and mocks
   std::shared_ptr<NiceMock<FiniteElementType>> finite_element_ptr_;
@@ -41,6 +42,8 @@ void CalcCellFissionSourceNormTest<DimensionWrapper>::SetUp() {
 
   ON_CALL(*finite_element_ptr_, n_cell_quad_pts())
       .WillByDefault(Return(4));
+
+  this->SetUpDealii();
 }
 
 TYPED_TEST_CASE(CalcCellFissionSourceNormTest, bart::testing::AllDimensions);
@@ -63,13 +66,15 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNorm) {
   static constexpr int dim = this->dim;
   auto& finite_element_mock = *(this->finite_element_ptr_);
 
-  EXPECT_CALL(finite_element_mock, SetCell(this->cell_ptr_));
+  this->cells_[0]->set_material_id(1);
+
+  EXPECT_CALL(finite_element_mock, SetCell(this->cells_[0]));
 
   calculator::cell::FissionSourceNorm<dim> test_calculator(
       this->finite_element_ptr_,
       this->cross_sections_ptr_);
 
-  test_calculator.GetCellNorm(this->cell_ptr_);
+  test_calculator.GetCellNorm(this->cells_[0]);
 }
 
 } // namespace
