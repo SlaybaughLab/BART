@@ -37,6 +37,12 @@ class CalcCellFissionSourceNormTest :
 
 template <typename DimensionWrapper>
 void CalcCellFissionSourceNormTest<DimensionWrapper>::SetUp() {
+
+  std::unordered_map<int, bool> fissile_id_map{{0, true}, {1, false}};
+
+  ON_CALL(mock_material_, GetFissileIDMap())
+      .WillByDefault(Return(fissile_id_map));
+
   finite_element_ptr_ = std::make_shared<NiceMock<FiniteElementType>>();
   cross_sections_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
 
@@ -62,19 +68,24 @@ TYPED_TEST(CalcCellFissionSourceNormTest, Constructor) {
   EXPECT_EQ(this->cross_sections_ptr_.use_count(), 2);
 }
 
-TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNorm) {
+TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissile) {
   static constexpr int dim = this->dim;
   auto& finite_element_mock = *(this->finite_element_ptr_);
 
-  this->cells_[0]->set_material_id(1);
+  for (auto cell : this->cells_) {
+    cell->set_material_id(0);
+    EXPECT_CALL(finite_element_mock, SetCell(cell));
 
-  EXPECT_CALL(finite_element_mock, SetCell(this->cells_[0]));
+    calculator::cell::FissionSourceNorm<dim> test_calculator(
+        this->finite_element_ptr_,
+        this->cross_sections_ptr_);
 
-  calculator::cell::FissionSourceNorm<dim> test_calculator(
-      this->finite_element_ptr_,
-      this->cross_sections_ptr_);
-
-  test_calculator.GetCellNorm(this->cells_[0]);
+    double fission_norm = test_calculator.GetCellNorm(cell);
+    EXPECT_EQ(fission_norm, 0.0);
+    break;
+  }
 }
+
+
 
 } // namespace
