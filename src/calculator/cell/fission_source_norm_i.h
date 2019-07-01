@@ -11,7 +11,10 @@ namespace cell {
  *         source.
  */
 
-class FissionSourceNormI {};
+class FissionSourceNormI {
+ public:
+  virtual ~FissionSourceNormI() = default;
+};
 
 } // namespace cell
 
