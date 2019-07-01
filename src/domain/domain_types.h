@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_DOMAIN_TYPES_H_
 #define BART_SRC_DOMAIN_DOMAIN_TYPES_H_
 
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
 
 namespace bart {
 
