@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "data/cross_sections.h"
+#include "domain/domain_types.h"
 #include "domain/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -18,11 +19,10 @@ template <typename DimensionWrapper>
 class CalcCellFissionSourceNormTest :public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
-  using CellPtr = typename domain::FiniteElementI<dim>::CellPtr;
   using FiniteElementType = typename domain::FiniteElementMock<dim>;
   using FissionSourceNormType = typename calculator::cell::FissionSourceNorm<dim>;
 
-  CellPtr cell_ptr_;
+  domain::CellPtr<dim> cell_ptr_;
 
   // Supporting objects and mocks
   std::shared_ptr<FiniteElementType> finite_element_ptr_;

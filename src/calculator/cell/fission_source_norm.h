@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "calculator/cell/fission_source_norm_i.h"
+#include "domain/domain_types.h"
 
 namespace bart {
 
@@ -25,7 +26,7 @@ namespace cell {
  * @tparam dim problem spatial dimension
  */
 template <int dim>
-class FissionSourceNorm : public FissionSourceNormI {
+class FissionSourceNorm : public FissionSourceNormI<dim> {
  public:
   FissionSourceNorm(
       std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr,
@@ -34,6 +35,8 @@ class FissionSourceNorm : public FissionSourceNormI {
         cross_sections_ptr_(cross_sections_ptr)
       {};
   ~FissionSourceNorm() = default;
+
+  double GetCellNorm(domain::CellPtr<dim> cell_ptr) const override {};
 
  private:
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr_;

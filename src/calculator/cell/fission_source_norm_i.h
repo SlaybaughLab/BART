@@ -1,6 +1,8 @@
 #ifndef BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_I_H_
 #define BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_I_H_
 
+#include "domain/domain_types.h"
+
 namespace bart {
 
 namespace calculator {
@@ -11,9 +13,12 @@ namespace cell {
  *         source.
  */
 
+template <int dim>
 class FissionSourceNormI {
  public:
   virtual ~FissionSourceNormI() = default;
+
+  virtual double GetCellNorm(domain::CellPtr<dim> cell_ptr) const = 0;
 };
 
 } // namespace cell
