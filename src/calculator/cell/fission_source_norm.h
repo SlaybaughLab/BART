@@ -34,7 +34,7 @@ class FissionSourceNorm : public FissionSourceNormI<dim> {
   ~FissionSourceNorm() = default;
 
   double GetCellNorm(domain::CellPtr<dim> cell_ptr,
-                     system::moments::SphericalHarmonicI* system_moments) const override;
+                     system::moments::SphericalHarmonicI* system_moments_ptr) const override;
 
  private:
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr_;

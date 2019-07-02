@@ -24,8 +24,8 @@ class FissionSourceNormI {
  public:
   virtual ~FissionSourceNormI() = default;
 
-  virtual double GetCellNorm(domain::CellPtr<dim> cell_ptr,
-                             system::moments::SphericalHarmonicI* system_moments) const = 0;
+  virtual double GetCellNorm(domain::CellPtr<dim>,
+                             system::moments::SphericalHarmonicI*) const = 0;
 };
 
 } // namespace cell
