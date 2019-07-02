@@ -6,6 +6,7 @@
 #include "domain/domain_types.h"
 #include "domain/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
@@ -15,7 +16,7 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::Return, ::testing::DoDefault, ::testing::NiceMock;
+using ::testing::Return, ::testing::ReturnRef, ::testing::DoDefault, ::testing::NiceMock;
 
 template <typename DimensionWrapper>
 class CalcCellFissionSourceNormTest :
@@ -34,6 +35,9 @@ class CalcCellFissionSourceNormTest :
 
 
   NiceMock<btest::MockMaterial> mock_material_;
+
+  // test parameters
+  const int quadrature_points_ = 4;
 
   void SetUp() override;
 };
@@ -57,7 +61,7 @@ void CalcCellFissionSourceNormTest<DimensionWrapper>::SetUp() {
   spherical_harmonic_ptr_ = std::make_shared<SphericalHarmonicType>();
 
   ON_CALL(*finite_element_ptr_, n_cell_quad_pts())
-      .WillByDefault(Return(4));
+      .WillByDefault(Return(this->quadrature_points_));
 
   this->SetUpDealii();
 }
@@ -89,8 +93,9 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissile) {
         this->finite_element_ptr_,
         this->cross_sections_ptr_);
 
-    double fission_norm = test_calculator.GetCellNorm(cell,
-                                                      this->spherical_harmonic_ptr_.get());
+    double fission_norm = test_calculator.GetCellNorm(
+        cell,
+        this->spherical_harmonic_ptr_.get());
     EXPECT_EQ(fission_norm, 0.0);
     break;
   }
@@ -99,19 +104,45 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissile) {
 TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNorm) {
   static constexpr int dim = this->dim;
   auto& finite_element_mock = *(this->finite_element_ptr_);
+  auto& spherical_harmonic_mock = *(this->spherical_harmonic_ptr_);
 
   for (auto cell : this->cells_) {
     // Set to the non-fissile material
     cell->set_material_id(0);
 
-    // Set expectations
+    // EXPECTATIONS
+    // Jacobian should be called for each quadrature point
+    for (int q = 0; q < this->quadrature_points_; ++q) {
+      EXPECT_CALL(finite_element_mock, Jacobian(q))
+          .WillOnce(Return(10*(q+1)));
+    }
+    // Number of groups should be determined by Spherical Harmonics
+    EXPECT_CALL(spherical_harmonic_mock, total_groups())
+        .WillOnce(Return(2));
+    // Zeroth moments should be queried for each group
+    std::vector<double> group_0_flux{1, 2, 3, 4};
+    std::vector<double> group_1_flux{4, 3, 2, 1};
+
+    system::moments::MomentVector group_0_flux_vector(group_0_flux.begin(),
+                                                      group_0_flux.end());
+    system::moments::MomentVector group_1_flux_vector(group_1_flux.begin(),
+                                                      group_1_flux.end());
+
+    system::moments::MomentIndex group_0_index{0,0,0};
+    system::moments::MomentIndex group_1_index{1,0,0};
+
+    EXPECT_CALL(spherical_harmonic_mock, BracketOp(group_0_index))
+        .WillOnce(ReturnRef(group_0_flux_vector));
+    EXPECT_CALL(spherical_harmonic_mock, BracketOp(group_1_index))
+        .WillOnce(ReturnRef(group_1_flux_vector));
 
     calculator::cell::FissionSourceNorm<dim> test_calculator(
         this->finite_element_ptr_,
         this->cross_sections_ptr_);
 
-    double fission_norm = test_calculator.GetCellNorm(cell,
-                                                      this->spherical_harmonic_ptr_.get());
+    double fission_norm = test_calculator.GetCellNorm(
+        cell,
+        this->spherical_harmonic_ptr_.get());
     EXPECT_EQ(fission_norm, 700.0);
     break;
   }
