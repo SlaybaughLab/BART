@@ -15,7 +15,7 @@ namespace calculator {
 
 namespace cell {
 
-/*! \brief Interface for classes that calculate the cell norm of the fission
+/*! \brief Interface for classes that calculate the integrated cell fission
  *         source.
  *
  */
@@ -25,8 +25,16 @@ class IntegratedFissionSourceI {
  public:
   virtual ~IntegratedFissionSourceI() = default;
 
-  virtual double CellValue(domain::CellPtr<dim>,
-                           system::moments::SphericalHarmonicI*) const = 0;
+  /*! \brief Calculate and return the integrated cell fission source for a cell.
+   *
+   * @param cell_ptr pointer to the cell.
+   * @param system_moments_ptr pointer to the system spherical harmonics.
+   *
+   * @return integrated cell fission source.
+   */
+  virtual double CellValue(
+      domain::CellPtr<dim> cell_ptr,
+      system::moments::SphericalHarmonicI* system_moments_ptr) const = 0;
 };
 
 } // namespace cell
