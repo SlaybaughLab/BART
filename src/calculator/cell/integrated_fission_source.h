@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "calculator/cell/fission_source_norm_i.h"
+#include "calculator/cell/integrated_fission_source_i.h"
 #include "domain/domain_types.h"
 
 namespace bart {
@@ -43,8 +43,8 @@ class IntegratedFissionSource : public IntegratedFissionSourceI<dim> {
       std::shared_ptr<data::CrossSections> cross_sections_ptr);
   ~IntegratedFissionSource() = default;
 
-  double GetCellNorm(domain::CellPtr<dim> cell_ptr,
-                     system::moments::SphericalHarmonicI* system_moments_ptr) const override;
+  double CellValue(domain::CellPtr<dim> cell_ptr,
+                   system::moments::SphericalHarmonicI* system_moments_ptr) const override;
 
  private:
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr_;

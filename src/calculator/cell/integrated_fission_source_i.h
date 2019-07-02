@@ -25,8 +25,8 @@ class IntegratedFissionSourceI {
  public:
   virtual ~IntegratedFissionSourceI() = default;
 
-  virtual double GetCellNorm(domain::CellPtr<dim>,
-                             system::moments::SphericalHarmonicI*) const = 0;
+  virtual double CellValue(domain::CellPtr<dim>,
+                           system::moments::SphericalHarmonicI*) const = 0;
 };
 
 } // namespace cell

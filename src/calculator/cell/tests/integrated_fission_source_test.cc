@@ -1,4 +1,4 @@
-#include "calculator/cell/fission_source_norm.h"
+#include "calculator/cell/integrated_fission_source.h"
 
 #include <memory>
 
@@ -82,7 +82,7 @@ TYPED_TEST(CalcCellIntegratedFissionSourceTest, Constructor) {
   EXPECT_EQ(this->cross_sections_ptr_.use_count(), 2);
 }
 
-TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormNonFissileMPI) {
+TYPED_TEST(CalcCellIntegratedFissionSourceTest, CellValueNonFissileMPI) {
   static constexpr int dim = this->dim;
 
   for (auto cell : this->cells_) {
@@ -93,7 +93,7 @@ TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormNonFissileMPI) {
         this->finite_element_ptr_,
         this->cross_sections_ptr_);
 
-    double fission_norm = test_calculator.GetCellNorm(
+    double fission_norm = test_calculator.CellValue(
         cell,
         this->spherical_harmonic_ptr_.get());
     EXPECT_EQ(fission_norm, 0.0);
@@ -101,7 +101,7 @@ TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormNonFissileMPI) {
   }
 }
 
-TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormMPI) {
+TYPED_TEST(CalcCellIntegratedFissionSourceTest, CellValueMPI) {
   static constexpr int dim = this->dim;
   auto& finite_element_mock = *(this->finite_element_ptr_);
   auto& spherical_harmonic_mock = *(this->spherical_harmonic_ptr_);
@@ -145,7 +145,7 @@ TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormMPI) {
         this->finite_element_ptr_,
         this->cross_sections_ptr_);
 
-    double fission_norm = test_calculator.GetCellNorm(
+    double fission_norm = test_calculator.CellValue(
         cell,
         this->spherical_harmonic_ptr_.get());
     EXPECT_EQ(fission_norm, 700.0);

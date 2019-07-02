@@ -1,4 +1,4 @@
-#include "calculator/cell/fission_source_norm.h"
+#include "calculator/cell/integrated_fission_source.h"
 
 #include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
@@ -20,7 +20,7 @@ IntegratedFissionSource<dim>::IntegratedFissionSource(
 
 
 template<int dim>
-double IntegratedFissionSource<dim>::GetCellNorm(
+double IntegratedFissionSource<dim>::CellValue(
     domain::CellPtr<dim> cell_ptr,
     system::moments::SphericalHarmonicI* system_moments_ptr) const {
   const int material_id = cell_ptr->material_id();
