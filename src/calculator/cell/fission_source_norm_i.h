@@ -1,5 +1,5 @@
-#ifndef BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_I_H_
-#define BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_I_H_
+#ifndef BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_I_H_
+#define BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_I_H_
 
 #include "domain/domain_types.h"
 
@@ -17,12 +17,13 @@ namespace cell {
 
 /*! \brief Interface for classes that calculate the cell norm of the fission
  *         source.
+ *
  */
 
 template <int dim>
-class FissionSourceNormI {
+class IntegratedFissionSourceI {
  public:
-  virtual ~FissionSourceNormI() = default;
+  virtual ~IntegratedFissionSourceI() = default;
 
   virtual double GetCellNorm(domain::CellPtr<dim>,
                              system::moments::SphericalHarmonicI*) const = 0;
@@ -34,4 +35,4 @@ class FissionSourceNormI {
 
 } // namespace bart
 
-#endif // BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_I_H_
+#endif // BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_I_H_

@@ -19,13 +19,13 @@ using namespace bart;
 using ::testing::Return, ::testing::ReturnRef, ::testing::DoDefault, ::testing::NiceMock;
 
 template <typename DimensionWrapper>
-class CalcCellFissionSourceNormTest :
+class CalcCellIntegratedFissionSourceTest :
     public ::testing::Test,
     public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   using FiniteElementType = typename domain::FiniteElementMock<dim>;
-  using FissionSourceNormType = typename calculator::cell::FissionSourceNorm<dim>;
+  using FissionSourceNormType = typename calculator::cell::IntegratedFissionSource<dim>;
   using SphericalHarmonicType = system::moments::SphericalHarmonicMock;
 
   // Supporting objects and mocks
@@ -43,7 +43,7 @@ class CalcCellFissionSourceNormTest :
 };
 
 template <typename DimensionWrapper>
-void CalcCellFissionSourceNormTest<DimensionWrapper>::SetUp() {
+void CalcCellIntegratedFissionSourceTest<DimensionWrapper>::SetUp() {
 
   std::unordered_map<int, bool> fissile_id_map{{0, true}, {1, false}};
   std::unordered_map<int, std::vector<double>> nu_sigma_f = {
@@ -66,15 +66,15 @@ void CalcCellFissionSourceNormTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
 }
 
-TYPED_TEST_CASE(CalcCellFissionSourceNormTest, bart::testing::AllDimensions);
+TYPED_TEST_CASE(CalcCellIntegratedFissionSourceTest, bart::testing::AllDimensions);
 
-TYPED_TEST(CalcCellFissionSourceNormTest, Constructor) {
+TYPED_TEST(CalcCellIntegratedFissionSourceTest, Constructor) {
   static constexpr int dim = this->dim;
 
   EXPECT_CALL(*this->finite_element_ptr_, n_cell_quad_pts())
       .WillOnce(DoDefault());
 
-  calculator::cell::FissionSourceNorm<dim> test_calculator(
+  calculator::cell::IntegratedFissionSource<dim> test_calculator(
       this->finite_element_ptr_,
       this->cross_sections_ptr_);
 
@@ -82,14 +82,14 @@ TYPED_TEST(CalcCellFissionSourceNormTest, Constructor) {
   EXPECT_EQ(this->cross_sections_ptr_.use_count(), 2);
 }
 
-TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissileMPI) {
+TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormNonFissileMPI) {
   static constexpr int dim = this->dim;
 
   for (auto cell : this->cells_) {
     // Set to the non-fissile material
     cell->set_material_id(1);
 
-    calculator::cell::FissionSourceNorm<dim> test_calculator(
+    calculator::cell::IntegratedFissionSource<dim> test_calculator(
         this->finite_element_ptr_,
         this->cross_sections_ptr_);
 
@@ -101,7 +101,7 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissileMPI) {
   }
 }
 
-TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormMPI) {
+TYPED_TEST(CalcCellIntegratedFissionSourceTest, GetCellNormMPI) {
   static constexpr int dim = this->dim;
   auto& finite_element_mock = *(this->finite_element_ptr_);
   auto& spherical_harmonic_mock = *(this->spherical_harmonic_ptr_);
@@ -141,7 +141,7 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormMPI) {
     EXPECT_CALL(finite_element_mock, ValueAtQuadrature(group_1_flux_vector))
         .WillOnce(Return(group_1_flux));
 
-    calculator::cell::FissionSourceNorm<dim> test_calculator(
+    calculator::cell::IntegratedFissionSource<dim> test_calculator(
         this->finite_element_ptr_,
         this->cross_sections_ptr_);
 

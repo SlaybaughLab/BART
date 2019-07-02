@@ -11,7 +11,7 @@ namespace calculator {
 namespace cell {
 
 template<int dim>
-FissionSourceNorm<dim>::FissionSourceNorm(
+IntegratedFissionSource<dim>::IntegratedFissionSource(
     std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr,
     std::shared_ptr<data::CrossSections> cross_sections_ptr)
     : finite_element_ptr_(finite_element_ptr),
@@ -20,7 +20,7 @@ FissionSourceNorm<dim>::FissionSourceNorm(
 
 
 template<int dim>
-double FissionSourceNorm<dim>::GetCellNorm(
+double IntegratedFissionSource<dim>::GetCellNorm(
     domain::CellPtr<dim> cell_ptr,
     system::moments::SphericalHarmonicI* system_moments_ptr) const {
   const int material_id = cell_ptr->material_id();
@@ -49,9 +49,9 @@ double FissionSourceNorm<dim>::GetCellNorm(
   return fission_source;
 }
 
-template class FissionSourceNorm<1>;
-template class FissionSourceNorm<2>;
-template class FissionSourceNorm<3>;
+template class IntegratedFissionSource<1>;
+template class IntegratedFissionSource<2>;
+template class IntegratedFissionSource<3>;
 
 } // namespace cell
 

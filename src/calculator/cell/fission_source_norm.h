@@ -1,5 +1,5 @@
-#ifndef BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_H_
-#define BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_H_
+#ifndef BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_H_
+#define BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_H_
 
 #include <memory>
 
@@ -23,15 +23,25 @@ namespace cell {
 
 /*! \brief Calculates the cell norm of the fission source.
  *
+ * The total fission source is calculated using the following equation,
+ * \f[
+ *
+ * f(\vec{r})= \sum_{g = 0}^G \nu_g\Sigma_{f,g}\phi_g(\vec{r})\;,
+ *
+ * \f]
+ * where \f$G\f$ is the total number of groups.
+ *
+ *
+ *
  * @tparam dim problem spatial dimension
  */
 template <int dim>
-class FissionSourceNorm : public FissionSourceNormI<dim> {
+class IntegratedFissionSource : public IntegratedFissionSourceI<dim> {
  public:
-  FissionSourceNorm(
+  IntegratedFissionSource(
       std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr,
       std::shared_ptr<data::CrossSections> cross_sections_ptr);
-  ~FissionSourceNorm() = default;
+  ~IntegratedFissionSource() = default;
 
   double GetCellNorm(domain::CellPtr<dim> cell_ptr,
                      system::moments::SphericalHarmonicI* system_moments_ptr) const override;
@@ -48,4 +58,4 @@ class FissionSourceNorm : public FissionSourceNormI<dim> {
 
 } // namespace bart
 
-#endif // BART_SRC_CALCULATOR_CELL_FISSION_SOURCE_NORM_H_
+#endif // BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_H_
