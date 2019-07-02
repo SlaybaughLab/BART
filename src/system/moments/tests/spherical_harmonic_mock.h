@@ -16,6 +16,7 @@ class SphericalHarmonicMock : public SphericalHarmonicI {
   MOCK_CONST_METHOD0(total_groups, int());
   MOCK_CONST_METHOD0(max_harmonic_l, int());
   MOCK_CONST_METHOD0(moments, const MomentsMap&());
+  MOCK_CONST_METHOD1(GetMoment, const MomentVector&(const MomentIndex));
   MOCK_CONST_METHOD1(BracketOp, const MomentVector&(const MomentIndex));
   MOCK_METHOD1(BracketOp, MomentVector&(const MomentIndex));
 

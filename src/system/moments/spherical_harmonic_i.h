@@ -38,6 +38,8 @@ class SphericalHarmonicI {
    */
   virtual const MomentsMap& moments() const = 0;
 
+  virtual const MomentVector& GetMoment(const MomentIndex) const = 0;
+
   virtual const MomentVector& operator[](const MomentIndex) const = 0;
   virtual MomentVector& operator[](const MomentIndex) = 0;
 

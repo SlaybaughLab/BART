@@ -38,11 +38,15 @@ class SphericalHarmonic : public SphericalHarmonicI {
 
   const MomentsMap& moments() const override { return moments_; }
 
-  const MomentVector& operator[](const MomentIndex index) const {
+  const MomentVector& GetMoment(const MomentIndex index) const override {
+    return moments_.at(index);
+  }
+
+  const MomentVector& operator[](const MomentIndex index) const override {
     return moments_.at(index);
   };
 
-  MomentVector& operator[](const MomentIndex index) {
+  MomentVector& operator[](const MomentIndex index) override {
     return moments_.at(index);
   };
 
