@@ -32,6 +32,64 @@ struct TriangulationType<1> {
 template struct TriangulationType<2>;
 template struct TriangulationType<3>;
 
+/*! \brief Provides a configured dealii domain of a given dimension for testing.
+ *
+ * This class provides a fully set-up MPI dealii domain for running tests that
+ * need it. This includes anything that needs to iterate over real cells or use
+ * matrices configured with real sparsity patterns. Generally, tests should run
+ * in all three dimensions. This requires a decent amount of google test
+ * configuration knowledge and templating. A sample test set up in this way is
+ * provided below.
+ *
+ * Google test allows you to make a templated test class and run tests using
+ * multiple _types_ for that template. The dimensionality of the dealii domain
+ * is defined using a templated integer, so we will use this feature. The
+ * template must be a _type_ not a _value_ so we will use a special type called
+ * an std::integral_constant. Integral constants for 1, 2, and 3 are provided
+ * in bart::testing::AllDimensions. The dimension is then stored in the type
+ * DimensionWrapper, and the actual dimension value is retrieved using
+ * DimensionWrapper::value.
+ *
+ * \code{.cpp}
+
+#include "path/to/tested_class.h"
+
+#include "test_helpers/dealii_test_domain.h"
+#include "test_helpers/gmock_wrapper.h"
+
+namespace  {
+
+using namespace bart;
+
+template <typename DimensionWrapper> // type that wraps the dimension
+class TestedClassTest :
+    public ::testing::Test,
+    // derive from the correct dimensioned dealii test domain
+    public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+ protected:
+  static constexpr int dim = DimensionWrapper::value; // get the integer dimension
+
+  void SetUp() override;
+};
+
+template <typename DimensionWrapper>
+void TestedClassTest<DimensionWrapper>::SetUp() {
+  this->SetUpDealii(); // Set up the dealii domain
+}
+
+TYPED_TEST_CASE(TestedClassTest, bart::testing::AllDimensions);
+
+TYPED_TEST(TestedClassTest, Dummy) {
+  EXPECT_TRUE(true);
+}
+
+} // namespace
+ *
+ * \endcode
+ *
+ *
+ * @tparam dim spatial dimension.
+ */
 template <int dim>
  class DealiiTestDomain {
   public:
