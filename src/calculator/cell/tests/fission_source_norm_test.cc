@@ -114,7 +114,8 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNorm) {
     // Jacobian should be called for each quadrature point
     for (int q = 0; q < this->quadrature_points_; ++q) {
       EXPECT_CALL(finite_element_mock, Jacobian(q))
-          .WillOnce(Return(10*(q+1)));
+          .Times(2)                              // Called twice, once for each group
+          .WillRepeatedly(Return(10*(q+1)));
     }
     // Number of groups should be determined by Spherical Harmonics
     EXPECT_CALL(spherical_harmonic_mock, total_groups())
@@ -131,10 +132,14 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNorm) {
     system::moments::MomentIndex group_0_index{0,0,0};
     system::moments::MomentIndex group_1_index{1,0,0};
 
-    EXPECT_CALL(spherical_harmonic_mock, BracketOp(group_0_index))
+    EXPECT_CALL(spherical_harmonic_mock, GetMoment(group_0_index))
         .WillOnce(ReturnRef(group_0_flux_vector));
-    EXPECT_CALL(spherical_harmonic_mock, BracketOp(group_1_index))
+    EXPECT_CALL(spherical_harmonic_mock, GetMoment(group_1_index))
         .WillOnce(ReturnRef(group_1_flux_vector));
+    EXPECT_CALL(finite_element_mock, ValueAtQuadrature(group_0_flux_vector))
+        .WillOnce(Return(group_0_flux));
+    EXPECT_CALL(finite_element_mock, ValueAtQuadrature(group_1_flux_vector))
+        .WillOnce(Return(group_1_flux));
 
     calculator::cell::FissionSourceNorm<dim> test_calculator(
         this->finite_element_ptr_,
