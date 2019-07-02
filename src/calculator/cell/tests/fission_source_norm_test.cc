@@ -82,7 +82,7 @@ TYPED_TEST(CalcCellFissionSourceNormTest, Constructor) {
   EXPECT_EQ(this->cross_sections_ptr_.use_count(), 2);
 }
 
-TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissile) {
+TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissileMPI) {
   static constexpr int dim = this->dim;
 
   for (auto cell : this->cells_) {
@@ -101,7 +101,7 @@ TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormNonFissile) {
   }
 }
 
-TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNorm) {
+TYPED_TEST(CalcCellFissionSourceNormTest, GetCellNormMPI) {
   static constexpr int dim = this->dim;
   auto& finite_element_mock = *(this->finite_element_ptr_);
   auto& spherical_harmonic_mock = *(this->spherical_harmonic_ptr_);
