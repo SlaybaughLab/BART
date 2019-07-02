@@ -5,6 +5,12 @@
 
 namespace bart {
 
+namespace system {
+namespace moments {
+class SphericalHarmonicI;
+} // namespace moments
+} // namespace system
+
 namespace calculator {
 
 namespace cell {
@@ -18,7 +24,8 @@ class FissionSourceNormI {
  public:
   virtual ~FissionSourceNormI() = default;
 
-  virtual double GetCellNorm(domain::CellPtr<dim> cell_ptr) const = 0;
+  virtual double GetCellNorm(domain::CellPtr<dim> cell_ptr,
+                             system::moments::SphericalHarmonicI* system_moments) const = 0;
 };
 
 } // namespace cell

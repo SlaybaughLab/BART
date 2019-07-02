@@ -1,6 +1,8 @@
 #include "calculator/cell/fission_source_norm.h"
 
+#include "data/cross_sections.h"
 #include "domain/finite_element_i.h"
+#include "system/moments/spherical_harmonic_i.h"
 
 namespace bart {
 
@@ -18,9 +20,19 @@ FissionSourceNorm<dim>::FissionSourceNorm(
 
 
 template<int dim>
-double FissionSourceNorm<dim>::GetCellNorm(domain::CellPtr<dim> cell_ptr) const {
+double FissionSourceNorm<dim>::GetCellNorm(
+    domain::CellPtr<dim> cell_ptr,
+    system::moments::SphericalHarmonicI* system_moments) const {
 
-  finite_element_ptr_->SetCell(cell_ptr);
+  const int material_id = cell_ptr->material_id();
+  double fission_source = 0;
+
+  if (cross_sections_ptr_->is_material_fissile.at(material_id)) {
+    finite_element_ptr_->SetCell(cell_ptr);
+    fission_source = -1;
+  }
+
+  return fission_source;
 }
 
 template class FissionSourceNorm<1>;
