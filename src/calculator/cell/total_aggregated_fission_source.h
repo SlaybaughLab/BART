@@ -9,23 +9,29 @@
 
 namespace bart {
 
+namespace domain {
+template <int dim> class DefinitionI;
+} // namespace domain
+
 namespace calculator {
 
 namespace cell {
-template <int dim>
-class IntegratedFissionSourceI;
+template <int dim> class IntegratedFissionSourceI;
 
 template <int dim>
 class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI<dim> {
  public:
   TotalAggregatedFissionSource(
-      std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr)
-      : cell_fission_source_ptr_(std::move(cell_fission_source_ptr)) {};
+      std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr,
+      std::shared_ptr<domain::DefinitionI<dim>> domain_ptr)
+      : cell_fission_source_ptr_(std::move(cell_fission_source_ptr)),
+        domain_ptr_(domain_ptr)
+      {};
   virtual ~TotalAggregatedFissionSource() = default;
 
  private:
   std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr_;
-
+  std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_;
 };
 
 } // namespace cell

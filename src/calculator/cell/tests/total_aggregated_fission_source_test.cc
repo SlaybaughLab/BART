@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "domain/tests/definition_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "calculator/cell/tests/integrated_fission_source_mock.h"
 #include "test_helpers/dealii_test_domain.h"
@@ -22,7 +23,9 @@ class TotalAggregatedFissionSourceTest :
 
   using CellValueType = calculator::cell::IntegratedFissionSourceMock<dim>;
 
+  // Supporting mock objects
   std::unique_ptr<CellValueType> cell_value_ptr_;
+  std::shared_ptr<domain::DefinitionMock<dim>> domain_ptr_;
   std::shared_ptr<system::moments::SphericalHarmonicMock> moments_ptr_;
 
   void SetUp() override;
@@ -33,6 +36,7 @@ void TotalAggregatedFissionSourceTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
   cell_value_ptr_ = std::make_unique<CellValueType>();
   moments_ptr_ = std::make_shared<system::moments::SphericalHarmonicMock>();
+  domain_ptr_ = std::make_shared<domain::DefinitionMock<dim>>();
 }
 
 
@@ -45,7 +49,9 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, Constructor) {
   using CellValueType = calculator::cell::IntegratedFissionSourceI<dim>;
 
   calculator::cell::TotalAggregatedFissionSource<dim>
-      test_aggregator(std::move(this->cell_value_ptr_));
+      test_aggregator(std::move(this->cell_value_ptr_),
+                      this->domain_ptr_);
+  EXPECT_EQ(this->domain_ptr_.use_count(), 2);
 
 }
 
