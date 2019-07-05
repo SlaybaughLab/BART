@@ -43,7 +43,8 @@ void TotalAggregatedFissionSourceTest<DimensionWrapper>::SetUp() {
 TYPED_TEST_CASE(TotalAggregatedFissionSourceTest, bart::testing::AllDimensions);
 
 TYPED_TEST(TotalAggregatedFissionSourceTest, Constructor) {
-  auto& moments_ptr_ = this->moments_ptr_;
+  //auto& moments_ptr_ = this->moments_ptr_;
+  //auto& domain_ptr_ = this->domain_ptr_;
   constexpr int dim = this->dim;
 
   using CellValueType = calculator::cell::IntegratedFissionSourceI<dim>;
@@ -52,6 +53,35 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, Constructor) {
       test_aggregator(std::move(this->cell_value_ptr_),
                       this->domain_ptr_);
   EXPECT_EQ(this->domain_ptr_.use_count(), 2);
+}
+
+TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSource) {
+  auto& moments_ptr_ = this->moments_ptr_;
+  auto& domain_ptr_ = this->domain_ptr_;
+  constexpr int dim = this->dim;
+
+  calculator::cell::TotalAggregatedFissionSource<dim>
+      test_aggregator(std::move(this->cell_value_ptr_),
+                      this->domain_ptr_);
+
+  int total_active_cells = this->triangulation_.n_global_active_cells();
+  int cell_value = 5.78;
+  double expected_source = total_active_cells * cell_value;
+
+  auto cell_value_obs_ptr =
+      dynamic_cast<calculator::cell::IntegratedFissionSourceMock<dim>*>(test_aggregator.cell_fission_source_ptr());
+
+  EXPECT_CALL(*domain_ptr_, Cells())
+      .WillOnce(Return(this->cells_));
+
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*cell_value_obs_ptr, CellValue(cell, moments_ptr_.get()))
+        .WillOnce(Return(cell_value));
+  }
+
+  double source = test_aggregator.AggreatedFissionSource(moments_ptr_.get());
+  EXPECT_DOUBLE_EQ(source, expected_source);
+
 
 }
 
