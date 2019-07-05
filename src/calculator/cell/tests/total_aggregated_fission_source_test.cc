@@ -55,7 +55,7 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, Constructor) {
   EXPECT_EQ(this->domain_ptr_.use_count(), 2);
 }
 
-TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSource) {
+TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSourceMPI) {
   auto& moments_ptr_ = this->moments_ptr_;
   auto& domain_ptr_ = this->domain_ptr_;
   constexpr int dim = this->dim;

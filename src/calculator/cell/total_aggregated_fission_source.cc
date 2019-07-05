@@ -13,7 +13,15 @@ namespace cell {
 template<int dim>
 double TotalAggregatedFissionSource<dim>::AggreatedFissionSource(
     system::moments::SphericalHarmonicI *system_moments_ptr) const {
-  return 0;
+
+  auto cells = domain_ptr_->Cells();
+  double fission_source = 0;
+
+  for (auto& cell : cells) {
+    fission_source += cell_fission_source_ptr_->CellValue(cell, system_moments_ptr);
+  }
+
+  return fission_source;
 }
 
 template class TotalAggregatedFissionSource<1>;
