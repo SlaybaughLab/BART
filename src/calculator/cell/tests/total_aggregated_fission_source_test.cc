@@ -65,7 +65,11 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSourceMPI) {
                       this->domain_ptr_);
 
   int total_active_cells = this->triangulation_.n_global_active_cells();
-  int cell_value = 5.78;
+
+  if (dim == 1)
+    total_active_cells = dealii::Utilities::MPI::sum(total_active_cells, MPI_COMM_WORLD);
+
+  double cell_value = 5.78;
   double expected_source = total_active_cells * cell_value;
 
   auto cell_value_obs_ptr =
@@ -80,6 +84,7 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSourceMPI) {
   }
 
   double source = test_aggregator.AggreatedFissionSource(moments_ptr_.get());
+
   EXPECT_DOUBLE_EQ(source, expected_source);
 
 
