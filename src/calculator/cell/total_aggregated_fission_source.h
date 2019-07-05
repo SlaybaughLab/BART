@@ -19,7 +19,7 @@ namespace cell {
 template <int dim> class IntegratedFissionSourceI;
 
 template <int dim>
-class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI<dim> {
+class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI {
  public:
   TotalAggregatedFissionSource(
       std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr,

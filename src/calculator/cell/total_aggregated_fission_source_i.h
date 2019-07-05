@@ -15,7 +15,6 @@ namespace calculator {
 
 namespace cell {
 
-template <int dim>
 class TotalAggregatedFissionSourceI {
  public:
   virtual ~TotalAggregatedFissionSourceI() = default;
