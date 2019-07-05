@@ -1,5 +1,7 @@
 #include "calculator/cell/total_aggregated_fission_source.h"
 
+#include <deal.II/base/utilities.h>
+
 #include "system/moments/spherical_harmonic_i.h"
 #include "domain/definition_i.h"
 #include "calculator/cell/integrated_fission_source_i.h"
@@ -21,7 +23,7 @@ double TotalAggregatedFissionSource<dim>::AggreatedFissionSource(
     fission_source += cell_fission_source_ptr_->CellValue(cell, system_moments_ptr);
   }
 
-  return fission_source;
+  return dealii::Utilities::MPI::sum(fission_source, MPI_COMM_WORLD);
 }
 
 template class TotalAggregatedFissionSource<1>;
