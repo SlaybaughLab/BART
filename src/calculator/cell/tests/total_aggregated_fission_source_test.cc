@@ -85,7 +85,7 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSourceMPI) {
 
   double source = test_aggregator.AggreatedFissionSource(moments_ptr_.get());
 
-  EXPECT_DOUBLE_EQ(source, expected_source);
+  EXPECT_NEAR(source, expected_source, 1e-12);
 
 
 }
