@@ -3,6 +3,14 @@
 
 namespace bart {
 
+namespace system {
+
+namespace moments {
+class SphericalHarmonicI;
+} // namespace moments
+
+} // namespace system
+
 namespace calculator {
 
 namespace cell {
@@ -11,7 +19,8 @@ template <int dim>
 class TotalAggregatedFissionSourceI {
  public:
   virtual ~TotalAggregatedFissionSourceI() = default;
-
+  virtual double AggreatedFissionSource(
+      system::moments::SphericalHarmonicI* system_moments_ptr) const = 0;
 };
 
 } // namespace cell

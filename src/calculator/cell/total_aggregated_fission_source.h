@@ -29,6 +29,13 @@ class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI<dim> {
       {};
   virtual ~TotalAggregatedFissionSource() = default;
 
+  double AggreatedFissionSource(
+      system::moments::SphericalHarmonicI *system_moments_ptr) const override;
+
+  IntegratedFissionSourceI<dim>* cell_fission_source_ptr() const {
+    return cell_fission_source_ptr_.get();
+  }
+
  private:
   std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr_;
   std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_;
