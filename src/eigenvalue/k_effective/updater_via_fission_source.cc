@@ -6,6 +6,14 @@ namespace eigenvalue {
 
 namespace k_effective {
 
+UpdaterViaFissionSource::UpdaterViaFissionSource(
+    std::unique_ptr<FissionSourceCalculator> fission_source_calculator,
+    double initial_k_effective,
+    double initial_fission_source)
+    : fission_source_calculator_(std::move(fission_source_calculator)),
+      initial_k_effective_(initial_k_effective),
+      initial_fission_source_(initial_fission_source) {}
+
 double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {
 
   current_fission_source_ =

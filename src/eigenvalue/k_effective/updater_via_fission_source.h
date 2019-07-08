@@ -35,10 +35,7 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
   UpdaterViaFissionSource(
       std::unique_ptr<FissionSourceCalculator> fission_source_calculator,
       double initial_k_effective,
-      double initial_fission_source)
-      : fission_source_calculator_(std::move(fission_source_calculator)),
-          initial_k_effective_(initial_k_effective),
-          initial_fission_source_(initial_fission_source) {}
+      double initial_fission_source);
 
   double CalculateK_Effective(system::System& system) override;
   /*! \brief Returns the last calculated k_effective */
