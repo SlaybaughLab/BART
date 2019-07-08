@@ -49,7 +49,7 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
 
   /*! \brief Returns the fission source used in the numerator of the
    * calculation.  */
-  std::optional<double> current_fission_source() const {
+  std::optional<double> current_fission_source() const override {
     return current_fission_source_; }
   /*! \brief Returns the fission source used in the denominator of the
    * calculation.  */

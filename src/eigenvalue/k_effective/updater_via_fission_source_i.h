@@ -12,6 +12,9 @@ namespace k_effective {
 class UpdaterViaFissionSourceI : public K_EffectiveUpdaterI {
  public:
   virtual ~UpdaterViaFissionSourceI() = default;
+
+  /*! \brief Return the current problem fission source. */
+  virtual std::optional<double> current_fission_source() const = 0;
 };
 
 } // namespace k_effective
