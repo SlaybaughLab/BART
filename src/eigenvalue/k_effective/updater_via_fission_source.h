@@ -28,11 +28,16 @@ namespace k_effective {
 class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
  public:
 
+  /*! \brief Returns the last calculated k_effective */
+  double k_effective() const override { return k_effective_; }
   /*! \brief Returns the fission source used in the numerator of the
    * calculation.  */
   double current_fission_source() const { return current_fission_source_; }
+  /*! \brief Returns the fission source used in the denominator of the
+   * calculation.  */
   double previous_fission_source() const { return previous_fission_source_; }
  private:
+  double k_effective_ = 1.0;
   double current_fission_source_ = 0;
   double previous_fission_source_ = 0;
 

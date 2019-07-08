@@ -10,6 +10,8 @@ namespace k_effective {
 class K_EffectiveUpdaterI {
  public:
   virtual ~K_EffectiveUpdaterI() = default;
+
+  virtual double k_effective() const = 0;
 };
 
 } // namespace k_effective

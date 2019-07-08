@@ -11,7 +11,11 @@ using namespace bart;
 };
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, Constructor) {
-  EXPECT_TRUE(true);
+  eigenvalue::k_effective::UpdaterViaFissionSource test_k_eff_updater;
+
+  EXPECT_EQ(test_k_eff_updater.k_effective(), 1);
+  EXPECT_EQ(test_k_eff_updater.previous_fission_source(), 0);
+  EXPECT_EQ(test_k_eff_updater.current_fission_source(), 0);
 }
 
 } // namespace
