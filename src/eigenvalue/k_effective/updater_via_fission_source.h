@@ -22,7 +22,7 @@ namespace k_effective {
  *
  * where the integration is performed over the entire neutron phase space. This
  * implementation uses a calculator::cell::TotalAggreatedFissionSourceI to
- * accomplish this. With each call of Calculate, the current and previous
+ * accomplish this. With each call of CalculateKEff, the current and previous
  * fission source values are updated. Previous values are not stored in the
  * default implementation.
  *
@@ -35,6 +35,7 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
       std::unique_ptr<FissionSourceCalculator> fission_source_calculator)
       : fission_source_calculator_(std::move(fission_source_calculator)) {}
 
+  double CalculateK_Effective(system::System& system) override;
   /*! \brief Returns the last calculated k_effective */
   double k_effective() const override { return k_effective_; }
   /*! \brief Returns the fission source used in the numerator of the
