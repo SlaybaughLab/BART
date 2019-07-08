@@ -3,11 +3,14 @@
 
 #include <memory>
 
-#include "system/system.h"
 #include "system/system_types.h"
 #include "iteration/updater/source_updater.h"
 
 namespace bart {
+
+namespace system {
+struct System;
+} // namespace system
 
 namespace iteration {
 
