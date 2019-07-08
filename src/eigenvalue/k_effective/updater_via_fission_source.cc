@@ -27,6 +27,10 @@ double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {
       fission_source_calculator_->AggregatedFissionSource(
           system.current_moments.get());
 
+  AssertThrow(current_fission_source_ > 0,
+              dealii::ExcMessage("Error in CalculateK_Effective, fission source"
+                                 "is 0"));
+
   k_effective_ = initial_k_effective_ *
       current_fission_source_.value() / initial_fission_source_;
 
