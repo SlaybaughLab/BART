@@ -48,6 +48,19 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, Constructor) {
   EXPECT_NE(fission_source_obs_ptr_, nullptr);
 }
 
+TEST_F(EigKEffUpdaterViaFissionSourceTest, BadConstructor) {
+
+  std::array<double,2> bad_keff{0, -1.3};
+  std::array<double,2> bad_fission_sources{0, -10.0};
+
+  for (auto const keff : bad_keff) {
+    for (auto const fission_source : bad_fission_sources) {
+      EXPECT_ANY_THROW({eigenvalue::k_effective::UpdaterViaFissionSource
+            test_k_eff_updater(std::move(fission_source_mock_ptr_), keff, fission_source);});
+    }
+  }
+}
+
 TEST_F(EigKEffUpdaterViaFissionSourceTest, BadFissionSources) {
   eigenvalue::k_effective::UpdaterViaFissionSource
       test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.0, 5.0);
