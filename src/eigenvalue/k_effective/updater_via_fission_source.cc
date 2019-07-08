@@ -12,7 +12,14 @@ UpdaterViaFissionSource::UpdaterViaFissionSource(
     double initial_fission_source)
     : fission_source_calculator_(std::move(fission_source_calculator)),
       initial_k_effective_(initial_k_effective),
-      initial_fission_source_(initial_fission_source) {}
+      initial_fission_source_(initial_fission_source) {
+  AssertThrow(initial_k_effective > 0.0,
+      dealii::ExcMessage("Error in constructor of UpdaterViaFissionSource, "
+                         "initial k_effective must be > 0"));
+  AssertThrow(initial_fission_source > 0.0,
+              dealii::ExcMessage("Error in constructor of UpdaterViaFissionSource, "
+                                 "initial fission source must be > 0"));
+}
 
 double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {
 
