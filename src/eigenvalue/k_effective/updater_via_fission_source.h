@@ -2,6 +2,7 @@
 #define BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_H_
 
 #include <memory>
+#include <optional>
 #include "calculator/cell/total_aggregated_fission_source_i.h"
 #include "eigenvalue/k_effective/updater_via_fission_source_i.h"
 
@@ -37,13 +38,16 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
 
   double CalculateK_Effective(system::System& system) override;
   /*! \brief Returns the last calculated k_effective */
-  double k_effective() const override { return k_effective_; }
+  std::optional<double> k_effective() const override {
+    return k_effective_; }
   /*! \brief Returns the fission source used in the numerator of the
    * calculation.  */
-  double current_fission_source() const { return current_fission_source_; }
+  std::optional<double> current_fission_source() const {
+    return current_fission_source_; }
   /*! \brief Returns the fission source used in the denominator of the
    * calculation.  */
-  double previous_fission_source() const { return previous_fission_source_; }
+  std::optional<double> previous_fission_source() const {
+    return previous_fission_source_; }
 
   /*! \brief Returns raw pointer to dependent fission source calculator */
   FissionSourceCalculator* fission_source_calculator() const {
@@ -51,9 +55,9 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
   }
  private:
   std::unique_ptr<FissionSourceCalculator> fission_source_calculator_;
-  double k_effective_ = 1.0;
-  double current_fission_source_ = 0;
-  double previous_fission_source_ = 0;
+  std::optional<double> k_effective_ = std::nullopt;
+  std::optional<double> current_fission_source_ = std::nullopt;
+  std::optional<double> previous_fission_source_ = std::nullopt;
 
 };
 
