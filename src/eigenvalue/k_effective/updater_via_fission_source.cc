@@ -8,15 +8,12 @@ namespace k_effective {
 
 double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {
 
-  previous_fission_source_ = current_fission_source_;
-
   current_fission_source_ =
       fission_source_calculator_->AggregatedFissionSource(
           system.current_moments.get());
 
-  k_effective_ = system.k_effective.value_or(1.0) *
-      current_fission_source_.value() /
-      previous_fission_source_.value_or(1.0);
+  k_effective_ = initial_k_effective_ *
+      current_fission_source_.value() / initial_fission_source_;
 
   return k_effective_.value();
 }

@@ -34,10 +34,11 @@ void EigKEffUpdaterViaFissionSourceTest::SetUp() {
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, Constructor) {
   eigenvalue::k_effective::UpdaterViaFissionSource
-      test_k_eff_updater(std::move(fission_source_mock_ptr_));
+      test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.0, 5.0);
 
   EXPECT_EQ(test_k_eff_updater.k_effective(), std::nullopt);
-  EXPECT_EQ(test_k_eff_updater.previous_fission_source(), std::nullopt);
+  EXPECT_EQ(test_k_eff_updater.initial_k_effective(), 1.0);
+  EXPECT_EQ(test_k_eff_updater.initial_fission_source(), 5.0);
   EXPECT_EQ(test_k_eff_updater.current_fission_source(), std::nullopt);
 
   auto fission_source_obs_ptr_ =
@@ -49,7 +50,7 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, Constructor) {
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, BadFissionSources) {
   eigenvalue::k_effective::UpdaterViaFissionSource
-      test_k_eff_updater(std::move(fission_source_mock_ptr_));
+      test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.0, 5.0);
   auto fission_source_obs_ptr_ =
       dynamic_cast<TotalAggregatedFissionSourceType*>(
           test_k_eff_updater.fission_source_calculator());
@@ -69,7 +70,7 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, BadFissionSources) {
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
   eigenvalue::k_effective::UpdaterViaFissionSource
-      test_k_eff_updater(std::move(fission_source_mock_ptr_));
+      test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.5, 5.0);
   auto fission_source_obs_ptr_ =
       dynamic_cast<TotalAggregatedFissionSourceType*>(
           test_k_eff_updater.fission_source_calculator());
@@ -80,14 +81,16 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
       AggregatedFissionSource(test_system.current_moments.get()))
       .WillOnce(Return(fission_sources[0]));
 
+  double expected_result = 1.59;
+
   double k_effective = test_k_eff_updater.CalculateK_Effective(test_system);
   test_system.k_effective = k_effective;
 
-  EXPECT_DOUBLE_EQ(k_effective, fission_sources[0]);
+  EXPECT_DOUBLE_EQ(k_effective, expected_result);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.current_fission_source().value_or(0),
       fission_sources[0]);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.k_effective().value_or(0),
-      fission_sources[0]);
+      expected_result);
 
   EXPECT_CALL(*fission_source_obs_ptr_,
               AggregatedFissionSource(test_system.current_moments.get()))
@@ -96,13 +99,11 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
   k_effective = test_k_eff_updater.CalculateK_Effective(test_system);
   test_system.k_effective = k_effective;
 
-  double expected_result = 2.6;
+  expected_result = 0.78;
 
   EXPECT_NEAR(k_effective, expected_result, 1e-12);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.current_fission_source().value_or(0),
       fission_sources[1]);
-  EXPECT_DOUBLE_EQ(test_k_eff_updater.previous_fission_source().value_or(0),
-      fission_sources[0]);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.k_effective().value_or(0),
       k_effective);
 
@@ -113,13 +114,11 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
   k_effective = test_k_eff_updater.CalculateK_Effective(test_system);
   test_system.k_effective = k_effective;
 
-  expected_result = 1.3;
+  expected_result = 0.39;
 
   EXPECT_NEAR(k_effective, expected_result, 1e-12);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.current_fission_source().value_or(0),
       fission_sources[2]);
-  EXPECT_DOUBLE_EQ(test_k_eff_updater.previous_fission_source().value_or(0),
-      fission_sources[1]);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.k_effective().value_or(0), k_effective);
 
 }

@@ -22,7 +22,7 @@ namespace k_effective {
  * \f]
  *
  * where the integration is performed over the entire neutron phase space. This
- * implementation uses a calculator::cell::TotalAggreatedFissionSourceI to
+ * implementation uses a calculator::cell::TotalAggregatedFissionSourceI to
  * accomplish this. With each call of CalculateKEff, the current and previous
  * fission source values are updated. Previous values are not stored in the
  * default implementation.
@@ -33,21 +33,31 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
   using FissionSourceCalculator = calculator::cell::TotalAggregatedFissionSourceI;
 
   UpdaterViaFissionSource(
-      std::unique_ptr<FissionSourceCalculator> fission_source_calculator)
-      : fission_source_calculator_(std::move(fission_source_calculator)) {}
+      std::unique_ptr<FissionSourceCalculator> fission_source_calculator,
+      double initial_k_effective,
+      double initial_fission_source)
+      : fission_source_calculator_(std::move(fission_source_calculator)),
+          initial_k_effective_(initial_k_effective),
+          initial_fission_source_(initial_fission_source) {}
 
   double CalculateK_Effective(system::System& system) override;
   /*! \brief Returns the last calculated k_effective */
   std::optional<double> k_effective() const override {
     return k_effective_; }
+
+  /*! \brief Returns initial k_effective guess */
+  double initial_k_effective() const {
+    return initial_k_effective_;
+  }
+
   /*! \brief Returns the fission source used in the numerator of the
    * calculation.  */
   std::optional<double> current_fission_source() const {
     return current_fission_source_; }
   /*! \brief Returns the fission source used in the denominator of the
    * calculation.  */
-  std::optional<double> previous_fission_source() const {
-    return previous_fission_source_; }
+  std::optional<double> initial_fission_source() const {
+    return initial_fission_source_; }
 
   /*! \brief Returns raw pointer to dependent fission source calculator */
   FissionSourceCalculator* fission_source_calculator() const {
@@ -57,7 +67,8 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
   std::unique_ptr<FissionSourceCalculator> fission_source_calculator_;
   std::optional<double> k_effective_ = std::nullopt;
   std::optional<double> current_fission_source_ = std::nullopt;
-  std::optional<double> previous_fission_source_ = std::nullopt;
+  const double initial_k_effective_;
+  const double initial_fission_source_;
 
 };
 
