@@ -89,8 +89,6 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
   EXPECT_DOUBLE_EQ(test_k_eff_updater.k_effective().value_or(0),
       fission_sources[0]);
 
-
-
   EXPECT_CALL(*fission_source_obs_ptr_,
               AggregatedFissionSource(test_system.current_moments.get()))
       .WillOnce(Return(fission_sources[1]));
@@ -98,7 +96,7 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
   k_effective = test_k_eff_updater.CalculateK_Effective(test_system);
   test_system.k_effective = k_effective;
 
-  double expected_result = 0.4905660377358;
+  double expected_result = 2.6;
 
   EXPECT_NEAR(k_effective, expected_result, 1e-12);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.current_fission_source().value_or(0),
@@ -115,7 +113,7 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
   k_effective = test_k_eff_updater.CalculateK_Effective(test_system);
   test_system.k_effective = k_effective;
 
-  expected_result = 0.2452830188679;
+  expected_result = 1.3;
 
   EXPECT_NEAR(k_effective, expected_result, 1e-12);
   EXPECT_DOUBLE_EQ(test_k_eff_updater.current_fission_source().value_or(0),
