@@ -24,12 +24,6 @@ struct System {
   std::unique_ptr<system::moments::SphericalHarmonicI> current_moments = nullptr;
   //! Flux moments for the previous iteration
   std::unique_ptr<system::moments::SphericalHarmonicI> previous_moments = nullptr;
-  //! Flux moments for the current iteration
-  [[deprecated("Replaced by current_moments")]]
-  system::moments::MomentsMap current_iteration_moments = {};
-  //! Flux moments for the previous iteration
-  [[deprecated("Replaced by previous_moments")]]
-  system::moments::MomentsMap previous_iteration_moments = {};
   //! System k_effective
   std::optional<double> k_effective = std::nullopt;
 };
