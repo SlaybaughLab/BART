@@ -9,6 +9,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/system.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/system_types.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "formulation/cfem_stamper_i.h"
@@ -26,7 +27,7 @@ using ::testing::Ref;
 using ::testing::DoDefault;
 using ::testing::Invoke;
 using ::testing::NiceMock;
-using ::testing::Return;
+using ::testing::Return, ::testing::ReturnRef;
 using ::testing::WithArgs;
 using ::testing::_;
 
@@ -49,9 +50,15 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
   std::shared_ptr<MPIVector> source_vector_ptr_;
   MPIVector expected_vector_;
 
-  // Required mocks
+  // Required mocks and supporting objects
   std::unique_ptr<formulation::CFEM_StamperMock> mock_stamper_ptr_;
   std::unique_ptr<system::terms::LinearTermMock> mock_rhs_ptr_;
+  std::unique_ptr<system::moments::SphericalHarmonicMock> moments_ptr_;
+
+  system::moments::SphericalHarmonicMock* moments_obs_ptr_;
+
+  system::moments::MomentsMap current_iteration_moments_,
+      previous_iteration_moments_;
 
   void SetUp() override;
 };
@@ -65,12 +72,12 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
 void IterationSourceUpdaterGaussSeidelTest::SetUp() {
   mock_stamper_ptr_ = std::make_unique<NiceMock<formulation::CFEM_StamperMock>>();
   mock_rhs_ptr_ = std::make_unique<NiceMock<system::terms::LinearTermMock>>();
+  moments_ptr_ = std::make_unique<system::moments::SphericalHarmonicMock>();
 
   /* Create and populate moment maps. The inserted MomentVectors can be empty
    * because we will check that the correct ones are passed by reference not
    * entries.
    */
-  system::moments::MomentsMap current_iteration, previous_iteration;
 
   int l_max = 2;
 
@@ -78,14 +85,14 @@ void IterationSourceUpdaterGaussSeidelTest::SetUp() {
     for (system::moments::HarmonicL l = 0; l < l_max; ++l) {
       for (system::moments::HarmonicM m = -l_max; m <= l_max; ++m) {
         system::moments::MomentVector current_moment, previous_moment;
-        current_iteration[{group, l, m}] = current_moment;
-        previous_iteration[{group, l, m}] = previous_moment;
+        current_iteration_moments_[{group, l, m}] = current_moment;
+        previous_iteration_moments_[{group, l, m}] = previous_moment;
       }
     }
   }
 
-  test_system_.current_iteration_moments = current_iteration;
-  test_system_.previous_iteration_moments = previous_iteration;
+  moments_obs_ptr_ = moments_ptr_.get();
+  test_system_.current_moments = std::move(moments_ptr_);
 
   /* Initialize MPI Vectors */
   source_vector_ptr_ = std::make_shared<MPIVector>();
@@ -158,11 +165,18 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
   EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(index,
                                                  VariableTerms::kScatteringSource))
       .WillOnce(DoDefault());
+
+  std::array<int, 3> moment_index{group, 0, 0};
+  EXPECT_CALL(*moments_obs_ptr_, GetMoment(moment_index))
+      .WillOnce(ReturnRef(current_iteration_moments_[{group, 0, 0}]));
+  EXPECT_CALL(*moments_obs_ptr_, moments())
+      .WillOnce(ReturnRef(current_iteration_moments_));
+
   EXPECT_CALL(*mock_stamper_ptr_,
       StampScatteringSource(Ref(*source_vector_ptr_),
                             group,
-                            Ref(test_system_.current_iteration_moments[{group, 0, 0}]),
-                            Ref(test_system_.current_iteration_moments)))
+                            Ref(current_iteration_moments_[{group, 0, 0}]),
+                            Ref(current_iteration_moments_)))
       .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
 
   // Final Set up
@@ -235,12 +249,19 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
   EXPECT_CALL(*mock_rhs_ptr_, GetVariableTermPtr(index,
                                                  VariableTerms::kFissionSource))
       .WillOnce(DoDefault());
+
+  std::array<int, 3> moment_index{group, 0, 0};
+  EXPECT_CALL(*moments_obs_ptr_, GetMoment(moment_index))
+      .WillOnce(ReturnRef(current_iteration_moments_[{group, 0, 0}]));
+  EXPECT_CALL(*moments_obs_ptr_, moments())
+      .WillOnce(ReturnRef(current_iteration_moments_));
+
   EXPECT_CALL(*mock_stamper_ptr_,
               StampFissionSource(Ref(*source_vector_ptr_),
                                  group,
                                  k_effective,
-                                 Ref(test_system_.current_iteration_moments[{group, 0, 0}]),
-                                 Ref(test_system_.current_iteration_moments)))
+                                 Ref(current_iteration_moments_[{group, 0, 0}]),
+                                 Ref(current_iteration_moments_)))
       .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
 
   // Final Set up
