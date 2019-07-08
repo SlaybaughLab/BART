@@ -29,7 +29,7 @@ class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI {
       {};
   virtual ~TotalAggregatedFissionSource() = default;
 
-  double AggreatedFissionSource(
+  double AggregatedFissionSource(
       system::moments::SphericalHarmonicI *system_moments_ptr) const override;
 
   IntegratedFissionSourceI<dim>* cell_fission_source_ptr() const {

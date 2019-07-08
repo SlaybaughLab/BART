@@ -18,7 +18,7 @@ namespace cell {
 class TotalAggregatedFissionSourceI {
  public:
   virtual ~TotalAggregatedFissionSourceI() = default;
-  virtual double AggreatedFissionSource(
+  virtual double AggregatedFissionSource(
       system::moments::SphericalHarmonicI* system_moments_ptr) const = 0;
 };
 

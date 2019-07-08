@@ -17,7 +17,8 @@ namespace calculator {
 namespace cell {
 
 class TotalAggregatedFissionSourceMock : public TotalAggregatedFissionSourceI {
-  MOCK_CONST_METHOD1(AggreatedFissionSource, double(
+ public:
+  MOCK_CONST_METHOD1(AggregatedFissionSource, double(
       system::moments::SphericalHarmonicI* system_moments_ptr));
 };
 

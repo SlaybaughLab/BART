@@ -13,7 +13,7 @@ namespace calculator {
 namespace cell {
 
 template<int dim>
-double TotalAggregatedFissionSource<dim>::AggreatedFissionSource(
+double TotalAggregatedFissionSource<dim>::AggregatedFissionSource(
     system::moments::SphericalHarmonicI *system_moments_ptr) const {
 
   auto cells = domain_ptr_->Cells();

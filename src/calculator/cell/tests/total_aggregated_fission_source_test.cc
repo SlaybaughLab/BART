@@ -83,7 +83,7 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, AggregatedFissionSourceMPI) {
         .WillOnce(Return(cell_value));
   }
 
-  double source = test_aggregator.AggreatedFissionSource(moments_ptr_.get());
+  double source = test_aggregator.AggregatedFissionSource(moments_ptr_.get());
 
   EXPECT_NEAR(source, expected_source, 1e-12);
 
