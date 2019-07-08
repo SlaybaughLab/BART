@@ -25,11 +25,18 @@ void EigKEffUpdaterViaFissionSourceTest::SetUp() {
 }
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, Constructor) {
-  eigenvalue::k_effective::UpdaterViaFissionSource test_k_eff_updater;
+  eigenvalue::k_effective::UpdaterViaFissionSource
+      test_k_eff_updater(std::move(fission_source_mock_ptr_));
 
   EXPECT_EQ(test_k_eff_updater.k_effective(), 1);
   EXPECT_EQ(test_k_eff_updater.previous_fission_source(), 0);
   EXPECT_EQ(test_k_eff_updater.current_fission_source(), 0);
+
+  auto fission_source_obs_ptr_ =
+      dynamic_cast<TotalAggregatedFissionSourceType*>(
+          test_k_eff_updater.fission_source_calculator());
+  
+  EXPECT_NE(fission_source_obs_ptr_, nullptr);
 }
 
 } // namespace
