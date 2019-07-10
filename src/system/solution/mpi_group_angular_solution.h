@@ -19,22 +19,20 @@ namespace solution {
 class MPIGroupAngularSolution : public MPIGroupAngularSolutionI {
  public:
 
-  MPIGroupAngularSolution(const int total_groups, const int total_angles = 1);
+  MPIGroupAngularSolution(const int total_angles);
   virtual ~MPIGroupAngularSolution() = default;
 
   int total_angles() const override { return total_angles_; }
-  int total_groups() const override { return total_groups_; }
   const SolutionMap& solutions() const override { return solutions_; };
 
   /*! \brief Returns the system solution identified by the provided index */
-  const MPIVector& operator[](const Index index) const override;
+  const MPIVector& operator[](const AngleIndex angle) const override;
   /*! \brief Returns the system solution identified by the provided index */
-        MPIVector& operator[](const Index index) override;
+        MPIVector& operator[](const AngleIndex angle) override;
 
  private:
   SolutionMap solutions_;
   const int total_angles_;
-  const int total_groups_;
 };
 
 } // namespace solution

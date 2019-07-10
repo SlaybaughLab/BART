@@ -6,21 +6,19 @@ namespace system {
 
 namespace solution {
 
-MPIGroupAngularSolution::MPIGroupAngularSolution(const int total_groups, const int total_angles)
-    : total_angles_(total_angles),
-      total_groups_(total_groups) {
-  for (int group = 0; group < total_groups; ++group) {
-    for (int angle = 0; angle < total_angles; ++angle) {
-      // Insert uninitilized MPIVectors
-      solutions_.insert(std::make_pair<Index, MPIVector>({group, angle}, {}));
-    }
+MPIGroupAngularSolution::MPIGroupAngularSolution(const int total_angles)
+    : total_angles_(total_angles) {
+  for (int angle = 0; angle < total_angles; ++angle) {
+    // Insert uninitilized MPIVectors
+    MPIVector new_vector;
+    solutions_[angle] = new_vector;
   }
 }
-const MPIGroupAngularSolutionI::MPIVector& MPIGroupAngularSolution::operator[](const Index index) const {
-  return solutions_.at(index);
+const MPIVector& MPIGroupAngularSolution::operator[](const AngleIndex angle) const {
+  return solutions_.at(angle);
 }
-MPIGroupAngularSolutionI::MPIVector& MPIGroupAngularSolution::operator[](const Index index) {
-  return solutions_.at(index);
+MPIVector& MPIGroupAngularSolution::operator[](const AngleIndex angle) {
+  return solutions_.at(angle);
 }
 
 

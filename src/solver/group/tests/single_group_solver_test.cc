@@ -43,8 +43,6 @@ void SolverGroupSingleGroupSolverTest::SetUp() {
 
   ON_CALL(solution_, total_angles())
       .WillByDefault(Return(total_angles_));
-  ON_CALL(solution_, total_groups())
-      .WillByDefault(Return(total_groups_));
 }
 
 TEST_F(SolverGroupSingleGroupSolverTest, Constructor) {

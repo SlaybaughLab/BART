@@ -23,9 +23,6 @@ void SingleGroupSolver::SolveGroup(const int group,
   AssertThrow(group >= 0,
       dealii::ExcMessage("Error in SolveGroup, invalid group index provided, "
                          "value is less than zero"));
-  AssertThrow(group < group_solution.total_groups(),
-      dealii::ExcMessage("Error in SolveGroup, invalid group index provided, "
-                         "not within range of groups in solution"));
 }
 
 } // namespace group

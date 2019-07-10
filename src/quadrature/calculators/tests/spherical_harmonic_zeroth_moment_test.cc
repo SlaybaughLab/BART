@@ -114,8 +114,7 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
       .WillOnce(Return(n_angles));
 
   for (int angle = 0; angle < n_angles; ++angle) {
-    system::Index index{group, angle};
-    EXPECT_CALL(mock_solution, BracketOp(index))
+    EXPECT_CALL(mock_solution, BracketOp(angle))
         .WillOnce(ReturnRef(this->mpi_vectors_[angle]));
   }
 

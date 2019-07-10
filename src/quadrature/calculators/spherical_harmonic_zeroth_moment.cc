@@ -10,7 +10,7 @@ namespace calculators {
 template<int dim>
 system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMoment(
     system::solution::MPIGroupAngularSolutionI* solution,
-    system::GroupNumber group,
+    system::GroupNumber,
     system::moments::HarmonicL,
     system::moments::HarmonicL) const {
 
@@ -29,7 +29,7 @@ system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMomen
   system::moments::MomentVector return_vector;
 
   for (int angle = 0; angle < total_angles; ++angle) {
-    auto mpi_solution = (*solution)[{group, angle}];
+    auto mpi_solution = (*solution)[angle];
     system::moments::MomentVector angle_vector(mpi_solution);
 
     if (return_vector.size() == 0) {

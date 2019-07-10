@@ -12,23 +12,18 @@ namespace system {
 
 namespace solution {
 
-/*! \brief Interface for classes that store angular system solutions as PETSc MPI vectors.
+/*! \brief Interface for classes that store group angular system solutions as PETSc MPI vectors.
  *
- * System solutions are indentified by a unique index made up of the energy group
- * number and angle index. They are stored as MPI Vectors using the deal.II
- * wrapper for PETSc MPI Vectors.
  */
 class MPIGroupAngularSolutionI :
-    public SolutionI<system::Index, system::MPIVector> {
+    public SolutionI<system::AngleIndex, system::MPIVector> {
  public:
-  using SolutionMap = std::map<system::Index, system::MPIVector>;
+  using SolutionMap = std::map<system::AngleIndex, system::MPIVector>;
   using MPIVector = system::MPIVector;
-  using Index = system::Index;
+  using AngleIndex = system::AngleIndex;
 
   virtual ~MPIGroupAngularSolutionI() = default;
 
-  /*! \brief Returns the total number of energy groups. */
-  virtual int total_groups() const = 0;
   /*! \brief Returns the total number of angles */
   virtual int total_angles() const = 0;
 };
