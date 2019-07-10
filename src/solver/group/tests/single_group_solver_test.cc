@@ -37,14 +37,23 @@ void SolverGroupSingleGroupSolverTest::SetUp() {
   linear_solver_obs_ptr_ = linear_solver_ptr_.get();
 }
 
-
-
 TEST_F(SolverGroupSingleGroupSolverTest, Constructor) {
   solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
 
   auto test_ptr = dynamic_cast<LinearSolver*>(test_solver.linear_solver_ptr());
 
   EXPECT_NE(test_ptr, nullptr);
+}
+
+TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadAngles) {
+  solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
+
+  std::array<int, 2> bad_angles = {-1, 0};
+  for (const int angle : bad_angles) {
+    EXPECT_CALL(solution_, total_angles())
+        .WillOnce(Return(angle));
+    EXPECT_ANY_THROW(test_solver.SolveGroup(0, test_system_, solution_));
+  }
 }
 
 } // namespace
