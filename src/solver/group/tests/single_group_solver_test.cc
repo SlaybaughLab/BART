@@ -32,6 +32,7 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
   // test parameters
   const int total_angles_ = 2;
   const int total_groups_ = 4;
+  const int test_group_ = 2;
 
   void SetUp() override;
 };
@@ -54,6 +55,23 @@ TEST_F(SolverGroupSingleGroupSolverTest, Constructor) {
   EXPECT_NE(test_ptr, nullptr);
 }
 
+TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupOperation) {
+  solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
+
+//  EXPECT_CALL(solution_, total_angles())
+//      .WillOnce(Return(total_angles_));
+//  EXPECT_CALL(solution_, total_groups())
+//      .WillOnce(Return(total_groups_));
+
+  // Expect to get solutions for each angle for the group from the solution object
+//  for (int angle = 0; angle < total_angles_; ++angle) {
+//    system::Index index{test_group_, angle};
+//    EXPECT_CALL(solution_, BracketOp(index))
+//        .WillOnce(Return());
+//  }
+
+}
+
 TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadAngles) {
   solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
 
@@ -71,13 +89,5 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadGroup) {
   EXPECT_ANY_THROW(test_solver.SolveGroup(-1, test_system_, solution_));
 }
 
-TEST_F(SolverGroupSingleGroupSolverTest, SolveGroup) {
-  solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
-
-//  EXPECT_CALL(solution_, total_angles())
-//      .WillOnce(Return(total_angles_));
-//
-
-}
 
 } // namespace
