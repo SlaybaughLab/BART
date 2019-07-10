@@ -1,7 +1,7 @@
-#ifndef BART_SRC_SYSTEM_SOLUTION_MPI_ANGULAR_H_
-#define BART_SRC_SYSTEM_SOLUTION_MPI_ANGULAR_H_
+#ifndef BART_SRC_SYSTEM_SOLUTION_MPI_GROUP_ANGULAR_SOLUTION_H_
+#define BART_SRC_SYSTEM_SOLUTION_MPI_GROUP_ANGULAR_SOLUTION_H_
 
-#include "system/solution/mpi_angular_i.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
 namespace bart {
 
@@ -16,11 +16,11 @@ namespace solution {
  * to be constant.
  *
  */
-class MPIAngular : public MPIAngularI {
+class MPIGroupAngularSolution : public MPIGroupAngularSolutionI {
  public:
 
-  MPIAngular(const int total_groups, const int total_angles = 1);
-  virtual ~MPIAngular() = default;
+  MPIGroupAngularSolution(const int total_groups, const int total_angles = 1);
+  virtual ~MPIGroupAngularSolution() = default;
 
   int total_angles() const override { return total_angles_; }
   int total_groups() const override { return total_groups_; }
@@ -43,4 +43,4 @@ class MPIAngular : public MPIAngularI {
 
 } // namespace bart
 
-#endif // BART_SRC_SYSTEM_SOLUTION_MPI_ANGULAR_H_
+#endif //BART_SRC_SYSTEM_SOLUTION_MPI_GROUP_ANGULAR_SOLUTION_H_

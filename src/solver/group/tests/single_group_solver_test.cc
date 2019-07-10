@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "system/system.h"
-#include "system/solution/tests/mpi_angular_mock.h"
+#include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "solver/tests/linear_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -17,7 +17,7 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
  protected:
 
   using LinearSolver = solver::LinearMock;
-  using GroupSolution = NiceMock<system::solution::MPIAngularMock>;
+  using GroupSolution = NiceMock<system::solution::MPIGroupAngularSolutionMock>;
 
   // SUpporting objects
   system::System test_system_;

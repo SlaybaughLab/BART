@@ -9,7 +9,7 @@ namespace system {
 
 namespace solution {
 
-class MPIAngularI;
+class MPIGroupAngularSolutionI;
 
 } // namespace solution
 
@@ -55,7 +55,7 @@ class SphericalHarmonicMomentsI {
   virtual ~SphericalHarmonicMomentsI() = default;
 
   virtual system::moments::MomentVector CalculateMoment(
-      system::solution::MPIAngularI* solution,
+      system::solution::MPIGroupAngularSolutionI* solution,
       system::GroupNumber group,
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const = 0;

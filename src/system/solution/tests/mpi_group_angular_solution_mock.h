@@ -1,7 +1,7 @@
-#ifndef BART_SRC_SYSTEM_SOLUTION_TESTS_MPI_ANGULAR_MOCK_H_
-#define BART_SRC_SYSTEM_SOLUTION_TESTS_MPI_ANGULAR_MOCK_H_
+#ifndef BART_SRC_SYSTEM_SOLUTION_TESTS_MPI_GROUP_ANGULAR_SOLUTION_MOCK_H_
+#define BART_SRC_SYSTEM_SOLUTION_TESTS_MPI_GROUP_ANGULAR_SOLUTION_MOCK_H_
 
-#include "system/solution/mpi_angular_i.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -11,7 +11,7 @@ namespace system {
 
 namespace solution {
 
-class MPIAngularMock : public MPIAngularI {
+class MPIGroupAngularSolutionMock : public MPIGroupAngularSolutionI {
  public:
   MOCK_CONST_METHOD0(total_groups, int());
   MOCK_CONST_METHOD0(total_angles, int());
@@ -32,4 +32,4 @@ class MPIAngularMock : public MPIAngularI {
 
 } // namespace bart
 
-#endif // BART_SRC_SYSTEM_SOLUTION_TESTS_MPI_ANGULAR_MOCK_H_
+#endif //BART_SRC_SYSTEM_SOLUTION_TESTS_MPI_GROUP_ANGULAR_SOLUTION_MOCK_H_

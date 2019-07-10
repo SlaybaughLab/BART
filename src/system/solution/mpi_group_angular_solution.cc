@@ -1,4 +1,4 @@
-#include "system/solution/mpi_angular.h"
+#include "system/solution/mpi_group_angular_solution.h"
 
 namespace bart {
 
@@ -6,7 +6,7 @@ namespace system {
 
 namespace solution {
 
-MPIAngular::MPIAngular(const int total_groups, const int total_angles)
+MPIGroupAngularSolution::MPIGroupAngularSolution(const int total_groups, const int total_angles)
     : total_angles_(total_angles),
       total_groups_(total_groups) {
   for (int group = 0; group < total_groups; ++group) {
@@ -16,10 +16,10 @@ MPIAngular::MPIAngular(const int total_groups, const int total_angles)
     }
   }
 }
-const MPIAngularI::MPIVector& MPIAngular::operator[](const Index index) const {
+const MPIGroupAngularSolutionI::MPIVector& MPIGroupAngularSolution::operator[](const Index index) const {
   return solutions_.at(index);
 }
-MPIAngularI::MPIVector& MPIAngular::operator[](const Index index) {
+MPIGroupAngularSolutionI::MPIVector& MPIGroupAngularSolution::operator[](const Index index) {
   return solutions_.at(index);
 }
 

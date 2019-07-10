@@ -1,5 +1,5 @@
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
-#include "system/solution/mpi_angular_i.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
 namespace bart {
 
@@ -9,7 +9,7 @@ namespace calculators {
 
 template<int dim>
 system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMoment(
-    system::solution::MPIAngularI* solution,
+    system::solution::MPIGroupAngularSolutionI* solution,
     system::GroupNumber group,
     system::moments::HarmonicL,
     system::moments::HarmonicL) const {

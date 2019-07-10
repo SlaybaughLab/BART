@@ -17,7 +17,7 @@ class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
       : SphericalHarmonicMoments<dim>(angular_quadrature_ptr) {}
 
   system::moments::MomentVector CalculateMoment(
-      system::solution::MPIAngularI* solution,
+      system::solution::MPIGroupAngularSolutionI* solution,
       system::GroupNumber group,
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const override;

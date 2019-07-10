@@ -1,7 +1,7 @@
 #include "solver/group/single_group_solver.h"
 
 #include "system/system.h"
-#include "system/solution/mpi_angular_i.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
 namespace bart {
 
@@ -15,7 +15,7 @@ SingleGroupSolver::SingleGroupSolver(
 
 void SingleGroupSolver::SolveGroup(const int group,
                                    const system::System &system,
-                                   system::solution::MPIAngularI &group_solution) {
+                                   system::solution::MPIGroupAngularSolutionI &group_solution) {
   const int total_angles = group_solution.total_angles();
   AssertThrow(total_angles > 0,
       dealii::ExcMessage("Error in SolveGroup, total angles provided by group "

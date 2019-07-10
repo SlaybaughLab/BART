@@ -1,4 +1,4 @@
-#include "system/solution/mpi_angular.h"
+#include "system/solution/mpi_group_angular_solution.h"
 
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -14,7 +14,7 @@ class SolutionMPIAngularTests : public ::testing::Test {
   SolutionMPIAngularTests() : test_solution(test_groups_, test_angles_) {};
 
   // Object to be tested
-  system::solution::MPIAngular test_solution;
+  system::solution::MPIGroupAngularSolution test_solution;
 
   // Test parameters
   static constexpr int test_groups_ = 2;

@@ -8,7 +8,7 @@
 #include "system/system_types.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "quadrature/angular/tests/angular_quadrature_set_mock.h"
-#include "system/solution/tests/mpi_angular_mock.h"
+#include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
@@ -36,7 +36,7 @@ class QuadCalcSphericalHarmonicMomentsOnlyScalar : public ::testing::Test {
   std::unique_ptr<MomentCalculatorType> test_calculator;
 
   // Supporting objects
-  system::solution::MPIAngularMock mock_solution_;
+  system::solution::MPIGroupAngularSolutionMock mock_solution_;
   std::array<system::MPIVector, 3> mpi_vectors_;
 
   // Test object dependency

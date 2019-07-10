@@ -22,7 +22,7 @@ class SingleGroupSolver : public SingleGroupSolverI {
 
   void SolveGroup(const int group,
                   const system::System &system,
-                  system::solution::MPIAngularI &group_solution) override;
+                  system::solution::MPIGroupAngularSolutionI &group_solution) override;
 
   LinearSolver* linear_solver_ptr() const {
     return linear_solver_ptr_.get();

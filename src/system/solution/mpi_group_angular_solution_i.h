@@ -1,5 +1,5 @@
-#ifndef BART_SRC_SYSTEM_SOLUTION_MPI_ANGULAR_I_H_
-#define BART_SRC_SYSTEM_SOLUTION_MPI_ANGULAR_I_H_
+#ifndef BART_SRC_SYSTEM_SOLUTION_MPI_GROUP_ANGULAR_SOLUTION_I_H_
+#define BART_SRC_SYSTEM_SOLUTION_MPI_GROUP_ANGULAR_SOLUTION_I_H_
 
 #include <map>
 
@@ -18,14 +18,14 @@ namespace solution {
  * number and angle index. They are stored as MPI Vectors using the deal.II
  * wrapper for PETSc MPI Vectors.
  */
-class MPIAngularI :
+class MPIGroupAngularSolutionI :
     public SolutionI<system::Index, system::MPIVector> {
  public:
   using SolutionMap = std::map<system::Index, system::MPIVector>;
   using MPIVector = system::MPIVector;
   using Index = system::Index;
 
-  virtual ~MPIAngularI() = default;
+  virtual ~MPIGroupAngularSolutionI() = default;
 
   /*! \brief Returns the total number of energy groups. */
   virtual int total_groups() const = 0;
@@ -40,4 +40,4 @@ class MPIAngularI :
 
 } // namespace bart
 
-#endif // BART_SRC_SYSTEM_SOLUTION_MPI_ANGULAR_I_H_
+#endif //BART_SRC_SYSTEM_SOLUTION_MPI_GROUP_ANGULAR_SOLUTION_I_H_
