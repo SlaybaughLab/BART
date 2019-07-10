@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "system/system.h"
+#include "system/solution/tests/mpi_angular_mock.h"
 #include "solver/tests/linear_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -9,13 +11,21 @@ namespace {
 
 using namespace bart;
 
+using ::testing::Return;
+
 class SolverGroupSingleGroupSolverTest : public ::testing::Test {
  protected:
 
   using LinearSolver = solver::LinearMock;
+  using GroupSolution = system::solution::MPIAngularMock;
+
+  // SUpporting objects
+  system::System test_system_;
+  GroupSolution solution_;
 
   // Supporting mocks
   std::unique_ptr<LinearSolver> linear_solver_ptr_;
+
 
   LinearSolver* linear_solver_obs_ptr_;
 
