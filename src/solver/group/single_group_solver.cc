@@ -18,8 +18,14 @@ void SingleGroupSolver::SolveGroup(const int group,
                                    system::solution::MPIAngularI &group_solution) {
   const int total_angles = group_solution.total_angles();
   AssertThrow(total_angles > 0,
-      dealii::ExcMessage("Error in SolveGroup, total angles provided by group"
+      dealii::ExcMessage("Error in SolveGroup, total angles provided by group "
                          "solution must be > 0"));
+  AssertThrow(group >= 0,
+      dealii::ExcMessage("Error in SolveGroup, invalid group index provided, "
+                         "value is less than zero"));
+  AssertThrow(group < group_solution.total_groups(),
+      dealii::ExcMessage("Error in SolveGroup, invalid group index provided, "
+                         "not within range of groups in solution"));
 }
 
 } // namespace group

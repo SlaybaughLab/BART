@@ -11,13 +11,13 @@ namespace {
 
 using namespace bart;
 
-using ::testing::Return;
+using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
 
 class SolverGroupSingleGroupSolverTest : public ::testing::Test {
  protected:
 
   using LinearSolver = solver::LinearMock;
-  using GroupSolution = system::solution::MPIAngularMock;
+  using GroupSolution = NiceMock<system::solution::MPIAngularMock>;
 
   // SUpporting objects
   system::System test_system_;
@@ -29,12 +29,21 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
 
   LinearSolver* linear_solver_obs_ptr_;
 
+  // test parameters
+  const int total_angles_ = 2;
+  const int total_groups_ = 4;
+
   void SetUp() override;
 };
 
 void SolverGroupSingleGroupSolverTest::SetUp() {
   linear_solver_ptr_ = std::make_unique<LinearSolver>();
   linear_solver_obs_ptr_ = linear_solver_ptr_.get();
+
+  ON_CALL(solution_, total_angles())
+      .WillByDefault(Return(total_angles_));
+  ON_CALL(solution_, total_groups())
+      .WillByDefault(Return(total_groups_));
 }
 
 TEST_F(SolverGroupSingleGroupSolverTest, Constructor) {
@@ -54,6 +63,21 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadAngles) {
         .WillOnce(Return(angle));
     EXPECT_ANY_THROW(test_solver.SolveGroup(0, test_system_, solution_));
   }
+}
+
+TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadGroup) {
+  solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
+  EXPECT_ANY_THROW(test_solver.SolveGroup(4, test_system_, solution_));
+  EXPECT_ANY_THROW(test_solver.SolveGroup(-1, test_system_, solution_));
+}
+
+TEST_F(SolverGroupSingleGroupSolverTest, SolveGroup) {
+  solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
+
+//  EXPECT_CALL(solution_, total_angles())
+//      .WillOnce(Return(total_angles_));
+//
+
 }
 
 } // namespace
