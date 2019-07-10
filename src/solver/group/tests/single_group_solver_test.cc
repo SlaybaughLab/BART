@@ -81,11 +81,5 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadAngles) {
   }
 }
 
-TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadGroup) {
-  solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
-  EXPECT_ANY_THROW(test_solver.SolveGroup(4, test_system_, solution_));
-  EXPECT_ANY_THROW(test_solver.SolveGroup(-1, test_system_, solution_));
-}
-
 
 } // namespace
