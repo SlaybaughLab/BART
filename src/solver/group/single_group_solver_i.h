@@ -3,6 +3,13 @@
 
 namespace bart {
 
+namespace system {
+struct System;
+namespace solution {
+class MPIAngularI;
+} // namespace solution
+} // namespace system
+
 namespace solver {
 
 namespace group {
@@ -16,6 +23,9 @@ namespace group {
 class SingleGroupSolverI {
  public:
   virtual ~SingleGroupSolverI() = default;
+  virtual void SolveGroup(const int group,
+                          const system::System& system,
+                          system::solution::MPIAngularI& group_solution) = 0;
 };
 
 } // namespace group

@@ -20,6 +20,10 @@ class SingleGroupSolver : public SingleGroupSolverI {
   SingleGroupSolver(std::unique_ptr<LinearSolver> linear_solver_ptr);
   virtual ~SingleGroupSolver() = default;
 
+  void SolveGroup(const int group,
+                  const system::System &system,
+                  system::solution::MPIAngularI &group_solution) override;
+
   LinearSolver* linear_solver_ptr() const {
     return linear_solver_ptr_.get();
   }
