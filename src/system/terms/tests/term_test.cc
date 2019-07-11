@@ -29,12 +29,14 @@ TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationMPI) {
   auto other_source = system::terms::VariableBilinearTerms::kOther;
   system::terms::MPIBilinearTerm test_bilinear_term({other_source});
 
-  std::shared_ptr<system::MPISparseMatrix> fixed_term_ptr, variable_term_ptr;
-  fixed_term_ptr.reset(&matrix_1);
-  variable_term_ptr.reset(&matrix_2);
+  auto fixed_term_ptr = std::make_shared<system::MPISparseMatrix>();
+  auto variable_term_ptr = std::make_shared<system::MPISparseMatrix>();
 
-  StampMatrix(matrix_1, 2);
-  StampMatrix(matrix_2, 1);
+  fixed_term_ptr->reinit(matrix_1);
+  variable_term_ptr->reinit(matrix_2);
+
+  StampMatrix(*fixed_term_ptr, 2);
+  StampMatrix(*variable_term_ptr, 1);
   StampMatrix(matrix_3, 3);
 
   test_bilinear_term.SetFixedTermPtr({0, 0}, fixed_term_ptr);

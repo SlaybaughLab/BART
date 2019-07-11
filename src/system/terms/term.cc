@@ -86,7 +86,19 @@ std::shared_ptr<system::MPIVector> Term<MPILinearTermPair>::GetFullTermPtr(
 template <>
 std::shared_ptr<system::MPISparseMatrix> Term<MPIBilinearTermPair>::GetFullTermPtr(
     Index index) const {
-  return std::shared_ptr<system::MPISparseMatrix>();
+  auto return_matrix_ptr = std::make_shared<system::MPISparseMatrix>();
+  auto& fixed_term_matrix = *fixed_term_ptrs_.at(index);
+
+  return_matrix_ptr->reinit(fixed_term_matrix);
+  return_matrix_ptr->copy_from(fixed_term_matrix);
+
+  for (auto& variable_term_pair : variable_term_ptrs_) {
+    auto& variable_term_matrix = *variable_term_pair.second.at(index);
+    return_matrix_ptr->add(1, variable_term_matrix);
+    return_matrix_ptr->compress(dealii::VectorOperation::add);
+  }
+
+  return return_matrix_ptr;
 }
 
 template class Term<system::terms::MPILinearTermPair>;
