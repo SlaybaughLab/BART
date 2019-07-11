@@ -1,5 +1,7 @@
 #include "system/terms/term.h"
 
+#include "test_helpers/test_assertions.h"
+#include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -13,12 +15,33 @@ using namespace bart;
  * test environment to provide the needed MPI matrices and vectors.
  */
 
-class SystemTermsFullTermTest : public ::testing::Test {
+class SystemTermsFullTermTest : public ::testing::Test,
+                                public bart::testing::DealiiTestDomain<2> {
  protected:
+  void SetUp() override;
 };
 
-TEST_F(SystemTermsFullTermTest, FullTermOperation) {
-  EXPECT_TRUE(true);
+void SystemTermsFullTermTest::SetUp() {
+  SetUpDealii();
+}
+
+TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationMPI) {
+  auto other_source = system::terms::VariableBilinearTerms::kOther;
+  system::terms::MPIBilinearTerm test_bilinear_term({other_source});
+
+  std::shared_ptr<system::MPISparseMatrix> fixed_term_ptr, variable_term_ptr;
+  fixed_term_ptr.reset(&matrix_1);
+  variable_term_ptr.reset(&matrix_2);
+
+  StampMatrix(matrix_1, 2);
+  StampMatrix(matrix_2, 1);
+  StampMatrix(matrix_3, 3);
+
+  test_bilinear_term.SetFixedTermPtr({0, 0}, fixed_term_ptr);
+  test_bilinear_term.SetVariableTermPtr({0, 0}, other_source, variable_term_ptr);
+
+  auto term_matrix_ptr = test_bilinear_term.GetFullTermPtr({0,0});
+  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_3, *term_matrix_ptr));
 }
 
 } // namespace
