@@ -14,6 +14,7 @@ namespace {
 using namespace bart;
 
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
+using ::testing::ReturnRef;
 
 class SolverGroupSingleGroupSolverTest : public ::testing::Test {
  protected:
@@ -37,7 +38,6 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
 
   // test parameters
   const int total_angles_ = 2;
-  const int total_groups_ = 4;
   const int test_group_ = 2;
 
   void SetUp() override;
@@ -71,10 +71,32 @@ TEST_F(SolverGroupSingleGroupSolverTest, Constructor) {
 TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupOperation) {
   solver::group::SingleGroupSolver test_solver(std::move(linear_solver_ptr_));
 
-//  EXPECT_CALL(solution_, total_angles())
-//      .WillOnce(Return(total_angles_));
-//  EXPECT_CALL(solution_, total_groups())
-//      .WillOnce(Return(total_groups_));
+  /* Test objects. These are objects that will be returned by our mock functions
+   * and used to verify correct mediation of all the classes. In most cases they
+   * do not need to include any actual information, we will just verify they are
+   * correctly passed by their reference.
+   */
+  std::vector<system::MPIVector> solution_vectors_(total_angles_);
+  std::vector<std::shared_ptr<system::MPISparseMatrix>> lhs_matrices_(total_angles_);
+  std::vector<std::shared_ptr<system::MPIVector>> rhs_vectors_(total_angles_);
+
+  // Expect to retrieve total angles (to access all angles for the test group)
+  EXPECT_CALL(solution_, total_angles())
+      .WillOnce(Return(total_angles_));
+
+  // Expectations for each angle:
+  for (int angle = 0; angle < total_angles_; ++angle) {
+    system::Index index{test_group_, angle};
+    // Expect to retrieve each solution
+    EXPECT_CALL(solution_, BracketOp(angle))
+        .WillOnce(ReturnRef(solution_vectors_[angle]));
+    // Expect to retrieve each LHS
+    EXPECT_CALL(*lhs_obs_ptr_, GetFullTermPtr(index))
+        .WillOnce(Return(lhs_matrices_[angle]));
+    // Expect to retrieve each RHS
+    EXPECT_CALL(*rhs_obs_ptr_, GetFullTermPtr(index))
+        .WillOnce(Return(rhs_vectors_[angle]));
+  }
 
   // Expect to get solutions for each angle for the group from the solution object
 //  for (int angle = 0; angle < total_angles_; ++angle) {
@@ -83,6 +105,7 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupOperation) {
 //        .WillOnce(Return());
 //  }
 
+  test_solver.SolveGroup(test_group_, test_system_, solution_);
 }
 
 TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupBadAngles) {
