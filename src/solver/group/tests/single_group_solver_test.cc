@@ -14,7 +14,7 @@ namespace {
 using namespace bart;
 
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
-using ::testing::ReturnRef;
+using ::testing::ReturnRef, ::testing::_;
 
 class SolverGroupSingleGroupSolverTest : public ::testing::Test {
  protected:
@@ -96,14 +96,13 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupOperation) {
     // Expect to retrieve each RHS
     EXPECT_CALL(*rhs_obs_ptr_, GetFullTermPtr(index))
         .WillOnce(Return(rhs_vectors_[angle]));
-  }
 
-  // Expect to get solutions for each angle for the group from the solution object
-//  for (int angle = 0; angle < total_angles_; ++angle) {
-//    system::Index index{test_group_, angle};
-//    EXPECT_CALL(solution_, BracketOp(index))
-//        .WillOnce(Return());
-//  }
+    EXPECT_CALL(*linear_solver_obs_ptr_, Solve(
+        lhs_matrices_[angle].get(),
+        &solution_vectors_[angle],
+        rhs_vectors_[angle].get(),
+        _));
+  }
 
   test_solver.SolveGroup(test_group_, test_system_, solution_);
 }
