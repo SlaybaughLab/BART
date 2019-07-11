@@ -11,13 +11,14 @@ namespace terms {
 
 //! Linear Terms that may vary iteration-to-iteration
 enum class VariableLinearTerms {
-  kScatteringSource = 0, //!< Scattering source
-  kFissionSource = 1,    //!< Fission source
+  kOther = 0,            //!< Other source
+  kScatteringSource = 1, //!< Scattering source
+  kFissionSource = 2,    //!< Fission source
 };
 
 //! Bilinear Terms that may vary iteration-to-iteration
 enum class VariableBilinearTerms {
-
+  kOther = 0,            //!< Other source
 };
 
 //! Standard pair types for terms
