@@ -86,8 +86,7 @@ class Term : public TermI<TermPair> {
                                                   VariableTermType term) override;
   std::shared_ptr<StorageType> GetVariableTermPtr(GroupNumber group,
                                                   VariableTermType term) override;
-
-
+  std::shared_ptr<StorageType> GetFullTermPtr(Index index) const override;
 
  private:
   const std::unordered_set<VariableTermType> variable_terms_;

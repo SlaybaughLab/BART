@@ -19,6 +19,13 @@ class TermI {
   using VariableTermType = typename TermPair::second_type;
   virtual ~TermI() = default;
 
+  /*! \brief Returns a shared pointer to a StorageType object that contains the
+   * value of the FullTerm.
+   *
+   * This function will combine the underlying objects to return a single one.
+   */
+  virtual std::shared_ptr<StorageType> GetFullTermPtr(Index index) const = 0;
+
   /*! \brief Returns the set of terms that are set as variable. */
   virtual std::unordered_set<VariableTermType> GetVariableTerms() const = 0;
 

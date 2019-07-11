@@ -77,6 +77,18 @@ auto Term<TermPair>::GetVariableTermPtr(GroupNumber group,
   return GetVariableTermPtr({group, 0}, term);
 }
 
+template <>
+std::shared_ptr<system::MPIVector> Term<MPILinearTermPair>::GetFullTermPtr(
+    Index index) const {
+  return std::shared_ptr<system::MPIVector>();
+}
+
+template <>
+std::shared_ptr<system::MPISparseMatrix> Term<MPIBilinearTermPair>::GetFullTermPtr(
+    Index index) const {
+  return std::shared_ptr<system::MPISparseMatrix>();
+}
+
 template class Term<system::terms::MPILinearTermPair>;
 template class Term<system::terms::MPIBilinearTermPair>;
 

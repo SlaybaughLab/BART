@@ -29,6 +29,7 @@ class LinearTermMock : public TermI<system::terms::MPILinearTermPair> {
       std::shared_ptr<MPIVector>));
   MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPIVector>(Index, VariableLinearTerms));
   MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPIVector>(GroupNumber, VariableLinearTerms));
+  MOCK_CONST_METHOD1(GetFullTermPtr, std::shared_ptr<MPIVector>(Index));
 };
 
 } // namespace terms

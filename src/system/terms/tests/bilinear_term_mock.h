@@ -31,6 +31,7 @@ class BilinearTermMock : public TermI<system::terms::MPIBilinearTermPair> {
       std::shared_ptr<MPISparseMatrix>));
   MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPISparseMatrix>(Index, VariableBilinearTerms));
   MOCK_METHOD2(GetVariableTermPtr, std::shared_ptr<MPISparseMatrix>(GroupNumber, VariableBilinearTerms));
+  MOCK_CONST_METHOD1(GetFullTermPtr, std::shared_ptr<MPISparseMatrix>(Index));
 };
 
 } // namespace terms
