@@ -4,6 +4,8 @@
 
 #include "system/system.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
+#include "system/terms/tests/linear_term_mock.h"
+#include "system/terms/tests/bilinear_term_mock.h"
 #include "solver/tests/linear_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -17,6 +19,8 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
  protected:
 
   using LinearSolver = solver::LinearMock;
+  using LeftHandSide = system::terms::BilinearTermMock;
+  using RightHandSide = system::terms::LinearTermMock;
   using GroupSolution = NiceMock<system::solution::MPIGroupAngularSolutionMock>;
 
   // SUpporting objects
@@ -26,8 +30,10 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
   // Supporting mocks
   std::unique_ptr<LinearSolver> linear_solver_ptr_;
 
-
+  // Mock Observing pointers
   LinearSolver* linear_solver_obs_ptr_;
+  RightHandSide* rhs_obs_ptr_;
+  LeftHandSide* lhs_obs_ptr_;
 
   // test parameters
   const int total_angles_ = 2;
@@ -40,6 +46,15 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
 void SolverGroupSingleGroupSolverTest::SetUp() {
   linear_solver_ptr_ = std::make_unique<LinearSolver>();
   linear_solver_obs_ptr_ = linear_solver_ptr_.get();
+
+  auto rhs_ptr_ = std::make_unique<RightHandSide>();
+  auto lhs_ptr_ = std::make_unique<LeftHandSide>();
+
+  rhs_obs_ptr_ = rhs_ptr_.get();
+  lhs_obs_ptr_ = lhs_ptr_.get();
+
+  test_system_.right_hand_side_ptr_ = std::move(rhs_ptr_);
+  test_system_.left_hand_side_ptr_ = std::move(lhs_ptr_);
 
   ON_CALL(solution_, total_angles())
       .WillByDefault(Return(total_angles_));
