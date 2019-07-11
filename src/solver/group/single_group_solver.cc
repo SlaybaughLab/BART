@@ -23,6 +23,20 @@ void SingleGroupSolver::SolveGroup(const int group,
   AssertThrow(group >= 0,
       dealii::ExcMessage("Error in SolveGroup, invalid group index provided, "
                          "value is less than zero"));
+
+  for (int angle = 0; angle < total_angles; ++angle) {
+    system::Index index{group, angle};
+    auto solution = group_solution[angle];
+    auto left_hand_side_ptr = system.left_hand_side_ptr_->GetFullTermPtr(index);
+    auto right_hand_side_ptr = system.right_hand_side_ptr_->GetFullTermPtr(index);
+    dealii::PETScWrappers::PreconditionNone no_conditioner(*left_hand_side_ptr);
+
+    linear_solver_ptr_->Solve(
+        left_hand_side_ptr.get(),
+        &solution,
+        right_hand_side_ptr.get(),
+        &no_conditioner);
+  }
 }
 
 } // namespace group
