@@ -46,4 +46,36 @@ TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationMPI) {
   EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_3, *term_matrix_ptr));
 }
 
+TEST_F(SystemTermsFullTermTest, LinearFullTermOperationMPI) {
+  using VariableTerms = system::terms::VariableLinearTerms;
+  system::terms::MPILinearTerm test_linear_term({VariableTerms::kFissionSource,
+                                                 VariableTerms::kOther});
+
+  auto fixed_term_ptr = std::make_shared<system::MPIVector>();
+  auto fission_term_ptr = std::make_shared<system::MPIVector>();
+  auto other_term_ptr = std::make_shared<system::MPIVector>();
+
+  auto set_value = [&](system::MPIVector& vector, int value) {
+    vector.reinit(vector_1);
+    vector.add(value);
+    vector.compress(dealii::VectorOperation::add);
+  };
+
+  set_value(*fixed_term_ptr, 1);
+  set_value(*fission_term_ptr, 2);
+  set_value(*other_term_ptr, 3);
+  set_value(vector_1, 6);
+
+  test_linear_term.SetFixedTermPtr({0,0}, fixed_term_ptr);
+  test_linear_term.SetVariableTermPtr({0,0},
+                                      VariableTerms::kFissionSource,
+                                      fission_term_ptr);
+  test_linear_term.SetVariableTermPtr({0,0},
+                                      VariableTerms::kOther,
+                                      other_term_ptr);
+
+  auto term_vector_ptr = test_linear_term.GetFullTermPtr({0,0});
+  EXPECT_TRUE(bart::testing::CompareMPIVectors(vector_1, *term_vector_ptr));
+}
+
 } // namespace
