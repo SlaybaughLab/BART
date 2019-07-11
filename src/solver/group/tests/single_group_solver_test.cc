@@ -7,6 +7,7 @@
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/terms/tests/bilinear_term_mock.h"
 #include "solver/tests/linear_mock.h"
+#include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
@@ -15,8 +16,11 @@ using namespace bart;
 
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
 using ::testing::ReturnRef, ::testing::_;
+using ::testing::Pointee, ::testing::Ref;
 
-class SolverGroupSingleGroupSolverTest : public ::testing::Test {
+class SolverGroupSingleGroupSolverTest :
+    public ::testing::Test,
+    public bart::testing::DealiiTestDomain<2> {
  protected:
 
   using LinearSolver = solver::LinearMock;
@@ -44,6 +48,7 @@ class SolverGroupSingleGroupSolverTest : public ::testing::Test {
 };
 
 void SolverGroupSingleGroupSolverTest::SetUp() {
+  SetUpDealii();
   linear_solver_ptr_ = std::make_unique<LinearSolver>();
   linear_solver_obs_ptr_ = linear_solver_ptr_.get();
 
@@ -87,6 +92,12 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupOperation) {
   // Expectations for each angle:
   for (int angle = 0; angle < total_angles_; ++angle) {
     system::Index index{test_group_, angle};
+
+    rhs_vectors_[angle] = std::make_shared<system::MPIVector>();
+    lhs_matrices_[angle] = std::make_shared<system::MPISparseMatrix>();
+    lhs_matrices_[angle]->reinit(matrix_1);
+    lhs_matrices_[angle]->copy_from(matrix_1);
+
     // Expect to retrieve each solution
     EXPECT_CALL(solution_, BracketOp(angle))
         .WillOnce(ReturnRef(solution_vectors_[angle]));
@@ -99,7 +110,7 @@ TEST_F(SolverGroupSingleGroupSolverTest, SolveGroupOperation) {
 
     EXPECT_CALL(*linear_solver_obs_ptr_, Solve(
         lhs_matrices_[angle].get(),
-        &solution_vectors_[angle],
+        Pointee(solution_vectors_[angle]),
         rhs_vectors_[angle].get(),
         _));
   }
