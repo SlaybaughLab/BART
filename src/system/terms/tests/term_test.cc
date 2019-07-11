@@ -25,6 +25,43 @@ void SystemTermsFullTermTest::SetUp() {
   SetUpDealii();
 }
 
+TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationOnlyFixedMPI) {
+  system::terms::MPIBilinearTerm test_bilinear_term;
+
+  auto fixed_term_ptr = std::make_shared<system::MPISparseMatrix>();
+
+  fixed_term_ptr->reinit(matrix_1);
+
+  StampMatrix(*fixed_term_ptr, 2);
+  StampMatrix(matrix_3, 2);
+
+  test_bilinear_term.SetFixedTermPtr({0, 0}, fixed_term_ptr);
+
+  auto term_matrix_ptr = test_bilinear_term.GetFullTermPtr({0,0});
+  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_3, *term_matrix_ptr));
+}
+
+TEST_F(SystemTermsFullTermTest, LinearFullTermOperationOnlyFixedMPI) {
+  system::terms::MPILinearTerm test_linear_term;
+
+  auto fixed_term_ptr = std::make_shared<system::MPIVector>();
+
+  auto set_value = [&](system::MPIVector& vector, int value) {
+    vector.reinit(vector_1);
+    vector.add(value);
+    vector.compress(dealii::VectorOperation::add);
+  };
+
+  set_value(*fixed_term_ptr, 1);
+  set_value(vector_1, 1);
+
+  test_linear_term.SetFixedTermPtr({0,0}, fixed_term_ptr);
+
+  auto term_vector_ptr = test_linear_term.GetFullTermPtr({0,0});
+  EXPECT_TRUE(bart::testing::CompareMPIVectors(vector_1, *term_vector_ptr));
+
+}
+
 TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationMPI) {
   auto other_source = system::terms::VariableBilinearTerms::kOther;
   system::terms::MPIBilinearTerm test_bilinear_term({other_source});
