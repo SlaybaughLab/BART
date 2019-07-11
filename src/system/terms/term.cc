@@ -80,7 +80,18 @@ auto Term<TermPair>::GetVariableTermPtr(GroupNumber group,
 template <>
 std::shared_ptr<system::MPIVector> Term<MPILinearTermPair>::GetFullTermPtr(
     Index index) const {
-  return std::shared_ptr<system::MPIVector>();
+
+  auto& fixed_term_vector = *fixed_term_ptrs_.at(index);
+  auto return_vector_ptr =
+      std::make_shared<system::MPIVector>(fixed_term_vector);
+
+  for (auto& variable_term_pair : variable_term_ptrs_) {
+    auto& variable_term_vector = *variable_term_pair.second.at(index);
+    return_vector_ptr->add(1, variable_term_vector);
+    return_vector_ptr->compress(dealii::VectorOperation::add);
+  }
+
+  return return_vector_ptr;
 }
 
 template <>
