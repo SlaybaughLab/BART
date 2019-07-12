@@ -1,14 +1,10 @@
 #ifndef BART_SRC_SOLVER_GROUP_TESTS_SINGLE_GROUP_SOLVER_I_H_
 #define BART_SRC_SOLVER_GROUP_TESTS_SINGLE_GROUP_SOLVER_I_H_
 
-namespace bart {
+#include "system/system.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
-namespace system {
-struct System;
-namespace solution {
-class MPIGroupAngularSolutionI;
-} // namespace solution
-} // namespace system
+namespace bart {
 
 namespace solver {
 
