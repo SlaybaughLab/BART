@@ -2,6 +2,7 @@
 #define BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 
 #include "system/moments/spherical_harmonic_types.h"
+#include "system/system_types.h"
 
 namespace bart {
 
