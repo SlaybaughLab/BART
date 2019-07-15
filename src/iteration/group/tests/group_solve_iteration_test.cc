@@ -10,8 +10,11 @@ namespace  {
 
 using namespace bart;
 
+template <typename DimensionWrapper>
 class IterationGroupSolveIterationTest : public ::testing::Test {
  public:
+  static constexpr int dim = DimensionWrapper::value;
+
   using TestGroupIterator = iteration::group::GroupSolveIteration;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
@@ -30,7 +33,10 @@ class IterationGroupSolveIterationTest : public ::testing::Test {
   void SetUp() override;
 };
 
-void IterationGroupSolveIterationTest::SetUp() {
+TYPED_TEST_CASE(IterationGroupSolveIterationTest, bart::testing::AllDimensions);
+
+template <typename DimensionWrapper>
+void IterationGroupSolveIterationTest<DimensionWrapper>::SetUp() {
   single_group_solver_ptr_ = std::make_unique<GroupSolver>();
   single_group_obs_ptr_ = single_group_solver_ptr_.get();
   convergence_checker_ptr_ = std::make_unique<ConvergenceChecker>();
@@ -42,12 +48,14 @@ void IterationGroupSolveIterationTest::SetUp() {
       );
 }
 
-TEST_F(IterationGroupSolveIterationTest, Constructor) {
+TYPED_TEST(IterationGroupSolveIterationTest, Constructor) {
+  using GroupSolver = solver::group::SingleGroupSolverMock;
+  using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
 
   auto single_group_test_ptr = dynamic_cast<GroupSolver*>(
-      test_iterator_ptr_->group_solver());
+      this->test_iterator_ptr_->group_solver());
   auto convergence_checker_test_ptr = dynamic_cast<ConvergenceChecker*>(
-      test_iterator_ptr_->convergence_checker_ptr());
+      this->test_iterator_ptr_->convergence_checker_ptr());
 
   EXPECT_NE(nullptr, single_group_test_ptr);
   EXPECT_NE(nullptr, convergence_checker_test_ptr);
