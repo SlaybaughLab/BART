@@ -19,6 +19,10 @@ GroupSourceIteration<dim>::GroupSourceIteration(
         group_solution_ptr,
         std::move(source_updater_ptr))
 {}
+template<int dim>
+void GroupSourceIteration<dim>::UpdateSystem(system::System &system, const int group) {
+
+}
 
 template class GroupSourceIteration<1>;
 template class GroupSourceIteration<2>;

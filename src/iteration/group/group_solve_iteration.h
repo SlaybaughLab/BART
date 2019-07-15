@@ -58,12 +58,13 @@ class GroupSolveIteration : public GroupSolveIterationI {
 
  protected:
 
-  void SolveGroup(const int group, system::System &system);
-  system::moments::MomentVector GetScalarFlux(const int group,
-                                              system::System& system);
-  convergence::Status CheckConvergence(
+  virtual void SolveGroup(const int group, system::System &system);
+  virtual system::moments::MomentVector GetScalarFlux(const int group,
+                                                      system::System& system);
+  virtual convergence::Status CheckConvergence(
       system::moments::MomentVector& current_iteration,
       system::moments::MomentVector& previous_iteration);
+  virtual void UpdateSystem(system::System& system, const int group) = 0;
 
   std::unique_ptr<GroupSolver> group_solver_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;

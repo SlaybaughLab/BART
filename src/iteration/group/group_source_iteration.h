@@ -26,6 +26,9 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
       std::unique_ptr<SourceUpdater> source_updater_ptr);
   virtual ~GroupSourceIteration() = default;
 
+ protected:
+  void UpdateSystem(system::System &system, const int group) override;
+
 };
 
 } // namespace group
