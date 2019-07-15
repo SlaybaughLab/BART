@@ -21,7 +21,22 @@ GroupSolveIteration<dim>::GroupSolveIteration(
 {}
 template<int dim>
 void GroupSolveIteration<dim>::Iterate(system::System &system) {
+  convergence::Status convergence_status;
 
+  const int total_groups = system.current_moments->total_groups();
+
+  do {
+    for (int group = 0; group < total_groups; ++group) {
+      SolveGroup(group, system);
+
+      convergence_status.is_complete = true;
+    }
+  } while (!convergence_status.is_complete);
+}
+
+template <int dim>
+void GroupSolveIteration<dim>::SolveGroup(int group, system::System &system) {
+  group_solver_ptr_->SolveGroup(group, system, *group_solution_ptr_);
 }
 
 template class GroupSolveIteration<1>;

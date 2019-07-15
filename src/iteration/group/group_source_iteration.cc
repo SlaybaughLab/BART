@@ -25,7 +25,7 @@ template class GroupSourceIteration<2>;
 template class GroupSourceIteration<3>;
 
 
-}; // namespace group
+} // namespace group
 
 } // namespace iteration
 

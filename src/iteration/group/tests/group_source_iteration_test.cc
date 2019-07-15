@@ -6,6 +6,7 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/system.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -13,6 +14,8 @@
 namespace  {
 
 using namespace bart;
+
+using ::testing::Return, ::testing::Pointee, ::testing::Ref;
 
 template <typename DimensionWrapper>
 class IterationGroupSourceIterationTest : public ::testing::Test {
@@ -25,6 +28,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<dim>;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using SourceUpdater = iteration::updater::SourceUpdaterMock;
+  using Moments = system::moments::SphericalHarmonicMock;
 
   // Test object
   std::unique_ptr<TestGroupIterator> test_iterator_ptr_;
@@ -44,6 +48,11 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   ConvergenceChecker* convergence_checker_obs_ptr_ = nullptr;
   MomentCalculator* moment_calculator_obs_ptr_ = nullptr;
   SourceUpdater* source_updater_obs_ptr_ = nullptr;
+  Moments* moments_obs_ptr_ = nullptr;
+
+  // Test parameters
+  const int total_groups = 2;
+  const std::array<int, 2> iterations_by_group{2,3};
 
   void SetUp() override;
 };
@@ -61,6 +70,9 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   group_solution_ptr_ = std::make_shared<GroupSolution>();
   source_updater_ptr_ = std::make_unique<SourceUpdater>();
   source_updater_obs_ptr_ = source_updater_ptr_.get();
+
+  test_system.current_moments = std::make_unique<Moments>();
+  moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
 
   test_iterator_ptr_ = std::make_unique<TestGroupIterator>(
       std::move(single_group_solver_ptr_),
@@ -96,7 +108,18 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
-  
+
+  EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
+      .WillOnce(Return(this->total_groups));
+
+  for (int group = 0; group < this->total_groups; ++group) {
+    EXPECT_CALL(*this->single_group_obs_ptr_, SolveGroup(
+        group,
+        Ref(this->test_system),
+        Ref(*this->group_solution_ptr_)))
+        .Times(this->iterations_by_group[group]);
+  }
+
   this->test_iterator_ptr_->Iterate(this->test_system);
 }
 
