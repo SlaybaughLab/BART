@@ -170,10 +170,14 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
             .InSequence(s)
             .WillOnce(Return(status));
       }
+    }
+    // Updates should occur iterations - 1 times (doesn't run if converged)
+    for (int angle = 0; angle < this->total_angles; ++angle) {
+      EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
+          Ref(this->test_system), group, angle))
+          .Times(this->iterations_by_group[group] - 1);
+    }
 
-      for (int angle = 0; angle < this->total_angles; ++angle) {
-        EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
-            Ref(this->test_system), group, angle));
       }
     }
   }

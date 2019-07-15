@@ -20,8 +20,9 @@ GroupSourceIteration<dim>::GroupSourceIteration(
         std::move(source_updater_ptr))
 {}
 template<int dim>
-void GroupSourceIteration<dim>::UpdateSystem(system::System &system, const int group) {
-
+void GroupSourceIteration<dim>::UpdateSystem(system::System &system,
+    const int group, const int angle) {
+  this->source_updater_ptr_->UpdateScatteringSource(system, group, angle);
 }
 
 template class GroupSourceIteration<1>;

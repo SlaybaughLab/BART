@@ -64,7 +64,8 @@ class GroupSolveIteration : public GroupSolveIterationI {
   virtual convergence::Status CheckConvergence(
       system::moments::MomentVector& current_iteration,
       system::moments::MomentVector& previous_iteration);
-  virtual void UpdateSystem(system::System& system, const int group) = 0;
+  virtual void UpdateSystem(system::System& system, const int group,
+                            const int angle) = 0;
 
   std::unique_ptr<GroupSolver> group_solver_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;

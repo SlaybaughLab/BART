@@ -23,6 +23,7 @@ template<int dim>
 void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
   const int total_groups = system.current_moments->total_groups();
+  const int total_angles = group_solution_ptr_->total_angles();
   system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
 
   for (int group = 0; group < total_groups; ++group) {
@@ -42,9 +43,12 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
       convergence_status = CheckConvergence(current_scalar_flux,
                                             previous_scalar_flux);
 
+      if (!convergence_status.is_complete) {
+        for (int angle = 0; angle < total_angles; ++angle)
+          UpdateSystem(system, group, angle);
+      }
     } while (!convergence_status.is_complete);
   }
-
 }
 
 template <int dim>

@@ -27,7 +27,8 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
   virtual ~GroupSourceIteration() = default;
 
  protected:
-  void UpdateSystem(system::System &system, const int group) override;
+  void UpdateSystem(system::System &system, const int group,
+                    const int angle) override;
 
 };
 
