@@ -1,4 +1,4 @@
-#include "iteration/group/group_solve_iteration.h"
+#include "iteration/group/group_source_iteration.h"
 
 #include <memory>
 
@@ -14,11 +14,11 @@ namespace  {
 using namespace bart;
 
 template <typename DimensionWrapper>
-class IterationGroupSolveIterationTest : public ::testing::Test {
+class IterationGroupSourceIterationTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
 
-  using TestGroupIterator = iteration::group::GroupSolveIteration<dim>;
+  using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<dim>;
@@ -44,10 +44,10 @@ class IterationGroupSolveIterationTest : public ::testing::Test {
   void SetUp() override;
 };
 
-TYPED_TEST_CASE(IterationGroupSolveIterationTest, bart::testing::AllDimensions);
+TYPED_TEST_CASE(IterationGroupSourceIterationTest, bart::testing::AllDimensions);
 
 template <typename DimensionWrapper>
-void IterationGroupSolveIterationTest<DimensionWrapper>::SetUp() {
+void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   single_group_solver_ptr_ = std::make_unique<GroupSolver>();
   single_group_obs_ptr_ = single_group_solver_ptr_.get();
   convergence_checker_ptr_ = std::make_unique<ConvergenceChecker>();
@@ -67,7 +67,7 @@ void IterationGroupSolveIterationTest<DimensionWrapper>::SetUp() {
       );
 }
 
-TYPED_TEST(IterationGroupSolveIterationTest, Constructor) {
+TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<this->dim>;
