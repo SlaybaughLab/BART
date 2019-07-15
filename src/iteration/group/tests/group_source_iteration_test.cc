@@ -53,6 +53,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
 
   // Test parameters
   const int total_groups = 2;
+  const int total_angles = 3;
   const std::array<int, 2> iterations_by_group{2,3};
 
   void SetUp() override;
@@ -129,6 +130,8 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
 
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
+  EXPECT_CALL(*this->group_solution_ptr_, total_angles())
+      .WillOnce(Return(this->total_angles));
 
   Sequence s;
 
@@ -168,7 +171,10 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
             .WillOnce(Return(status));
       }
 
-
+      for (int angle = 0; angle < this->total_angles; ++angle) {
+        EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
+            Ref(this->test_system), group, angle));
+      }
     }
   }
 
