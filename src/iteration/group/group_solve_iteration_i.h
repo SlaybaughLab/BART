@@ -10,7 +10,6 @@ namespace group {
 class GroupSolveIterationI {
  public:
   virtual ~GroupSolveIterationI() = default;
-
 };
 
 } // namespace group

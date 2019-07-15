@@ -4,6 +4,7 @@
 #include "convergence/final_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
 #include <memory>
 
@@ -21,11 +22,13 @@ class GroupSolveIteration : public GroupSolveIterationI {
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI<dim>;
+  using GroupSolution = system::solution::MPIGroupAngularSolutionI;
 
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
-      std::unique_ptr<MomentCalculator> moment_calculator_ptr);
+      std::unique_ptr<MomentCalculator> moment_calculator_ptr,
+      std::shared_ptr<GroupSolution> group_solution_ptr);
   virtual ~GroupSolveIteration() = default;
 
   GroupSolver* group_solver_ptr() const {
@@ -40,10 +43,15 @@ class GroupSolveIteration : public GroupSolveIterationI {
     return moment_calculator_ptr_.get();
   }
 
+  std::shared_ptr<GroupSolution> group_solution_ptr() const {
+    return group_solution_ptr_;
+  }
+
  protected:
   std::unique_ptr<GroupSolver> group_solver_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
+  std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
 };
 
 } // namespace group
