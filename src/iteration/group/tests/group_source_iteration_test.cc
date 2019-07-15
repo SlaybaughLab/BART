@@ -142,9 +142,9 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
     for (int it = 0; it < this->iterations_by_group[group]; ++it) {
 
       EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-          _, group, 0, 0))
+          this->group_solution_ptr_.get(), group, 0, 0))
+          //_, group, 0, 0))
           .InSequence(s)
-          //this->group_solution_ptr_.get(), group, 0, 0))
           .WillOnce(Return(calculated_moments.at(group).at(it)));
 
       convergence::Status status;
@@ -154,23 +154,19 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
 
       status.iteration_number = it + 1;
 
-      EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
-            _, _))
+      if (it == 0) {
+        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
+            calculated_moments.at(group).at(it),
+            zero_moment))
             .InSequence(s)
             .WillOnce(Return(status));
-
-//
-//      if (it == 0) {
-//        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
-//            calculated_moments.at(group).at(it),
-//            zero_moment))
-//            .WillOnce(Return(status));
-//      } else {
-//        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
-//            calculated_moments.at(group).at(it),
-//            calculated_moments.at(group).at(it - 1)))
-//            .WillOnce(Return(status));
-//      }
+      } else {
+        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
+            calculated_moments.at(group).at(it),
+            calculated_moments.at(group).at(it - 1)))
+            .InSequence(s)
+            .WillOnce(Return(status));
+      }
 
 
     }
