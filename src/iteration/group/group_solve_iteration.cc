@@ -19,6 +19,10 @@ GroupSolveIteration<dim>::GroupSolveIteration(
       group_solution_ptr_(group_solution_ptr),
       source_updater_ptr_(std::move(source_updater_ptr))
 {}
+template<int dim>
+void GroupSolveIteration<dim>::Iterate(system::System &system) {
+
+}
 
 template class GroupSolveIteration<1>;
 template class GroupSolveIteration<2>;

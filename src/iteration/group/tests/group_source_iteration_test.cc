@@ -7,6 +7,7 @@
 #include "convergence/tests/final_checker_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
+#include "system/system.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -34,6 +35,9 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
   std::shared_ptr<GroupSolution> group_solution_ptr_;
   std::unique_ptr<SourceUpdater> source_updater_ptr_;
+
+  // Supporting objects
+  system::System test_system;
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
@@ -89,6 +93,11 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_EQ(this->group_solution_ptr_.get(),
             this->test_iterator_ptr_->group_solution_ptr().get());
   EXPECT_NE(nullptr, source_updater_test_ptr);
+}
+
+TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
+  
+  this->test_iterator_ptr_->Iterate(this->test_system);
 }
 
 } // namespace

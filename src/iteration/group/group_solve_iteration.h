@@ -26,7 +26,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
 
-
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
@@ -34,6 +33,8 @@ class GroupSolveIteration : public GroupSolveIterationI {
       std::shared_ptr<GroupSolution> group_solution_ptr,
       std::unique_ptr<SourceUpdater> source_updater_ptr);
   virtual ~GroupSolveIteration() = default;
+
+  void Iterate(system::System &system) override;
 
   GroupSolver* group_solver_ptr() const {
     return group_solver_ptr_.get();

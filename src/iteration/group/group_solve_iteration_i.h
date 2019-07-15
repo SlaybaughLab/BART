@@ -14,6 +14,7 @@ namespace group {
 class GroupSolveIterationI {
  public:
   virtual ~GroupSolveIterationI() = default;
+  virtual void Iterate(system::System &system) = 0;
 };
 
 } // namespace group
