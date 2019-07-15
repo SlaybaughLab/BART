@@ -16,6 +16,7 @@ namespace  {
 using namespace bart;
 
 using ::testing::Return, ::testing::Pointee, ::testing::Ref;
+using ::testing::Sequence, ::testing::_;
 
 template <typename DimensionWrapper>
 class IterationGroupSourceIterationTest : public ::testing::Test {
@@ -115,6 +116,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
    * are being checked for convergence. All entries in each vector will be set
    * to a unique value, 10*group + iteration. */
   std::map<int, std::vector<system::moments::MomentVector>> calculated_moments;
+  system::moments::MomentVector zero_moment(5);
 
   for (int group = 0; group < this->total_groups; ++group) {
     calculated_moments[group] = {};
@@ -128,6 +130,8 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
 
+  Sequence s;
+
   for (int group = 0; group < this->total_groups; ++group) {
     EXPECT_CALL(*this->single_group_obs_ptr_, SolveGroup(
         group,
@@ -136,9 +140,39 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
         .Times(this->iterations_by_group[group]);
 
     for (int it = 0; it < this->iterations_by_group[group]; ++it) {
+
       EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-          this->group_solution_ptr_.get(), group, 0, 0))
+          _, group, 0, 0))
+          .InSequence(s)
+          //this->group_solution_ptr_.get(), group, 0, 0))
           .WillOnce(Return(calculated_moments.at(group).at(it)));
+
+      convergence::Status status;
+
+      if ((it + 1) == this->iterations_by_group[group])
+        status.is_complete = true;
+
+      status.iteration_number = it + 1;
+
+      EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
+            _, _))
+            .InSequence(s)
+            .WillOnce(Return(status));
+
+//
+//      if (it == 0) {
+//        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
+//            calculated_moments.at(group).at(it),
+//            zero_moment))
+//            .WillOnce(Return(status));
+//      } else {
+//        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
+//            calculated_moments.at(group).at(it),
+//            calculated_moments.at(group).at(it - 1)))
+//            .WillOnce(Return(status));
+//      }
+
+
     }
   }
 

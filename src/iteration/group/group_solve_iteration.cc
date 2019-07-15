@@ -21,20 +21,30 @@ GroupSolveIteration<dim>::GroupSolveIteration(
 {}
 template<int dim>
 void GroupSolveIteration<dim>::Iterate(system::System &system) {
-  convergence::Status convergence_status;
 
   const int total_groups = system.current_moments->total_groups();
   system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
 
-  do {
-    for (int group = 0; group < total_groups; ++group) {
+  for (int group = 0; group < total_groups; ++group) {
+    convergence::Status convergence_status;
+    do {
+      previous_scalar_flux = current_scalar_flux;
+
       SolveGroup(group, system);
 
       current_scalar_flux = GetScalarFlux(group, system);
 
-      convergence_status.is_complete = true;
-    }
-  } while (!convergence_status.is_complete);
+      if (convergence_status.iteration_number == 0) {
+        previous_scalar_flux = current_scalar_flux;
+        previous_scalar_flux = 0;
+      }
+
+      convergence_status = CheckConvergence(current_scalar_flux,
+                                            previous_scalar_flux);
+
+    } while (!convergence_status.is_complete);
+  }
+
 }
 
 template <int dim>
@@ -47,6 +57,14 @@ system::moments::MomentVector GroupSolveIteration<dim>::GetScalarFlux(
     const int group, system::System &) {
   return moment_calculator_ptr_->CalculateMoment(group_solution_ptr_.get(),
                                                  group, 0, 0);
+}
+
+template <int dim>
+convergence::Status GroupSolveIteration<dim>::CheckConvergence(
+    system::moments::MomentVector &current_iteration,
+    system::moments::MomentVector &previous_iteration) {
+  return convergence_checker_ptr_->CheckFinalConvergence(current_iteration,
+                                                         previous_iteration);
 }
 
 template class GroupSolveIteration<1>;
