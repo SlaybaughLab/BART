@@ -61,7 +61,7 @@ TYPED_TEST(IterationGroupSolveIterationTest, Constructor) {
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<this->dim>;
 
   auto single_group_test_ptr = dynamic_cast<GroupSolver*>(
-      this->test_iterator_ptr_->group_solver());
+      this->test_iterator_ptr_->group_solver_ptr());
   auto convergence_checker_test_ptr = dynamic_cast<ConvergenceChecker*>(
       this->test_iterator_ptr_->convergence_checker_ptr());
   auto moment_calculator_test_ptr = dynamic_cast<MomentCalculator*>(

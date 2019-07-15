@@ -28,7 +28,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
       std::unique_ptr<MomentCalculator> moment_calculator_ptr);
   virtual ~GroupSolveIteration() = default;
 
-  GroupSolver* group_solver() const {
+  GroupSolver* group_solver_ptr() const {
     return group_solver_ptr_.get();
   }
 
