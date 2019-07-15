@@ -109,6 +109,22 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
 
 TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
 
+  // Objects to support testing
+  /* Moment Vectors. These will be returned by the MomentCalculator, based on
+   * group and iteration. It is important to ensure that the correct values
+   * are being checked for convergence. All entries in each vector will be set
+   * to a unique value, 10*group + iteration. */
+  std::map<int, std::vector<system::moments::MomentVector>> calculated_moments;
+
+  for (int group = 0; group < this->total_groups; ++group) {
+    calculated_moments[group] = {};
+    for (int it = 0; it < this->iterations_by_group[group]; ++it) {
+      system::moments::MomentVector new_moment(5);
+      new_moment = (group * 10 + it);
+      calculated_moments.at(group).push_back(new_moment);
+    }
+  }
+
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
 
@@ -118,6 +134,12 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
         Ref(this->test_system),
         Ref(*this->group_solution_ptr_)))
         .Times(this->iterations_by_group[group]);
+
+    for (int it = 0; it < this->iterations_by_group[group]; ++it) {
+      EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
+          this->group_solution_ptr_.get(), group, 0, 0))
+          .WillOnce(Return(calculated_moments.at(group).at(it)));
+    }
   }
 
   this->test_iterator_ptr_->Iterate(this->test_system);
