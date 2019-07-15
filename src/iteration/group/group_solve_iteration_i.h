@@ -3,6 +3,10 @@
 
 namespace bart {
 
+namespace system {
+class System;
+} // namespace system
+
 namespace iteration {
 
 namespace group {
