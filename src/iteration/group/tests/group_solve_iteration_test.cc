@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -15,20 +16,23 @@ class IterationGroupSolveIterationTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
 
-  using TestGroupIterator = iteration::group::GroupSolveIteration;
+  using TestGroupIterator = iteration::group::GroupSolveIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<dim>;
 
   // Test object
   std::unique_ptr<TestGroupIterator> test_iterator_ptr_;
 
-  // Mock objects
+  // Mock dependency objects
   std::unique_ptr<GroupSolver> single_group_solver_ptr_;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_;
+  std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
   ConvergenceChecker* convergence_checker_obs_ptr_ = nullptr;
+  MomentCalculator* moment_calculator_obs_ptr_ = nullptr;
 
   void SetUp() override;
 };
@@ -41,24 +45,31 @@ void IterationGroupSolveIterationTest<DimensionWrapper>::SetUp() {
   single_group_obs_ptr_ = single_group_solver_ptr_.get();
   convergence_checker_ptr_ = std::make_unique<ConvergenceChecker>();
   convergence_checker_obs_ptr_ = convergence_checker_ptr_.get();
+  moment_calculator_ptr_ = std::make_unique<MomentCalculator>();
+  moment_calculator_obs_ptr_ = moment_calculator_ptr_.get();
 
   test_iterator_ptr_ = std::make_unique<TestGroupIterator>(
       std::move(single_group_solver_ptr_),
-      std::move(convergence_checker_ptr_)
+      std::move(convergence_checker_ptr_),
+      std::move(moment_calculator_ptr_)
       );
 }
 
 TYPED_TEST(IterationGroupSolveIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<this->dim>;
 
   auto single_group_test_ptr = dynamic_cast<GroupSolver*>(
       this->test_iterator_ptr_->group_solver());
   auto convergence_checker_test_ptr = dynamic_cast<ConvergenceChecker*>(
       this->test_iterator_ptr_->convergence_checker_ptr());
+  auto moment_calculator_test_ptr = dynamic_cast<MomentCalculator*>(
+      this->test_iterator_ptr_->moment_calculator_ptr());
 
   EXPECT_NE(nullptr, single_group_test_ptr);
   EXPECT_NE(nullptr, convergence_checker_test_ptr);
+  EXPECT_NE(nullptr, moment_calculator_test_ptr);
 }
 
 } // namespace
