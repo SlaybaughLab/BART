@@ -194,17 +194,22 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
           Ref(this->test_system), group, angle))
           .Times(this->iterations_by_group[group] - 1);
     }
+  }
 
-    EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
-        .Times(this->total_groups)
-        .WillRepeatedly(Return(this->max_harmonic_l));
-//    for (int l = 0; l <= this->max_harmonic_l; ++l) {
-//      for (int m = -l; m <= this->max_harmonic_l; ++m) {
-//        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-//            this->group_solution_ptr_.get(), group, l, m))
-//            .WillOnce(Return(moments_map.at(group).at({l,m})));
-//      }
-//    }
+  // Following all groups, expect to update moments
+  EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
+      .Times(this->total_groups)
+      .WillRepeatedly(Return(this->max_harmonic_l));
+
+  for (int group = 0; group < this->total_groups; ++group) {
+    for (int l = 0; l <= this->max_harmonic_l; ++l) {
+      for (int m = -l; m <= this->max_harmonic_l; ++m) {
+        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
+            this->group_solution_ptr_.get(), group, l, m))
+            .InSequence(s)
+            .WillOnce(Return(moments_map.at(group).at({l, m})));
+      }
+    }
   }
 
   this->test_iterator_ptr_->Iterate(this->test_system);
