@@ -16,6 +16,7 @@ namespace  {
 using namespace bart;
 
 using ::testing::Return, ::testing::Pointee, ::testing::Ref;
+using ::testing::ReturnRef;
 using ::testing::Sequence, ::testing::_;
 
 template <typename DimensionWrapper>
@@ -133,14 +134,17 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
    * end of all calculations, to update all moments (The previous moments are
    * only for scalar flux) */
   std::map<int, system::moments::MomentsMap> moments_map;
+  std::map<int, system::moments::MomentsMap> returned_moments;
 
   for (int group = 0; group < this->total_groups; ++group) {
     moments_map[group] = {};
+    returned_moments[group] = {};
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
       for (int m = -l; m <= this->max_harmonic_l; ++m) {
-        system::moments::MomentVector new_moment(5);
+        system::moments::MomentVector new_moment(5), new_empty_moment(5);
         new_moment = (l * 10) + m;
         moments_map[group][{l,m}] = new_moment;
+        returned_moments[group][{l,m}] = new_empty_moment;
       }
     }
   }
@@ -203,12 +207,25 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
 
   for (int group = 0; group < this->total_groups; ++group) {
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
-      for (int m = -l; m <= this->max_harmonic_l; ++m) {
+      for (int m = -l; m <= l; ++m) {
         EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
             this->group_solution_ptr_.get(), group, l, m))
             .InSequence(s)
             .WillOnce(Return(moments_map.at(group).at({l, m})));
+        system::moments::MomentIndex index{group,l,m};
+
+        EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
+            .WillOnce(ReturnRef(returned_moments.at(group).at({l,m})));
       }
+    }
+  }
+
+  // Make sure correct vectors have been stored
+  for (auto& group_moments : returned_moments) {
+    auto& [group, group_moment_map] = group_moments;
+    for (auto& moment : group_moment_map) {
+      auto& [index, returned_moment] = moment;
+      EXPECT_EQ(returned_moment, moments_map.at(group).at(index));
     }
   }
 
