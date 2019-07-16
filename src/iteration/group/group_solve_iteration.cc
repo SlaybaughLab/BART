@@ -48,6 +48,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
           UpdateSystem(system, group, angle);
       }
     } while (!convergence_status.is_complete);
+    UpdateCurrentMoments(system, group);
   }
 }
 
@@ -69,6 +70,12 @@ convergence::Status GroupSolveIteration<dim>::CheckConvergence(
     system::moments::MomentVector &previous_iteration) {
   return convergence_checker_ptr_->CheckFinalConvergence(current_iteration,
                                                          previous_iteration);
+}
+
+template <int dim>
+void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
+                                                    const int group) {
+  const int max_harmonic_l = system.current_moments->max_harmonic_l();
 }
 
 template class GroupSolveIteration<1>;

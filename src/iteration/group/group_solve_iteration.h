@@ -66,6 +66,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
       system::moments::MomentVector& previous_iteration);
   virtual void UpdateSystem(system::System& system, const int group,
                             const int angle) = 0;
+  virtual void UpdateCurrentMoments(system::System &system, const int group);
 
   std::unique_ptr<GroupSolver> group_solver_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;

@@ -55,6 +55,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   const int total_groups = 2;
   const int total_angles = 3;
   const std::array<int, 2> iterations_by_group{2,3};
+  const int max_harmonic_l = 2;
 
   void SetUp() override;
 };
@@ -128,6 +129,22 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
     }
   }
 
+  /* Final Moment Vectors. These will be returned by the MomentCalculator at the
+   * end of all calculations, to update all moments (The previous moments are
+   * only for scalar flux) */
+  std::map<int, system::moments::MomentsMap> moments_map;
+
+  for (int group = 0; group < this->total_groups; ++group) {
+    moments_map[group] = {};
+    for (int l = 0; l <= this->max_harmonic_l; ++l) {
+      for (int m = -l; m <= this->max_harmonic_l; ++m) {
+        system::moments::MomentVector new_moment(5);
+        new_moment = (l * 10) + m;
+        moments_map[group][{l,m}] = new_moment;
+      }
+    }
+  }
+
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
   EXPECT_CALL(*this->group_solution_ptr_, total_angles())
@@ -178,8 +195,16 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
           .Times(this->iterations_by_group[group] - 1);
     }
 
-      }
-    }
+    EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
+        .Times(this->total_groups)
+        .WillRepeatedly(Return(this->max_harmonic_l));
+//    for (int l = 0; l <= this->max_harmonic_l; ++l) {
+//      for (int m = -l; m <= this->max_harmonic_l; ++m) {
+//        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
+//            this->group_solution_ptr_.get(), group, l, m))
+//            .WillOnce(Return(moments_map.at(group).at({l,m})));
+//      }
+//    }
   }
 
   this->test_iterator_ptr_->Iterate(this->test_system);
