@@ -25,19 +25,19 @@ class FixedUpdater : public FixedUpdaterI {
  public:
   /*! \brief Constructor, takes ownership of stamper.
    *
-   * The stamper is passed via a unique pointer, so when constructing, move
+   * The stamper is passed via a shared pointer, so when constructing, move
    * semantics must be used.
    *
    * Example:
    * \code
-   * auto stamper_ptr = std::make_unique<MyStamperType>();
+   * auto stamper_ptr = std::make_shared<MyStamperType>();
    * FixedUpdater<MyStamperType> updater(std::move(stamper_ptr)); // note use of std::move
    * \endcode
    *
-   * @param stamper_ptr unique pointer to the stamper that this class will take
+   * @param stamper_ptr shared pointer to the stamper that this class will take
    *                    ownership of.
    */
-  explicit FixedUpdater(std::unique_ptr<StamperType> stamper_ptr);
+  explicit FixedUpdater(std::shared_ptr<StamperType> stamper_ptr);
   /*! \brief Destructor.
    *
    * Marked virtual to allow deriving from this class.
@@ -57,7 +57,7 @@ class FixedUpdater : public FixedUpdaterI {
 
  protected:
   //! Stored pointer to dependent stamper
-  std::unique_ptr<StamperType> stamper_ptr_;
+  std::shared_ptr<StamperType> stamper_ptr_;
 };
 
 } // namespace updater

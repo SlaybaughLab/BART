@@ -10,11 +10,11 @@ namespace updater {
 
 template <typename StamperType>
 FixedUpdater<StamperType>::FixedUpdater(
-    std::unique_ptr<StamperType> stamper_ptr) {
+    std::shared_ptr<StamperType> stamper_ptr) {
   AssertThrow(stamper_ptr != nullptr,
       dealii::ExcMessage("Error in constructor of FixedUpdater: "
                          "stamper pointer is null."));
-  stamper_ptr_ = std::move(stamper_ptr);
+  stamper_ptr_ = stamper_ptr;
 }
 
 /*! \brief Updates the fixed source term for a CFEM formulation.
