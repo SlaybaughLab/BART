@@ -35,8 +35,8 @@ class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
 
   using VariableTerms = system::terms::VariableLinearTerms;
 
-  explicit SourceUpdaterGaussSeidel(std::unique_ptr<StamperType> stamper_ptr)
-      : SourceUpdater<StamperType>(std::move(stamper_ptr)) {};
+  explicit SourceUpdaterGaussSeidel(std::shared_ptr<StamperType> stamper_ptr)
+      : SourceUpdater<StamperType>(stamper_ptr) {};
 
   void UpdateScatteringSource(system::System& system,
                               system::GroupNumber group,

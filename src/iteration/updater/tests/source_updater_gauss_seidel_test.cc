@@ -51,7 +51,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
   MPIVector expected_vector_;
 
   // Required mocks and supporting objects
-  std::unique_ptr<formulation::CFEM_StamperMock> mock_stamper_ptr_;
+  std::shared_ptr<formulation::CFEM_StamperMock> mock_stamper_ptr_;
   std::unique_ptr<system::terms::LinearTermMock> mock_rhs_ptr_;
   std::unique_ptr<system::moments::SphericalHarmonicMock> moments_ptr_;
 
@@ -70,7 +70,7 @@ class IterationSourceUpdaterGaussSeidelTest : public ::testing::Test {
  * required dependency, it is passed in the constructor.
  */
 void IterationSourceUpdaterGaussSeidelTest::SetUp() {
-  mock_stamper_ptr_ = std::make_unique<NiceMock<formulation::CFEM_StamperMock>>();
+  mock_stamper_ptr_ = std::make_shared<NiceMock<formulation::CFEM_StamperMock>>();
   mock_rhs_ptr_ = std::make_unique<NiceMock<system::terms::LinearTermMock>>();
   moments_ptr_ = std::make_unique<system::moments::SphericalHarmonicMock>();
 
@@ -117,10 +117,10 @@ void StampMPIVector(MPIVector &to_fill, double value = 2) {
 
 // Verifies that the Updater takes ownership of the stamper.
 TEST_F(IterationSourceUpdaterGaussSeidelTest, Constructor) {
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
 
-  EXPECT_EQ(mock_stamper_ptr_, nullptr);
+  EXPECT_EQ(mock_stamper_ptr_.use_count(), 2);
 }
 
 /*
@@ -133,7 +133,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadRHS) {
       .WillOnce(Return(nullptr));
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
 
   EXPECT_ANY_THROW(test_updater.UpdateScatteringSource(test_system_, 0, 0));
 }
@@ -142,7 +142,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadRHS) {
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadMoment) {
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
 
   EXPECT_ANY_THROW(test_updater.UpdateScatteringSource(test_system_, 10, 0));
 }
@@ -181,7 +181,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
 
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
   // Tested call
   test_updater.UpdateScatteringSource(test_system_, group, angle);
 
@@ -200,7 +200,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadRHS) {
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
   test_system_.k_effective = 1.0;
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
 
   EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
 }
@@ -209,7 +209,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadRHS) {
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadMoment) {
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
 
   EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 10, 0));
 }
@@ -217,7 +217,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadMoment) {
 // Verify a bad keffective value (0, negative, or nullopt) returns an error
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadKeff) {
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
 
   // k_effective is still nullopt
   EXPECT_ANY_THROW(test_updater.UpdateFissionSource(test_system_, 0, 0));
@@ -266,7 +266,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
 
   // Final Set up
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr_);
-  CFEMSourceUpdater test_updater(std::move(mock_stamper_ptr_));
+  CFEMSourceUpdater test_updater(mock_stamper_ptr_);
   // Tested call
   test_updater.UpdateFissionSource(test_system_, group, angle);
 

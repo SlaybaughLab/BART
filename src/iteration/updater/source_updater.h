@@ -44,8 +44,8 @@ class SourceUpdater : public SourceUpdaterI {
    * @param stamper_ptr unique pointer to the stamper that this class will take
    *                    ownership of.
    */
-  explicit SourceUpdater(std::unique_ptr<StamperType> stamper_ptr)
-      : stamper_ptr_(std::move(stamper_ptr)) {};
+  explicit SourceUpdater(std::shared_ptr<StamperType> stamper_ptr)
+      : stamper_ptr_(stamper_ptr) {};
   /*! \brief Destructor.
    *
    * Marked virtual to allow deriving from this class.
@@ -66,7 +66,7 @@ class SourceUpdater : public SourceUpdaterI {
                                                 system::GroupNumber group,
                                                 system::AngleIndex angle);
  protected:
-  std::unique_ptr<StamperType> stamper_ptr_;
+  std::shared_ptr<StamperType> stamper_ptr_;
 
 };
 
