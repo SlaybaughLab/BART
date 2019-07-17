@@ -37,7 +37,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
    */
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
-      std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
+      std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::unordered_set<Boundary> reflective_boundaries = {});
 
   /*! Constructor, using a provided set of reflective boundary conditions.
@@ -52,7 +52,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
    */
   CFEM_DiffusionStamper(
       std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
-      std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
+      std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::map<Boundary, bool> reflective_boundary_map);
 
 
@@ -100,7 +100,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
       std::function<void(dealii::Vector<double>&, const Cell&)> function);
 
   std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr_;
-  std::unique_ptr<domain::DefinitionI<dim>> definition_ptr_;
+  std::shared_ptr<domain::DefinitionI<dim>> definition_ptr_;
   InitializationToken diffusion_init_token_;
   std::vector<Cell> cells_;
   std::unordered_set<Boundary> reflective_boundaries_ = {};

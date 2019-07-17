@@ -108,7 +108,7 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
   using InitToken = typename
       formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
 
-  std::unique_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
+  std::shared_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
   std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>> mock_diffusion_ptr;
   void SetUp() override;
   InitToken init_token_;
@@ -116,7 +116,7 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
 
 template <typename DimensionWrapper>
 void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
-  mock_definition_ptr = std::make_unique<NiceMock<domain::DefinitionMock<dim>>>();
+  mock_definition_ptr = std::make_shared<NiceMock<domain::DefinitionMock<dim>>>();
   mock_diffusion_ptr =
       std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>>();
 
@@ -145,10 +145,10 @@ TYPED_TEST(CFEMDiffusionStamperTest, Constructor) {
 
   formulation::CFEM_DiffusionStamper<dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   EXPECT_EQ(mock_diffusion_ptr, nullptr);
-  EXPECT_EQ(mock_definition_ptr, nullptr);
+  EXPECT_EQ(mock_definition_ptr.use_count(), 2);
 
   EXPECT_TRUE(test_stamper.reflective_boundaries().empty());
 }
@@ -165,7 +165,7 @@ TYPED_TEST(CFEMDiffusionStamperTest, SetReflective) {
 
   formulation::CFEM_DiffusionStamper<dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.AddReflectiveBoundary(Boundary::kXMin);
   EXPECT_THAT(test_stamper.reflective_boundaries(),
@@ -314,7 +314,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampStreaming) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampStreamingTerm(this->system_matrix_, group_number);
 
@@ -337,7 +337,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampCollision) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampCollisionTerm(this->system_matrix_, group_number);
 
@@ -360,7 +360,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFixedSource) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampFixedSource(this->system_rhs_, group_number);
   EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));
@@ -390,7 +390,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFissionSource) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampFissionSource(this->system_rhs_,
                                   group_number,
@@ -420,7 +420,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampScatteringSource(this->system_rhs_,
                                      group_number,
@@ -546,7 +546,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampBoundaryTerm(this->system_matrix_);
 
@@ -584,7 +584,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumReflectiveBoundaryTe
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.AddReflectiveBoundary(Boundary::kXMin);
 
@@ -602,7 +602,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumAndStreaming) {
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
-      std::move(mock_definition_ptr));
+      mock_definition_ptr);
 
   test_stamper.StampStreamingTerm(this->system_matrix_, 0);
   test_stamper.StampBoundaryTerm(this->system_matrix_);

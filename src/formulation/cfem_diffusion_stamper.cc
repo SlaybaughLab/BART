@@ -8,10 +8,10 @@ namespace formulation {
 template<int dim>
 CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
     std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
-    std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
+    std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
     const std::unordered_set<Boundary> reflective_boundaries)
       : diffusion_ptr_(std::move(diffusion_ptr)),
-        definition_ptr_(std::move(definition_ptr)),
+        definition_ptr_(definition_ptr),
         reflective_boundaries_(reflective_boundaries) {
 
   cells_ = definition_ptr_->Cells();
@@ -21,10 +21,10 @@ CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
 template<int dim>
 CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
     std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
-    std::unique_ptr<domain::DefinitionI<dim>> definition_ptr,
+    std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
     const std::map<Boundary, bool> reflective_boundary_map)
     : CFEM_DiffusionStamper<dim>(std::move(diffusion_ptr),
-                                 std::move(definition_ptr)) {
+                                 definition_ptr) {
   for (auto const pair : reflective_boundary_map) {
     auto [boundary, is_reflective] = pair;
     if (is_reflective)
