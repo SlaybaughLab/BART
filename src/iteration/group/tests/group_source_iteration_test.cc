@@ -14,7 +14,7 @@
 namespace  {
 
 using namespace bart;
-
+using ::testing::ExpectationSet;
 using ::testing::Return, ::testing::Pointee, ::testing::Ref;
 using ::testing::ReturnRef;
 using ::testing::Sequence, ::testing::_;
@@ -132,50 +132,64 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
 
   /* Final Moment Vectors. These will be returned by the MomentCalculator at the
    * end of all calculations, to update all moments (The previous moments are
-   * only for scalar flux) */
-  std::map<int, system::moments::MomentsMap> moments_map;
-  std::map<int, system::moments::MomentsMap> returned_moments;
+   * only for scalar flux) and be stored */
+  system::moments::MomentsMap calculated_moments_map;
+  system::moments::MomentsMap stored_moments_map;
 
   for (int group = 0; group < this->total_groups; ++group) {
-    moments_map[group] = {};
-    returned_moments[group] = {};
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
-      for (int m = -l; m <= this->max_harmonic_l; ++m) {
+      for (int m = -l; m <= l; ++m) {
         system::moments::MomentVector new_moment(5), new_empty_moment(5);
         new_moment = (l * 10) + m;
-        moments_map[group][{l,m}] = new_moment;
-        returned_moments[group][{l,m}] = new_empty_moment;
+        calculated_moments_map[{group, l,m}] = new_moment;
+        stored_moments_map[{group, l,m}] = new_empty_moment;
       }
     }
   }
 
+  // At the onset of iterationg, total groups and angles are retrieved
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
   EXPECT_CALL(*this->group_solution_ptr_, total_angles())
       .WillOnce(Return(this->total_angles));
+  EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
+      .Times(this->total_groups)
+      .WillRepeatedly(Return(this->max_harmonic_l));
 
+  /* Sequence for the iteration calls, to make sure they return the correct
+   * values in a sequence */
   Sequence s;
 
+  // GROUP EXPECTATIONS
   for (int group = 0; group < this->total_groups; ++group) {
+    /* Group-specific expectation set for in-iteration moment calculations.
+     * This ensures that the final calculations happen after all in-iteration
+     * moment calculations */
     EXPECT_CALL(*this->single_group_obs_ptr_, SolveGroup(
         group,
         Ref(this->test_system),
         Ref(*this->group_solution_ptr_)))
         .Times(this->iterations_by_group[group]);
-
+    // Updates should occur iterations - 1 times (doesn't run if converged)
+    for (int angle = 0; angle < this->total_angles; ++angle) {
+      EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
+          Ref(this->test_system), group, angle))
+          .Times(this->iterations_by_group[group] - 1);
+    }
+    ExpectationSet within_iteration_moment_calculations;
+    // ITERATION EXPECTATIONS
     for (int it = 0; it < this->iterations_by_group[group]; ++it) {
+      // Iteration should solve the problem once for each iteration for each group
 
-      EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-          this->group_solution_ptr_.get(), group, 0, 0))
-          //_, group, 0, 0))
-          .InSequence(s)
-          .WillOnce(Return(calculated_moments.at(group).at(it)));
+      within_iteration_moment_calculations +=
+          EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
+              this->group_solution_ptr_.get(), group, 0, 0))
+              .InSequence(s)
+              .WillOnce(Return(calculated_moments.at(group).at(it)));
 
+      // Populate convergence status to return
       convergence::Status status;
-
-      if ((it + 1) == this->iterations_by_group[group])
-        status.is_complete = true;
-
+      status.is_complete = ((it + 1) == this->iterations_by_group[group]);
       status.iteration_number = it + 1;
 
       if (it == 0) {
@@ -192,44 +206,32 @@ TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
             .WillOnce(Return(status));
       }
     }
-    // Updates should occur iterations - 1 times (doesn't run if converged)
-    for (int angle = 0; angle < this->total_angles; ++angle) {
-      EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
-          Ref(this->test_system), group, angle))
-          .Times(this->iterations_by_group[group] - 1);
-    }
-  }
+    // POST-ITERATION, WITHIN GROUP EXPECTATIONS
 
-  // Following all groups, expect to update moments
-  EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
-      .Times(this->total_groups)
-      .WillRepeatedly(Return(this->max_harmonic_l));
-
-  for (int group = 0; group < this->total_groups; ++group) {
+    /* New moments should be calculated using the solution, and they should be
+     * stored in the current_moments object. */
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
       for (int m = -l; m <= l; ++m) {
-        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-            this->group_solution_ptr_.get(), group, l, m))
-            .InSequence(s)
-            .WillOnce(Return(moments_map.at(group).at({l, m})));
-        system::moments::MomentIndex index{group,l,m};
+        system::moments::MomentIndex index{group, l, m};
 
         EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
-            .WillOnce(ReturnRef(returned_moments.at(group).at({l,m})));
+            .WillOnce(ReturnRef(stored_moments_map.at(index)));
+
+        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
+            this->group_solution_ptr_.get(), group, l, m))
+            .After(within_iteration_moment_calculations)
+            .WillOnce(Return(calculated_moments_map.at(index)));
       }
     }
   }
 
-  // Make sure correct vectors have been stored
-  for (auto& group_moments : returned_moments) {
-    auto& [group, group_moment_map] = group_moments;
-    for (auto& moment : group_moment_map) {
-      auto& [index, returned_moment] = moment;
-      EXPECT_EQ(returned_moment, moments_map.at(group).at(index));
-    }
-  }
-
   this->test_iterator_ptr_->Iterate(this->test_system);
+
+  // Make sure correct vectors have been stored
+  for (auto& moment : stored_moments_map) {
+    auto& [index, returned_moment] = moment;
+    EXPECT_EQ(returned_moment, calculated_moments_map.at(index));
+  }
 }
 
 } // namespace

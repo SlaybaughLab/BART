@@ -75,7 +75,16 @@ convergence::Status GroupSolveIteration<dim>::CheckConvergence(
 template <int dim>
 void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
                                                     const int group) {
-  const int max_harmonic_l = system.current_moments->max_harmonic_l();
+  auto& current_moments = *system.current_moments;
+  const int max_harmonic_l = current_moments.max_harmonic_l();
+
+
+  for (int l = 0; l <= max_harmonic_l; ++l) {
+    for (int m = -l; m <= l; ++m) {
+      current_moments[{group, l, m}] = moment_calculator_ptr_->CalculateMoment(
+          group_solution_ptr_.get(), group, l, m);
+    }
+  }
 }
 
 template class GroupSolveIteration<1>;
