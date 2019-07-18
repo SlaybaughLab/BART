@@ -26,7 +26,7 @@ void SingleGroupSolver::SolveGroup(const int group,
 
   for (int angle = 0; angle < total_angles; ++angle) {
     system::Index index{group, angle};
-    auto solution = group_solution[angle];
+    auto& solution = group_solution[angle];
     auto left_hand_side_ptr = system.left_hand_side_ptr_->GetFullTermPtr(index);
     auto right_hand_side_ptr = system.right_hand_side_ptr_->GetFullTermPtr(index);
     dealii::PETScWrappers::PreconditionNone no_conditioner(*left_hand_side_ptr);
