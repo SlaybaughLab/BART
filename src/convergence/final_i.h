@@ -75,6 +75,8 @@ class FinalI {
    * \return reference to this object.
    */
   virtual FinalI& SetIteration(IterationNumber to_set) = 0;
+
+  virtual void Reset() = 0;
 };
 
 } // namespace convergence

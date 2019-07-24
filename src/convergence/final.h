@@ -36,6 +36,11 @@ class Final : public FinalI<CompareType> {
 
   Final<CompareType>& SetIteration(IterationNumber to_set) override;
 
+  void Reset() override {
+    Status convergence_status;
+    convergence_status_ = convergence_status;
+  };
+
  protected:
   Status convergence_status_;
 };

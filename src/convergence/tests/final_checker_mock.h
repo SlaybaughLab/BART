@@ -22,6 +22,7 @@ class FinalCheckerMock : public FinalI<CompareType> {
   MOCK_CONST_METHOD0_T(iteration, IterationNumber());
   MOCK_METHOD1_T(SetMaxIterations, FinalCheckerMock&(IterationNumber to_set));
   MOCK_METHOD1_T(SetIteration, FinalCheckerMock&(IterationNumber to_set));
+  MOCK_METHOD0_T(Reset, void());
 };
 
 } // namespace convergence
