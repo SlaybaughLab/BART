@@ -28,6 +28,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
   for (int group = 0; group < total_groups; ++group) {
     convergence::Status convergence_status;
+    convergence_checker_ptr_->Reset();
     do {
       previous_scalar_flux = current_scalar_flux;
 

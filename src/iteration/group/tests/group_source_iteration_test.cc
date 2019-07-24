@@ -1,6 +1,12 @@
 #include "iteration/group/group_source_iteration.h"
 
+#include <functional>
 #include <memory>
+
+#include <deal.II/lac/petsc_precondition.h>
+#include <deal.II/lac/solver_control.h>
+#include <deal.II/lac/petsc_solver.h>
+#include <deal.II/lac/petsc_full_matrix.h>
 
 #include "iteration/updater/tests/source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
@@ -14,10 +20,13 @@
 namespace  {
 
 using namespace bart;
+using ::testing::AtLeast;
 using ::testing::ExpectationSet;
 using ::testing::Return, ::testing::Pointee, ::testing::Ref;
 using ::testing::ReturnRef;
 using ::testing::Sequence, ::testing::_;
+using ::testing::InvokeWithoutArgs;
+using ::testing::Unused;
 
 template <typename DimensionWrapper>
 class IterationGroupSourceIterationTest : public ::testing::Test {
@@ -31,6 +40,8 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using SourceUpdater = iteration::updater::SourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
+
+  virtual ~IterationGroupSourceIterationTest() = default;
 
   // Test object
   std::unique_ptr<TestGroupIterator> test_iterator_ptr_;
@@ -51,12 +62,6 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   MomentCalculator* moment_calculator_obs_ptr_ = nullptr;
   SourceUpdater* source_updater_obs_ptr_ = nullptr;
   Moments* moments_obs_ptr_ = nullptr;
-
-  // Test parameters
-  const int total_groups = 2;
-  const int total_angles = 3;
-  const std::array<int, 2> iterations_by_group{2,3};
-  const int max_harmonic_l = 2;
 
   void SetUp() override;
 };
@@ -111,127 +116,180 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_NE(nullptr, source_updater_test_ptr);
 }
 
-TYPED_TEST(IterationGroupSourceIterationTest, Iterate) {
+template <typename DimensionWrapper>
+class IterationGroupSourceSystemSolvingTest :
+    public IterationGroupSourceIterationTest<DimensionWrapper> {
+ public:
+  virtual ~IterationGroupSourceSystemSolvingTest() = default;
+  IterationGroupSourceSystemSolvingTest()
+      : L_(4,4), U_(4,4), b_(MPI_COMM_WORLD, 4, 4),
+        true_scalar_flux_(4),
+        solver_(solver_control_, MPI_COMM_WORLD)
+        {}
+  // Test parameters
+  static constexpr int total_groups = 2;
+  static constexpr int total_angles = 2;
+  static constexpr int max_harmonic_l = 1;
 
-  // Objects to support testing
-  /* Moment Vectors. These will be returned by the MomentCalculator, based on
-   * group and iteration. It is important to ensure that the correct values
-   * are being checked for convergence. All entries in each vector will be set
-   * to a unique value, 10*group + iteration. */
-  std::map<int, std::vector<system::moments::MomentVector>> calculated_moments;
-  system::moments::MomentVector zero_moment(5);
+  // Objects for solver
+  dealii::PETScWrappers::FullMatrix L_;
+  dealii::PETScWrappers::FullMatrix U_;
+  dealii::PETScWrappers::MPI::Vector b_;
+  system::moments::MomentVector true_scalar_flux_;
+
+  // Solver
+  dealii::SolverControl solver_control_;
+  dealii::PETScWrappers::SolverGMRES solver_;
+
+  // Group solutions
+  std::array<dealii::PETScWrappers::MPI::Vector, total_groups> group_solutions_;
+  std::array<dealii::PETScWrappers::MPI::Vector, total_groups> group_rhs_;
+
+  int iterations = 0;
+
+  void SetUp() override;
+};
+
+template <typename DimensionWrapper>
+void IterationGroupSourceSystemSolvingTest<DimensionWrapper>::SetUp() {
+  IterationGroupSourceIterationTest<DimensionWrapper>::SetUp();
+  // SYSTEM SETUP ==============================================================
+  // Matrix and vectors for system to be solved
+  const std::array<double, 16> l_entries{  2.69110073,  0.        ,  0.        ,  0.        ,
+                                           -2.27591718, 13.46409688,  0.        ,  0.        ,
+                                           1.50909047, -3.12175911,  4.01996062,  0.        ,
+                                           3.15786087, -4.17175472, -1.10106215,  9.55326528};
+  const std::array<double, 16> u_entries{ 0.        , -2.27591718,  1.50909047,  3.15786087,
+                                          0.        ,  0.        , -3.12175911, -4.17175472,
+                                          0.        ,  0.        ,  0.        , -1.10106215,
+                                          0.        ,  0.        ,  0.        ,  0.        };
+  const std::array<double, 4> b_entries{ 4.53187178, -4.15513557, 6.79740634,
+                                         2.43451537};
+  // Solution
+  const std::array<double, 4> true_scalar_flux_entries{-0.03980115, 0.42018347, 2.2260879,
+                                                       0.70804747};
+
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      L_.set(i,j, l_entries.at(4*i + j));
+      U_.set(i,j, u_entries.at(4*i + j));
+    }
+    b_[i] = b_entries.at(i);
+    true_scalar_flux_[i] = true_scalar_flux_entries.at(i);
+  }
+  L_.compress(dealii::VectorOperation::insert);
+  U_.compress(dealii::VectorOperation::insert);
+  b_.compress(dealii::VectorOperation::insert);
 
   for (int group = 0; group < this->total_groups; ++group) {
-    calculated_moments[group] = {};
-    for (int it = 0; it < this->iterations_by_group[group]; ++it) {
-      system::moments::MomentVector new_moment(5);
-      new_moment = (group * 10 + it);
-      calculated_moments.at(group).push_back(new_moment);
+    dealii::PETScWrappers::MPI::Vector group_solution(MPI_COMM_WORLD, 4, 4),
+        group_rhs_vector(MPI_COMM_WORLD, 4, 4);
+    for (int i = 0; i < 4; ++i) {
+      group_solution[i] = 1;
     }
+    group_solution.compress(dealii::VectorOperation::insert);
+    // Generate initial RHS, b - Ux_0
+    U_.vmult_add(group_rhs_vector, group_solution);
+    group_rhs_vector.add(-1, b_);
+    group_rhs_vector *= -1;
+    group_rhs_vector.compress(dealii::VectorOperation::add);
+
+    group_solutions_[group] = std::move(group_solution);
+    group_rhs_[group] = std::move(group_rhs_vector);
+
   }
+}
 
-  /* Final Moment Vectors. These will be returned by the MomentCalculator at the
-   * end of all calculations, to update all moments (The previous moments are
-   * only for scalar flux) and be stored */
-  system::moments::MomentsMap calculated_moments_map;
-  system::moments::MomentsMap stored_moments_map;
+ACTION_P(Solve, test_class) {
+  dealii::PETScWrappers::PreconditionNone no_conditioner(test_class->L_);
+  test_class->solver_.solve(test_class->L_,
+                            test_class->group_solutions_.at(arg0),
+                            test_class->group_rhs_.at(arg0),
+                            no_conditioner);
+}
 
+ACTION_P(Update, test_class) {
+  auto& rhs = test_class->group_rhs_.at(arg1);
+  auto& solution = test_class->group_solutions_.at(arg1);
+  rhs = 0;
+  test_class->U_.vmult_add(rhs, solution);
+  rhs.add(-1, test_class->b_);
+  rhs *= -1;
+}
+
+ACTION_P(CalculatedScalarFlux, test_class) {
+  system::moments::MomentVector return_vector(test_class->group_solutions_.at(arg1));
+  return_vector *= (arg2 + arg3 + 1);
+  return return_vector;
+}
+
+ACTION_P(ReturnConvergence, test_class) {
+  convergence::Status status;
+  ++test_class->iterations;
+  auto diff = arg0;
+  diff.add(-1, arg1);
+  double err = diff.l1_norm();
+  if (err < 1e-6 || test_class->iterations > 1000)
+    status.is_complete = true;
+  return status;
+}
+
+ACTION_P(ResetIterations, test_class) {
+  test_class->iterations = 0;
+}
+
+TYPED_TEST_CASE(IterationGroupSourceSystemSolvingTest, bart::testing::AllDimensions);
+
+TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
+  // This is the mock map to hold system current_moments
+  system::moments::MomentsMap current_moments;
   for (int group = 0; group < this->total_groups; ++group) {
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
       for (int m = -l; m <= l; ++m) {
-        system::moments::MomentVector new_moment(5), new_empty_moment(5);
-        new_moment = (l * 10) + m;
-        calculated_moments_map[{group, l,m}] = new_moment;
-        stored_moments_map[{group, l,m}] = new_empty_moment;
+        system::moments::MomentIndex index{group, l, m};
+        current_moments.emplace(index, 4);
+        EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
+            .Times(AtLeast(1))
+            .WillRepeatedly(ReturnRef(current_moments.at(index)));
+
+        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
+            this->group_solution_ptr_.get(), group, l, m))
+            .Times(AtLeast(1))
+            .WillRepeatedly(CalculatedScalarFlux(this));
       }
+    }
+    EXPECT_CALL(*this->single_group_obs_ptr_, SolveGroup(
+        group, Ref(this->test_system), Ref(*this->group_solution_ptr_)))
+        .Times(AtLeast(1))
+        .WillRepeatedly(Solve(this));
+
+    for (int angle = 0; angle < this->total_angles; ++angle) {
+      EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
+          Ref(this->test_system), group, angle))
+          .Times(AtLeast(1))
+          .WillRepeatedly(Update(this));
     }
   }
 
-  // At the onset of iterationg, total groups and angles are retrieved
+  EXPECT_CALL(*this->convergence_checker_obs_ptr_, Reset())
+  .Times(AtLeast(1))
+  .WillRepeatedly(ResetIterations(this));
+
+  EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_, _))
+  .Times(AtLeast(1))
+  .WillRepeatedly(ReturnConvergence(this));
+
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
   EXPECT_CALL(*this->group_solution_ptr_, total_angles())
       .WillOnce(Return(this->total_angles));
   EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
-      .Times(this->total_groups)
       .WillRepeatedly(Return(this->max_harmonic_l));
 
-  /* Sequence for the iteration calls, to make sure they return the correct
-   * values in a sequence */
-  Sequence s;
-
-  // GROUP EXPECTATIONS
-  for (int group = 0; group < this->total_groups; ++group) {
-    /* Group-specific expectation set for in-iteration moment calculations.
-     * This ensures that the final calculations happen after all in-iteration
-     * moment calculations */
-    EXPECT_CALL(*this->single_group_obs_ptr_, SolveGroup(
-        group,
-        Ref(this->test_system),
-        Ref(*this->group_solution_ptr_)))
-        .Times(this->iterations_by_group[group]);
-    // Updates should occur iterations - 1 times (doesn't run if converged)
-    for (int angle = 0; angle < this->total_angles; ++angle) {
-      EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
-          Ref(this->test_system), group, angle))
-          .Times(this->iterations_by_group[group] - 1);
-    }
-    ExpectationSet within_iteration_moment_calculations;
-    // ITERATION EXPECTATIONS
-    for (int it = 0; it < this->iterations_by_group[group]; ++it) {
-      // Iteration should solve the problem once for each iteration for each group
-
-      within_iteration_moment_calculations +=
-          EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-              this->group_solution_ptr_.get(), group, 0, 0))
-              .InSequence(s)
-              .WillOnce(Return(calculated_moments.at(group).at(it)));
-
-      // Populate convergence status to return
-      convergence::Status status;
-      status.is_complete = ((it + 1) == this->iterations_by_group[group]);
-      status.iteration_number = it + 1;
-
-      if (it == 0) {
-        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
-            calculated_moments.at(group).at(it),
-            zero_moment))
-            .InSequence(s)
-            .WillOnce(Return(status));
-      } else {
-        EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(
-            calculated_moments.at(group).at(it),
-            calculated_moments.at(group).at(it - 1)))
-            .InSequence(s)
-            .WillOnce(Return(status));
-      }
-    }
-    // POST-ITERATION, WITHIN GROUP EXPECTATIONS
-
-    /* New moments should be calculated using the solution, and they should be
-     * stored in the current_moments object. */
-    for (int l = 0; l <= this->max_harmonic_l; ++l) {
-      for (int m = -l; m <= l; ++m) {
-        system::moments::MomentIndex index{group, l, m};
-
-        EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
-            .WillOnce(ReturnRef(stored_moments_map.at(index)));
-
-        EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
-            this->group_solution_ptr_.get(), group, l, m))
-            .After(within_iteration_moment_calculations)
-            .WillOnce(Return(calculated_moments_map.at(index)));
-      }
-    }
-  }
-
   this->test_iterator_ptr_->Iterate(this->test_system);
-
-  // Make sure correct vectors have been stored
-  for (auto& moment : stored_moments_map) {
-    auto& [index, returned_moment] = moment;
-    EXPECT_EQ(returned_moment, calculated_moments_map.at(index));
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_NEAR(current_moments.at({0, 0, 0})[i],
+                     this->true_scalar_flux_[i], 1e-6);
   }
 }
-
 } // namespace
