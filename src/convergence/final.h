@@ -38,6 +38,7 @@ class Final : public FinalI<CompareType> {
 
   void Reset() override {
     Status convergence_status;
+    convergence_status.max_iterations = convergence_status_.max_iterations;
     convergence_status_ = convergence_status;
   };
 

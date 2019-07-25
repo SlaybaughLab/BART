@@ -60,10 +60,6 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergence) {
   Status good_convergence = {1, 100, true, std::nullopt, std::nullopt};
   auto result = test_checker.CheckFinalConvergence(moment_one, moment_two);
   EXPECT_TRUE(CompareStatus(result, good_convergence));
-
-  Status init_convergence;
-  test_checker.Reset();
-  EXPECT_TRUE(CompareStatus(init_convergence, test_checker.convergence_status()));
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
@@ -126,6 +122,11 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, MaxIterationsReached) {
   result = test_checker.CheckFinalConvergence(moment_one, moment_two);
 
   EXPECT_TRUE(CompareStatus(result, expected));
+
+  Status reset;
+  reset.max_iterations = expected.max_iterations;
+  test_checker.Reset();
+  EXPECT_TRUE(CompareStatus(test_checker.convergence_status(), reset));
 }
 
 
