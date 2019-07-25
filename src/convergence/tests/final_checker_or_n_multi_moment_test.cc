@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "convergence/status.h"
+#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/moments/tests/multi_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
 #include "system/moments/spherical_harmonic_types.h"
@@ -17,23 +18,27 @@ using ::testing::_;
 using ::testing::Expectation;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::A;
 using namespace bart::convergence;
 using bart::convergence::testing::CompareStatus;
 
 class ConvergenceFinalCheckerOrNMultiMomentTest :
     public bart::convergence::testing::ConvergenceFinalTest<bart::system::moments::MomentsMap> {
  protected:
+  using Reporter = reporter::MpiMock;
   using FinalMultiMomentChecker =
       FinalCheckerOrN<bart::system::moments::MomentsMap , moments::MultiMomentCheckerI>;
   
   std::unique_ptr<NiceMock<moments::MultiMomentCheckerMock>> checker_ptr;
-  
+  std::shared_ptr<Reporter> reporter_ptr;
+
   bart::system::moments::MomentsMap moment_map_one, moment_map_two;
   void SetUp() override;
 };
 
 void ConvergenceFinalCheckerOrNMultiMomentTest::SetUp() {
   checker_ptr = std::make_unique<NiceMock<moments::MultiMomentCheckerMock>>();
+  reporter_ptr = std::make_shared<Reporter>();
   ON_CALL(*checker_ptr, CheckIfConverged(_,_))
       .WillByDefault(Return(true));
   ON_CALL(*checker_ptr, delta())
@@ -73,8 +78,10 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergenceAfterBad) {
   EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
       .After(bad_convergence)
       .WillOnce(Return(true));
+  EXPECT_CALL(*reporter_ptr, Report(A<const Status&>()))
+      .Times(6);
 
-  FinalMultiMomentChecker test_checker(std::move(checker_ptr));
+  FinalMultiMomentChecker test_checker(std::move(checker_ptr), reporter_ptr);
   Status result, good_convergence = {6, 100, true, std::nullopt, std::nullopt};
 
   for (int i = 0; i < 6; ++i)
@@ -107,8 +114,10 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, BadConvergenceAfterGood) {
   EXPECT_CALL(*checker_ptr, failed_index())
       .After(bad_convergence)
       .WillOnce(Return(failed_index));
+  EXPECT_CALL(*reporter_ptr, Report(A<const Status&>()))
+      .Times(6);
 
-  FinalMultiMomentChecker test_checker(std::move(checker_ptr));
+  FinalMultiMomentChecker test_checker(std::move(checker_ptr), reporter_ptr);
   Status result, expected = {6, 100, false, failed_index, delta};
 
   for (int i = 0; i < 6; ++i)

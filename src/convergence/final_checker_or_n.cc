@@ -15,6 +15,8 @@ Status FinalCheckerOrN<CompareType, CheckerType>::CheckFinalConvergence(
     CompareType& previous_iteration) {
 
   StatusDeltaAndIterate(current_iteration, previous_iteration);
+  if (reporter_ptr_ != nullptr)
+    reporter_ptr_->Report(convergence_status_);
   return convergence_status_;
 }
 
@@ -26,6 +28,8 @@ Status FinalCheckerOrN<system::moments::MomentsMap ,
 
   StatusDeltaAndIterate(current_iteration, previous_iteration);
   convergence_status_.failed_index = checker_ptr_->failed_index();
+  if (reporter_ptr_ != nullptr)
+    reporter_ptr_->Report(convergence_status_);
   return convergence_status_;
 }
 
