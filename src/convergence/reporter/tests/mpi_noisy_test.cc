@@ -6,6 +6,10 @@
 #include "convergence/status.h"
 #include "test_helpers/gmock_wrapper.h"
 
+namespace  {
+
+using namespace bart;
+
 class ReporterMpiNoisyTest : public ::testing::Test {
  protected:
   std::ostringstream string_stream;
@@ -43,3 +47,35 @@ TEST_F(ReporterMpiNoisyTest, ConvergenceReport) {
   EXPECT_EQ(string_stream.str(),
       "Iteration: 12/100\tdelta: 0.0001\tidx: 4\n");
 }
+
+TEST_F(ReporterMpiNoisyTest, ConvergenceReportNullValues) {
+  bart::convergence::reporter::MpiNoisy reporter(std::move(pout_ptr));
+  bart::convergence::Status null_status;
+  null_status.iteration_number = 12;
+  null_status.max_iterations = 100;
+  null_status.failed_index = 4;
+
+  reporter.Report(null_status);
+  EXPECT_EQ(string_stream.str(),
+            "Iteration: 12/100\tdelta: N/A\tidx: 4\n");
+
+  string_stream.str("");
+
+  null_status.failed_index = std::nullopt;
+  null_status.delta = 0.0001;
+
+  reporter.Report(null_status);
+  EXPECT_EQ(string_stream.str(),
+            "Iteration: 12/100\tdelta: 0.0001\tidx: N/A\n");
+
+  string_stream.str("");
+
+  null_status.failed_index = std::nullopt;
+  null_status.delta = std::nullopt;
+
+  reporter.Report(null_status);
+  EXPECT_EQ(string_stream.str(),
+            "Iteration: 12/100\tdelta: N/A\tidx: N/A\n");
+}
+
+} // namespace
