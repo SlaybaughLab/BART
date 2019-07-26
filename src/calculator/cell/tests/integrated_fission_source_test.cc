@@ -107,7 +107,7 @@ TYPED_TEST(CalcCellIntegratedFissionSourceTest, CellValueMPI) {
   auto& spherical_harmonic_mock = *(this->spherical_harmonic_ptr_);
 
   for (auto cell : this->cells_) {
-    // Set to the non-fissile material
+    // Set to the fissile material
     cell->set_material_id(0);
 
     // EXPECTATIONS
