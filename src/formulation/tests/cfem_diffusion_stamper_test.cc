@@ -28,6 +28,7 @@ using ::testing::Return;
 using ::testing::UnorderedElementsAreArray;
 using ::testing::Unused;
 using ::testing::_;
+using ::testing::WithArg;
 
 using namespace bart;
 using bart::testing::CompareMPIMatrices;
@@ -36,38 +37,19 @@ using Matrix = dealii::FullMatrix<double>;
 using Vector = dealii::Vector<double>;
 
 // TODO(Josh) Move this to a header where other stamper tests can use it
-void OnesFill(Matrix& to_fill) {
-  for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
-    for (unsigned int j = 0; j < to_fill.n_cols(); ++j) {
-      to_fill(i,j) += 1;
-    }
-  }
-}
 
-void OnesFill(Vector& to_fill) {
+void FillVector(Vector& to_fill) {
   for (unsigned int i = 0; i < to_fill.size(); ++i) {
     to_fill(i) += 1;
   }
 }
 
-void FillMatrixWithOnes(Matrix& to_fill, Unused, Unused, Unused) {
-  OnesFill(to_fill);
-}
-
-void FillMatrixWithOnesBoundary(Matrix& to_fill, Unused, Unused, Unused, Unused) {
-  OnesFill(to_fill);
-}
-
-void FillVectorWithOnes3(Vector& to_fill, Unused, Unused) {
-  OnesFill(to_fill);
-}
-
-void FillVectorWithOnes4(Vector& to_fill, Unused, Unused, Unused) {
-  OnesFill(to_fill);
-}
-
-void FillVectorWithOnes6(Vector& to_fill, Unused, Unused, Unused, Unused, Unused) {
-  OnesFill(to_fill);
+void FillMatrix(Matrix& to_fill) {
+  for (unsigned int i = 0; i < to_fill.n_rows(); ++i) {
+    for (unsigned int j = 0; j < to_fill.n_cols(); ++j) {
+      to_fill(i,j) += 1;
+    }
+  }
 }
 
 /* =============================================================================
@@ -307,7 +289,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampStreaming) {
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellStreamingTerm(_, _, cell, group_number))
-        .WillOnce(Invoke(FillMatrixWithOnes));
+        .WillOnce(WithArg<0>(Invoke(FillMatrix)));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillOnce(DoDefault());
@@ -330,7 +312,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampCollision) {
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellCollisionTerm(_, _, cell, group_number))
-        .WillOnce(Invoke(FillMatrixWithOnes));
+        .WillOnce(WithArg<0>(Invoke(FillMatrix)));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
       .WillOnce(DoDefault());
@@ -352,7 +334,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFixedSource) {
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellFixedSource(_, cell, group_number))
-        .WillOnce(Invoke(FillVectorWithOnes3));
+        .WillOnce(WithArg<0>(Invoke(FillVector)));
   }
 
   EXPECT_CALL(*mock_definition_ptr, GetCellVector())
@@ -382,7 +364,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampFissionSource) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellFissionSource(_, cell, group_number, k_effective,
                                       Ref(in_group_moment), Ref(group_moments)))
-        .WillOnce(Invoke(FillVectorWithOnes6));
+        .WillOnce(WithArg<0>(Invoke(FillVector)));
   }
 
   EXPECT_CALL(*mock_definition_ptr, GetCellVector())
@@ -412,7 +394,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellScatteringSource(_, cell, group_number,
                     Ref(group_moments)))
-        .WillOnce(Invoke(FillVectorWithOnes4));
+        .WillOnce(WithArg<0>(Invoke(FillVector)));
   }
 
   EXPECT_CALL(*mock_definition_ptr, GetCellVector())
@@ -535,7 +517,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
         if (cell->face(face)->at_boundary()) {
           EXPECT_CALL(*mock_diffusion_ptr,
                       FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
-              .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+              .WillOnce(WithArg<0>(Invoke(FillMatrix)));
         }
       }
     }
@@ -568,11 +550,11 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumReflectiveBoundaryTe
           if (cell->face(face)->boundary_id() == static_cast<int>(Boundary::kXMin)) {
             EXPECT_CALL(*mock_diffusion_ptr,
                         FillBoundaryTerm(_, _, cell, face, BoundaryType::kReflective))
-                .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+                .WillOnce(WithArg<0>(Invoke(FillMatrix)));
           } else {
             EXPECT_CALL(*mock_diffusion_ptr,
                         FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
-                .WillOnce(Invoke(FillMatrixWithOnesBoundary));
+                .WillOnce(WithArg<0>(Invoke(FillMatrix)));
           }
         }
       }
@@ -596,9 +578,9 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumAndStreaming) {
   auto &mock_definition_ptr = this->mock_definition_ptr;
 
   ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _))
-      .WillByDefault(Invoke(FillMatrixWithOnes));
+      .WillByDefault(WithArg<0>(Invoke(FillMatrix)));
   ON_CALL(*mock_diffusion_ptr, FillBoundaryTerm(_, _, _, _, _))
-      .WillByDefault(Invoke(FillMatrixWithOnesBoundary));
+      .WillByDefault(WithArg<0>(Invoke(FillMatrix)));
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(
       std::move(mock_diffusion_ptr),
