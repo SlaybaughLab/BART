@@ -413,24 +413,34 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
   out_group_moments[{0,0,0}] = group_0_moment;
   out_group_moments[{1,0,0}] = group_1_moment;
 
-  // Expected answer
-  std::vector<double> expected_values{3.75,
-                                      9.375};
-  dealii::Vector<double> expected_vector{expected_values.begin(),
-                                         expected_values.end()};
+  // Expected solutions
+  std::vector<double> expected_group_0_values{3.0,
+                                              7.5};
+  dealii::Vector<double> expected_group_0_vector{expected_group_0_values.begin(),
+                                                 expected_group_0_values.end()};
+  std::vector<double> expected_group_1_values{3.375,
+                                              8.4375};
+  dealii::Vector<double> expected_group_1_vector{expected_group_1_values.begin(),
+                                                 expected_group_1_values.end()};
+  std::array<dealii::Vector<double>, 2> expected_vectors{
+      expected_group_0_vector,
+      expected_group_1_vector};
 
   EXPECT_CALL(*fe_mock_ptr, SetCell(_))
-      .Times(1);
+      .Times(2);
   EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(group_1_moment))
       .WillOnce(Return(group_1_moment_values));
-  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(in_group_moment))
-      .WillOnce(Return(in_group_moment_values));
+  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(group_0_moment))
+      .WillOnce(Return(group_0_moment_values));
 
-  test_diffusion.FillCellScatteringSource(test_vector, cell_ptr_, group,
-                                       in_group_moment,
-                                       out_group_moments);
+  for (int group = 0; group < 2; ++group) {
+    test_diffusion.FillCellScatteringSource(test_vector, cell_ptr_, group,
+                                            in_group_moment,
+                                            out_group_moments);
 
-  EXPECT_TRUE(CompareVector(expected_vector, test_vector));
+    EXPECT_TRUE(CompareVector(expected_vectors.at(group), test_vector));
+    test_vector = 0;
+  }
 
 }
 
