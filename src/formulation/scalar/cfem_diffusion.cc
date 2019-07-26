@@ -197,17 +197,14 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
   // Get fission source contribution from each group at each quadrature point
   for (const auto& moment_pair : group_moments) {
     auto &[index, moment] = moment_pair;
-    int group_in = index[0];
-    if (index[1] == 0 && index[2] == 0) {
+    const auto &[group_in, harmonic_l, harmonic_m] = index;
+
+    // Check if scalar flux for an out-group
+    if (group_in != group && harmonic_l == 0 && harmonic_m == 0) {
       std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
 
-      if (group_in == group) {
-//        scalar_flux_at_quad_points =
-//            finite_element_->ValueAtQuadrature(in_group_moment);
-      } else {
-        scalar_flux_at_quad_points =
+      scalar_flux_at_quad_points =
             finite_element_->ValueAtQuadrature(moment);
-      }
 
       const auto sigma_s =
           cross_sections_->sigma_s.at(material_id)(group, group_in);
