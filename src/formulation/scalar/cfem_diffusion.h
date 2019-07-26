@@ -68,7 +68,6 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
   void FillCellScatteringSource(Vector& to_fill,
                                 const CellPtr& cell_ptr,
                                 const GroupNumber group,
-                                const system::moments::MomentVector& in_group_moment,
                                 const system::moments::MomentsMap& group_moments) const override;
 
   // Getters & Setters

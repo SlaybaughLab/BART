@@ -137,7 +137,6 @@ void CFEM_DiffusionStamper<dim>::StampScatteringSource(MPIVector& to_stamp,
         this->diffusion_ptr_->FillCellScatteringSource(vector,
                                                        cell_ptr,
                                                        group,
-                                                       in_group_moment,
                                                        group_moments);
       };
   StampVector(to_stamp, scattering_source_function);

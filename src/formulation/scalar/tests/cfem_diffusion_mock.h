@@ -54,10 +54,9 @@ class CFEM_DiffusionMock : public CFEM_DiffusionI<dim> {
       const system::moments::MomentVector&,
       const system::moments::MomentsMap&));
 
-  MOCK_CONST_METHOD5_T(FillCellScatteringSource, void(Vector&,
+  MOCK_CONST_METHOD4_T(FillCellScatteringSource, void(Vector&,
       const CellPtr&,
       const GroupNumber,
-      const system::moments::MomentVector&,
       const system::moments::MomentsMap&));
 };
 

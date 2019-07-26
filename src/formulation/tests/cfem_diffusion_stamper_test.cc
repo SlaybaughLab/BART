@@ -62,7 +62,7 @@ void FillVectorWithOnes3(Vector& to_fill, Unused, Unused) {
   OnesFill(to_fill);
 }
 
-void FillVectorWithOnes5(Vector& to_fill, Unused, Unused, Unused, Unused) {
+void FillVectorWithOnes4(Vector& to_fill, Unused, Unused, Unused) {
   OnesFill(to_fill);
 }
 
@@ -411,8 +411,8 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
                 FillCellScatteringSource(_, cell, group_number,
-                                         Ref(in_group_moment), Ref(group_moments)))
-        .WillOnce(Invoke(FillVectorWithOnes5));
+                    Ref(group_moments)))
+        .WillOnce(Invoke(FillVectorWithOnes4));
   }
 
   EXPECT_CALL(*mock_definition_ptr, GetCellVector())

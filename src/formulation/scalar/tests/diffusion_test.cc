@@ -435,7 +435,6 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
 
   for (int group = 0; group < 2; ++group) {
     test_diffusion.FillCellScatteringSource(test_vector, cell_ptr_, group,
-                                            in_group_moment,
                                             out_group_moments);
 
     EXPECT_TRUE(CompareVector(expected_vectors.at(group), test_vector));
