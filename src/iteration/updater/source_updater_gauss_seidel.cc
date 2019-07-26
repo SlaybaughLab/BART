@@ -22,16 +22,11 @@ void SourceUpdaterGaussSeidel<formulation::CFEMStamperI>::UpdateScatteringSource
 
   *scattering_source_vector_ptr_ = 0;
 
-  const system::moments::MomentVector &in_group_moment =
-      system.current_moments->GetMoment({group, 0, 0});
-
   const system::moments::MomentsMap& out_group_moments =
       system.current_moments->moments();
 
-
   stamper_ptr_->StampScatteringSource(*scattering_source_vector_ptr_,
                                       group,
-                                      in_group_moment,
                                       out_group_moments);
 }
 

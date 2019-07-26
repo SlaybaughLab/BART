@@ -166,16 +166,12 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
                                                  VariableTerms::kScatteringSource))
       .WillOnce(DoDefault());
 
-  std::array<int, 3> moment_index{group, 0, 0};
-  EXPECT_CALL(*moments_obs_ptr_, GetMoment(moment_index))
-      .WillOnce(ReturnRef(current_iteration_moments_[{group, 0, 0}]));
   EXPECT_CALL(*moments_obs_ptr_, moments())
       .WillOnce(ReturnRef(current_iteration_moments_));
 
   EXPECT_CALL(*mock_stamper_ptr_,
       StampScatteringSource(Ref(*source_vector_ptr_),
                             group,
-                            Ref(current_iteration_moments_[{group, 0, 0}]),
                             Ref(current_iteration_moments_)))
       .WillOnce(WithArgs<0,1>(Invoke(StampMPIVector)));
 

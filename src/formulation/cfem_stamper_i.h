@@ -93,10 +93,9 @@ class CFEMStamperI : public StamperI {
    * @param in_group_moment moment to be used for the in-group contribution.
    * @param group_moments moments to be used for all out-group contributions.
    */
-  virtual void StampScatteringSource(MPIVector& to_stamp,
+  virtual void StampScatteringSource(MPIVector &to_stamp,
                                      const GroupNumber group,
-                                     const system::moments::MomentVector& in_group_moment,
-                                     const system::moments::MomentsMap& group_moments) = 0;
+                                     const system::moments::MomentsMap &group_moments) = 0;
 
 
   /*! Adds a system reflective boundary.

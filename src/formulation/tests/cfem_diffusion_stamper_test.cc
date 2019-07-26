@@ -387,7 +387,6 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
   auto& mock_definition_ptr = this->mock_definition_ptr;
   auto& mock_diffusion_ptr = this->mock_diffusion_ptr;
   int group_number = 1;
-  system::moments::MomentVector in_group_moment;
   system::moments::MomentsMap group_moments;
 
   for (auto const& cell : this->cells_) {
@@ -406,7 +405,6 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampScatteringSource) {
 
   test_stamper.StampScatteringSource(this->system_rhs_,
                                      group_number,
-                                     in_group_moment,
                                      group_moments);
 
   EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_, this->system_rhs_));

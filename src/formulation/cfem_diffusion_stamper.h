@@ -67,10 +67,9 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
                           const double k_effective,
                           const system::moments::MomentVector& in_group_moment,
                           const system::moments::MomentsMap& group_moments) override;
-  void StampScatteringSource(MPIVector& to_stamp,
+  void StampScatteringSource(MPIVector &to_stamp,
                              const GroupNumber group,
-                             const system::moments::MomentVector& in_group_moment,
-                             const system::moments::MomentsMap& group_moments) override;
+                             const system::moments::MomentsMap &group_moments) override;
 
   CFEM_DiffusionStamper& AddReflectiveBoundary(Boundary boundary) override {
     reflective_boundaries_.insert(boundary);
