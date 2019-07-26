@@ -187,7 +187,7 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
       Vector& to_fill,
       const CellPtr& cell_ptr,
       const GroupNumber group,
-      const system::moments::MomentVector& in_group_moment,
+      const system::moments::MomentVector&, //in_group_moment,
       const system::moments::MomentsMap& group_moments) const {
 
   finite_element_->SetCell(cell_ptr);
@@ -203,8 +203,8 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
       std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
 
       if (group_in == group) {
-        scalar_flux_at_quad_points =
-            finite_element_->ValueAtQuadrature(in_group_moment);
+//        scalar_flux_at_quad_points =
+//            finite_element_->ValueAtQuadrature(in_group_moment);
       } else {
         scalar_flux_at_quad_points =
             finite_element_->ValueAtQuadrature(moment);
