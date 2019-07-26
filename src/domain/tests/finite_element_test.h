@@ -17,6 +17,7 @@ class FiniteElementBaseClassTest : public ::testing::Test {
  public:
   FiniteElementBaseClassTest()
       : dof_handler_(triangulation_) {}
+  virtual ~FiniteElementBaseClassTest() = default;
  protected:
   dealii::Triangulation<dim> triangulation_;
   dealii::DoFHandler<dim> dof_handler_;
