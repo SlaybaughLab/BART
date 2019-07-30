@@ -9,9 +9,13 @@ namespace iteration {
 
 namespace outer {
 
-class OuterPowerIteration : public OuterIteration {
+class OuterPowerIteration : public OuterIteration<double> {
  public:
+  using ConvergenceChecker = convergence::FinalI<double>;
+  using OuterIteration<double>::SourceUpdater;
+
   OuterPowerIteration(
+      std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       const std::shared_ptr<SourceUpdater> &source_updater_ptr);
   virtual ~OuterPowerIteration() = default;
 
