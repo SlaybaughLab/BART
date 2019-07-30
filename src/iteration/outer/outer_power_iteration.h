@@ -11,6 +11,8 @@ namespace outer {
 
 class OuterPowerIteration : public OuterIteration {
  public:
+  OuterPowerIteration(
+      const std::shared_ptr<SourceUpdater> &source_updater_ptr);
   virtual ~OuterPowerIteration() = default;
 
 };

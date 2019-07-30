@@ -6,6 +6,10 @@ namespace iteration {
 
 namespace outer {
 
+OuterPowerIteration::OuterPowerIteration(
+    const std::shared_ptr<SourceUpdater> &source_updater_ptr)
+    : OuterIteration(source_updater_ptr) {}
+
 } // namespace outer
 
 } // namespace iteration
