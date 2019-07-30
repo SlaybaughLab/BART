@@ -8,10 +8,17 @@ namespace outer {
 
 OuterPowerIteration::OuterPowerIteration(
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
+    std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr,
     const std::shared_ptr<SourceUpdater> &source_updater_ptr)
     : OuterIteration(
         std::move(convergence_checker_ptr),
-        source_updater_ptr) {}
+        source_updater_ptr),
+      k_effective_updater_ptr_(std::move(k_effective_updater_ptr)) {
+  AssertThrow(k_effective_updater_ptr_ != nullptr,
+              dealii::ExcMessage("KEffective updater pointer passed to "
+                                 "OuterPowerIteration constructor is null"));
+}
+
 convergence::Status OuterPowerIteration::CheckConvergence(system::System &system) {
   double k_effective_last = 0.0;
   double k_effective_current = 0.0;

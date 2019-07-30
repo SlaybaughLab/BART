@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "iteration/updater/tests/source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -19,6 +20,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   using ConvergenceChecker = convergence::FinalCheckerMock<double>;
+  using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = iteration::updater::SourceUpdaterMock;
 
@@ -32,6 +34,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
 
   // Observation pointers
   ConvergenceChecker* convergence_checker_obs_ptr_;
+  K_EffectiveUpdater* k_effective_updater_obs_ptr_;
 
   // Test parameters
   const int total_groups = 2;
@@ -47,6 +50,8 @@ void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
   auto convergenge_checker_ptr = std::make_unique<ConvergenceChecker>();
   convergence_checker_obs_ptr_ = convergenge_checker_ptr.get();
+  auto k_effective_updater_ptr = std::make_unique<K_EffectiveUpdater>();
+  k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
 
   // Set up system
   test_system.total_angles = total_angles;
@@ -55,6 +60,7 @@ void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
   // Construct test object
   test_iterator = std::make_unique<OuterPowerIteration>(
       std::move(convergenge_checker_ptr),
+      std::move(k_effective_updater_ptr),
       source_updater_ptr_
       );
 }
@@ -66,27 +72,30 @@ TYPED_TEST(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator, nullptr);
   EXPECT_NE(this->test_iterator->source_updater_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->convergence_checker_ptr(), nullptr);
+  EXPECT_NE(this->test_iterator->k_effective_updater_ptr(), nullptr);
   EXPECT_EQ(this->source_updater_ptr_.use_count(), 2);
 }
 
 TYPED_TEST(IterationOuterPowerIterationTest, ConstructorErrors) {
-  EXPECT_ANY_THROW({
-    auto convergence_checker_ptr =
+
+  for (int i = 0; i < 3; ++i) {
+    auto convergence_checker_ptr = (i == 0) ? nullptr :
         std::make_unique<convergence::FinalCheckerMock<double>>();
-    iteration::outer::OuterPowerIteration test_iterator(
-        std::move(convergence_checker_ptr),
-        nullptr);
-  });
+    auto k_effective_updater_ptr = (i == 1) ? nullptr :
+        std::make_unique<eigenvalue::k_effective::K_EffectiveUpdaterMock>();
+    auto source_updater_ptr = (i == 2) ? nullptr : this->source_updater_ptr_;
 
-  EXPECT_ANY_THROW({
-    iteration::outer::OuterPowerIteration test_iterator(
-        nullptr,
-        this->source_updater_ptr_);
-  });
-
+    EXPECT_ANY_THROW({
+                       iteration::outer::OuterPowerIteration test_iterator(
+                           std::move(convergence_checker_ptr),
+                           std::move(k_effective_updater_ptr),
+                           source_updater_ptr);
+                     });
+  }
 }
 
 TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
+
   for (int group = 0; group < this->total_groups; ++group) {
     for (int angle = 0; angle < this->total_angles; ++angle) {
       EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(
@@ -95,6 +104,7 @@ TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     }
   }
 
+  // Convergence Status
   convergence::Status bad_convergence;
   convergence::Status good_convergence;
   good_convergence.is_complete = true;
@@ -104,8 +114,8 @@ TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
       .Times(this->iterations_ - 1)
       .WillRepeatedly(Return(bad_convergence));
   EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_,_))
-  .After(iterations)
-  .WillOnce(Return(good_convergence));
+      .After(iterations)
+      .WillOnce(Return(good_convergence));
 
   this->test_iterator->IterateToConvergence(this->test_system);
 }
