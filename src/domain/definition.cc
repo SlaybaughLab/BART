@@ -2,6 +2,8 @@
 
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/lac/sparsity_tools.h>
+#include <deal.II/grid/grid_tools.h>
+#include <deal.II/dofs/dof_renumbering.h>
 
 namespace bart {
 
@@ -16,6 +18,17 @@ Definition<dim>::Definition(std::unique_ptr<domain::MeshI<dim>> mesh,
                      typename dealii::Triangulation<dim>::MeshSmoothing(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                          dealii::Triangulation<dim>::smoothing_on_coarsening)),
+      dof_handler_(triangulation_) {}
+
+template <>
+Definition<1>::Definition(
+    std::unique_ptr<domain::MeshI<1>> mesh,
+    std::shared_ptr<domain::FiniteElementI<1>> finite_element)
+    : mesh_(std::move(mesh)),
+      finite_element_(finite_element),
+      triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(
+                         dealii::Triangulation<1>::smoothing_on_refinement |
+                             dealii::Triangulation<1>::smoothing_on_coarsening)),
       dof_handler_(triangulation_) {}
 
 template <int dim>
@@ -53,10 +66,38 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
   return *this;
 }
 
+template <>
+Definition<1>& Definition<1>::SetUpDOF(
+    problem::DiscretizationType) {
+  auto n_mpi_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+
+  dealii::GridTools::partition_triangulation(n_mpi_processes, triangulation_);
+  dof_handler_.distribute_dofs(*(finite_element_)->finite_element());
+  dealii::DoFRenumbering::subdomain_wise(dof_handler_);
+
+  for (auto cell = dof_handler_.begin_active();
+       cell != dof_handler_.end(); ++cell) {
+    if (cell->is_locally_owned())
+      local_cells_.push_back(cell);
+  }
+
+  auto locally_owned_dofs_vector =
+      dealii::DoFTools::locally_owned_dofs_per_subdomain(dof_handler_);
+  locally_owned_dofs_ = locally_owned_dofs_vector.at(this_process);
+
+  constraint_matrix_.clear();
+  dealii::DoFTools::make_hanging_node_constraints(dof_handler_,
+                                                  constraint_matrix_);
+  constraint_matrix_.close();
+
+  return *this;
+}
+
 template <int dim>
 void Definition<dim>::FillMatrixParameters(
     data::MatrixParameters &to_fill,
-    problem::DiscretizationType discretization) const {
+    problem::DiscretizationType discretization_type) const {
 
   AssertThrow(dof_handler_.has_active_dofs(),
               dealii::ExcMessage("SetUpDOF must be called before MatrixParameters are generated"));              
@@ -93,6 +134,7 @@ int Definition<dim>::total_degrees_of_freedom() const {
 
 template class Definition<1>;
 template class Definition<2>;
+template class Definition<3>;
 
 } // namespace bart
 
