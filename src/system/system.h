@@ -26,7 +26,14 @@ struct System {
   std::unique_ptr<system::moments::SphericalHarmonicI> previous_moments = nullptr;
   //! System k_effective
   std::optional<double> k_effective = std::nullopt;
+  //! Total system groups
+  int total_groups = 0;
+  //! Total system angles
+  int total_angles = 0;
 };
+
+/* TODO(Josh): Make system validation check to make sure angles/groups check,
+ * add max harmonic_l to the system */
 
 } // namespace system
 
