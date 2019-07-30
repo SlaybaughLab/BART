@@ -1,5 +1,6 @@
 #include "domain/definition.h"
 
+#include <cmath>
 #include <functional>
 #include <memory>
 
@@ -9,6 +10,7 @@
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/grid/grid_generator.h>
 
+#include "data/matrix_parameters.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "domain/tests/mesh_mock.h"
 #include "domain/tests/finite_element_mock.h"
@@ -80,7 +82,11 @@ class DOFTest : public DefinitionTest<DimensionWrapper> {
   void SetUp() override;
   static void SetTriangulation(dealii::Triangulation<dim> &to_fill) {
     dealii::GridGenerator::hyper_cube(to_fill, -1, 1);
-    to_fill.refine_global(2);
+    if (dim == 1) {
+      to_fill.refine_global(4);
+    } else {
+      to_fill.refine_global(2);
+    }
   }
 };
 
@@ -91,24 +97,34 @@ void DOFTest<DimensionWrapper>::SetUp() {
   DefinitionTest<DimensionWrapper>::SetUp();
 }
 
-TYPED_TEST(DOFTest, SetUpDOFTest) {
+TYPED_TEST(DOFTest, SetUpDOFTestMPI) {
   EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
       WillOnce(::testing::Return(true));
   EXPECT_CALL(*this->nice_mesh_ptr, FillTriangulation(_))
       .WillOnce(::testing::Invoke(this->SetTriangulation));
   EXPECT_CALL(*this->fe_ptr, finite_element())
       .WillOnce(::testing::Return(&this->fe));
-  EXPECT_CALL(*this->fe_ptr, dofs_per_cell())
-      .Times(2)
-      .WillRepeatedly(::testing::Return(4));
 
   bart::domain::Definition<this->dim> test_domain(std::move(this->nice_mesh_ptr),
                                                   this->fe_ptr);
   test_domain.SetUpMesh();
   test_domain.SetUpDOF();
 
-  EXPECT_EQ(test_domain.total_degrees_of_freedom(), 25);
-  EXPECT_EQ(test_domain.Cells().size(), 16);
+  EXPECT_EQ(test_domain.total_degrees_of_freedom(),
+            test_domain.dof_handler().n_dofs());
+
+  int total_cells = 0;
+  for (auto cell = test_domain.dof_handler().begin_active();
+       cell != test_domain.dof_handler().end(); ++cell) {
+    if (cell->is_locally_owned())
+      ++total_cells;
+  }
+
+  EXPECT_EQ(test_domain.Cells().size(), total_cells);
+
+  EXPECT_CALL(*this->fe_ptr, dofs_per_cell())
+      .Times(2)
+      .WillRepeatedly(::testing::Return(4));
 
   auto matrix = test_domain.GetCellMatrix();
   EXPECT_EQ(matrix.n_rows(), 4);
@@ -116,8 +132,27 @@ TYPED_TEST(DOFTest, SetUpDOFTest) {
 
   auto vector = test_domain.GetCellVector();
   EXPECT_EQ(vector.size(), 4);
+}
 
+TYPED_TEST(DOFTest, MatrixParametersMPI) {
+  EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
+      WillOnce(::testing::Return(true));
+  EXPECT_CALL(*this->nice_mesh_ptr, FillTriangulation(_))
+      .WillOnce(::testing::Invoke(this->SetTriangulation));
+  EXPECT_CALL(*this->fe_ptr, finite_element())
+      .WillOnce(::testing::Return(&this->fe));
 
+  bart::domain::Definition<this->dim> test_domain(std::move(this->nice_mesh_ptr),
+                                                  this->fe_ptr);
+  test_domain.SetUpMesh();
+  test_domain.SetUpDOF();
+
+  bart::data::MatrixParameters test_parameters;
+  test_domain.FillMatrixParameters(test_parameters,
+      bart::problem::DiscretizationType::kContinuousFEM);
+
+  EXPECT_EQ(test_parameters.rows, test_domain.locally_owned_dofs());
+  EXPECT_EQ(test_parameters.columns, test_domain.locally_owned_dofs());
 }
 
 } // namespace
