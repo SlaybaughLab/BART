@@ -35,6 +35,8 @@ class OuterIteration : public OuterIterationI {
   }
 
  protected:
+  virtual convergence::Status CheckConvergence(system::System &system) = 0;
+
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::shared_ptr<SourceUpdater> source_updater_ptr_ = nullptr;
 };

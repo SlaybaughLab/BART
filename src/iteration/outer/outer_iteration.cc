@@ -29,6 +29,12 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
     system::System &system) {
   const int total_groups = system.total_groups;
   const int total_angles = system.total_angles;
+
+  convergence::Status convergence_status;
+
+  do {
+    convergence_status = CheckConvergence(system);
+  } while (!convergence_status.is_complete);
 }
 
 template class OuterIteration<double>;

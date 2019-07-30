@@ -11,7 +11,8 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::Ref;
+using ::testing::Expectation;
+using ::testing::Ref, ::testing::Return, ::testing::_;
 
 template <typename DimensionWrapper>
 class IterationOuterPowerIterationTest : public ::testing::Test {
@@ -93,6 +94,18 @@ TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
 //          .Times(this->iterations_);
     }
   }
+
+  convergence::Status bad_convergence;
+  convergence::Status good_convergence;
+  good_convergence.is_complete = true;
+
+  Expectation iterations =
+      EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_,_))
+      .Times(this->iterations_ - 1)
+      .WillRepeatedly(Return(bad_convergence));
+  EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_,_))
+  .After(iterations)
+  .WillOnce(Return(good_convergence));
 
   this->test_iterator->IterateToConvergence(this->test_system);
 }

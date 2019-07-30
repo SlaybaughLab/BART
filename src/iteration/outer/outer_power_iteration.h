@@ -18,7 +18,8 @@ class OuterPowerIteration : public OuterIteration<double> {
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       const std::shared_ptr<SourceUpdater> &source_updater_ptr);
   virtual ~OuterPowerIteration() = default;
-
+ protected:
+  convergence::Status CheckConvergence(system::System &system) override;
 };
 
 } // namespace outer

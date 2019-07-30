@@ -12,6 +12,12 @@ OuterPowerIteration::OuterPowerIteration(
     : OuterIteration(
         std::move(convergence_checker_ptr),
         source_updater_ptr) {}
+convergence::Status OuterPowerIteration::CheckConvergence(system::System &system) {
+  double k_effective_last = 0.0;
+  double k_effective_current = 0.0;
+  return convergence_checker_ptr_->CheckFinalConvergence(
+      k_effective_current, k_effective_last);
+}
 
 } // namespace outer
 
