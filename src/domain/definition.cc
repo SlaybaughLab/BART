@@ -67,8 +67,7 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
 }
 
 template <>
-Definition<1>& Definition<1>::SetUpDOF(
-    problem::DiscretizationType) {
+Definition<1>& Definition<1>::SetUpDOF() {
   auto n_mpi_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
@@ -105,9 +104,10 @@ void Definition<dim>::FillMatrixParameters(
   to_fill.rows = locally_owned_dofs_;
   to_fill.columns = locally_owned_dofs_;
 
-  dealii::DynamicSparsityPattern dsp(locally_relevant_dofs_);
+  dealii::DynamicSparsityPattern dsp(dof_handler_.n_dofs(),
+                                     dof_handler_.n_dofs());
 
-  if (discretization ==  problem::DiscretizationType::kDiscontinuousFEM) {
+  if (discretization_type ==  problem::DiscretizationType::kDiscontinuousFEM) {
     dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dsp,
                                                  constraint_matrix_, false);
   } else {
@@ -115,13 +115,8 @@ void Definition<dim>::FillMatrixParameters(
                                             constraint_matrix_, false);
   }
 
-  auto locally_owned_per_proc =
-      dof_handler_.n_locally_owned_dofs_per_processor();
-  
-  dealii::SparsityTools::distribute_sparsity_pattern(dsp,
-                                                     locally_owned_per_proc,
-                                                     MPI_COMM_WORLD,
-                                                     locally_relevant_dofs_);
+  constraint_matrix_.condense(dsp);
+
   to_fill.sparsity_pattern.copy_from(dsp);
 }
 
