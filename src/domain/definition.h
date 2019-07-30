@@ -19,6 +19,25 @@ namespace bart {
 
 namespace domain {
 
+/*! This struct provides the type of the triangulation to use. For 2D and 3D we
+ * will use the built-in distributed triangulation, which handles distribution
+ * of the triangulation across processors. For the 1D case, we need to make a
+ * normal triangulation and use a separate function to distribute it. This is
+ * a product of the way dealii is coded.
+ */
+template <int dim>
+struct TriangulationType {
+  using type = dealii::parallel::distributed::Triangulation<dim>;
+};
+
+template <>
+struct TriangulationType<1> {
+  using type = dealii::Triangulation<1>;
+};
+
+template struct TriangulationType<2>;
+template struct TriangulationType<3>;
+
 /*! \brief Defines a domain that couples a cartesian mesh with a finite element basis.
  *
  * This class provides the framework on which the domain can be solved. The
@@ -85,8 +104,19 @@ class Definition : public DefinitionI<dim> {
 
   /*! Get total degrees of freedom */
   int total_degrees_of_freedom() const override ;
+
+  /*! Get locally owned degrees of freedom */
+  dealii::IndexSet locally_owned_dofs() const {
+    return locally_owned_dofs_;
+  }
+
+  /*! Get internal DOF object */
+  const dealii::DoFHandler<dim>& dof_handler() const {
+    return dof_handler_;
+  }
   
  private:
+
   //! Internal owned mesh object.
   std::unique_ptr<domain::MeshI<dim>> mesh_;
   
@@ -94,7 +124,7 @@ class Definition : public DefinitionI<dim> {
   std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
 
   //! Internal distributed triangulation object
-  dealii::parallel::distributed::Triangulation<dim> triangulation_;
+  typename TriangulationType<dim>::type triangulation_;
 
   //! Internal DoFHandler object
   dealii::DoFHandler<dim> dof_handler_;
