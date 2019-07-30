@@ -89,9 +89,9 @@ TYPED_TEST(IterationOuterPowerIterationTest, ConstructorErrors) {
 TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   for (int group = 0; group < this->total_groups; ++group) {
     for (int angle = 0; angle < this->total_angles; ++angle) {
-//      EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(
-//          Ref(this->test_system),group, angle))
-//          .Times(this->iterations_);
+      EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(
+          Ref(this->test_system),group, angle))
+          .Times(this->iterations_ - 1);
     }
   }
 

@@ -20,6 +20,7 @@ class OuterPowerIteration : public OuterIteration<double> {
   virtual ~OuterPowerIteration() = default;
  protected:
   convergence::Status CheckConvergence(system::System &system) override;
+  void UpdateSystem(system::System &system, const int group, const int angle) override;
 };
 
 } // namespace outer

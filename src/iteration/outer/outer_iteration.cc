@@ -34,6 +34,14 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
 
   do {
     convergence_status = CheckConvergence(system);
+
+    if (!convergence_status.is_complete) {
+      for (int group = 0; group < total_groups; ++group) {
+        for (int angle = 0; angle < total_angles; ++angle) {
+          UpdateSystem(system, group, angle);
+        }
+      }
+    }
   } while (!convergence_status.is_complete);
 }
 

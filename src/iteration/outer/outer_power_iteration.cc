@@ -18,6 +18,10 @@ convergence::Status OuterPowerIteration::CheckConvergence(system::System &system
   return convergence_checker_ptr_->CheckFinalConvergence(
       k_effective_current, k_effective_last);
 }
+void OuterPowerIteration::UpdateSystem(system::System &system, const int group,
+    const int angle) {
+  source_updater_ptr_->UpdateFissionSource(system, group, angle);
+}
 
 } // namespace outer
 
