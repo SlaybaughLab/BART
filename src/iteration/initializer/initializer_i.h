@@ -1,13 +1,9 @@
 #ifndef BART_SRC_ITERATION_INITIALIZER_INITIALIZER_I_H_
 #define BART_SRC_ITERATION_INITIALIZER_INITIALIZER_I_H_
 
+#include "system/system.h"
+
 namespace bart {
-
-namespace data {
-
-struct System;
-
-} // namespace data
 
 namespace iteration {
 
