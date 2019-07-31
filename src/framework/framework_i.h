@@ -8,6 +8,7 @@ namespace framework {
 class FrameworkI {
  public:
   virtual ~FrameworkI() = default;
+  virtual void SolveSystem() = 0;
 };
 
 } // namespace framework

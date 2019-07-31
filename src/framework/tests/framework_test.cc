@@ -8,6 +8,8 @@ namespace  {
 
 using namespace bart;
 
+using ::testing::Ref;
+
 class FrameworkTest : public ::testing::Test {
  public:
   using Framework = framework::Framework;
@@ -16,13 +18,21 @@ class FrameworkTest : public ::testing::Test {
 
   std::unique_ptr<Framework> test_framework_;
 
+  // Observation Pointers
+  system::System* system_obs_ptr_;
+  Initializer* initializer_obs_ptr_;
+  OuterIterator* outer_iterator_obs_ptr_;
+
   void SetUp() override;
 };
 
 void FrameworkTest::SetUp() {
   auto system_ptr = std::make_unique<system::System>();
+  system_obs_ptr_ = system_ptr.get();
   auto initializer_ptr = std::make_unique<Initializer>();
+  initializer_obs_ptr_ = initializer_ptr.get();
   auto outer_iterator_ptr = std::make_unique<OuterIterator>();
+  outer_iterator_obs_ptr_ = outer_iterator_ptr.get();
 
   test_framework_ = std::make_unique<Framework>(
       std::move(system_ptr),
@@ -53,6 +63,15 @@ TEST_F(FrameworkTest, ConstructorThrows) {
                        );
     });
   }
+}
+
+TEST_F(FrameworkTest, SolveSystem) {
+  auto& system = *system_obs_ptr_;
+
+  EXPECT_CALL(*initializer_obs_ptr_, Initialize(Ref(system)));
+  EXPECT_CALL(*outer_iterator_obs_ptr_, IterateToConvergence(Ref(system)));
+
+  test_framework_->SolveSystem();
 }
 
 

@@ -24,6 +24,11 @@ Framework::Framework(
 
 }
 
+void Framework::SolveSystem() {
+  initializer_ptr_->Initialize(*system_ptr_);
+  outer_iterator_ptr_->IterateToConvergence(*system_ptr_);
+}
+
 } // namespace framework
 
 } // namespace bart

@@ -23,6 +23,8 @@ class Framework : public FrameworkI {
       std::unique_ptr<OuterIterator> outer_iterator_ptr);
   virtual ~Framework() = default;
 
+  void SolveSystem() override;
+
   Initializer* initializer_ptr() const {
     return initializer_ptr_.get();
   }
