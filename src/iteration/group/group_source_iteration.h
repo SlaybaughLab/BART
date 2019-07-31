@@ -23,7 +23,7 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       std::shared_ptr<GroupSolution> group_solution_ptr,
-      std::unique_ptr<SourceUpdater> source_updater_ptr);
+      const std::shared_ptr<SourceUpdater> &source_updater_ptr);
   virtual ~GroupSourceIteration() = default;
 
  protected:

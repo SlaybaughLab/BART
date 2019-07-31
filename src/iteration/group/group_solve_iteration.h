@@ -31,7 +31,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       std::shared_ptr<GroupSolution> group_solution_ptr,
-      std::unique_ptr<SourceUpdater> source_updater_ptr);
+      std::shared_ptr<SourceUpdater> source_updater_ptr);
   virtual ~GroupSolveIteration() = default;
 
   void Iterate(system::System &system) override;
@@ -72,7 +72,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
-  std::unique_ptr<SourceUpdater> source_updater_ptr_ = nullptr;
+  std::shared_ptr<SourceUpdater> source_updater_ptr_ = nullptr;
 };
 
 } // namespace group

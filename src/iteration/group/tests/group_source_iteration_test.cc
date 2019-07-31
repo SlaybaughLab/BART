@@ -51,7 +51,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
   std::shared_ptr<GroupSolution> group_solution_ptr_;
-  std::unique_ptr<SourceUpdater> source_updater_ptr_;
+  std::shared_ptr<SourceUpdater> source_updater_ptr_;
 
   // Supporting objects
   system::System test_system;
@@ -77,7 +77,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   moment_calculator_ptr_ = std::make_unique<MomentCalculator>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr_.get();
   group_solution_ptr_ = std::make_shared<GroupSolution>();
-  source_updater_ptr_ = std::make_unique<SourceUpdater>();
+  source_updater_ptr_ = std::make_shared<SourceUpdater>();
   source_updater_obs_ptr_ = source_updater_ptr_.get();
 
   test_system.current_moments = std::make_unique<Moments>();
@@ -88,7 +88,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       std::move(convergence_checker_ptr_),
       std::move(moment_calculator_ptr_),
       group_solution_ptr_,
-      std::move(source_updater_ptr_)
+      source_updater_ptr_
       );
 }
 
