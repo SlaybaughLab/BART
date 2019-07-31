@@ -29,12 +29,13 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
   system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
 
   if (reporter_ptr_ != nullptr)
-    reporter_ptr_->Report("..Inner iterations");
+    reporter_ptr_->Report("..Inner group iteration\n");
 
   for (int group = 0; group < total_groups; ++group) {
     if (reporter_ptr_ != nullptr) {
       std::string report{"....Group: "};
       report += std::to_string(group);
+      report += "\n";
       reporter_ptr_->Report(report);
     }
 
