@@ -42,6 +42,7 @@ class OuterIteration : public OuterIterationI {
   }
 
  protected:
+  virtual void InnerIterationToConvergence(system::System &system);
   virtual convergence::Status CheckConvergence(system::System &system) = 0;
   virtual void UpdateSystem(system::System& system, const int group,
                             const int angle) = 0;

@@ -39,6 +39,9 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
   convergence::Status convergence_status;
 
   do {
+
+    InnerIterationToConvergence(system);
+
     convergence_status = CheckConvergence(system);
 
     if (!convergence_status.is_complete) {
@@ -49,6 +52,12 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
       }
     }
   } while (!convergence_status.is_complete);
+}
+
+template <typename ConvergenceType>
+void OuterIteration<ConvergenceType>::InnerIterationToConvergence(
+    system::System &system) {
+  group_iterator_ptr_->Iterate(system);
 }
 
 template class OuterIteration<double>;

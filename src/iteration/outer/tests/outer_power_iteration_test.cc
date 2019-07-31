@@ -135,6 +135,9 @@ TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
             .WillOnce(Return(convergence_status));
   }
 
+  EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system)))
+      .Times(this->iterations_);
+
   this->test_iterator->IterateToConvergence(this->test_system);
 }
 
