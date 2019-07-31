@@ -42,6 +42,14 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
 
   do {
 
+    if (!convergence_status.is_complete) {
+      for (int group = 0; group < total_groups; ++group) {
+        for (int angle = 0; angle < total_angles; ++angle) {
+          UpdateSystem(system, group, angle);
+        }
+      }
+    }
+
     InnerIterationToConvergence(system);
 
     convergence_status = CheckConvergence(system);
@@ -51,13 +59,6 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
       reporter_ptr_->Report(convergence_status);
     }
 
-    if (!convergence_status.is_complete) {
-      for (int group = 0; group < total_groups; ++group) {
-        for (int angle = 0; angle < total_angles; ++angle) {
-          UpdateSystem(system, group, angle);
-        }
-      }
-    }
   } while (!convergence_status.is_complete);
 }
 

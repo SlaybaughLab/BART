@@ -110,7 +110,7 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     for (int angle = 0; angle < this->total_angles; ++angle) {
       EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(
           Ref(this->test_system),group, angle))
-          .Times(this->iterations_ - 1);
+          .Times(this->iterations_);
     }
   }
 
