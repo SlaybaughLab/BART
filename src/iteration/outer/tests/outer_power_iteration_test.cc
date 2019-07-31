@@ -17,10 +17,8 @@ using namespace bart;
 using ::testing::A, ::testing::AtLeast, ::testing::Expectation;
 using ::testing::Ref, ::testing::Return, ::testing::Sequence, ::testing::_;
 
-template <typename DimensionWrapper>
 class IterationOuterPowerIterationTest : public ::testing::Test {
  protected:
-  static constexpr int dim = DimensionWrapper::value;
   using GroupIterator = iteration::group::GroupSolveIterationMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<double>;
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
@@ -50,8 +48,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   void SetUp() override;
 };
 
-template <typename DimensionWrapper>
-void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
+void IterationOuterPowerIterationTest::SetUp() {
   // Dependencies
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
   auto group_iterator_ptr = std::make_unique<GroupIterator>();
@@ -76,10 +73,7 @@ void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
       );
 }
 
-
-TYPED_TEST_CASE(IterationOuterPowerIterationTest, bart::testing::AllDimensions);
-
-TYPED_TEST(IterationOuterPowerIterationTest, Constructor) {
+TEST_F(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator, nullptr);
   EXPECT_NE(this->test_iterator->group_iterator_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->source_updater_ptr(), nullptr);
@@ -89,7 +83,7 @@ TYPED_TEST(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_EQ(this->source_updater_ptr_.use_count(), 2);
 }
 
-TYPED_TEST(IterationOuterPowerIterationTest, ConstructorErrors) {
+TEST_F(IterationOuterPowerIterationTest, ConstructorErrors) {
 
   for (int i = 0; i < 4; ++i) {
     auto convergence_checker_ptr = (i == 0) ? nullptr :
@@ -110,7 +104,7 @@ TYPED_TEST(IterationOuterPowerIterationTest, ConstructorErrors) {
   }
 }
 
-TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
+TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
 
   for (int group = 0; group < this->total_groups; ++group) {
     for (int angle = 0; angle < this->total_angles; ++angle) {
