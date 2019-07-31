@@ -17,6 +17,7 @@ class OuterPowerIteration : public OuterIteration<double> {
   using OuterIteration<double>::SourceUpdater;
 
   OuterPowerIteration(
+      std::unique_ptr<GroupIterator> group_iterator_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr,
       const std::shared_ptr<SourceUpdater> &source_updater_ptr);

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "iteration/updater/tests/source_updater_mock.h"
@@ -19,6 +20,7 @@ template <typename DimensionWrapper>
 class IterationOuterPowerIterationTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
+  using GroupIterator = iteration::group::GroupSolveIterationMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<double>;
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
@@ -33,6 +35,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   system::System test_system;
 
   // Observation pointers
+  GroupIterator* group_iterator_obs_ptr_;
   ConvergenceChecker* convergence_checker_obs_ptr_;
   K_EffectiveUpdater* k_effective_updater_obs_ptr_;
 
@@ -48,6 +51,8 @@ template <typename DimensionWrapper>
 void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
   // Dependencies
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
+  auto group_iterator_ptr = std::make_unique<GroupIterator>();
+  group_iterator_obs_ptr_ = group_iterator_ptr.get();
   auto convergenge_checker_ptr = std::make_unique<ConvergenceChecker>();
   convergence_checker_obs_ptr_ = convergenge_checker_ptr.get();
   auto k_effective_updater_ptr = std::make_unique<K_EffectiveUpdater>();
@@ -59,6 +64,7 @@ void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
 
   // Construct test object
   test_iterator = std::make_unique<OuterPowerIteration>(
+      std::move(group_iterator_ptr),
       std::move(convergenge_checker_ptr),
       std::move(k_effective_updater_ptr),
       source_updater_ptr_
@@ -70,6 +76,7 @@ TYPED_TEST_CASE(IterationOuterPowerIterationTest, bart::testing::AllDimensions);
 
 TYPED_TEST(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator, nullptr);
+  EXPECT_NE(this->test_iterator->group_iterator_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->source_updater_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->convergence_checker_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->k_effective_updater_ptr(), nullptr);
@@ -78,15 +85,18 @@ TYPED_TEST(IterationOuterPowerIterationTest, Constructor) {
 
 TYPED_TEST(IterationOuterPowerIterationTest, ConstructorErrors) {
 
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 4; ++i) {
     auto convergence_checker_ptr = (i == 0) ? nullptr :
         std::make_unique<convergence::FinalCheckerMock<double>>();
     auto k_effective_updater_ptr = (i == 1) ? nullptr :
         std::make_unique<eigenvalue::k_effective::K_EffectiveUpdaterMock>();
     auto source_updater_ptr = (i == 2) ? nullptr : this->source_updater_ptr_;
+    auto group_iterator_ptr = (i == 3) ? nullptr :
+        std::make_unique<iteration::group::GroupSolveIterationMock>();
 
     EXPECT_ANY_THROW({
                        iteration::outer::OuterPowerIteration test_iterator(
+                           std::move(group_iterator_ptr),
                            std::move(convergence_checker_ptr),
                            std::move(k_effective_updater_ptr),
                            source_updater_ptr);

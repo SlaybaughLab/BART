@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "convergence/final_i.h"
+#include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.h"
 #include "iteration/updater/source_updater_i.h"
 
@@ -17,14 +18,20 @@ namespace outer {
 template <typename ConvergenceType>
 class OuterIteration : public OuterIterationI {
  public:
+  using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
 
   OuterIteration(
+      std::unique_ptr<GroupIterator> group_iterator_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       const std::shared_ptr<SourceUpdater> &source_updater_ptr);
   virtual ~OuterIteration() = default;
   virtual void IterateToConvergence(system::System &system);
+
+  GroupIterator* group_iterator_ptr() const {
+    return group_iterator_ptr_.get();
+  }
 
   ConvergenceChecker* convergence_checker_ptr() const {
     return convergence_checker_ptr_.get();
@@ -39,6 +46,7 @@ class OuterIteration : public OuterIterationI {
   virtual void UpdateSystem(system::System& system, const int group,
                             const int angle) = 0;
 
+  std::unique_ptr<GroupIterator> group_iterator_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::shared_ptr<SourceUpdater> source_updater_ptr_ = nullptr;
 };
