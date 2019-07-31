@@ -122,6 +122,31 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_NE(nullptr, this->test_iterator_ptr_->reporter_ptr());
 }
 
+TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrows) {
+  for (int i = 0; i < 5; ++i) {
+    auto group_solver_ptr = (i == 0) ? nullptr :
+        std::make_unique<solver::group::SingleGroupSolverMock>();
+    auto convergence_checker_ptr = (i == 1) ? nullptr :
+        std::make_unique<convergence::FinalCheckerMock<system::moments::MomentVector>>();
+    auto moment_calculator_ptr = (i == 2) ? nullptr :
+        std::make_unique<quadrature::calculators::SphericalHarmonicMomentsMock<this->dim>>();
+    auto group_solution_ptr = (i == 3) ? nullptr :
+        this->group_solution_ptr_;
+    auto source_updater_ptr = (i == 4) ? nullptr :
+        this->source_updater_ptr_;
+    EXPECT_ANY_THROW({
+      iteration::group::GroupSourceIteration<this->dim> test_iteration(
+          std::move(group_solver_ptr),
+          std::move(convergence_checker_ptr),
+          std::move(moment_calculator_ptr),
+          group_solution_ptr,
+          source_updater_ptr
+          );
+    });
+  }
+}
+
+
 template <typename DimensionWrapper>
 class IterationGroupSourceSystemSolvingTest :
     public IterationGroupSourceIterationTest<DimensionWrapper> {

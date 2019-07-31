@@ -19,8 +19,27 @@ GroupSolveIteration<dim>::GroupSolveIteration(
       moment_calculator_ptr_(std::move(moment_calculator_ptr)),
       group_solution_ptr_(group_solution_ptr),
       source_updater_ptr_(source_updater_ptr),
-      reporter_ptr_(reporter_ptr)
-{}
+      reporter_ptr_(reporter_ptr) {
+
+  AssertThrow(group_solver_ptr_ != nullptr,
+              dealii::ExcMessage("Group solver pointer passed to "
+                                 "GroupSolveIteration constructor is null"));
+  AssertThrow(convergence_checker_ptr_ != nullptr,
+              dealii::ExcMessage("Convergence checker pointer passed to "
+                                 "GroupSolveIteration constructor is null"));
+  AssertThrow(moment_calculator_ptr_ != nullptr,
+              dealii::ExcMessage("Moment calculator pointer passed to "
+                                 "GroupSolveIteration constructor is null"));
+  AssertThrow(group_solution_ptr_ != nullptr,
+              dealii::ExcMessage("Group solution pointer passed to "
+                                 "GroupSolveIteration constructor is null"));
+  AssertThrow(source_updater_ptr_ != nullptr,
+              dealii::ExcMessage("Source updater pointer passed to "
+                                 "GroupSolveIteration constructor is null"));
+
+
+}
+
 template<int dim>
 void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
