@@ -2,6 +2,7 @@
 #define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_H_
 
 #include "convergence/final_i.h"
+#include "convergence/reporter/mpi_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/updater/source_updater_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
@@ -25,13 +26,15 @@ class GroupSolveIteration : public GroupSolveIterationI {
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI<dim>;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
+  using Reporter = convergence::reporter::MpiI;
 
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
-      std::shared_ptr<GroupSolution> group_solution_ptr,
-      std::shared_ptr<SourceUpdater> source_updater_ptr);
+      const std::shared_ptr<GroupSolution> &group_solution_ptr,
+      const std::shared_ptr<SourceUpdater> &source_updater_ptr,
+      const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
   virtual ~GroupSolveIteration() = default;
 
   void Iterate(system::System &system) override;
@@ -56,6 +59,10 @@ class GroupSolveIteration : public GroupSolveIterationI {
     return source_updater_ptr_.get();
   }
 
+  Reporter* reporter_ptr() const {
+    return reporter_ptr_.get();
+  }
+
  protected:
 
   virtual void SolveGroup(const int group, system::System &system);
@@ -73,6 +80,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
   std::shared_ptr<SourceUpdater> source_updater_ptr_ = nullptr;
+  std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
 };
 
 } // namespace group

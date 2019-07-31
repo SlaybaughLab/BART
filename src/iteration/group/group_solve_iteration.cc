@@ -11,13 +11,15 @@ GroupSolveIteration<dim>::GroupSolveIteration(
     std::unique_ptr<GroupSolver> group_solver_ptr,
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
-    std::shared_ptr<GroupSolution> group_solution_ptr,
-    std::shared_ptr<SourceUpdater> source_updater_ptr)
+    const std::shared_ptr<GroupSolution> &group_solution_ptr,
+    const std::shared_ptr<SourceUpdater> &source_updater_ptr,
+    const std::shared_ptr<Reporter> &reporter_ptr)
     : group_solver_ptr_(std::move(group_solver_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)),
       moment_calculator_ptr_(std::move(moment_calculator_ptr)),
       group_solution_ptr_(group_solution_ptr),
-      source_updater_ptr_(source_updater_ptr)
+      source_updater_ptr_(source_updater_ptr),
+      reporter_ptr_(reporter_ptr)
 {}
 template<int dim>
 void GroupSolveIteration<dim>::Iterate(system::System &system) {
@@ -26,7 +28,16 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
   const int total_angles = group_solution_ptr_->total_angles();
   system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
 
+  if (reporter_ptr_ != nullptr)
+    reporter_ptr_->Report("..Inner iterations");
+
   for (int group = 0; group < total_groups; ++group) {
+    if (reporter_ptr_ != nullptr) {
+      std::string report{"....Group: "};
+      report += std::to_string(group);
+      reporter_ptr_->Report(report);
+    }
+
     convergence::Status convergence_status;
     convergence_checker_ptr_->Reset();
     do {
@@ -43,6 +54,9 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
       convergence_status = CheckConvergence(current_scalar_flux,
                                             previous_scalar_flux);
+
+      if (reporter_ptr_ != nullptr)
+        reporter_ptr_->Report(convergence_status);
 
       if (!convergence_status.is_complete) {
         for (int angle = 0; angle < total_angles; ++angle)

@@ -11,6 +11,7 @@
 #include "iteration/updater/tests/source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
+#include "convergence/reporter/tests/mpi_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
@@ -27,6 +28,7 @@ using ::testing::ReturnRef;
 using ::testing::Sequence, ::testing::_;
 using ::testing::InvokeWithoutArgs;
 using ::testing::Unused;
+using ::testing::A;
 
 template <typename DimensionWrapper>
 class IterationGroupSourceIterationTest : public ::testing::Test {
@@ -40,6 +42,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using SourceUpdater = iteration::updater::SourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
+  using Reporter = convergence::reporter::MpiMock;
 
   virtual ~IterationGroupSourceIterationTest() = default;
 
@@ -52,6 +55,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
   std::shared_ptr<GroupSolution> group_solution_ptr_;
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
+  std::shared_ptr<Reporter> reporter_ptr_;
 
   // Supporting objects
   system::System test_system;
@@ -79,6 +83,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   group_solution_ptr_ = std::make_shared<GroupSolution>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
   source_updater_obs_ptr_ = source_updater_ptr_.get();
+  reporter_ptr_ = std::make_shared<Reporter>();
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
@@ -88,8 +93,8 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       std::move(convergence_checker_ptr_),
       std::move(moment_calculator_ptr_),
       group_solution_ptr_,
-      source_updater_ptr_
-      );
+      source_updater_ptr_,
+      reporter_ptr_);
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
@@ -114,6 +119,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_EQ(this->group_solution_ptr_.get(),
             this->test_iterator_ptr_->group_solution_ptr().get());
   EXPECT_NE(nullptr, source_updater_test_ptr);
+  EXPECT_NE(nullptr, this->test_iterator_ptr_->reporter_ptr());
 }
 
 template <typename DimensionWrapper>
@@ -278,6 +284,11 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_, _))
   .Times(AtLeast(1))
   .WillRepeatedly(ReturnConvergence(this));
+
+  EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
+      .Times(AtLeast(1));
+  EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
+      .Times(AtLeast(1));
 
   EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
       .WillOnce(Return(this->total_groups));
