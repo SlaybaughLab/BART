@@ -13,7 +13,7 @@ namespace  {
 using namespace bart;
 
 using ::testing::Expectation;
-using ::testing::Ref, ::testing::Return, ::testing::_;
+using ::testing::Ref, ::testing::Return, ::testing::Sequence, ::testing::_;
 
 template <typename DimensionWrapper>
 class IterationOuterPowerIterationTest : public ::testing::Test {
@@ -39,7 +39,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   // Test parameters
   const int total_groups = 2;
   const int total_angles = 3;
-  const int iterations_ = 4;
+  static constexpr int iterations_ = 4;
 
   void SetUp() override;
 };
@@ -104,18 +104,26 @@ TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     }
   }
 
-  // Convergence Status
-  convergence::Status bad_convergence;
-  convergence::Status good_convergence;
-  good_convergence.is_complete = true;
+  // K_Effective updater return values
+  std::array<double, this->iterations_ + 1> k_effective_by_iteration;
+  Sequence k_effective_calls;
 
-  Expectation iterations =
-      EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_,_))
-      .Times(this->iterations_ - 1)
-      .WillRepeatedly(Return(bad_convergence));
-  EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_,_))
-      .After(iterations)
-      .WillOnce(Return(good_convergence));
+  for (int i = 0; i < this->iterations_; ++i) {
+    k_effective_by_iteration.at(i + 1) = i * 1.5;
+
+    EXPECT_CALL(*this->k_effective_updater_obs_ptr_,
+                CalculateK_Effective(Ref(this->test_system)))
+                .InSequence(k_effective_calls)
+                .WillOnce(Return(k_effective_by_iteration.at(i + 1)));
+
+    convergence::Status convergence_status;
+    convergence_status.is_complete = (i == (this->iterations_ - 1));
+
+    EXPECT_CALL(*this->convergence_checker_obs_ptr_,
+                CheckFinalConvergence(k_effective_by_iteration.at(i + 1),
+                                      k_effective_by_iteration.at(i)))
+            .WillOnce(Return(convergence_status));
+  }
 
   this->test_iterator->IterateToConvergence(this->test_system);
 }

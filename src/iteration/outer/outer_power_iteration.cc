@@ -20,10 +20,12 @@ OuterPowerIteration::OuterPowerIteration(
 }
 
 convergence::Status OuterPowerIteration::CheckConvergence(system::System &system) {
-  double k_effective_last = 0.0;
-  double k_effective_current = 0.0;
+
+  double k_effective_last = system.k_effective.value_or(0.0);
+  system.k_effective = k_effective_updater_ptr_->CalculateK_Effective(system);
+
   return convergence_checker_ptr_->CheckFinalConvergence(
-      k_effective_current, k_effective_last);
+      system.k_effective.value(), k_effective_last);
 }
 void OuterPowerIteration::UpdateSystem(system::System &system, const int group,
     const int angle) {
