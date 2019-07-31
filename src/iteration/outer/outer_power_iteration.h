@@ -15,12 +15,14 @@ class OuterPowerIteration : public OuterIteration<double> {
   using ConvergenceChecker = convergence::FinalI<double>;
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using OuterIteration<double>::SourceUpdater;
+  using OuterIteration<double>::Reporter;
 
   OuterPowerIteration(
       std::unique_ptr<GroupIterator> group_iterator_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr,
-      const std::shared_ptr<SourceUpdater> &source_updater_ptr);
+      const std::shared_ptr<SourceUpdater> &source_updater_ptr,
+      const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
   virtual ~OuterPowerIteration() = default;
 
   K_EffectiveUpdater* k_effective_updater_ptr() const {

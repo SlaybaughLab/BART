@@ -4,6 +4,7 @@
 
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
+#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "iteration/updater/tests/source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -13,7 +14,7 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::Expectation;
+using ::testing::A, ::testing::AtLeast, ::testing::Expectation;
 using ::testing::Ref, ::testing::Return, ::testing::Sequence, ::testing::_;
 
 template <typename DimensionWrapper>
@@ -25,11 +26,13 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = iteration::updater::SourceUpdaterMock;
+  using Reporter = convergence::reporter::MpiMock;
 
   std::unique_ptr<OuterPowerIteration> test_iterator;
 
   // Dependencies
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
+  std::shared_ptr<Reporter> reporter_ptr_;
 
   // Supporting objects
   system::System test_system;
@@ -57,6 +60,7 @@ void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
   convergence_checker_obs_ptr_ = convergenge_checker_ptr.get();
   auto k_effective_updater_ptr = std::make_unique<K_EffectiveUpdater>();
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
+  reporter_ptr_ = std::make_shared<Reporter>();
 
   // Set up system
   test_system.total_angles = total_angles;
@@ -67,7 +71,8 @@ void IterationOuterPowerIterationTest<DimensionWrapper>::SetUp() {
       std::move(group_iterator_ptr),
       std::move(convergenge_checker_ptr),
       std::move(k_effective_updater_ptr),
-      source_updater_ptr_
+      source_updater_ptr_,
+      reporter_ptr_
       );
 }
 
@@ -80,6 +85,7 @@ TYPED_TEST(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator->source_updater_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->convergence_checker_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->k_effective_updater_ptr(), nullptr);
+  EXPECT_NE(this->test_iterator->reporter_ptr(), nullptr);
   EXPECT_EQ(this->source_updater_ptr_.use_count(), 2);
 }
 
@@ -137,6 +143,11 @@ TYPED_TEST(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
 
   EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system)))
       .Times(this->iterations_);
+
+  EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
+      .Times(this->iterations_);
+  EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
+      .Times(AtLeast(this->iterations_));
 
   this->test_iterator->IterateToConvergence(this->test_system);
 }
