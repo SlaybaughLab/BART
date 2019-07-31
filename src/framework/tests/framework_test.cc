@@ -37,5 +37,24 @@ TEST_F(FrameworkTest, Constructor) {
   EXPECT_NE(test_framework_->outer_iterator_ptr(), nullptr);
 }
 
+TEST_F(FrameworkTest, ConstructorThrows) {
+  for (int i = 0; i < 3; ++i) {
+    auto system_ptr = (i == 0) ? nullptr :
+        std::make_unique<system::System>();
+    auto initializer_ptr = (i == 1) ? nullptr :
+        std::make_unique<Initializer>();
+    auto outer_iterator_ptr = (i == 2) ? nullptr :
+        std::make_unique<OuterIterator>();
+    EXPECT_ANY_THROW({
+                       Framework test_framework(
+                           std::move(system_ptr),
+                           std::move(initializer_ptr),
+                           std::move(outer_iterator_ptr)
+                       );
+    });
+  }
+}
+
+
 
 } // namespace

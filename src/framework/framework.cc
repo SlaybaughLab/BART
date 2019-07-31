@@ -10,8 +10,19 @@ Framework::Framework(
     std::unique_ptr<OuterIterator> outer_iterator_ptr)
     : system_ptr_(std::move(system_ptr)),
       initializer_ptr_(std::move(initializer_ptr)),
-      outer_iterator_ptr_(std::move(outer_iterator_ptr))
-    {}
+      outer_iterator_ptr_(std::move(outer_iterator_ptr)) {
+
+  AssertThrow(system_ptr_ != nullptr,
+              dealii::ExcMessage("System pointer passed to "
+                                 "Framework constructor is null"));
+  AssertThrow(initializer_ptr_!= nullptr,
+              dealii::ExcMessage("Initializer pointer passed to "
+                                 "Framework constructor is null"));
+  AssertThrow(outer_iterator_ptr_ != nullptr,
+              dealii::ExcMessage("Outer iterator pointer passed to "
+                                 "Framework constructor is null"));
+
+}
 
 } // namespace framework
 
