@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "iteration/initializer/initializer_i.h"
 #include "system/system.h"
 #include "framework/framework_i.h"
 
@@ -12,8 +13,16 @@ namespace framework {
 
 class Framework : public FrameworkI {
  public:
-  Framework(std::unique_ptr<system::System> system_ptr);
+  using Initializer = iteration::initializer::InitializerI;
+
+  Framework(
+      std::unique_ptr<system::System> system_ptr,
+      std::unique_ptr<Initializer> initializer_ptr);
   virtual ~Framework() = default;
+
+  Initializer* initializer_ptr() const {
+    return initializer_ptr_.get();
+  }
 
   system::System* system() const {
     return system_ptr_.get();
@@ -21,6 +30,7 @@ class Framework : public FrameworkI {
 
  protected:
   std::unique_ptr<system::System> system_ptr_ = nullptr;
+  std::unique_ptr<Initializer> initializer_ptr_ = nullptr;
 
 };
 
