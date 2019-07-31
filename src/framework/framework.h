@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "iteration/outer/outer_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "system/system.h"
 #include "framework/framework_i.h"
@@ -14,10 +15,12 @@ namespace framework {
 class Framework : public FrameworkI {
  public:
   using Initializer = iteration::initializer::InitializerI;
+  using OuterIterator = iteration::outer::OuterIterationI;
 
   Framework(
       std::unique_ptr<system::System> system_ptr,
-      std::unique_ptr<Initializer> initializer_ptr);
+      std::unique_ptr<Initializer> initializer_ptr,
+      std::unique_ptr<OuterIterator> outer_iterator_ptr);
   virtual ~Framework() = default;
 
   Initializer* initializer_ptr() const {
@@ -28,10 +31,14 @@ class Framework : public FrameworkI {
     return system_ptr_.get();
   }
 
+  OuterIterator* outer_iterator_ptr() const {
+    return outer_iterator_ptr_.get();
+  }
+
  protected:
   std::unique_ptr<system::System> system_ptr_ = nullptr;
   std::unique_ptr<Initializer> initializer_ptr_ = nullptr;
-
+  std::unique_ptr<OuterIterator> outer_iterator_ptr_ = nullptr;
 };
 
 } // namespace framework
