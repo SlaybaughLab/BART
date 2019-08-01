@@ -160,6 +160,7 @@ int MeshCartesian<dim>::GetMaterialID(std::array<double, dim> location) {
 
 template class MeshCartesian<1>;
 template class MeshCartesian<2>;
+template class MeshCartesian<3>;
 
 } // namespace domain
 
