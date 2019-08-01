@@ -1,5 +1,6 @@
 #include "domain/mesh_cartesian.h"
 
+#include <sstream>
 #include <algorithm>
 #include <cstdlib>
 #include <numeric>
@@ -119,6 +120,73 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
     EXPECT_EQ(test_mesh.GetMaterialID(test_location), 1);
   }
 }
+
+class DomainMeshCartesianMappingTest : public ::testing::Test {};
+
+TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
+  std::vector<double> spatial_max{btest::RandomVector(1, 5, 20)};
+  std::vector<double> n_cells_double{btest::RandomVector(1, 5, 20)};
+  std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
+
+  domain::MeshCartesian<1> test_mesh(spatial_max, n_cells);
+
+  std::string material_mapping{"1 2"};
+
+  test_mesh.ParseMaterialMap(material_mapping);
+  EXPECT_TRUE(test_mesh.has_material_mapping());
+
+  std::array<std::array<double, 1>, 5> test_locations;
+
+  for (auto& location : test_locations) {
+    location.at(0) = btest::RandomDouble(0, spatial_max.at(0)/2);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1);
+    location.at(0) = btest::RandomDouble(spatial_max.at(0)/2, spatial_max.at(0));
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 2);
+  }
+
+}
+/*
+TEST_F(Dom, MultipleMaterialMapping) {
+  constexpr int dim = this->dim;
+  std::vector<double> spatial_max{btest::RandomVector(dim, 5, 20)};
+  std::vector<double> n_cells_double{btest::RandomVector(dim, 5, 20)};
+  std::vector<int> n_cells{n_cells_double.cbegin(),
+                           n_cells_double.cend()};
+
+  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+
+  std::ostringstream material_mapping_stream;
+  material_mapping_stream << "1 2";
+
+  if (dim > 1)
+    material_mapping_stream << "\n3 4";
+  if (dim == 3)
+    material_mapping_stream << "\n\n5 6\n7 8";
+
+  std::string material_mapping = material_mapping_stream.str();
+
+  test_mesh.ParseMaterialMap(material_mapping);
+  EXPECT_TRUE(test_mesh.has_material_mapping());
+
+  std::array<double, 3> x_locations{0, spatial_max.at(0)/2, spatial_max.at(0)};
+  std::array<double, 3> y_locations;
+  std::array<double, 3> z_locations;
+
+  switch (dim) {
+    case 3: {
+      z_locations = {0, spatial_max.at(2)/2, spatial_max.at(2)};
+      [[fallthrough]];
+    }
+    case 2: {
+      y_locations = {0, spatial_max.at(1)/2, spatial_max.at(1)};
+    }
+  }
+
+  if (dim == 1) {
+
+  }
+}
+*/
 
 
 
