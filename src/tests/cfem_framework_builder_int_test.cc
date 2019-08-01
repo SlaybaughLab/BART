@@ -22,6 +22,9 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
   FrameworkBuilder test_builder;
   ProblemParameters parameters;
 
+  // Test Parameters
+  const int polynomial_degree = 2;
+
   void SetUp() override;
 
 };
@@ -39,6 +42,8 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(n_cells));
   ON_CALL(parameters, SpatialMax())
       .WillByDefault(Return(spatial_max));
+  ON_CALL(parameters, FEPolynomialDegree())
+      .WillByDefault(Return(polynomial_degree));
 
 }
 
@@ -50,6 +55,8 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildStamperTest) {
   EXPECT_CALL(this->parameters, NCells())
       .WillOnce(DoDefault());
   EXPECT_CALL(this->parameters, SpatialMax())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(this->parameters, FEPolynomialDegree())
       .WillOnce(DoDefault());
 
   auto stamper_ptr =

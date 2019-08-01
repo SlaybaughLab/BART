@@ -1,5 +1,7 @@
 #include "framework/builder/cfem_framework_builder.h"
 
+#include "problem/parameter_types.h"
+#include "domain/finite_element_gaussian.h"
 #include "domain/mesh_cartesian.h"
 
 namespace bart {
@@ -17,6 +19,11 @@ std::shared_ptr<formulation::CFEMStamperI> CFEM_FrameworkBuilder<dim>::BuildStam
       problem_parameters->SpatialMax(),
       problem_parameters->NCells(),
       material_mapping
+      );
+
+  auto finite_element_ptr = std::make_unique<domain::FiniteElementGaussian<dim>>(
+      problem::DiscretizationType::kContinuousFEM,
+      problem_parameters->FEPolynomialDegree()
       );
 
 }
