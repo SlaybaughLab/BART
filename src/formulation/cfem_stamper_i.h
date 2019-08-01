@@ -3,6 +3,8 @@
 
 #include <unordered_set>
 
+#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
+
 #include "system/moments/spherical_harmonic_types.h"
 #include "formulation/stamper_i.h"
 #include "problem/parameter_types.h"
