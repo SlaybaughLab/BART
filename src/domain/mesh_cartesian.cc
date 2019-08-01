@@ -1,4 +1,4 @@
-#include "mesh_cartesian.h"
+#include "domain/mesh_cartesian.h"
 
 #include <algorithm>
 #include <cmath>
@@ -9,7 +9,7 @@
 #include <deal.II/base/tensor.h>
 #include <deal.II/base/utilities.h>
 
-#include "../problem/parameter_types.h"
+#include "problem/parameter_types.h"
 
 namespace bart {
 
@@ -57,23 +57,31 @@ void MeshCartesian<dim>::ParseMaterialMap(std::string material_mapping) {
   using dealii::Utilities::split_string_list;
   using dealii::Utilities::string_to_int;
   using StringVector = std::vector<std::string>;
-      
-  StringVector y_vector = split_string_list(material_mapping, "\n");
-  
-  std::reverse(y_vector.begin(), y_vector.end());
-    
-  for (int j = 0; j < static_cast<int>(y_vector.size()); ++j ) {
-      
-    StringVector x_vector = split_string_list(y_vector[j], " ");
-      
-    for (int i = 0; i < static_cast<int>(x_vector.size()); ++i ) {
-        
-      std::array<int, 2> location{i, j};
-      material_mapping_[location] = string_to_int(x_vector[i]);
+
+  StringVector z_blocks = split_string_list(material_mapping, "\n\n");
+
+  std::reverse(z_blocks.begin(), z_blocks.end());
+
+  for (unsigned k = 0; k < z_blocks.size(); ++k) {
+    StringVector y_line = split_string_list(z_blocks.at(k), "\n");
+    std::reverse(y_line.begin(), y_line.end());
+    for (unsigned j = 0; j < y_line.size(); ++j) {
+      StringVector x_positions = split_string_list(y_line.at(j), " ");
+      for (unsigned i = 0; i < x_positions.size(); ++i) {
+        std::array<unsigned, 3> index{i, j, k};
+        std::array<int, dim> location;
+        for (int dir = 0; dir < dim; ++dir)
+          location.at(dir) = index.at(dir);
+        material_mapping_[location] = string_to_int(x_positions.at(i));
+      }
+      n_material_cells_.at(0) = x_positions.size();
     }
-    n_material_cells_[0] = x_vector.size();
+    if (dim > 1)
+      n_material_cells_.at(1) = y_line.size();
   }
-  n_material_cells_[1] = y_vector.size();
+
+  if (dim > 2)
+    n_material_cells_.at(2) = z_blocks.size();
 }
 
 template <int dim>  
@@ -141,17 +149,17 @@ int MeshCartesian<dim>::GetMaterialID(dealii::Point<dim> location) {
   
 template <int dim>
 int MeshCartesian<dim>::GetMaterialID(std::array<double, dim> location) {
-  std::array<int, 2> relative_location{0, 0};
+  std::array<int, dim> relative_location;
 
   for (int i = 0; i < dim; ++i) {
-    double cell_size = spatial_max_[i]/n_material_cells_[i];
-    double cell_location = location[i] / cell_size;
+    double cell_size = spatial_max_.at(i)/n_material_cells_.at(i);
+    double cell_location = location.at(i) / cell_size;
     int cell_index = std::floor(cell_location);
 
     if (static_cast<double>(cell_index) == cell_location && cell_index != 0) {
-      relative_location[i] = cell_index - 1;
+      relative_location.at(i) = cell_index - 1;
     } else {
-      relative_location[i] = cell_index;         
+      relative_location.at(i) = cell_index;
     }
   }
   

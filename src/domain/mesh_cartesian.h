@@ -45,9 +45,9 @@ class MeshCartesian : public MeshI<dim> {
       
  private:
   std::array<double, dim> spatial_max_;
-  std::array<int, 2>    n_material_cells_;
+  std::array<int, dim>    n_material_cells_;
   std::array<int, dim>    n_cells_;
-  std::map<std::array<int, 2>, int> material_mapping_;
+  std::map<std::array<int, dim>, int> material_mapping_;
 };
 
 } // namespace domain

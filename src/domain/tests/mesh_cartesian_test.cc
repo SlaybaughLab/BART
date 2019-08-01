@@ -118,11 +118,8 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
     }
     EXPECT_EQ(test_mesh.GetMaterialID(test_location), 1);
   }
-
 }
 
-TYPED_TEST(DomainMeshCartesianTest, MultipleMaterialMapping) {
 
-}
 
 } // namespace
