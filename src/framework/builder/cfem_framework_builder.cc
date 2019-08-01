@@ -8,7 +8,8 @@ namespace builder {
 
 template <int dim>
 std::shared_ptr<formulation::CFEMStamperI> CFEM_FrameworkBuilder<dim>::BuildStamper(
-    problem::ParametersI *problem_parameters) {
+    problem::ParametersI *problem_parameters,
+    std::string material_mapping) {
 
 }
 

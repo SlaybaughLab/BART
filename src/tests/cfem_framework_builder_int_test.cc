@@ -26,7 +26,7 @@ TYPED_TEST_CASE(IntegrationTestCFEMFrameworkBuilder,
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildStamperTest) {
 
   auto stamper_ptr =
-      this->test_builder.BuildStamper(&this->parameters);
+      this->test_builder.BuildStamper(&this->parameters, "1 2");
 }
 
 } // namespace

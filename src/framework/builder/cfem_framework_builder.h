@@ -21,7 +21,8 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   virtual ~CFEM_FrameworkBuilder() = default;
 
   std::shared_ptr<formulation::CFEMStamperI> BuildStamper(
-      problem::ParametersI* problem_parameters);
+      problem::ParametersI* problem_parameters,
+      std::string material_mapping);
 };
 
 } // namespace builder
