@@ -105,8 +105,17 @@ void MeshCartesian<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
       for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
         auto face = cell->face(face_id);
         dealii::Point<dim> face_center = face->center();
-        //TODO(Josh) add 3D support
         switch (dim) {
+          case 3: {
+            if (std::fabs(face_center[2]) < zero_tol) {
+              face->set_boundary_id(static_cast<int>(Boundary::kZMin));
+              break;
+            } else if (std::fabs(face_center[2] - spatial_max_.at(2) < zero_tol)) {
+              face->set_boundary_id(static_cast<int>(Boundary::kZMax));
+              break;
+            }
+            [[fallthrough]];
+          }
           case 2: {
             if (std::fabs(face_center[1]) < zero_tol) {
               face->set_boundary_id(static_cast<int>(Boundary::kYMin));
