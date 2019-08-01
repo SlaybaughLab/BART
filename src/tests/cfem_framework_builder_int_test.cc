@@ -1,10 +1,13 @@
 #include "framework/builder/cfem_framework_builder.h"
 
+#include <functional>
+#include <numeric>
 #include <vector>
 
 #include <deal.II/fe/fe_q.h>
 
 #include "problem/tests/parameters_mock.h"
+#include "domain/definition.h"
 #include "domain/finite_element_gaussian.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -20,7 +23,7 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
   static constexpr int dim = DimensionWrapper::value;
 
   using FrameworkBuilder = framework::builder::CFEM_FrameworkBuilder<dim>;
-  using ProblemParameters = problem::ParametersMock;
+  using ProblemParameters = NiceMock<problem::ParametersMock>;
 
   FrameworkBuilder test_builder;
   ProblemParameters parameters;
@@ -29,6 +32,7 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
   const int polynomial_degree = 2;
   std::vector<double> spatial_max;
   std::vector<int> n_cells;
+  std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
 
   void SetUp() override;
 
@@ -72,17 +76,22 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFiniteElementTest) {
   EXPECT_NE(dealii_finite_element_ptr, nullptr);
 }
 
-TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildStamperTest) {
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDomainTest) {
+
+  auto finite_element_ptr =
+      this->test_builder.BuildFiniteElement(&this->parameters);
 
   EXPECT_CALL(this->parameters, NCells())
       .WillOnce(DoDefault());
   EXPECT_CALL(this->parameters, SpatialMax())
       .WillOnce(DoDefault());
-  EXPECT_CALL(this->parameters, FEPolynomialDegree())
-      .WillOnce(DoDefault());
 
-  auto stamper_ptr =
-      this->test_builder.BuildStamper(&this->parameters, "1 2");
+  auto test_domain_ptr =
+      this->test_builder.BuildDomain(
+          &this->parameters, finite_element_ptr, "1 1 2 2");
+
+  EXPECT_NE(dynamic_cast<domain::Definition<this->dim>*>(test_domain_ptr.get()),
+      nullptr);
 }
 
 } // namespace

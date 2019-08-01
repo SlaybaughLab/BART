@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "domain/definition_i.h"
 #include "domain/finite_element_i.h"
 #include "problem/parameters_i.h"
 #include "formulation/cfem_stamper_i.h"
@@ -18,6 +19,7 @@ namespace builder {
 template <int dim>
 class CFEM_FrameworkBuilder : public FrameworkBuilderI {
  public:
+  using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::FiniteElementI<dim>;
 
   CFEM_FrameworkBuilder() = default;
@@ -33,6 +35,11 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
    */
   std::shared_ptr<FiniteElement> BuildFiniteElement(
       problem::ParametersI* problem_parameters);
+
+  std::shared_ptr<Domain> BuildDomain(
+      problem::ParametersI* problem_parameters,
+      const std::shared_ptr<FiniteElement> &finite_element_ptr,
+      std::string material_mapping);
 
   std::shared_ptr<formulation::CFEMStamperI> BuildStamper(
       problem::ParametersI* problem_parameters,
