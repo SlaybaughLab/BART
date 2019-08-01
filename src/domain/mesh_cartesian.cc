@@ -110,7 +110,7 @@ void MeshCartesian<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
             if (std::fabs(face_center[2]) < zero_tol) {
               face->set_boundary_id(static_cast<int>(Boundary::kZMin));
               break;
-            } else if (std::fabs(face_center[2] - spatial_max_.at(2) < zero_tol)) {
+            } else if (std::fabs(face_center[2] - spatial_max_.at(2)) < zero_tol) {
               face->set_boundary_id(static_cast<int>(Boundary::kZMax));
               break;
             }
