@@ -153,6 +153,53 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
   EXPECT_EQ(test_mesh.GetMaterialID(midpoint), 1);
   EXPECT_EQ(test_mesh.GetMaterialID(endpoint), 2);
 }
+
+TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping2D) {
+  std::vector<double> spatial_max{btest::RandomVector(2, 5, 20)};
+  std::vector<double> n_cells_double{btest::RandomVector(2, 5, 20)};
+  std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
+
+  domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
+
+  std::string material_mapping{"1 2\n3 4"};
+  test_mesh.ParseMaterialMap(material_mapping);
+
+  double x_max = spatial_max.at(0), x_mid = spatial_max.at(0)/2;
+  double y_max = spatial_max.at(1), y_mid = spatial_max.at(1)/2;
+
+  EXPECT_TRUE(test_mesh.has_material_mapping());
+  // Inner locations
+  std::array<std::array<double, 2>, 5> test_locations;
+  for (auto& location : test_locations) {
+    location.at(0) = btest::RandomDouble(0, x_mid);
+    location.at(1) = btest::RandomDouble(0, y_mid);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 3);
+
+    location.at(0) = btest::RandomDouble(x_mid, x_max);
+    location.at(1) = btest::RandomDouble(0, y_mid);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 4);
+
+    location.at(0) = btest::RandomDouble(0, x_mid);
+    location.at(1) = btest::RandomDouble(y_mid, y_max);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1);
+
+    location.at(0) = btest::RandomDouble(x_mid, x_max);
+    location.at(1) = btest::RandomDouble(y_mid, y_max);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 2);
+  }
+  // Edges and corners
+  std::map<std::array<double, 2>, int> locations_and_material_ids{
+      {{0,0}, 3}, {{x_mid, 0}, 3}, {{x_max, 0}, 4},
+      {{0, y_mid}, 3}, {{x_mid, y_mid}, 3}, {{x_max, y_mid}, 4},
+      {{0, y_max}, 1}, {{x_mid, y_max}, 1}, {{x_max, y_max}, 2}
+  };
+
+  for (auto& location_and_material_id : locations_and_material_ids) {
+    auto& [location, id] = location_and_material_id;
+    EXPECT_EQ(test_mesh.GetMaterialID(location), id);
+  }
+
+}
 /*
 TEST_F(Dom, MultipleMaterialMapping) {
   constexpr int dim = this->dim;
