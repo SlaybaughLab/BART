@@ -1,4 +1,4 @@
-#include "../mesh_cartesian.h"
+#include "domain/mesh_cartesian.h"
 
 #include <cstdlib>
 #include <numeric>
@@ -7,18 +7,25 @@
 
 #include <deal.II/base/point.h>
 #include <deal.II/grid/tria.h>
-#include <gtest/gtest.h>
 
-#include "../../test_helpers/test_helper_functions.h"
-#include "../../test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
+#include "test_helpers/gmock_wrapper.h"
 
-class MeshCartesianTest : public ::testing::Test {
+namespace  {
+
+using namespace bart;
+
+template <typename DimensionWrapper>
+class DomainMeshCartesianTest : public ::testing::Test {
  protected:
-  template <int dim> void FillTriangulationTest();
+  static constexpr int dim = DimensionWrapper::value;
 };
 
-template <int dim>
-void MeshCartesianTest::FillTriangulationTest() {
+TYPED_TEST_CASE(DomainMeshCartesianTest, bart::testing::AllDimensions);
+
+TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
+  constexpr int dim = this->dim;
+
   std::vector<double> spatial_max{btest::RandomVector(dim, 0, 100)};
   std::vector<double> n_cells_double{btest::RandomVector(dim, 1, 20)};
   std::vector<int> n_cells{n_cells_double.begin(), n_cells_double.end()};
@@ -26,7 +33,7 @@ void MeshCartesianTest::FillTriangulationTest() {
   int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1,
                                       std::multiplies<int>());
 
-  bart::domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
   test_mesh.FillTriangulation(test_triangulation);
@@ -38,46 +45,36 @@ void MeshCartesianTest::FillTriangulationTest() {
                   ::testing::DoubleNear(spatial_max[i]/n_cells[i], 1e-10));
     }
   }
-}                                     
-
-TEST_F(MeshCartesianTest, Triangulation1D) {
-    FillTriangulationTest<1>();
 }
 
-TEST_F(MeshCartesianTest, Triangulation2D) {
-    FillTriangulationTest<2>();
-}
+TYPED_TEST(DomainMeshCartesianTest, BadSpatialSize) {
+  constexpr int dim = this->dim;
 
-TEST_F(MeshCartesianTest, BadSpatialSize) {
+  std::vector<std::vector<double>> spatial_maxes{
+      {},
+      btest::RandomVector(1, 0, 100),
+      btest::RandomVector(2, 0, 100),
+      btest::RandomVector(3, 0, 100),
+      btest::RandomVector(4, 0, 100)};
 
-  std::vector<std::vector<double>> domain_sizes {{10.0}, {10.0, 20.0}};
-  std::vector<std::vector<int>> n_cells {{10}, {10, 20}};
-  
-  for (int i = 0; i < 2; ++i) {
-    for (int j = 0; j < 2; ++j) {
-      // 1D Case
-      if ((i != 0) || (j != 0)) {
-        EXPECT_ANY_THROW({
-            bart::domain::MeshCartesian<1> test_mesh(domain_sizes[i], n_cells[j]);
-          });
-      } else {
-        EXPECT_NO_THROW({
-            bart::domain::MeshCartesian<1> test_mesh(domain_sizes[i], n_cells[j]);
-          });
-      }
-      // 2D Case
-      if ((i != 1) || (j != 1)) {
-        EXPECT_ANY_THROW({
-            bart::domain::MeshCartesian<2> test_mesh(domain_sizes[i], n_cells[j]);
-          });
-      } else {
-        EXPECT_NO_THROW({
-            bart::domain::MeshCartesian<2> test_mesh(domain_sizes[i], n_cells[j]);
-          });
-      }
-    }
+  std::vector<std::vector<int>> n_cells{{}, {10}, {10, 20}, {10, 20, 30},
+                                        {10, 20, 30, 40}};
+
+  for (int i = -1; i <= 1; i += 2) {
+    EXPECT_ANY_THROW({
+                       domain::MeshCartesian<dim> test_mesh(spatial_maxes.at(dim + i),
+                                                            n_cells.at(dim + i));
+                     });
   }
 }
+
+} // namespace
+
+
+class MeshCartesianTest : public ::testing::Test {
+ protected:
+};
+
   
 class MaterialMapping1DTest : public MeshCartesianTest {
  protected:
@@ -231,7 +228,3 @@ TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
         "Location: (" << location[0] << ", " << location[1] << ")/("
                       << spatial_max[0] << ", " << spatial_max[1] << ")";
 }
-
-
-template void MeshCartesianTest::FillTriangulationTest<1>();
-template void MeshCartesianTest::FillTriangulationTest<2>();
