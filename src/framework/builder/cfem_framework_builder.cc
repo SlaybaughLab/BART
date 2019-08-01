@@ -6,10 +6,15 @@ namespace framework {
 
 namespace builder {
 
-std::shared_ptr<formulation::CFEMStamperI> CFEM_FrameworkBuilder::BuildStamper(
+template <int dim>
+std::shared_ptr<formulation::CFEMStamperI> CFEM_FrameworkBuilder<dim>::BuildStamper(
     problem::ParametersI *problem_parameters) {
 
 }
+
+template class CFEM_FrameworkBuilder<1>;
+template class CFEM_FrameworkBuilder<2>;
+template class CFEM_FrameworkBuilder<3>;
 
 } // namespace builder
 

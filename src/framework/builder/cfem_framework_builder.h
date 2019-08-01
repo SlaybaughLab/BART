@@ -14,6 +14,7 @@ namespace framework {
 
 namespace builder {
 
+template <int dim>
 class CFEM_FrameworkBuilder : public FrameworkBuilderI {
  public:
   CFEM_FrameworkBuilder() = default;

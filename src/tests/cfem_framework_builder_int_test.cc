@@ -7,9 +7,12 @@ namespace  {
 
 using namespace bart;
 
+template <typename DimensionWrapper>
 class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
  protected:
-  using FrameworkBuilder = framework::builder::CFEM_FrameworkBuilder;
+  static constexpr int dim = DimensionWrapper::value;
+
+  using FrameworkBuilder = framework::builder::CFEM_FrameworkBuilder<dim>;
   using ProblemParameters = problem::ParametersMock;
 
   FrameworkBuilder test_builder;
@@ -17,8 +20,13 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
 
 };
 
-TEST_F(IntegrationTestCFEMFrameworkBuilder, BuildStamperTest) {
-  auto stamper_ptr = test_builder.BuildStamper(&parameters);
+TYPED_TEST_CASE(IntegrationTestCFEMFrameworkBuilder,
+                bart::testing::AllDimensions);
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildStamperTest) {
+
+  auto stamper_ptr =
+      this->test_builder.BuildStamper(&this->parameters);
 }
 
 } // namespace
