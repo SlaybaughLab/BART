@@ -1,5 +1,6 @@
 #include "domain/mesh_cartesian.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <numeric>
 #include <functional>
@@ -82,6 +83,7 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
   test_mesh.ParseMaterialMap(material_mapping);
   EXPECT_TRUE(test_mesh.has_material_mapping());
 
+  // Random inner locations
   std::array<std::array<double, dim>, 10> test_locations;
 
   for (auto& location : test_locations) {
@@ -91,133 +93,36 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
 
     EXPECT_EQ(test_mesh.GetMaterialID(location), 1);
   }
+
+  // Edges and corners
+  std::array<double, dim> test_location;
+
+  std::array<double, 3> x_locations{0, spatial_max.at(0)/2, spatial_max.at(0)};
+  std::vector<double> y_locations{};
+  std::vector<double> z_locations{};
+
+  if (dim > 1) {
+    y_locations = {0, spatial_max.at(1)/2, spatial_max.at(1)};
+    if (dim > 2) {
+      z_locations = {0, spatial_max.at(2)/2, spatial_max.at(2)};
+    }
+  }
+
+  for (const int x : x_locations) {
+    test_location.at(0) = x;
+    for (const int y : y_locations) {
+      test_location.at(1) = y;
+      for (const int z : z_locations) {
+        test_location.at(2) = z;
+      }
+    }
+    EXPECT_EQ(test_mesh.GetMaterialID(test_location), 1);
+  }
+
+}
+
+TYPED_TEST(DomainMeshCartesianTest, MultipleMaterialMapping) {
+
 }
 
 } // namespace
-
-
-class MeshCartesianTest : public ::testing::Test {
- protected:
-};
-
-  
-class MaterialMapping1DTest : public MeshCartesianTest {
- protected:
-  std::vector<double> spatial_max{btest::RandomVector(1, 5, 20)};
-  std::vector<int> n_cells{rand() % 20 + 1};
-  dealii::Triangulation<1> test_triangulation;
-};
-
-
-TEST_F(MaterialMapping1DTest, 1DMultiMaterialMapping) {
-  bart::domain::MeshCartesian<1> test_mesh(spatial_max, n_cells);
-  std::string material_mapping{"1 2"};
-
-  test_mesh.ParseMaterialMap(material_mapping);
-  EXPECT_TRUE(test_mesh.has_material_mapping());
-
-  std::vector<std::array<double, 1>> test_locations_1;
-  std::vector<std::array<double, 1>> test_locations_2;
-  for (int i = 0; i < 5; ++i) {
-    test_locations_1.push_back({btest::RandomDouble(0, spatial_max[0]/2)});
-    test_locations_2.push_back({btest::RandomDouble(spatial_max[0]/2,
-                                                    spatial_max[0])});
-  }
-  test_locations_1.push_back({0});
-  test_locations_1.push_back({spatial_max[0]/2});
-  test_locations_2.push_back({spatial_max[0]});
-
-  for (auto location : test_locations_1)
-    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
-        "Location: " << location[0] << "/" << spatial_max[0];
-  for (auto location : test_locations_2)
-    EXPECT_EQ(test_mesh.GetMaterialID(location), 2) <<
-        "Location: " << location[0] << "/" << spatial_max[0];
-}
-
-class MaterialMapping2DTest : public MeshCartesianTest {
- protected:
-  std::vector<double> spatial_max{btest::RandomVector(2, 5, 20)};
-  std::vector<int> n_cells{rand() % 20 + 1, rand() % 20 + 1};
-  dealii::Triangulation<2> test_triangulation;
-};
-
-
-TEST_F(MaterialMapping2DTest, 2DMultiMaterialMapping) {
-  bart::domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
-  std::string material_mapping{"1 2"};
-
-  test_mesh.ParseMaterialMap(material_mapping);
-  EXPECT_TRUE(test_mesh.has_material_mapping());
-
-  std::vector<std::array<double, 2>> test_locations_1;
-  std::vector<std::array<double, 2>> test_locations_2;
-  for (int i = 0; i < 5; ++i) {
-    test_locations_1.push_back(
-        {btest::RandomDouble(0, spatial_max[0]/2),          
-              btest::RandomDouble(0, spatial_max[1])});
-    
-    test_locations_2.push_back(
-        {btest::RandomDouble(spatial_max[0]/2, spatial_max[0]),
-              btest::RandomDouble(0, spatial_max[1])});
-  }
-  test_locations_1.push_back({0,0});
-  test_locations_1.push_back({spatial_max[0]/2, 0});
-  test_locations_1.push_back({spatial_max[0]/2, spatial_max[1]/2});
-  test_locations_1.push_back({spatial_max[0]/2, spatial_max[1]});
-  test_locations_2.push_back({spatial_max[0], 0});
-  test_locations_2.push_back({spatial_max[0], spatial_max[1]});
-
-  for (auto location : test_locations_1)
-    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
-        "Location: (" << location[0] << ", " << location[1] << ")/("
-                      << spatial_max[0] << ", " << spatial_max[1] << ")";
-  for (auto location : test_locations_2)
-    EXPECT_EQ(test_mesh.GetMaterialID(location), 2) <<
-        "Location: (" << location[0] << ", " << location[1] << ")/("
-                      << spatial_max[0] << ", " << spatial_max[1] << ")";
-}
-
-TEST_F(MaterialMapping2DTest, 2DMultiYMaterialMapping) {
-  bart::domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
-  std::string material_mapping{"2 1\n1 2"};
-
-  test_mesh.ParseMaterialMap(material_mapping);
-  EXPECT_TRUE(test_mesh.has_material_mapping());
-
-  std::vector<std::array<double, 2>> test_locations_1;
-  std::vector<std::array<double, 2>> test_locations_2;
-  for (int i = 0; i < 5; ++i) {
-    test_locations_1.push_back(
-        {btest::RandomDouble(0, spatial_max[0]/2),          
-              btest::RandomDouble(0, spatial_max[1]/2)});
-    
-    test_locations_1.push_back(
-        {btest::RandomDouble(spatial_max[0]/2, spatial_max[0]),
-              btest::RandomDouble(spatial_max[1]/2, spatial_max[1])});
-    
-    test_locations_2.push_back(
-        {btest::RandomDouble(spatial_max[0]/2, spatial_max[0]),
-              btest::RandomDouble(0, spatial_max[1]/2)});
-    
-    test_locations_2.push_back(
-        {btest::RandomDouble(0, spatial_max[0]/2),
-              btest::RandomDouble(spatial_max[1]/2, spatial_max[1])});
-  }
-  test_locations_1.push_back({0,0});
-  test_locations_1.push_back({spatial_max[0]/2, 0});
-  test_locations_1.push_back({spatial_max[0]/2, spatial_max[1]/2});
-  test_locations_2.push_back({spatial_max[0]/2, spatial_max[1]});
-  test_locations_2.push_back({spatial_max[0], 0});
-  test_locations_1.push_back({spatial_max[0], spatial_max[1]});
-  test_locations_2.push_back({spatial_max[0]/2, spatial_max[1]});
-
-  for (auto location : test_locations_1)
-    EXPECT_EQ(test_mesh.GetMaterialID(location), 1) <<
-        "Location: (" << location[0] << ", " << location[1] << ")/("
-                      << spatial_max[0] << ", " << spatial_max[1] << ")";
-  for (auto location : test_locations_2)
-    EXPECT_EQ(test_mesh.GetMaterialID(location), 2) <<
-        "Location: (" << location[0] << ", " << location[1] << ")/("
-                      << spatial_max[0] << ", " << spatial_max[1] << ")";
-}
