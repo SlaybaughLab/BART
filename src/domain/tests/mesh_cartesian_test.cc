@@ -144,6 +144,14 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
     EXPECT_EQ(test_mesh.GetMaterialID(location), 2);
   }
 
+  // Edge cases
+  std::array<double, 1> origin{0};
+  std::array<double, 1> midpoint{spatial_max.at(0)/2};
+  std::array<double, 1> endpoint{spatial_max.at(0)};
+
+  EXPECT_EQ(test_mesh.GetMaterialID(origin), 1);
+  EXPECT_EQ(test_mesh.GetMaterialID(midpoint), 1);
+  EXPECT_EQ(test_mesh.GetMaterialID(endpoint), 2);
 }
 /*
 TEST_F(Dom, MultipleMaterialMapping) {
