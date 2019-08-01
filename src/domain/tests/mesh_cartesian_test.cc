@@ -78,10 +78,9 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
   std::vector<int> n_cells{n_cells_double.cbegin(),
                            n_cells_double.cend()};
 
-  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   std::string material_mapping{'1'};
+  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells, material_mapping);
 
-  test_mesh.ParseMaterialMap(material_mapping);
   EXPECT_TRUE(test_mesh.has_material_mapping());
 
   // Random inner locations
@@ -200,49 +199,67 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping2D) {
   }
 
 }
-/*
-TEST_F(Dom, MultipleMaterialMapping) {
-  constexpr int dim = this->dim;
-  std::vector<double> spatial_max{btest::RandomVector(dim, 5, 20)};
-  std::vector<double> n_cells_double{btest::RandomVector(dim, 5, 20)};
-  std::vector<int> n_cells{n_cells_double.cbegin(),
-                           n_cells_double.cend()};
 
-  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping3D) {
+  std::vector<double> spatial_max{btest::RandomVector(3, 5, 20)};
+  std::vector<double> n_cells_double{btest::RandomVector(3, 5, 20)};
+  std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
-  std::ostringstream material_mapping_stream;
-  material_mapping_stream << "1 2";
+  domain::MeshCartesian<3> test_mesh(spatial_max, n_cells);
 
-  if (dim > 1)
-    material_mapping_stream << "\n3 4";
-  if (dim == 3)
-    material_mapping_stream << "\n\n5 6\n7 8";
-
-  std::string material_mapping = material_mapping_stream.str();
-
+  std::string material_mapping{"1 2\n3 4\n\n5 6\n7 8"};
   test_mesh.ParseMaterialMap(material_mapping);
+
+  double x_max = spatial_max.at(0), x_mid = spatial_max.at(0)/2;
+  double y_max = spatial_max.at(1), y_mid = spatial_max.at(1)/2;
+  double z_max = spatial_max.at(2), z_mid = spatial_max.at(2)/2;
+
   EXPECT_TRUE(test_mesh.has_material_mapping());
+  // Inner locations
+  std::array<std::array<double, 3>, 5> test_locations;
+  for (auto& location : test_locations) {
 
-  std::array<double, 3> x_locations{0, spatial_max.at(0)/2, spatial_max.at(0)};
-  std::array<double, 3> y_locations;
-  std::array<double, 3> z_locations;
+    location.at(0) = btest::RandomDouble(0, x_mid);
+    location.at(1) = btest::RandomDouble(0, y_mid);
+    location.at(2) = btest::RandomDouble(0, z_mid);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 7);
 
-  switch (dim) {
-    case 3: {
-      z_locations = {0, spatial_max.at(2)/2, spatial_max.at(2)};
-      [[fallthrough]];
-    }
-    case 2: {
-      y_locations = {0, spatial_max.at(1)/2, spatial_max.at(1)};
-    }
-  }
+    location.at(0) = btest::RandomDouble(x_mid, x_max);
+    location.at(1) = btest::RandomDouble(0, y_mid);
+    location.at(2) = btest::RandomDouble(0, z_mid);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 8);
 
-  if (dim == 1) {
+    location.at(0) = btest::RandomDouble(0, x_mid);
+    location.at(1) = btest::RandomDouble(y_mid, y_max);
+    location.at(2) = btest::RandomDouble(0, z_mid);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 5);
 
+    location.at(0) = btest::RandomDouble(0, x_mid);
+    location.at(1) = btest::RandomDouble(0, y_mid);
+    location.at(2) = btest::RandomDouble(z_mid, z_max);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 3);
+
+    location.at(0) = btest::RandomDouble(x_mid, x_max);
+    location.at(1) = btest::RandomDouble(y_mid, y_max);
+    location.at(2) = btest::RandomDouble(0, z_mid);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 6);
+
+    location.at(0) = btest::RandomDouble(x_mid, x_max);
+    location.at(1) = btest::RandomDouble(y_mid, y_max);
+    location.at(2) = btest::RandomDouble(z_mid, z_max);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 2);
+
+    location.at(0) = btest::RandomDouble(x_mid, x_max);
+    location.at(1) = btest::RandomDouble(0, y_mid);
+    location.at(2) = btest::RandomDouble(z_mid, z_max);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 4);
+
+    location.at(0) = btest::RandomDouble(0, x_mid);
+    location.at(1) = btest::RandomDouble(y_mid, y_max);
+    location.at(2) = btest::RandomDouble(z_mid, z_max);
+    EXPECT_EQ(test_mesh.GetMaterialID(location), 1);
   }
 }
-*/
-
 
 
 } // namespace
