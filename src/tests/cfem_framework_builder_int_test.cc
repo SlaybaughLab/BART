@@ -1,8 +1,11 @@
 #include "framework/builder/cfem_framework_builder.h"
-#include "problem/tests/parameters_mock.h"
 
 #include <vector>
 
+#include <deal.II/fe/fe_q.h>
+
+#include "problem/tests/parameters_mock.h"
+#include "domain/finite_element_gaussian.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -24,6 +27,8 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
 
   // Test Parameters
   const int polynomial_degree = 2;
+  std::vector<double> spatial_max;
+  std::vector<int> n_cells;
 
   void SetUp() override;
 
@@ -31,8 +36,6 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
 
 template <typename DimensionWrapper>
 void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
-  std::vector<double> spatial_max;
-  std::vector<int> n_cells;
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(i + 10);
     n_cells.push_back(i + 10);
@@ -49,6 +52,25 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
 
 TYPED_TEST_CASE(IntegrationTestCFEMFrameworkBuilder,
                 bart::testing::AllDimensions);
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFiniteElementTest) {
+  EXPECT_CALL(this->parameters, FEPolynomialDegree())
+      .WillOnce(DoDefault());
+
+  auto finite_element_ptr =
+      this->test_builder.BuildFiniteElement(&this->parameters);
+
+  // Test that correct type was returned
+  auto gaussian_ptr = dynamic_cast<domain::FiniteElementGaussian<this->dim>*>(
+      finite_element_ptr.get());
+  EXPECT_NE(gaussian_ptr, nullptr);
+
+  // Test that correct values were used in instantiation
+  EXPECT_EQ(finite_element_ptr->polynomial_degree(), this->polynomial_degree);
+  auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<this->dim>*>(
+      finite_element_ptr->finite_element());
+  EXPECT_NE(dealii_finite_element_ptr, nullptr);
+}
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildStamperTest) {
 

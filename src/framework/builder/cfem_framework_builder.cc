@@ -10,6 +10,14 @@ namespace framework {
 
 namespace builder {
 
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
+    problem::ParametersI *problem_parameters)-> std::shared_ptr<FiniteElement> {
+  return std::make_shared<domain::FiniteElementGaussian<dim>>(
+      problem::DiscretizationType::kContinuousFEM,
+      problem_parameters->FEPolynomialDegree());
+}
+
 template <int dim>
 std::shared_ptr<formulation::CFEMStamperI> CFEM_FrameworkBuilder<dim>::BuildStamper(
     problem::ParametersI *problem_parameters,
@@ -27,6 +35,7 @@ std::shared_ptr<formulation::CFEMStamperI> CFEM_FrameworkBuilder<dim>::BuildStam
       );
 
 }
+
 
 template class CFEM_FrameworkBuilder<1>;
 template class CFEM_FrameworkBuilder<2>;
