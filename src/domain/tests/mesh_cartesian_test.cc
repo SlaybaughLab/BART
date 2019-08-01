@@ -96,6 +96,7 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
 
   // Edges and corners
   std::array<double, dim> test_location;
+  dealii::Point<dim> test_point;
 
   std::array<double, 3> x_locations{0, spatial_max.at(0)/2, spatial_max.at(0)};
   std::vector<double> y_locations{};
@@ -110,13 +111,17 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
 
   for (const int x : x_locations) {
     test_location.at(0) = x;
+    test_point[0] = x;
     for (const int y : y_locations) {
       test_location.at(1) = y;
+      test_point[1] = y;
       for (const int z : z_locations) {
         test_location.at(2) = z;
+        test_point[2] = z;
       }
     }
     EXPECT_EQ(test_mesh.GetMaterialID(test_location), 1);
+    EXPECT_EQ(test_mesh.GetMaterialID(test_point), 1);
   }
 }
 
