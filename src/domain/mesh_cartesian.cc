@@ -101,45 +101,47 @@ void MeshCartesian<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
   double zero_tol = 1.0e-14;
   
   for (auto cell = to_fill.begin_active(); cell != to_fill.end(); ++cell) {
-    if (cell->is_locally_owned()) {
+    if (cell->is_locally_owned() && cell->at_boundary()) {
       for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
         auto face = cell->face(face_id);
-        dealii::Point<dim> face_center = face->center();
-        switch (dim) {
-          case 3: {
-            if (std::fabs(face_center[2]) < zero_tol) {
-              face->set_boundary_id(static_cast<int>(Boundary::kZMin));
-              break;
-            } else if (std::fabs(face_center[2] - spatial_max_.at(2)) < zero_tol) {
-              face->set_boundary_id(static_cast<int>(Boundary::kZMax));
+        if (face->at_boundary()) {
+          dealii::Point<dim> face_center = face->center();
+          switch (dim) {
+            case 3: {
+              if (std::fabs(face_center[2]) < zero_tol) {
+                face->set_boundary_id(static_cast<int>(Boundary::kZMin));
+                break;
+              } else if (std::fabs(face_center[2] - spatial_max_.at(2)) < zero_tol) {
+                face->set_boundary_id(static_cast<int>(Boundary::kZMax));
+                break;
+              }
+              [[fallthrough]];
+            }
+            case 2: {
+              if (std::fabs(face_center[1]) < zero_tol) {
+                face->set_boundary_id(static_cast<int>(Boundary::kYMin));
+                break;
+              } else if (std::fabs(face_center[1] - spatial_max_[1]) < zero_tol) {
+                face->set_boundary_id(static_cast<int>(Boundary::kYMax));
+                break;
+              }
+              [[fallthrough]];
+            }
+              // Fall through to check x-direction
+            case 1: {
+              if (std::fabs(face_center[0]) < zero_tol) {
+                face->set_boundary_id(static_cast<int>(Boundary::kXMin));
+                break;
+              } else if (std::fabs(face_center[0] - spatial_max_[0]) < zero_tol) {
+                face->set_boundary_id(static_cast<int>(Boundary::kXMax));
+                break;
+              }
               break;
             }
-            [[fallthrough]];
-          }
-          case 2: {
-            if (std::fabs(face_center[1]) < zero_tol) {
-              face->set_boundary_id(static_cast<int>(Boundary::kYMin));
-              break;
-            } else if (std::fabs(face_center[1] - spatial_max_[1]) < zero_tol) {
-              face->set_boundary_id(static_cast<int>(Boundary::kYMax));
-              break;
+            default: {
+              AssertThrow(false,
+                          dealii::ExcMessage("Unsupported number of dimensions in FillBoundaryID"));
             }
-            [[fallthrough]];
-          }
-            // Fall through to check x-direction
-          case 1: {
-            if (std::fabs(face_center[0]) < zero_tol) {
-              face->set_boundary_id(static_cast<int>(Boundary::kXMin));
-              break;
-            } else if (std::fabs(face_center[0] - spatial_max_[0]) < zero_tol) {
-              face->set_boundary_id(static_cast<int>(Boundary::kXMax));
-              break;
-            }
-            break;
-          }
-          default: {
-            AssertThrow(false,
-                        dealii::ExcMessage("Unsupported number of dimensions in FillBoundaryID"));
           }
         }
       }
