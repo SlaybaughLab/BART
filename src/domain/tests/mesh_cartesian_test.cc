@@ -39,6 +39,11 @@ TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
   domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
+  for (int i = 0; i < dim; ++i) {
+    EXPECT_EQ(test_mesh.spatial_max().at(i), spatial_max.at(i));
+    EXPECT_EQ(test_mesh.n_cells().at(i), n_cells.at(i));
+  }
+
   test_mesh.FillTriangulation(test_triangulation);
   EXPECT_EQ(test_triangulation.n_cells(), n_total_cells);
   EXPECT_FALSE(test_mesh.has_material_mapping());
