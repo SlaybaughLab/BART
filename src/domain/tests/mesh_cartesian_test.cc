@@ -191,6 +191,36 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
   }
 }
 
+TYPED_TEST(DomainMeshCartesianTest, FillMaterialIDTest) {
+  constexpr int dim = this->dim;
+  using Boundary = problem::Boundary;
+
+  std::vector<double> spatial_max(dim, 10.0);
+  std::vector<int> n_cells(dim, 4);
+
+  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+  dealii::Triangulation<dim> test_triangulation;
+
+  std::string material_mapping;
+  if (dim == 1) {
+    material_mapping = "1 2";
+  } else if (dim == 2) {
+    material_mapping = "1 2\n3 4";
+  } else {
+    material_mapping = "1 2\n3 4\n\n5 6\n7 8";
+  }
+
+  test_mesh.ParseMaterialMap(material_mapping);
+  test_mesh.FillTriangulation(test_triangulation);
+  test_mesh.FillMaterialID(test_triangulation);
+
+  for (auto const &cell : test_triangulation.active_cell_iterators()) {
+    if (cell->is_locally_owned()) {
+      EXPECT_EQ(cell->material_id(), test_mesh.GetMaterialID(cell->center()));
+    }
+  }
+}
+
 class DomainMeshCartesianMappingTest : public ::testing::Test {};
 
 TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
