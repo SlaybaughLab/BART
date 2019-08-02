@@ -9,6 +9,7 @@
 
 #include <deal.II/base/point.h>
 #include <deal.II/grid/tria.h>
+#include <problem/parameter_types.h>
 
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -47,6 +48,71 @@ TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
                   ::testing::DoubleNear(spatial_max[i]/n_cells[i], 1e-10));
     }
   }
+}
+
+TYPED_TEST(DomainMeshCartesianTest, FillBoundaryIDTest) {
+  constexpr int dim = this->dim;
+  using Boundary = problem::Boundary;
+
+  std::vector<double> spatial_max(dim, 10.0);
+  std::vector<int> n_cells(dim, 2);
+
+  const double zero_tol = 1.0e-14;
+
+  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+  dealii::Triangulation<dim> test_triangulation;
+
+  test_mesh.FillTriangulation(test_triangulation);
+  test_mesh.FillBoundaryID(test_triangulation);
+
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+
+  for (auto const &cell : test_triangulation.active_cell_iterators()) {
+    if (cell->is_locally_owned()) {
+      for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
+        auto face = cell->face(face_id);
+        dealii::Point<dim> face_center = face->center();
+        switch (dim) {
+          case 3: {
+            if (std::fabs(face_center[2]) < zero_tol) {
+              EXPECT_EQ(static_cast<Boundary>(face->boundary_id()),Boundary::kZMin);
+              break;
+            } else if (std::fabs(face_center[2] - spatial_max.at(2)) < zero_tol) {
+              EXPECT_EQ(static_cast<Boundary>(face->boundary_id()), Boundary::kZMax);
+              break;
+            }
+            [[fallthrough]];
+          }
+          case 2: {
+            if (std::fabs(face_center[1]) < zero_tol) {
+              EXPECT_EQ(static_cast<Boundary>(face->boundary_id()), Boundary::kYMin);
+              break;
+            } else if (std::fabs(face_center[1] - spatial_max.at(1)) < zero_tol) {
+              EXPECT_EQ(static_cast<Boundary>(face->boundary_id()), Boundary::kYMax);
+              break;
+            }
+            [[fallthrough]];
+          }
+            // Fall through to check x-direction
+          case 1: {
+            if (std::fabs(face_center[0]) < zero_tol) {
+              EXPECT_EQ(static_cast<Boundary>(face->boundary_id()), Boundary::kXMin);
+              break;
+            } else if (std::fabs(face_center[0] - spatial_max.at(0)) < zero_tol) {
+              EXPECT_EQ(static_cast<Boundary>(face->boundary_id()), Boundary::kXMax);
+              break;
+            }
+            break;
+          }
+          default: {
+            AssertThrow(false,
+                        dealii::ExcMessage("Unsupported number of dimensions in FillBoundaryID"));
+          }
+        }
+      }
+    }
+  }
+
 }
 
 TYPED_TEST(DomainMeshCartesianTest, BadSpatialSize) {
