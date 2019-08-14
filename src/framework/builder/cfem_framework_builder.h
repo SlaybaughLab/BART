@@ -3,11 +3,15 @@
 
 #include <memory>
 
+#include "data/cross_sections.h"
 #include "domain/definition_i.h"
-#include "domain/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.h"
 #include "problem/parameters_i.h"
-#include "formulation/cfem_stamper_i.h"
 #include "framework/builder/framework_builder_i.h"
+#include "formulation/cfem_stamper_i.h"
+#include "iteration/updater/source_updater_i.h"
+#include "convergence/final_i.h"
+#include "system/system_types.h"
 
 
 namespace bart {
@@ -19,8 +23,13 @@ namespace builder {
 template <int dim>
 class CFEM_FrameworkBuilder : public FrameworkBuilderI {
  public:
+  using CrossSections = data::CrossSections;
   using Domain = typename domain::DefinitionI<dim>;
-  using FiniteElement = typename domain::FiniteElementI<dim>;
+  using CFEMStamper = formulation::CFEMStamperI;
+  using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
+  using SourceUpdater = iteration::updater::SourceUpdaterI;
+  using ParameterConvergenceChecker = convergence::FinalI<double>;
+  using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
 
   CFEM_FrameworkBuilder() = default;
   virtual ~CFEM_FrameworkBuilder() = default;
@@ -41,9 +50,22 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       std::string material_mapping);
 
-  std::shared_ptr<formulation::CFEMStamperI> BuildStamper(
+  std::shared_ptr<CFEMStamper> BuildStamper(
       problem::ParametersI* problem_parameters,
-      std::string material_mapping);
+      const std::shared_ptr<Domain> &domain_ptr,
+      const std::shared_ptr<FiniteElement> &finite_element_ptr,
+      const std::shared_ptr<CrossSections> &cross_sections_ptr);
+
+  std::shared_ptr<SourceUpdater> BuildSourceUpdater(
+      problem::ParametersI* problem_parameters,
+      const std::shared_ptr<CFEMStamper> stamper_ptr);
+
+  std::unique_ptr<ParameterConvergenceChecker> BuildParameterConvergenceChecker(
+      double max_delta, int max_iterations);
+
+  std::unique_ptr<MomentConvergenceChecker> BuildMomentConvergenceChecker(
+      double max_delta, int max_iterations);
+
 };
 
 } // namespace builder
