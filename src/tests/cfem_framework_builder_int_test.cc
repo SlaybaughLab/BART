@@ -106,9 +106,9 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFiniteElementTest) {
 }
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDomainTest) {
-
+  constexpr int dim = this->dim;
   auto finite_element_ptr =
-      this->test_builder.BuildFiniteElement(&this->parameters);
+      std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
 
   EXPECT_CALL(this->parameters, NCells())
       .WillOnce(DoDefault());

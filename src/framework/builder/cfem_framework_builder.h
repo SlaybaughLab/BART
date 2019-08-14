@@ -42,21 +42,21 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
    * @param problem_parameters problem parameters
    * @return
    */
-  std::shared_ptr<FiniteElement> BuildFiniteElement(
+  std::unique_ptr<FiniteElement> BuildFiniteElement(
       problem::ParametersI* problem_parameters);
 
-  std::shared_ptr<Domain> BuildDomain(
+  std::unique_ptr<Domain> BuildDomain(
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       std::string material_mapping);
 
-  std::shared_ptr<CFEMStamper> BuildStamper(
+  std::unique_ptr<CFEMStamper> BuildStamper(
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<Domain> &domain_ptr,
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       const std::shared_ptr<CrossSections> &cross_sections_ptr);
 
-  std::shared_ptr<SourceUpdater> BuildSourceUpdater(
+  std::unique_ptr<SourceUpdater> BuildSourceUpdater(
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> stamper_ptr);
 

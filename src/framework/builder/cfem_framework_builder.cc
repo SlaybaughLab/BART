@@ -20,8 +20,8 @@ namespace builder {
 
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
-    problem::ParametersI *problem_parameters)-> std::shared_ptr<FiniteElement> {
-  return std::make_shared<domain::finite_element::FiniteElementGaussian<dim>>(
+    problem::ParametersI *problem_parameters)-> std::unique_ptr<FiniteElement> {
+  return std::make_unique<domain::finite_element::FiniteElementGaussian<dim>>(
       problem::DiscretizationType::kContinuousFEM,
       problem_parameters->FEPolynomialDegree());
 }
@@ -30,7 +30,7 @@ template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildDomain(
     problem::ParametersI *problem_parameters,
     const std::shared_ptr<FiniteElement> &finite_element_ptr,
-    std::string material_mapping)-> std::shared_ptr<Domain> {
+    std::string material_mapping)-> std::unique_ptr<Domain> {
 
   // Build mesh
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
@@ -38,7 +38,7 @@ auto CFEM_FrameworkBuilder<dim>::BuildDomain(
           problem_parameters->NCells(),
           material_mapping);
 
-  return std::make_shared<domain::Definition<dim>>(
+  return std::make_unique<domain::Definition<dim>>(
       std::move(mesh_ptr), finite_element_ptr);
 }
 template<int dim>
@@ -47,9 +47,9 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
     const std::shared_ptr<Domain> &domain_ptr,
     const std::shared_ptr<FiniteElement> &finite_element_ptr,
     const std::shared_ptr<CrossSections> &cross_sections_ptr)
--> std::shared_ptr<CFEMStamper> {
+-> std::unique_ptr<CFEMStamper> {
 
-  std::shared_ptr<CFEMStamper> return_ptr = nullptr;
+  std::unique_ptr<CFEMStamper> return_ptr = nullptr;
 
   // Diffusion Stamper
   if (problem_parameters->TransportModel() == problem::EquationType::kDiffusion) {
@@ -57,10 +57,11 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
     auto diffusion_ptr = std::make_unique<formulation::scalar::CFEM_Diffusion<dim>>(
         finite_element_ptr, cross_sections_ptr);
 
-    return_ptr = std::make_shared<formulation::CFEM_DiffusionStamper<dim>>(
-        std::move(diffusion_ptr),
-        domain_ptr,
-        problem_parameters->ReflectiveBoundary());
+    return_ptr = std::move(
+        std::make_unique<formulation::CFEM_DiffusionStamper<dim>>(
+            std::move(diffusion_ptr),
+            domain_ptr,
+            problem_parameters->ReflectiveBoundary()));
 
   } else {
     AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
@@ -73,10 +74,10 @@ template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
     problem::ParametersI *,
     const std::shared_ptr<CFEMStamper> stamper_ptr)
-    -> std::shared_ptr<SourceUpdater> {
+    -> std::unique_ptr<SourceUpdater> {
   // TODO(Josh): Add option for non-gauss-seidel updating
   using SourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<CFEMStamper>;
-  return std::make_shared<SourceUpdater>(stamper_ptr);
+  return std::make_unique<SourceUpdater>(stamper_ptr);
 }
 
 template<int dim>
