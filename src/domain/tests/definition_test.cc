@@ -12,8 +12,8 @@
 
 #include "data/matrix_parameters.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "domain/tests/mesh_mock.h"
-#include "domain/tests/finite_element_mock.h"
+#include "domain/mesh/tests/mesh_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.h"
 
 namespace {
 
@@ -24,9 +24,9 @@ template <typename DimensionWrapper>
 class DefinitionTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
-  std::unique_ptr<bart::domain::MeshMock<dim>> mesh_ptr;
-  std::unique_ptr<NiceMock<bart::domain::MeshMock<dim>>> nice_mesh_ptr;
-  std::shared_ptr<bart::domain::FiniteElementMock<dim>> fe_ptr;
+  std::unique_ptr<bart::domain::mesh::MeshMock<dim>> mesh_ptr;
+  std::unique_ptr<NiceMock<bart::domain::mesh::MeshMock<dim>>> nice_mesh_ptr;
+  std::shared_ptr<bart::domain::finite_element::FiniteElementMock<dim>> fe_ptr;
 
   void SetUp() override;
 };
@@ -35,9 +35,9 @@ TYPED_TEST_CASE(DefinitionTest, bart::testing::AllDimensions);
 
 template <typename DimensionWrapper>
 void DefinitionTest<DimensionWrapper>::SetUp() {
-  mesh_ptr = std::make_unique<bart::domain::MeshMock<dim>>();
-  nice_mesh_ptr = std::make_unique<NiceMock<bart::domain::MeshMock<dim>>>();
-  fe_ptr = std::make_shared<bart::domain::FiniteElementMock<dim>>();
+  mesh_ptr = std::make_unique<bart::domain::mesh::MeshMock<dim>>();
+  nice_mesh_ptr = std::make_unique<NiceMock<bart::domain::mesh::MeshMock<dim>>>();
+  fe_ptr = std::make_shared<bart::domain::finite_element::FiniteElementMock<dim>>();
 }
 
 TYPED_TEST(DefinitionTest, Constructor) {

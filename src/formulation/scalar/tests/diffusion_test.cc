@@ -10,7 +10,7 @@
 #include <deal.II/grid/tria.h>
 
 #include "data/cross_sections.h"
-#include "domain/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -33,7 +33,7 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
  protected:
   FormulationCFEMDiffusionTest();
   using Matrix = dealii::FullMatrix<double>;
-  std::shared_ptr<domain::FiniteElementMock<2>> fe_mock_ptr;
+  std::shared_ptr<domain::finite_element::FiniteElementMock<2>> fe_mock_ptr;
   std::shared_ptr<data::CrossSections> cross_sections_ptr;
 
   dealii::DoFHandler<2>::active_cell_iterator cell_ptr_;
@@ -54,7 +54,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   // Make mock objects. Cross-sections is a struct that cannot be mocked, but
   // we can mock the material object it is based on.
   NiceMock<btest::MockMaterial> mock_material;
-  fe_mock_ptr = std::make_shared<NiceMock<domain::FiniteElementMock<2>>>();
+  fe_mock_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<2>>>();
 
   ON_CALL(*fe_mock_ptr, dofs_per_cell())
       .WillByDefault(Return(2));

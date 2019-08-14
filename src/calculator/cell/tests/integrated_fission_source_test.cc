@@ -4,7 +4,7 @@
 
 #include "data/cross_sections.h"
 #include "domain/domain_types.h"
-#include "domain/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
@@ -24,7 +24,7 @@ class CalcCellIntegratedFissionSourceTest :
     public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  protected:
   static constexpr int dim = DimensionWrapper::value;
-  using FiniteElementType = typename domain::FiniteElementMock<dim>;
+  using FiniteElementType = typename domain::finite_element::FiniteElementMock<dim>;
   using FissionSourceNormType = typename calculator::cell::IntegratedFissionSource<dim>;
   using SphericalHarmonicType = system::moments::SphericalHarmonicMock;
 

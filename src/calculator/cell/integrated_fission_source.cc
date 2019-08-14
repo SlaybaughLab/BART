@@ -1,7 +1,7 @@
 #include "calculator/cell/integrated_fission_source.h"
 
 #include "data/cross_sections.h"
-#include "domain/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.h"
 #include "system/moments/spherical_harmonic_i.h"
 
 namespace bart {
@@ -12,7 +12,7 @@ namespace cell {
 
 template<int dim>
 IntegratedFissionSource<dim>::IntegratedFissionSource(
-    std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr,
+    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr,
     std::shared_ptr<data::CrossSections> cross_sections_ptr)
     : finite_element_ptr_(finite_element_ptr),
       cross_sections_ptr_(cross_sections_ptr),

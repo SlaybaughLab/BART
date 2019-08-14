@@ -11,8 +11,8 @@
 
 #include "data/matrix_parameters.h"
 #include "domain/definition_i.h"
-#include "domain/finite_element_i.h"
-#include "domain/mesh_i.h"
+#include "domain/finite_element/finite_element_i.h"
+#include "domain/mesh/mesh_i.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
@@ -62,8 +62,8 @@ class Definition : public DefinitionI<dim> {
   /*! \brief Constructor.
    * Takes ownership of injected dependencies (MeshI and FiniteElementI).
    */
-  Definition(std::unique_ptr<domain::MeshI<dim>> mesh,
-             std::shared_ptr<domain::FiniteElementI<dim>> finite_element);
+  Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
+             std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element);
   ~Definition() = default;
   
   /*! Fills triangulation with mesh defined in MeshI object
@@ -118,10 +118,10 @@ class Definition : public DefinitionI<dim> {
  private:
 
   //! Internal owned mesh object.
-  std::unique_ptr<domain::MeshI<dim>> mesh_;
+  std::unique_ptr<domain::mesh::MeshI<dim>> mesh_;
   
   //! Internal owned finite element object
-  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
+  std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_;
 
   //! Internal distributed triangulation object
   typename TriangulationType<dim>::type triangulation_;

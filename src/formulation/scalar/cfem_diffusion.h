@@ -7,7 +7,7 @@
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "data/cross_sections.h"
-#include "domain/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.h"
 #include "formulation/scalar/cfem_diffusion_i.h"
 
 namespace bart {
@@ -29,7 +29,7 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
   using typename CFEM_DiffusionI<dim>::FaceNumber;
 
 
-  CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>> finite_element,
+  CFEM_Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
                  std::shared_ptr<data::CrossSections> cross_sections);
 
   /*! \brief Precalculate matrices.
@@ -90,7 +90,7 @@ class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
 
  protected:
   //! Finite element object to provide shape function values
-  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_;
+  std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_;
   //! Cross-sections object for cross-section data
   std::shared_ptr<data::CrossSections> cross_sections_;
 

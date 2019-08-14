@@ -14,7 +14,9 @@ struct CrossSections;
 } // namespace data
 
 namespace domain {
+namespace finite_element {
 template <int dim> class FiniteElementI;
+} // namespace finite_element
 } // namespace domain
 
 namespace calculator {
@@ -31,7 +33,7 @@ namespace cell {
  * \f]
  * where \f$G\f$ is the total number of groups. This class calculates the
  * integrated value using the cell quadrature provided by a
- * domain::FiniteElementI object. It returns the value of
+ * domain::finite_element::FiniteElementI object. It returns the value of
  *
  * \f[
  *
@@ -57,7 +59,7 @@ class IntegratedFissionSource : public IntegratedFissionSourceI<dim> {
    * @param cross_sections_ptr pointer to cross-sections struct.
    */
   IntegratedFissionSource(
-      std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr,
+      std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr,
       std::shared_ptr<data::CrossSections> cross_sections_ptr);
   ~IntegratedFissionSource() = default;
 
@@ -65,7 +67,7 @@ class IntegratedFissionSource : public IntegratedFissionSourceI<dim> {
                    system::moments::SphericalHarmonicI* system_moments_ptr) const override;
 
  private:
-  std::shared_ptr<domain::FiniteElementI<dim>> finite_element_ptr_;
+  std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr_;
   std::shared_ptr<data::CrossSections> cross_sections_ptr_;
   const int cell_quadrature_points_;
 };

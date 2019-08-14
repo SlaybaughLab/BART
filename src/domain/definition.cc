@@ -10,8 +10,8 @@ namespace bart {
 namespace domain {
 
 template <int dim>
-Definition<dim>::Definition(std::unique_ptr<domain::MeshI<dim>> mesh,
-                    std::shared_ptr<domain::FiniteElementI<dim>> finite_element)
+Definition<dim>::Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
+                    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element)
     : mesh_(std::move(mesh)),                     
       finite_element_(finite_element),
       triangulation_(MPI_COMM_WORLD,
@@ -22,8 +22,8 @@ Definition<dim>::Definition(std::unique_ptr<domain::MeshI<dim>> mesh,
 
 template <>
 Definition<1>::Definition(
-    std::unique_ptr<domain::MeshI<1>> mesh,
-    std::shared_ptr<domain::FiniteElementI<1>> finite_element)
+    std::unique_ptr<domain::mesh::MeshI<1>> mesh,
+    std::shared_ptr<domain::finite_element::FiniteElementI<1>> finite_element)
     : mesh_(std::move(mesh)),
       finite_element_(finite_element),
       triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(

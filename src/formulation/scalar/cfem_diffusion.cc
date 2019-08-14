@@ -7,7 +7,7 @@ namespace formulation {
 namespace scalar {
 
 template<int dim>
-CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::FiniteElementI<dim>> finite_element,
+CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
                                     std::shared_ptr<data::CrossSections> cross_sections)
     : finite_element_(finite_element),
       cross_sections_(cross_sections),
