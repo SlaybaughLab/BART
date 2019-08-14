@@ -6,6 +6,7 @@
 #include "formulation/cfem_diffusion_stamper.h"
 #include "formulation/scalar/cfem_diffusion.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
+#include "iteration/updater/fixed_updater.h"
 #include "problem/parameter_types.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
@@ -115,6 +116,14 @@ auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
   return_ptr->SetMaxIterations(max_iterations);
 
   return std::move(return_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildFixedUpdater(
+    const std::shared_ptr<CFEMStamper> &stamper_ptr)
+-> std::unique_ptr<CFEM_FrameworkBuilder::FixedUpdater> {
+  using FixedUpdaterType = iteration::updater::FixedUpdater<CFEMStamper>;
+  return std::make_unique<FixedUpdaterType>(stamper_ptr);
 }
 
 template class CFEM_FrameworkBuilder<1>;

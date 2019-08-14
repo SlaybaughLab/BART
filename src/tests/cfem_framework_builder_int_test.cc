@@ -17,6 +17,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
+#include "iteration/updater/fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
@@ -121,6 +122,20 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDomainTest) {
 
   EXPECT_NE(dynamic_cast<domain::Definition<this->dim>*>(test_domain_ptr.get()),
       nullptr);
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFixedUpdater) {
+  auto stamper_ptr = std::make_shared<formulation::CFEM_StamperMock>();
+
+  auto test_fixed_updater_ptr =
+      this->test_builder.BuildFixedUpdater(stamper_ptr);
+  ASSERT_NE(nullptr, test_fixed_updater_ptr);
+
+  using ExpectedType =
+      iteration::updater::FixedUpdater<formulation::CFEMStamperI>;
+
+  ASSERT_NE(nullptr,
+            dynamic_cast<ExpectedType*>(test_fixed_updater_ptr.get()));
 }
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDiffusionStamper) {

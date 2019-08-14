@@ -10,6 +10,7 @@
 #include "framework/builder/framework_builder_i.h"
 #include "formulation/cfem_stamper_i.h"
 #include "iteration/updater/source_updater_i.h"
+#include "iteration/updater/fixed_updater_i.h"
 #include "convergence/final_i.h"
 #include "system/system_types.h"
 
@@ -27,6 +28,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   using Domain = typename domain::DefinitionI<dim>;
   using CFEMStamper = formulation::CFEMStamperI;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
+  using FixedUpdater = iteration::updater::FixedUpdaterI;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
@@ -49,6 +51,9 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       std::string material_mapping);
+
+  std::unique_ptr<FixedUpdater> BuildFixedUpdater(
+      const std::shared_ptr<CFEMStamper> &stamper_ptr);
 
   std::unique_ptr<CFEMStamper> BuildStamper(
       problem::ParametersI* problem_parameters,
