@@ -36,6 +36,7 @@ class FinalCheckerOrN : public Final<CompareType>{
 
   Status CheckFinalConvergence(CompareType& current_iteration,
                                CompareType& previous_iteration) override;
+  CheckerType* checker_ptr() const { return checker_ptr_.get(); }
 
  protected:
   /*! \brief Do the standard checks for convergence.

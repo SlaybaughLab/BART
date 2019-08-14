@@ -56,6 +56,9 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, Constructor) {
   FinalMultiMomentChecker test_checker(std::move(checker_ptr));
 
   EXPECT_EQ(checker_ptr, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<NiceMock<moments::MultiMomentCheckerMock>*>(
+                test_checker.checker_ptr()));
 }
 
 // -- CONVERGENCE TESTS --

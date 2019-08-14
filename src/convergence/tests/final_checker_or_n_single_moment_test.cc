@@ -56,6 +56,9 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, Constructor) {
   FinalSingleMomentChecker test_checker(std::move(checker_ptr));
 
   EXPECT_EQ(checker_ptr, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<NiceMock<moments::SingleMomentCheckerMock>*>(
+                test_checker.checker_ptr()));
 }
 
 // -- CONVERGENCE TESTS --
