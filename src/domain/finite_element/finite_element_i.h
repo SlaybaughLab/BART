@@ -17,6 +17,8 @@ namespace bart {
 
 namespace domain {
 
+namespace finite_element {
+
 template <int dim>
 class FiniteElementI {
  public:
@@ -113,6 +115,8 @@ class FiniteElementI {
    * This is often used if you need to get face values for a neighbor cell. */
   virtual dealii::FEFaceValues<dim> *neighbor_face_values() = 0;
 };
+
+} // namespace finite_element
 
 } // namespace domain
 

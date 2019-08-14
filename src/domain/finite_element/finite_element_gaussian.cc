@@ -1,4 +1,4 @@
-#include "finite_element_gaussian.h"
+#include "domain/finite_element/finite_element_gaussian.h"
 
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q.h>
@@ -7,6 +7,8 @@
 namespace bart {
 
 namespace domain {
+
+namespace finite_element {
 
 template <int dim>
 FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretization,
@@ -71,6 +73,8 @@ FiniteElementGaussian<dim>::GetFiniteElement(DiscretizationType discretization) 
 template class FiniteElementGaussian<1>;
 template class FiniteElementGaussian<2>;
 template class FiniteElementGaussian<3>;
+
+} // namespace finite_element
 
 } // namespace domain
 

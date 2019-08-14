@@ -3,12 +3,14 @@
 
 #include <memory>
 
-#include "domain/finite_element.h"
+#include "domain/finite_element/finite_element.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
 
 namespace domain {
+
+namespace finite_element {
 
 /*! \brief Provides finite element information using a Gaussian cell quadrature.
  *
@@ -41,6 +43,8 @@ class FiniteElementGaussian : public FiniteElement<dim>{
   std::shared_ptr<dealii::FiniteElement<dim, dim>>
   GetFiniteElement(DiscretizationType discretization);
 };
+
+} // namespace finite_element
 
 } // namespace domain
 

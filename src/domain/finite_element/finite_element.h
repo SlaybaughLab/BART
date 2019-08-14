@@ -4,11 +4,13 @@
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/fe/fe_values.h>
 
-#include "domain/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.h"
 
 namespace bart {
 
 namespace domain {
+
+namespace finite_element {
 
 template<int dim>
 class FiniteElement : public FiniteElementI<dim> {
@@ -77,6 +79,7 @@ class FiniteElement : public FiniteElementI<dim> {
 
 };
 
+} // namespace finite_element
 
 } // namespace domain
 

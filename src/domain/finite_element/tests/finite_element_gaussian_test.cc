@@ -1,4 +1,4 @@
-#include "../finite_element_gaussian.h"
+#include "domain/finite_element/finite_element_gaussian.h"
 
 #include <vector>
 
@@ -10,7 +10,7 @@
 #include <gtest/gtest.h>
 
 #include "problem/parameter_types.h"
-#include "domain/tests/finite_element_test.h"
+#include "finite_element_test.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
@@ -43,7 +43,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
   constexpr int dim = this->dim;
   for (const auto discretization_type : this->discretization_types) {
 
-    domain::FiniteElementGaussian<dim> test_fe{discretization_type, 2};
+    domain::finite_element::FiniteElementGaussian<dim> test_fe{discretization_type, 2};
 
     // Verify correct objects were instantiated
     ASSERT_NE(nullptr, dynamic_cast<dealii::FEValues<dim> *>(test_fe.values()));
@@ -76,7 +76,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorValues) {
   /* Spatial dimension of the problem, this will be used to determine many of
    * the expected values for tests */
   constexpr int dim = this->dim;
-  domain::FiniteElementGaussian<dim> test_fe{
+  domain::finite_element::FiniteElementGaussian<dim> test_fe{
       problem::DiscretizationType::kContinuousFEM, 2};
 
   // Verify correct values returned
@@ -89,7 +89,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorValues) {
 TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorNone) {
   constexpr int dim = this->dim;
   ASSERT_ANY_THROW({
-    domain::FiniteElementGaussian<dim> test_fe(problem::DiscretizationType::kNone, 2);
+    domain::finite_element::FiniteElementGaussian<dim> test_fe(problem::DiscretizationType::kNone, 2);
                    });
 }
 
@@ -100,7 +100,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
    * associate it with and check that the functions are forwarding the right
    * values */
   constexpr int dim = this->dim;
-  bart::domain::FiniteElementGaussian<dim> test_fe{
+  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{
       problem::DiscretizationType::kContinuousFEM, 2};
 
   // Triangulation and DOF handler to link to our values
@@ -131,11 +131,11 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
 // BASE CLASS TESTS ============================================================
 template <typename DimensionWrapper>
 class DomainFiniteElementGaussianBaseMethodsTest :
-    public domain::testing::FiniteElementBaseClassTest<DimensionWrapper::value> {
+    public domain::finite_element::testing::FiniteElementBaseClassTest<DimensionWrapper::value> {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   void SetUp() override {
-    domain::testing::FiniteElementBaseClassTest<dim>::SetUp();
+    domain::finite_element::testing::FiniteElementBaseClassTest<dim>::SetUp();
   }
 };
 
@@ -143,19 +143,19 @@ TYPED_TEST_CASE(DomainFiniteElementGaussianBaseMethodsTest,
                 bart::testing::AllDimensions);
 
 TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseSetCell) {
-  bart::domain::FiniteElementGaussian<this->dim> test_fe{
+  bart::domain::finite_element::FiniteElementGaussian<this->dim> test_fe{
     problem::DiscretizationType::kDiscontinuousFEM, 2};
   this->TestSetCell(&test_fe);
 }
 
 TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseSetCellAndFace) {
-  bart::domain::FiniteElementGaussian<this->dim> test_fe{
+  bart::domain::finite_element::FiniteElementGaussian<this->dim> test_fe{
       problem::DiscretizationType::kDiscontinuousFEM, 2};
   this->TestSetCellAndFace(&test_fe);
 }
 
 TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseValueAtQuadrature) {
-  bart::domain::FiniteElementGaussian<this->dim> test_fe{
+  bart::domain::finite_element::FiniteElementGaussian<this->dim> test_fe{
       problem::DiscretizationType::kDiscontinuousFEM, 2};
   this->TestValueAtQuadrature(&test_fe);
 }

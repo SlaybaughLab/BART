@@ -1,15 +1,17 @@
 #ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_MOCK_H
 #define BART_SRC_DOMAIN_FINITE_ELEMENT_MOCK_H
 
-#include "../finite_element_i.h"
+#include "domain/finite_element/finite_element_i.h"
 
 #include <deal.II/fe/fe_values.h>
 
-#include "../../test_helpers/gmock_wrapper.h"
+#include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
 
 namespace domain {
+
+namespace finite_element {
 
 template <int dim>
 class FiniteElementMock : public FiniteElementI<dim> {
@@ -47,6 +49,8 @@ class FiniteElementMock : public FiniteElementI<dim> {
 
   MOCK_METHOD0_T(neighbor_face_values, dealii::FEFaceValues<dim>*());
 };
+
+} // namespace finite_element
 
 } // namespace domain
 

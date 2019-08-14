@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_TESTS_FINITE_ELEMENT_TEST_H_
 #define BART_SRC_DOMAIN_TESTS_FINITE_ELEMENT_TEST_H_
 
-#include "domain/finite_element.h"
+#include "domain/finite_element/finite_element.h"
 
 #include "test_helpers/test_assertions.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -9,6 +9,8 @@
 namespace bart {
 
 namespace domain {
+
+namespace finite_element {
 
 namespace testing {
 
@@ -22,9 +24,9 @@ class FiniteElementBaseClassTest : public ::testing::Test {
   dealii::Triangulation<dim> triangulation_;
   dealii::DoFHandler<dim> dof_handler_;
 
-  void TestSetCell(domain::FiniteElement<dim>* test_fe);
-  void TestSetCellAndFace(domain::FiniteElement<dim>* test_fe);
-  void TestValueAtQuadrature(domain::FiniteElement<dim>* test_fe);
+  void TestSetCell(domain::finite_element::FiniteElement<dim>* test_fe);
+  void TestSetCellAndFace(domain::finite_element::FiniteElement<dim>* test_fe);
+  void TestValueAtQuadrature(domain::finite_element::FiniteElement<dim>* test_fe);
   void SetUp() override {
     dealii::GridGenerator::hyper_cube(triangulation_, -1, 1);
     triangulation_.refine_global(2);
@@ -111,6 +113,8 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
 }
 
 } // namespace testing
+
+} // namespace finite_element
 
 } // namespace domain
 

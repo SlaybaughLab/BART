@@ -1,8 +1,10 @@
-#include "domain/finite_element.h"
+#include "domain/finite_element/finite_element.h"
 
 namespace bart {
 
 namespace domain {
+
+namespace finite_element {
 
 template <int dim>
 bool FiniteElement<dim>::SetCell(const CellPtr &to_set) {
@@ -54,6 +56,8 @@ std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
 template class FiniteElement<1>;
 template class FiniteElement<2>;
 template class FiniteElement<3>;
+
+} // namespace finite_element
 
 } // namespace domain
 
