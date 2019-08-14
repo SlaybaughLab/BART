@@ -1,4 +1,4 @@
-#include "domain/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.h"
 
 #include <sstream>
 #include <algorithm>
@@ -36,7 +36,7 @@ TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
   int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1,
                                       std::multiplies<int>());
 
-  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+  domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
   for (int i = 0; i < dim; ++i) {
@@ -64,7 +64,7 @@ TYPED_TEST(DomainMeshCartesianTest, FillBoundaryIDTest) {
 
   const double zero_tol = 1.0e-14;
 
-  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+  domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
   test_mesh.FillTriangulation(test_triangulation);
@@ -136,7 +136,7 @@ TYPED_TEST(DomainMeshCartesianTest, BadSpatialSize) {
 
   for (const auto& i : i_values) {
     EXPECT_ANY_THROW({
-                       domain::MeshCartesian<dim> test_mesh(spatial_maxes.at(dim + i),
+                       domain::mesh::MeshCartesian<dim> test_mesh(spatial_maxes.at(dim + i),
                                                             n_cells.at(dim + i));
                      });
   }
@@ -150,7 +150,7 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
                            n_cells_double.cend()};
 
   std::string material_mapping{'1'};
-  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells, material_mapping);
+  domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells, material_mapping);
 
   EXPECT_TRUE(test_mesh.has_material_mapping());
 
@@ -203,7 +203,7 @@ TYPED_TEST(DomainMeshCartesianTest, FillMaterialIDTest) {
   std::vector<double> spatial_max(dim, 10.0);
   std::vector<int> n_cells(dim, 4);
 
-  domain::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+  domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
 
   std::string material_mapping;
@@ -233,7 +233,7 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
   std::vector<double> n_cells_double{btest::RandomVector(1, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
-  domain::MeshCartesian<1> test_mesh(spatial_max, n_cells);
+  domain::mesh::MeshCartesian<1> test_mesh(spatial_max, n_cells);
 
   std::string material_mapping{"1 2"};
 
@@ -264,7 +264,7 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping2D) {
   std::vector<double> n_cells_double{btest::RandomVector(2, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
-  domain::MeshCartesian<2> test_mesh(spatial_max, n_cells);
+  domain::mesh::MeshCartesian<2> test_mesh(spatial_max, n_cells);
 
   std::string material_mapping{"1 2\n3 4"};
   test_mesh.ParseMaterialMap(material_mapping);
@@ -311,7 +311,7 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping3D) {
   std::vector<double> n_cells_double{btest::RandomVector(3, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
-  domain::MeshCartesian<3> test_mesh(spatial_max, n_cells);
+  domain::mesh::MeshCartesian<3> test_mesh(spatial_max, n_cells);
 
   std::string material_mapping{"1 2\n3 4\n\n5 6\n7 8"};
   test_mesh.ParseMaterialMap(material_mapping);

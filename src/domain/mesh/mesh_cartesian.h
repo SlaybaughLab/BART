@@ -9,11 +9,13 @@
 #include <deal.II/base/point.h>
 #include <deal.II/grid/tria.h>
 
-#include "mesh_i.h"
+#include "domain/mesh/mesh_i.h"
 
 namespace bart {
 
 namespace domain {
+
+namespace mesh {
 
 template <int dim>
 class MeshCartesian : public MeshI<dim> {
@@ -49,6 +51,8 @@ class MeshCartesian : public MeshI<dim> {
   std::array<int, dim>    n_cells_;
   std::map<std::array<int, dim>, int> material_mapping_;
 };
+
+} // namespace mesh
 
 } // namespace domain
 

@@ -1,17 +1,19 @@
 #ifndef BART_SRC_DOMAIN_MESH_MOCK_H_
 #define BART_SRC_DOMAIN_MESH_MOCK_H_
 
-#include "../mesh_i.h"
+#include "domain/mesh/mesh_i.h"
 
 #include <array>
 
 #include <deal.II/grid/tria.h>
 
-#include "../../test_helpers/gmock_wrapper.h"
+#include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
 
 namespace domain {
+
+namespace mesh {
 
 /* \brief Provides a dealii Mesh */
 
@@ -31,6 +33,8 @@ class MeshMock : public MeshI<dim> {
   MOCK_CONST_METHOD0_T(n_cells,  std::array<int, dim>());
      
 };
+
+} // namespace mesh
 
 } // namespace domain
 

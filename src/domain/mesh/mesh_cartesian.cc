@@ -1,4 +1,4 @@
-#include "domain/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.h"
 
 #include <algorithm>
 #include <cmath>
@@ -14,6 +14,8 @@
 namespace bart {
 
 namespace domain {
+
+namespace mesh {
 
 template <int dim>
 MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
@@ -180,6 +182,8 @@ int MeshCartesian<dim>::GetMaterialID(std::array<double, dim> location) {
 template class MeshCartesian<1>;
 template class MeshCartesian<2>;
 template class MeshCartesian<3>;
+
+} // namespace mesh
 
 } // namespace domain
 

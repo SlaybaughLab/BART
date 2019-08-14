@@ -9,6 +9,8 @@ namespace bart {
 
 namespace domain {
 
+namespace mesh {
+
 /* \brief Provides a dealii Mesh */
 
 template <int dim>
@@ -31,6 +33,8 @@ class MeshI {
   virtual std::array<int, dim> n_cells() const = 0;
      
 };
+
+} // namespace mesh
 
 } // namespace domain
 
