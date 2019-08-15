@@ -1,18 +1,41 @@
 #include "framework/builder/cfem_framework_builder.h"
 
+#include <fstream>
+#include <streambuf>
+#include <deal.II/base/parameter_handler.h>
+#include <deal.II/base/mpi.h>
+
+#include "calculator/cell/integrated_fission_source.h"
+#include "calculator/cell/total_aggregated_fission_source.h"
+#include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "convergence/reporter/mpi_noisy.h"
 #include "domain/definition.h"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/mesh/mesh_cartesian.h"
+#include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/cfem_diffusion_stamper.h"
 #include "formulation/scalar/cfem_diffusion.h"
+#include "framework/framework.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
+#include "iteration/initializer/set_fixed_terms_once.h"
+#include "iteration/group/group_source_iteration.h"
+#include "iteration/outer/outer_power_iteration.h"
+#include "material/material_protobuf.h"
+#include "problem/parameters_dealii_handler.h"
 #include "problem/parameter_types.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/final_checker_or_n.h"
+#include "quadrature/angular/angular_quadrature_scalar.h"
+#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
+#include "system/system.h"
+#include "system/solution/mpi_group_angular_solution.h"
+#include "system/terms/term.h"
+#include "system/terms/term_types.h"
+#include "system/moments/spherical_harmonic.h"
 
 
 namespace bart {
@@ -20,6 +43,202 @@ namespace bart {
 namespace framework {
 
 namespace builder {
+
+template <int dim>
+std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
+    const std::string filename) {
+  std::cout << "Accessing file and building parameters" << std::endl;
+
+  problem::ParametersDealiiHandler prm;
+  dealii::ParameterHandler d2_prm;
+  prm.SetUp(d2_prm);
+
+  d2_prm.parse_input(filename, "");
+  prm.Parse(d2_prm);
+
+  std::cout << "Setting up materials" << std::endl;
+
+  std::ifstream mapping_file(prm.MaterialMapFilename());
+  std::string material_mapping(
+      (std::istreambuf_iterator<char>(mapping_file)),
+      std::istreambuf_iterator<char>());
+
+  const int n_groups = 1;
+
+  MaterialProtobuf materials(d2_prm);
+  auto cross_sections_ptr = std::make_shared<bart::data::CrossSections>(materials);
+
+  std::cout << "Building Finite Element"<< std::endl;
+  auto finite_element_ptr = std::make_shared<FiniteElement>(std::move(BuildFiniteElement(&prm)));
+
+  std::cout << "Building Domain" << std::endl;
+  auto domain_ptr = std::make_shared<Domain>(std::move(BuildDomain(&prm, finite_element_ptr, material_mapping)));
+
+  std::cout << "Setting up domain" << std::endl;
+  domain_ptr->SetUpMesh().SetUpDOF();
+
+  std::cout << "Building Stamper" << std::endl;
+  auto stamper_ptr = std::make_shared<CFEMStamper>(std::move(BuildStamper(
+      &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
+
+  std::cout << "Building fixed updater" << std::endl;
+  auto fixed_updater_ptr = BuildFixedUpdater(stamper_ptr);
+
+  std::cout << "Building source updater" << std::endl;
+  auto source_updater_ptr = BuildSourceUpdater(&prm, stamper_ptr);
+
+  std::cout << "Building Initializer" << std::endl;
+  auto initializer_ptr =
+      std::make_unique<iteration::initializer::SetFixedTermsOnce>(
+          std::move(fixed_updater_ptr), prm.NEnergyGroups(), n_groups);
+
+  std::cout << "Building single group solver" << std::endl;
+  auto single_group_solver_ptr = BuildSingleGroupSolver();
+
+
+  std::cout << "Building inner iteration objects" << std::endl;
+
+  auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 100);
+
+  // Build reporter
+  using Reporter = bart::convergence::reporter::MpiNoisy;
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
+  auto reporter = std::make_shared<Reporter>(std::move(pout_ptr));
+
+  // Scalar Quadrature
+  using ScalarQuadrature = quadrature::angular::AngularQuadratureScalar<dim>;
+  auto quadrature_ptr = std::make_shared<ScalarQuadrature>();
+
+  // Moment calculator
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicZerothMoment<dim>;
+  auto moment_calculator = std::make_unique<MomentCalculator>(quadrature_ptr);
+
+  // Solution group
+  auto solution_ptr =
+      std::make_shared<system::solution::MPIGroupAngularSolution>(n_groups);
+
+  data::MatrixParameters matrix_param;
+  domain_ptr->FillMatrixParameters(matrix_param, prm.Discretization());
+
+  std::cout << "==Filling solution object" << std::endl;
+
+  auto& solution = solution_ptr->operator[](0);
+  solution.reinit(matrix_param.rows, MPI_COMM_WORLD);
+  auto local_elements = solution.locally_owned_elements();
+  for (auto index : local_elements) {
+    solution[index] = 1.0;
+  }
+  solution.compress(dealii::VectorOperation::insert);
+
+  std::cout << "Building in-group iteration" << std::endl;
+
+  auto in_group_iteration =
+      std::make_unique<iteration::group::GroupSourceIteration<dim>>(
+          std::move(single_group_solver_ptr),
+          std::move(in_group_final_checker),
+          std::move(moment_calculator),
+          solution_ptr,
+          source_updater_ptr,
+          reporter);
+
+  std::cout << "Building K_Effective updater" << std::endl;
+
+  // KEffectiveUpdater
+  using FissionSourceCalulator = calculator::cell::TotalAggregatedFissionSource<dim>;
+  using IntegratedFissionSourceCalc = calculator::cell::IntegratedFissionSource<dim>;
+  auto int_fission_ptr = std::make_unique<IntegratedFissionSourceCalc>(
+      finite_element_ptr, cross_sections_ptr);
+  auto fission_source_calc_ptr = std::make_unique<FissionSourceCalulator>(
+      std::move(int_fission_ptr), domain_ptr);
+  using KEffectiveUpdater = eigenvalue::k_effective::UpdaterViaFissionSource;
+
+  // KEffective convergence checker
+  using KEffConvChecker = bart::convergence::parameters::SingleParameterChecker;
+  auto k_eff_conv_checker = std::make_unique<KEffConvChecker>();
+  using KEffectiveFinalCovergence = bart::convergence::FinalCheckerOrN<double,
+      bart::convergence::parameters::SingleParameterChecker>;
+  auto k_eff_final_checker = std::make_unique<KEffectiveFinalCovergence>(
+      std::move(k_eff_conv_checker)
+      );
+
+  // KEffective updater
+  auto k_effective_updater = std::make_unique<KEffectiveUpdater>(
+      std::move(fission_source_calc_ptr), 2.0, 10);
+
+  std::cout << "Building outer-iteration" << std::endl;
+
+  using PowerIteration = iteration::outer::OuterPowerIteration;
+  auto power_iteration_ptr = std::make_unique<PowerIteration>(
+      std::move(in_group_iteration),
+      std::move(k_eff_final_checker),
+      std::move(k_effective_updater),
+      source_updater_ptr,
+      reporter
+  );
+
+  std::cout << "Building System" << std::endl;
+
+  auto system = std::make_unique<system::System>();
+
+  system->total_groups = prm.NEnergyGroups();
+  std::unordered_set<bart::system::terms::VariableLinearTerms>
+      source_terms{bart::system::terms::VariableLinearTerms::kScatteringSource,
+                   bart::system::terms::VariableLinearTerms::kFissionSource};
+  system->right_hand_side_ptr_ =
+      std::make_unique<system::terms::MPILinearTerm>(source_terms);
+  system->left_hand_side_ptr_ =
+      std::make_unique<system::terms::MPIBilinearTerm>();
+
+  std::cout << "Filling system" << std::endl;
+
+  // Fill system with objects
+  for (int group = 0; group <= prm.NEnergyGroups(); ++group) {
+
+    // LHS
+    auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
+    system->left_hand_side_ptr_->SetFixedTermPtr(group, fixed_matrix_ptr);
+
+    // RHS
+    auto fixed_vector_ptr =
+        std::make_shared<bart::system::MPIVector>(matrix_param.rows, MPI_COMM_WORLD);
+    system->right_hand_side_ptr_->SetFixedTermPtr(group, fixed_vector_ptr);
+
+    for (auto term : source_terms) {
+      auto variable_vector_ptr =
+          std::make_shared<bart::system::MPIVector>(matrix_param.rows, MPI_COMM_WORLD);
+      system->right_hand_side_ptr_->SetVariableTermPtr(
+          group, term, variable_vector_ptr);
+    }
+    // Moments
+    system->current_moments =
+        std::make_unique<system::moments::SphericalHarmonic>(prm.NEnergyGroups(), 0);
+    system->previous_moments =
+        std::make_unique<system::moments::SphericalHarmonic>(prm.NEnergyGroups(), 0);
+  }
+
+  std::cout << "Fill system moments" << std::endl;
+
+  for (auto& moment_pair : system->current_moments->moments()) {
+    auto index = moment_pair.first;
+    auto& current_moment = system->current_moments->operator[](index);
+    current_moment.reinit(solution_ptr->operator[](0).size());
+    auto& previous_moment = system->previous_moments->operator[](index);
+    previous_moment.reinit(solution_ptr->operator[](0).size());
+    current_moment = 1;
+    previous_moment = 1;
+  }
+
+  // Initialize System
+  system->k_effective = 1.16;
+  system->total_groups = prm.NEnergyGroups();
+  system->total_angles = 1;
+
+  return std::make_unique<framework::Framework>(
+      std::move(system),
+      std::move(initializer_ptr),
+      std::move(power_iteration_ptr));
+}
 
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(

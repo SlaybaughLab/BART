@@ -7,8 +7,10 @@
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
 #include "problem/parameters_i.h"
+#include "framework/framework_i.h"
 #include "framework/builder/framework_builder_i.h"
 #include "formulation/cfem_stamper_i.h"
+#include "iteration/initializer/initializer_i.h"
 #include "iteration/updater/source_updater_i.h"
 #include "iteration/updater/fixed_updater_i.h"
 #include "convergence/final_i.h"
@@ -30,6 +32,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   using CFEMStamper = formulation::CFEMStamperI;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FixedUpdater = iteration::updater::FixedUpdaterI;
+  using Initializer = iteration::initializer::InitializerI;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
   using ParameterConvergenceChecker = convergence::FinalI<double>;
@@ -38,14 +41,9 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   CFEM_FrameworkBuilder() = default;
   virtual ~CFEM_FrameworkBuilder() = default;
 
-  /*! \brief Returns a FiniteElement object.
-   *
-   * Only FiniteElementGaussian is implemented. Future versions may include a
-   * problem parameter that specifies the TYPE of finite element object.
-   *
-   * @param problem_parameters problem parameters
-   * @return
-   */
+  std::unique_ptr<FrameworkI> BuildFramework(
+      const std::string filename);
+
   std::unique_ptr<FiniteElement> BuildFiniteElement(
       problem::ParametersI* problem_parameters);
 
