@@ -16,17 +16,19 @@ namespace solver {
 
 class GMRES : public LinearI {
  public:
-  GMRES(int max_iterations, double convergence_tolerance);
+  GMRES(int max_iterations = 100, double convergence_tolerance = 1e-10);
   ~GMRES() = default;
 
   void Solve(dealii::PETScWrappers::MatrixBase *A,
              dealii::PETScWrappers::VectorBase *x,
              dealii::PETScWrappers::VectorBase *b,
              dealii::PETScWrappers::PreconditionerBase *preconditioner) override;
+  int max_iterations() const { return solver_control_.max_steps(); };
+  double convergence_tolerance() const { return solver_control_.tolerance(); };
+
+  const dealii::SolverControl& solver_control() const { return solver_control_;};
 
  private:
-  int max_iterations_ = 100;
-  double convergence_tolerance_ = 1e-6;
   dealii::SolverControl solver_control_;
 };
 

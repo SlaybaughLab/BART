@@ -16,6 +16,20 @@ class SolverGMRESTest : public ::testing::Test {
   using Preconditioner = dealii::PETScWrappers::PreconditionerBase;
 };
 
+TEST_F(SolverGMRESTest, Constructor) {
+  bart::solver::GMRES solver;
+  EXPECT_EQ(solver.max_iterations(), 100);
+  EXPECT_EQ(solver.convergence_tolerance(), 1e-10);
+
+  EXPECT_EQ(solver.solver_control().max_steps(), 100);
+  EXPECT_EQ(solver.solver_control().tolerance(), 1e-10);
+
+
+  bart::solver::GMRES solver_2(210, 1e-6);
+  EXPECT_EQ(solver_2.solver_control().max_steps(), 210);
+  EXPECT_EQ(solver_2.solver_control().tolerance(), 1e-6);
+}
+
 TEST_F(SolverGMRESTest, SolveTestNoPrecon) {
 
   std::vector<double> b{5,7,8};

@@ -7,9 +7,7 @@ namespace bart {
 namespace solver {
 
 GMRES::GMRES(int max_iterations, double convergence_tolerance)
-    : max_iterations_(max_iterations),
-      convergence_tolerance_(convergence_tolerance),
-      solver_control_(max_iterations_, convergence_tolerance_){}
+    : solver_control_(max_iterations, convergence_tolerance){}
 
 void GMRES::Solve(dealii::PETScWrappers::MatrixBase *A,
                   dealii::PETScWrappers::VectorBase *x,
