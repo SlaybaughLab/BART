@@ -12,6 +12,7 @@
 #include "iteration/updater/source_updater_i.h"
 #include "iteration/updater/fixed_updater_i.h"
 #include "convergence/final_i.h"
+#include "solver/group/single_group_solver_i.h"
 #include "system/system_types.h"
 
 
@@ -29,6 +30,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   using CFEMStamper = formulation::CFEMStamperI;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FixedUpdater = iteration::updater::FixedUpdaterI;
+  using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
@@ -54,6 +56,10 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
 
   std::unique_ptr<FixedUpdater> BuildFixedUpdater(
       const std::shared_ptr<CFEMStamper> &stamper_ptr);
+
+  std::unique_ptr<SingleGroupSolver> BuildSingleGroupSolver(
+      const int max_iterations = 100,
+      const double convergence_tolerance = 1e-10);
 
   std::unique_ptr<CFEMStamper> BuildStamper(
       problem::ParametersI* problem_parameters,

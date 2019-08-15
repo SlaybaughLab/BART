@@ -11,6 +11,8 @@
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/final_checker_or_n.h"
+#include "solver/group/single_group_solver.h"
+#include "solver/gmres.h"
 
 
 namespace bart {
@@ -124,6 +126,21 @@ auto CFEM_FrameworkBuilder<dim>::BuildFixedUpdater(
 -> std::unique_ptr<CFEM_FrameworkBuilder::FixedUpdater> {
   using FixedUpdaterType = iteration::updater::FixedUpdater<CFEMStamper>;
   return std::make_unique<FixedUpdaterType>(stamper_ptr);
+}
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildSingleGroupSolver(
+    const int max_iterations,
+    const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> {
+  std::unique_ptr<SingleGroupSolver> return_ptr = nullptr;
+
+  auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
+                                                    convergence_tolerance);
+
+  return_ptr = std::move(
+      std::make_unique<solver::group::SingleGroupSolver>(
+          std::move(linear_solver_ptr)));
+
+  return return_ptr;
 }
 
 template class CFEM_FrameworkBuilder<1>;

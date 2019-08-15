@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <deal.II/fe/fe_q.h>
+#include <solver/gmres.h>
 
 #include "formulation/cfem_diffusion_stamper.h"
 #include "data/cross_sections.h"
@@ -21,6 +22,7 @@
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "solver/group/single_group_solver.h"
 
 namespace  {
 
@@ -189,6 +191,26 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder,
           this->test_builder.BuildStamper(&this->parameters,
               domain_ptr, finite_element_ptr, cross_sections_ptr);});
   }
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSingleGroupSolver) {
+  using ExpectedType = solver::group::SingleGroupSolver;
+
+  auto solver_ptr = this->test_builder.BuildSingleGroupSolver();
+
+  ASSERT_NE(nullptr, solver_ptr);
+
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(solver_ptr.get());
+  ASSERT_NE(nullptr, dynamic_ptr);
+
+  using ExpectedLinearSolverType = solver::GMRES;
+
+  auto linear_solver_ptr = dynamic_cast<ExpectedLinearSolverType*>(
+      dynamic_ptr->linear_solver_ptr());
+
+  ASSERT_NE(nullptr, linear_solver_ptr);
+  EXPECT_EQ(linear_solver_ptr->convergence_tolerance(), 1e-10);
+  EXPECT_EQ(linear_solver_ptr->max_iterations(), 100);
 }
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSourceUpdater) {
