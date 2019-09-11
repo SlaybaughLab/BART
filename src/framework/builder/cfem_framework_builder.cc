@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <streambuf>
-#include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
 
 #include "calculator/cell/integrated_fission_source.h"
@@ -22,7 +21,6 @@
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
 #include "material/material_protobuf.h"
-#include "problem/parameters_dealii_handler.h"
 #include "problem/parameter_types.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
@@ -46,15 +44,8 @@ namespace builder {
 
 template <int dim>
 std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
-    const std::string filename) {
-  std::cout << "Accessing file and building parameters" << std::endl;
-
-  problem::ParametersDealiiHandler prm;
-  dealii::ParameterHandler d2_prm;
-  prm.SetUp(d2_prm);
-
-  d2_prm.parse_input(filename, "");
-  prm.Parse(d2_prm);
+    problem::ParametersI &prm,
+    dealii::ParameterHandler &d2_prm) {
 
   std::cout << "Setting up materials" << std::endl;
 

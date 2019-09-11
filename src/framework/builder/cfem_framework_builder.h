@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_BUILDER_CFEM_FRAMEWORK_BUILDER_H_
 #define BART_SRC_FRAMEWORK_BUILDER_CFEM_FRAMEWORK_BUILDER_H_
 
+#include <deal.II/base/parameter_handler.h>
 #include <memory>
 
 #include "data/cross_sections.h"
@@ -42,7 +43,8 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   virtual ~CFEM_FrameworkBuilder() = default;
 
   std::unique_ptr<FrameworkI> BuildFramework(
-      const std::string filename);
+      problem::ParametersI &prm,
+      dealii::ParameterHandler &d2_prm);
 
   std::unique_ptr<FiniteElement> BuildFiniteElement(
       problem::ParametersI* problem_parameters);
