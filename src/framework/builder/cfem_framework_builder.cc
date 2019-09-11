@@ -69,23 +69,26 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   auto cross_sections_ptr = std::make_shared<bart::data::CrossSections>(materials);
 
   std::cout << "Building Finite Element"<< std::endl;
-  auto finite_element_ptr = std::make_shared<FiniteElement>(std::move(BuildFiniteElement(&prm)));
+  std::shared_ptr<FiniteElement>finite_element_ptr(std::move(BuildFiniteElement(
+      &prm)));
 
   std::cout << "Building Domain" << std::endl;
-  auto domain_ptr = std::make_shared<Domain>(std::move(BuildDomain(&prm, finite_element_ptr, material_mapping)));
+  std::shared_ptr<Domain> domain_ptr(std::move(BuildDomain(
+      &prm,finite_element_ptr, material_mapping)));
 
   std::cout << "Setting up domain" << std::endl;
   domain_ptr->SetUpMesh().SetUpDOF();
 
   std::cout << "Building Stamper" << std::endl;
-  auto stamper_ptr = std::make_shared<CFEMStamper>(std::move(BuildStamper(
+  std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
       &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
 
   std::cout << "Building fixed updater" << std::endl;
   auto fixed_updater_ptr = BuildFixedUpdater(stamper_ptr);
 
   std::cout << "Building source updater" << std::endl;
-  auto source_updater_ptr = BuildSourceUpdater(&prm, stamper_ptr);
+  std::shared_ptr<SourceUpdater> source_updater_ptr(
+      std::move(BuildSourceUpdater(&prm, stamper_ptr)));
 
   std::cout << "Building Initializer" << std::endl;
   auto initializer_ptr =
