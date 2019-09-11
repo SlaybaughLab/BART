@@ -6,7 +6,7 @@ set number of groups                         = 1
 set do eigenvalue calculations               = true
 set do nda                                   = false
 set have reflective boundary                 = true
-set reflective boundary names                = ymax, ymin
+set reflective boundary names                = xmin, xmax, ymax, ymin
 
 set uniform refinements                      = 3
 
@@ -15,8 +15,8 @@ set ho preconditioner name                   = bssor
 #set ho ssor factor                             = 1.6
 
 
-set x, y, z max values of boundary locations = 10.0, 10.0, 1.0
-set number of cells for x, y, z directions   = 3, 2, 2
+set x, y, z max values of boundary locations = 10.0, 10.0
+set number of cells for x, y, z directions   = 10, 10
 set number of materials                      = 2
 
 set ho spatial discretization                = cfem
