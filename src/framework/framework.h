@@ -29,7 +29,7 @@ class Framework : public FrameworkI {
     return initializer_ptr_.get();
   }
 
-  system::System* system() const {
+  system::System* system() const override {
     return system_ptr_.get();
   }
 
