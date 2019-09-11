@@ -4,8 +4,8 @@
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
 
+#include "framework/builder/cfem_framework_builder.h"
 #include "problem/parameters_dealii_handler.h"
-#include "problem/locator.h"
 
 int main(int argc, char* argv[]) {
   try {
@@ -19,23 +19,44 @@ int main(int argc, char* argv[]) {
     std::cout << "BAY AREA RADIATION TRANSPORT\n"
               << "Develped at the University of California, Berkeley"
               << std::endl;
-    dealii::ParameterHandler prm;
 
-    // New parameters handler
-    auto parameter_handler_ptr =
-        std::make_shared<bart::problem::ParametersDealiiHandler>();
-
-    // Declare input strings, declare both using the new handler, and the old
-    // method, as not all have been moved (and may not be moved)
-    parameter_handler_ptr->SetUp(prm);
-
+    bart::problem::ParametersDealiiHandler prm;
+    dealii::ParameterHandler d2_prm;
     const std::string filename{argv[1]};
-    prm.parse_input(filename, "");
 
-    parameter_handler_ptr->Parse(prm);
-    bart::problem::Locator::Provide(parameter_handler_ptr);
+    prm.SetUp(d2_prm);
+    d2_prm.parse_input(filename, "");
+    prm.Parse(d2_prm);
 
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+
+    double k_eff_final;
+
+    switch(prm.SpatialDimension()) {
+      case 1: {
+        bart::framework::builder::CFEM_FrameworkBuilder<1> builder;
+        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        framework_ptr->SolveSystem();
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+        break;
+      }
+      case 2: {
+        bart::framework::builder::CFEM_FrameworkBuilder<2> builder;
+        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        framework_ptr->SolveSystem();
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+        break;
+      }
+      case 3: {
+        bart::framework::builder::CFEM_FrameworkBuilder<3> builder;
+        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        framework_ptr->SolveSystem();
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+        break;
+      }
+    }
+
+    std::cout << "Final k_effective: " << k_eff_final << std::endl;
 
   } catch (std::exception &exc) {
     std::cerr << std::endl << std::endl
