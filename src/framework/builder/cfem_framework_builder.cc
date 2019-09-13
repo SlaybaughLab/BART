@@ -117,13 +117,15 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   std::cout << "==Filling solution object" << std::endl;
 
-  auto& solution = solution_ptr->operator[](0);
-  solution.reinit(matrix_param.rows, MPI_COMM_WORLD);
-  auto local_elements = solution.locally_owned_elements();
-  for (auto index : local_elements) {
-    solution[index] = 1.0;
+  for (int group = 0; group < n_groups; ++group) {
+    auto &solution = solution_ptr->operator[](group);
+    solution.reinit(matrix_param.rows, MPI_COMM_WORLD);
+    auto local_elements = solution.locally_owned_elements();
+    for (auto index : local_elements) {
+      solution[index] = 1.0;
+    }
+    solution.compress(dealii::VectorOperation::insert);
   }
-  solution.compress(dealii::VectorOperation::insert);
 
   std::cout << "Building in-group iteration" << std::endl;
 
