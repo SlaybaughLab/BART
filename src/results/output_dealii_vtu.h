@@ -16,7 +16,9 @@ class OutputDealiiVtu : public OutputI {
  public:
   OutputDealiiVtu(const std::shared_ptr<domain::DefinitionI<dim>> &domain_ptr)
   : domain_ptr_(domain_ptr) {}
-  void Output(system::System &to_output) const override {};
+
+  void AddData(system::System &to_output) override;
+  void WriteData(std::ostream &output_stream) const override;
 
   domain::DefinitionI<dim>* domain_ptr() const { return domain_ptr_.get(); };
 
