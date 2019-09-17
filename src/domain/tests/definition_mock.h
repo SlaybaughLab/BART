@@ -29,8 +29,9 @@ class DefinitionMock : public DefinitionI<dim> {
   MOCK_CONST_METHOD0_T(GetCellVector, dealii::Vector<double>());
   MOCK_CONST_METHOD0_T(Cells, typename DefinitionI<dim>::CellRange());
   MOCK_CONST_METHOD0_T(total_degrees_of_freedom, int());
+  MOCK_CONST_METHOD0_T(dof_handler, const dealii::DoFHandler<dim>&());
 
-};
+  };
 
 } // namespace domain
 

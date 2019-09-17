@@ -111,7 +111,7 @@ class Definition : public DefinitionI<dim> {
   }
 
   /*! Get internal DOF object */
-  const dealii::DoFHandler<dim>& dof_handler() const {
+  const dealii::DoFHandler<dim>& dof_handler() const override {
     return dof_handler_;
   }
   

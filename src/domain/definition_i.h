@@ -37,6 +37,8 @@ class DefinitionI {
 
   virtual CellRange Cells() const = 0;
 
+  virtual const dealii::DoFHandler<dim>& dof_handler() const = 0;
+
   virtual int total_degrees_of_freedom() const = 0;
 };
 
