@@ -105,6 +105,17 @@ TEST_F(FrameworkTest, OutputResultsBadStream) {
   EXPECT_ANY_THROW(test_framework_->OutputResults(output_stream));
 }
 
+TEST_F(FrameworkTest, OutputResults) {
+  std::ostringstream output_stream;
+  auto& system = *system_obs_ptr_;
+  auto& results_output_mock = *results_output_obs_ptr_;
+
+  EXPECT_CALL(results_output_mock, AddData(Ref(system)));
+  EXPECT_CALL(*results_output_obs_ptr_, WriteData(Ref(output_stream)));
+
+  test_framework_->OutputResults(output_stream);
+}
+
 
 
 } // namespace

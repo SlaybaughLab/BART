@@ -36,6 +36,9 @@ void Framework::OutputResults(std::ostream &output_stream) {
               dealii::ExcMessage("Results output poitner is null"));
   AssertThrow(output_stream.good(),
               dealii::ExcMessage("Bad stream passed to OutputResults"));
+
+  results_output_ptr_->AddData(*system_ptr_);
+  results_output_ptr_->WriteData(output_stream);
 }
 
 } // namespace framework
