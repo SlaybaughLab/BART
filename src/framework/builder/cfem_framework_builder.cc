@@ -27,6 +27,7 @@
 #include "convergence/final_checker_or_n.h"
 #include "quadrature/angular/angular_quadrature_scalar.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
+#include "results/output_dealii_vtu.h"
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
 #include "system/system.h"
@@ -230,10 +231,16 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   system->total_groups = prm.NEnergyGroups();
   system->total_angles = 1;
 
+  std::cout << "Build Results Output" << std::endl;
+  auto results_output_ptr =
+      std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr);
+
+
   return std::make_unique<framework::Framework>(
       std::move(system),
       std::move(initializer_ptr),
-      std::move(power_iteration_ptr));
+      std::move(power_iteration_ptr),
+      std::move(results_output_ptr));
 }
 
 template<int dim>
