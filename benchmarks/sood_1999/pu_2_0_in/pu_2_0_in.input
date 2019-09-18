@@ -11,7 +11,7 @@ set number of materials                      = 1
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = pu_2_0
+set output file name base                    = pu_2_0_in
 
 subsection material ID map
 set material id file name map                = 1: pu_2_0_in_pu_239.material
