@@ -32,6 +32,7 @@ class ResultsOutputDealiiVtuTest
   system::moments::SphericalHarmonicMock* moments_obs_ptr_;
 
   std::array<double, 2> group_phi_values_{1.45, 1.67};
+  system::moments::MomentVector group_0_moment, group_1_moment;
 
   const int n_groups = 2;
 
@@ -56,18 +57,13 @@ void ResultsOutputDealiiVtuTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
   test_data_out_.attach_dof_handler(this->dof_handler_);
 
-  for (unsigned int i = 0; i < this->vector_1.size(); ++i) {
-    if (this->vector_1.in_local_range(i))
-      this->vector_1[i] = group_phi_values_[0];
-  }
+  group_0_moment.reinit(this->vector_1.size());
+  group_1_moment.reinit(this->vector_1.size());
+  group_0_moment = group_phi_values_[0];
+  group_1_moment = group_phi_values_[1];
 
-  for (unsigned int i = 0; i < this->vector_2.size(); ++i) {
-    if (this->vector_2.in_local_range(i))
-      this->vector_2[i] = group_phi_values_[1];
-  }
-
-  test_data_out_.add_data_vector(this->vector_1, "scalar_flux_group_0");
-  test_data_out_.add_data_vector(this->vector_2, "scalar_flux_group_1");
+  test_data_out_.add_data_vector(group_0_moment, "scalar_flux_group_0");
+  test_data_out_.add_data_vector(group_1_moment, "scalar_flux_group_1");
 
   test_data_out_.build_patches();
 }
@@ -89,13 +85,14 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
   std::ostringstream expected_stream, test_stream;
 
   this->test_data_out_.write_vtu(test_stream);
-//  system::moments::MomentIndex group_0_index{0, 0, 0},
-//      group_1_index{1, 0, 0};
 
-//  EXPECT_CALL(*this->moments_obs_ptr_, GetMoment(group_0_index))
-//      .WillOnce(ReturnRef(this->vector_1));
-//  EXPECT_CALL(*this->moments_obs_ptr_, GetMoment(group_1_index))
-//      .WillOnce(ReturnRef(this->vector_2));
+  system::moments::MomentIndex group_0_index{0, 0, 0},
+      group_1_index{1, 0, 0};
+
+  EXPECT_CALL(*this->moments_obs_ptr_, GetMoment(group_0_index))
+      .WillOnce(ReturnRef(this->group_0_moment));
+  EXPECT_CALL(*this->moments_obs_ptr_, GetMoment(group_1_index))
+      .WillOnce(ReturnRef(this->group_1_moment));
 
   // Check that dof_handler is called to attach to data
   auto mock_domain_ptr = dynamic_cast<domain::DefinitionMock<dim>*>(
