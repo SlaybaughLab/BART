@@ -2,6 +2,7 @@
 
 #include "iteration/outer/tests/outer_iteration_mock.h"
 #include "iteration/initializer/tests/initializer_mock.h"
+#include "results/tests/output_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -15,6 +16,7 @@ class FrameworkTest : public ::testing::Test {
   using Framework = framework::Framework;
   using Initializer = iteration::initializer::InitializerMock;
   using OuterIterator = iteration::outer::OuterIterationMock;
+  using ResultsOutput = results::OutputMock;
 
   std::unique_ptr<Framework> test_framework_;
 
@@ -22,6 +24,7 @@ class FrameworkTest : public ::testing::Test {
   system::System* system_obs_ptr_;
   Initializer* initializer_obs_ptr_;
   OuterIterator* outer_iterator_obs_ptr_;
+  ResultsOutput* results_output_obs_ptr_;
 
   void SetUp() override;
 };
@@ -33,11 +36,14 @@ void FrameworkTest::SetUp() {
   initializer_obs_ptr_ = initializer_ptr.get();
   auto outer_iterator_ptr = std::make_unique<OuterIterator>();
   outer_iterator_obs_ptr_ = outer_iterator_ptr.get();
+  auto results_output_ptr = std::make_unique<ResultsOutput>();
+  results_output_obs_ptr_ = results_output_ptr.get();
 
   test_framework_ = std::make_unique<Framework>(
       std::move(system_ptr),
       std::move(initializer_ptr),
-      std::move(outer_iterator_ptr)
+      std::move(outer_iterator_ptr),
+      std::move(results_output_ptr)
       );
 }
 
@@ -45,6 +51,7 @@ TEST_F(FrameworkTest, Constructor) {
   EXPECT_NE(test_framework_->system(), nullptr);
   EXPECT_NE(test_framework_->initializer_ptr(), nullptr);
   EXPECT_NE(test_framework_->outer_iterator_ptr(), nullptr);
+  EXPECT_NE(test_framework_->results_output_ptr(), nullptr);
 }
 
 TEST_F(FrameworkTest, ConstructorThrows) {
@@ -55,12 +62,13 @@ TEST_F(FrameworkTest, ConstructorThrows) {
         std::make_unique<Initializer>();
     auto outer_iterator_ptr = (i == 2) ? nullptr :
         std::make_unique<OuterIterator>();
+    auto results_output_ptr = std::make_unique<ResultsOutput>();
     EXPECT_ANY_THROW({
                        Framework test_framework(
                            std::move(system_ptr),
                            std::move(initializer_ptr),
-                           std::move(outer_iterator_ptr)
-                       );
+                           std::move(outer_iterator_ptr),
+                           std::move(results_output_ptr));
     });
   }
 }
