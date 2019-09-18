@@ -1,0 +1,31 @@
+full_name: "pu_239_sood_1999_pua_1_0_in"
+abbreviation: "pu_239_sood"
+id: "pu_239"
+number_of_groups: 1
+thermal_groups: 1
+is_fissionable: true
+vector_property {
+  id: ENERGY_GROUPS
+  value: 10000000.0
+  value: 0.0
+}
+vector_property {
+  id: NU_SIG_F
+  value: 0.26438400000000006
+}
+vector_property {
+  id: SIGMA_T
+  value: 0.3264
+}
+vector_property {
+  id: CHI
+  value: 1.0
+}
+vector_property {
+  id: DIFFUSION_COEFF
+  value: 1.0212418300653594
+}
+matrix_property {
+  id: SIGMA_S
+  value: 0.225216
+}
