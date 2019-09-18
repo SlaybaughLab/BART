@@ -52,6 +52,7 @@ void ResultsOutputDealiiVtuTest<DimensionWrapper>::SetUp() {
   moments_obs_ptr_ = moments_ptr_.get();
 
   test_system_.current_moments = std::move(moments_ptr_);
+  test_system_.total_groups = 2;
 
   // Set up dealii objects
   this->SetUpDealii();
