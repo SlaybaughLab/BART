@@ -13,7 +13,7 @@ namespace results {
 
 class OutputI {
  public:
-  ~OutputI() = default;
+  virtual ~OutputI() = default;
   virtual void AddData(system::System &to_output) = 0;
   virtual void WriteData(std::ostream &output_stream) const = 0;
   // virtual void ClearData() = 0;

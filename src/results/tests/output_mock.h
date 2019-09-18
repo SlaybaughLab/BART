@@ -11,6 +11,7 @@ namespace results {
 
 
 class OutputMock : public OutputI {
+ public:
   MOCK_METHOD1(AddData, void(system::System&));
   MOCK_CONST_METHOD1(WriteData, void(std::ostream&));
 };
