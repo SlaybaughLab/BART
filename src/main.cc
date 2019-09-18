@@ -1,5 +1,6 @@
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
@@ -32,11 +33,14 @@ int main(int argc, char* argv[]) {
 
     double k_eff_final;
 
+    std::ofstream output_stream((prm.OutputFilenameBase() + ".vtu").c_str());
+
     switch(prm.SpatialDimension()) {
       case 1: {
         bart::framework::builder::CFEM_FrameworkBuilder<1> builder;
         auto framework_ptr = builder.BuildFramework(prm, d2_prm);
         framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
@@ -44,6 +48,7 @@ int main(int argc, char* argv[]) {
         bart::framework::builder::CFEM_FrameworkBuilder<2> builder;
         auto framework_ptr = builder.BuildFramework(prm, d2_prm);
         framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
@@ -51,6 +56,7 @@ int main(int argc, char* argv[]) {
         bart::framework::builder::CFEM_FrameworkBuilder<3> builder;
         auto framework_ptr = builder.BuildFramework(prm, d2_prm);
         framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
