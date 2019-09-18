@@ -12,7 +12,7 @@ set number of materials                      = 2
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = diff_reg_test_refl
+set output file name base                    = reg_test_diffusion
 
 subsection material ID map
 set material id file name map                = 1: t-ep.material, 2: t-ep.material
