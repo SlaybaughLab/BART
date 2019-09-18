@@ -1,6 +1,8 @@
 #ifndef BART_SRC_FRAMEWORK_FRAMEWORK_I_H_
 #define BART_SRC_FRAMEWORK_FRAMEWORK_I_H_
 
+#include <ostream>
+
 #include "system/system.h"
 
 namespace bart {
@@ -12,6 +14,7 @@ class FrameworkI {
   virtual ~FrameworkI() = default;
   virtual void SolveSystem() = 0;
   virtual system::System* system() const = 0;
+  virtual void OutputResults(std::ostream& output_stream) = 0;
 };
 
 } // namespace framework

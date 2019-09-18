@@ -1,5 +1,7 @@
 #include "framework/framework.h"
 
+#include <iostream>
+
 #include "iteration/outer/tests/outer_iteration_mock.h"
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "results/tests/output_mock.h"
@@ -80,6 +82,27 @@ TEST_F(FrameworkTest, SolveSystem) {
   EXPECT_CALL(*outer_iterator_obs_ptr_, IterateToConvergence(Ref(system)));
 
   test_framework_->SolveSystem();
+}
+
+TEST_F(FrameworkTest, OutputResultsNoOutputter) {
+  auto system_ptr = std::make_unique<system::System>();
+  auto initializer_ptr = std::make_unique<Initializer>();
+  auto outer_iterator_ptr = std::make_unique<OuterIterator>();
+
+  Framework test_framework(std::move(system_ptr),
+                           std::move(initializer_ptr),
+                           std::move(outer_iterator_ptr));
+
+  std::ostringstream output_stream;
+
+  EXPECT_ANY_THROW(test_framework.OutputResults(output_stream));
+}
+
+TEST_F(FrameworkTest, OutputResultsBadStream) {
+  std::ostringstream output_stream;
+  output_stream.setstate(std::ios_base::badbit);
+
+  EXPECT_ANY_THROW(test_framework_->OutputResults(output_stream));
 }
 
 

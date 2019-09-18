@@ -31,6 +31,13 @@ void Framework::SolveSystem() {
   outer_iterator_ptr_->IterateToConvergence(*system_ptr_);
 }
 
+void Framework::OutputResults(std::ostream &output_stream) {
+  AssertThrow(results_output_ptr_ != nullptr,
+              dealii::ExcMessage("Results output poitner is null"));
+  AssertThrow(output_stream.good(),
+              dealii::ExcMessage("Bad stream passed to OutputResults"));
+}
+
 } // namespace framework
 
 } // namespace bart

@@ -29,6 +29,8 @@ class Framework : public FrameworkI {
 
   void SolveSystem() override;
 
+  void OutputResults(std::ostream& output_stream);
+
   Initializer* initializer_ptr() const {
     return initializer_ptr_.get();
   }
