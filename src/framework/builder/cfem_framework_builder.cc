@@ -55,7 +55,8 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       (std::istreambuf_iterator<char>(mapping_file)),
       std::istreambuf_iterator<char>());
 
-  const int n_groups = 1;
+  const int n_groups = prm.NEnergyGroups();
+  const int n_angles = 1;
 
   MaterialProtobuf materials(d2_prm);
   auto cross_sections_ptr = std::make_shared<bart::data::CrossSections>(materials);
@@ -85,7 +86,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::cout << "Building Initializer" << std::endl;
   auto initializer_ptr =
       std::make_unique<iteration::initializer::SetFixedTermsOnce>(
-          std::move(fixed_updater_ptr), prm.NEnergyGroups(), n_groups);
+          std::move(fixed_updater_ptr), n_groups, n_angles);
 
   std::cout << "Building single group solver" << std::endl;
   auto single_group_solver_ptr = BuildSingleGroupSolver();
@@ -111,15 +112,15 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   // Solution group
   auto solution_ptr =
-      std::make_shared<system::solution::MPIGroupAngularSolution>(n_groups);
+      std::make_shared<system::solution::MPIGroupAngularSolution>(n_angles);
 
   data::MatrixParameters matrix_param;
   domain_ptr->FillMatrixParameters(matrix_param, prm.Discretization());
 
   std::cout << "==Filling solution object" << std::endl;
 
-  for (int group = 0; group < n_groups; ++group) {
-    auto &solution = solution_ptr->operator[](group);
+  for (int angle = 0; angle < n_angles; ++angle) {
+    auto &solution = solution_ptr->operator[](angle);
     solution.reinit(matrix_param.rows, MPI_COMM_WORLD);
     auto local_elements = solution.locally_owned_elements();
     for (auto index : local_elements) {
@@ -178,7 +179,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   auto system = std::make_unique<system::System>();
 
-  system->total_groups = prm.NEnergyGroups();
+  system->total_groups = n_groups;
   std::unordered_set<bart::system::terms::VariableLinearTerms>
       source_terms{bart::system::terms::VariableLinearTerms::kScatteringSource,
                    bart::system::terms::VariableLinearTerms::kFissionSource};
@@ -190,7 +191,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::cout << "Filling system" << std::endl;
 
   // Fill system with objects
-  for (int group = 0; group <= prm.NEnergyGroups(); ++group) {
+  for (int group = 0; group < n_groups; ++group) {
 
     // LHS
     auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
@@ -209,9 +210,9 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
     }
     // Moments
     system->current_moments =
-        std::make_unique<system::moments::SphericalHarmonic>(prm.NEnergyGroups(), 0);
+        std::make_unique<system::moments::SphericalHarmonic>(n_groups, 0);
     system->previous_moments =
-        std::make_unique<system::moments::SphericalHarmonic>(prm.NEnergyGroups(), 0);
+        std::make_unique<system::moments::SphericalHarmonic>(n_groups, 0);
   }
 
   std::cout << "Fill system moments" << std::endl;
@@ -228,8 +229,8 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   // Initialize System
   system->k_effective = 1.16;
-  system->total_groups = prm.NEnergyGroups();
-  system->total_angles = 1;
+  system->total_groups = n_groups;
+  system->total_angles = n_angles;
 
   std::cout << "Build Results Output" << std::endl;
   auto results_output_ptr =
