@@ -208,14 +208,15 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       system->right_hand_side_ptr_->SetVariableTermPtr(
           group, term, variable_vector_ptr);
     }
-    // Moments
-    system->current_moments =
-        std::make_unique<system::moments::SphericalHarmonic>(n_groups, 0);
-    system->previous_moments =
-        std::make_unique<system::moments::SphericalHarmonic>(n_groups, 0);
   }
 
   std::cout << "Fill system moments" << std::endl;
+
+  // Moments
+  system->current_moments =
+      std::make_unique<system::moments::SphericalHarmonic>(n_groups, 0);
+  system->previous_moments =
+      std::make_unique<system::moments::SphericalHarmonic>(n_groups, 0);
 
   for (auto& moment_pair : system->current_moments->moments()) {
     auto index = moment_pair.first;
@@ -228,7 +229,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   }
 
   // Initialize System
-  system->k_effective = 1.16;
+  system->k_effective = 1.0;
   system->total_groups = n_groups;
   system->total_angles = n_angles;
 
