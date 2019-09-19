@@ -161,7 +161,7 @@ void CFEM_Diffusion<dim>::FillCellFissionSource(
         }
 
         auto fission_transfer =
-            cross_sections_->fiss_transfer.at(material_id)(group, group_in);
+            cross_sections_->fiss_transfer.at(material_id)(group_in, group);
 
         for (int q = 0; q < cell_quadrature_points_; ++q)
           fission_source_at_quad_points[q] +=
@@ -200,7 +200,7 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
     const auto &[group_in, harmonic_l, harmonic_m] = index;
 
     // Check if scalar flux for an out-group
-    if (group_in != group && harmonic_l == 0 && harmonic_m == 0) {
+    if ((group_in != group) && (harmonic_l == 0) && (harmonic_m == 0)) {
       std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
 
       scalar_flux_at_quad_points =
