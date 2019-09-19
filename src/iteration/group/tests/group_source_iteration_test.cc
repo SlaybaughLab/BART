@@ -315,10 +315,9 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
       .Times(AtLeast(1));
 
-  EXPECT_CALL(*this->moments_obs_ptr_, total_groups())
-      .WillOnce(Return(this->total_groups));
-  EXPECT_CALL(*this->group_solution_ptr_, total_angles())
-      .WillOnce(Return(this->total_angles));
+  this->test_system.total_groups = this->total_groups;
+  this->test_system.total_angles = this->total_angles;
+  
   EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
       .WillRepeatedly(Return(this->max_harmonic_l));
 

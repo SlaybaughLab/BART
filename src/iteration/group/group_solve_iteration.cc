@@ -43,8 +43,8 @@ GroupSolveIteration<dim>::GroupSolveIteration(
 template<int dim>
 void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
-  const int total_groups = system.current_moments->total_groups();
-  const int total_angles = group_solution_ptr_->total_angles();
+  const int total_groups = system.total_groups;
+  const int total_angles = system.total_angles;
   system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
 
   if (reporter_ptr_ != nullptr)
