@@ -106,7 +106,7 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
   this->test_output_->AddData(this->test_system_);
   this->test_output_->WriteData(expected_stream);
 
-  EXPECT_EQ(test_stream.str(), expected_stream.str());
+  EXPECT_EQ(test_stream.str().erase(1, 141), expected_stream.str().erase(1, 141));
 }
 
 }
