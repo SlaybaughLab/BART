@@ -1,0 +1,39 @@
+full_name: "u_235_sood_1999_u_2_0_in"
+abbreviation: "u_235_sood"
+id: "u_235"
+number_of_groups: 2
+thermal_groups: 1
+is_fissionable: true
+vector_property {
+  id: ENERGY_GROUPS
+  value: 10000000.0
+  value: 0.625
+  value: 0.0
+}
+vector_property {
+  id: NU_SIG_F
+  value: 0.16718400000000003
+  value: 0.1728
+}
+vector_property {
+  id: SIGMA_T
+  value: 0.216
+  value: 0.3456
+}
+vector_property {
+  id: CHI
+  value: 0.575
+  value: 0.425
+}
+vector_property {
+  id: DIFFUSION_COEFF
+  value: 1.5432098765432098
+  value: 0.964506172839506
+}
+matrix_property {
+  id: SIGMA_S
+  value: 0.07824
+  value: 0.072
+  value: 0.0
+  value: 0.26304
+}

@@ -1,0 +1,49 @@
+full_name: "urr_3_0_in"
+abbreviation: "urr_3_0_in"
+id: "urr"
+number_of_groups: 3
+thermal_groups: 1
+is_fissionable: true
+vector_property {
+  id: ENERGY_GROUPS
+  value: 10000000.0
+  value: 1.0
+  value: 0.625
+  value: 0.0
+}
+vector_property {
+  id: NU_SIG_F
+  value: 0.018000000000000002
+  value: 0.15
+  value: 1.8
+}
+vector_property {
+  id: SIGMA_T
+  value: 0.24
+  value: 0.975
+  value: 3.1
+}
+vector_property {
+  id: CHI
+  value: 0.96
+  value: 0.04
+  value: 0.0
+}
+vector_property {
+  id: DIFFUSION_COEFF
+  value: 1.3888888888888888
+  value: 0.3418803418803419
+  value: 0.1075268817204301
+}
+matrix_property {
+  id: SIGMA_S
+  value: 0.024
+  value: 0.0
+  value: 0.0
+  value: 0.171
+  value: 0.6
+  value: 0.0
+  value: 0.033
+  value: 0.275
+  value: 2.0
+}
