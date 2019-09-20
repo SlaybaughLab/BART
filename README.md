@@ -12,8 +12,6 @@ applications. BART is under active developed by the Computational
 Neutronics group in Nuclear Engineering at University of California,
 Berkeley.
 
-## How do we manage the development?
-
 ### Documentation
 
 BART documentation is generated using [doxygen](http://www.stack.nl/~dimitri/doxygen/).
@@ -24,43 +22,31 @@ BART uses the following applications and libraries for testing:
 - [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest) for unit testings requiring MPI
 - [Google Test](https://github.com/google/googletest) for all other
   serial unit testings.
-- [Codecov](https://codecov.io/) for code coverage of serial tests.
+- [Codecov](https://codecov.io/) for code coverage of unit tests.
 
-## Developers
-The development work is led by [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
-- [Joshua Rehak](https://github.com/jsrehak/)
-
-Previous developers include 
-- [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/).
-- [Marissa Ramirez Zweiger](https://github.com/mzweig/)
-- [Alexander Blank](https://github.com/AlexanderBlank)
-
-## What is the rationale behind BART?
-### BART is a finite element method based code
-BART is based off the general purpose finite elment [deal.II](http://www.dealii.org/). It aims to solve first and second-order forms of linear Boltzmann equation for nuclear reactor applications using continuous/discontinuous finite element methods for spatial discretization with existing/developing acceleration methods. BART uses discrete ordinates method for angular discretization. 
+## Rationale
+### Finite element method based code
+BART is based off the general purpose finite element method [deal.II](http://www.dealii.org/). It aims to solve first and second-order forms of linear Boltzmann equation for nuclear reactor applications using continuous/discontinuous finite element methods for spatial discretization with existing/developing acceleration methods. BART uses discrete ordinates method for angular discretization. 
 
 ### Parallelism in meshing and linear algebra
 BART uses MPI for parallelism and is designed for computation on distributed memory system:
 - By utilizing distributed triangulation enabled by [p4est](https://www.mcs.anl.gov/petsc/) library wrapped in deal.II, BART can automatically partition the mesh by however many number of processors requested and distribute the triangulation onto different processors.
 - BART heavily depends on [PETSc](https://www.mcs.anl.gov/petsc/) by utilizing deal.II wrappers of PETSc data structure. Therefore, all the parallel-supported functionalities in PETSc (if wrapped by deal.II) can be invoked by BART. This includes parallel sparse matrix, parallel vectors and parallel preconditioners/algebraic solvers.
 
-### Supported Transport Equation forms
+### Formulations
 
-Bart supports the following forms of the transport equation:
+BART supports the Diffusion Equation in 1/2/3D, and second-order forms of the transport equation (such as the Self-Adjoint Angular Flux and Even Parity) will be implemented.
 
-- Self Adjoint Angular Flux
-- Even Parity
+### Acelleration Methods
 
-More forms of the transport equation and accelleration methods are an
-area of active development.
+One of the major design goals of BART is to provide a framework for testing acceleration methods. There are no methods implemented in the current version, but multiple methods are planned to be implemented, including:
 
-### Meshing capability
-Supported meshes in BART include:
-- Hyper-rectangular mesh in 1/2/3D;
-- Fuel pin-resolved curvilinear mesh in 2D;
-- Fuel pin-resolved curvilinear mesh in 3D based on extrusion.
+- Nonlinear diffusion acceleration (NDA)
+- Two-grid acceleration (TG)
 
-Part of the work also contributes to development version of [deal.II](http://www.dealii.org/).
+### Benchmarks
+
+Benchmarks from Sood (1999) are provided in the `benchmarks` folder for validation of the code.
 
 # Install and build
 Please check [install_build.md](https://github.com/SlaybaughLab/BART/blob/master/install_build.md) for installation and building instructions.
@@ -73,3 +59,12 @@ Please check [install_build.md](https://github.com/SlaybaughLab/BART/blob/master
 - [Google Style Guide](https://google.github.io/styleguide/cppguide.html): consistent code convention.
 - [Google Test](https://github.com/google/googletest): efficient unit testing tools.
 - [CTest](https://cmake.org/Wiki/CMake/Testing_With_CTest): unit testing tools  with Google Test.
+
+## Developers
+The development work is led by [Dr. Rachel Slaybaugh](https://github.com/rachelslaybaugh). Graduate students actively involved in the development include:
+- [Joshua Rehak](https://github.com/jsrehak/)
+
+Previous developers include 
+- [Dr. Weixiong Zheng](https://github.com/weixiong-zheng-berkeley/).
+- [Marissa Ramirez Zweiger](https://github.com/mzweig/)
+- [Alexander Blank](https://github.com/AlexanderBlank)

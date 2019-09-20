@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "BAY AREA RADIATION TRANSPORT\n"
-              << "Develped at the University of California, Berkeley"
+              << "Developed at the University of California, Berkeley"
               << std::endl;
 
     bart::problem::ParametersDealiiHandler prm;
