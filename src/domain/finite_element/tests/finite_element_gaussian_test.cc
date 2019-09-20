@@ -126,6 +126,19 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
                        test_fe.Jacobian(q));
     }
   }
+
+  test_fe.SetFace(dof_handler.begin_active(), 0);
+
+  int face_quad_points = test_fe.n_face_quad_pts();
+  for (int i = 0; i < cell_dofs; ++i) {
+    for (int q = 0; q < face_quad_points; ++q) {
+      EXPECT_DOUBLE_EQ(test_fe.face_values()->shape_value(i, q),
+                       test_fe.FaceShapeValue(i, q));
+      EXPECT_DOUBLE_EQ(test_fe.face_values()->JxW(q),
+                       test_fe.FaceJacobian(q));
+    }
+  }
+
 }
 
 // BASE CLASS TESTS ============================================================

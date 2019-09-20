@@ -52,6 +52,11 @@ class FiniteElement : public FiniteElementI<dim> {
     return values_->shape_value(cell_degree_of_freedom, cell_quadrature_point);
   }
 
+  double FaceShapeValue(const int cell_degree_of_freedom,
+                        const int face_quadrature_point) const override {
+    return face_values_->shape_value(cell_degree_of_freedom, face_quadrature_point);
+  }
+
   dealii::Tensor<1, dim> ShapeGradient(const int cell_degree_of_freedom,
                                        const int cell_quadrature_point) const override {
     return values_->shape_grad(cell_degree_of_freedom, cell_quadrature_point);
@@ -59,6 +64,10 @@ class FiniteElement : public FiniteElementI<dim> {
 
   double Jacobian(const int cell_quadrature_point) const override {
     return values_->JxW(cell_quadrature_point);
+  }
+
+  double FaceJacobian(const int face_quadrature_point) const override {
+    return face_values_->JxW(face_quadrature_point);
   }
 
   std::vector<double> ValueAtQuadrature(const system::moments::MomentVector moment) const override;

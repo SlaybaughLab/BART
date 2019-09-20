@@ -34,9 +34,13 @@ class FiniteElementMock : public FiniteElementI<dim> {
 
   MOCK_CONST_METHOD2_T(ShapeValue, double(const int, const int));
 
+  MOCK_CONST_METHOD2_T(FaceShapeValue, double(const int, const int));
+
   MOCK_CONST_METHOD2_T(ShapeGradient, dealii::Tensor<1, dim>(const int, const int));
 
   MOCK_CONST_METHOD1_T(Jacobian, double(const int));
+
+  MOCK_CONST_METHOD1_T(FaceJacobian, double(const int));
 
   MOCK_CONST_METHOD1_T(ValueAtQuadrature, std::vector<double>(
       const system::moments::MomentVector moment));

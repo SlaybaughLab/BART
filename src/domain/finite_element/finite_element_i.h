@@ -69,6 +69,20 @@ class FiniteElementI {
   virtual double ShapeValue(const int cell_degree_of_freedom,
                             const int cell_quadrature_point) const = 0;
 
+  /*! \brief Get the value of face shape functions.
+   *
+   * Returns the value of the \f$i\f$-th shape function, \f$\varphi_i\f$, that
+   * corresponds to the \f$i\f$-th cell degree of freedom, evaluated at face
+   * quadrature point, \f$q\f$.
+   *
+   * \param cell_degree_of_freedom value of \f$i\f$.
+   * \param face_quadrature_point face quadrature point \f$q\f$ to evaluate the
+   * shape function.
+   * \return double corresponding to the value.
+   */
+  virtual double FaceShapeValue(const int cell_degree_of_freedom,
+                                const int face_quadrature_point) const = 0;
+
   /*! \brief Get the value of gradient of the shape function.
    *
    * Returns the value of the gradient of the \f$i\f$-th shape function,
@@ -94,6 +108,17 @@ class FiniteElementI {
    * \return double corresponding to the value.
    */
   virtual double Jacobian(const int cell_quadrature_point) const = 0;
+
+  /*! \brief Get the value of the Jacobian for the current face.
+ *
+ * Returns the Jacobian evaluated at the specified face quadrature point, needed
+ * for all integrations.
+ *
+ * \param face_quadrature_point face quadrature point \f$q\f$ to evaluate the
+ * Jacobian function.
+ * \return double corresponding to the value.
+ */
+  virtual double FaceJacobian(const int face_quadrature_point) const = 0;
 
   /*! \brief Get the value of a flux moment at the interior cell quadrature points.
    *
