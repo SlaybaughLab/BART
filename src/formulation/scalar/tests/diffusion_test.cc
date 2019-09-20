@@ -66,8 +66,12 @@ void FormulationCFEMDiffusionTest::SetUp() {
   for (int q = 0; q < 2; ++q) {
     ON_CALL(*fe_mock_ptr, Jacobian(q))
         .WillByDefault(Return((1 + q)*3));
+    ON_CALL(*fe_mock_ptr, FaceJacobian(q))
+        .WillByDefault(Return((1 + q)*3));
     for (int i = 0; i < 2; ++i) {
       ON_CALL(*fe_mock_ptr, ShapeValue(i, q))
+          .WillByDefault(Return(i + q));
+      ON_CALL(*fe_mock_ptr, FaceShapeValue(i,q))
           .WillByDefault(Return(i + q));
 
       dealii::Tensor<1, 2> gradient_tensor;
@@ -295,6 +299,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
 
   std::array<double, 4> expected_values{3, 6,
                                         6, 13.5};
+
   dealii::FullMatrix<double> expected_matrix(2, 2, expected_values.begin());
 
   formulation::scalar::CFEM_Diffusion<2> test_diffusion(fe_mock_ptr,
@@ -304,7 +309,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
 
   EXPECT_CALL(*fe_mock_ptr, SetFace(cell_ptr_, 0))
       .Times(1);
-  EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
+  EXPECT_CALL(*fe_mock_ptr, FaceJacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
 

@@ -99,11 +99,13 @@ void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
   if (boundary_type == BoundaryType::kVacuum) {
     finite_element_->SetFace(cell_ptr, face_number);
 
-    for (int q = 0; q < cell_quadrature_points_; ++q) {
-      const double jacobian = finite_element_->Jacobian(q);
+    for (int q = 0; q < face_quadrature_points_; ++q) {
+      const double jacobian = finite_element_->FaceJacobian(q);
       for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
         for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
-          to_fill(i, j) += 0.5 * shape_squared_[q](i, j) * jacobian;
+          to_fill(i, j) +=
+              0.5 * jacobian * finite_element_->FaceShapeValue(i, q)
+                  * finite_element_->FaceShapeValue(j, q);
         }
       }
     }
