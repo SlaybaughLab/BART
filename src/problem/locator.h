@@ -10,15 +10,15 @@ namespace problem {
 
 class Locator {
  public:
-  static ParametersI *GetParameters() { return parameters_; }
+  static std::shared_ptr<ParametersI> GetParameters() { return parameters_; }
 
-  static void Provide(ParametersI *parameters)
+  static void Provide(std::shared_ptr<ParametersI> parameters)
   {
     parameters_ = parameters;
   }
   
  private:
-  static ParametersI *parameters_;
+  static std::shared_ptr<ParametersI> parameters_;
 };
 
 } // namespace problem

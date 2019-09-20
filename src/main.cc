@@ -1,56 +1,70 @@
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 #include <deal.II/base/parameter_handler.h>
+#include <deal.II/base/mpi.h>
 
-#include "common/bart_driver.h"
+#include "framework/builder/cfem_framework_builder.h"
 #include "problem/parameters_dealii_handler.h"
-#include "problem/locator.h"
 
 int main(int argc, char* argv[]) {
   try {
-    if (argc!=2) {
-      std::cerr << "Call the program as mpirun -np num_proc xtrans input_file_name" << std::endl;
+    if (argc != 2) {
+      std::cerr
+          << "Call the program as mpirun -np num_proc bart input_file_name"
+          << std::endl;
       return 1;
     }
-    ParameterHandler prm;
 
-    // New parameters handler
-    bart::problem::ParametersDealiiHandler parameter_handler;
+    std::cout << "BAY AREA RADIATION TRANSPORT\n"
+              << "Developed at the University of California, Berkeley"
+              << std::endl;
 
-    // Declare input strings, declare both using the new handler, and the old
-    // method, as not all have been moved (and may not be moved)
-    parameter_handler.SetUp(prm);
-    
+    bart::problem::ParametersDealiiHandler prm;
+    dealii::ParameterHandler d2_prm;
     const std::string filename{argv[1]};
-    prm.parse_input(filename, "");
 
-    parameter_handler.Parse(prm);
-    bart::problem::Locator::Provide(&parameter_handler);   
-    
+    prm.SetUp(d2_prm);
+    d2_prm.parse_input(filename, "");
+    prm.Parse(d2_prm);
+
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-    int dim = prm.get_integer ("problem dimension");
-    switch (dim) {
-      case 1:{
-        BARTDriver<1> drive1d (prm);
-        drive1d.DriveBART();
+
+    double k_eff_final;
+
+    std::ofstream output_stream((prm.OutputFilenameBase() + ".vtu").c_str());
+
+    switch(prm.SpatialDimension()) {
+      case 1: {
+        bart::framework::builder::CFEM_FrameworkBuilder<1> builder;
+        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
-      case 2:{
-        BARTDriver<2> drive2d (prm);
-        drive2d.DriveBART ();
+      case 2: {
+        bart::framework::builder::CFEM_FrameworkBuilder<2> builder;
+        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
-      case 3:{
-        BARTDriver<3> drive3d (prm);
-        drive3d.DriveBART ();
+      case 3: {
+        bart::framework::builder::CFEM_FrameworkBuilder<3> builder;
+        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
-      default:
-        break;
     }
-  }
-  catch (std::exception &exc) {
+
+    std::cout << "Final k_effective: " << k_eff_final << std::endl;
+
+  } catch (std::exception &exc) {
     std::cerr << std::endl << std::endl
               << "----------------------------------------------------"
               << std::endl;
@@ -60,8 +74,7 @@ int main(int argc, char* argv[]) {
               << "----------------------------------------------------"
               << std::endl;
     return 1;
-  }
-  catch (...) {
+  } catch (...) {
     std::cerr << std::endl << std::endl
               << "----------------------------------------------------"
               << std::endl;

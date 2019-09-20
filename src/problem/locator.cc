@@ -4,7 +4,7 @@ namespace bart {
 
 namespace problem {
 
-ParametersI *Locator::parameters_;
+std::shared_ptr<ParametersI> Locator::parameters_;
 
 } // namespace problem
 

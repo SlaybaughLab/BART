@@ -7,6 +7,7 @@ namespace problem {
 
 enum class AngularQuadType {
   kNone,
+  kLevelSymmetric,
   kLevelSymmetricGaussChebyshev,
   kGaussLegendre,
 };

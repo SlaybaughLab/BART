@@ -16,6 +16,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(bart)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
 
 ### DEPENDENCIES #####################################################
 # Check that DEAL II is installed
@@ -87,6 +88,7 @@ list(FILTER testing_sources EXCLUDE REGEX ".*/main.cc$")
 # Include directories
 include_directories(${GTEST_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/inc
+  ${CMAKE_SOURCE_DIR}/src
   ${PROTO_INC_DIR})
 
 # Add BART executables
@@ -100,12 +102,6 @@ target_compile_definitions(bart_test PUBLIC -DTEST)
 target_link_libraries(bart ${Protobuf_LIBRARIES})
 target_link_libraries(bart_test ${GTEST_BOTH_LIBRARIES}
   ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES})
-
-# Add subdirectory builds to build libraries for CTEST
-ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/src/mesh)
-
-# Add unit testing subdirectories
-ADD_SUBDIRECTORY(${CMAKE_SOURCE_DIR}/tests/mesh)
 
 DEAL_II_SETUP_TARGET(bart)
 DEAL_II_SETUP_TARGET(bart_test)
