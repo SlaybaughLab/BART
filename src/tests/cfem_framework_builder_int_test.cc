@@ -17,6 +17,7 @@
 #include "domain/tests/definition_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "formulation/tests/cfem_stamper_mock.h"
+#include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
@@ -267,6 +268,28 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildMomentConvergenceChecker) {
             dynamic_cast<MomentConvergenceChecker*>(convergence_ptr.get()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildInitializer) {
+
+  auto stamper_ptr = std::make_shared<formulation::CFEM_StamperMock>();
+
+
+  auto iteration_ptr = this->test_builder.BuildInitializer(&this->parameters,
+                                                           stamper_ptr);
+
+  ASSERT_NE(nullptr, iteration_ptr);
+
+  using ExpectedInitializerType = iteration::initializer::SetFixedTermsOnce;
+  using ExpectedUpdaterType =
+  iteration::updater::FixedUpdater<formulation::CFEMStamperI>;
+
+  auto dynamic_iteration_ptr =
+      dynamic_cast<ExpectedInitializerType*>(iteration_ptr.get());
+
+  ASSERT_NE(nullptr, dynamic_iteration_ptr);
+  ASSERT_NE(nullptr,
+      dynamic_cast<ExpectedUpdaterType*>(dynamic_iteration_ptr->fixed_updater_ptr()));
 }
 
 
