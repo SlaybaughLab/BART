@@ -57,6 +57,10 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   std::unique_ptr<FixedUpdater> BuildFixedUpdater(
       const std::shared_ptr<CFEMStamper> &stamper_ptr);
 
+  std::unique_ptr<Initializer> BuildInitializer(
+      const problem::ParametersI* problem_parameters,
+      const std::shared_ptr<CFEMStamper> &stamper_ptr);
+
   std::unique_ptr<SingleGroupSolver> BuildSingleGroupSolver(
       const int max_iterations = 100,
       const double convergence_tolerance = 1e-10);

@@ -268,6 +268,26 @@ auto CFEM_FrameworkBuilder<dim>::BuildDomain(
   return std::make_unique<domain::Definition<dim>>(
       std::move(mesh_ptr), finite_element_ptr);
 }
+
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
+    const problem::ParametersI *problem_parameters,
+    const std::shared_ptr<CFEMStamper> &stamper_ptr)
+-> std::unique_ptr<Initializer> {
+
+  std::unique_ptr<Initializer> return_ptr = nullptr;
+
+  using FixedUpdaterType = iteration::updater::FixedUpdater<CFEMStamper>;
+  auto fixed_updater_ptr = std::make_unique<FixedUpdaterType>(stamper_ptr);
+
+  if (problem_parameters->TransportModel() == problem::EquationType::kDiffusion) {
+    return_ptr = std::make_unique<iteration::initializer::SetFixedTermsOnce>(
+        std::move(fixed_updater_ptr), problem_parameters->NEnergyGroups(), 1);
+  }
+
+  return std::move(return_ptr);
+}
+
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildStamper(
     problem::ParametersI *problem_parameters,
