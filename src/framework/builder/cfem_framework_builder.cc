@@ -360,13 +360,6 @@ auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
 }
 
 template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildFixedUpdater(
-    const std::shared_ptr<CFEMStamper> &stamper_ptr)
--> std::unique_ptr<CFEM_FrameworkBuilder::FixedUpdater> {
-  using FixedUpdaterType = iteration::updater::FixedUpdater<CFEMStamper>;
-  return std::make_unique<FixedUpdaterType>(stamper_ptr);
-}
-template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildSingleGroupSolver(
     const int max_iterations,
     const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> {

@@ -129,20 +129,6 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDomainTest) {
       nullptr);
 }
 
-TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFixedUpdater) {
-  auto stamper_ptr = std::make_shared<formulation::CFEM_StamperMock>();
-
-  auto test_fixed_updater_ptr =
-      this->test_builder.BuildFixedUpdater(stamper_ptr);
-  ASSERT_NE(nullptr, test_fixed_updater_ptr);
-
-  using ExpectedType =
-      iteration::updater::FixedUpdater<formulation::CFEMStamperI>;
-
-  ASSERT_NE(nullptr,
-            dynamic_cast<ExpectedType*>(test_fixed_updater_ptr.get()));
-}
-
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDiffusionStamper) {
   constexpr int dim = this->dim;
 

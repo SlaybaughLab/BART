@@ -54,9 +54,6 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       std::string material_mapping);
 
-  std::unique_ptr<FixedUpdater> BuildFixedUpdater(
-      const std::shared_ptr<CFEMStamper> &stamper_ptr);
-
   std::unique_ptr<Initializer> BuildInitializer(
       const problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> &stamper_ptr);
