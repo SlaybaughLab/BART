@@ -52,6 +52,7 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
   const int polynomial_degree = 2;
   std::vector<double> spatial_max;
   std::vector<int> n_cells;
+  const int n_energy_groups = 3;
   std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
 
   void SetUp() override;
@@ -74,7 +75,8 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
       {problem::Boundary::kZMax, false},
   };
 
-
+  ON_CALL(parameters, NEnergyGroups())
+      .WillByDefault(Return(n_energy_groups));
   ON_CALL(parameters, NCells())
       .WillByDefault(Return(n_cells));
   ON_CALL(parameters, SpatialMax())
@@ -274,7 +276,10 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildInitializer) {
 
   auto stamper_ptr = std::make_shared<formulation::CFEM_StamperMock>();
 
-
+  EXPECT_CALL(this->parameters, NEnergyGroups())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(this->parameters, TransportModel())
+      .WillOnce(DoDefault());
   auto iteration_ptr = this->test_builder.BuildInitializer(&this->parameters,
                                                            stamper_ptr);
 
@@ -290,6 +295,9 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildInitializer) {
   ASSERT_NE(nullptr, dynamic_iteration_ptr);
   ASSERT_NE(nullptr,
       dynamic_cast<ExpectedUpdaterType*>(dynamic_iteration_ptr->fixed_updater_ptr()));
+
+  EXPECT_EQ(dynamic_iteration_ptr->total_groups(), this->n_energy_groups);
+  EXPECT_EQ(dynamic_iteration_ptr->total_angles(), 1);
 }
 
 
