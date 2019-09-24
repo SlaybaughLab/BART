@@ -76,17 +76,12 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
       &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
 
-  std::cout << "Building fixed updater" << std::endl;
-  auto fixed_updater_ptr = BuildFixedUpdater(stamper_ptr);
-
   std::cout << "Building source updater" << std::endl;
   std::shared_ptr<SourceUpdater> source_updater_ptr(
       std::move(BuildSourceUpdater(&prm, stamper_ptr)));
 
   std::cout << "Building Initializer" << std::endl;
-  auto initializer_ptr =
-      std::make_unique<iteration::initializer::SetFixedTermsOnce>(
-          std::move(fixed_updater_ptr), n_groups, n_angles);
+  auto initializer_ptr = BuildInitializer(&prm, stamper_ptr);
 
   std::cout << "Building single group solver" << std::endl;
   auto single_group_solver_ptr = BuildSingleGroupSolver();
