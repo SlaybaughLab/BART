@@ -92,10 +92,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 100);
 
   // Build reporter
-  using Reporter = bart::convergence::reporter::MpiNoisy;
-  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
-  auto reporter = std::make_shared<Reporter>(std::move(pout_ptr));
+  std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
   // Scalar Quadrature
   using ScalarQuadrature = quadrature::angular::AngularQuadratureScalar<dim>;
@@ -245,7 +242,12 @@ auto CFEM_FrameworkBuilder<dim>::BuildConvergenceReporter()
 -> std::unique_ptr<ConvergenceReporter> {
   std::unique_ptr<ConvergenceReporter> return_ptr = nullptr;
 
-  return return_ptr;
+  using Reporter = bart::convergence::reporter::MpiNoisy;
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
+  return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
+
+  return std::move(return_ptr);
 }
 
 template<int dim>

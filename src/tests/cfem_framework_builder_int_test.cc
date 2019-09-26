@@ -7,6 +7,7 @@
 #include <deal.II/fe/fe_q.h>
 #include <solver/gmres.h>
 
+#include "convergence/reporter/mpi_noisy.h"
 #include "formulation/cfem_diffusion_stamper.h"
 #include "data/cross_sections.h"
 #include "material/tests/mock_material.h"
@@ -91,6 +92,15 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
 
 TYPED_TEST_CASE(IntegrationTestCFEMFrameworkBuilder,
                 bart::testing::AllDimensions);
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildConvergenceReporterTest) {
+  using ExpectedType = convergence::reporter::MpiNoisy;
+  
+  auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
+  
+  ASSERT_NE(nullptr, 
+      dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
+}
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFiniteElementTest) {
   EXPECT_CALL(this->parameters, FEPolynomialDegree())
