@@ -240,6 +240,14 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       std::move(results_output_ptr));
 }
 
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildConvergenceReporter()
+-> std::unique_ptr<ConvergenceReporter> {
+  std::unique_ptr<ConvergenceReporter> return_ptr = nullptr;
+
+  return return_ptr;
+}
+
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
     problem::ParametersI *problem_parameters)-> std::unique_ptr<FiniteElement> {
