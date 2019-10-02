@@ -251,14 +251,6 @@ auto CFEM_FrameworkBuilder<dim>::BuildConvergenceReporter()
 }
 
 template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
-    problem::ParametersI *problem_parameters)-> std::unique_ptr<FiniteElement> {
-  return std::make_unique<domain::finite_element::FiniteElementGaussian<dim>>(
-      problem::DiscretizationType::kContinuousFEM,
-      problem_parameters->FEPolynomialDegree());
-}
-
-template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildDomain(
     problem::ParametersI *problem_parameters,
     const std::shared_ptr<FiniteElement> &finite_element_ptr,
@@ -267,11 +259,19 @@ auto CFEM_FrameworkBuilder<dim>::BuildDomain(
   // Build mesh
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
       problem_parameters->SpatialMax(),
-          problem_parameters->NCells(),
-          material_mapping);
+      problem_parameters->NCells(),
+      material_mapping);
 
   return std::make_unique<domain::Definition<dim>>(
       std::move(mesh_ptr), finite_element_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
+    problem::ParametersI *problem_parameters)-> std::unique_ptr<FiniteElement> {
+  return std::make_unique<domain::finite_element::FiniteElementGaussian<dim>>(
+      problem::DiscretizationType::kContinuousFEM,
+      problem_parameters->FEPolynomialDegree());
 }
 
 template <int dim>
@@ -291,6 +291,69 @@ auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
   }
 
   return std::move(return_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
+    double max_delta, int max_iterations)
+-> std::unique_ptr<MomentConvergenceChecker>{
+  //TODO(Josh): Add option for using other than L1Norm
+
+  using CheckerType = convergence::moments::SingleMomentCheckerL1Norm;
+  using FinalCheckerType = convergence::FinalCheckerOrN<
+      system::moments::MomentVector,
+      convergence::moments::SingleMomentCheckerI>;
+
+  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::move(single_checker_ptr));
+
+  return_ptr->SetMaxIterations(max_iterations);
+
+  return std::move(return_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
+    double max_delta, int max_iterations)
+-> std::unique_ptr<ParameterConvergenceChecker>{
+
+  using CheckerType = convergence::parameters::SingleParameterChecker;
+  using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;
+
+  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::move(single_checker_ptr));
+
+  return_ptr->SetMaxIterations(max_iterations);
+
+  return std::move(return_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildSingleGroupSolver(
+    const int max_iterations,
+    const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> {
+  std::unique_ptr<SingleGroupSolver> return_ptr = nullptr;
+
+  auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
+                                                           convergence_tolerance);
+
+  return_ptr = std::move(
+      std::make_unique<solver::group::SingleGroupSolver>(
+          std::move(linear_solver_ptr)));
+
+  return return_ptr;
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
+    problem::ParametersI *,
+    const std::shared_ptr<CFEMStamper> stamper_ptr)
+    -> std::unique_ptr<SourceUpdater> {
+  // TODO(Josh): Add option for non-gauss-seidel updating
+  using SourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<CFEMStamper>;
+  return std::make_unique<SourceUpdater>(stamper_ptr);
 }
 
 template<int dim>
@@ -317,70 +380,8 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
 
   } else {
     AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
-                                         "to BuildScalarFormulation"));
+                                          "to BuildScalarFormulation"));
   }
-
-  return return_ptr;
-}
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
-    problem::ParametersI *,
-    const std::shared_ptr<CFEMStamper> stamper_ptr)
-    -> std::unique_ptr<SourceUpdater> {
-  // TODO(Josh): Add option for non-gauss-seidel updating
-  using SourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<CFEMStamper>;
-  return std::make_unique<SourceUpdater>(stamper_ptr);
-}
-
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
-    double max_delta, int max_iterations)
--> std::unique_ptr<ParameterConvergenceChecker>{
-
-  using CheckerType = convergence::parameters::SingleParameterChecker;
-  using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;
-
-  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
-  auto return_ptr = std::make_unique<FinalCheckerType>(
-      std::move(single_checker_ptr));
-
-  return_ptr->SetMaxIterations(max_iterations);
-
-  return std::move(return_ptr);
-}
-
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
-    double max_delta, int max_iterations)
--> std::unique_ptr<MomentConvergenceChecker>{
-  //TODO(Josh): Add option for using other than L1Norm
-
-  using CheckerType = convergence::moments::SingleMomentCheckerL1Norm;
-  using FinalCheckerType = convergence::FinalCheckerOrN<
-      system::moments::MomentVector,
-      convergence::moments::SingleMomentCheckerI>;
-
-  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
-  auto return_ptr = std::make_unique<FinalCheckerType>(
-      std::move(single_checker_ptr));
-
-  return_ptr->SetMaxIterations(max_iterations);
-
-  return std::move(return_ptr);
-}
-
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildSingleGroupSolver(
-    const int max_iterations,
-    const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> {
-  std::unique_ptr<SingleGroupSolver> return_ptr = nullptr;
-
-  auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
-                                                    convergence_tolerance);
-
-  return_ptr = std::move(
-      std::make_unique<solver::group::SingleGroupSolver>(
-          std::move(linear_solver_ptr)));
 
   return return_ptr;
 }

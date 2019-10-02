@@ -16,6 +16,7 @@
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/updater/source_updater_i.h"
 #include "iteration/updater/fixed_updater_i.h"
+#include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "results/output_i.h"
 #include "solver/group/single_group_solver_i.h"
 #include "system/system_types.h"
@@ -37,6 +38,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FixedUpdater = iteration::updater::FixedUpdaterI;
   using Initializer = iteration::initializer::InitializerI;
+  using SphericalHarmonicMomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI<dim>;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
@@ -53,14 +55,14 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       std::string material_mapping);
 
+  std::unique_ptr<FiniteElement> BuildFiniteElement(
+      problem::ParametersI* problem_parameters);
+
   std::unique_ptr<FrameworkI> BuildFramework(
       problem::ParametersI &prm,
       dealii::ParameterHandler &d2_prm);
 
-  std::unique_ptr<FiniteElement> BuildFiniteElement(
-      problem::ParametersI* problem_parameters);
-
-    std::unique_ptr<Initializer> BuildInitializer(
+  std::unique_ptr<Initializer> BuildInitializer(
       const problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> &stamper_ptr);
 
