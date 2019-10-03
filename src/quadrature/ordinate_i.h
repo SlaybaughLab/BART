@@ -19,6 +19,9 @@ class OrdinateI {
   virtual ~OrdinateI() = default;
   virtual std::array<double, dim> cartesian_position() const = 0;
   virtual dealii::Tensor<1, dim> cartesian_position_tensor() const = 0;
+
+  virtual bool operator==(const OrdinateI&) const = 0;
+  virtual bool operator!=(const OrdinateI&) const = 0;
 };
 
 } // namespace quadrature

@@ -32,7 +32,15 @@ class Ordinate : public OrdinateI<dim> {
     return return_tensor;
   }
 
+  bool operator==(const OrdinateI<dim>& rhs) const override {
+    auto dynamic_rhs = dynamic_cast<const Ordinate<dim>&>(rhs);
+    return cartesian_position_ == rhs.cartesian_position();
+  }
 
+  bool operator!=(const OrdinateI<dim>& rhs) const override {
+    auto dynamic_rhs = dynamic_cast<const Ordinate<dim>&>(rhs);
+    return cartesian_position_ != rhs.cartesian_position();
+  }
 
  private:
   std::array<double, dim> cartesian_position_;
