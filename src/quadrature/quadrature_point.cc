@@ -6,9 +6,9 @@ namespace quadrature {
 
 template <int dim>
 QuadraturePoint<dim>::QuadraturePoint(
-    std::shared_ptr<quadrature::OrdinateI<dim>> ordinate, double weight)
+    std::shared_ptr<quadrature::OrdinateI<dim>> ordinate, Weight weight)
     : ordinate_(ordinate),
-      weight_(weight) {}
+      weight_(weight.get()) {}
 
 template class QuadraturePoint<1>;
 template class QuadraturePoint<2>;

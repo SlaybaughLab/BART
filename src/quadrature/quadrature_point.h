@@ -2,6 +2,7 @@
 #define BART_SRC_QUADRATURE_QUADRATURE_POINT_H_
 
 #include "quadrature/quadrature_point_i.h"
+#include "quadrature/quadrature_types.h"
 
 namespace bart {
 
@@ -11,7 +12,7 @@ template <int dim>
 class QuadraturePoint : public QuadraturePointI<dim> {
  public:
 
-  QuadraturePoint(std::shared_ptr<OrdinateI<dim>> ordinate, double weight);
+  QuadraturePoint(std::shared_ptr<OrdinateI<dim>> ordinate, Weight);
 
   std::shared_ptr<OrdinateI<dim>> ordinate() const override {
     return ordinate_;

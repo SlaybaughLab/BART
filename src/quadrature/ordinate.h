@@ -2,14 +2,11 @@
 #define BART_SRC_QUADRATURE_ORDINATE_H_
 
 #include "quadrature/ordinate_i.h"
+#include "quadrature/quadrature_types.h"
 
 namespace bart {
 
 namespace quadrature {
-
-template <int dim>
-using CartesianPosition = utility::NamedType<std::array<double, dim>,
-                                             struct CartesianPositionParameter>;
 
 /*! \brief Default implementation of Ordinate class.
  *

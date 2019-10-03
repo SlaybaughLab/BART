@@ -28,7 +28,8 @@ TYPED_TEST(QuadraturePointTest, Constructor) {
   constexpr int dim = this->dim;
   const double weight = 1.45;
 
-  quadrature::QuadraturePoint<dim> new_point(this->ordinate_ptr, weight);
+  quadrature::QuadraturePoint<dim> new_point(this->ordinate_ptr,
+                                             quadrature::Weight(weight));
 
   EXPECT_EQ(this->ordinate_ptr.use_count(), 2);
   EXPECT_EQ(new_point.ordinate(), this->ordinate_ptr);

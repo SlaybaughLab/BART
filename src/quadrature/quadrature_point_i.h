@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "quadrature/ordinate_i.h"
+#include "utility/named_type.h"
 
 namespace bart {
 
