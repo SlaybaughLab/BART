@@ -24,8 +24,15 @@ class OrdinateI {
   virtual bool operator!=(const OrdinateI&) const = 0;
   virtual bool operator==(const std::array<double, dim>) const = 0;
   virtual bool operator!=(const std::array<double, dim>) const = 0;
-  //virtual OrdinateI<dim> operator-() const = 0;
 };
+
+template<int dim>
+std::array<double, dim> Reflect(const OrdinateI<dim>& ordinate) {
+  std::array<double, dim> return_array;
+  for (unsigned int i = 0; i < dim; ++i)
+    return_array.at(i) = -ordinate.cartesian_position().at(i);
+  return return_array;
+}
 
 } // namespace quadrature
 

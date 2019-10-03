@@ -34,7 +34,7 @@ TYPED_TEST(QuadratureOrdinateTest, Construction) {
     EXPECT_EQ(position.at(i), tensor[i]);
 }
 
-TYPED_TEST(QuadratureOrdinateTest, OperatorEqualAndNeg) {
+TYPED_TEST(QuadratureOrdinateTest, OperatorEquality) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position, negative_position, second_position;
@@ -72,6 +72,25 @@ TYPED_TEST(QuadratureOrdinateTest, OperatorEqualAndNeg) {
       }
     }
   }
+}
+
+TYPED_TEST(QuadratureOrdinateTest, Reflect) {
+  constexpr int dim = this->dim;
+
+  std::array<double, dim> position, negative_position;
+  auto random_position = btest::RandomVector(dim, -10, 10);
+  for (int i = 0; i < dim; ++i) {
+    position.at(i) = random_position.at(i);
+    negative_position.at(i) = -random_position.at(i);
+  }
+
+  quadrature::Ordinate<dim> test_ordinate{
+      quadrature::CartesianPosition<dim>(position)};
+  quadrature::Ordinate<dim> test_ordinate_negative{
+      quadrature::CartesianPosition<dim>(negative_position)};
+
+  EXPECT_TRUE(test_ordinate == quadrature::Reflect(test_ordinate_negative));
+  EXPECT_TRUE(test_ordinate_negative == quadrature::Reflect(test_ordinate));
 }
 
 
