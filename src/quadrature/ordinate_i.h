@@ -1,6 +1,8 @@
 #ifndef BART_SRC_QUADRATURE_ORDINATE_I_H_
 #define BART_SRC_QUADRATURE_ORDINATE_I_H_
 
+#include "utility/named_type.h"
+
 namespace bart {
 
 namespace quadrature {
@@ -13,6 +15,7 @@ template <int dim>
 class OrdinateI {
  public:
   virtual ~OrdinateI() = default;
+  virtual std::array<double, dim> cartesian_position() const = 0;
 };
 
 } // namespace quadrature
