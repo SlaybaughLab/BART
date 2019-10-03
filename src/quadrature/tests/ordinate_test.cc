@@ -34,7 +34,7 @@ TYPED_TEST(QuadratureOrdinateTest, Construction) {
     EXPECT_EQ(position.at(i), tensor[i]);
 }
 
-TYPED_TEST(QuadratureOrdinateTest, OperatorEqual) {
+TYPED_TEST(QuadratureOrdinateTest, OperatorEqualAndNeg) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position, negative_position, second_position;
@@ -60,15 +60,15 @@ TYPED_TEST(QuadratureOrdinateTest, OperatorEqual) {
   for (unsigned int i = 0; i < ordinates.size(); ++i) {
     for (unsigned int j = 0; j < ordinates.size(); ++j) {
       if (i == j) {
-        EXPECT_TRUE(ordinates.at(i) == ordinates.at(j))
-                  << "i,j = " << i << ", " << j;
-        EXPECT_FALSE(ordinates.at(i) != ordinates.at(j))
-                  << "i,j = " << i << ", " << j;
+        EXPECT_TRUE(ordinates.at(i) == ordinates.at(j));
+        EXPECT_TRUE(ordinates.at(i) == ordinates.at(j).cartesian_position());
+        EXPECT_FALSE(ordinates.at(i) != ordinates.at(j));
+        EXPECT_FALSE(ordinates.at(i) != ordinates.at(j).cartesian_position());
       } else {
-        EXPECT_TRUE(ordinates.at(i) != ordinates.at(j))
-                  << "i,j = " << i << ", " << j;
-        EXPECT_FALSE(ordinates.at(i) == ordinates.at(j))
-                  << "i,j = " << i << ", " << j;
+        EXPECT_TRUE(ordinates.at(i) != ordinates.at(j));
+        EXPECT_TRUE(ordinates.at(i) != ordinates.at(j).cartesian_position());
+        EXPECT_FALSE(ordinates.at(i) == ordinates.at(j));
+        EXPECT_FALSE(ordinates.at(i) == ordinates.at(j).cartesian_position());
       }
     }
   }

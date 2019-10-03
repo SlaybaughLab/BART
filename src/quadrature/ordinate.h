@@ -42,6 +42,14 @@ class Ordinate : public OrdinateI<dim> {
     return cartesian_position_ != rhs.cartesian_position();
   }
 
+  bool operator==(const std::array<double, dim> rhs) const override {
+    return cartesian_position_ == rhs;
+  };
+
+  bool operator!=(const std::array<double, dim> rhs) const override {
+    return cartesian_position_ != rhs;
+  };
+
  private:
   std::array<double, dim> cartesian_position_;
 };

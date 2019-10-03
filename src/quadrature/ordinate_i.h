@@ -22,6 +22,9 @@ class OrdinateI {
 
   virtual bool operator==(const OrdinateI&) const = 0;
   virtual bool operator!=(const OrdinateI&) const = 0;
+  virtual bool operator==(const std::array<double, dim>) const = 0;
+  virtual bool operator!=(const std::array<double, dim>) const = 0;
+  //virtual OrdinateI<dim> operator-() const = 0;
 };
 
 } // namespace quadrature
