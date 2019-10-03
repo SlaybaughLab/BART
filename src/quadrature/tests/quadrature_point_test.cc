@@ -11,12 +11,28 @@ template <typename DimensionWrapper>
 class QuadraturePointTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
+
+  std::shared_ptr<quadrature::OrdinateI<dim>> ordinate_ptr;
+
+  void SetUp() override;
 };
+
+template <typename DimensionWrapper>
+void QuadraturePointTest<DimensionWrapper>::SetUp() {
+  ordinate_ptr = std::make_shared<quadrature::OrdinateMock<dim>>();
+}
 
 TYPED_TEST_CASE(QuadraturePointTest, bart::testing::AllDimensions);
 
 TYPED_TEST(QuadraturePointTest, Constructor) {
-  EXPECT_TRUE(true);
+  constexpr int dim = this->dim;
+  const double weight = 1.45;
+
+  quadrature::QuadraturePoint<dim> new_point(this->ordinate_ptr, weight);
+
+  EXPECT_EQ(this->ordinate_ptr.use_count(), 2);
+  EXPECT_EQ(new_point.ordinate(), this->ordinate_ptr);
+  EXPECT_EQ(new_point.weight(), weight);
 }
 
 } // namespace
