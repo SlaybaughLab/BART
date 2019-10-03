@@ -1,6 +1,8 @@
 #ifndef BART_SRC_QUADRATURE_ORDINATE_I_H_
 #define BART_SRC_QUADRATURE_ORDINATE_I_H_
 
+#include <deal.II/base/tensor.h>
+
 #include "utility/named_type.h"
 
 namespace bart {
@@ -16,6 +18,7 @@ class OrdinateI {
  public:
   virtual ~OrdinateI() = default;
   virtual std::array<double, dim> cartesian_position() const = 0;
+  virtual dealii::Tensor<1, dim> cartesian_position_tensor() const = 0;
 };
 
 } // namespace quadrature

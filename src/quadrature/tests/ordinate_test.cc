@@ -27,6 +27,11 @@ TYPED_TEST(QuadratureOrdinateTest, Construction) {
   quadrature::Ordinate<dim> test_ordinate{quadrature::CartesianPosition<dim>(position)};
 
   EXPECT_EQ(position, test_ordinate.cartesian_position());
+
+  auto tensor = test_ordinate.cartesian_position_tensor();
+
+  for (int i = 0; i < dim; ++i)
+    EXPECT_EQ(position.at(i), tensor[i]);
 }
 
 

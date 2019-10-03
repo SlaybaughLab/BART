@@ -20,9 +20,19 @@ class Ordinate : public OrdinateI<dim> {
  public:
   explicit Ordinate(CartesianPosition<dim>);
   virtual ~Ordinate() = default;
+
   std::array<double, dim> cartesian_position() const override {
     return cartesian_position_;
   }
+
+  dealii::Tensor<1, dim> cartesian_position_tensor() const override {
+    dealii::Tensor<1, dim> return_tensor;
+    for (int i = 0; i < dim; ++i)
+      return_tensor[i] = cartesian_position_.at(i);
+    return return_tensor;
+  }
+
+
 
  private:
   std::array<double, dim> cartesian_position_;
