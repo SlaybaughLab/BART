@@ -11,7 +11,15 @@ namespace angular {
 
 class LevelSymmetricGaussian : AngularQuadratureGeneratorI<3> {
  public:
+  explicit LevelSymmetricGaussian(quadrature::Order);
+  std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateSet() const;
 
+  int order() const {
+    return order_;
+  }
+
+ private:
+  const int order_ = 0;
 };
 
 

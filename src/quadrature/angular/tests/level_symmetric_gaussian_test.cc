@@ -9,7 +9,9 @@ using namespace bart;
 class QuadratureAngularLevelSymmetricGaussianTest : public ::testing::Test {};
 
 TEST_F(QuadratureAngularLevelSymmetricGaussianTest, Dummy) {
-  EXPECT_TRUE(true);
+  int order = 4;
+  quadrature::angular::LevelSymmetricGaussian test_quadrature{quadrature::Order(order)};
+  EXPECT_EQ(test_quadrature.order(), order);
 }
 
 } // namespace
