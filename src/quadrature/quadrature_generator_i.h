@@ -9,7 +9,13 @@
 namespace bart {
 
 namespace quadrature {
-
+/*! \brief Generates a quadrature set, generally for one quadrant.
+ *
+ * Quadrature points are generated using the quadrature types that make them
+ * ideal for instantiating Ordinates and Quadrature Points.
+ *
+ * @tparam dim spatial dimension.
+ */
 template <int dim>
 class QuadratureGeneratorI {
  public:
