@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_ANGULAR_LEVEL_SYMMETRIC_GAUSSIAN_H_
 #define BART_SRC_QUADRATURE_ANGULAR_LEVEL_SYMMETRIC_GAUSSIAN_H_
 
-#include "quadrature/angular_quadrature_generator_i.h"
+#include "quadrature/quadrature_generator_i.h"
 
 namespace bart {
 
@@ -54,7 +54,7 @@ namespace angular {
  *
  *
  */
-class LevelSymmetricGaussian : AngularQuadratureGeneratorI<3> {
+class LevelSymmetricGaussian : QuadratureGeneratorI<3> {
  public:
   explicit LevelSymmetricGaussian(quadrature::Order);
   std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateSet() const;

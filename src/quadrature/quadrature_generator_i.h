@@ -10,18 +10,14 @@ namespace bart {
 
 namespace quadrature {
 
-namespace angular {
-
 template <int dim>
-class AngularQuadratureGeneratorI {
+class QuadratureGeneratorI {
  public:
-  virtual ~AngularQuadratureGeneratorI() = default;
+  virtual ~QuadratureGeneratorI() = default;
   virtual std::vector<std::pair<CartesianPosition<dim>, Weight>> GenerateSet() const = 0;
   virtual int order() const = 0;
 
 };
-
-} // namespace angular
 
 } // namespace quadrature
 

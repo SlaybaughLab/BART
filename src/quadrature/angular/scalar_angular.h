@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_ANGULAR_SCALAR_ANGULAR_H_
 #define BART_SRC_QUADRATURE_ANGULAR_SCALAR_ANGULAR_H_
 
-#include "quadrature/angular_quadrature_generator_i.h"
+#include "quadrature/quadrature_generator_i.h"
 
 namespace bart {
 
@@ -10,7 +10,7 @@ namespace quadrature {
 namespace angular {
 
 template <int dim>
-class ScalarAngular : public AngularQuadratureGeneratorI<dim> {
+class ScalarAngular : public QuadratureGeneratorI<dim> {
  public:
   ScalarAngular() {};
   std::vector<std::pair<CartesianPosition<dim>, Weight>> GenerateSet() const override {
