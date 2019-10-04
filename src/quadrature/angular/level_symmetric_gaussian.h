@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_ANGULAR_LEVEL_SYMMETRIC_GAUSSIAN_H_
 #define BART_SRC_QUADRATURE_ANGULAR_LEVEL_SYMMETRIC_GAUSSIAN_H_
 
-#include "quadrature/angular/angular_quadrature_generator_i.h"
+#include "quadrature/angular_quadrature_generator_i.h"
 
 namespace bart {
 
