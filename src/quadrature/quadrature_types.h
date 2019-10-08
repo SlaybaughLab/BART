@@ -17,6 +17,8 @@ using Weight = utility::NamedType<double, struct WeightParameter>;
 
 using Order = utility::NamedType<int, struct OrderParameter>;
 
+using PointIndex = utility::NamedType<int, struct PointIndexParameter>;
+
 } // namespace quadrature
 
 } // namespace bart
