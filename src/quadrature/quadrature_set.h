@@ -16,6 +16,13 @@ class QuadratureSet : public QuadratureSetI<dim> {
  public:
   virtual ~QuadratureSet() = default;
 
+  bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>);
+  size_t size() const override {
+    return quadrature_point_ptrs_.size();
+  };
+
+ protected:
+  std::set<std::shared_ptr<QuadraturePointI<dim>>> quadrature_point_ptrs_;
 };
 
 } // namespace quadrature

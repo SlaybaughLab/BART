@@ -3,6 +3,9 @@
 
 #include "quadrature/quadrature_point_i.h"
 
+#include <memory>
+#include <set>
+
 namespace bart {
 
 namespace quadrature {
@@ -20,6 +23,10 @@ template <int dim>
 class QuadratureSetI {
  public:
   virtual ~QuadratureSetI() = default;
+
+  virtual bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>) = 0;
+
+  virtual std::size_t size() const = 0;
 };
 
 } // namespace quadrature
