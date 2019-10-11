@@ -17,6 +17,22 @@ class QuadratureSet : public QuadratureSetI<dim> {
   virtual ~QuadratureSet() = default;
 
   bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>);
+
+  typename QuadratureSetI<dim>::Iterator begin() override {
+    return quadrature_point_ptrs_.begin();
+  };
+  typename QuadratureSetI<dim>::Iterator end() override {
+    return quadrature_point_ptrs_.end();
+  }
+
+  typename QuadratureSetI<dim>::ConstIterator cbegin() const override {
+    return quadrature_point_ptrs_.cbegin();
+  };
+
+  typename QuadratureSetI<dim>::ConstIterator cend() const override {
+    return quadrature_point_ptrs_.cend();
+  };
+
   size_t size() const override {
     return quadrature_point_ptrs_.size();
   };

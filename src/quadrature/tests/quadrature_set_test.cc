@@ -51,6 +51,30 @@ TYPED_TEST(QuadratureSetTest, AddPoint) {
   EXPECT_EQ(test_set.size(), 2);
 }
 
+TYPED_TEST(QuadratureSetTest, Iterator) {
+  ASSERT_EQ(this->test_set_.size(), 2);
+  for (auto& point_ptr : this->test_set_) {
+    if (point_ptr != this->quadrature_point_){
+      EXPECT_EQ(point_ptr, this->second_quadrature_point_);
+    } else {
+      EXPECT_EQ(point_ptr, this->quadrature_point_);
+    }
+  }
+}
+
+TYPED_TEST(QuadratureSetTest, ConstIterator) {
+  ASSERT_EQ(this->test_set_.size(), 2);
+
+  for (auto it = this->test_set_.cbegin(); it != this->test_set_.cend(); ++it) {
+    auto point_ptr = *it;
+    if (point_ptr != this->quadrature_point_) {
+      EXPECT_EQ(point_ptr, this->second_quadrature_point_);
+    } else {
+      EXPECT_EQ(point_ptr, this->quadrature_point_);
+    }
+  }
+}
+
 
 
 } // namespace

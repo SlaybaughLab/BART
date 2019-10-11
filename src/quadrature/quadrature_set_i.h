@@ -22,9 +22,17 @@ namespace quadrature {
 template <int dim>
 class QuadratureSetI {
  public:
+  using Iterator = typename std::set<std::shared_ptr<QuadraturePointI<dim>>>::iterator;
+  using ConstIterator = typename std::set<std::shared_ptr<QuadraturePointI<dim>>>::const_iterator;
+
   virtual ~QuadratureSetI() = default;
 
   virtual bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>) = 0;
+
+  virtual Iterator begin() = 0;
+  virtual Iterator end() = 0;
+  virtual ConstIterator cbegin() const = 0;
+  virtual ConstIterator cend() const = 0;
 
   virtual std::size_t size() const = 0;
 };
