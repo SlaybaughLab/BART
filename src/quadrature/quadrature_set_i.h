@@ -28,6 +28,10 @@ class QuadratureSetI {
   virtual ~QuadratureSetI() = default;
 
   virtual bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>) = 0;
+  virtual void SetReflection(std::shared_ptr<QuadraturePointI<dim>>,
+                             std::shared_ptr<QuadraturePointI<dim>>) = 0;
+  virtual std::shared_ptr<QuadraturePointI<dim>> GetReflection(
+      std::shared_ptr<QuadraturePointI<dim>>) const = 0;
 
   virtual Iterator begin() = 0;
   virtual Iterator end() = 0;

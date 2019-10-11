@@ -10,6 +10,46 @@ bool QuadratureSet<dim>::AddPoint(
   auto status = quadrature_point_ptrs_.insert(new_point_ptr);
   return status.second;
 }
+template<int dim>
+void QuadratureSet<dim>::SetReflection(
+    std::shared_ptr<QuadraturePointI<dim>> first_point,
+    std::shared_ptr<QuadraturePointI<dim>> second_point) {
+
+  AssertThrow(first_point != second_point,
+              dealii::ExcMessage("Error in SetReflection: both points are the "
+                                 "same"));
+
+  bool both_points_in_set = (quadrature_point_ptrs_.count(first_point) == 1) &&
+      (quadrature_point_ptrs_.count(second_point) == 1);
+
+  AssertThrow(both_points_in_set,
+      dealii::ExcMessage("Error in SetReflection: one or both points are not "
+                         "in the quadrature set"));
+
+  for (auto& point : {first_point, second_point}) {
+    try {
+      // If the first point is already present, we will delete the entry and
+      // the entry for its previous reflection
+      auto old_reflection = reflection_map_.at(point);
+      reflection_map_.erase(old_reflection);
+    } catch (const std::out_of_range&) {}
+  }
+
+  reflection_map_.insert_or_assign(first_point, second_point);
+  reflection_map_.insert_or_assign(second_point, first_point);
+}
+template<int dim>
+std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetReflection(
+    std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
+  try {
+    return reflection_map_.at(quadrature_point);
+  } catch (const std::out_of_range&) {
+    AssertThrow(quadrature_point_ptrs_.count(quadrature_point) == 1,
+                dealii::ExcMessage("Error in GetReflection, quadrature point "
+                                   "is not in quadrature set."))
+    return nullptr;
+  }
+}
 
 template class QuadratureSet<1>;
 template class QuadratureSet<2>;

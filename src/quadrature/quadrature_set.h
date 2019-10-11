@@ -18,6 +18,12 @@ class QuadratureSet : public QuadratureSetI<dim> {
 
   bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>);
 
+  void SetReflection(std::shared_ptr<QuadraturePointI<dim>>,
+                     std::shared_ptr<QuadraturePointI<dim>>);
+
+  std::shared_ptr<QuadraturePointI<dim>> GetReflection(
+      std::shared_ptr<QuadraturePointI<dim>>) const override;
+
   typename QuadratureSetI<dim>::Iterator begin() override {
     return quadrature_point_ptrs_.begin();
   };
@@ -39,6 +45,8 @@ class QuadratureSet : public QuadratureSetI<dim> {
 
  protected:
   std::set<std::shared_ptr<QuadraturePointI<dim>>> quadrature_point_ptrs_;
+  std::map<std::shared_ptr<QuadraturePointI<dim>>,
+           std::shared_ptr<QuadraturePointI<dim>>> reflection_map_;
 };
 
 } // namespace quadrature
