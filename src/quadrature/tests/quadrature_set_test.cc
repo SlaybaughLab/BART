@@ -112,7 +112,7 @@ TYPED_TEST(QuadratureSetTest, SetNewReflectionFirstPoint) {
   this->test_set_.SetReflection(this->quadrature_point_,
                                 this->second_quadrature_point_);
   this->test_set_.SetReflection(this->quadrature_point_,
-                                            this->third_quadrature_point_)z;
+                                            this->third_quadrature_point_);
   // Second point now has no reflection
   EXPECT_EQ(nullptr, this->test_set_.GetReflection(this->second_quadrature_point_));
   // Third and first now reflect each other

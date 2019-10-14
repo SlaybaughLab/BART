@@ -12,6 +12,10 @@ namespace quadrature {
 template <int dim>
 class QuadraturePointMock : public QuadraturePointI<dim> {
  public:
+  MOCK_METHOD2_T(SetTo, QuadraturePointMock&(const std::shared_ptr<OrdinateI<dim>>&,
+      const quadrature::Weight));
+  MOCK_METHOD1_T(SetOrdinate, QuadraturePointMock&(const std::shared_ptr<OrdinateI<dim>>&));
+  MOCK_METHOD1_T(SetWeight, QuadraturePointMock&(const quadrature::Weight));
   MOCK_CONST_METHOD0_T(ordinate, std::shared_ptr<OrdinateI<dim>>());
   MOCK_CONST_METHOD0_T(weight, double());
 };

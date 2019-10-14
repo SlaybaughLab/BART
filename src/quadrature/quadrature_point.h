@@ -11,8 +11,14 @@ namespace quadrature {
 template <int dim>
 class QuadraturePoint : public QuadraturePointI<dim> {
  public:
-
+  QuadraturePoint() = default;
   QuadraturePoint(std::shared_ptr<OrdinateI<dim>> ordinate, Weight);
+
+  QuadraturePoint<dim> &SetTo(const std::shared_ptr<OrdinateI<dim>> &,
+                              const Weight) override;
+  QuadraturePoint<dim> &SetOrdinate(
+      const std::shared_ptr<OrdinateI<dim>> &) override;
+  QuadraturePoint<dim> &SetWeight(const Weight) override;
 
   std::shared_ptr<OrdinateI<dim>> ordinate() const override {
     return ordinate_;

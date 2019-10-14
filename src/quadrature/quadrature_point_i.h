@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "quadrature/ordinate_i.h"
-#include "utility/named_type.h"
+#include "quadrature/quadrature_types.h"
 
 namespace bart {
 
@@ -14,6 +14,12 @@ template <int dim>
 class QuadraturePointI {
  public:
   virtual ~QuadraturePointI() = default;
+
+  virtual QuadraturePointI& SetTo(
+      const std::shared_ptr<OrdinateI<dim>>&, const quadrature::Weight) = 0;
+  virtual QuadraturePointI& SetOrdinate(
+      const std::shared_ptr<OrdinateI<dim>>&) = 0;
+  virtual QuadraturePointI& SetWeight(const quadrature::Weight) = 0;
 
   virtual std::shared_ptr<OrdinateI<dim>> ordinate() const = 0;
   virtual double weight() const = 0;
