@@ -54,12 +54,12 @@ namespace angular {
  *
  *
  */
-class LevelSymmetricGaussian : QuadratureGeneratorI<3> {
+class LevelSymmetricGaussian : public QuadratureGeneratorI<3> {
  public:
   explicit LevelSymmetricGaussian(quadrature::Order);
-  std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateSet() const;
+  std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateSet() const override;
 
-  int order() const {
+  int order() const override {
     return order_;
   }
 
