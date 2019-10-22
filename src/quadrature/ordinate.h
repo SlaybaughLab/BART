@@ -18,6 +18,11 @@ class Ordinate : public OrdinateI<dim> {
   explicit Ordinate(CartesianPosition<dim>);
   virtual ~Ordinate() = default;
 
+  Ordinate& set_cartesian_position(const CartesianPosition<dim> to_set) override {
+    cartesian_position_ = to_set.get();
+    return *this;
+  }
+
   std::array<double, dim> cartesian_position() const override {
     return cartesian_position_;
   }

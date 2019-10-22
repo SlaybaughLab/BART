@@ -34,6 +34,25 @@ TYPED_TEST(QuadratureOrdinateTest, Construction) {
     EXPECT_EQ(position.at(i), tensor[i]);
 }
 
+TYPED_TEST(QuadratureOrdinateTest, SetCartesianPosition) {
+  constexpr int dim = this->dim;
+
+  std::array<double, dim> position, new_position;
+  auto random_position = btest::RandomVector(dim, -10, 10);
+  auto second_position = btest::RandomVector(dim, -10, 10);
+
+  for (int i = 0; i < dim; ++i) {
+    position.at(i) = random_position.at(i);
+    new_position.at(i) = second_position.at(i);
+  }
+
+  quadrature::Ordinate<dim> test_ordinate{quadrature::CartesianPosition<dim>(position)};
+  EXPECT_EQ(position, test_ordinate.cartesian_position());
+
+  test_ordinate.set_cartesian_position(quadrature::CartesianPosition<dim>(new_position));
+  EXPECT_EQ(new_position, test_ordinate.cartesian_position());
+}
+
 TYPED_TEST(QuadratureOrdinateTest, OperatorEquality) {
   constexpr int dim = this->dim;
 

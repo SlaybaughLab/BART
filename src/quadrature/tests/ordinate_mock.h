@@ -12,6 +12,7 @@ namespace quadrature {
 template <int dim>
 class OrdinateMock : public OrdinateI<dim> {
  public:
+  MOCK_METHOD1_T(set_cartesian_position, OrdinateMock&(const CartesianPosition<dim>));
   MOCK_CONST_METHOD0_T(cartesian_position, std::array<double, dim>());
   MOCK_CONST_METHOD0_T(cartesian_position_tensor, dealii::Tensor<1, dim>());
 

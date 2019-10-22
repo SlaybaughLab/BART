@@ -3,6 +3,7 @@
 
 #include <deal.II/base/tensor.h>
 
+#include "quadrature/quadrature_types.h"
 #include "utility/named_type.h"
 
 namespace bart {
@@ -17,6 +18,7 @@ template <int dim>
 class OrdinateI {
  public:
   virtual ~OrdinateI() = default;
+  virtual OrdinateI& set_cartesian_position(const CartesianPosition<dim>) = 0;
   virtual std::array<double, dim> cartesian_position() const = 0;
   virtual dealii::Tensor<1, dim> cartesian_position_tensor() const = 0;
 
