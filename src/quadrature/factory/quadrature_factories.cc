@@ -2,6 +2,7 @@
 
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
+#include "quadrature/quadrature_set.h"
 #include "quadrature/angular/scalar_angular.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
 
@@ -73,6 +74,19 @@ std::shared_ptr<QuadratureGeneratorI<dim>> MakeAngularQuadratureGeneratorPtr(
   return generator_ptr;
 }
 
+template <int dim>
+std::shared_ptr<QuadratureSetI<dim>> MakeQuadratureSetPtr(
+    const QuadratureSetImpl type) {
+
+  std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr = nullptr;
+
+  if (type == QuadratureSetImpl::kDefault) {
+    quadrature_set_ptr = std::make_shared<QuadratureSet<dim>>();
+  }
+
+  return quadrature_set_ptr;
+}
+
 
 template std::shared_ptr<OrdinateI<1>> MakeOrdinatePtr(const OrdinateType);
 template std::shared_ptr<OrdinateI<2>> MakeOrdinatePtr(const OrdinateType);
@@ -85,6 +99,10 @@ template std::shared_ptr<QuadraturePointI<3>> MakeQuadraturePointPtr(const Quadr
 template std::shared_ptr<QuadratureGeneratorI<1>> MakeAngularQuadratureGeneratorPtr(const Order, const AngularQuadratureSetType);
 template std::shared_ptr<QuadratureGeneratorI<2>> MakeAngularQuadratureGeneratorPtr(const Order, const AngularQuadratureSetType);
 template std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGeneratorPtr(const Order, const AngularQuadratureSetType);
+
+template std::shared_ptr<QuadratureSetI<1>> MakeQuadratureSetPtr(const QuadratureSetImpl);
+template std::shared_ptr<QuadratureSetI<2>> MakeQuadratureSetPtr(const QuadratureSetImpl);
+template std::shared_ptr<QuadratureSetI<3>> MakeQuadratureSetPtr(const QuadratureSetImpl);
 
 } // namespace factory
 

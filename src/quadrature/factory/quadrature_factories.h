@@ -6,6 +6,7 @@
 #include "quadrature/ordinate_i.h"
 #include "quadrature/quadrature_generator_i.h"
 #include "quadrature/quadrature_point_i.h"
+#include "quadrature/quadrature_set_i.h"
 #include "quadrature/quadrature_types.h"
 
 namespace bart {
@@ -25,6 +26,10 @@ std::shared_ptr<QuadraturePointI<dim>> MakeQuadraturePointPtr(
 template <int dim>
 std::shared_ptr<QuadratureGeneratorI<dim>> MakeAngularQuadratureGeneratorPtr(
     const Order, const AngularQuadratureSetType);
+
+template <int dim>
+std::shared_ptr<QuadratureSetI<dim>> MakeQuadratureSetPtr(
+    const QuadratureSetImpl impl = QuadratureSetImpl::kDefault);
 
 } // namespace factory
 

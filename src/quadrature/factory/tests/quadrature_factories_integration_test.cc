@@ -4,6 +4,7 @@
 #include "quadrature/angular/level_symmetric_gaussian.h"
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
+#include "quadrature/quadrature_set.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -111,6 +112,22 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest,
           quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
     });
   }
+}
+
+/* Call to MakeQuadratureSet specifying default implementation should return
+ * the correct type. */
+TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeQuadratureSetTest) {
+  constexpr int dim = this->dim;
+
+  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>(
+      quadrature::QuadratureSetImpl::kDefault);
+
+  ASSERT_NE(nullptr, quadrature_set_ptr);
+
+  using ExpectedType = quadrature::QuadratureSet<dim>;
+
+  ASSERT_NE(nullptr,
+            dynamic_cast<ExpectedType*>(quadrature_set_ptr.get()));
 }
 
 } // namespace
