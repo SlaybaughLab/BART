@@ -15,6 +15,7 @@ namespace quadrature {
 template <int dim>
 class Ordinate : public OrdinateI<dim> {
  public:
+  Ordinate() = default;
   explicit Ordinate(CartesianPosition<dim>);
   virtual ~Ordinate() = default;
 
