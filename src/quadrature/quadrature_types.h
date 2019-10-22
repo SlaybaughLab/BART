@@ -19,6 +19,12 @@ using Order = utility::NamedType<int, struct OrderParameter>;
 
 using PointIndex = utility::NamedType<int, struct PointIndexParameter>;
 
+enum class AngularQuadratureSetType {
+  kNone = 0,
+  kScalar = 1,
+  kLevelSymmetricGaussian = 2,
+};
+
 enum class OrdinateType {
   kDefault = 0,
 };
