@@ -10,14 +10,17 @@ namespace bart {
 namespace quadrature {
 
 template <int dim>
-using CartesianPosition = utility::NamedType<std::array<double, dim>,
+using CartesianPosition = bart::utility::NamedType<std::array<double, dim>,
     struct CartesianPositionParameter>;
 
-using Weight = utility::NamedType<double, struct WeightParameter>;
+using Weight = bart::utility::NamedType<double, struct WeightParameter>;
 
-using Order = utility::NamedType<int, struct OrderParameter>;
+using Order = bart::utility::NamedType<int, struct OrderParameter>;
 
-using PointIndex = utility::NamedType<int, struct PointIndexParameter>;
+using PointIndex = bart::utility::NamedType<int, struct PointIndexParameter>;
+
+using FillAllQuadrants = bart::utility::NamedType<bool,
+                                            struct FillAllQuadrantsParameter>;
 
 enum class AngularQuadratureSetType {
   kNone = 0,
