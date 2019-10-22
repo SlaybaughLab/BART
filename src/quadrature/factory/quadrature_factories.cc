@@ -1,6 +1,7 @@
 #include "quadrature/factory/quadrature_factories.h"
 
 #include "quadrature/ordinate.h"
+#include "quadrature/quadrature_point.h"
 
 namespace bart {
 
@@ -21,9 +22,27 @@ std::shared_ptr<OrdinateI<dim>> MakeOrdinatePtr(const OrdinateType type) {
   return ordinate_ptr;
 }
 
-template std::shared_ptr<OrdinateI<1>> MakeOrdinatePtr<1>(const OrdinateType);
-template std::shared_ptr<OrdinateI<2>> MakeOrdinatePtr<2>(const OrdinateType);
-template std::shared_ptr<OrdinateI<3>> MakeOrdinatePtr<3>(const OrdinateType);
+template <int dim>
+std::shared_ptr<QuadraturePointI<dim>> MakeQuadraturePointPtr(
+    const QuadraturePointImpl impl) {
+  std::shared_ptr<QuadraturePointI<dim>> quadrature_point_ptr = nullptr;
+
+  if (impl == QuadraturePointImpl::kDefault) {
+    // Default implementation
+    quadrature_point_ptr = std::make_shared<QuadraturePoint<dim>>();
+  }
+
+  return quadrature_point_ptr;
+}
+
+
+template std::shared_ptr<OrdinateI<1>> MakeOrdinatePtr(const OrdinateType);
+template std::shared_ptr<OrdinateI<2>> MakeOrdinatePtr(const OrdinateType);
+template std::shared_ptr<OrdinateI<3>> MakeOrdinatePtr(const OrdinateType);
+
+template std::shared_ptr<QuadraturePointI<1>> MakeQuadraturePointPtr(const QuadraturePointImpl);
+template std::shared_ptr<QuadraturePointI<2>> MakeQuadraturePointPtr(const QuadraturePointImpl);
+template std::shared_ptr<QuadraturePointI<3>> MakeQuadraturePointPtr(const QuadraturePointImpl);
 
 } // namespace factory
 

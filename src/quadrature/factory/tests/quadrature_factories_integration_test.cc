@@ -1,6 +1,7 @@
 #include "quadrature/factory/quadrature_factories.h"
 
 #include "quadrature/ordinate.h"
+#include "quadrature/quadrature_point.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -9,6 +10,12 @@ namespace  {
 
 using namespace bart;
 
+/* These tests verify the operation of the functions in quadrature::factory
+ * that are designed to instantiate the different implementations of all the
+ * classes in the quadrature namespace. As they actually instantiate classes,
+ * they are integration tests, as they require the instantiated classes to be
+ * implemented in some form.
+ */
 template <typename DimensionWrapper>
 class QuadratureFactoriesIntegrationTest : public ::testing::Test {
  public:
@@ -31,5 +38,15 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeOrdinate) {
   EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(ordinate_ptr.get()));
 }
 
+TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeQuadraturePoint) {
+  constexpr int dim = this->dim;
+  auto quadrature_point_ptr = quadrature::factory::MakeQuadraturePointPtr<dim>(
+      quadrature::QuadraturePointImpl::kDefault);
+
+  ASSERT_NE(nullptr, quadrature_point_ptr);
+
+  using ExpectedType = quadrature::QuadraturePoint<dim>;
+  EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_point_ptr.get()));
+}
 
 } // namespace

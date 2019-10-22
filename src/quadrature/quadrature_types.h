@@ -23,6 +23,10 @@ enum class OrdinateType {
   kDefault = 0,
 };
 
+enum class QuadraturePointImpl {
+  kDefault = 0,
+};
+
 } // namespace quadrature
 
 } // namespace bart
