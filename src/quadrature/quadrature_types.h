@@ -19,6 +19,10 @@ using Order = utility::NamedType<int, struct OrderParameter>;
 
 using PointIndex = utility::NamedType<int, struct PointIndexParameter>;
 
+enum class OrdinateType {
+  kDefault = 0,
+};
+
 } // namespace quadrature
 
 } // namespace bart
