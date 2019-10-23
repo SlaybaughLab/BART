@@ -10,7 +10,7 @@ namespace quadrature {
 namespace utility {
 
 template <int dim>
-std::array<double, dim> Reflect(const OrdinateI<dim>& ordinate);
+std::array<double, dim> ReflectAcrossOrigin(const OrdinateI<dim>& ordinate);
 
 } // namespace utility
 

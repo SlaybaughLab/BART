@@ -9,7 +9,7 @@ namespace quadrature {
 namespace utility {
 
 template <int dim>
-std::array<double, dim> Reflect(const OrdinateI<dim>& ordinate) {
+std::array<double, dim> ReflectAcrossOrigin(const OrdinateI<dim>& ordinate) {
 
   auto position = ordinate.cartesian_position();
 
@@ -19,9 +19,10 @@ std::array<double, dim> Reflect(const OrdinateI<dim>& ordinate) {
   return position;
 }
 
-template std::array<double, 1> Reflect<1>(const OrdinateI<1>&);
-template std::array<double, 2> Reflect<2>(const OrdinateI<2>&);
-template std::array<double, 3> Reflect<3>(const OrdinateI<3>&);
+
+template std::array<double, 1> ReflectAcrossOrigin<1>(const OrdinateI<1>&);
+template std::array<double, 2> ReflectAcrossOrigin<2>(const OrdinateI<2>&);
+template std::array<double, 3> ReflectAcrossOrigin<3>(const OrdinateI<3>&);
 
 } // namespace utility
 

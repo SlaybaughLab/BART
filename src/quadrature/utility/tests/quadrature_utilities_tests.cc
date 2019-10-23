@@ -23,7 +23,7 @@ TYPED_TEST(QuadratureUtilityTests, Dummy) {
   EXPECT_TRUE(true);
 }
 
-TYPED_TEST(QuadratureUtilityTests, Reflect) {
+TYPED_TEST(QuadratureUtilityTests, ReflectAcrossOrigin) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position, negative_position;
@@ -38,13 +38,17 @@ TYPED_TEST(QuadratureUtilityTests, Reflect) {
   EXPECT_CALL(mock_ordinate, cartesian_position())
       .WillOnce(::testing::Return(position));
 
-  EXPECT_EQ(quadrature::utility::Reflect(mock_ordinate), negative_position);
+  EXPECT_EQ(quadrature::utility::ReflectAcrossOrigin(mock_ordinate),
+            negative_position);
 
   EXPECT_CALL(mock_ordinate, cartesian_position())
       .WillOnce(::testing::Return(negative_position));
 
-  EXPECT_EQ(quadrature::utility::Reflect(mock_ordinate), position);
+  EXPECT_EQ(quadrature::utility::ReflectAcrossOrigin(mock_ordinate),
+            position);
 }
+
+
 
 
 } // namespace
