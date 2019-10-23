@@ -12,6 +12,10 @@ namespace utility {
 template <int dim>
 std::array<double, dim> ReflectAcrossOrigin(const OrdinateI<dim>& ordinate);
 
+template <int dim>
+std::vector<std::pair<CartesianPosition<dim>, Weight>> GenerateAllPositiveX(
+    const std::vector<std::pair<CartesianPosition<dim>, Weight>>&);
+
 } // namespace utility
 
 } // namespace quadrature

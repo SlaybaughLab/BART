@@ -1,4 +1,5 @@
 #include "quadrature/utility/quadrature_utilities.h"
+#include "quadrature/quadrature_set_i.h"
 
 #include <functional>
 
@@ -18,6 +19,46 @@ std::array<double, dim> ReflectAcrossOrigin(const OrdinateI<dim>& ordinate) {
 
   return position;
 }
+
+template <>
+std::vector<std::pair<CartesianPosition<1>, Weight>> GenerateAllPositiveX<1>(
+    const std::vector<std::pair<CartesianPosition<1>, Weight>>& to_distribute) {
+  return to_distribute;
+}
+
+template <>
+std::vector<std::pair<CartesianPosition<2>, Weight>> GenerateAllPositiveX<2>(
+    const std::vector<std::pair<CartesianPosition<2>, Weight>>& to_distribute) {
+  auto quadrature_pairs = to_distribute;
+  for (auto [position, weight] : to_distribute) {
+    auto& y = position.get().at(1);
+    y *= -1;
+    quadrature_pairs.emplace_back(CartesianPosition<2>(position),
+                                  Weight(weight));
+  }
+  return quadrature_pairs;
+}
+
+template <>
+std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateAllPositiveX<3>(
+    const std::vector<std::pair<CartesianPosition<3>, Weight>>& to_distribute) {
+  auto quadrature_pairs = to_distribute;
+  for (auto [position, weight] : to_distribute) {
+    auto& y = position.get().at(1);
+    auto& z = position.get().at(2);
+    y *= -1;
+    quadrature_pairs.emplace_back(CartesianPosition<3>(position),
+                                  Weight(weight));
+    z *= -1;
+    quadrature_pairs.emplace_back(CartesianPosition<3>(position),
+                                  Weight(weight));
+    y *= -1;
+    quadrature_pairs.emplace_back(CartesianPosition<3>(position),
+                                  Weight(weight));
+  }
+  return quadrature_pairs;
+}
+
 
 
 template std::array<double, 1> ReflectAcrossOrigin<1>(const OrdinateI<1>&);
