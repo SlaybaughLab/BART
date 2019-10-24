@@ -22,10 +22,6 @@ class QuadratureUtilityTests : public ::testing::Test {
 
 TYPED_TEST_CASE(QuadratureUtilityTests, bart::testing::AllDimensions);
 
-TYPED_TEST(QuadratureUtilityTests, Dummy) {
-  EXPECT_TRUE(true);
-}
-
 TYPED_TEST(QuadratureUtilityTests, ReflectAcrossOrigin) {
   constexpr int dim = this->dim;
 
