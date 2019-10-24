@@ -5,8 +5,10 @@
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
+#include "quadrature/utility/quadrature_utilities.h"
 
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 
 
 namespace  {
@@ -128,6 +130,65 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeQuadratureSetTest) {
 
   ASSERT_NE(nullptr,
             dynamic_cast<ExpectedType*>(quadrature_set_ptr.get()));
+}
+
+TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSet) {
+  const int dim = this->dim;
+  const int n_points = 3;
+  const int n_quadrants = std::pow(2, dim);
+
+  // Generate random quadrature points
+  std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight>>
+      quadrature_points;
+
+  for (int i = 0; i < n_points; ++i) {
+    auto random_position = btest::RandomVector(dim, 1, 10);
+    auto random_weight = btest::RandomDouble(0, 2);
+    std::array<double, dim> position;
+    for (int j = 0; j < dim; ++j)
+      position.at(j) = random_position.at(j);
+    quadrature_points.emplace_back(quadrature::CartesianPosition<dim>(position),
+                                quadrature::Weight(random_weight));
+  }
+
+  // Distribute in all positive X quadrants
+  auto distributed_points =
+      quadrature::utility::GenerateAllPositiveX<dim>(quadrature_points);
+
+  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+  quadrature::factory::FillQuadratureSet<dim>(quadrature_set_ptr.get(),
+                                              distributed_points);
+
+  EXPECT_EQ(quadrature_set_ptr->size(), n_points*n_quadrants);
+
+  for (const auto& quadrature_point_ptr : *quadrature_set_ptr) {
+
+    // Verify this point is in the original set of points if it is all positive,
+    // need to construct a pair to do this
+    quadrature::CartesianPosition<dim> position(quadrature_point_ptr->ordinate()->cartesian_position());
+    quadrature::Weight weight(quadrature_point_ptr->weight());
+
+    if (std::all_of(position.get().cbegin(),
+                    position.get().cend(), [](int i) { return i >=0;})) {
+      auto point_pair = std::make_pair(position, weight);
+      EXPECT_EQ(1, std::count(distributed_points.cbegin(), distributed_points.cend(),
+                              point_pair));
+    }
+
+    // This point should have a reflection, whose reflection should be this point
+    // and the reflection should have the opposite coordinate
+    auto reflection_ptr = quadrature_set_ptr->GetReflection(quadrature_point_ptr);
+    ASSERT_NE(nullptr, reflection_ptr);
+    auto re_reflection_ptr = quadrature_set_ptr->GetReflection(reflection_ptr);
+    EXPECT_EQ(re_reflection_ptr, quadrature_point_ptr);
+    EXPECT_EQ(quadrature_point_ptr->weight(), reflection_ptr->weight());
+
+    for (int i = 0; i < dim; ++i) {
+      EXPECT_EQ(quadrature_point_ptr->ordinate()->cartesian_position().at(i),
+                -reflection_ptr->ordinate()->cartesian_position().at(i));
+    }
+  }
 }
 
 } // namespace

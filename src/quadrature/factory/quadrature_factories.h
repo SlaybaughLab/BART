@@ -31,6 +31,11 @@ template <int dim>
 std::shared_ptr<QuadratureSetI<dim>> MakeQuadratureSetPtr(
     const QuadratureSetImpl impl = QuadratureSetImpl::kDefault);
 
+template <int dim>
+void FillQuadratureSet(
+    QuadratureSetI<dim>*,
+    const std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight>>&);
+
 } // namespace factory
 
 } // namespace quadrature
