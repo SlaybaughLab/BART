@@ -32,9 +32,11 @@ std::vector<std::pair<CartesianPosition<2>, Weight>> GenerateAllPositiveX<2>(
   auto quadrature_pairs = to_distribute;
   for (auto [position, weight] : to_distribute) {
     auto& y = position.get().at(1);
-    y *= -1;
-    quadrature_pairs.emplace_back(CartesianPosition<2>(position),
-                                  Weight(weight));
+    if (y != 0) {
+      y *= -1;
+      quadrature_pairs.emplace_back(CartesianPosition<2>(position),
+                                    Weight(weight));
+    }
   }
   return quadrature_pairs;
 }
@@ -46,15 +48,21 @@ std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateAllPositiveX<3>(
   for (auto [position, weight] : to_distribute) {
     auto& y = position.get().at(1);
     auto& z = position.get().at(2);
-    y *= -1;
-    quadrature_pairs.emplace_back(CartesianPosition<3>(position),
-                                  Weight(weight));
-    z *= -1;
-    quadrature_pairs.emplace_back(CartesianPosition<3>(position),
-                                  Weight(weight));
-    y *= -1;
-    quadrature_pairs.emplace_back(CartesianPosition<3>(position),
-                                  Weight(weight));
+    if (y != 0) {
+      y *= -1;
+      quadrature_pairs.emplace_back(CartesianPosition<3>(position),
+                                    Weight(weight));
+    }
+    if (z != 0) {
+      z *= -1;
+      quadrature_pairs.emplace_back(CartesianPosition<3>(position),
+                                    Weight(weight));
+      if (y != 0) {
+        y *= -1;
+        quadrature_pairs.emplace_back(CartesianPosition<3>(position),
+                                      Weight(weight));
+      }
+    }
   }
   return quadrature_pairs;
 }

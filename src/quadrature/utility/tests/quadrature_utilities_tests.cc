@@ -94,6 +94,27 @@ TYPED_TEST(QuadratureUtilityTests, GenerateAllPositiveX) {
   }
 }
 
+TYPED_TEST(QuadratureUtilityTests, GenerateAllPositiveXScalar) {
+  const int dim = this->dim;
+
+  std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight>>
+      quadrature_set;
+
+  std::array<double, dim> zero_position;
+  zero_position.fill(0);
+
+  quadrature_set.emplace_back(quadrature::CartesianPosition<dim>(zero_position),
+                              quadrature::Weight(1));
+
+  auto distributed_set =
+      quadrature::utility::GenerateAllPositiveX<dim>(quadrature_set);
+
+  EXPECT_EQ(distributed_set.size(), 1);
+
+
+  EXPECT_EQ(quadrature_set.at(0), distributed_set.at(0));
+}
+
 
 
 
