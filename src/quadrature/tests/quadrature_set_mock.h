@@ -18,7 +18,7 @@ class QuadratureSetMock : public QuadratureSetI<dim> {
   MOCK_METHOD1_T(AddPoint, bool(std::shared_ptr<QuadraturePointI<dim>>));
   MOCK_METHOD2_T(SetReflection, void(std::shared_ptr<QuadraturePointI<dim>>,
       std::shared_ptr<QuadraturePointI<dim>>));
-  MOCK_METHOD1_T(GetReflection, std::shared_ptr<QuadraturePointI<dim>>(
+  MOCK_CONST_METHOD1_T(GetReflection, std::shared_ptr<QuadraturePointI<dim>>(
       std::shared_ptr<QuadraturePointI<dim>>));
 
   MOCK_METHOD0_T(begin, Iterator());
