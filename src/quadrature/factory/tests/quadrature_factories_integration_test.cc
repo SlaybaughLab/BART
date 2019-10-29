@@ -192,7 +192,111 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSet) {
 }
 
 TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSetScalar) {
+  const int dim = this->dim;
+  std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight >>
+      quadrature_points;
 
+  std::array<double, dim> zero_position;
+  zero_position.fill(0);
+
+  quadrature_points.emplace_back(quadrature::CartesianPosition<dim>(zero_position),
+                                 quadrature::Weight(1.0));
+
+  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+  quadrature::factory::FillQuadratureSet<dim>(quadrature_set_ptr.get(),
+                                              quadrature_points);
+
+  ASSERT_EQ(quadrature_set_ptr->size(), 1);
+  auto quadrature_point_ptr = *quadrature_set_ptr->begin();
+
+  for (int i = 0; i < dim; ++i) {
+    EXPECT_EQ(0, quadrature_point_ptr->ordinate()->cartesian_position().at(i));
+  }
+
+  EXPECT_EQ(quadrature_set_ptr->GetReflection(quadrature_point_ptr),
+            quadrature_point_ptr);
+}
+
+/* If a point is already in a quadrature set, FillQuadratureSet should not make
+ * a new one, but just set them as reflections.
+ */
+TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSetDuplicatePoint) {
+  const int dim = this->dim;
+  std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight >>
+      quadrature_points;
+
+  const auto random_vector = btest::RandomVector(dim, 1, 10);
+  std::array<double, dim> random_position, negative_position;
+
+  for (int i = 0; i < dim; ++i) {
+    random_position.at(i) = random_vector.at(i);
+    negative_position.at(i) = -random_vector.at(i);
+  }
+
+  quadrature_points.emplace_back(quadrature::CartesianPosition<dim>(random_position),
+                                 quadrature::Weight(1.0));
+  quadrature_points.emplace_back(quadrature::CartesianPosition<dim>(negative_position),
+                                 quadrature::Weight(1.0));
+
+  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+  quadrature::factory::FillQuadratureSet<dim>(quadrature_set_ptr.get(),
+                                              quadrature_points);
+
+  ASSERT_EQ(quadrature_set_ptr->size(), 2);
+
+  for (const auto& quadrature_point_ptr : *quadrature_set_ptr) {
+    auto reflection_ptr =
+        quadrature_set_ptr->GetReflection(quadrature_point_ptr);
+    ASSERT_NE(nullptr, reflection_ptr);
+    auto re_reflection_ptr =
+        quadrature_set_ptr->GetReflection(reflection_ptr);
+    ASSERT_NE(nullptr, re_reflection_ptr);
+    EXPECT_EQ(re_reflection_ptr, quadrature_point_ptr);
+  }
+}
+
+/* If a point and its reflection are already in a quadrature set,
+ * FillQuadratureSet should do nothing.
+ */
+TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSetAlreadySetup) {
+  const int dim = this->dim;
+  std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight >>
+      quadrature_points;
+
+  const auto random_vector = btest::RandomVector(dim, 1, 10);
+  std::array<double, dim> random_position, negative_position;
+
+  for (int i = 0; i < dim; ++i) {
+    random_position.at(i) = random_vector.at(i);
+    negative_position.at(i) = -random_vector.at(i);
+  }
+
+  quadrature_points.emplace_back(quadrature::CartesianPosition<dim>(random_position),
+                                 quadrature::Weight(1.0));
+  quadrature_points.emplace_back(quadrature::CartesianPosition<dim>(negative_position),
+                                 quadrature::Weight(1.0));
+
+  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+
+  quadrature::factory::FillQuadratureSet<dim>(quadrature_set_ptr.get(),
+                                              quadrature_points);
+  quadrature::factory::FillQuadratureSet<dim>(quadrature_set_ptr.get(),
+                                              quadrature_points);
+
+  ASSERT_EQ(quadrature_set_ptr->size(), 2);
+
+  for (const auto& quadrature_point_ptr : *quadrature_set_ptr) {
+    auto reflection_ptr =
+        quadrature_set_ptr->GetReflection(quadrature_point_ptr);
+    ASSERT_NE(nullptr, reflection_ptr);
+    auto re_reflection_ptr =
+        quadrature_set_ptr->GetReflection(reflection_ptr);
+    ASSERT_NE(nullptr, re_reflection_ptr);
+    EXPECT_EQ(re_reflection_ptr, quadrature_point_ptr);
+  }
 }
 
 } // namespace
