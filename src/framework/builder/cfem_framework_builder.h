@@ -16,6 +16,7 @@
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/updater/source_updater_i.h"
 #include "iteration/updater/fixed_updater_i.h"
+#include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "results/output_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -31,6 +32,7 @@ namespace builder {
 template <int dim>
 class CFEM_FrameworkBuilder : public FrameworkBuilderI {
  public:
+  using AngularQuadratureSet = quadrature::QuadratureSetI<dim>;
   using CFEMStamper = formulation::CFEMStamperI;
   using ConvergenceReporter = convergence::reporter::MpiI;
   using CrossSections = data::CrossSections;
@@ -47,6 +49,9 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
 
   CFEM_FrameworkBuilder() = default;
   virtual ~CFEM_FrameworkBuilder() = default;
+
+  std::shared_ptr<AngularQuadratureSet> BuildAngularQuadratureSet(
+      problem::ParametersI* problem_parameters);
 
   std::unique_ptr<ConvergenceReporter> BuildConvergenceReporter();
 

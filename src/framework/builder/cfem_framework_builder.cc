@@ -25,6 +25,8 @@
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/final_checker_or_n.h"
+#include "quadrature/utility/quadrature_utilities.h"
+#include "quadrature/factory/quadrature_factories.h"
 #include "quadrature/angular/angular_quadrature_scalar.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "results/output_dealii_vtu.h"
@@ -235,6 +237,51 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       std::move(initializer_ptr),
       std::move(power_iteration_ptr),
       std::move(results_output_ptr));
+}
+
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildAngularQuadratureSet(
+        problem::ParametersI* problem_parameters)
+-> std::shared_ptr<AngularQuadratureSet> {
+
+  std::shared_ptr<AngularQuadratureSet> return_ptr = nullptr;
+
+  std::shared_ptr<quadrature::QuadratureGeneratorI<dim>>
+      quadrature_generator_ptr = nullptr;
+
+  if (problem_parameters->TransportModel() ==
+      problem::EquationType::kDiffusion) {
+    quadrature_generator_ptr =
+        quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+            quadrature::Order(0),
+            quadrature::AngularQuadratureSetType::kScalar);
+  } else {
+    const int order_value = problem_parameters->AngularQuadOrder();
+    switch (problem_parameters->AngularQuad()) {
+      default: {
+        if (dim == 3) {
+          quadrature_generator_ptr =
+              quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+                  quadrature::Order(order_value),
+                  quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
+        } else {
+          AssertThrow(false,
+              dealii::ExcMessage("No supported quadratures for this dimension "
+                                 "and transport model"));
+        }
+      }
+    }
+  }
+
+  return_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+  auto quadrature_points = quadrature::utility::GenerateAllPositiveX<dim>(
+      quadrature_generator_ptr->GenerateSet());
+
+  quadrature::factory::FillQuadratureSet<dim>(return_ptr.get(),
+                                              quadrature_points);
+
+  return std::move(return_ptr);
 }
 
 template <int dim>

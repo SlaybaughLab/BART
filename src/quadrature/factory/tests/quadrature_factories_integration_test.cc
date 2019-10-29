@@ -191,4 +191,8 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSet) {
   }
 }
 
+TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSetScalar) {
+
+}
+
 } // namespace
