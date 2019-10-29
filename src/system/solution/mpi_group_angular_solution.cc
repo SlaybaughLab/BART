@@ -14,14 +14,6 @@ MPIGroupAngularSolution::MPIGroupAngularSolution(const int total_angles)
     solutions_[angle] = new_vector;
   }
 }
-const MPIVector& MPIGroupAngularSolution::operator[](const AngleIndex angle) const {
-  return solutions_.at(angle);
-}
-MPIVector& MPIGroupAngularSolution::operator[](const AngleIndex angle) {
-  return solutions_.at(angle);
-}
-
-
 
 } // namespace solution
 

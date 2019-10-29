@@ -4,7 +4,7 @@
 #include <map>
 
 #include "system/system_types.h"
-#include "system/solution/solution_i.h"
+#include "system/solution/solution.h"
 
 namespace bart {
 
@@ -16,7 +16,7 @@ namespace solution {
  *
  */
 class MPIGroupAngularSolutionI :
-    public SolutionI<system::AngleIndex, system::MPIVector> {
+    public Solution<system::AngleIndex, system::MPIVector> {
  public:
   using SolutionMap = std::map<system::AngleIndex, system::MPIVector>;
   using MPIVector = system::MPIVector;
