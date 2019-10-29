@@ -60,7 +60,7 @@ std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGeneratorPtr(
 
 template <int dim>
 std::shared_ptr<QuadratureGeneratorI<dim>> MakeAngularQuadratureGeneratorPtr(
-    const Order order,
+    const Order,
     const AngularQuadratureSetType type) {
   std::shared_ptr<QuadratureGeneratorI<dim>> generator_ptr = nullptr;
 
@@ -93,6 +93,9 @@ void FillQuadratureSet(
     QuadratureSetI<dim>* to_fill,
     const std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight>>& point_vector) {
 
+  AssertThrow(to_fill->size() == 0,
+      dealii::ExcMessage("Error in FillQuadratureSet, set is not empty"));
+
   for (const auto& [position, weight] : point_vector) {
     auto ordinate_ptr = MakeOrdinatePtr<dim>();
     ordinate_ptr->set_cartesian_position(position);
@@ -105,12 +108,17 @@ void FillQuadratureSet(
     auto reflection_ptr = MakeOrdinatePtr<dim>();
     reflection_ptr->set_cartesian_position(CartesianPosition<dim>(
         utility::ReflectAcrossOrigin<dim>(*ordinate_ptr)));
-    auto reflection_point_ptr = MakeQuadraturePointPtr<dim>();
-    reflection_point_ptr->SetOrdinate(reflection_ptr).SetWeight(weight);
 
-    to_fill->AddPoint(reflection_point_ptr);
+    // Only add if the point isn't its own reflection
+    if (reflection_ptr->cartesian_position() !=
+        ordinate_ptr->cartesian_position()) {
+      auto reflection_point_ptr = MakeQuadraturePointPtr<dim>();
+      reflection_point_ptr->SetOrdinate(reflection_ptr).SetWeight(weight);
 
-    to_fill->SetReflection(quadrature_point_ptr, reflection_point_ptr);
+      to_fill->AddPoint(reflection_point_ptr);
+
+      to_fill->SetReflection(quadrature_point_ptr, reflection_point_ptr);
+    }
   }
 }
 
