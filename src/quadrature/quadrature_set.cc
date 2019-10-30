@@ -7,6 +7,8 @@ namespace quadrature {
 template<int dim>
 bool QuadratureSet<dim>::AddPoint(
     std::shared_ptr<QuadraturePointI<dim>> new_point_ptr) {
+  AssertThrow(new_point_ptr != nullptr,
+      dealii::ExcMessage("Error in AddPoint, pointer is null"));
   auto status = quadrature_point_ptrs_.insert(new_point_ptr);
   return status.second;
 }

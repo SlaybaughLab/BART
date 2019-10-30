@@ -53,6 +53,13 @@ TYPED_TEST(QuadratureSetTest, AddPoint) {
   EXPECT_EQ(test_set.size(), 2);
 }
 
+TYPED_TEST(QuadratureSetTest, AddPointNullPtr) {
+  constexpr int dim = this->dim;
+  quadrature::QuadratureSet<dim> test_set;
+
+  EXPECT_ANY_THROW(test_set.AddPoint(nullptr));
+}
+
 TYPED_TEST(QuadratureSetTest, DefaultGetReflection) {
   // Points in set without reflection will return nullptr
   EXPECT_EQ(nullptr, this->test_set_.GetReflection(this->quadrature_point_));
