@@ -9,6 +9,8 @@ namespace  {
 
 using namespace bart;
 
+using ::testing::NiceMock;
+
 template <typename DimensionWrapper>
 class QuadratureSetTest : public ::testing::Test {
  public:
@@ -19,12 +21,25 @@ class QuadratureSetTest : public ::testing::Test {
       second_quadrature_point_, third_quadrature_point_;
 
   void SetUp() override {
-    quadrature_point_ =
-        std::make_shared<quadrature::QuadraturePointMock<dim>>();
-    second_quadrature_point_ =
-        std::make_shared<quadrature::QuadraturePointMock<dim>>();
-    third_quadrature_point_ =
-        std::make_shared<quadrature::QuadraturePointMock<dim>>();
+
+    std::array<double, dim> position_1, position_2, position_3;
+    position_1.fill(1); position_2.fill(2); position_3.fill(3);
+
+    auto mock_quadrature_point_ =
+        std::make_shared<NiceMock<quadrature::QuadraturePointMock<dim>>>();
+    auto mock_second_quadrature_point_ =
+        std::make_shared<NiceMock<quadrature::QuadraturePointMock<dim>>>();
+    auto mock_third_quadrature_point_ =
+        std::make_shared<NiceMock<quadrature::QuadraturePointMock<dim>>>();
+
+    ON_CALL(*mock_quadrature_point_, cartesian_position()).WillByDefault(::testing::Return(position_1));
+    ON_CALL(*mock_second_quadrature_point_, cartesian_position()).WillByDefault(::testing::Return(position_2));
+    ON_CALL(*mock_third_quadrature_point_, cartesian_position()).WillByDefault(::testing::Return(position_3));
+
+    quadrature_point_ = mock_quadrature_point_;
+    second_quadrature_point_ = mock_second_quadrature_point_;
+    third_quadrature_point_ = mock_third_quadrature_point_;
+
     test_set_.AddPoint(quadrature_point_);
     test_set_.AddPoint(second_quadrature_point_);
   }

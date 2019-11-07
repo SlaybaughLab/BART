@@ -2,6 +2,7 @@
 #define BART_SRC_QUADRATURE_QUADRATURE_SET_H_
 
 #include "quadrature/quadrature_set_i.h"
+#include "quadrature/utility/quadrature_utilities.h"
 
 namespace bart {
 
@@ -44,7 +45,9 @@ class QuadratureSet : public QuadratureSetI<dim> {
   };
 
  protected:
-  std::set<std::shared_ptr<QuadraturePointI<dim>>> quadrature_point_ptrs_;
+  std::set<std::shared_ptr<QuadraturePointI<dim>>,
+           utility::quadrature_point_compare<dim>> quadrature_point_ptrs_;
+  //std::set<std::shared_ptr<QuadraturePointI<dim>>> quadrature_point_ptrs_;
   std::map<std::shared_ptr<QuadraturePointI<dim>>,
            std::shared_ptr<QuadraturePointI<dim>>> reflection_map_;
 };
