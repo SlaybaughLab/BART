@@ -67,8 +67,6 @@ std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateAllPositiveX<3>(
   return quadrature_pairs;
 }
 
-
-
 template std::array<double, 1> ReflectAcrossOrigin<1>(const OrdinateI<1>&);
 template std::array<double, 2> ReflectAcrossOrigin<2>(const OrdinateI<2>&);
 template std::array<double, 3> ReflectAcrossOrigin<3>(const OrdinateI<3>&);

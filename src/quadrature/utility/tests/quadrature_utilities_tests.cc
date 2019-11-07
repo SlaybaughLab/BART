@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "quadrature/tests/quadrature_point_mock.h"
 #include "quadrature/tests/quadrature_generator_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/ordinate_mock.h"
@@ -113,6 +114,35 @@ TYPED_TEST(QuadratureUtilityTests, GenerateAllPositiveXScalar) {
 
 
   EXPECT_EQ(quadrature_set.at(0), distributed_set.at(0));
+}
+
+TYPED_TEST(QuadratureUtilityTests, QuadraturePointCompare) {
+  const int dim = this->dim;
+
+  std::array<double, dim> position_1, position_2;
+
+  auto random_position_1 = btest::RandomVector(dim, -100, 100);
+  auto random_position_2 = btest::RandomVector(dim, -100, 100);
+
+  for (int i = 0; i < dim; ++i) {
+    position_1.at(i) = random_position_1.at(i);
+    position_2.at(i) = random_position_2.at(i);
+  }
+
+  bool expected_result = (position_1 < position_2);
+
+  auto mock_point_1 = std::make_shared<quadrature::QuadraturePointMock<dim>>();
+  auto mock_point_2 = std::make_shared<quadrature::QuadraturePointMock<dim>>();
+
+  EXPECT_CALL(*mock_point_1, cartesian_position())
+      .WillOnce(::testing::Return(position_1));
+  EXPECT_CALL(*mock_point_2, cartesian_position())
+      .WillOnce(::testing::Return(position_2));
+
+  quadrature::utility::quadrature_point_compare<dim> compare_struct;
+
+  auto result = compare_struct(mock_point_1, mock_point_2);
+  EXPECT_EQ(result, expected_result);
 }
 
 
