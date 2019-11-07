@@ -26,6 +26,9 @@ class QuadraturePoint : public QuadraturePointI<dim> {
   double weight() const override {
     return weight_;
   }
+  std::array<double, dim> cartesian_position() const override {
+    return ordinate_->cartesian_position();
+  }
  private:
   std::shared_ptr<OrdinateI<dim>> ordinate_ = nullptr;
   double weight_ = 0;

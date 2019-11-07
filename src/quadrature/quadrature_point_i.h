@@ -23,6 +23,7 @@ class QuadraturePointI {
 
   virtual std::shared_ptr<OrdinateI<dim>> ordinate() const = 0;
   virtual double weight() const = 0;
+  virtual std::array<double, dim> cartesian_position() const = 0;
 };
 
 } // namespace quadrature

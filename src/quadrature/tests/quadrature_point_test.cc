@@ -69,5 +69,23 @@ TYPED_TEST(QuadraturePointTest, Setters) {
   EXPECT_EQ(test_point.weight(), weight);
 }
 
+TYPED_TEST(QuadraturePointTest, CartesianPosition) {
+  constexpr int dim = this->dim;
+
+  quadrature::QuadraturePoint<dim> test_point;
+
+  test_point.SetOrdinate(this->ordinate_ptr);
+
+  std::array<double, dim> position;
+  position.fill(1);
+
+  auto mock_ptr = dynamic_cast<quadrature::OrdinateMock<dim>*>(this->ordinate_ptr.get());
+
+  EXPECT_CALL(*mock_ptr, cartesian_position())
+      .WillOnce(::testing::Return(position));
+
+  EXPECT_EQ(position, test_point.cartesian_position());
+}
+
 
 } // namespace
