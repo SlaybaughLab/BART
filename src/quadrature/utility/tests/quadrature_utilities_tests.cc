@@ -143,6 +143,16 @@ TYPED_TEST(QuadratureUtilityTests, QuadraturePointCompare) {
 
   auto result = compare_struct(mock_point_1, mock_point_2);
   EXPECT_EQ(result, expected_result);
+
+  const auto& const_compare_struct = compare_struct;
+
+  EXPECT_CALL(*mock_point_1, cartesian_position())
+      .WillOnce(::testing::Return(position_1));
+  EXPECT_CALL(*mock_point_2, cartesian_position())
+      .WillOnce(::testing::Return(position_2));
+
+  auto const_result = const_compare_struct(mock_point_1, mock_point_2);
+  EXPECT_EQ(const_result, expected_result);
 }
 
 

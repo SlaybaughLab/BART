@@ -23,6 +23,11 @@ struct quadrature_point_compare{
                    const std::shared_ptr<quadrature::QuadraturePointI<dim>>& rhs) {
     return lhs->cartesian_position() < rhs->cartesian_position();
   }
+
+  bool operator() (const std::shared_ptr<quadrature::QuadraturePointI<dim>>& lhs,
+                   const std::shared_ptr<quadrature::QuadraturePointI<dim>>& rhs) const {
+    return lhs->cartesian_position() < rhs->cartesian_position();
+  }
 };
 
 } // namespace utility
