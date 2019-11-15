@@ -33,6 +33,8 @@ class SolutionI {
    */
   virtual const SolutionMap& solutions() const = 0;
 
+  virtual SolutionType& GetSolution(const IndexType) = 0;
+
   /*! \brief Returns the solution that corresponds to a provided index.
    *
    * @return a constant reference to the solution.
