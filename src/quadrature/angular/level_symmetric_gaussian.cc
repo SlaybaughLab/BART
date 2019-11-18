@@ -31,8 +31,8 @@ LevelSymmetricGaussian::GenerateSet() const {
   // will only use half of the quadrature
   dealii::QGauss<1> gaussian_quadrature(order_);
 
-  // For each quadrature point in the lowest level, we will create equally spaced
-  // points in phi
+  // For each quadrature point in the lowest level, we will create equally
+  // spaced points in phi
   for (int level = 0; level < n_points; ++level) {
     int n_points_this_level = level + 1;
     // mu is just the gaussian quadrature point

@@ -56,6 +56,13 @@ namespace angular {
  */
 class LevelSymmetricGaussian : public QuadratureGeneratorI<3> {
  public:
+  /*! \brief Constructor.
+   *
+   * The constructor requires specification of the quadrature order. The order
+   * indicates the order of the Gauss-Legendre quadrature used for
+   * the \f$\cos{\theta_i}\f$ nodes. This also means it is the total number of
+   * points in the level with the most points.
+   */
   explicit LevelSymmetricGaussian(quadrature::Order);
   std::vector<std::pair<CartesianPosition<3>, Weight>>
   GenerateSet() const override;
@@ -63,7 +70,7 @@ class LevelSymmetricGaussian : public QuadratureGeneratorI<3> {
   int order() const override { return order_; }
 
  private:
-  const int order_ = 0;
+  const int order_;
 };
 
 } // namespace angular
