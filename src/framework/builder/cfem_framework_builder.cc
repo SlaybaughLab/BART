@@ -258,7 +258,6 @@ auto CFEM_FrameworkBuilder<dim>::BuildAngularQuadratureSet(
                 quadrature::Order(order_value),
                 quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
       } else {
-        // TODO(Josh): Remove this once support for 1/2D is implemented for LSGC
         AssertThrow(false,
             dealii::ExcMessage("No supported quadratures for this dimension "
                                "and transport model"))
