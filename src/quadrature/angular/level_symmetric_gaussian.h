@@ -57,16 +57,14 @@ namespace angular {
 class LevelSymmetricGaussian : public QuadratureGeneratorI<3> {
  public:
   explicit LevelSymmetricGaussian(quadrature::Order);
-  std::vector<std::pair<CartesianPosition<3>, Weight>> GenerateSet() const override;
+  std::vector<std::pair<CartesianPosition<3>, Weight>>
+  GenerateSet() const override;
 
-  int order() const override {
-    return order_;
-  }
+  int order() const override { return order_; }
 
  private:
   const int order_ = 0;
 };
-
 
 } // namespace angular
 
