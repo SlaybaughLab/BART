@@ -249,26 +249,19 @@ auto CFEM_FrameworkBuilder<dim>::BuildAngularQuadratureSet(
   std::shared_ptr<quadrature::QuadratureGeneratorI<dim>>
       quadrature_generator_ptr = nullptr;
 
-  if (problem_parameters->TransportModel() ==
-      problem::EquationType::kDiffusion) {
-    quadrature_generator_ptr =
-        quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
-            quadrature::Order(0),
-            quadrature::AngularQuadratureSetType::kScalar);
-  } else {
-    const int order_value = problem_parameters->AngularQuadOrder();
-    switch (problem_parameters->AngularQuad()) {
-      default: {
-        if (dim == 3) {
-          quadrature_generator_ptr =
-              quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
-                  quadrature::Order(order_value),
-                  quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
-        } else {
-          AssertThrow(false,
-              dealii::ExcMessage("No supported quadratures for this dimension "
-                                 "and transport model"));
-        }
+  const int order_value = problem_parameters->AngularQuadOrder();
+  switch (problem_parameters->AngularQuad()) {
+    default: {
+      if (dim == 3) {
+        quadrature_generator_ptr =
+            quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+                quadrature::Order(order_value),
+                quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
+      } else {
+        // TODO(Josh): Remove this once support for 1/2D is implemented for LSGC
+        AssertThrow(false,
+            dealii::ExcMessage("No supported quadratures for this dimension "
+                               "and transport model"))
       }
     }
   }

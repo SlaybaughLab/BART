@@ -24,8 +24,7 @@ using FillAllQuadrants = bart::utility::NamedType<bool,
 
 enum class AngularQuadratureSetType {
   kNone = 0,
-  kScalar = 1,
-  kLevelSymmetricGaussian = 2,
+  kLevelSymmetricGaussian = 1,
 };
 
 enum class OrdinateType {

@@ -36,6 +36,7 @@ void FillQuadratureSet(
     QuadratureSetI<dim>*,
     const std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight>>&);
 
+
 } // namespace factory
 
 } // namespace quadrature

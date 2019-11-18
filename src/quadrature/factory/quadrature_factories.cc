@@ -3,7 +3,6 @@
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
-#include "quadrature/angular/scalar_angular.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
@@ -13,13 +12,13 @@ namespace quadrature {
 
 namespace factory {
 
+std::string unsupported_quadrature_error = "Error in MakeAngularQuadratureGeneratorPtr, unsupported type of AngularQuadrature<dim> requested";
+
 template <int dim>
 std::shared_ptr<OrdinateI<dim>> MakeOrdinatePtr(const OrdinateType type) {
-
   std::shared_ptr<OrdinateI<dim>> ordinate_ptr = nullptr;
 
   if (type == OrdinateType::kDefault) {
-    // Default implementation
     ordinate_ptr = std::make_shared<Ordinate<dim>>();
   }
 
@@ -32,7 +31,6 @@ std::shared_ptr<QuadraturePointI<dim>> MakeQuadraturePointPtr(
   std::shared_ptr<QuadraturePointI<dim>> quadrature_point_ptr = nullptr;
 
   if (impl == QuadraturePointImpl::kDefault) {
-    // Default implementation
     quadrature_point_ptr = std::make_shared<QuadraturePoint<dim>>();
   }
 
@@ -45,14 +43,10 @@ std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGeneratorPtr(
     const AngularQuadratureSetType type) {
   std::shared_ptr<QuadratureGeneratorI<3>> generator_ptr = nullptr;
 
-  if (type == AngularQuadratureSetType::kScalar) {
-    generator_ptr = std::make_shared<angular::ScalarAngular<3>>();
-  } else if (type == AngularQuadratureSetType::kLevelSymmetricGaussian) {
+  if (type == AngularQuadratureSetType::kLevelSymmetricGaussian) {
     generator_ptr = std::make_shared<angular::LevelSymmetricGaussian>(order);
   } else {
-    AssertThrow(false,
-                dealii::ExcMessage("Error in MakeAngularQuadratureGeneratorPtr, "
-                                   "unsupported type of AngularQuadrature requested"));
+    AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error));
   }
 
   return generator_ptr;
@@ -64,13 +58,7 @@ std::shared_ptr<QuadratureGeneratorI<dim>> MakeAngularQuadratureGeneratorPtr(
     const AngularQuadratureSetType type) {
   std::shared_ptr<QuadratureGeneratorI<dim>> generator_ptr = nullptr;
 
-  if (type == AngularQuadratureSetType::kScalar) {
-    generator_ptr = std::make_shared<angular::ScalarAngular<dim>>();
-  } else {
-    AssertThrow(false,
-        dealii::ExcMessage("Error in MakeAngularQuadratureGeneratorPtr, "
-                           "unsupported type of AngularQuadrature requested"));
-  }
+  AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error));
 
   return generator_ptr;
 }

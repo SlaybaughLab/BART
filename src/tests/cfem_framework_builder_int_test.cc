@@ -94,25 +94,9 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
 TYPED_TEST_CASE(IntegrationTestCFEMFrameworkBuilder,
                 bart::testing::AllDimensions);
 
-TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildScalarAngularQuadratureSet) {
-  constexpr int dim = this->dim;
-  EXPECT_CALL(this->parameters, TransportModel())
-      .WillOnce(DoDefault());
-  auto quadrature_set = this->test_builder.BuildAngularQuadratureSet(
-      &this->parameters);
-
-  ASSERT_NE(nullptr, quadrature_set);
-  using ExpectedType = quadrature::QuadratureSet<dim>;
-  ASSERT_NE(nullptr,
-            dynamic_cast<ExpectedType*>(quadrature_set.get()));
-  EXPECT_EQ(quadrature_set->size(), 1);
-}
-
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildLSAngularQuadratureSet) {
   constexpr int dim = this->dim;
   const int order = 4;
-  EXPECT_CALL(this->parameters, TransportModel())
-      .WillOnce(Return(problem::EquationType::kSelfAdjointAngularFlux));
   EXPECT_CALL(this->parameters, AngularQuad())
       .WillOnce(Return(problem::AngularQuadType::kLevelSymmetric));
   EXPECT_CALL(this->parameters, AngularQuadOrder())
