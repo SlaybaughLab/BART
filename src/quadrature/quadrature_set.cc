@@ -12,6 +12,7 @@ bool QuadratureSet<dim>::AddPoint(
   auto status = quadrature_point_ptrs_.insert(new_point_ptr);
   return status.second;
 }
+
 template<int dim>
 void QuadratureSet<dim>::SetReflection(
     std::shared_ptr<QuadraturePointI<dim>> first_point,
@@ -40,6 +41,7 @@ void QuadratureSet<dim>::SetReflection(
   reflection_map_.insert_or_assign(first_point, second_point);
   reflection_map_.insert_or_assign(second_point, first_point);
 }
+
 template<int dim>
 std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetReflection(
     std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
