@@ -8,11 +8,20 @@ namespace bart {
 
 namespace quadrature {
 
+/*! \brief Default implementation of the QuadraturePoint interface.
+ * @tparam dim spatial dimension.
+ */
 template <int dim>
 class QuadraturePoint : public QuadraturePointI<dim> {
  public:
+  /// \brief Default constructor.
   QuadraturePoint() = default;
-  QuadraturePoint(std::shared_ptr<OrdinateI<dim>> ordinate, Weight);
+
+  /*! \brief Constructor with provided ordinate and weight.
+   * @param ordinate the quadrature point's ordinate.
+   * @param weight the quadrature point's weight.
+   */
+  QuadraturePoint(std::shared_ptr<OrdinateI<dim>> ordinate, Weight weight);
 
   QuadraturePoint<dim> &SetTo(const std::shared_ptr<OrdinateI<dim>> &,
                               const Weight) override;
@@ -20,15 +29,10 @@ class QuadraturePoint : public QuadraturePointI<dim> {
       const std::shared_ptr<OrdinateI<dim>> &) override;
   QuadraturePoint<dim> &SetWeight(const Weight) override;
 
-  std::shared_ptr<OrdinateI<dim>> ordinate() const override {
-    return ordinate_;
-  }
-  double weight() const override {
-    return weight_;
-  }
+  std::shared_ptr<OrdinateI<dim>> ordinate() const override {return ordinate_;}
+  double weight() const override { return weight_; }
   std::array<double, dim> cartesian_position() const override {
-    return ordinate_->cartesian_position();
-  }
+    return ordinate_->cartesian_position(); }
  private:
   std::shared_ptr<OrdinateI<dim>> ordinate_ = nullptr;
   double weight_ = 0;

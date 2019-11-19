@@ -7,16 +7,18 @@ namespace  {
 
 using namespace bart;
 
+/* Tests to verify the operation of the default implementation of the
+ * QuadraturePoint class. Mocking of an ordinate object is required.
+ */
 template <typename DimensionWrapper>
 class QuadraturePointTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
-
   std::shared_ptr<quadrature::OrdinateI<dim>> ordinate_ptr;
-
   void SetUp() override;
 };
 
+// SetUp: instantiates mock ordinate
 template <typename DimensionWrapper>
 void QuadraturePointTest<DimensionWrapper>::SetUp() {
   ordinate_ptr = std::make_shared<quadrature::OrdinateMock<dim>>();
@@ -24,7 +26,11 @@ void QuadraturePointTest<DimensionWrapper>::SetUp() {
 
 TYPED_TEST_CASE(QuadraturePointTest, bart::testing::AllDimensions);
 
-TYPED_TEST(QuadraturePointTest, Constructor) {
+/* Default constructor should initialize pointer as null and weight as 0.
+ * Constructor taking ordinate and weight should set them properly. Also tests
+ * getters to verify.
+ */
+TYPED_TEST(QuadraturePointTest, ConstructorAndGetters) {
   constexpr int dim = this->dim;
   const double weight = 1.45;
 
@@ -40,14 +46,13 @@ TYPED_TEST(QuadraturePointTest, Constructor) {
   EXPECT_EQ(new_point.weight(), weight);
 }
 
+// Setters should set quadrature point ordinate and weight properly
 TYPED_TEST(QuadraturePointTest, Setters) {
   constexpr int dim = this->dim;
-  const double weight = 1.45;
+  const double weight = 1.45, second_weight = 2.1;
 
   quadrature::QuadraturePoint<dim> test_point;
-
   auto second_point_ptr = std::make_shared<quadrature::OrdinateMock<dim>>();
-  const double second_weight = 2.1;
 
   test_point.SetOrdinate(this->ordinate_ptr);
   test_point.SetWeight(quadrature::Weight(weight));
@@ -69,6 +74,7 @@ TYPED_TEST(QuadraturePointTest, Setters) {
   EXPECT_EQ(test_point.weight(), weight);
 }
 
+// Cartesian position should properly return the ordinate position.
 TYPED_TEST(QuadraturePointTest, CartesianPosition) {
   constexpr int dim = this->dim;
 
@@ -86,6 +92,5 @@ TYPED_TEST(QuadraturePointTest, CartesianPosition) {
 
   EXPECT_EQ(position, test_point.cartesian_position());
 }
-
 
 } // namespace
