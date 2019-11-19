@@ -7,15 +7,18 @@ namespace  {
 
 using namespace bart;
 
+/* Tests for verifying the operation of the default implementation of the
+ * quadrature::OrdianteI class. No mocks are required and tests are performed
+ * in all three dimensions. */
 template <typename DimensionWrapper>
 class QuadratureOrdinateTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
 };
 
-
 TYPED_TEST_CASE(QuadratureOrdinateTest, bart::testing::AllDimensions);
 
+// Constructor should correctly set the cartesian position if provided.
 TYPED_TEST(QuadratureOrdinateTest, Construction) {
   constexpr int dim = this->dim;
 
@@ -32,6 +35,17 @@ TYPED_TEST(QuadratureOrdinateTest, Construction) {
 
   for (int i = 0; i < dim; ++i)
     EXPECT_EQ(position.at(i), tensor[i]);
+}
+// Default constructor should initialize position as the origin.
+TYPED_TEST(QuadratureOrdinateTest, DefaultConstruction) {
+  constexpr int dim = this->dim;
+
+  std::array<double, dim> position;
+  position.fill(0);
+
+  quadrature::Ordinate<dim> test_ordinate;
+
+  EXPECT_EQ(position, test_ordinate.cartesian_position());
 }
 
 TYPED_TEST(QuadratureOrdinateTest, SetCartesianPosition) {

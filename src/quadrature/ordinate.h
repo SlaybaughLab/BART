@@ -15,8 +15,11 @@ namespace quadrature {
 template <int dim>
 class Ordinate : public OrdinateI<dim> {
  public:
-  Ordinate() = default;
-  explicit Ordinate(CartesianPosition<dim>);
+  /*! \brief Default constructor, cartesian position is the origin. */
+  Ordinate() { cartesian_position_.fill(0); }
+  /*! \brief Constructor based on provided cartesian position. */
+  explicit Ordinate(CartesianPosition<dim> position)
+      : cartesian_position_(position.get()) {}
   virtual ~Ordinate() = default;
 
   Ordinate& set_cartesian_position(const CartesianPosition<dim> to_set) override {
