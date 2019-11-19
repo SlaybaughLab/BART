@@ -25,6 +25,9 @@ class NamedType
   explicit NamedType(T&& value) : value_(std::move(value)) {}
   T& get() { return value_; }
   T const& get() const {return value_; }
+  bool operator==(const NamedType& rhs) const {
+    return rhs.get() == value_;
+  }
  private:
   T value_;
 };

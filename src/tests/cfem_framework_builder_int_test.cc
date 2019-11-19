@@ -7,6 +7,7 @@
 #include <deal.II/fe/fe_q.h>
 #include <solver/gmres.h>
 
+#include "convergence/reporter/mpi_noisy.h"
 #include "formulation/cfem_diffusion_stamper.h"
 #include "data/cross_sections.h"
 #include "material/tests/mock_material.h"
@@ -17,12 +18,14 @@
 #include "domain/tests/definition_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "formulation/tests/cfem_stamper_mock.h"
+#include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "solver/group/single_group_solver.h"
+#include "quadrature/quadrature_set.h"
 
 namespace  {
 
@@ -51,6 +54,7 @@ class IntegrationTestCFEMFrameworkBuilder : public ::testing::Test {
   const int polynomial_degree = 2;
   std::vector<double> spatial_max;
   std::vector<int> n_cells;
+  const int n_energy_groups = 3;
   std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
 
   void SetUp() override;
@@ -73,7 +77,8 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
       {problem::Boundary::kZMax, false},
   };
 
-
+  ON_CALL(parameters, NEnergyGroups())
+      .WillByDefault(Return(n_energy_groups));
   ON_CALL(parameters, NCells())
       .WillByDefault(Return(n_cells));
   ON_CALL(parameters, SpatialMax())
@@ -88,6 +93,43 @@ void IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp() {
 
 TYPED_TEST_CASE(IntegrationTestCFEMFrameworkBuilder,
                 bart::testing::AllDimensions);
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildLSAngularQuadratureSet) {
+  constexpr int dim = this->dim;
+  const int order = 4;
+  EXPECT_CALL(this->parameters, AngularQuad())
+      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetric));
+  EXPECT_CALL(this->parameters, AngularQuadOrder())
+      .WillOnce(Return(order));
+
+  if (dim == 3) {
+
+    auto quadrature_set = this->test_builder.BuildAngularQuadratureSet(
+        &this->parameters);
+
+    ASSERT_NE(nullptr, quadrature_set);
+    using ExpectedType = quadrature::QuadratureSet<dim>;
+    ASSERT_NE(nullptr,
+              dynamic_cast<ExpectedType *>(quadrature_set.get()));
+    EXPECT_EQ(quadrature_set->size(), order * (order + 2));
+  } else {
+    EXPECT_ANY_THROW({
+         auto quadrature_set = this->test_builder.BuildAngularQuadratureSet(
+             &this->parameters);
+    });
+  }
+}
+
+
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildConvergenceReporterTest) {
+  using ExpectedType = convergence::reporter::MpiNoisy;
+  
+  auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
+  
+  ASSERT_NE(nullptr, 
+      dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
+}
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFiniteElementTest) {
   EXPECT_CALL(this->parameters, FEPolynomialDegree())
@@ -124,20 +166,6 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDomainTest) {
 
   EXPECT_NE(dynamic_cast<domain::Definition<this->dim>*>(test_domain_ptr.get()),
       nullptr);
-}
-
-TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildFixedUpdater) {
-  auto stamper_ptr = std::make_shared<formulation::CFEM_StamperMock>();
-
-  auto test_fixed_updater_ptr =
-      this->test_builder.BuildFixedUpdater(stamper_ptr);
-  ASSERT_NE(nullptr, test_fixed_updater_ptr);
-
-  using ExpectedType =
-      iteration::updater::FixedUpdater<formulation::CFEMStamperI>;
-
-  ASSERT_NE(nullptr,
-            dynamic_cast<ExpectedType*>(test_fixed_updater_ptr.get()));
 }
 
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDiffusionStamper) {
@@ -267,6 +295,34 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildMomentConvergenceChecker) {
             dynamic_cast<MomentConvergenceChecker*>(convergence_ptr.get()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildInitializer) {
+
+  auto stamper_ptr = std::make_shared<formulation::CFEM_StamperMock>();
+
+  EXPECT_CALL(this->parameters, NEnergyGroups())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(this->parameters, TransportModel())
+      .WillOnce(DoDefault());
+  auto iteration_ptr = this->test_builder.BuildInitializer(&this->parameters,
+                                                           stamper_ptr);
+
+  ASSERT_NE(nullptr, iteration_ptr);
+
+  using ExpectedInitializerType = iteration::initializer::SetFixedTermsOnce;
+  using ExpectedUpdaterType =
+  iteration::updater::FixedUpdater<formulation::CFEMStamperI>;
+
+  auto dynamic_iteration_ptr =
+      dynamic_cast<ExpectedInitializerType*>(iteration_ptr.get());
+
+  ASSERT_NE(nullptr, dynamic_iteration_ptr);
+  ASSERT_NE(nullptr,
+      dynamic_cast<ExpectedUpdaterType*>(dynamic_iteration_ptr->fixed_updater_ptr()));
+
+  EXPECT_EQ(dynamic_iteration_ptr->total_groups(), this->n_energy_groups);
+  EXPECT_EQ(dynamic_iteration_ptr->total_angles(), 1);
 }
 
 

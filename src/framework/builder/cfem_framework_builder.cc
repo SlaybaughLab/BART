@@ -25,6 +25,8 @@
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/final_checker_or_n.h"
+#include "quadrature/utility/quadrature_utilities.h"
+#include "quadrature/factory/quadrature_factories.h"
 #include "quadrature/angular/angular_quadrature_scalar.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "results/output_dealii_vtu.h"
@@ -76,17 +78,12 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
       &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
 
-  std::cout << "Building fixed updater" << std::endl;
-  auto fixed_updater_ptr = BuildFixedUpdater(stamper_ptr);
-
   std::cout << "Building source updater" << std::endl;
   std::shared_ptr<SourceUpdater> source_updater_ptr(
       std::move(BuildSourceUpdater(&prm, stamper_ptr)));
 
   std::cout << "Building Initializer" << std::endl;
-  auto initializer_ptr =
-      std::make_unique<iteration::initializer::SetFixedTermsOnce>(
-          std::move(fixed_updater_ptr), n_groups, n_angles);
+  auto initializer_ptr = BuildInitializer(&prm, stamper_ptr);
 
   std::cout << "Building single group solver" << std::endl;
   auto single_group_solver_ptr = BuildSingleGroupSolver();
@@ -97,10 +94,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 100);
 
   // Build reporter
-  using Reporter = bart::convergence::reporter::MpiNoisy;
-  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
-  auto reporter = std::make_shared<Reporter>(std::move(pout_ptr));
+  std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
   // Scalar Quadrature
   using ScalarQuadrature = quadrature::angular::AngularQuadratureScalar<dim>;
@@ -245,12 +239,54 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       std::move(results_output_ptr));
 }
 
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
-    problem::ParametersI *problem_parameters)-> std::unique_ptr<FiniteElement> {
-  return std::make_unique<domain::finite_element::FiniteElementGaussian<dim>>(
-      problem::DiscretizationType::kContinuousFEM,
-      problem_parameters->FEPolynomialDegree());
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildAngularQuadratureSet(
+        problem::ParametersI* problem_parameters)
+-> std::shared_ptr<AngularQuadratureSet> {
+
+  std::shared_ptr<AngularQuadratureSet> return_ptr = nullptr;
+
+  std::shared_ptr<quadrature::QuadratureGeneratorI<dim>>
+      quadrature_generator_ptr = nullptr;
+
+  const int order_value = problem_parameters->AngularQuadOrder();
+  switch (problem_parameters->AngularQuad()) {
+    default: {
+      if (dim == 3) {
+        quadrature_generator_ptr =
+            quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+                quadrature::Order(order_value),
+                quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
+      } else {
+        AssertThrow(false,
+            dealii::ExcMessage("No supported quadratures for this dimension "
+                               "and transport model"))
+      }
+    }
+  }
+
+  return_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+  auto quadrature_points = quadrature::utility::GenerateAllPositiveX<dim>(
+      quadrature_generator_ptr->GenerateSet());
+
+  quadrature::factory::FillQuadratureSet<dim>(return_ptr.get(),
+                                              quadrature_points);
+
+  return std::move(return_ptr);
+}
+
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildConvergenceReporter()
+-> std::unique_ptr<ConvergenceReporter> {
+  std::unique_ptr<ConvergenceReporter> return_ptr = nullptr;
+
+  using Reporter = bart::convergence::reporter::MpiNoisy;
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
+  return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
+
+  return std::move(return_ptr);
 }
 
 template<int dim>
@@ -262,64 +298,36 @@ auto CFEM_FrameworkBuilder<dim>::BuildDomain(
   // Build mesh
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
       problem_parameters->SpatialMax(),
-          problem_parameters->NCells(),
-          material_mapping);
+      problem_parameters->NCells(),
+      material_mapping);
 
   return std::make_unique<domain::Definition<dim>>(
       std::move(mesh_ptr), finite_element_ptr);
 }
+
 template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildStamper(
-    problem::ParametersI *problem_parameters,
-    const std::shared_ptr<Domain> &domain_ptr,
-    const std::shared_ptr<FiniteElement> &finite_element_ptr,
-    const std::shared_ptr<CrossSections> &cross_sections_ptr)
--> std::unique_ptr<CFEMStamper> {
+auto CFEM_FrameworkBuilder<dim>::BuildFiniteElement(
+    problem::ParametersI *problem_parameters)-> std::unique_ptr<FiniteElement> {
+  return std::make_unique<domain::finite_element::FiniteElementGaussian<dim>>(
+      problem::DiscretizationType::kContinuousFEM,
+      problem_parameters->FEPolynomialDegree());
+}
 
-  std::unique_ptr<CFEMStamper> return_ptr = nullptr;
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
+    const problem::ParametersI *problem_parameters,
+    const std::shared_ptr<CFEMStamper> &stamper_ptr)
+-> std::unique_ptr<Initializer> {
 
-  // Diffusion Stamper
+  std::unique_ptr<Initializer> return_ptr = nullptr;
+
+  using FixedUpdaterType = iteration::updater::FixedUpdater<CFEMStamper>;
+  auto fixed_updater_ptr = std::make_unique<FixedUpdaterType>(stamper_ptr);
+
   if (problem_parameters->TransportModel() == problem::EquationType::kDiffusion) {
-
-    auto diffusion_ptr = std::make_unique<formulation::scalar::CFEM_Diffusion<dim>>(
-        finite_element_ptr, cross_sections_ptr);
-
-    return_ptr = std::move(
-        std::make_unique<formulation::CFEM_DiffusionStamper<dim>>(
-            std::move(diffusion_ptr),
-            domain_ptr,
-            problem_parameters->ReflectiveBoundary()));
-
-  } else {
-    AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
-                                         "to BuildScalarFormulation"));
+    return_ptr = std::make_unique<iteration::initializer::SetFixedTermsOnce>(
+        std::move(fixed_updater_ptr), problem_parameters->NEnergyGroups(), 1);
   }
-
-  return return_ptr;
-}
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
-    problem::ParametersI *,
-    const std::shared_ptr<CFEMStamper> stamper_ptr)
-    -> std::unique_ptr<SourceUpdater> {
-  // TODO(Josh): Add option for non-gauss-seidel updating
-  using SourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<CFEMStamper>;
-  return std::make_unique<SourceUpdater>(stamper_ptr);
-}
-
-template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
-    double max_delta, int max_iterations)
--> std::unique_ptr<ParameterConvergenceChecker>{
-
-  using CheckerType = convergence::parameters::SingleParameterChecker;
-  using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;
-
-  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
-  auto return_ptr = std::make_unique<FinalCheckerType>(
-      std::move(single_checker_ptr));
-
-  return_ptr->SetMaxIterations(max_iterations);
 
   return std::move(return_ptr);
 }
@@ -345,12 +353,22 @@ auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
 }
 
 template<int dim>
-auto CFEM_FrameworkBuilder<dim>::BuildFixedUpdater(
-    const std::shared_ptr<CFEMStamper> &stamper_ptr)
--> std::unique_ptr<CFEM_FrameworkBuilder::FixedUpdater> {
-  using FixedUpdaterType = iteration::updater::FixedUpdater<CFEMStamper>;
-  return std::make_unique<FixedUpdaterType>(stamper_ptr);
+auto CFEM_FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
+    double max_delta, int max_iterations)
+-> std::unique_ptr<ParameterConvergenceChecker>{
+
+  using CheckerType = convergence::parameters::SingleParameterChecker;
+  using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;
+
+  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::move(single_checker_ptr));
+
+  return_ptr->SetMaxIterations(max_iterations);
+
+  return std::move(return_ptr);
 }
+
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildSingleGroupSolver(
     const int max_iterations,
@@ -358,11 +376,51 @@ auto CFEM_FrameworkBuilder<dim>::BuildSingleGroupSolver(
   std::unique_ptr<SingleGroupSolver> return_ptr = nullptr;
 
   auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
-                                                    convergence_tolerance);
+                                                           convergence_tolerance);
 
   return_ptr = std::move(
       std::make_unique<solver::group::SingleGroupSolver>(
           std::move(linear_solver_ptr)));
+
+  return return_ptr;
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
+    problem::ParametersI *,
+    const std::shared_ptr<CFEMStamper> stamper_ptr)
+    -> std::unique_ptr<SourceUpdater> {
+  // TODO(Josh): Add option for non-gauss-seidel updating
+  using SourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<CFEMStamper>;
+  return std::make_unique<SourceUpdater>(stamper_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildStamper(
+    problem::ParametersI *problem_parameters,
+    const std::shared_ptr<Domain> &domain_ptr,
+    const std::shared_ptr<FiniteElement> &finite_element_ptr,
+    const std::shared_ptr<CrossSections> &cross_sections_ptr)
+-> std::unique_ptr<CFEMStamper> {
+
+  std::unique_ptr<CFEMStamper> return_ptr = nullptr;
+
+  // Diffusion Stamper
+  if (problem_parameters->TransportModel() == problem::EquationType::kDiffusion) {
+
+    auto diffusion_ptr = std::make_unique<formulation::scalar::CFEM_Diffusion<dim>>(
+        finite_element_ptr, cross_sections_ptr);
+
+    return_ptr = std::move(
+        std::make_unique<formulation::CFEM_DiffusionStamper<dim>>(
+            std::move(diffusion_ptr),
+            domain_ptr,
+            problem_parameters->ReflectiveBoundary()));
+
+  } else {
+    AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
+                                          "to BuildScalarFormulation"));
+  }
 
   return return_ptr;
 }

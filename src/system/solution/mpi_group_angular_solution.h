@@ -23,15 +23,8 @@ class MPIGroupAngularSolution : public MPIGroupAngularSolutionI {
   virtual ~MPIGroupAngularSolution() = default;
 
   int total_angles() const override { return total_angles_; }
-  const SolutionMap& solutions() const override { return solutions_; };
-
-  /*! \brief Returns the system solution identified by the provided index */
-  const MPIVector& operator[](const AngleIndex angle) const override;
-  /*! \brief Returns the system solution identified by the provided index */
-        MPIVector& operator[](const AngleIndex angle) override;
 
  private:
-  SolutionMap solutions_;
   const int total_angles_;
 };
 

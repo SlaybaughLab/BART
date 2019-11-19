@@ -29,7 +29,7 @@ namespace angular {
  * @tparam dim angular dimension \f$n\f$ of the problem
  */
 template <int dim>
-class AngularQuadratureSetI {
+class [[deprecated("Replaced by quadrature::QuadratureSetI")]] AngularQuadratureSetI {
  public:
   using AngleIndex = system::AngleIndex;
   virtual ~AngularQuadratureSetI() = default;

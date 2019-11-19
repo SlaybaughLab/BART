@@ -11,15 +11,15 @@ namespace quadrature {
 namespace angular {
 
 /*! Weights for ordinates */
-using Weight = double;
+using Weight [[deprecated("Replaced by named type Weight")]] = double;
 
 /*! Ordinate points for quadrature sets */
 template <int dim>
-using Ordinate = std::array<double, dim>;
+using Ordinate [[deprecated("Replaced by class OrdinateI")]] = std::array<double, dim>;
 
 /*! Quadrature points */
 template <int dim>
-using QuadraturePoint = std::pair<Weight, Ordinate<dim>>;
+using QuadraturePoint [[deprecated("Replaced by class QuadraturePointI")]] = std::pair<Weight, Ordinate<dim>>;
 
 } // namespace angular
 

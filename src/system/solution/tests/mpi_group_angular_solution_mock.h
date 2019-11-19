@@ -17,6 +17,7 @@ class MPIGroupAngularSolutionMock : public MPIGroupAngularSolutionI {
   MOCK_CONST_METHOD0(solutions, SolutionMap&());
   MOCK_CONST_METHOD1(BracketOp, const MPIVector&(const AngleIndex));
   MOCK_METHOD1(BracketOp, MPIVector&(const AngleIndex));
+  MOCK_METHOD1(GetSolution, MPIVector&(const AngleIndex));
 
   virtual const MPIVector& operator[](const AngleIndex angle) const override {
     return BracketOp(angle);};
