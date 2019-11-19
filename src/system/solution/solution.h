@@ -22,23 +22,14 @@ class Solution : public SolutionI<IndexType, SolutionType> {
  public:
   using typename SolutionI<IndexType, SolutionType>::SolutionMap;
   virtual ~Solution() = default;
-
   virtual const SolutionMap& solutions() const override {
-    return solutions_;
-  }
-
+    return solutions_; }
   virtual SolutionType& GetSolution(const IndexType index) override {
-    return solutions_.at(index);
-  }
-
+    return solutions_.at(index); }
   virtual const SolutionType& operator[](const IndexType index) const override {
-    return solutions_.at(index);
-  }
-
-  virtual       SolutionType& operator[](const IndexType index) override {
-    return solutions_.at(index);
-  }
-
+    return solutions_.at(index); }
+  virtual SolutionType& operator[](const IndexType index) override {
+    return solutions_.at(index); }
  protected:
   SolutionMap solutions_ = {};
 };
