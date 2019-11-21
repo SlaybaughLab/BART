@@ -1,5 +1,7 @@
 #include "quadrature/quadrature_set.h"
 
+#include <algorithm>
+
 namespace bart {
 
 namespace quadrature {
@@ -8,8 +10,20 @@ template<int dim>
 bool QuadratureSet<dim>::AddPoint(
     std::shared_ptr<QuadraturePointI<dim>> new_point_ptr) {
   AssertThrow(new_point_ptr != nullptr,
-      dealii::ExcMessage("Error in AddPoint, pointer is null"));
+      dealii::ExcMessage("Error in AddPoint, pointer is null"))
   auto status = quadrature_point_ptrs_.insert(new_point_ptr);
+
+  auto max_index = std::max_element(quadrature_point_indices_.begin(),
+                                    quadrature_point_indices_.end());
+
+  if (status.second) {
+    if (max_index == quadrature_point_indices_.end()) {
+      quadrature_point_indices_.insert(0);
+    } else {
+      quadrature_point_indices_.insert(*max_index + 1);
+    }
+  }
+
   return status.second;
 }
 

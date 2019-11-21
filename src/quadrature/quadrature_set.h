@@ -21,6 +21,8 @@ class QuadratureSet : public QuadratureSetI<dim> {
                      std::shared_ptr<QuadraturePointI<dim>>);
   std::shared_ptr<QuadraturePointI<dim>> GetReflection(
       std::shared_ptr<QuadraturePointI<dim>>) const override;
+  std::set<int> quadrature_point_indices() const override {
+    return quadrature_point_indices_; };
   typename QuadratureSetI<dim>::Iterator begin() override {
     return quadrature_point_ptrs_.begin(); };
   typename QuadratureSetI<dim>::Iterator end() override {
@@ -32,6 +34,7 @@ class QuadratureSet : public QuadratureSetI<dim> {
   size_t size() const override {return quadrature_point_ptrs_.size(); };
 
  protected:
+  std::set<int> quadrature_point_indices_ = {};
   std::set<std::shared_ptr<QuadraturePointI<dim>>,
            utility::quadrature_point_compare<dim>> quadrature_point_ptrs_;
   std::map<std::shared_ptr<QuadraturePointI<dim>>,

@@ -71,13 +71,26 @@ TYPED_TEST(QuadratureSetTest, Constructor) {
 TYPED_TEST(QuadratureSetTest, AddPoint) {
   constexpr int dim = this->dim;
   quadrature::QuadratureSet<dim> test_set;
+  std::set<int> expected_indices = {};
   EXPECT_EQ(test_set.size(), 0);
+  EXPECT_EQ(test_set.quadrature_point_indices().size(), 0);
+  // Insert one point
   EXPECT_TRUE(test_set.AddPoint(this->quadrature_point_));
   EXPECT_EQ(test_set.size(), 1);
+  expected_indices.insert(0);
+  EXPECT_THAT(test_set.quadrature_point_indices(),
+              ::testing::ContainerEq(expected_indices));
+  // Insert second point
   EXPECT_TRUE(test_set.AddPoint(this->second_quadrature_point_));
   EXPECT_EQ(test_set.size(), 2);
+  expected_indices.insert(1);
+  EXPECT_THAT(test_set.quadrature_point_indices(),
+              ::testing::ContainerEq(expected_indices));
+  // Attempt insertion of first point again
   EXPECT_FALSE(test_set.AddPoint(this->quadrature_point_));
   EXPECT_EQ(test_set.size(), 2);
+  EXPECT_THAT(test_set.quadrature_point_indices(),
+              ::testing::ContainerEq(expected_indices));
 }
 
 // Trying to add a null quadrature point ptr should throw

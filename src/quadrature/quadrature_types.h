@@ -19,8 +19,11 @@ using Order = bart::utility::NamedType<int, struct OrderParameter>;
 
 using PointIndex = bart::utility::NamedType<int, struct PointIndexParameter>;
 
-using FillAllQuadrants = bart::utility::NamedType<bool,
-                                            struct FillAllQuadrantsParameter>;
+using FillAllQuadrants =
+    bart::utility::NamedType<bool, struct FillAllQuadrantsParameter>;
+
+using QuadraturePointIndex =
+    bart::utility::NamedType<int, struct QuadraturePointIndexParameter>;
 
 enum class AngularQuadratureSetType {
   kNone = 0,

@@ -41,6 +41,12 @@ class QuadratureSetI {
   virtual std::shared_ptr<QuadraturePointI<dim>> GetReflection(
       std::shared_ptr<QuadraturePointI<dim>>) const = 0;
 
+  /*! \brief Return the indices of the quadrature points.
+   *
+   * @return set containing the quadrature point indices.
+   */
+  virtual std::set<int> quadrature_point_indices() const = 0;
+
   /// \brief Returns iterator to beginning of the set of quadrature points.
   virtual Iterator begin() = 0;
   /// \brief Returns past-the-end iterator for the set of quadrature points.
