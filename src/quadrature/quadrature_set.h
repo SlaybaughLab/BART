@@ -21,6 +21,8 @@ class QuadratureSet : public QuadratureSetI<dim> {
                      std::shared_ptr<QuadraturePointI<dim>>);
   std::shared_ptr<QuadraturePointI<dim>> GetReflection(
       std::shared_ptr<QuadraturePointI<dim>>) const override;
+  std::optional<int> GetReflectionIndex(
+      std::shared_ptr<QuadraturePointI<dim>>) const override;
   std::shared_ptr<QuadraturePointI<dim>> GetQuadraturePoint(
       QuadraturePointIndex index) const override;
   int GetQuadraturePointIndex(

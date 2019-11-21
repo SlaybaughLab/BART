@@ -5,6 +5,7 @@
 #include "quadrature/quadrature_types.h"
 
 #include <memory>
+#include <optional>
 #include <set>
 
 namespace bart {
@@ -40,6 +41,12 @@ class QuadratureSetI {
    * @return pointer to the reflection.
    */
   virtual std::shared_ptr<QuadraturePointI<dim>> GetReflection(
+      std::shared_ptr<QuadraturePointI<dim>>) const = 0;
+
+  /*! \brief Return the index of the provided quadrature point.
+   * @return index of the refection or an empty optional if none exists.
+   */
+  virtual std::optional<int> GetReflectionIndex(
       std::shared_ptr<QuadraturePointI<dim>>) const = 0;
 
   /*! \brief Get quadrature point based on index.

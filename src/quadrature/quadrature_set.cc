@@ -72,6 +72,21 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetReflection(
     return nullptr;
   }
 }
+
+template<int dim>
+std::optional<int> QuadratureSet<dim>::GetReflectionIndex(
+    std::shared_ptr<QuadraturePointI<dim>> quadrature_point_ptr) const {
+
+  std::optional<int> reflection_index;
+
+  auto reflection_ptr = GetReflection(quadrature_point_ptr);
+
+  if (reflection_ptr != nullptr)
+    reflection_index = quadrature_point_to_index_map_.at(reflection_ptr);
+
+  return reflection_index;
+}
+
 template<int dim>
 std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetQuadraturePoint(
     QuadraturePointIndex index) const {
