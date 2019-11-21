@@ -17,11 +17,15 @@ bool QuadratureSet<dim>::AddPoint(
                                     quadrature_point_indices_.end());
 
   if (status.second) {
-    if (max_index == quadrature_point_indices_.end()) {
-      quadrature_point_indices_.insert(0);
-    } else {
-      quadrature_point_indices_.insert(*max_index + 1);
-    }
+    int new_index = 0;
+
+    if (max_index != quadrature_point_indices_.end())
+      new_index = *max_index + 1;
+
+    // Update sets and maps
+    quadrature_point_indices_.insert(new_index);
+    index_to_quadrature_point_map_.insert_or_assign(new_index, new_point_ptr);
+    quadrature_point_to_index_map_.insert_or_assign(new_point_ptr, new_index);
   }
 
   return status.second;
@@ -67,6 +71,16 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetReflection(
                                    "is not in quadrature set."))
     return nullptr;
   }
+}
+template<int dim>
+std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetQuadraturePoint(
+    QuadraturePointIndex index) const {
+  return index_to_quadrature_point_map_.at(index.get());
+}
+template<int dim>
+int QuadratureSet<dim>::GetQuadraturePointIndex(
+    std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
+  return quadrature_point_to_index_map_.at(quadrature_point);
 }
 
 template class QuadratureSet<1>;

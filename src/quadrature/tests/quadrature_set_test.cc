@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/quadrature_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -73,24 +74,55 @@ TYPED_TEST(QuadratureSetTest, AddPoint) {
   quadrature::QuadratureSet<dim> test_set;
   std::set<int> expected_indices = {};
   EXPECT_EQ(test_set.size(), 0);
-  EXPECT_EQ(test_set.quadrature_point_indices().size(), 0);
   // Insert one point
   EXPECT_TRUE(test_set.AddPoint(this->quadrature_point_));
   EXPECT_EQ(test_set.size(), 1);
+  // Insert second point
+  EXPECT_TRUE(test_set.AddPoint(this->second_quadrature_point_));
+  EXPECT_EQ(test_set.size(), 2);
+  // Attempt insertion of first point again
+  EXPECT_FALSE(test_set.AddPoint(this->quadrature_point_));
+  EXPECT_EQ(test_set.size(), 2);
+}
+
+// Add point should have the appropriate entry in the quadrature_indices_
+TYPED_TEST(QuadratureSetTest, AddPointIndices) {
+  constexpr int dim = this->dim;
+  quadrature::QuadratureSet<dim> test_set;
+  std::set<int> expected_indices = {};
+  EXPECT_EQ(test_set.quadrature_point_indices().size(), 0);
+  // Insert one point
+  test_set.AddPoint(this->quadrature_point_);
   expected_indices.insert(0);
   EXPECT_THAT(test_set.quadrature_point_indices(),
               ::testing::ContainerEq(expected_indices));
   // Insert second point
-  EXPECT_TRUE(test_set.AddPoint(this->second_quadrature_point_));
-  EXPECT_EQ(test_set.size(), 2);
+  test_set.AddPoint(this->second_quadrature_point_);
   expected_indices.insert(1);
   EXPECT_THAT(test_set.quadrature_point_indices(),
               ::testing::ContainerEq(expected_indices));
   // Attempt insertion of first point again
-  EXPECT_FALSE(test_set.AddPoint(this->quadrature_point_));
-  EXPECT_EQ(test_set.size(), 2);
+  test_set.AddPoint(this->quadrature_point_);
   EXPECT_THAT(test_set.quadrature_point_indices(),
               ::testing::ContainerEq(expected_indices));
+}
+
+// Getters for quadrature point and index should retrieve the correct values
+TYPED_TEST(QuadratureSetTest, GetQuadraturePointAndIndex) {
+  constexpr int dim = this->dim;
+  quadrature::QuadratureSet<dim> test_set;
+  test_set.AddPoint(this->quadrature_point_);
+  // Add first point
+  EXPECT_EQ(this->quadrature_point_,
+            test_set.GetQuadraturePoint(quadrature::QuadraturePointIndex(0)));
+  EXPECT_EQ(test_set.GetQuadraturePointIndex(this->quadrature_point_),
+            0);
+  // Add second point
+  test_set.AddPoint(this->second_quadrature_point_);
+  EXPECT_EQ(this->second_quadrature_point_,
+            test_set.GetQuadraturePoint(quadrature::QuadraturePointIndex(1)));
+  EXPECT_EQ(test_set.GetQuadraturePointIndex(this->second_quadrature_point_),
+            1);
 }
 
 // Trying to add a null quadrature point ptr should throw

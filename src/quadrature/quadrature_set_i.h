@@ -2,6 +2,7 @@
 #define BART_SRC_QUADRATURE_QUADRATURE_SET_I_H_
 
 #include "quadrature/quadrature_point_i.h"
+#include "quadrature/quadrature_types.h"
 
 #include <memory>
 #include <set>
@@ -40,6 +41,21 @@ class QuadratureSetI {
    */
   virtual std::shared_ptr<QuadraturePointI<dim>> GetReflection(
       std::shared_ptr<QuadraturePointI<dim>>) const = 0;
+
+  /*! \brief Get quadrature point based on index.
+   *
+   * @param index index of quadrature point to retrieve.
+   * @return pointer to quadrature point.
+   */
+  virtual std::shared_ptr<QuadraturePointI<dim>> GetQuadraturePoint(
+      QuadraturePointIndex index) const = 0;
+  /*! \brief Get quadrature point index based on quadrature point.
+   *
+   * @param quadrature_point the quadrature point
+   * @return int index of the point provided.
+   */
+  virtual int GetQuadraturePointIndex(
+      std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const = 0;
 
   /*! \brief Return the indices of the quadrature points.
    *
