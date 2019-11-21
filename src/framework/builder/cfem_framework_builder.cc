@@ -97,12 +97,20 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
   // Scalar Quadrature
-  using ScalarQuadrature = quadrature::angular::AngularQuadratureScalar<dim>;
-  auto quadrature_ptr = std::make_shared<ScalarQuadrature>();
+  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+  auto ordinate_ptr = quadrature::factory::MakeOrdinatePtr<dim>();
+  std::array<double, dim> zero_coordinate;
+  zero_coordinate.fill(0);
+  ordinate_ptr->set_cartesian_position(
+      quadrature::CartesianPosition<dim>(zero_coordinate));
+  auto quadrature_point_ptr = quadrature::factory::MakeQuadraturePointPtr<dim>();
+  quadrature_point_ptr->SetOrdinate(ordinate_ptr);
+  quadrature_point_ptr->SetWeight(quadrature::Weight(1.0));
+  quadrature_set_ptr->AddPoint(quadrature_point_ptr);
 
   // Moment calculator
   using MomentCalculator = quadrature::calculators::SphericalHarmonicZerothMoment<dim>;
-  auto moment_calculator = std::make_unique<MomentCalculator>(quadrature_ptr);
+  auto moment_calculator = std::make_unique<MomentCalculator>(quadrature_set_ptr);
 
   // Solution group
   auto solution_ptr =

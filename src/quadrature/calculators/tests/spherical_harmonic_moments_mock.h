@@ -19,8 +19,8 @@ class SphericalHarmonicMomentsMock : public SphericalHarmonicMomentsI<dim> {
           system::GroupNumber group,
           system::moments::HarmonicL harmonic_l,
           system::moments::HarmonicL harmonic_m));
-  MOCK_CONST_METHOD0_T(angular_quadrature_set_ptr,
-      angular::AngularQuadratureSetI<dim>*());
+  MOCK_CONST_METHOD0_T(quadrature_set_ptr,
+                       QuadratureSetI<dim>*());
   };
 
 } // namespace calculators

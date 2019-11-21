@@ -1,6 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 #define BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 
+#include "quadrature/quadrature_set_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/system_types.h"
 
@@ -61,7 +62,7 @@ class SphericalHarmonicMomentsI {
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const = 0;
 
-  virtual angular::AngularQuadratureSetI<dim>* angular_quadrature_set_ptr() const = 0;
+  virtual QuadratureSetI<dim>* quadrature_set_ptr() const = 0;
 };
 
 } // namespace calculators
