@@ -1,5 +1,7 @@
 #include "quadrature/quadrature_set.h"
 
+#include <algorithm>
+
 namespace bart {
 
 namespace quadrature {
@@ -8,8 +10,24 @@ template<int dim>
 bool QuadratureSet<dim>::AddPoint(
     std::shared_ptr<QuadraturePointI<dim>> new_point_ptr) {
   AssertThrow(new_point_ptr != nullptr,
-      dealii::ExcMessage("Error in AddPoint, pointer is null"));
+      dealii::ExcMessage("Error in AddPoint, pointer is null"))
   auto status = quadrature_point_ptrs_.insert(new_point_ptr);
+
+  auto max_index = std::max_element(quadrature_point_indices_.begin(),
+                                    quadrature_point_indices_.end());
+
+  if (status.second) {
+    int new_index = 0;
+
+    if (max_index != quadrature_point_indices_.end())
+      new_index = *max_index + 1;
+
+    // Update sets and maps
+    quadrature_point_indices_.insert(new_index);
+    index_to_quadrature_point_map_.insert_or_assign(new_index, new_point_ptr);
+    quadrature_point_to_index_map_.insert_or_assign(new_point_ptr, new_index);
+  }
+
   return status.second;
 }
 
@@ -53,6 +71,31 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetReflection(
                                    "is not in quadrature set."))
     return nullptr;
   }
+}
+
+template<int dim>
+std::optional<int> QuadratureSet<dim>::GetReflectionIndex(
+    std::shared_ptr<QuadraturePointI<dim>> quadrature_point_ptr) const {
+
+  std::optional<int> reflection_index;
+
+  auto reflection_ptr = GetReflection(quadrature_point_ptr);
+
+  if (reflection_ptr != nullptr)
+    reflection_index = quadrature_point_to_index_map_.at(reflection_ptr);
+
+  return reflection_index;
+}
+
+template<int dim>
+std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetQuadraturePoint(
+    QuadraturePointIndex index) const {
+  return index_to_quadrature_point_map_.at(index.get());
+}
+template<int dim>
+int QuadratureSet<dim>::GetQuadraturePointIndex(
+    std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
+  return quadrature_point_to_index_map_.at(quadrature_point);
 }
 
 template class QuadratureSet<1>;

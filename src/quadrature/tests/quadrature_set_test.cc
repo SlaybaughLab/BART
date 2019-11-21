@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/quadrature_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -71,13 +72,57 @@ TYPED_TEST(QuadratureSetTest, Constructor) {
 TYPED_TEST(QuadratureSetTest, AddPoint) {
   constexpr int dim = this->dim;
   quadrature::QuadratureSet<dim> test_set;
+  std::set<int> expected_indices = {};
   EXPECT_EQ(test_set.size(), 0);
+  // Insert one point
   EXPECT_TRUE(test_set.AddPoint(this->quadrature_point_));
   EXPECT_EQ(test_set.size(), 1);
+  // Insert second point
   EXPECT_TRUE(test_set.AddPoint(this->second_quadrature_point_));
   EXPECT_EQ(test_set.size(), 2);
+  // Attempt insertion of first point again
   EXPECT_FALSE(test_set.AddPoint(this->quadrature_point_));
   EXPECT_EQ(test_set.size(), 2);
+}
+
+// Add point should have the appropriate entry in the quadrature_indices_
+TYPED_TEST(QuadratureSetTest, AddPointIndices) {
+  constexpr int dim = this->dim;
+  quadrature::QuadratureSet<dim> test_set;
+  std::set<int> expected_indices = {};
+  EXPECT_EQ(test_set.quadrature_point_indices().size(), 0);
+  // Insert one point
+  test_set.AddPoint(this->quadrature_point_);
+  expected_indices.insert(0);
+  EXPECT_THAT(test_set.quadrature_point_indices(),
+              ::testing::ContainerEq(expected_indices));
+  // Insert second point
+  test_set.AddPoint(this->second_quadrature_point_);
+  expected_indices.insert(1);
+  EXPECT_THAT(test_set.quadrature_point_indices(),
+              ::testing::ContainerEq(expected_indices));
+  // Attempt insertion of first point again
+  test_set.AddPoint(this->quadrature_point_);
+  EXPECT_THAT(test_set.quadrature_point_indices(),
+              ::testing::ContainerEq(expected_indices));
+}
+
+// Getters for quadrature point and index should retrieve the correct values
+TYPED_TEST(QuadratureSetTest, GetQuadraturePointAndIndex) {
+  constexpr int dim = this->dim;
+  quadrature::QuadratureSet<dim> test_set;
+  test_set.AddPoint(this->quadrature_point_);
+  // Add first point
+  EXPECT_EQ(this->quadrature_point_,
+            test_set.GetQuadraturePoint(quadrature::QuadraturePointIndex(0)));
+  EXPECT_EQ(test_set.GetQuadraturePointIndex(this->quadrature_point_),
+            0);
+  // Add second point
+  test_set.AddPoint(this->second_quadrature_point_);
+  EXPECT_EQ(this->second_quadrature_point_,
+            test_set.GetQuadraturePoint(quadrature::QuadraturePointIndex(1)));
+  EXPECT_EQ(test_set.GetQuadraturePointIndex(this->second_quadrature_point_),
+            1);
 }
 
 // Trying to add a null quadrature point ptr should throw
@@ -89,12 +134,22 @@ TYPED_TEST(QuadratureSetTest, AddPointNullPtr) {
 }
 
 /* Points in set without reflection will return nullptr when the reflection is
- * requested
+ * requested and index will return an empty optional.
  */
 TYPED_TEST(QuadratureSetTest, DefaultGetReflection) {
   EXPECT_EQ(nullptr, this->test_set_.GetReflection(this->quadrature_point_));
-  EXPECT_EQ(nullptr, this->test_set_.GetReflection(this->second_quadrature_point_));
-  EXPECT_ANY_THROW(this->test_set_.GetReflection(this->third_quadrature_point_));
+  EXPECT_FALSE(
+      this->test_set_.GetReflectionIndex(this->quadrature_point_).has_value());
+  EXPECT_EQ(nullptr, this->test_set_.GetReflection(
+      this->second_quadrature_point_));
+  EXPECT_FALSE(
+      this->test_set_.GetReflectionIndex(
+          this->second_quadrature_point_).has_value());
+  EXPECT_ANY_THROW(this->test_set_.GetReflection(
+      this->third_quadrature_point_));
+  EXPECT_ANY_THROW(
+      this->test_set_.GetReflectionIndex(
+          this->third_quadrature_point_).has_value());
 }
 
 // SetReflection should set the reflection properly.
@@ -106,6 +161,13 @@ TYPED_TEST(QuadratureSetTest, SetReflection) {
   EXPECT_EQ(this->test_set_.GetReflection(this->second_quadrature_point_),
             this->quadrature_point_);
 
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->second_quadrature_point_));
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->second_quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->quadrature_point_));
+
   // Set again and reverse, verify nothing has changed, returns false because no
   // insertion.
   this->test_set_.SetReflection(this->quadrature_point_,
@@ -116,6 +178,12 @@ TYPED_TEST(QuadratureSetTest, SetReflection) {
             this->second_quadrature_point_);
   EXPECT_EQ(this->test_set_.GetReflection(this->second_quadrature_point_),
             this->quadrature_point_);
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->second_quadrature_point_));
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->second_quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->quadrature_point_));
 }
 
 // SetReflection should throw if a point is being set as its own reflection.
@@ -154,12 +222,21 @@ TYPED_TEST(QuadratureSetTest, SetNewReflectionFirstPoint) {
                                 this->third_quadrature_point_);
   // Second point now has no reflection
   EXPECT_EQ(nullptr, this->test_set_.GetReflection(this->second_quadrature_point_));
+  EXPECT_FALSE(this->test_set_.GetReflectionIndex(
+      this->second_quadrature_point_).has_value());
   // Third and first now reflect each other
   EXPECT_EQ(this->test_set_.GetReflection(this->quadrature_point_),
             this->third_quadrature_point_);
   EXPECT_EQ(this->test_set_.GetReflection(this->third_quadrature_point_),
             this->quadrature_point_);
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->third_quadrature_point_));
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->third_quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->quadrature_point_));
 }
+
 /* Same as previous test but with second point */
 TYPED_TEST(QuadratureSetTest, SetNewReflectionSecondPoint) {
   this->test_set_.AddPoint(this->third_quadrature_point_);
@@ -170,11 +247,19 @@ TYPED_TEST(QuadratureSetTest, SetNewReflectionSecondPoint) {
                                 this->quadrature_point_);
   // Second point now has no reflection
   EXPECT_EQ(nullptr, this->test_set_.GetReflection(this->second_quadrature_point_));
+  EXPECT_FALSE(this->test_set_.GetReflectionIndex(
+      this->second_quadrature_point_).has_value());
   // Third and first now reflect each other
   EXPECT_EQ(this->test_set_.GetReflection(this->quadrature_point_),
             this->third_quadrature_point_);
   EXPECT_EQ(this->test_set_.GetReflection(this->third_quadrature_point_),
             this->quadrature_point_);
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->third_quadrature_point_));
+  EXPECT_EQ(
+      this->test_set_.GetReflectionIndex(this->third_quadrature_point_).value_or(-1),
+      this->test_set_.GetQuadraturePointIndex(this->quadrature_point_));
 }
 
 // Iterator should properly return an interator to the set
