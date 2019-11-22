@@ -1,9 +1,12 @@
+
 #include "quadrature/factory/quadrature_factories.h"
 
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
+#include "quadrature/calculators/scalar_moment.h"
+#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
 namespace bart {
@@ -109,11 +112,29 @@ void FillQuadratureSet(
     }
   }
 }
+
 template<int dim>
 std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator(
     const MomentCalculatorImpl impl,
     std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr) {
-  return nullptr;
+
+  std::unique_ptr<calculators::SphericalHarmonicMomentsI> return_pointer =
+      nullptr;
+
+  if (impl == MomentCalculatorImpl::kScalarMoment) {
+    return_pointer = std::move(
+        std::make_unique<calculators::ScalarMoment>());
+  } else if (impl == MomentCalculatorImpl::kZerothMomentOnly) {
+    AssertThrow(quadrature_set_ptr != nullptr,
+        dealii::ExcMessage("Error in factory building moment calculator, "
+                           "implementation requires quadrature set but provided"
+                           " set pointer is a nullptr"))
+    return_pointer = std::move(
+        std::make_unique<calculators::SphericalHarmonicZerothMoment<dim>>(
+            quadrature_set_ptr));
+  }
+
+  return std::move(return_pointer);
 }
 
 template std::shared_ptr<OrdinateI<1>> MakeOrdinatePtr(const OrdinateType);
