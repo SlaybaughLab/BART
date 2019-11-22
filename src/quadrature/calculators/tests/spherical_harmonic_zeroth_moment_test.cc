@@ -7,6 +7,7 @@
 
 #include "system/system_types.h"
 #include "system/moments/spherical_harmonic_types.h"
+#include "quadrature/utility/quadrature_utilities.h"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
@@ -121,7 +122,8 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
   auto& quadrature_set_mock = *this->quadrature_set_obs_ptr_;
   auto& test_calculator = this->test_calculator;
   auto mock_solution_ptr = &this->mock_solution_;
-//
+  constexpr int dim = this->dim;
+
   const int n_angles = 3;
   const int group = 0;
 
@@ -130,7 +132,8 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
   EXPECT_CALL(*mock_solution_ptr, total_angles())
       .WillOnce(Return(n_angles));
 
-  std::set<std::shared_ptr<quadrature::QuadraturePointI<this->dim>>>
+  std::set<std::shared_ptr<quadrature::QuadraturePointI<dim>>,
+           quadrature::utility::quadrature_point_compare<dim>>
       mock_quadrature_point_set;
 
   for (int angle = 0; angle < n_angles; ++angle) {
@@ -139,11 +142,17 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
     EXPECT_CALL(*mock_solution_ptr, GetSolution(angle))
         .WillOnce(ReturnRef(this->mpi_vectors_[angle]));
 
-    // We make our mock quadrature point and set the weight
+    // We make our mock quadrature point and set the weight and position
     auto mock_quadrature_point =
-        std::make_shared<quadrature::QuadraturePointMock<this->dim>>();
+        std::make_shared<::testing::NiceMock<quadrature::QuadraturePointMock<dim>>>();
     EXPECT_CALL(*mock_quadrature_point, weight())
         .WillOnce(Return(2.2 + angle*1.1));
+    // Position is only added for ordering in the set, value doesn't matter as
+    // long as each processor orders them equally (by position)
+    std::array<double, dim> position;
+    position.fill(angle*1.1);
+    ON_CALL(*mock_quadrature_point, cartesian_position())
+        .WillByDefault(Return(position));
 
     // Insert into our mock set, get an insert pair that includes an interator
     // to the newly inserted object
