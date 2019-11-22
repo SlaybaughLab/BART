@@ -27,7 +27,6 @@
 #include "convergence/final_checker_or_n.h"
 #include "quadrature/utility/quadrature_utilities.h"
 #include "quadrature/factory/quadrature_factories.h"
-#include "quadrature/angular/angular_quadrature_scalar.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "results/output_dealii_vtu.h"
 #include "solver/group/single_group_solver.h"
