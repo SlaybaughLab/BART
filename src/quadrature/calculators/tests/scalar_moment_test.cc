@@ -23,12 +23,7 @@ void SetVector(system::MPIVector& to_set, double value) {
   to_set.compress(dealii::VectorOperation::insert);
 }
 
-/* Tests for the SphericalHarmonicMomentsZerothMoment class. Mock quadrature set
- * is required.
- *
- * Test initial conditions: test object is constructed with mock quadrature set,
- * observation pointer is provided to set call expectations. Three mpi vectors
- * are provided with values 1, 10, and 100.
+/* Tests for the quadrature::calculators::ScalarMoment class.
  */
 class QuadratureCalculatorsScalarMomentTest : public ::testing::Test {
  protected:
