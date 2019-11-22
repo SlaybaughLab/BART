@@ -35,11 +35,16 @@ namespace calculators {
  * \f]
  *
  * The angular quadrature is provided as a dependency to this class, which
- * provides the weights and angles for the calculation. The solutions \f$\psi\f$
+ * provides the weights and angles for the calculation. It is very important
+ * that the underlying angular quadrature actually integrates the spherical
+ * harmonics properly for this to work. The solutions \f$\psi\f$
  * are provided by a class derived from system::solution::MPIAngular, and must
  * have solutions at each angle \f$\hat{\Omega}\f$. This is ensured by solving
  * using collocation at each angle.
  *
+ * There is a derived class that does not have an underlying quadrature set and
+ * merely returns the mpi solution as a moment vector. This is intended to be
+ * used for scalar solves.
  *
  * @tparam dim angular dimension of the calculator, based on the angular
  *         dimension of the angular quadrature set.
