@@ -60,7 +60,7 @@ class SphericalHarmonicMomentsI {
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const = 0;
 
-  virtual QuadratureSetI<dim>* quadrature_set_ptr() const = 0;
+  //virtual QuadratureSetI<dim>* quadrature_set_ptr() const = 0;
 };
 
 } // namespace calculators

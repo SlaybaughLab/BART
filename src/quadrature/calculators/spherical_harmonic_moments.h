@@ -21,7 +21,7 @@ class SphericalHarmonicMoments : public SphericalHarmonicMomentsI<dim> {
 
   virtual ~SphericalHarmonicMoments() = default;
 
-  QuadratureSetI<dim>* quadrature_set_ptr() const override {
+  QuadratureSetI<dim>* quadrature_set_ptr() const {
     return quadrature_set_ptr_.get();
   }
 
