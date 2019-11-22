@@ -8,6 +8,7 @@
 #include "quadrature/quadrature_point_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/quadrature_types.h"
+#include "quadrature/calculators/spherical_harmonic_moments_i.h"
 
 namespace bart {
 
@@ -86,6 +87,10 @@ void FillQuadratureSet(
     const std::vector<std::pair<quadrature::CartesianPosition<dim>,
                                 quadrature::Weight>>& point_vector);
 
+template <int dim>
+std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator(
+    const MomentCalculatorImpl impl,
+    std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr = nullptr);
 
 } // namespace factory
 

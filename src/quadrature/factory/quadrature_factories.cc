@@ -109,7 +109,12 @@ void FillQuadratureSet(
     }
   }
 }
-
+template<int dim>
+std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator(
+    const MomentCalculatorImpl impl,
+    std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr) {
+  return nullptr;
+}
 
 template std::shared_ptr<OrdinateI<1>> MakeOrdinatePtr(const OrdinateType);
 template std::shared_ptr<OrdinateI<2>> MakeOrdinatePtr(const OrdinateType);
@@ -130,6 +135,10 @@ template std::shared_ptr<QuadratureSetI<3>> MakeQuadratureSetPtr(const Quadratur
 template void FillQuadratureSet<1>(QuadratureSetI<1>*, const std::vector<std::pair<quadrature::CartesianPosition<1>, quadrature::Weight>>&);
 template void FillQuadratureSet<2>(QuadratureSetI<2>*, const std::vector<std::pair<quadrature::CartesianPosition<2>, quadrature::Weight>>&);
 template void FillQuadratureSet<3>(QuadratureSetI<3>*, const std::vector<std::pair<quadrature::CartesianPosition<3>, quadrature::Weight>>&);
+
+template std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator<1>(const MomentCalculatorImpl, std::shared_ptr<QuadratureSetI<1>>);
+template std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator<2>(const MomentCalculatorImpl, std::shared_ptr<QuadratureSetI<2>>);
+template std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator<3>(const MomentCalculatorImpl, std::shared_ptr<QuadratureSetI<3>>);
 
 } // namespace factory
 

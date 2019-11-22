@@ -42,6 +42,11 @@ enum class QuadratureSetImpl {
   kDefault = 0,
 };
 
+enum class MomentCalculatorImpl {
+  kScalarMoment = 0,
+  kZerothMomentOnly = 1,
+};
+
 } // namespace quadrature
 
 } // namespace bart

@@ -4,6 +4,8 @@
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
+#include "quadrature/calculators/scalar_moment.h"
+#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
 #include "test_helpers/gmock_wrapper.h"
@@ -198,6 +200,19 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSetScalar) {
   for (int i = 0; i < dim; ++i) {
     EXPECT_EQ(0, quadrature_point_ptr->ordinate()->cartesian_position().at(i));
   }
+}
+
+// MakeMomentCalculator should return the correct scalar moment implementation
+TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeMomentCalculatorScalar) {
+  const int dim = this->dim;
+
+  auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
+      quadrature::MomentCalculatorImpl::kScalarMoment);
+
+  ASSERT_NE(moment_calculator_ptr, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<quadrature::calculators::ScalarMoment*>(
+                moment_calculator_ptr.get()));
 }
 
 
