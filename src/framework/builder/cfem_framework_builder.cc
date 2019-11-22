@@ -28,6 +28,7 @@
 #include "quadrature/utility/quadrature_utilities.h"
 #include "quadrature/factory/quadrature_factories.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
+#include "quadrature/calculators/scalar_moment.h"
 #include "results/output_dealii_vtu.h"
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
@@ -96,20 +97,8 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
   // Scalar Quadrature
-  auto quadrature_set_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
-  auto ordinate_ptr = quadrature::factory::MakeOrdinatePtr<dim>();
-  std::array<double, dim> zero_coordinate;
-  zero_coordinate.fill(0);
-  ordinate_ptr->set_cartesian_position(
-      quadrature::CartesianPosition<dim>(zero_coordinate));
-  auto quadrature_point_ptr = quadrature::factory::MakeQuadraturePointPtr<dim>();
-  quadrature_point_ptr->SetOrdinate(ordinate_ptr);
-  quadrature_point_ptr->SetWeight(quadrature::Weight(1.0));
-  quadrature_set_ptr->AddPoint(quadrature_point_ptr);
-
-  // Moment calculator
-  using MomentCalculator = quadrature::calculators::SphericalHarmonicZerothMoment<dim>;
-  auto moment_calculator = std::make_unique<MomentCalculator>(quadrature_set_ptr);
+  using MomentCalculator = quadrature::calculators::ScalarMoment;
+  auto moment_calculator_ptr = std::make_unique<MomentCalculator>();
 
   // Solution group
   auto solution_ptr =
@@ -136,7 +125,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       std::make_unique<iteration::group::GroupSourceIteration<dim>>(
           std::move(single_group_solver_ptr),
           std::move(in_group_final_checker),
-          std::move(moment_calculator),
+          std::move(moment_calculator_ptr),
           solution_ptr,
           source_updater_ptr,
           reporter);
