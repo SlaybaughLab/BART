@@ -46,10 +46,7 @@ namespace calculators {
  * merely returns the mpi solution as a moment vector. This is intended to be
  * used for scalar solves.
  *
- * @tparam dim angular dimension of the calculator, based on the angular
- *         dimension of the angular quadrature set.
  */
-template <int dim>
 class SphericalHarmonicMomentsI {
  public:
   virtual ~SphericalHarmonicMomentsI() = default;
@@ -59,8 +56,6 @@ class SphericalHarmonicMomentsI {
       system::GroupNumber group,
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const = 0;
-
-  //virtual QuadratureSetI<dim>* quadrature_set_ptr() const = 0;
 };
 
 } // namespace calculators

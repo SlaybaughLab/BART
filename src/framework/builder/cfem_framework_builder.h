@@ -40,7 +40,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FixedUpdater = iteration::updater::FixedUpdaterI;
   using Initializer = iteration::initializer::InitializerI;
-  using SphericalHarmonicMomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI<dim>;
+  using SphericalHarmonicMomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;

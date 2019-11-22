@@ -13,7 +13,7 @@ namespace quadrature {
 namespace calculators {
 
 template <int dim>
-class SphericalHarmonicMoments : public SphericalHarmonicMomentsI<dim> {
+class SphericalHarmonicMoments : public SphericalHarmonicMomentsI {
  public:
   SphericalHarmonicMoments(
       std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr)
