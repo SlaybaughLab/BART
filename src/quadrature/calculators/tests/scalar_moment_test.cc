@@ -53,12 +53,30 @@ void QuadratureCalculatorsScalarMomentTest::SetUp() {
   SetVector(mpi_vector_, 123.456);
 }
 
+// CalculateMoment should throw an error if the solution appears to be angular
 TEST_F(QuadratureCalculatorsScalarMomentTest, BadNumberofAngles) {
   quadrature::calculators::ScalarMoment test_calculator;
 
   EXPECT_CALL(mock_solution_, total_angles())
       .WillOnce(Return(2));
   EXPECT_ANY_THROW(test_calculator.CalculateMoment(&mock_solution_, 0, 0, 0));
+}
+
+TEST_F(QuadratureCalculatorsScalarMomentTest, CalculateMoment) {
+  quadrature::calculators::ScalarMoment test_calculator;
+
+  EXPECT_CALL(mock_solution_, total_angles())
+      .WillOnce(Return(1));
+  EXPECT_CALL(mock_solution_, GetSolution(0))
+      .WillOnce(ReturnRef(mpi_vector_));
+
+  const int result_size = this->n_entries_per_proc*this->n_processes;
+  system::moments::MomentVector expected_vector(result_size);
+  expected_vector = expected_result;
+
+  auto result = test_calculator.CalculateMoment(&mock_solution_, 0, 0, 0);
+  ASSERT_NE(result.size(), 0);
+  EXPECT_EQ(result, expected_vector);
 }
 
 }
