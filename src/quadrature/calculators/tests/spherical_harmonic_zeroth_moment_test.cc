@@ -8,6 +8,7 @@
 #include "system/system_types.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_point_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -77,7 +78,7 @@ void QuadCalcSphericalHarmonicMomentsOnlyScalar<DimensionWrapper>::SetUp() {
     mpi_vector.reinit(MPI_COMM_WORLD,
                       n_processes * n_entries_per_proc,
                       n_entries_per_proc);
-  };
+  }
 
   SetVector(mpi_vectors_[0], 1);
   SetVector(mpi_vectors_[1], 10);
@@ -94,47 +95,80 @@ TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, Constructor) {
   ASSERT_NE(nullptr, quadrature_set_ptr);
 }
 
-TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateBandAngleNumber) {
-//  auto& angular_quad_mock = *(this->angular_quad_obs_ptr_);
-//  auto& test_calculator = this->test_calculator;
-//  auto& mock_solution = this->mock_solution_;
-//
-//  EXPECT_CALL(angular_quad_mock, total_quadrature_points())
-//      .WillOnce(Return(4));
-//  EXPECT_CALL(mock_solution, total_angles())
-//      .WillOnce(Return(3));
-//  EXPECT_ANY_THROW(test_calculator->CalculateMoment(&mock_solution, 0, 0, 0));
+/* An error should be thrown if there is a mismatch between the total angles
+ * reported by the solution and the size of the quadrature set */
+TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateBadAngleNumber) {
+  auto& quadrature_set_mock = *this->quadrature_set_obs_ptr_;
+  auto& test_calculator = this->test_calculator;
+  auto mock_solution_ptr = &this->mock_solution_;
+
+  EXPECT_CALL(quadrature_set_mock, size())
+      .WillOnce(Return(4));
+  EXPECT_CALL(*mock_solution_ptr, total_angles())
+      .WillOnce(Return(3));
+  EXPECT_ANY_THROW(test_calculator->CalculateMoment(mock_solution_ptr, 0, 0, 0));
 }
 
+/* Moments should be calculated properly.
+ *
+ * To accomplish this test we will fill a set with mock points with weights
+ * given by 2.2 + i*1.1 where i is an index value. These index values will
+ * identify one of the mpi_vectors provided by the test, which are equal to 1,
+ * 10, and 100, sequentiall. Therefore we expect the final moment to be equal to
+ * 2.2 + 3.3*10 + 4.4*100
+ */
 TYPED_TEST(QuadCalcSphericalHarmonicMomentsOnlyScalar, CalculateMomentsMPI) {
-//  auto& angular_quad_mock = *(this->angular_quad_obs_ptr_);
-//  auto& test_calculator = this->test_calculator;
-//  auto& mock_solution = this->mock_solution_;
+  auto& quadrature_set_mock = *this->quadrature_set_obs_ptr_;
+  auto& test_calculator = this->test_calculator;
+  auto mock_solution_ptr = &this->mock_solution_;
 //
-//  const int n_angles = 3;
-//  const int group = 0;
-//
-//  EXPECT_CALL(angular_quad_mock, total_quadrature_points())
-//      .WillOnce(Return(n_angles));
-//  EXPECT_CALL(mock_solution, total_angles())
-//      .WillOnce(Return(n_angles));
-//
-//  for (int angle = 0; angle < n_angles; ++angle) {
-//    EXPECT_CALL(mock_solution, BracketOp(angle))
-//        .WillOnce(ReturnRef(this->mpi_vectors_[angle]));
-//  }
-//
-//  std::vector<quadrature::angular::Weight> weights{2.2, 3.3, 4.4};
-//  EXPECT_CALL(angular_quad_mock, quadrature_weights())
-//      .WillOnce(Return(weights));
-//
-//  system::moments::MomentVector expected_result(
-//      this->n_entries_per_proc*this->n_processes);
-//
-//  expected_result = 4.4*100 + 3.3*10 + 2.2;
-//
-//  auto result = test_calculator->CalculateMoment(&mock_solution, group, 0, 0);
-//  EXPECT_EQ(result, expected_result);
+  const int n_angles = 3;
+  const int group = 0;
+
+  EXPECT_CALL(quadrature_set_mock, size())
+      .WillOnce(Return(n_angles));
+  EXPECT_CALL(*mock_solution_ptr, total_angles())
+      .WillOnce(Return(n_angles));
+
+  std::set<std::shared_ptr<quadrature::QuadraturePointI<this->dim>>>
+      mock_quadrature_point_set;
+
+  for (int angle = 0; angle < n_angles; ++angle) {
+    // Solutions are identified by angle index, so we expect a request for
+    // the solution for each angle to be called.
+    EXPECT_CALL(*mock_solution_ptr, GetSolution(angle))
+        .WillOnce(ReturnRef(this->mpi_vectors_[angle]));
+
+    // We make our mock quadrature point and set the weight
+    auto mock_quadrature_point =
+        std::make_shared<quadrature::QuadraturePointMock<this->dim>>();
+    EXPECT_CALL(*mock_quadrature_point, weight())
+        .WillOnce(Return(2.2 + angle*1.1));
+
+    // Insert into our mock set, get an insert pair that includes an interator
+    // to the newly inserted object
+    auto insert_pair = mock_quadrature_point_set.insert(mock_quadrature_point);
+
+    // We expect the function to retrieve the index of the point. This is what
+    // links THIS point to the correct solution.
+    EXPECT_CALL(quadrature_set_mock,
+        GetQuadraturePointIndex(*insert_pair.first))
+        .WillOnce(Return(angle));
+  }
+
+  EXPECT_CALL(quadrature_set_mock, begin())
+      .WillOnce(Return(mock_quadrature_point_set.begin()));
+  EXPECT_CALL(quadrature_set_mock, end())
+      .WillOnce(Return(mock_quadrature_point_set.end()));
+
+  system::moments::MomentVector expected_result(
+      this->n_entries_per_proc*this->n_processes);
+
+  expected_result = 4.4*100 + 3.3*10 + 2.2;
+
+  auto result = test_calculator->CalculateMoment(mock_solution_ptr, group, 0, 0);
+  ASSERT_NE(result.size(), 0); // Make sure it isn't empty
+  EXPECT_EQ(result, expected_result);
 }
 
 

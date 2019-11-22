@@ -19,13 +19,6 @@ class MPIGroupAngularSolutionI;
 
 namespace quadrature {
 
-namespace angular {
-
-template <int dim>
-class AngularQuadratureSetI;
-
-} // namespace angular
-
 namespace calculators {
 
 /*! \brief Interface for classes that calculate spherical harmonic moments.
