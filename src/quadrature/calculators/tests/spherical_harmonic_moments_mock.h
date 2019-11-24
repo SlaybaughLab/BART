@@ -11,16 +11,13 @@ namespace quadrature {
 
 namespace calculators {
 
-template <int dim>
-class SphericalHarmonicMomentsMock : public SphericalHarmonicMomentsI<dim> {
+class SphericalHarmonicMomentsMock : public SphericalHarmonicMomentsI {
  public:
-  MOCK_CONST_METHOD4_T(CalculateMoment, system::moments::MomentVector(
+  MOCK_CONST_METHOD4(CalculateMoment, system::moments::MomentVector(
           system::solution::MPIGroupAngularSolutionI* solution,
           system::GroupNumber group,
           system::moments::HarmonicL harmonic_l,
           system::moments::HarmonicL harmonic_m));
-  MOCK_CONST_METHOD0_T(angular_quadrature_set_ptr,
-      angular::AngularQuadratureSetI<dim>*());
   };
 
 } // namespace calculators

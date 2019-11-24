@@ -1,9 +1,12 @@
+
 #include "quadrature/factory/quadrature_factories.h"
 
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
+#include "quadrature/calculators/scalar_moment.h"
+#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
 namespace bart {
@@ -76,6 +79,30 @@ std::shared_ptr<QuadratureSetI<dim>> MakeQuadratureSetPtr(
   return quadrature_set_ptr;
 }
 
+template<int dim>
+std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator(
+    const MomentCalculatorImpl impl,
+    std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr) {
+
+  std::unique_ptr<calculators::SphericalHarmonicMomentsI> return_pointer =
+      nullptr;
+
+  if (impl == MomentCalculatorImpl::kScalarMoment) {
+    return_pointer = std::move(
+        std::make_unique<calculators::ScalarMoment>());
+  } else if (impl == MomentCalculatorImpl::kZerothMomentOnly) {
+    AssertThrow(quadrature_set_ptr != nullptr,
+                dealii::ExcMessage("Error in factory building moment calculator, "
+                                   "implementation requires quadrature set but provided"
+                                   " set pointer is a nullptr"))
+    return_pointer = std::move(
+        std::make_unique<calculators::SphericalHarmonicZerothMoment<dim>>(
+            quadrature_set_ptr));
+  }
+
+  return std::move(return_pointer);
+}
+
 template <int dim>
 void FillQuadratureSet(
     QuadratureSetI<dim>* to_fill,
@@ -126,6 +153,10 @@ template std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGenerator
 template std::shared_ptr<QuadratureSetI<1>> MakeQuadratureSetPtr(const QuadratureSetImpl);
 template std::shared_ptr<QuadratureSetI<2>> MakeQuadratureSetPtr(const QuadratureSetImpl);
 template std::shared_ptr<QuadratureSetI<3>> MakeQuadratureSetPtr(const QuadratureSetImpl);
+
+template std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator<1>(const MomentCalculatorImpl, std::shared_ptr<QuadratureSetI<1>>);
+template std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator<2>(const MomentCalculatorImpl, std::shared_ptr<QuadratureSetI<2>>);
+template std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator<3>(const MomentCalculatorImpl, std::shared_ptr<QuadratureSetI<3>>);
 
 template void FillQuadratureSet<1>(QuadratureSetI<1>*, const std::vector<std::pair<quadrature::CartesianPosition<1>, quadrature::Weight>>&);
 template void FillQuadratureSet<2>(QuadratureSetI<2>*, const std::vector<std::pair<quadrature::CartesianPosition<2>, quadrature::Weight>>&);

@@ -8,6 +8,7 @@
 #include "quadrature/quadrature_point_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/quadrature_types.h"
+#include "quadrature/calculators/spherical_harmonic_moments_i.h"
 
 namespace bart {
 
@@ -56,6 +57,21 @@ template <int dim>
 std::shared_ptr<QuadratureSetI<dim>> MakeQuadratureSetPtr(
     const QuadratureSetImpl impl = QuadratureSetImpl::kDefault);
 
+/*! \brief Factory for objects of type SphericalHarmonicMomentsI
+ *
+ * These are classes that will calculate spherical harmonic moments from
+ * an angular solution. There is also an implementation for scalar solves.
+ *
+ * @tparam dim spatial dimension
+ * @param impl implementation for the moment calculator.
+ * @param quadrature_set_ptr quadrature set pointer (not required for scalar)
+ * @return unique pointer to moment calculator.
+ */
+template <int dim>
+std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator(
+    const MomentCalculatorImpl impl,
+    std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr = nullptr);
+
 /*! \brief Function to fill a quadrature set.
  *
  * The quadrature set to fill must be empty or this will throw an error.
@@ -85,7 +101,6 @@ void FillQuadratureSet(
     QuadratureSetI<dim>* to_fill,
     const std::vector<std::pair<quadrature::CartesianPosition<dim>,
                                 quadrature::Weight>>& point_vector);
-
 
 } // namespace factory
 

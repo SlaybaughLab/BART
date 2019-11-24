@@ -18,26 +18,29 @@ system::moments::MomentVector SphericalHarmonicZerothMoment<dim>::CalculateMomen
   // number of angles.
 
   const int total_angles = solution->total_angles();
+  const int quadrature_size = this->quadrature_set_ptr_->size();
 
-  AssertThrow(
-      angular_quadrature_ptr_->total_quadrature_points() == total_angles,
+  AssertThrow(quadrature_size == total_angles,
       dealii::ExcMessage("Error: angular quadrature set and solution must "
-                         "have the same number of angles."));
-
-  auto weights = angular_quadrature_ptr_->quadrature_weights();
+                         "have the same number of angles."))
 
   system::moments::MomentVector return_vector;
 
-  for (int angle = 0; angle < total_angles; ++angle) {
-    auto mpi_solution = (*solution)[angle];
+  for (auto quadrature_point_ptr : *quadrature_set_ptr_) {
+    const int angle_index =
+        quadrature_set_ptr_->GetQuadraturePointIndex(quadrature_point_ptr);
+    auto mpi_solution = solution->GetSolution(angle_index);
+
     system::moments::MomentVector angle_vector(mpi_solution);
+    const double quadrature_point_weight = quadrature_point_ptr->weight();
 
     if (return_vector.size() == 0) {
       return_vector.reinit(angle_vector);
       return_vector = 0.0;
     }
 
-    return_vector.add(weights[angle], angle_vector);
+    return_vector.add(quadrature_point_weight, angle_vector);
+
   }
 
   return return_vector;

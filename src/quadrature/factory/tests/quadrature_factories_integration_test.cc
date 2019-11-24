@@ -4,6 +4,8 @@
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
+#include "quadrature/calculators/scalar_moment.h"
+#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
 #include "test_helpers/gmock_wrapper.h"
@@ -199,6 +201,47 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSetScalar) {
     EXPECT_EQ(0, quadrature_point_ptr->ordinate()->cartesian_position().at(i));
   }
 }
+
+// MakeMomentCalculator should return the correct scalar moment implementation
+TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeMomentCalculatorScalar) {
+  const int dim = this->dim;
+
+  auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
+      quadrature::MomentCalculatorImpl::kScalarMoment);
+
+  ASSERT_NE(moment_calculator_ptr, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<quadrature::calculators::ScalarMoment*>(
+                moment_calculator_ptr.get()));
+}
+
+// MakeMomentCalculator should return the correct zeroth-only moment implementation
+TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeMomentCalculatorZeroth) {
+  const int dim = this->dim;
+  auto quadrature_set_mock = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+  auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
+      quadrature::MomentCalculatorImpl::kZerothMomentOnly,
+      quadrature_set_mock);
+
+  ASSERT_NE(moment_calculator_ptr, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<quadrature::calculators::SphericalHarmonicZerothMoment<dim>*>(
+                moment_calculator_ptr.get()));
+}
+
+// MakeMomentCalculator should throw if quadrature set is null and an
+// implementation is requested that requires a quadrature set
+TYPED_TEST(QuadratureFactoriesIntegrationTest, MakeMomentCalculatorZerothBadSet) {
+  const int dim = this->dim;
+
+  EXPECT_ANY_THROW({
+    quadrature::factory::MakeMomentCalculator<dim>(
+        quadrature::MomentCalculatorImpl::kZerothMomentOnly, nullptr);
+                   });
+}
+
+
 
 
 } // namespace

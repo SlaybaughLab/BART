@@ -1,6 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 #define BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 
+#include "quadrature/quadrature_set_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/system_types.h"
 
@@ -18,13 +19,6 @@ class MPIGroupAngularSolutionI;
 
 namespace quadrature {
 
-namespace angular {
-
-template <int dim>
-class AngularQuadratureSetI;
-
-} // namespace angular
-
 namespace calculators {
 
 /*! \brief Interface for classes that calculate spherical harmonic moments.
@@ -41,16 +35,18 @@ namespace calculators {
  * \f]
  *
  * The angular quadrature is provided as a dependency to this class, which
- * provides the weights and angles for the calculation. The solutions \f$\psi\f$
+ * provides the weights and angles for the calculation. It is very important
+ * that the underlying angular quadrature actually integrates the spherical
+ * harmonics properly for this to work. The solutions \f$\psi\f$
  * are provided by a class derived from system::solution::MPIAngular, and must
  * have solutions at each angle \f$\hat{\Omega}\f$. This is ensured by solving
  * using collocation at each angle.
  *
+ * There is a derived class that does not have an underlying quadrature set and
+ * merely returns the mpi solution as a moment vector. This is intended to be
+ * used for scalar solves.
  *
- * @tparam dim angular dimension of the calculator, based on the angular
- *         dimension of the angular quadrature set.
  */
-template <int dim>
 class SphericalHarmonicMomentsI {
  public:
   virtual ~SphericalHarmonicMomentsI() = default;
@@ -60,8 +56,6 @@ class SphericalHarmonicMomentsI {
       system::GroupNumber group,
       system::moments::HarmonicL harmonic_l,
       system::moments::HarmonicL harmonic_m) const = 0;
-
-  virtual angular::AngularQuadratureSetI<dim>* angular_quadrature_set_ptr() const = 0;
 };
 
 } // namespace calculators

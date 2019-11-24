@@ -23,7 +23,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
-  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI<dim>;
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using SourceUpdater = iteration::updater::SourceUpdaterI;
   using Reporter = convergence::reporter::MpiI;
