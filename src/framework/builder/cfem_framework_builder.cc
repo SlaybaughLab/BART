@@ -96,9 +96,9 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   // Build reporter
   std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
-  // Scalar Quadrature
-  using MomentCalculator = quadrature::calculators::ScalarMoment;
-  auto moment_calculator_ptr = std::make_unique<MomentCalculator>();
+  // Moment calculator
+  auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
+      quadrature::MomentCalculatorImpl::kScalarMoment);
 
   // Solution group
   auto solution_ptr =
