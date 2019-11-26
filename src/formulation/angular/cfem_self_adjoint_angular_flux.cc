@@ -25,7 +25,20 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux Initialize, "
                                  "cell pointer is invalid."))
 
+  finite_element_ptr_->SetCell(cell_ptr);
 
+  for (int quad_index = 0; quad_index < cell_quadrature_points_; ++quad_index) {
+    formulation::FullMatrix shape_squared(cell_degrees_of_freedom_,
+                                          cell_degrees_of_freedom_);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+        shape_squared(i, j) =
+            finite_element_ptr_->ShapeValue(i, quad_index) *
+            finite_element_ptr_->ShapeValue(j, quad_index);
+      }
+    }
+    shaped_squared_.push_back(shape_squared);
+  }
 
   return InitializationToken();
 }

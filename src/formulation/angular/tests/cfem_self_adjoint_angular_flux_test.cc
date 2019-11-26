@@ -6,12 +6,15 @@
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
+#include "test_helpers/test_assertions.h"
 
 namespace  {
 
 using namespace bart;
 
-using ::testing::NiceMock, ::testing::Return;
+using ::testing::AssertionResult, ::testing::AssertionSuccess, ::testing::AssertionFailure;
+using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
+using ::testing::_;
 
 /* Tests for CFEM Self Adjoint Angular Flux formulation class. This class is
  * responsible for filling cell matrices for the SAAF angular formulation.
@@ -70,6 +73,14 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       .WillByDefault(Return(2));
   ON_CALL(*mock_finite_element_ptr_, n_face_quad_pts())
       .WillByDefault(Return(2));
+  // Set default return values for shape functions
+  for (int quad_pt_idx = 0; quad_pt_idx < 2; ++quad_pt_idx) {
+    for (int dof_idx = 0; dof_idx < 2; ++dof_idx) {
+      int entry = quad_pt_idx + 1 + 10*(dof_idx + 1);
+      ON_CALL(*mock_finite_element_ptr_, ShapeValue(dof_idx, quad_pt_idx))
+          .WillByDefault(Return(entry));
+    }
+  }
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -87,6 +98,32 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
 
 TYPED_TEST_CASE(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                 bart::testing::AllDimensions);
+
+// HELPER FUNCTIONS ============================================================
+AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
+                                const dealii::FullMatrix<double>& result,
+                                const double tol = 1e-6) {
+  unsigned int rows = expected.m();
+  unsigned int cols = expected.n();
+
+  if (result.m() != rows)
+    return AssertionFailure() << "Result has wrong number of rows: "
+                              << result.m() << ", expected" << rows;
+  if (result.n() != cols)
+    return AssertionFailure() << "Result has wrong number of columns: "
+                              << result.n() << ", expected" << cols;
+
+  for (unsigned int i = 0; i < rows; ++i) {
+    for (unsigned int j = 0; j < cols; ++j) {
+      if (abs(result(i, j) - expected(i, j)) > tol) {
+        return AssertionFailure() << "Entry (" << i << ", " << j <<
+                                  ") has value: " << result(i, j) <<
+                                  ", expected: " << expected(i, j);
+      }
+    }
+  }
+  return AssertionSuccess();
+}
 
 // TESTS =======================================================================
 
@@ -125,10 +162,37 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 }
 
 // FUNCTION TESTS: Initialize
-// Initialize should calculate the correct matrices
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest, InitializeValues) {
-  
-}
+// Initialize should calculate the correct matrices for shape squared
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    InitializeValuesShapeSquared) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  // Quadrature point shape-squared matrix expected values based on
+  // hand-calculating the values from shape(i,q) = q + 1 + 10*(i + 1)
+  formulation::FullMatrix expected_shape_squared_q_0{
+    2,2, std::array<double, 4>{121, 231, 231, 441}.begin()};
+  formulation::FullMatrix expected_shape_squared_q_1{
+      2,2, std::array<double, 4>{144, 264, 264, 484}.begin()};
+
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetCell(this->cell_ptr_))
+      .Times(1);
+  EXPECT_CALL(*this->mock_finite_element_ptr_, ShapeValue(_,_))
+      .Times(16)
+      .WillRepeatedly(DoDefault());
+
+  EXPECT_NO_THROW(test_saaf.Initialize(this->cell_ptr_));
+  auto shape_squared = test_saaf.shape_squared();
+  ASSERT_EQ(shape_squared.size(), 2);
+  EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_0, shape_squared.at(0)));
+  EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_1, shape_squared.at(1)));
+
+  // Successive calls should 
+};
 
 // Initialize should throw an error if cell_ptr is invalid
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
