@@ -5,6 +5,11 @@ namespace bart {
 
 namespace formulation {
 
+template <int dim>
+using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
+
+using Matrix = dealii::FullMatrix<double>;
+
 enum class BoundaryType {
   kVacuum = 0,
   kReflective = 1
