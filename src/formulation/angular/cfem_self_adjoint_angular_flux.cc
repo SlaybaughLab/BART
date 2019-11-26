@@ -18,6 +18,12 @@ CFEMSelfAdjointAngularFlux<dim>::CFEMSelfAdjointAngularFlux(
       cell_quadrature_points_(finite_element_ptr->n_cell_quad_pts()),
       face_quadrature_points_(finite_element_ptr->n_face_quad_pts()) {}
 
+template<int dim>
+auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
+    const formulation::CellPtr<dim> &cell_ptr) -> InitializationToken {
+  return InitializationToken();
+}
+
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;
 template class CFEMSelfAdjointAngularFlux<3>;

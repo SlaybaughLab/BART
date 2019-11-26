@@ -48,6 +48,8 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
   void SetUp() override;
 };
 
+// SETUP =======================================================================
+
 /* SetUp initial test conditions.
  *
  * 1. Set default values for all mock objects.
@@ -86,6 +88,10 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
 TYPED_TEST_CASE(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                 bart::testing::AllDimensions);
 
+// TESTS =======================================================================
+
+// CONSTRUCTOR AND CONST ACCESSORS
+
 // Constructor should query appropriate values from finite element object
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest, Constructor) {
   constexpr int dim = this->dim;
@@ -117,6 +123,27 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   EXPECT_EQ(test_saaf.cross_sections_ptr(), this->cross_section_ptr_.get());
   EXPECT_EQ(test_saaf.quadrature_set_ptr(), this->mock_quadrature_set_ptr_.get());
 }
+
+// FUNCTION TESTS: Initialize
+// Initialize should calculate the correct matrices
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest, InitializeValues) {
+
+}
+
+// Initialize should throw an error if cell_ptr is invalid
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    InitializeBadCellPtr) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::CellPtr<dim> invalid_cell_ptr;
+  EXPECT_ANY_THROW(test_saaf.Initialize(invalid_cell_ptr));
+}
+
 
 
 } // namespace
