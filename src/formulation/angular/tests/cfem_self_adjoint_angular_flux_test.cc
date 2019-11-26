@@ -127,7 +127,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 // FUNCTION TESTS: Initialize
 // Initialize should calculate the correct matrices
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest, InitializeValues) {
-
+  
 }
 
 // Initialize should throw an error if cell_ptr is invalid

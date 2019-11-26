@@ -21,6 +21,12 @@ CFEMSelfAdjointAngularFlux<dim>::CFEMSelfAdjointAngularFlux(
 template<int dim>
 auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
     const formulation::CellPtr<dim> &cell_ptr) -> InitializationToken {
+  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
+              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux Initialize, "
+                                 "cell pointer is invalid."))
+
+
+
   return InitializationToken();
 }
 
