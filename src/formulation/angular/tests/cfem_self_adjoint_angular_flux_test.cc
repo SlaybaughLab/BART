@@ -187,11 +187,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
   EXPECT_NO_THROW(test_saaf.Initialize(this->cell_ptr_));
   auto shape_squared = test_saaf.shape_squared();
+
   ASSERT_EQ(shape_squared.size(), 2);
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_0, shape_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_1, shape_squared.at(1)));
-
-  // Successive calls should 
 };
 
 // Initialize should throw an error if cell_ptr is invalid

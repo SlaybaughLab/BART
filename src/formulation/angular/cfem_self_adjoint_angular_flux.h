@@ -35,7 +35,7 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   quadrature::QuadratureSetI<dim>* quadrature_set_ptr() const {
     return quadrature_set_ptr_.get(); }
   std::vector<FullMatrix> shape_squared() const {
-    return shaped_squared_; }
+    return shape_squared_; }
 
  protected:
   // Dependencies
@@ -47,7 +47,7 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   const int cell_quadrature_points_ = 0; //!< Quadrature points per cell
   const int face_quadrature_points_ = 0; //!< Quadrature points per face
   // Precalculated matrices
-  std::vector<FullMatrix> shaped_squared_ = {};
+  std::vector<FullMatrix> shape_squared_ = {};
 };
 
 } // namespace angular
