@@ -1,9 +1,13 @@
 #include "formulation/angular/cfem_self_adjoint_angular_flux.h"
 
+#include <deal.II/base/tensor.h>
+
 #include "data/cross_sections.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/utility/quadrature_utilities.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_assertions.h"
@@ -45,6 +49,10 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
   std::shared_ptr<data::CrossSections> cross_section_ptr_;
   NiceMock<MaterialType> mock_material_;
 
+  // Other test objects
+  std::set<std::shared_ptr<quadrature::QuadraturePointI<dim>>,
+           quadrature::utility::quadrature_point_compare<dim>> quadrature_set_;
+
   // Test parameters
   const int material_id_ = 1;
 
@@ -79,7 +87,28 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       int entry = quad_pt_idx + 1 + 10*(dof_idx + 1);
       ON_CALL(*mock_finite_element_ptr_, ShapeValue(dof_idx, quad_pt_idx))
           .WillByDefault(Return(entry));
+      dealii::Tensor<1, dim> gradient_entry;
+      for (int i = 0; i < dim; ++i)
+        gradient_entry[i] = (entry);
+      ON_CALL(*mock_finite_element_ptr_, ShapeGradient(dof_idx, quad_pt_idx))
+          .WillByDefault(Return(gradient_entry));
     }
+  }
+
+  // Set up mock quadrature points for quadrature set
+  for (int n_angle = 0; n_angle < 2; ++n_angle) {
+    auto new_quadrature_point =
+        std::make_shared<NiceMock<quadrature::QuadraturePointMock<dim>>>();
+    std::array<double, dim> position;
+    position.fill(n_angle + 1);
+    dealii::Tensor<1, dim> tensor_position;
+    for (int i = 0; i < dim; ++i)
+      tensor_position[i] = (n_angle + 1);
+    ON_CALL(*new_quadrature_point, cartesian_position())
+        .WillByDefault(Return(position));
+    ON_CALL(*new_quadrature_point, cartesian_position_tensor())
+        .WillByDefault(Return(tensor_position));
+    quadrature_set_.insert(new_quadrature_point);
   }
 
   // Instantiate cross-section object
@@ -191,7 +220,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   ASSERT_EQ(shape_squared.size(), 2);
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_0, shape_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_1, shape_squared.at(1)));
-};
+}
 
 // Initialize should throw an error if cell_ptr is invalid
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
