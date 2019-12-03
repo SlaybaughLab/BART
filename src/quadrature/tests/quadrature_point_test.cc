@@ -75,7 +75,7 @@ TYPED_TEST(QuadraturePointTest, Setters) {
 }
 
 // Cartesian position should properly return the ordinate position.
-TYPED_TEST(QuadraturePointTest, CartesianPosition) {
+TYPED_TEST(QuadraturePointTest, CartesianPositionAndTensor) {
   constexpr int dim = this->dim;
 
   quadrature::QuadraturePoint<dim> test_point;
@@ -90,7 +90,18 @@ TYPED_TEST(QuadraturePointTest, CartesianPosition) {
   EXPECT_CALL(*mock_ptr, cartesian_position())
       .WillOnce(::testing::Return(position));
 
+  dealii::Tensor<1, dim> tensor_position;
+  for (int i = 0; i < dim; ++i)
+    tensor_position[i] = 1;
+
+  EXPECT_CALL(*mock_ptr, cartesian_position_tensor())
+      .WillOnce(::testing::Return(tensor_position));
+
   EXPECT_EQ(position, test_point.cartesian_position());
+  auto tensor = test_point.cartesian_position_tensor();
+
+  for (int i = 0; i < dim; ++i)
+    EXPECT_EQ(tensor[i], 1);
 }
 
 } // namespace

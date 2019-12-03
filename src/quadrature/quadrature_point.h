@@ -33,6 +33,8 @@ class QuadraturePoint : public QuadraturePointI<dim> {
   double weight() const override { return weight_; }
   std::array<double, dim> cartesian_position() const override {
     return ordinate_->cartesian_position(); }
+  dealii::Tensor<1, dim> cartesian_position_tensor() const override {
+    return ordinate_->cartesian_position_tensor(); }
  private:
   std::shared_ptr<OrdinateI<dim>> ordinate_ = nullptr;
   double weight_ = 0;

@@ -51,6 +51,11 @@ class QuadraturePointI {
    * @return array containing the cartesian position.
    */
   virtual std::array<double, dim> cartesian_position() const = 0;
+
+  /*! \brief Get the cartesian position of the underlying ordinate as a tensor.
+   * @return dealii tensor containing the caretisan position.
+   */
+   virtual dealii::Tensor<1, dim> cartesian_position_tensor() const = 0;
 };
 
 } // namespace quadrature
