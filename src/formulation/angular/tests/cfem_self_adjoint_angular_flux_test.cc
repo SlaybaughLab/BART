@@ -52,6 +52,7 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
   // Other test objects
   std::set<std::shared_ptr<quadrature::QuadraturePointI<dim>>,
            quadrature::utility::quadrature_point_compare<dim>> quadrature_set_;
+  std::set<int> quadrature_point_indices_ = {};
 
   // Test parameters
   const int material_id_ = 1;
@@ -108,8 +109,15 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
         .WillByDefault(Return(position));
     ON_CALL(*new_quadrature_point, cartesian_position_tensor())
         .WillByDefault(Return(tensor_position));
+    ON_CALL(*mock_quadrature_set_ptr_,
+        GetQuadraturePoint(quadrature::QuadraturePointIndex(n_angle)))
+        .WillByDefault(Return(new_quadrature_point));
     quadrature_set_.insert(new_quadrature_point);
+    quadrature_point_indices_.insert(n_angle);
   }
+
+  ON_CALL(*mock_quadrature_set_ptr_, quadrature_point_indices())
+      .WillByDefault(Return(quadrature_point_indices_));
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -221,6 +229,23 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_0, shape_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_1, shape_squared.at(1)));
 }
+
+// Initialize should calculate the correct matrices for Omega dot gradient vectors
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    InitializeOmegaDotGradient) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  /* Expected values: For each quadrature point (with a given omega) there should
+   * be two entries, a value for each degree of freedom. We will use a pair that
+   * denotes {quadrature point, omega} to keep them straight */
+
+}
+
 
 // Initialize should throw an error if cell_ptr is invalid
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
