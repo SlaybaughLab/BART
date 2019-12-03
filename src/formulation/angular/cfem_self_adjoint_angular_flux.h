@@ -29,7 +29,11 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   std::vector<double> OmegaDotGradient(
       int cell_quadrature_point,
       quadrature::QuadraturePointIndex angular_index) const {
-    return omega_dot_gradient_.at({cell_quadrature_point, angular_index.get()});
+    std::vector<double> return_vector(cell_degrees_of_freedom_);
+    std::pair<int, int> index{cell_quadrature_point, angular_index.get()};
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i)
+      return_vector.at(i) = omega_dot_gradient_.at(index)[i];
+    return return_vector;
   }
 
   FullMatrix OmegaDotGradientSquared(
@@ -63,7 +67,7 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   using CellQuadratureIndex = int;
   using AngleIndex = int;
   std::map<std::pair<CellQuadratureIndex, AngleIndex>,
-           std::vector<double>> omega_dot_gradient_;
+           dealii::Vector<double>> omega_dot_gradient_;
   std::map<std::pair<CellQuadratureIndex, AngleIndex>,
            FullMatrix> omega_dot_gradient_squared_;
   std::map<CellQuadratureIndex, FullMatrix> shape_squared_ = {};
