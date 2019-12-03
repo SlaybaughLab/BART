@@ -27,18 +27,37 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
 
   finite_element_ptr_->SetCell(cell_ptr);
   shape_squared_ = {};
+  omega_dot_gradient_ = {};
 
-  for (int quad_index = 0; quad_index < cell_quadrature_points_; ++quad_index) {
+
+  for (int cell_quad_index = 0; cell_quad_index < cell_quadrature_points_;
+       ++cell_quad_index) {
     formulation::FullMatrix shape_squared(cell_degrees_of_freedom_,
                                           cell_degrees_of_freedom_);
     for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
       for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
         shape_squared(i, j) =
-            finite_element_ptr_->ShapeValue(i, quad_index) *
-            finite_element_ptr_->ShapeValue(j, quad_index);
+            finite_element_ptr_->ShapeValue(i, cell_quad_index) *
+            finite_element_ptr_->ShapeValue(j, cell_quad_index);
       }
     }
-    shape_squared_.insert_or_assign(quad_index, shape_squared);
+    shape_squared_.insert_or_assign(cell_quad_index, shape_squared);
+
+    std::map<int, std::vector<double>> omega_dot_gradient_map;
+
+    for (int angle_index : quadrature_set_ptr_->quadrature_point_indices()) {
+      std::vector<double> omega_dot_gradient(cell_degrees_of_freedom_);
+      auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(
+          quadrature::QuadraturePointIndex(angle_index));
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        omega_dot_gradient.at(i) =
+            quadrature_point_ptr->cartesian_position_tensor() *
+            finite_element_ptr_->ShapeGradient(i, cell_quad_index);
+      }
+      omega_dot_gradient_map.insert_or_assign(angle_index, omega_dot_gradient);
+    }
+
+    omega_dot_gradient_.insert_or_assign(cell_quad_index, omega_dot_gradient_map);
   }
 
   return InitializationToken();

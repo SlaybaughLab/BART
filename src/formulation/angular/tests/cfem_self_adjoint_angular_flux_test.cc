@@ -273,17 +273,17 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     for (int dof_idx = 0; dof_idx < 2; ++dof_idx) {
       EXPECT_CALL(*this->mock_finite_element_ptr_,
           ShapeGradient(quad_pt_idx, dof_idx))
-          .WillOnce(DoDefault());
+          .Times(2)
+          .WillRepeatedly(DoDefault());
     }
   }
 
   /* Expected values: For each quadrature point (with a given omega) there should
-   * be two entries, a value for each degree of freedom. We will use a pair that
-   * denotes {quadrature point, omega} to keep them straight */
+   * be two entries, a value for each degree of freedom. */
 
   std::map<int, std::map<int, std::vector<double>>> omega_dot_gradient{
-      {0, {{0, {22, 42}}, {1, {44, 84}}}},
-      {1, {{0, {24, 44}}, {1, {48, 88}}}}
+      {0, {{0, {11*dim, 21*dim}}, {1, {22*dim, 42*dim}}}},
+      {1, {{0, {12*dim, 22*dim}}, {1, {24*dim, 44*dim}}}}
   };
 
   EXPECT_NO_THROW(test_saaf.Initialize(this->cell_ptr_));
