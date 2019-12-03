@@ -44,21 +44,37 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
     shape_squared_.insert_or_assign(cell_quad_index, shape_squared);
 
     std::map<int, std::vector<double>> omega_dot_gradient_map;
+    std::map<int, FullMatrix> omega_dot_gradient_squared_map;
 
     for (int angle_index : quadrature_set_ptr_->quadrature_point_indices()) {
-      std::vector<double> omega_dot_gradient(cell_degrees_of_freedom_);
+      std::vector<double> angle_omega_dot_gradient(cell_degrees_of_freedom_);
+      dealii::Vector<double> angle_omega_dot_gradient_vector(
+          cell_degrees_of_freedom_);
+
       auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(
           quadrature::QuadraturePointIndex(angle_index));
       for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-        omega_dot_gradient.at(i) =
-            quadrature_point_ptr->cartesian_position_tensor() *
+        double entry_value = quadrature_point_ptr->cartesian_position_tensor() *
             finite_element_ptr_->ShapeGradient(i, cell_quad_index);
+        angle_omega_dot_gradient.at(i) = entry_value;
+        angle_omega_dot_gradient_vector[i] = entry_value;
       }
-      omega_dot_gradient_map.insert_or_assign(angle_index, omega_dot_gradient);
+      omega_dot_gradient_map.insert_or_assign(angle_index,
+                                              angle_omega_dot_gradient);
+      FullMatrix omega_dot_gradient_squared(cell_degrees_of_freedom_,
+                                            cell_degrees_of_freedom_);
+      omega_dot_gradient_squared.outer_product(angle_omega_dot_gradient_vector,
+                                               angle_omega_dot_gradient_vector);
+      omega_dot_gradient_squared_map.insert_or_assign(angle_index,
+                                                      omega_dot_gradient_squared);
     }
 
-    omega_dot_gradient_.insert_or_assign(cell_quad_index, omega_dot_gradient_map);
+    omega_dot_gradient_.insert_or_assign(cell_quad_index,
+                                         omega_dot_gradient_map);
+    omega_dot_gradient_squared_.insert_or_assign(cell_quad_index,
+                                                 omega_dot_gradient_squared_map);
   }
+
 
   return InitializationToken();
 }

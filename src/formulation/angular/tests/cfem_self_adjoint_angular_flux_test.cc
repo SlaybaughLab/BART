@@ -301,6 +301,51 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     }
   }
 }
+/* Initialize should generate the correct squares of the omega dot gradient
+ * vectors. Returned as a matrix with entries corresponding to cell quadrature
+ * points (i,j) */
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    InitializeOmegaDotGradientSquared) {
+  constexpr int dim = this->dim;
+
+  double dim_sq = dim*dim;
+  formulation::FullMatrix odgs_00{
+      2,2, std::array<double, 4>{121, 231, 231, 441}.begin()};
+  odgs_00 *= dim_sq;
+  formulation::FullMatrix odgs_01{
+      2,2, std::array<double, 4>{484, 924, 924, 1764}.begin()};
+  odgs_01 *= dim_sq;
+  formulation::FullMatrix odgs_10{
+      2,2, std::array<double, 4>{144, 264, 264, 484}.begin()};
+  odgs_10 *= dim_sq;
+  formulation::FullMatrix odgs_11{
+      2,2, std::array<double, 4>{576, 1056, 1056, 1936}.begin()};
+  odgs_11 *= dim_sq;
+  std::map<int, std::map<int, formulation::FullMatrix>>
+      omega_dot_gradient_squared = {
+      {0, {{0, odgs_00}, {1, odgs_01}}},
+      {1, {{0, odgs_10}, {1, odgs_11}}}
+      };
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+  test_saaf.Initialize(this->cell_ptr_);
+
+  for (int cell_quad_point = 0; cell_quad_point < 2; ++cell_quad_point) {
+    for (int angle_index : this->quadrature_point_indices_) {
+      formulation::FullMatrix result;
+      ASSERT_NO_THROW(result =
+                          test_saaf.OmegaDotGradientSquared(
+                              cell_quad_point,
+                              quadrature::QuadraturePointIndex(angle_index)));
+      EXPECT_TRUE(CompareMatrices(
+          omega_dot_gradient_squared.at(cell_quad_point).at(angle_index),
+          result));
+    }
+  }
+}
 
 
 // Initialize should throw an error if cell_ptr is invalid
