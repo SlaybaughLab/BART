@@ -69,12 +69,10 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
                                             cell_degrees_of_freedom_);
       omega_dot_gradient_squared.outer_product(angle_omega_dot_gradient_vector,
                                                angle_omega_dot_gradient_vector);
-      omega_dot_gradient_squared_map.insert_or_assign(angle_index,
-                                                      omega_dot_gradient_squared);
+      omega_dot_gradient_squared_.insert_or_assign(
+          {cell_quad_index, angle_index},
+          omega_dot_gradient_squared);
     }
-
-    omega_dot_gradient_squared_.insert_or_assign(cell_quad_index,
-                                                 omega_dot_gradient_squared_map);
   }
 
 
