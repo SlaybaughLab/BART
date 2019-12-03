@@ -303,7 +303,8 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 }
 /* Initialize should generate the correct squares of the omega dot gradient
  * vectors. Returned as a matrix with entries corresponding to cell quadrature
- * points (i,j) */
+ * points (i,j). No extra expectations are required, these are covered by
+ * the above test. */
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     InitializeOmegaDotGradientSquared) {
   constexpr int dim = this->dim;

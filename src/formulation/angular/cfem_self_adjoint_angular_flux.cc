@@ -29,7 +29,8 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
   shape_squared_ = {};
   omega_dot_gradient_ = {};
 
-
+  /* Precalculated values are held in maps that are indexed by the cell
+   * quadrature point where they are valid */
   for (int cell_quad_index = 0; cell_quad_index < cell_quadrature_points_;
        ++cell_quad_index) {
     formulation::FullMatrix shape_squared(cell_degrees_of_freedom_,
@@ -43,7 +44,8 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
     }
     shape_squared_.insert_or_assign(cell_quad_index, shape_squared);
 
-    std::map<int, std::vector<double>> omega_dot_gradient_map;
+    /* Each cell quadrature point has a further mapping based on the angular
+     * quadrature point. */
     std::map<int, FullMatrix> omega_dot_gradient_squared_map;
 
     for (int angle_index : quadrature_set_ptr_->quadrature_point_indices()) {
@@ -59,8 +61,10 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
         angle_omega_dot_gradient.at(i) = entry_value;
         angle_omega_dot_gradient_vector[i] = entry_value;
       }
-      omega_dot_gradient_map.insert_or_assign(angle_index,
-                                              angle_omega_dot_gradient);
+
+      omega_dot_gradient_.insert_or_assign({cell_quad_index, angle_index},
+                                           angle_omega_dot_gradient);
+
       FullMatrix omega_dot_gradient_squared(cell_degrees_of_freedom_,
                                             cell_degrees_of_freedom_);
       omega_dot_gradient_squared.outer_product(angle_omega_dot_gradient_vector,
@@ -69,8 +73,6 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
                                                       omega_dot_gradient_squared);
     }
 
-    omega_dot_gradient_.insert_or_assign(cell_quad_index,
-                                         omega_dot_gradient_map);
     omega_dot_gradient_squared_.insert_or_assign(cell_quad_index,
                                                  omega_dot_gradient_squared_map);
   }
