@@ -118,6 +118,10 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
 
   ON_CALL(*mock_quadrature_set_ptr_, quadrature_point_indices())
       .WillByDefault(Return(quadrature_point_indices_));
+  ON_CALL(*mock_quadrature_set_ptr_, begin())
+      .WillByDefault(Return(quadrature_set_.begin()));
+  ON_CALL(*mock_quadrature_set_ptr_, end())
+      .WillByDefault(Return(quadrature_set_.end()));
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -240,10 +244,62 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
 
+  /* Procedure should be: get all the quadrature point indices, retrieve each
+   * quadrature point using indices, get the position tensor and multiply by
+   * the gradient shape. This should be repeated for each degree of freedom
+   * (i.e. twice). */
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetCell(this->cell_ptr_))
+      .Times(1);
+  EXPECT_CALL(*this->mock_quadrature_set_ptr_, quadrature_point_indices())
+      .Times(::testing::AtLeast(1))
+      .WillRepeatedly(DoDefault());
+
+  for (int index : this->quadrature_point_indices_) {
+    EXPECT_CALL(*this->mock_quadrature_set_ptr_,
+                GetQuadraturePoint(quadrature::QuadraturePointIndex(index)))
+        .Times(2)
+        .WillRepeatedly(DoDefault());
+  }
+
+  for (auto quadrature_point_ptr : this->quadrature_set_) {
+    auto mock_quadrature_point_ptr =
+        dynamic_cast<quadrature::QuadraturePointMock<dim>*>(quadrature_point_ptr.get());
+    EXPECT_CALL(*mock_quadrature_point_ptr, cartesian_position_tensor())
+        .Times(4)
+        .WillRepeatedly(DoDefault());
+  }
+
+  for (int quad_pt_idx = 0; quad_pt_idx < 2; ++quad_pt_idx) {
+    for (int dof_idx = 0; dof_idx < 2; ++dof_idx) {
+      EXPECT_CALL(*this->mock_finite_element_ptr_,
+          ShapeGradient(quad_pt_idx, dof_idx))
+          .WillOnce(DoDefault());
+    }
+  }
+
   /* Expected values: For each quadrature point (with a given omega) there should
    * be two entries, a value for each degree of freedom. We will use a pair that
    * denotes {quadrature point, omega} to keep them straight */
 
+  std::map<int, std::map<int, std::vector<double>>> omega_dot_gradient{
+      {0, {{0, {22, 42}}, {1, {44, 84}}}},
+      {1, {{0, {24, 44}}, {1, {48, 88}}}}
+  };
+
+  EXPECT_NO_THROW(test_saaf.Initialize(this->cell_ptr_));
+
+  for (int cell_quad_point = 0; cell_quad_point < 2; ++cell_quad_point) {
+    for (int angle_index : this->quadrature_point_indices_) {
+      std::vector<double> result;
+      EXPECT_NO_THROW(result =
+          test_saaf.OmegaDotGradient(
+              cell_quad_point,
+              quadrature::QuadraturePointIndex(angle_index)));
+      EXPECT_THAT(result,
+                  ::testing::ContainerEq(
+                      omega_dot_gradient.at(cell_quad_point).at(angle_index)));
+    }
+  }
 }
 
 
