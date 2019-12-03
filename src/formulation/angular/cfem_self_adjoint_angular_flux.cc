@@ -38,7 +38,7 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
             finite_element_ptr_->ShapeValue(j, quad_index);
       }
     }
-    shape_squared_.push_back(shape_squared);
+    shape_squared_.insert_or_assign(quad_index, shape_squared);
   }
 
   return InitializationToken();
