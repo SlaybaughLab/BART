@@ -90,6 +90,15 @@ FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
   return omega_dot_gradient_squared_.at(
       {cell_quadrature_point, angular_index.get()});
 }
+template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
+    FullMatrix &to_fill,
+    const InitializationToken init_token,
+    const CellPtr<dim> &cell_ptr,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number) const {
+
+}
 
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;
