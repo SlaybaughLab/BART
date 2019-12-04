@@ -301,6 +301,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     }
   }
 }
+
 /* Initialize should generate the correct squares of the omega dot gradient
  * vectors. Returned as a matrix with entries corresponding to cell quadrature
  * points (i,j). No extra expectations are required, these are covered by
@@ -347,7 +348,6 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     }
   }
 }
-
 
 // Initialize should throw an error if cell_ptr is invalid
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,

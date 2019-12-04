@@ -72,6 +72,25 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
   return InitializationToken();
 }
 
+template <int dim>
+std::vector<double> CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradient(
+    int cell_quadrature_point,
+    quadrature::QuadraturePointIndex angular_index) const {
+  std::vector<double> return_vector(cell_degrees_of_freedom_);
+  std::pair<int, int> index{cell_quadrature_point, angular_index.get()};
+  for (int i = 0; i < cell_degrees_of_freedom_; ++i)
+    return_vector.at(i) = omega_dot_gradient_.at(index)[i];
+  return return_vector;
+}
+
+template <int dim>
+FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
+    int cell_quadrature_point,
+    quadrature::QuadraturePointIndex angular_index) const {
+  return omega_dot_gradient_squared_.at(
+      {cell_quadrature_point, angular_index.get()});
+}
+
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;
 template class CFEMSelfAdjointAngularFlux<3>;
