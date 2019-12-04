@@ -8,6 +8,7 @@
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "quadrature/utility/quadrature_utilities.h"
+#include "system/system_types.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_assertions.h"
@@ -82,8 +83,10 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       .WillByDefault(Return(2));
   ON_CALL(*mock_finite_element_ptr_, n_face_quad_pts())
       .WillByDefault(Return(2));
-  // Set default return values for shape functions
+  // Set default return values for shape functions and Jacobian
   for (int quad_pt_idx = 0; quad_pt_idx < 2; ++quad_pt_idx) {
+    ON_CALL(*mock_finite_element_ptr_, Jacobian(quad_pt_idx))
+        .WillByDefault(Return(3*(quad_pt_idx + 1)));
     for (int dof_idx = 0; dof_idx < 2; ++dof_idx) {
       int entry = quad_pt_idx + 1 + 10*(dof_idx + 1);
       ON_CALL(*mock_finite_element_ptr_, ShapeValue(dof_idx, quad_pt_idx))
@@ -112,8 +115,13 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
     ON_CALL(*mock_quadrature_set_ptr_,
         GetQuadraturePoint(quadrature::QuadraturePointIndex(n_angle)))
         .WillByDefault(Return(new_quadrature_point));
-    quadrature_set_.insert(new_quadrature_point);
+
+    auto return_pair = quadrature_set_.insert(new_quadrature_point);
     quadrature_point_indices_.insert(n_angle);
+
+    ON_CALL(*mock_quadrature_set_ptr_,
+            GetQuadraturePointIndex(*return_pair.first))
+        .WillByDefault(Return(n_angle));
   }
 
   ON_CALL(*mock_quadrature_set_ptr_, quadrature_point_indices())
@@ -122,6 +130,11 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       .WillByDefault(Return(quadrature_set_.begin()));
   ON_CALL(*mock_quadrature_set_ptr_, end())
       .WillByDefault(Return(quadrature_set_.end()));
+
+  std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}};
+  // Set up cross-sections
+  ON_CALL(mock_material_, GetSigT())
+      .WillByDefault(Return(sigma_t));
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -203,6 +216,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 }
 
 // FUNCTION TESTS: Initialize
+
 // Initialize should calculate the correct matrices for shape squared
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     InitializeValuesShapeSquared) {
@@ -363,6 +377,70 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   EXPECT_ANY_THROW(test_saaf.Initialize(invalid_cell_ptr));
 }
 
+// FUNCTION TESTS:
+
+// Fill StreamingTerm
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    FillCellStreamingTermTestBadCellPtr) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix cell_matrix(2,2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  formulation::CellPtr<dim> invalid_cell_ptr;
+
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellStreamingTerm(cell_matrix,
+                                    token,
+                                    invalid_cell_ptr,
+                                    angle_ptr,
+                                    system::EnergyGroup(0));
+  });
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellStreamingTermTestBadMatrixSize) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix bad_cell_matrix(3,2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  EXPECT_ANY_THROW({
+                     test_saaf.FillCellStreamingTerm(bad_cell_matrix,
+                                                     token,
+                                                     this->cell_ptr_,
+                                                     angle_ptr,
+                                                     system::EnergyGroup(0));
+                   });
+
+  formulation::FullMatrix second_bad_cell_matrix(2,3);
+  EXPECT_ANY_THROW({
+                     test_saaf.FillCellStreamingTerm(second_bad_cell_matrix,
+                                                     token,
+                                                     this->cell_ptr_,
+                                                     angle_ptr,
+                                                     system::EnergyGroup(0));
+                   });
+}
+
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    FillCellStreamingTermTest) {
+  constexpr int dim = this->dim;
+}
 
 
 } // namespace

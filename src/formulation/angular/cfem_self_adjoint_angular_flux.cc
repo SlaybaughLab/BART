@@ -72,6 +72,24 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
   return InitializationToken();
 }
 
+template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
+    FullMatrix &to_fill,
+    const InitializationToken init_token,
+    const CellPtr<dim> &cell_ptr,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number) const {
+  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
+              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
+                                 "FillCellStreamingTerm, cell pointer is "
+                                 "invalid."))
+  AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
+      (to_fill.n_rows() == cell_degrees_of_freedom_),
+              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
+                                 "FillCellStreamingTerm, matrix to fill has "
+                                 "wrong size."))
+}
+
 template <int dim>
 std::vector<double> CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradient(
     int cell_quadrature_point,
@@ -89,15 +107,6 @@ FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
     quadrature::QuadraturePointIndex angular_index) const {
   return omega_dot_gradient_squared_.at(
       {cell_quadrature_point, angular_index.get()});
-}
-template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
-    FullMatrix &to_fill,
-    const InitializationToken init_token,
-    const CellPtr<dim> &cell_ptr,
-    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-    const system::EnergyGroup group_number) const {
-
 }
 
 template class CFEMSelfAdjointAngularFlux<1>;
