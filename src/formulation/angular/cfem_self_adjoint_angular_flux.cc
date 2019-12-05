@@ -73,9 +73,18 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
+void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
     const InitializationToken init_token,
+    const CellPtr<dim> &cell_ptr,
+    const system::EnergyGroup group_number) const {
+
+}
+
+template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
+    FullMatrix &to_fill,
+    const InitializationToken,
     const CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) const {

@@ -21,11 +21,38 @@ class CFEMSelfAdjointAngularFluxI {
 
   virtual ~CFEMSelfAdjointAngularFluxI() = default;
 
+  /*!
+   * \brief Integrates the bilinear collision term and fills a given matrix.
+   *
+   * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+   * \f$\varphi\f$, this function integrates the bilinear SAAF collision terms
+   * for one group using the cell quadrature and adds them to the local cell
+   * matrix.
+   * \f[
+   * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
+   * \int_{K}\sigma_{t,g}(\vec{r})\varphi_i(\vec{r})
+   * \varphi_j(\vec{r}) dV
+   * \f]
+   *
+   * where \f$\psi\f$ is the angular flux.
+   *
+   * @param to_fill cell matrix to fill.
+   * @param init_token initialization token return by Initialize
+   * @param cell_ptr pointer to the cell
+   * @param group_number energy group to fill
+   * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.
+   */
+  virtual void FillCellCollisionTerm(
+      FullMatrix& to_fill,
+      const InitializationToken init_token,
+      const CellPtr<dim>& cell_ptr,
+      const system::EnergyGroup group_number) const = 0;
+
   /*! \brief Integrates the bilinear streaming term and fills a given matrix.
    *
    * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
-   * \f$\varphi\f$, this function integrates bilinear SAAF streaming term for
-   * one group using the cell quadrature adds them to the provided
+   * \f$\varphi\f$, this function integrates the bilinear SAAF streaming term for
+   * one group using the cell quadrature and adds them to the provided
    * local cell matrix, \f$\mathbf{A}\f$:
    * \f[
    * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
@@ -41,6 +68,7 @@ class CFEMSelfAdjointAngularFluxI {
    * @param cell_ptr pointer to the cell
    * @param quadrature_point quadrature angle to provide \f$\Omega\f$
    * @param group_number energy group to fill
+   * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.
    */
   virtual void FillCellStreamingTerm(
       FullMatrix& to_fill,
