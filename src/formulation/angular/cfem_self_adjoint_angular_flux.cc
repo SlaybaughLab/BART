@@ -75,10 +75,32 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
 template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
-    const InitializationToken init_token,
+    const InitializationToken,
     const CellPtr<dim> &cell_ptr,
     const system::EnergyGroup group_number) const {
+  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
+              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
+                                 "FillCellStreamingTerm, cell pointer is "
+                                 "invalid."))
+  AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
+      (to_fill.n_rows() == cell_degrees_of_freedom_),
+              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
+                                 "FillCellStreamingTerm, matrix to fill has "
+                                 "wrong size."))
+  finite_element_ptr_->SetCell(cell_ptr);
+  const int material_id = cell_ptr->material_id();
+  const double sigma_t =
+      cross_sections_ptr_->sigma_t.at(material_id).at(group_number.get());
 
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double jacobian = finite_element_ptr_->Jacobian(q);
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+        to_fill(i, j) += sigma_t * finite_element_ptr_->ShapeValue(i, q) *
+            finite_element_ptr_->ShapeValue(j, q) * jacobian;
+      }
+    }
+  }
 }
 
 template<int dim>
