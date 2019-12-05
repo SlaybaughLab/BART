@@ -88,6 +88,24 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
                                  "FillCellStreamingTerm, matrix to fill has "
                                  "wrong size."))
+  finite_element_ptr_->SetCell(cell_ptr);
+  const int material_id = cell_ptr->material_id();
+  const double inverse_sigma_t =
+      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
+  const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
+      quadrature_point);
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double jacobian = finite_element_ptr_->Jacobian(q);
+    const FullMatrix omega_dot_gradient_squared = OmegaDotGradientSquared(
+        q, quadrature::QuadraturePointIndex(angle_index));
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+        to_fill(i, j) +=
+            inverse_sigma_t * omega_dot_gradient_squared(i,j) * jacobian;
+      }
+    }
+  }
 }
 
 template <int dim>
