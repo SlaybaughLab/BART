@@ -46,7 +46,7 @@ class CFEMSelfAdjointAngularFluxI {
       FullMatrix& to_fill,
       const InitializationToken init_token,
       const CellPtr<dim>& cell_ptr,
-      const system::EnergyGroup group_number) const = 0;
+      const system::EnergyGroup group_number) = 0;
 
   /*! \brief Integrates the bilinear streaming term and fills a given matrix.
    *
@@ -75,7 +75,7 @@ class CFEMSelfAdjointAngularFluxI {
       const InitializationToken init_token,
       const CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-      const system::EnergyGroup group_number) const = 0;
+      const system::EnergyGroup group_number) = 0;
 
   /*! \brief Initialize the formulation.
    * In general, this will pre-calculate matrix terms. The cell pointer is only

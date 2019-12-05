@@ -31,14 +31,14 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
       FullMatrix &to_fill,
       const InitializationToken init_token,
       const CellPtr<dim> &cell_ptr,
-      const system::EnergyGroup group_number) const override;
+      const system::EnergyGroup group_number) override;
 
   void FillCellStreamingTerm(
       FullMatrix &to_fill,
       const InitializationToken init_token,
       const CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-      const system::EnergyGroup group_number) const override;
+      const system::EnergyGroup group_number) override;
 
 
   // Getters for pre-calculated values

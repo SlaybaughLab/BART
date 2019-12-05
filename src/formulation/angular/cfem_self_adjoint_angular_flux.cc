@@ -77,7 +77,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
     const InitializationToken,
     const CellPtr<dim> &cell_ptr,
-    const system::EnergyGroup group_number) const {
+    const system::EnergyGroup group_number) {
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
                                  "FillCellStreamingTerm, cell pointer is "
@@ -109,11 +109,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     const InitializationToken,
     const CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-    const system::EnergyGroup group_number) const {
-  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
-              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
-                                 "FillCellStreamingTerm, cell pointer is "
-                                 "invalid."))
+    const system::EnergyGroup group_number) {
   AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
       (to_fill.n_rows() == cell_degrees_of_freedom_),
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
