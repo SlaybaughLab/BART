@@ -57,6 +57,9 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
 
   // Test parameters
   const int material_id_ = 1;
+  // Cross-sections
+  const std::unordered_map<int, std::vector<double>> sigma_t_{{material_id_, {1.0, 2.0}}};
+  const std::unordered_map<int, std::vector<double>> inv_sigma_t_{{material_id_, {1.0, 0.5}}};
 
   void SetUp() override;
 };
@@ -131,15 +134,11 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
   ON_CALL(*mock_quadrature_set_ptr_, end())
       .WillByDefault(Return(quadrature_set_.end()));
 
-  std::unordered_map<int, std::vector<double>> sigma_t{
-    {material_id_, {1.0, 2.0}}};
-  std::unordered_map<int, std::vector<double>> inv_sigma_t{
-    {material_id_, {1.0, 0.5}}};
   // Set up cross-sections
   ON_CALL(mock_material_, GetSigT())
-      .WillByDefault(Return(sigma_t));
+      .WillByDefault(Return(sigma_t_));
   ON_CALL(mock_material_, GetInvSigT())
-      .WillByDefault(Return(inv_sigma_t));
+      .WillByDefault(Return(inv_sigma_t_));
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -381,10 +380,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   formulation::CellPtr<dim> invalid_cell_ptr;
   EXPECT_ANY_THROW(test_saaf.Initialize(invalid_cell_ptr));
 }
-
+// =============================================================================
 // FUNCTION TESTS:
+// =============================================================================
 
-// Fill StreamingTerm
+// FillStreamingTerm ===========================================================
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
     FillCellStreamingTermTestBadCellPtr) {
   constexpr int dim = this->dim;
@@ -490,5 +490,70 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   }
 }
 
+// FillCollisionTerm ===========================================================
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellCollisionTermTestBadCellPtr) {
+  constexpr int dim = this->dim;
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix cell_matrix(2,2);
+  formulation::CellPtr<dim> invalid_cell_ptr;
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  EXPECT_ANY_THROW({test_saaf.FillCellCollisionTerm(cell_matrix, token,
+                                                    invalid_cell_ptr,
+                                                    system::EnergyGroup(0));});
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellCollisionTermTestBadMatrixSize) {
+  constexpr int dim = this->dim;
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix bad_cell_matrix(3,2), second_bad_cell_matrix(2,3);;
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  EXPECT_ANY_THROW({test_saaf.FillCellCollisionTerm(bad_cell_matrix, token,
+                                                    this->cell_ptr_,
+                                                    system::EnergyGroup(0));});
+  EXPECT_ANY_THROW({test_saaf.FillCellCollisionTerm(second_bad_cell_matrix,
+                                                    token, this->cell_ptr_,
+                                                    system::EnergyGroup(0));});
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    FillCellCollisionTermTest) {
+  formulation::angular::CFEMSelfAdjointAngularFlux<this->dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+
+  for (int group = 0; group < 2; ++group) {
+    EXPECT_CALL(*this->mock_finite_element_ptr_, SetCell(this->cell_ptr_));
+    EXPECT_CALL(*this->mock_finite_element_ptr_, Jacobian(_))
+        .Times(2)
+        .WillRepeatedly(DoDefault());
+    EXPECT_CALL(*this->mock_finite_element_ptr_, ShapeValue(_,_))
+        .Times(16)
+        .WillRepeatedly(DoDefault());
+
+    formulation::FullMatrix cell_matrix(2,2), expected_result(
+        2,2, std::array<double, 4>{1227, 2277, 2277, 4227}.begin());
+    expected_result *= this->sigma_t_.at(this->material_id_).at(group);
+
+    EXPECT_NO_THROW({test_saaf.FillCellCollisionTerm(cell_matrix, token,
+                                                     this->cell_ptr_,
+                                                     system::EnergyGroup(group));
+    });
+    EXPECT_TRUE(CompareMatrices(expected_result, cell_matrix));
+  }
+}
 
 } // namespace
