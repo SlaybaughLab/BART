@@ -175,9 +175,15 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateMatrixSize(
       (static_cast<int>(cols) == cell_degrees_of_freedom_),
       dealii::ExcMessage(error_string.str()))
 }
+template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
+    Vector &to_fill,
+    const InitializationToken token,
+    const CellPtr<dim> &cell_ptr,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number) {
 
-
-
+}
 
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;

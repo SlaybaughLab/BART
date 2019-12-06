@@ -48,6 +48,30 @@ class CFEMSelfAdjointAngularFluxI {
       const CellPtr<dim>& cell_ptr,
       const system::EnergyGroup group_number) = 0;
 
+  /*!
+ * \brief Integrates the linear fixed-source terms and fills a given vector.
+ *
+ * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+ * \f$\varphi\f$, this function integrates the two linear fixed source SAAF terms
+ * for one group using the quadrature specified in the problem definition and
+ * adds them to the cell right-hand side vector.
+ *
+ * \f[
+ * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} +
+ * \int_{K}\frac{q_g(\vec{r})}{4\pi}\varphi_i(\vec{r})dV +
+ * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i(\vec{r})\right)
+ * \frac{q_g(\vec{r})}{4\pi\sigma_{t,g}(\vec{r})}dV
+ * \f]
+ *
+ * where \f$q_g(\vec{r})\f$ is a given fixed source.
+ */
+  virtual void FillCellFixedSourceTerm(
+      Vector& to_fill,
+      const InitializationToken,
+      const CellPtr<dim>& cell_ptr,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number) = 0;
+
   /*! \brief Integrates the bilinear streaming term and fills a given matrix.
    *
    * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
@@ -76,6 +100,7 @@ class CFEMSelfAdjointAngularFluxI {
       const CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
+
 
   /*! \brief Initialize the formulation.
    * In general, this will pre-calculate matrix terms. The cell pointer is only
