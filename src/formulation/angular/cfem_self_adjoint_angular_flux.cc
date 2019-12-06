@@ -99,6 +99,16 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 }
 
 template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
+    Vector &to_fill,
+    const InitializationToken token,
+    const CellPtr<dim> &cell_ptr,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number) {
+  ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
+}
+
+template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     FullMatrix &to_fill,
     const InitializationToken,
@@ -175,15 +185,26 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateMatrixSize(
       (static_cast<int>(cols) == cell_degrees_of_freedom_),
       dealii::ExcMessage(error_string.str()))
 }
-template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
-    Vector &to_fill,
-    const InitializationToken token,
-    const CellPtr<dim> &cell_ptr,
-    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-    const system::EnergyGroup group_number) {
 
+template <int dim>
+void CFEMSelfAdjointAngularFlux<dim>::ValidateVectorSize(
+    const bart::formulation::Vector& to_validate,
+    std::string called_function_name) {
+
+  int rows = to_validate.size();
+
+  std::ostringstream error_string;
+  error_string << "Error in CFEMSelfAdjointAngularFlux function "
+               << called_function_name
+               <<": passed vector size is invalid, expected size ("
+               << cell_degrees_of_freedom_ << ", 1), actual size: (" << rows
+               << ", 1)";
+
+  AssertThrow((static_cast<int>(rows) == cell_degrees_of_freedom_),
+              dealii::ExcMessage(error_string.str()))
 }
+
+
 
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;
