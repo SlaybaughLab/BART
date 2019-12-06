@@ -643,6 +643,9 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       EXPECT_CALL(*this->mock_finite_element_ptr_, Jacobian(_))
           .Times(2)
           .WillRepeatedly(DoDefault());
+      EXPECT_CALL(*this->mock_finite_element_ptr_, ShapeValue(_,_))
+          .Times(4)
+          .WillRepeatedly(DoDefault());
       EXPECT_CALL(*this->mock_quadrature_set_ptr_, GetQuadraturePointIndex(_))
           .WillOnce(DoDefault());
 
