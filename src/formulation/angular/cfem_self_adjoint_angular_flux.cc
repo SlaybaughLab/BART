@@ -78,16 +78,15 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     const InitializationToken,
     const CellPtr<dim> &cell_ptr,
     const system::EnergyGroup group_number) {
-  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
-              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
-                                 "FillCellStreamingTerm, cell pointer is "
-                                 "invalid."))
+
+  ValidateAndSetCell(cell_ptr, __FUNCTION__);
+
   AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
       (to_fill.n_rows() == cell_degrees_of_freedom_),
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
                                  "FillCellStreamingTerm, matrix to fill has "
                                  "wrong size."))
-  finite_element_ptr_->SetCell(cell_ptr);
+
   const int material_id = cell_ptr->material_id();
   const double sigma_t =
       cross_sections_ptr_->sigma_t.at(material_id).at(group_number.get());
@@ -110,12 +109,15 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     const CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
+
+  ValidateAndSetCell(cell_ptr, __FUNCTION__);
+
   AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
       (to_fill.n_rows() == cell_degrees_of_freedom_),
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
                                  "FillCellStreamingTerm, matrix to fill has "
                                  "wrong size."))
-  finite_element_ptr_->SetCell(cell_ptr);
+
   const int material_id = cell_ptr->material_id();
   const double inverse_sigma_t =
       cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
@@ -152,6 +154,18 @@ FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
     quadrature::QuadraturePointIndex angular_index) const {
   return omega_dot_gradient_squared_.at(
       {cell_quadrature_point, angular_index.get()});
+}
+
+// PRIVATE FUNCTIONS ===========================================================
+template <int dim>
+void CFEMSelfAdjointAngularFlux<dim>::ValidateAndSetCell(
+    const bart::formulation::CellPtr<dim> &cell_ptr,
+    std::string function_name) {
+  std::string error{"Error in CFEMSelfAdjointAngularFlux function " +
+      function_name + ": passed cell pointer is invalid"};
+  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
+              dealii::ExcMessage(error))
+  finite_element_ptr_->SetCell(cell_ptr);
 }
 
 template class CFEMSelfAdjointAngularFlux<1>;
