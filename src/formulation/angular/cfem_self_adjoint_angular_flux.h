@@ -58,8 +58,15 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
     return shape_squared_; }
 
  protected:
+  void ValidateMatrixSizeAndSetCell(const CellPtr<dim>& cell_ptr,
+                                    const FullMatrix& matrix_to_validate,
+                                    std::string called_function_name) {
+    ValidateAndSetCell(cell_ptr, called_function_name);
+    ValidateMatrixSize(matrix_to_validate, called_function_name);
+  }
   void ValidateAndSetCell(const CellPtr<dim>& cell_ptr,
                           std::string function_name);
+  void ValidateMatrixSize(const FullMatrix&, std::string called_function_name);
   // Dependencies
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr_;
   std::shared_ptr<data::CrossSections> cross_sections_ptr_;

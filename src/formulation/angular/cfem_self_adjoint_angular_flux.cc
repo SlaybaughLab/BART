@@ -1,5 +1,7 @@
 #include "formulation/angular/cfem_self_adjoint_angular_flux.h"
 
+#include <sstream>
+
 namespace bart {
 
 namespace formulation {
@@ -79,13 +81,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     const CellPtr<dim> &cell_ptr,
     const system::EnergyGroup group_number) {
 
-  ValidateAndSetCell(cell_ptr, __FUNCTION__);
-
-  AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
-      (to_fill.n_rows() == cell_degrees_of_freedom_),
-              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
-                                 "FillCellStreamingTerm, matrix to fill has "
-                                 "wrong size."))
+  ValidateMatrixSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
   const double sigma_t =
@@ -110,13 +106,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
 
-  ValidateAndSetCell(cell_ptr, __FUNCTION__);
-
-  AssertThrow((to_fill.n_cols() == cell_degrees_of_freedom_) &&
-      (to_fill.n_rows() == cell_degrees_of_freedom_),
-              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux "
-                                 "FillCellStreamingTerm, matrix to fill has "
-                                 "wrong size."))
+  ValidateMatrixSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
   const double inverse_sigma_t =
@@ -167,6 +157,27 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateAndSetCell(
               dealii::ExcMessage(error))
   finite_element_ptr_->SetCell(cell_ptr);
 }
+
+template <int dim>
+void CFEMSelfAdjointAngularFlux<dim>::ValidateMatrixSize(
+    const bart::formulation::FullMatrix& to_validate,
+    std::string called_function_name) {
+  auto [rows, cols] = std::pair{to_validate.n_rows(), to_validate.n_cols()};
+
+  std::ostringstream error_string;
+  error_string << "Error in CFEMSelfAdjointAngularFlux function "
+               << called_function_name
+               <<": passed matrix size is invalid, expected size ("
+               << cell_degrees_of_freedom_ << ", " << cell_degrees_of_freedom_
+               << "), actual size: (" << rows << ", " << cols << ")";
+
+  AssertThrow((static_cast<int>(rows) == cell_degrees_of_freedom_) &&
+      (static_cast<int>(cols) == cell_degrees_of_freedom_),
+      dealii::ExcMessage(error_string.str()))
+}
+
+
+
 
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;
