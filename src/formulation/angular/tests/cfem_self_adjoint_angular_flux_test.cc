@@ -67,12 +67,13 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
   const std::unordered_map<int, formulation::FullMatrix> sigma_t_per_ster_{
       {material_id_,
        {2, 2, std::array<double, 4>{0.25, 0.5, 0.75, 1.0}.begin()}}};
-  const system::moments::MomentVector group_0_in_group_, group_1_in_group_,
-      group_0_out_group_, group_1_out_group_;
+  const system::moments::MomentVector group_0_moment_, group_1_moment_;
   const system::moments::MomentsMap out_group_moments_{
-      {{0,0,0}, group_0_out_group_},
-      {{1,0,0}, group_1_out_group_}
+      {{0,0,0}, group_0_moment_},
+      {{1,0,0}, group_1_moment_}
   };
+  const std::vector<double> group_0_moment_values_{0.75, 0.75};
+  const std::vector<double> group_1_moment_values_{1.0, 1.0};
 
   void SetUp() override;
 };
@@ -153,6 +154,15 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
   ON_CALL(mock_material_, GetQPerSter()).WillByDefault(Return(q_per_ster_));
   ON_CALL(mock_material_, GetSigSPerSter())
       .WillByDefault(Return(sigma_t_per_ster_));
+
+  // Set up moment values
+
+
+  ON_CALL(*mock_finite_element_ptr_, ValueAtQuadrature(group_0_moment_))
+      .WillByDefault(Return(group_0_moment_values_));
+  ON_CALL(*mock_finite_element_ptr_, ValueAtQuadrature(group_1_moment_))
+      .WillByDefault(Return(group_1_moment_values_));
+
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -689,7 +699,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   EXPECT_ANY_THROW({
     test_saaf.FillCellScatteringSourceTerm(cell_vector, token, invalid_cell_ptr,
                                            angle_ptr, system::EnergyGroup(0),
-                                           this->group_0_in_group_,
+                                           this->group_0_moment_,
                                            this->out_group_moments_);
                    });
 }
@@ -709,7 +719,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   EXPECT_ANY_THROW({
     test_saaf.FillCellScatteringSourceTerm(bad_cell_vector, token, this->cell_ptr_,
                                            angle_ptr, system::EnergyGroup(0),
-                                           this->group_0_in_group_,
+                                           this->group_0_moment_,
                                            this->out_group_moments_);
                    });
 }
