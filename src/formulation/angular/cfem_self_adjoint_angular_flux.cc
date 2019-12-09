@@ -136,8 +136,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     const system::EnergyGroup group_number,
     const system::moments::MomentVector &in_group_moment,
     const system::moments::MomentsMap &group_moments) {
-
-
+  ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 }
 
 template<int dim>
