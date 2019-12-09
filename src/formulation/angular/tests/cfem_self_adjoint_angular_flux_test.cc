@@ -64,6 +64,15 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
     {material_id_, {1.0, 0.5}}};
   const std::unordered_map<int, std::vector<double>> q_per_ster_{
       {material_id_, {1.0, 2.0}}};
+  const std::unordered_map<int, formulation::FullMatrix> sigma_t_per_ster_{
+      {material_id_,
+       {2, 2, std::array<double, 4>{0.25, 0.5, 0.75, 1.0}.begin()}}};
+  const system::moments::MomentVector group_0_in_group_, group_1_in_group_,
+      group_0_out_group_, group_1_out_group_;
+  const system::moments::MomentsMap out_group_moments_{
+      {{0,0,0}, group_0_out_group_},
+      {{1,0,0}, group_1_out_group_}
+  };
 
   void SetUp() override;
 };
@@ -139,12 +148,11 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       .WillByDefault(Return(quadrature_set_.end()));
 
   // Set up cross-sections
-  ON_CALL(mock_material_, GetSigT())
-      .WillByDefault(Return(sigma_t_));
-  ON_CALL(mock_material_, GetInvSigT())
-      .WillByDefault(Return(inv_sigma_t_));
-  ON_CALL(mock_material_, GetQPerSter())
-      .WillByDefault(Return(q_per_ster_));
+  ON_CALL(mock_material_, GetSigT()).WillByDefault(Return(sigma_t_));
+  ON_CALL(mock_material_, GetInvSigT()).WillByDefault(Return(inv_sigma_t_));
+  ON_CALL(mock_material_, GetQPerSter()).WillByDefault(Return(q_per_ster_));
+  ON_CALL(mock_material_, GetSigSPerSter())
+      .WillByDefault(Return(sigma_t_per_ster_));
 
   // Instantiate cross-section object
   cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
@@ -661,6 +669,111 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                 << "Failed: group: " << group << " angle: " << angle;
     }
   }
+}
+
+// FillCellScatteringSourceTerm =====================================================
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellScatteringSourceTermBadCell) {
+  constexpr int dim = this->dim;
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  formulation::CellPtr<dim> invalid_cell_ptr;
+  auto angle_ptr = *this->quadrature_set_.begin();
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellScatteringSourceTerm(cell_vector, token, invalid_cell_ptr,
+                                           angle_ptr, system::EnergyGroup(0),
+                                           this->group_0_in_group_,
+                                           this->out_group_moments_);
+                   });
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellScatteringSourceTermBadVectorLength) {
+  constexpr int dim = this->dim;
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector bad_cell_vector(3);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellScatteringSourceTerm(bad_cell_vector, token, this->cell_ptr_,
+                                           angle_ptr, system::EnergyGroup(0),
+                                           this->group_0_in_group_,
+                                           this->out_group_moments_);
+                   });
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellScatteringSourceTerm) {
+//  constexpr int dim = this->dim;
+//
+//  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+//      this->mock_finite_element_ptr_,
+//      this->cross_section_ptr_,
+//      this->mock_quadrature_set_ptr_);
+//
+//  formulation::Vector cell_vector(2);
+//  auto token = test_saaf.Initialize(this->cell_ptr_);
+//
+//  double d = this->dim;
+//
+//  std::map<std::pair<int, int>, formulation::Vector> expected_results;
+//
+//  formulation::Vector expected_result_g0_a0(2), expected_result_g0_a1(2),
+//      expected_result_g1_a0(2), expected_result_g1_a1(2);
+//  expected_result_g0_a0[0] = 105.0 * (d + 1.0);
+//  expected_result_g0_a0[1] = 195.0*(d + 1.0);
+//  expected_result_g0_a1[0] = 105.0 + 210.0*d;
+//  expected_result_g0_a1[1] = 195.0 + 390.0*d;
+//  expected_result_g1_a0[0] = 210.0 + 105.0*d;
+//  expected_result_g1_a0[1] = 390.0 + 195.0*d;
+//  expected_result_g1_a1[0] = 210.0*(d + 1.0);
+//  expected_result_g1_a1[1] = 390.0*(d + 1.0);
+//
+//  expected_results.insert_or_assign({0,0}, expected_result_g0_a0);
+//  expected_results.insert_or_assign({1,0}, expected_result_g1_a0);
+//  expected_results.insert_or_assign({0,1}, expected_result_g0_a1);
+//  expected_results.insert_or_assign({1,1}, expected_result_g1_a1);
+//
+//  for (int group = 0; group < 2; ++group) {
+//    for (int angle = 0; angle < 2; ++angle) {
+//      auto angle_it = this->quadrature_set_.begin();
+//      if (angle == 1)
+//        ++angle_it;
+//      auto angle_ptr = *angle_it;
+//      EXPECT_CALL(*this->mock_finite_element_ptr_, SetCell(this->cell_ptr_));
+//      EXPECT_CALL(*this->mock_finite_element_ptr_, Jacobian(_))
+//          .Times(2)
+//          .WillRepeatedly(DoDefault());
+//      EXPECT_CALL(*this->mock_finite_element_ptr_, ShapeValue(_,_))
+//          .Times(4)
+//          .WillRepeatedly(DoDefault());
+//      EXPECT_CALL(*this->mock_quadrature_set_ptr_, GetQuadraturePointIndex(_))
+//          .WillOnce(DoDefault());
+//
+//      cell_vector = 0;
+//
+//      EXPECT_NO_THROW({
+//                        test_saaf.FillCellScatteringSourceTerm(cell_vector, token, this->cell_ptr_,
+//                                                          angle_ptr,
+//                                                          system::EnergyGroup(group));
+//                      });
+//      std::pair<int, int> result_index{group, angle};
+//      EXPECT_EQ(expected_results.at(result_index), cell_vector)
+//                << "Failed: group: " << group << " angle: " << angle;
+//    }
+//  }
 }
 
 } // namespace

@@ -128,6 +128,19 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
 }
 
 template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
+    Vector &to_fill,
+    const InitializationToken token,
+    const CellPtr<dim> &cell_ptr,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number,
+    const system::moments::MomentVector &in_group_moment,
+    const system::moments::MomentsMap &group_moments) {
+
+
+}
+
+template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     FullMatrix &to_fill,
     const InitializationToken,
@@ -222,8 +235,6 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateVectorSize(
   AssertThrow((static_cast<int>(rows) == cell_degrees_of_freedom_),
               dealii::ExcMessage(error_string.str()))
 }
-
-
 
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;

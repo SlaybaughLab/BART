@@ -72,6 +72,39 @@ class CFEMSelfAdjointAngularFluxI {
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
 
+  /*! \brief Integrates the linear scattering source and fills a given vector.
+   *
+   * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+   * \f$\varphi\f$, this function integrates the two linear scattering SAAF terms
+   * for one group using the quadrature specified in the problem definition and
+   * adds them to the cell right-hand side vector.
+   * \f[
+   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} + \sum_{g'}\left[
+   * \int_{K}\frac{\sigma_{s,g'\to g}(\vec{r})}{4\pi}\phi_{g'}(\vec{r}) \varphi_i(\vec{r}) dV +
+   * \int_{K}\left(\vec{\Omega}\cdot \nabla \varphi_i(\vec{r})\right)
+   * \frac{\sigma_{s,g'\to g}(\vec{r})}{4\pi\sigma_{t,g}(\vec{r}) }\phi_{g'}(\vec{r}) dV
+   * \right]
+   * \f]
+   *
+   * where \f$\phi\f$ is the scalar flux. Adds the result per cell DOFF to the
+   * input-output vector cell_rhs.
+   *
+   *
+   * @param to_fill cell vector to fill
+   * @param cell_ptr pointer to the cell
+   * @param quadrature_point quadrature point to provide \f$\Omega\f$
+   * @param in_group_moment in-group scalar flux moment
+   * @param group_moments out-group scalar flux moments
+   */
+  virtual void FillCellScatteringSourceTerm(
+      Vector& to_fill,
+      const InitializationToken,
+      const CellPtr<dim>& cell_ptr,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number,
+      const system::moments::MomentVector& in_group_moment,
+      const system::moments::MomentsMap& group_moments) = 0;
+
   /*! \brief Integrates the bilinear streaming term and fills a given matrix.
    *
    * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
