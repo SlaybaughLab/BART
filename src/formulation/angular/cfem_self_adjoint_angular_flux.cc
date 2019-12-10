@@ -99,6 +99,19 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 }
 
 template<int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
+    Vector &to_fill,
+    const InitializationToken /*init_token*/,
+    const CellPtr<dim> &,//cell_ptr,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>>,// quadrature_point,
+    const system::EnergyGroup,// group_number,
+    const double,// k_eff,
+    const system::moments::MomentVector &,//in_group_moment,
+    const system::moments::MomentsMap & /*group_moments*/) {
+
+}
+
+template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     Vector &to_fill,
     const InitializationToken,

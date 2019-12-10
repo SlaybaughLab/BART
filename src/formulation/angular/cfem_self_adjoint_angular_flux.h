@@ -33,6 +33,16 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
       const CellPtr<dim> &cell_ptr,
       const system::EnergyGroup group_number) override;
 
+  void FillCellFissionSourceTerm(
+      Vector &to_fill,
+      const InitializationToken init_token,
+      const CellPtr<dim> &cell_ptr,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number,
+      const double k_eff,
+      const system::moments::MomentVector &in_group_moment,
+      const system::moments::MomentsMap &group_moments) override;
+
   void FillCellFixedSourceTerm(
       Vector &to_fill,
       const InitializationToken token,

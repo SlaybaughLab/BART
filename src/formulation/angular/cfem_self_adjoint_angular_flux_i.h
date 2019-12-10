@@ -48,6 +48,46 @@ class CFEMSelfAdjointAngularFluxI {
       const CellPtr<dim>& cell_ptr,
       const system::EnergyGroup group_number) = 0;
 
+  /*! \brief Integrates the linear fission terms and fills a given vector.
+   *
+   * For a given cell in the triangulation, \f$K \in T_K\f$, with basis functions
+   * \f$\varphi\f$, this function integrates the two fission source SAAF terms
+   * for one group using the quadrature specified in the problem definition and
+   * adds them to the cell right-hand side vector.
+   *
+   * \f[
+   * \vec{b}(i)_{K,g}' = \vec{b}(i)_{K,g} +
+   * \int_{K}\frac{q_g(\vec{r})}{4\pi}\varphi_i(\vec{r})dV +
+   * \int_{K}\left(\vec{\Omega}\cdot\nabla\varphi_i(\vec{r})\right)
+   * \frac{q_g(\vec{r})}{4\pi\sigma_{t,g}(\vec{r})}dV
+   * \f]
+   *
+   * where \f$q_g(\vec{r})\f$ is the fission source:
+   * \f[
+   * q_g(\vec{r}) = \frac{\nu_g \cdot \sigma_{f,g}(\vec{r})_g}
+   * {4\pi k_{\text{eff}}}\phi_g(\vec{r})
+   * \f]
+   *
+   *
+   * @param to_fill cell vector to fill
+   * @param init_token initialization token returned by Initialize
+   * @param cell_ptr pointer to the cell
+   * @param quadrature_point quadrature point
+   * @param group_number energy group number
+   * @param k_eff k effective
+   * @param in_group_moment in-group flux moments
+   * @param group_moments full set of group moments
+   */
+  virtual void FillCellFissionSourceTerm(
+      Vector& to_fill,
+      const InitializationToken init_token,
+      const CellPtr<dim>& cell_ptr,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number,
+      const double k_eff,
+      const system::moments::MomentVector& in_group_moment,
+      const system::moments::MomentsMap& group_moments) = 0;
+
   /*!
  * \brief Integrates the linear fixed-source terms and fills a given vector.
  *
