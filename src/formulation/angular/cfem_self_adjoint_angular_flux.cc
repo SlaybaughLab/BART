@@ -347,6 +347,32 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateVectorSize(
               dealii::ExcMessage(error_string.str()))
 }
 
+template <int dim>
+void CFEMSelfAdjointAngularFlux<dim>::FillCellSourceTerm(
+    bart::formulation::Vector &to_fill,
+    const int material_id,
+    const std::shared_ptr<bart::quadrature::QuadraturePointI<dim>> quadrature_point,
+    const bart::system::EnergyGroup group_number,
+    std::vector<double> source) {
+  const double inverse_sigma_t =
+      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
+  const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
+      quadrature_point);
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double jacobian = finite_element_ptr_->Jacobian(q);
+    const auto omega_dot_gradient = OmegaDotGradient(
+        q, quadrature::QuadraturePointIndex(angle_index));
+
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      to_fill(i) += jacobian * source.at(q) * (
+          finite_element_ptr_->ShapeValue(i, q) +
+              omega_dot_gradient.at(i) * inverse_sigma_t
+      );
+    }
+  }
+}
+
 template class CFEMSelfAdjointAngularFlux<1>;
 template class CFEMSelfAdjointAngularFlux<2>;
 template class CFEMSelfAdjointAngularFlux<3>;
