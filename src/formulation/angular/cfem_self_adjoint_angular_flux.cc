@@ -137,6 +137,55 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     const system::moments::MomentVector &in_group_moment,
     const system::moments::MomentsMap &group_moments) {
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
+
+  const int material_id = cell_ptr->material_id();
+  const double inverse_sigma_t =
+      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
+  const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
+      quadrature_point);
+  const int group = group_number.get();
+
+  std::vector<double> first_scattering_source_at_quad_points(cell_quadrature_points_);
+  std::vector<double> second_scattering_source_at_quad_points(cell_quadrature_points_);
+
+  for (const auto& moment_pair : group_moments) {
+    auto &[index, moment] = moment_pair;
+    const auto &[group_in, harmonic_l, harmonic_m] = index;
+
+    if ((harmonic_l == 0) && (harmonic_m == 0)) {
+      std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
+
+      if (group_in == group) {
+        scalar_flux_at_quad_points =
+            finite_element_ptr_->ValueAtQuadrature(in_group_moment);
+      } else {
+        scalar_flux_at_quad_points =
+            finite_element_ptr_->ValueAtQuadrature(moment);
+      }
+
+      const auto sigma_s_per_ster =
+          cross_sections_ptr_->sigma_s_per_ster.at(material_id)(group, group_in);
+
+      for (int q = 0; q < cell_quadrature_points_; ++q){
+        first_scattering_source_at_quad_points.at(q) +=
+            sigma_s_per_ster * scalar_flux_at_quad_points.at(q);
+        second_scattering_source_at_quad_points.at(q) +=
+            scalar_flux_at_quad_points.at(q) * sigma_s_per_ster * inverse_sigma_t;
+      }
+    }
+  }
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double jacobian = finite_element_ptr_->Jacobian(q);
+
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      to_fill(i) += finite_element_ptr_->ShapeValue(i, q) *
+          first_scattering_source_at_quad_points.at(q) * jacobian;
+      to_fill(i) +=
+          OmegaDotGradient(q, quadrature::QuadraturePointIndex(angle_index)).at(i) *
+          second_scattering_source_at_quad_points.at(q) * jacobian;
+    }
+  }
 }
 
 template<int dim>

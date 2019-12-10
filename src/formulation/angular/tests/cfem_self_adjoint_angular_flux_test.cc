@@ -19,6 +19,7 @@ using namespace bart;
 
 using ::testing::AssertionResult, ::testing::AssertionSuccess, ::testing::AssertionFailure;
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
+using ::testing::ByRef;
 using ::testing::_;
 
 /* Tests for CFEM Self Adjoint Angular Flux formulation class. This class is
@@ -67,11 +68,8 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
   const std::unordered_map<int, formulation::FullMatrix> sigma_t_per_ster_{
       {material_id_,
        {2, 2, std::array<double, 4>{0.25, 0.5, 0.75, 1.0}.begin()}}};
-  system::moments::MomentVector group_0_moment_, group_1_moment_;
-  system::moments::MomentsMap out_group_moments_{
-      {{0,0,0}, group_0_moment_},
-      {{1,0,0}, group_1_moment_}
-  };
+  system::moments::MomentVector group_0_moment_{2}, group_1_moment_{2};
+  system::moments::MomentsMap out_group_moments_;
   const std::vector<double> group_0_moment_values_{0.75, 0.75};
   const std::vector<double> group_1_moment_values_{1.0, 1.0};
 
@@ -156,7 +154,13 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       .WillByDefault(Return(sigma_t_per_ster_));
 
   // Set up moment values
+  for (int i = 0; i < 2; ++i) {
+    group_0_moment_(i) = group_0_moment_values_.at(i);
+    group_1_moment_(i) = group_1_moment_values_.at(i);
+  }
 
+  out_group_moments_[{0,0,0}] = group_0_moment_;
+  out_group_moments_[{1,0,0}] = group_1_moment_;
 
   ON_CALL(*mock_finite_element_ptr_,
       ValueAtQuadrature(group_0_moment_))
@@ -744,14 +748,16 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
   formulation::Vector expected_result_g0_a0(2), expected_result_g0_a1(2),
       expected_result_g1_a0(2), expected_result_g1_a1(2);
-  expected_result_g0_a0[0] = 90.75 + 72.1875*d;
+  expected_result_g0_a0[0] = 72.1875 + 72.1875*d;
   expected_result_g0_a0[1] = 134.0625 * (1 + d);
-  expected_result_g0_a1[0] = 90.75 + 144.375*d;
+  expected_result_g0_a1[0] = 72.1875 + 144.375*d;
   expected_result_g0_a1[1] = 134.0625 + 268.125*d;
-  expected_result_g1_a0[0] = 78.375 + 39.1875 * d;
-  expected_result_g1_a0[1] = 149.625 + 74.8125*d;
-  expected_result_g1_a1[0] = 78.375 * (d + 1.0);
-  expected_result_g1_a1[1] = 149.625 * (d + 1.0);
+
+  expected_result_g1_a0[0] = 164.0625 + 82.03125*d;
+  expected_result_g1_a0[1] = 304.6875 + 152.34375*d;
+
+  expected_result_g1_a1[0] = 164.0625 * (d + 1.0);
+  expected_result_g1_a1[1] = 304.6875 * (d + 1.0);
 
   expected_results.insert_or_assign({0,0}, expected_result_g0_a0);
   expected_results.insert_or_assign({1,0}, expected_result_g1_a0);
@@ -775,23 +781,26 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
           .WillOnce(DoDefault());
 
       int out_group = !group;
-
       std::array<int, 3> out_index{out_group, 0, 0}, in_index{group, 0, 0};
+      auto out_group_moments_map = this->out_group_moments_;
+      out_group_moments_map.at(in_index) = 0;
+
       EXPECT_CALL(*this->mock_finite_element_ptr_,
                   ValueAtQuadrature(this->out_group_moments_.at(out_index)))
-          .Times(2)
+          .Times(1)
           .WillRepeatedly(DoDefault());
       EXPECT_CALL(*this->mock_finite_element_ptr_,
-          ValueAtQuadrature(this->out_group_moments_.at(in_index)))
+                  ValueAtQuadrature(this->out_group_moments_.at(in_index)))
           .Times(0);
+
 
       system::moments::MomentVector& in_group_moment = this->group_0_moment_;
       if (group == 1)
-        in_group_moment = this->group_0_moment_;
+        in_group_moment = this->group_1_moment_;
 
       EXPECT_CALL(*this->mock_finite_element_ptr_,
                   ValueAtQuadrature(in_group_moment))
-          .Times(2)
+          .Times(1)
           .WillRepeatedly(DoDefault());
 
       cell_vector = 0;
@@ -801,7 +810,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                                                angle_ptr,
                                                system::EnergyGroup(group),
                                                in_group_moment,
-                                               this->out_group_moments_);
+                                               out_group_moments_map);
                                         });
 
       std::pair<int, int> result_index{group, angle};
