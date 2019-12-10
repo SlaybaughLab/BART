@@ -752,13 +752,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   expected_result_g0_a0[1] = 134.0625 * (1 + d);
   expected_result_g0_a1[0] = 72.1875 + 144.375*d;
   expected_result_g0_a1[1] = 134.0625 + 268.125*d;
-
   expected_result_g1_a0[0] = 164.0625 + 82.03125*d;
   expected_result_g1_a0[1] = 304.6875 + 152.34375*d;
-
   expected_result_g1_a1[0] = 164.0625 * (d + 1.0);
   expected_result_g1_a1[1] = 304.6875 * (d + 1.0);
-
   expected_results.insert_or_assign({0,0}, expected_result_g0_a0);
   expected_results.insert_or_assign({1,0}, expected_result_g1_a0);
   expected_results.insert_or_assign({0,1}, expected_result_g0_a1);

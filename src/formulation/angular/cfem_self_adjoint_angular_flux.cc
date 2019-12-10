@@ -130,7 +130,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
 template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     Vector &to_fill,
-    const InitializationToken token,
+    const InitializationToken,
     const CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
@@ -145,45 +145,45 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
       quadrature_point);
   const int group = group_number.get();
 
-  std::vector<double> first_scattering_source_at_quad_points(cell_quadrature_points_);
-  std::vector<double> second_scattering_source_at_quad_points(cell_quadrature_points_);
+  /* The scattering source is determined as the common values in both of the
+   * scattering source terms in SAAF, specifically scalar flux times the
+   * scattering cross-section per steradian */
 
+  std::vector<double> scattering_source(cell_quadrature_points_);
+
+  // Get the contribution from each group
   for (const auto& moment_pair : group_moments) {
     auto &[index, moment] = moment_pair;
     const auto &[group_in, harmonic_l, harmonic_m] = index;
 
     if ((harmonic_l == 0) && (harmonic_m == 0)) {
-      std::vector<double> scalar_flux_at_quad_points(cell_quadrature_points_);
+      std::vector<double> scalar_flux(cell_quadrature_points_);
 
       if (group_in == group) {
-        scalar_flux_at_quad_points =
-            finite_element_ptr_->ValueAtQuadrature(in_group_moment);
+        scalar_flux = finite_element_ptr_->ValueAtQuadrature(in_group_moment);
       } else {
-        scalar_flux_at_quad_points =
-            finite_element_ptr_->ValueAtQuadrature(moment);
+        scalar_flux = finite_element_ptr_->ValueAtQuadrature(moment);
       }
 
       const auto sigma_s_per_ster =
           cross_sections_ptr_->sigma_s_per_ster.at(material_id)(group, group_in);
 
       for (int q = 0; q < cell_quadrature_points_; ++q){
-        first_scattering_source_at_quad_points.at(q) +=
-            sigma_s_per_ster * scalar_flux_at_quad_points.at(q);
-        second_scattering_source_at_quad_points.at(q) +=
-            scalar_flux_at_quad_points.at(q) * sigma_s_per_ster * inverse_sigma_t;
+        scattering_source.at(q) += sigma_s_per_ster * scalar_flux.at(q);
       }
     }
   }
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     const double jacobian = finite_element_ptr_->Jacobian(q);
+    const auto omega_dot_gradient = OmegaDotGradient(q,
+        quadrature::QuadraturePointIndex(angle_index));
 
     for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      to_fill(i) += finite_element_ptr_->ShapeValue(i, q) *
-          first_scattering_source_at_quad_points.at(q) * jacobian;
-      to_fill(i) +=
-          OmegaDotGradient(q, quadrature::QuadraturePointIndex(angle_index)).at(i) *
-          second_scattering_source_at_quad_points.at(q) * jacobian;
+      to_fill(i) += jacobian * scattering_source.at(q) * (
+          finite_element_ptr_->ShapeValue(i, q) +
+          omega_dot_gradient.at(i) * inverse_sigma_t
+          );
     }
   }
 }
