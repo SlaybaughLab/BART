@@ -1,5 +1,6 @@
 #include "formulation/angular/cfem_self_adjoint_angular_flux.h"
 
+#include <algorithm>
 #include <sstream>
 
 namespace bart {
@@ -111,10 +112,6 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
-  const double inverse_sigma_t =
-      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
-  const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
-      quadrature_point);
   const int group = group_number.get();
 
   /* The scattering source is determined as the common values in both of the
@@ -142,23 +139,13 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
                                                                       group);
 
       for (int q = 0; q < cell_quadrature_points_; ++q){
-        fission_source.at(q) += fission_xfer_per_ster * scalar_flux.at(q);
+        fission_source.at(q) += fission_xfer_per_ster * scalar_flux.at(q) / k_eff;
       }
     }
   }
 
-  for (int q = 0; q < cell_quadrature_points_; ++q) {
-    const double jacobian = finite_element_ptr_->Jacobian(q);
-    const auto omega_dot_gradient = OmegaDotGradient(q,
-                                                     quadrature::QuadraturePointIndex(angle_index));
-
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      to_fill(i) += jacobian * fission_source.at(q) / k_eff * (
-          finite_element_ptr_->ShapeValue(i, q) +
-              omega_dot_gradient.at(i) * inverse_sigma_t
-      );
-    }
-  }
+  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                     fission_source);
 }
 
 template<int dim>
@@ -171,23 +158,14 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
-  const double inverse_sigma_t =
-      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
   const double q_per_ster =
       cross_sections_ptr_->q_per_ster.at(material_id).at(group_number.get());
-  const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
-      quadrature_point);
 
-  for (int q = 0; q < cell_quadrature_points_; ++q) {
-    const double jacobian = finite_element_ptr_->Jacobian(q);
-    const std::vector<double> omega_dot_gradient = OmegaDotGradient(q,
-        quadrature::QuadraturePointIndex(angle_index));
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      to_fill(i) += jacobian * q_per_ster *
-          (finite_element_ptr_->ShapeValue(i, q)
-              + omega_dot_gradient.at(i) * inverse_sigma_t);
-    }
-  }
+  std::vector<double> fixed_source(cell_degrees_of_freedom_);
+  std::fill(fixed_source.begin(), fixed_source.end(), q_per_ster);
+
+  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                     fixed_source);
 }
 
 template<int dim>
@@ -202,10 +180,6 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
-  const double inverse_sigma_t =
-      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
-  const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
-      quadrature_point);
   const int group = group_number.get();
 
   /* The scattering source is determined as the common values in both of the
@@ -237,18 +211,8 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     }
   }
 
-  for (int q = 0; q < cell_quadrature_points_; ++q) {
-    const double jacobian = finite_element_ptr_->Jacobian(q);
-    const auto omega_dot_gradient = OmegaDotGradient(q,
-        quadrature::QuadraturePointIndex(angle_index));
-
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      to_fill(i) += jacobian * scattering_source.at(q) * (
-          finite_element_ptr_->ShapeValue(i, q) +
-          omega_dot_gradient.at(i) * inverse_sigma_t
-          );
-    }
-  }
+  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                     scattering_source);
 }
 
 template<int dim>
