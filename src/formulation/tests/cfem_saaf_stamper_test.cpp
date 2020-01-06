@@ -4,6 +4,7 @@
 #include "formulation/angular/tests/cfem_self_adjoint_angular_flux_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_assertions.h"
 #include "test_helpers/test_helper_functions.h"
 
 namespace  {
@@ -11,14 +12,18 @@ namespace  {
 using namespace bart;
 
 using ::testing::DoDefault, ::testing::Return, ::testing::_;
+using ::testing::WithArg, ::testing::Invoke;
+using ::testing::NiceMock;
+
+using bart::testing::CompareMPIMatrices;
 
 template <typename DimensionWrapper>
 class CFEM_SAAF_StamperTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
   using FormulationType =
-      formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
-  using DefinitionType = typename domain::DefinitionMock<dim>;
+      NiceMock<formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>>;
+  using DefinitionType = NiceMock<typename domain::DefinitionMock<dim>>;
   using InitTokenType = typename formulation::angular::CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
 
   std::unique_ptr<FormulationType> formulation_ptr_;
@@ -27,11 +32,15 @@ class CFEM_SAAF_StamperTest : public ::testing::Test {
   // Mock return objects
   InitTokenType return_token_;
 
+  // Observation Pointer
+  FormulationType* formulation_obs_ptr_;
+
   void SetUp() override;
 };
 template<typename DimensionWrapper>
 void CFEM_SAAF_StamperTest<DimensionWrapper>::SetUp() {
   formulation_ptr_ = std::make_unique<FormulationType>();
+  formulation_obs_ptr_ = formulation_ptr_.get();
   definition_ptr_ = std::make_shared<DefinitionType>();
 
   formulation::CellPtr<dim> test_cell_ptr_;
@@ -78,6 +87,7 @@ TYPED_TEST(CFEM_SAAF_StamperTest, Constructor) {
  * Tests using deal.ii test domains in 1/2/3D, verifies stamping occurs
  * correctly when a real domain is used.
  *
+ * =============================================================================
  */
 
 void StampMatrix(formulation::FullMatrix& to_stamp) {
@@ -91,9 +101,12 @@ void StampMatrix(formulation::FullMatrix& to_stamp) {
 template <typename DimensionWrapper>
 class CFEMSAAFStamperMPITests :
     public CFEM_SAAF_StamperTest<DimensionWrapper>,
-    bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+    public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   void SetUp() override;
+  static constexpr int dim = DimensionWrapper::value;
+
+  std::unique_ptr<formulation::CFEM_SAAF_Stamper<dim>> test_stamper_;
 
   bart::system::MPISparseMatrix& system_matrix = this->matrix_1;
   bart::system::MPISparseMatrix& index_hits_ = this->matrix_2;
@@ -126,12 +139,28 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
   formulation::FullMatrix cell_matrix(cell_dofs, cell_dofs);
   ON_CALL(*this->definition_ptr_, GetCellMatrix())
       .WillByDefault(Return(cell_matrix));
+
+  test_stamper_ = std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
+      std::move(this->formulation_ptr_), this->definition_ptr_);
 }
 
 TYPED_TEST_SUITE(CFEMSAAFStamperMPITests, bart::testing::AllDimensions);
 
-TYPED_TEST(CFEMSAAFStamperMPITests, StampStreaming) {
+TYPED_TEST(CFEMSAAFStamperMPITests, StampCollision) {
 
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+        FillCellCollisionTerm(_,_,cell,system::EnergyGroup(1)))
+        .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));
+  }
+  EXPECT_CALL(*this->definition_ptr_, GetCellMatrix()).WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+                    this->test_stamper_->StampCollisionTerm(
+                        this->system_matrix, system::EnergyGroup(1));
+                  });
+
+  EXPECT_TRUE(CompareMPIMatrices(this->index_hits_, this->system_matrix));
 }
 
 } // namespace

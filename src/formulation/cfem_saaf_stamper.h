@@ -19,8 +19,11 @@ class CFEM_SAAF_Stamper {
   using SAAFFormulationType = typename
       formulation::angular::CFEMSelfAdjointAngularFluxI<dim>;
 
-   CFEM_SAAF_Stamper(std::unique_ptr<SAAFFormulationType> saaf_ptr,
-                     std::shared_ptr<DomainDefinitionType> defintion_ptr);
+  CFEM_SAAF_Stamper(std::unique_ptr<SAAFFormulationType> saaf_ptr,
+                    std::shared_ptr<DomainDefinitionType> defintion_ptr);
+
+   void StampCollisionTerm(system::MPISparseMatrix& to_stamp,
+                           const system::EnergyGroup group_number);
 
   DomainDefinitionType* definition_ptr() const {return definition_ptr_.get();}
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();}
