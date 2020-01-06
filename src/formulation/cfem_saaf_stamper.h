@@ -26,8 +26,15 @@ class CFEM_SAAF_Stamper {
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();}
 
  private:
+  using InitializationTokenType =
+  typename SAAFFormulationType::InitializationToken;
+
+  // Dependencies
   std::unique_ptr<SAAFFormulationType> formulation_ptr_ = nullptr;
   std::shared_ptr<DomainDefinitionType> definition_ptr_ = nullptr;
+
+  std::vector<formulation::CellPtr<dim>> cells_;
+  InitializationTokenType saaf_initialization_token_;
 };
 
 } // namespace formulation

@@ -8,6 +8,8 @@ namespace  {
 
 using namespace bart;
 
+using ::testing::DoDefault, ::testing::Return, ::testing::_;
+
 template <typename DimensionWrapper>
 class CFEM_SAAF_StamperTest : public ::testing::Test {
  public:
@@ -15,31 +17,47 @@ class CFEM_SAAF_StamperTest : public ::testing::Test {
   using FormulationType =
       formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
   using DefinitionType = typename domain::DefinitionMock<dim>;
+  using InitTokenType = typename formulation::angular::CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
 
   std::unique_ptr<FormulationType> formulation_ptr_;
   std::shared_ptr<DefinitionType> definition_ptr_;
+
+  // Mock return objects
+  std::vector<formulation::CellPtr<dim>> cells_ = {};
+  InitTokenType return_token_;
+
   void SetUp() override;
 };
 template<typename DimensionWrapper>
 void CFEM_SAAF_StamperTest<DimensionWrapper>::SetUp() {
   formulation_ptr_ = std::make_unique<FormulationType>();
   definition_ptr_ = std::make_shared<DefinitionType>();
+
+  formulation::CellPtr<dim> test_cell_ptr_;
+  cells_.push_back(test_cell_ptr_);
+
+  ON_CALL(*definition_ptr_, Cells()).WillByDefault(Return(cells_));
+  ON_CALL(*formulation_ptr_, Initialize(_)).WillByDefault(Return(return_token_));
 }
 
 TYPED_TEST_SUITE(CFEM_SAAF_StamperTest, bart::testing::AllDimensions);
 
+/* Verify constructor takes and stores dependencies, gets needed variables from
+ * dependencies and initializes formulation */
 TYPED_TEST(CFEM_SAAF_StamperTest, Constructor) {
   constexpr int dim = this->dim;
   using FormulationType = typename
       formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
   using DefinitionType = typename domain::DefinitionMock<dim>;
 
-  auto formulation_ptr = std::make_unique<FormulationType>();
   std::unique_ptr<formulation::CFEM_SAAF_Stamper<dim>> test_stamper;
 
+  EXPECT_CALL(*this->definition_ptr_, Cells()).WillOnce(DoDefault());
+  EXPECT_CALL(*this->formulation_ptr_, Initialize(this->cells_.at(0)))
+      .WillOnce(DoDefault());
   EXPECT_NO_THROW({
     test_stamper = std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
-        std::move(formulation_ptr), this->definition_ptr_);
+        std::move(this->formulation_ptr_), this->definition_ptr_);
   });
 
   auto returned_formulation_ptr = test_stamper->formulation_ptr();
