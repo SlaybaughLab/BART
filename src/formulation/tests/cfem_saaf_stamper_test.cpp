@@ -22,7 +22,7 @@ class CFEM_SAAF_StamperTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
   using FormulationType =
-      NiceMock<formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>>;
+      formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
   using DefinitionType = NiceMock<typename domain::DefinitionMock<dim>>;
   using InitTokenType = typename formulation::angular::CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
 
@@ -124,6 +124,7 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
     int material_id = btest::RandomDouble(0, 10);
     cell->set_material_id(material_id);
     std::vector<dealii::types::global_dof_index> local_dof_indices(cell_dofs);
+    cell->get_dof_indices(local_dof_indices);
     for (auto index_i : local_dof_indices) {
       index_hits_vector_(index_i) += 1;
       for (auto index_j : local_dof_indices) {
@@ -134,11 +135,13 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
   index_hits_.compress(dealii::VectorOperation::add);
   index_hits_vector_.compress(dealii::VectorOperation::add);
 
-  ON_CALL(*this->definition_ptr_, Cells()).WillByDefault(Return(this->cells_));
 
   formulation::FullMatrix cell_matrix(cell_dofs, cell_dofs);
   ON_CALL(*this->definition_ptr_, GetCellMatrix())
       .WillByDefault(Return(cell_matrix));
+
+  EXPECT_CALL(*this->formulation_obs_ptr_, Initialize(_)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->definition_ptr_, Cells()).WillOnce(Return(this->cells_));
 
   test_stamper_ = std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
       std::move(this->formulation_ptr_), this->definition_ptr_);
@@ -153,6 +156,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampCollision) {
         FillCellCollisionTerm(_,_,cell,system::EnergyGroup(1)))
         .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));
   }
+
   EXPECT_CALL(*this->definition_ptr_, GetCellMatrix()).WillOnce(DoDefault());
 
   EXPECT_NO_THROW({
