@@ -61,6 +61,24 @@ void CFEM_SAAF_Stamper<dim>::StampMatrix(
   to_stamp.compress(dealii::VectorOperation::add);
 }
 
+template <int dim>
+void CFEM_SAAF_Stamper<dim>::StampVector(
+    bart::system::MPIVector &to_stamp,
+    std::function<void(
+        bart::formulation::Vector &,
+        const bart::formulation::CellPtr<dim> &)> stamping_function) {
+  auto cell_vector = definition_ptr_->GetCellVector();
+  std::vector<dealii::types::global_dof_index> local_dof_indices(cell_vector.size());
+
+  for (const auto& cell : cells_) {
+    cell_vector = 0;
+    cell->get_dof_indices(local_dof_indices);
+    stamping_function(cell_vector, cell);
+    to_stamp.add(local_dof_indices, cell_vector);
+  }
+  to_stamp.compress(dealii::VectorOperation::add);
+}
+
 
 template class CFEM_SAAF_Stamper<1>;
 template class CFEM_SAAF_Stamper<2>;

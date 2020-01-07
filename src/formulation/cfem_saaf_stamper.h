@@ -52,6 +52,10 @@ class CFEM_SAAF_Stamper {
       system::MPISparseMatrix& to_stamp,
       std::function<void(formulation::FullMatrix&,
                          const formulation::CellPtr<dim>&)> stamping_function);
+  void StampVector(
+      system::MPIVector& to_stamp,
+      std::function<void(formulation::Vector&,
+                         const formulation::CellPtr<dim>&)> stamping_function);
 };
 
 } // namespace formulation
