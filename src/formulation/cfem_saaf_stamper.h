@@ -38,6 +38,12 @@ class CFEM_SAAF_Stamper {
 
   std::vector<formulation::CellPtr<dim>> cells_;
   InitializationTokenType saaf_initialization_token_;
+
+  // Private functions
+  void StampMatrix(
+      system::MPISparseMatrix& to_stamp,
+      std::function<void(formulation::FullMatrix&,
+                         const formulation::CellPtr<dim>&)> stamping_function);
 };
 
 } // namespace formulation

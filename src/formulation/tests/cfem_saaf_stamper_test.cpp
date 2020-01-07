@@ -90,6 +90,8 @@ TYPED_TEST(CFEM_SAAF_StamperTest, Constructor) {
  * =============================================================================
  */
 
+// HELPER FUNCTIONS ============================================================
+
 void StampMatrix(formulation::FullMatrix& to_stamp) {
   for (unsigned int i = 0; i < to_stamp.n_rows(); ++i) {
     for (unsigned int j = 0; j < to_stamp.n_cols(); ++j) {
@@ -97,6 +99,8 @@ void StampMatrix(formulation::FullMatrix& to_stamp) {
     }
   }
 }
+
+// TEST SETUP ==================================================================
 
 template <typename DimensionWrapper>
 class CFEMSAAFStamperMPITests :
@@ -148,6 +152,8 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
 }
 
 TYPED_TEST_SUITE(CFEMSAAFStamperMPITests, bart::testing::AllDimensions);
+
+// TESTS =======================================================================
 
 TYPED_TEST(CFEMSAAFStamperMPITests, StampCollision) {
 
