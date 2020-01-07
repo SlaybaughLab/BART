@@ -32,6 +32,17 @@ void CFEM_SAAF_Stamper<dim>::StampCollisionTerm(
   StampMatrix(to_stamp, collision_term_function);
 }
 
+template <int dim>
+void CFEM_SAAF_Stamper<dim>::StampFissionSourceTerm(
+    system::MPIVector& to_stamp,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number,
+    const double k_eff,
+    const system::moments::MomentVector &in_group_moment,
+    const system::moments::MomentsMap &group_moments) {
+
+}
+
 template<int dim>
 void CFEM_SAAF_Stamper<dim>::StampMatrix(
     system::MPISparseMatrix &to_stamp,

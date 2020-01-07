@@ -2,6 +2,7 @@
 
 #include "domain/tests/definition_mock.h"
 #include "formulation/angular/tests/cfem_self_adjoint_angular_flux_mock.h"
+#include "quadrature/tests/quadrature_point_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.h"
@@ -11,11 +12,10 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::DoDefault, ::testing::Return, ::testing::_;
-using ::testing::WithArg, ::testing::Invoke;
-using ::testing::NiceMock;
+using ::testing::DoDefault, ::testing::Return, ::testing::_, ::testing::WithArg,
+::testing::Invoke, ::testing::Ref, ::testing::NiceMock;
 
-using bart::testing::CompareMPIMatrices;
+using bart::testing::CompareMPIMatrices, bart::testing::CompareMPIVectors;
 
 template <typename DimensionWrapper>
 class CFEM_SAAF_StamperTest : public ::testing::Test {
@@ -100,6 +100,12 @@ void StampMatrix(formulation::FullMatrix& to_stamp) {
   }
 }
 
+void StampVector(formulation::Vector& to_stamp) {
+  for (unsigned int i = 0; i < to_stamp.size(); ++i) {
+    to_stamp(i) += 1;
+  }
+}
+
 // TEST SETUP ==================================================================
 
 template <typename DimensionWrapper>
@@ -112,8 +118,14 @@ class CFEMSAAFStamperMPITests :
 
   std::unique_ptr<formulation::CFEM_SAAF_Stamper<dim>> test_stamper_;
 
+  // Other test parameters
+  std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point_ptr_;
+  bart::system::moments::MomentVector in_group_moment_;
+  bart::system::moments::MomentsMap moments_map_;
+
   bart::system::MPISparseMatrix& system_matrix = this->matrix_1;
   bart::system::MPISparseMatrix& index_hits_ = this->matrix_2;
+  bart::system::MPIVector& system_rhs_vector = this->vector_1;
   bart::system::MPIVector& index_hits_vector_ = this->vector_2;
 };
 
@@ -139,16 +151,22 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
   index_hits_.compress(dealii::VectorOperation::add);
   index_hits_vector_.compress(dealii::VectorOperation::add);
 
-
+  // Cell matrix and vector
   formulation::FullMatrix cell_matrix(cell_dofs, cell_dofs);
   ON_CALL(*this->definition_ptr_, GetCellMatrix())
       .WillByDefault(Return(cell_matrix));
+  formulation::Vector cell_vector(cell_dofs);
+  ON_CALL(*this->definition_ptr_, GetCellVector())
+      .WillByDefault(Return(cell_vector));
 
   EXPECT_CALL(*this->formulation_obs_ptr_, Initialize(_)).WillOnce(DoDefault());
   EXPECT_CALL(*this->definition_ptr_, Cells()).WillOnce(Return(this->cells_));
 
   test_stamper_ = std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
       std::move(this->formulation_ptr_), this->definition_ptr_);
+
+  quadrature_point_ptr_ =
+      std::make_shared<quadrature::QuadraturePointMock<dim>>();
 }
 
 TYPED_TEST_SUITE(CFEMSAAFStamperMPITests, bart::testing::AllDimensions);
@@ -171,6 +189,35 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampCollision) {
                   });
 
   EXPECT_TRUE(CompareMPIMatrices(this->index_hits_, this->system_matrix));
+}
+
+TYPED_TEST(CFEMSAAFStamperMPITests, StampFissionSource) {
+  const double k_effective = 1.14;
+
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+        FillCellFissionSourceTerm(_,_,cell, this->quadrature_point_ptr_,
+                                  system::EnergyGroup(1), k_effective,
+                                  Ref(this->in_group_moment_),
+                                  Ref(this->moments_map_)))
+        .WillOnce(WithArg<0>(Invoke(StampVector)));
+  }
+
+  EXPECT_CALL(*this->definition_ptr_, GetCellVector()).WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+    this->test_stamper_->StampFissionSourceTerm(
+        this->system_rhs_vector,
+        this->quadrature_point_ptr_,
+        system::EnergyGroup(1),
+        k_effective,
+        this->in_group_moment_,
+        this->moments_map_);
+                  });
+
+  EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_,
+                                this->system_rhs_vector));
+
 }
 
 } // namespace

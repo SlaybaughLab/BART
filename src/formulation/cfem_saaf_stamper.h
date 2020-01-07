@@ -25,6 +25,14 @@ class CFEM_SAAF_Stamper {
    void StampCollisionTerm(system::MPISparseMatrix& to_stamp,
                            const system::EnergyGroup group_number);
 
+   void StampFissionSourceTerm(
+       system::MPIVector& to_stamp,
+       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+       const system::EnergyGroup group_number,
+       const double k_eff,
+       const system::moments::MomentVector &in_group_moment,
+       const system::moments::MomentsMap &group_moments);
+
   DomainDefinitionType* definition_ptr() const {return definition_ptr_.get();}
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();}
 
