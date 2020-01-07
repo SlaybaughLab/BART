@@ -40,7 +40,15 @@ void CFEM_SAAF_Stamper<dim>::StampFissionSourceTerm(
     const double k_eff,
     const system::moments::MomentVector &in_group_moment,
     const system::moments::MomentsMap &group_moments) {
+  auto fission_source_function =
+      [&](dealii::Vector<double> &vector,
+          const formulation::CellPtr<dim>& cell_ptr) -> void {
+    this->formulation_ptr_->FillCellFissionSourceTerm(
+        vector, this->saaf_initialization_token_, cell_ptr, quadrature_point,
+        group_number, k_eff, in_group_moment, group_moments);
+  };
 
+  StampVector(to_stamp, fission_source_function);
 }
 
 template<int dim>
