@@ -9,16 +9,16 @@ services:
  - docker
 
 before_install:
- - sudo docker pull jsrehak/bart:ubuntu18
+ - sudo docker pull jsrehak/bart
  - ci_env=`bash <(curl -s https://codecov.io/env)`
 
 install:
- - sudo docker run jsrehak/bart:ubuntu18
+ - sudo docker run jsrehak/bart
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker cp ../BART $id:/home/bart
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker commit $id jsrehak/bart:ubuntu18
- - sudo docker run $ci_env -it -u="root" -d -w="/home/bart/BART" --name bart jsrehak/bart:ubuntu18
+ - sudo docker commit $id jsrehak/bart
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/bart/BART" --name bart jsrehak/bart
 
 script:
  - docker exec bart cmake .
