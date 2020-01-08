@@ -240,4 +240,32 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampFixedSource) {
                                 this->index_hits_vector_));
 }
 
+TYPED_TEST(CFEMSAAFStamperMPITests, StampScatteringSource) {
+
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellScatteringSourceTerm(_,_,cell,
+                                             this->quadrature_point_ptr_,
+                                             system::EnergyGroup(1),
+                                             Ref(this->in_group_moment_),
+                                             Ref(this->moments_map_)))
+        .WillOnce(WithArg<0>(Invoke(StampVector)));
+  }
+
+  EXPECT_CALL(*this->definition_ptr_, GetCellVector()).WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+                    this->test_stamper_->StampScatteringSourceTerm(
+                        this->system_rhs_vector,
+                        this->quadrature_point_ptr_,
+                        system::EnergyGroup(1),
+                        this->in_group_moment_,
+                        this->moments_map_);
+                  });
+
+  EXPECT_TRUE(CompareMPIVectors(this->index_hits_vector_,
+                                this->system_rhs_vector));
+
+}
+
 } // namespace

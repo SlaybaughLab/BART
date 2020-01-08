@@ -68,6 +68,25 @@ void CFEM_SAAF_Stamper<dim>::StampFixedSourceTerm(
 }
 
 template<int dim>
+void CFEM_SAAF_Stamper<dim>::StampScatteringSourceTerm(
+    bart::system::MPIVector &to_stamp,
+    const std::shared_ptr<bart::quadrature::QuadraturePointI<dim>> quadrature_point,
+    const bart::system::EnergyGroup group_number,
+    const bart::system::moments::MomentVector &in_group_moment,
+    const bart::system::moments::MomentsMap &group_moments) {
+  auto scattering_source_function =
+      [&](dealii::Vector<double> &vector,
+          const formulation::CellPtr<dim>& cell_ptr) -> void {
+        this->formulation_ptr_->FillCellScatteringSourceTerm(
+            vector, this->saaf_initialization_token_, cell_ptr, quadrature_point,
+            group_number, in_group_moment, group_moments);
+      };
+
+  StampVector(to_stamp, scattering_source_function);
+}
+
+
+template<int dim>
 void CFEM_SAAF_Stamper<dim>::StampMatrix(
     system::MPISparseMatrix &to_stamp,
     std::function<void(formulation::FullMatrix&,
