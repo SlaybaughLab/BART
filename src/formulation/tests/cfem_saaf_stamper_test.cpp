@@ -268,4 +268,26 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampScatteringSource) {
 
 }
 
+TYPED_TEST(CFEMSAAFStamperMPITests, StampStreaming) {
+
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellStreamingTerm(_,_,cell,
+                                      this->quadrature_point_ptr_,
+                                      system::EnergyGroup(1)))
+        .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));
+  }
+
+  EXPECT_CALL(*this->definition_ptr_, GetCellMatrix()).WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+                    this->test_stamper_->StampStreamingTerm(
+                        this->system_matrix,
+                        this->quadrature_point_ptr_,
+                        system::EnergyGroup(1));
+                  });
+
+  EXPECT_TRUE(CompareMPIMatrices(this->index_hits_, this->system_matrix));
+}
+
 } // namespace

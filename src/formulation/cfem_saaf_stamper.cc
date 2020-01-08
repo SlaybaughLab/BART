@@ -85,6 +85,24 @@ void CFEM_SAAF_Stamper<dim>::StampScatteringSourceTerm(
   StampVector(to_stamp, scattering_source_function);
 }
 
+template<int dim>
+void CFEM_SAAF_Stamper<dim>::StampStreamingTerm(
+    system::MPISparseMatrix &to_stamp,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number) {
+  auto streaming_term_function =
+      [&](formulation::FullMatrix& cell_matrix,
+          const formulation::CellPtr<dim>& cell_ptr) -> void {
+        formulation_ptr_->FillCellStreamingTerm(cell_matrix,
+                                                saaf_initialization_token_,
+                                                cell_ptr,
+                                                quadrature_point,
+                                                group_number);
+      };
+
+  StampMatrix(to_stamp, streaming_term_function);
+}
+
 
 template<int dim>
 void CFEM_SAAF_Stamper<dim>::StampMatrix(
