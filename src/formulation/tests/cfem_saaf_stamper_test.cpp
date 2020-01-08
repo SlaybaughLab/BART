@@ -220,4 +220,24 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampFissionSource) {
 
 }
 
+TYPED_TEST(CFEMSAAFStamperMPITests, StampFixedSource) {
+  for (auto const& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellFixedSourceTerm(_, _, cell, this->quadrature_point_ptr_,
+                    system::EnergyGroup(1)))
+        .WillOnce(WithArg<0>(Invoke(StampVector)));
+  }
+  EXPECT_CALL(*this->definition_ptr_, GetCellVector()).WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+    this->test_stamper_->StampFixedSourceTerm(
+        this->system_rhs_vector,
+        this->quadrature_point_ptr_,
+        system::EnergyGroup(1));
+  });
+
+  EXPECT_TRUE(CompareMPIVectors(this->system_rhs_vector,
+                                this->index_hits_vector_));
+}
+
 } // namespace

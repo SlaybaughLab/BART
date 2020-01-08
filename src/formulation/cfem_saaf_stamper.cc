@@ -52,6 +52,22 @@ void CFEM_SAAF_Stamper<dim>::StampFissionSourceTerm(
 }
 
 template<int dim>
+void CFEM_SAAF_Stamper<dim>::StampFixedSourceTerm(
+    system::MPIVector &to_stamp,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim> > quadrature_point,
+    const system::EnergyGroup group_number) {
+  auto fixed_source_function =
+      [&](dealii::Vector<double> &vector,
+          const formulation::CellPtr<dim>& cell_ptr) -> void {
+        this->formulation_ptr_->FillCellFixedSourceTerm(
+            vector, this->saaf_initialization_token_, cell_ptr,
+            quadrature_point, group_number);
+  };
+
+  StampVector(to_stamp, fixed_source_function);
+}
+
+template<int dim>
 void CFEM_SAAF_Stamper<dim>::StampMatrix(
     system::MPISparseMatrix &to_stamp,
     std::function<void(formulation::FullMatrix&,
@@ -86,7 +102,6 @@ void CFEM_SAAF_Stamper<dim>::StampVector(
   }
   to_stamp.compress(dealii::VectorOperation::add);
 }
-
 
 template class CFEM_SAAF_Stamper<1>;
 template class CFEM_SAAF_Stamper<2>;

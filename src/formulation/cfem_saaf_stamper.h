@@ -33,6 +33,11 @@ class CFEM_SAAF_Stamper {
        const system::moments::MomentVector &in_group_moment,
        const system::moments::MomentsMap &group_moments);
 
+   void StampFixedSourceTerm(
+       system::MPIVector& to_stamp,
+       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+       const system::EnergyGroup group_number);
+
   DomainDefinitionType* definition_ptr() const {return definition_ptr_.get();}
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();}
 
