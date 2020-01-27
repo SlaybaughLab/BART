@@ -2,7 +2,7 @@
 #define BART_SRC_FORMULATION_CFEM_SAAF_STAMPER_H_
 
 #include "domain/definition_i.h"
-#include "formulation/cfem_stamper_i.h"
+#include "formulation/angular_stamper_i.h"
 
 #include "formulation/angular/cfem_self_adjoint_angular_flux_i.h"
 
@@ -13,7 +13,7 @@ namespace bart {
 namespace formulation {
 
 template <int dim>
-class CFEM_SAAF_Stamper {
+class CFEM_SAAF_Stamper : public AngularStamperI<dim> {
  public:
   using DomainDefinitionType = domain::DefinitionI<dim>;
   using SAAFFormulationType = typename
@@ -23,7 +23,7 @@ class CFEM_SAAF_Stamper {
                     std::shared_ptr<DomainDefinitionType> defintion_ptr);
 
   void StampCollisionTerm(system::MPISparseMatrix& to_stamp,
-                          const system::EnergyGroup group_number);
+                          const system::EnergyGroup group_number) override;
 
   void StampFissionSourceTerm(
       system::MPIVector& to_stamp,
@@ -31,24 +31,24 @@ class CFEM_SAAF_Stamper {
       const system::EnergyGroup group_number,
       const double k_eff,
       const system::moments::MomentVector &in_group_moment,
-      const system::moments::MomentsMap &group_moments);
+      const system::moments::MomentsMap &group_moments) override;
 
   void StampFixedSourceTerm(
       system::MPIVector& to_stamp,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-      const system::EnergyGroup group_number);
+      const system::EnergyGroup group_number) override;
 
   void StampScatteringSourceTerm(
       system::MPIVector& to_stamp,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const system::moments::MomentVector &in_group_moment,
-      const system::moments::MomentsMap &group_moments);
+      const system::moments::MomentsMap &group_moments) override;
 
   void StampStreamingTerm(
       system::MPISparseMatrix& to_stamp,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-      const system::EnergyGroup group_number);
+      const system::EnergyGroup group_number) override;
 
   DomainDefinitionType* definition_ptr() const {return definition_ptr_.get();}
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();}
