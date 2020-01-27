@@ -15,6 +15,7 @@ namespace formulation {
 template <int dim>
 class AngularStamperI : public StamperI {
  public:
+  static constexpr int dimension = dim;
   virtual ~AngularStamperI() = default;
   virtual void StampCollisionTerm(system::MPISparseMatrix& to_stamp,
                                   const system::EnergyGroup group_number) = 0;
