@@ -15,6 +15,7 @@ namespace formulation {
 template <int dim>
 class CFEM_SAAF_Stamper : public AngularStamperI<dim> {
  public:
+  static constexpr int dimension = dim;
   using DomainDefinitionType = domain::DefinitionI<dim>;
   using SAAFFormulationType = typename
       formulation::angular::CFEMSelfAdjointAngularFluxI<dim>;
