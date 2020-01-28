@@ -14,9 +14,16 @@ template <typename StamperType>
 class AngularFixedUpdater : public FixedUpdaterI {
  public:
   static constexpr int dim = StamperType::dimension;
+
+  using QuadratureSetType = quadrature::QuadratureSetI<dim>;
+
   AngularFixedUpdater(
       std::shared_ptr<StamperType>,
-      std::shared_ptr<quadrature::QuadratureSetI<dim>>) {}
+      std::shared_ptr<QuadratureSetType>) {}
+
+  void UpdateFixedTerms(system::System &system,
+                        system::GroupNumber group,
+                        system::AngleIndex angle) override {}
 };
 
 } // namespace updater
