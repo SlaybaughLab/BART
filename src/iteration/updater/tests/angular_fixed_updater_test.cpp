@@ -1,12 +1,27 @@
+#include <numeric>
+
 #include "iteration/updater/angular_fixed_updater.h"
 #include "formulation/tests/angular_stamper_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
+#include "system/system.h"
+#include "system/terms/tests/bilinear_term_mock.h"
+#include "test_helpers/dealii_test_domain.h"
+#include "test_helpers/test_helper_functions.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
 
 using namespace bart;
+
+using ::testing::Return;
+
+/*
+ * ===== BASIC TESTS ===========================================================
+ * Tests operation of the constructor, provides mock stamper and observing ptr
+ * to stamper.
+ *
+ */
 
 template <typename DimensionWrapper>
 class IterationUpdaterAngularFixedUpdaterTest : public ::testing::Test {
@@ -72,6 +87,81 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterTest, Getters) {
   ASSERT_NE(nullptr, quadrature_set_ptr);
   EXPECT_EQ(quadrature_set_ptr, this->quadrature_set_ptr_.get());
 }
+
+/* ===== DOMAIN TESTS ==========================================================
+ * Tests updating of system matrices. DealiiTestDomain is used to provide
+ * matrices with sparsity patterns that can be stamped properly. A test system
+ * struct will be instantiated (populated with mock classes) and passed to
+ * the updater to verify it mediates actions between the system and the
+ * stamper correctly.
+ */
+
+template <typename DimensionWrapper>
+class IterationUpdaterAngularFixedUpdaterDomainTest :
+    public IterationUpdaterAngularFixedUpdaterTest<DimensionWrapper>,
+    public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+ public:
+  IterationUpdaterAngularFixedUpdaterDomainTest()
+      : group_number_(btest::RandomDouble(0, 10)),
+        angle_index_(btest::RandomDouble(0, 10)),
+        index_({group_number_, angle_index_}) {};
+
+  bart::system::System test_system_;
+  std::shared_ptr<system::MPISparseMatrix> matrix_ptr_;
+  bart::system::terms::BilinearTermMock* mock_lhs_obs_ptr_;
+
+  const system::GroupNumber group_number_;
+  const system::AngleIndex angle_index_;
+  const system::Index index_;
+
+  void SetUp() override;
+};
+
+template <typename DimensionWrapper>
+void IterationUpdaterAngularFixedUpdaterDomainTest<DimensionWrapper>::SetUp() {
+  IterationUpdaterAngularFixedUpdaterTest<DimensionWrapper>::SetUp();
+  bart::testing::DealiiTestDomain<DimensionWrapper::value>::SetUpDealii();
+
+  auto mock_lhs_ptr = std::make_unique<system::terms::BilinearTermMock>();
+  mock_lhs_obs_ptr_ = mock_lhs_ptr.get();
+
+  matrix_ptr_ = std::make_shared<system::MPISparseMatrix>();
+  matrix_ptr_->reinit(this->matrix_1);
+
+  test_system_.left_hand_side_ptr_ = std::move(mock_lhs_ptr);
+}
+
+TYPED_TEST_SUITE(IterationUpdaterAngularFixedUpdaterDomainTest,
+                 bart::testing::AllDimensions);
+
+TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
+    UpdateFixedNullptrMPI) {
+  EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(this->index_))
+      .WillOnce(Return(nullptr));
+  EXPECT_ANY_THROW(this->test_updater_ptr_->UpdateFixedTerms(
+      this->test_system_,
+      this->group_number_,
+      this->angle_index_));
+}
+
+TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
+    UpdateFixedMPI) {
+
+  // Get three random values to stamp
+  auto double_vector = btest::RandomVector(3, 1, 10);
+  double sum = std::accumulate(double_vector.begin(), double_vector.end(), 0);
+  // Set the value of our expected result
+  this->matrix_1 = 0;
+  this->StampMatrix(this->matrix_1, sum);
+
+  // Matrix we'll stamp
+  *this->matrix_ptr_ = 0;
+  EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(this->index_))
+      .WillOnce(Return(this->matrix_ptr_));
+
+
+}
+
 
 
 
