@@ -3,10 +3,12 @@
 #include "iteration/updater/angular_fixed_updater.h"
 #include "formulation/tests/angular_stamper_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_point_mock.h"
 #include "system/system.h"
 #include "system/terms/tests/bilinear_term_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_helper_functions.h"
+#include "test_helpers/test_assertions.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -14,7 +16,7 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::Return;
+using ::testing::Return, ::testing::Ref, ::testing::WithArg, ::testing::Invoke;
 
 /*
  * ===== BASIC TESTS ===========================================================
@@ -146,23 +148,47 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
 
 TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
     UpdateFixedMPI) {
+  using QuadraturePointType = quadrature::QuadraturePointI<this->dim>;
 
   // Get three random values to stamp
-  auto double_vector = btest::RandomVector(3, 1, 10);
+  auto double_vector = btest::RandomVector(2, 1, 10);
   double sum = std::accumulate(double_vector.begin(), double_vector.end(), 0);
   // Set the value of our expected result
   this->matrix_1 = 0;
   this->StampMatrix(this->matrix_1, sum);
 
-  // Matrix we'll stamp
-  *this->matrix_ptr_ = 0;
+  // Matrix we'll stamp. We'll set it to a value to make sure it gets zero'd
+  this->StampMatrix(*this->matrix_ptr_, 100);
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(this->index_))
       .WillOnce(Return(this->matrix_ptr_));
 
+  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
+  quadrature::QuadraturePointIndex quad_index(this->angle_index_);
+  system::EnergyGroup group_number(this->group_number_);
 
+  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
+      .WillOnce(Return(quadrature_point_ptr_));
+
+  auto collision_function = [&](system::MPISparseMatrix& to_stamp) {
+    int value = double_vector.at(0);
+    this->StampMatrix(to_stamp, value);
+  };
+  auto streaming_function = [&](system::MPISparseMatrix& to_stamp) {
+    int value = double_vector.at(1);
+    this->StampMatrix(to_stamp, value);
+  };
+  EXPECT_CALL(*this->stamper_ptr_, StampCollisionTerm(Ref(*this->matrix_ptr_),
+                                                      group_number))
+      .WillOnce(WithArg<0>(Invoke(collision_function)));
+  EXPECT_CALL(*this->stamper_ptr_, StampStreamingTerm(Ref(*this->matrix_ptr_),
+                                                      quadrature_point_ptr_,
+                                                      group_number))
+      .WillOnce(WithArg<0>(Invoke(streaming_function)));
+  this->test_updater_ptr_->UpdateFixedTerms(this->test_system_,
+                                            this->group_number_,
+                                            this->angle_index_);
+  EXPECT_TRUE(bart::testing::CompareMPIMatrices(*this->matrix_ptr_,
+                                                this->matrix_1));
 }
-
-
-
 
 } // namespace

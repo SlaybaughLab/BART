@@ -23,7 +23,7 @@ class AngularFixedUpdater : public FixedUpdaterI {
 
   void UpdateFixedTerms(system::System &system,
                         system::GroupNumber group,
-                        system::AngleIndex angle) override {}
+                        system::AngleIndex angle) override;
 
   StamperType* stamper_ptr() const { return stamper_ptr_.get();};
   QuadratureSetType* quadrature_set_ptr() const {
