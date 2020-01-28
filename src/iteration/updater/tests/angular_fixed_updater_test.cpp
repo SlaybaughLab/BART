@@ -21,7 +21,8 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterTest, Constructor) {
   constexpr int dim = this->dim;
   using StamperType = formulation::AngularStamperMock<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
-  using FixedUpdaterType = iteration::updater::AngularFixedUpdater<StamperType>;
+  using FixedUpdaterType =
+      iteration::updater::AngularFixedUpdater<formulation::AngularStamperI<dim>>;
 
   auto stamper_ptr = std::make_shared<StamperType>();
   auto quadrature_set_ptr = std::make_shared<QuadratureSetType>();
@@ -29,6 +30,20 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterTest, Constructor) {
   EXPECT_NO_THROW({
     FixedUpdaterType test_updater(stamper_ptr, quadrature_set_ptr);
   });
+
+  EXPECT_ANY_THROW({
+    FixedUpdaterType test_updater(nullptr, quadrature_set_ptr);
+  });
+
+  EXPECT_ANY_THROW({
+    FixedUpdaterType test_updater(nullptr, nullptr);
+  });
+
+  EXPECT_ANY_THROW({
+    FixedUpdaterType test_updater(nullptr, quadrature_set_ptr);
+  });
 }
+
+
 
 } // namespace

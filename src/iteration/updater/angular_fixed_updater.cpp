@@ -7,6 +7,18 @@ namespace iteration {
 
 namespace updater {
 
+template<typename StamperType>
+AngularFixedUpdater<StamperType>::AngularFixedUpdater(
+    std::shared_ptr<StamperType> stamper_ptr,
+    std::shared_ptr<QuadratureSetType> quadrature_set_ptr) {
+  AssertThrow(stamper_ptr != nullptr,
+      dealii::ExcMessage("Error in constructor of AngularFixedUpdater, "
+                         "stamper pointer is null"));
+  AssertThrow(quadrature_set_ptr != nullptr,
+              dealii::ExcMessage("Error in constructor of AngularFixedUpdater, "
+                                 "quadrature set pointer is null"));
+}
+
 template class AngularFixedUpdater<formulation::AngularStamperI<1>>;
 template class AngularFixedUpdater<formulation::AngularStamperI<2>>;
 template class AngularFixedUpdater<formulation::AngularStamperI<3>>;
