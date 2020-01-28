@@ -26,9 +26,12 @@ class AngularFixedUpdater : public FixedUpdaterI {
                         system::AngleIndex angle) override {}
 
   StamperType* stamper_ptr() const { return stamper_ptr_.get();};
+  QuadratureSetType* quadrature_set_ptr() const {
+    return quadrature_set_ptr_.get();};
 
  private:
   std::shared_ptr<StamperType> stamper_ptr_ = nullptr;
+  std::shared_ptr<QuadratureSetType> quadrature_set_ptr_ = nullptr;
 };
 
 } // namespace updater

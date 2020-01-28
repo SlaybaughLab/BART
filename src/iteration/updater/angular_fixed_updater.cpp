@@ -10,7 +10,9 @@ namespace updater {
 template<typename StamperType>
 AngularFixedUpdater<StamperType>::AngularFixedUpdater(
     std::shared_ptr<StamperType> stamper_ptr,
-    std::shared_ptr<QuadratureSetType> quadrature_set_ptr) {
+    std::shared_ptr<QuadratureSetType> quadrature_set_ptr)
+    : stamper_ptr_(stamper_ptr),
+      quadrature_set_ptr_(quadrature_set_ptr) {
   AssertThrow(stamper_ptr != nullptr,
       dealii::ExcMessage("Error in constructor of AngularFixedUpdater, "
                          "stamper pointer is null"));
