@@ -20,38 +20,39 @@ class FiniteElementMock : public FiniteElementI<dim> {
   using typename FiniteElementI<dim>::CellPtr;
   using typename FiniteElementI<dim>::FaceNumber;
 
-  MOCK_CONST_METHOD0_T(polynomial_degree, int());
+  MOCK_METHOD(int, polynomial_degree, (), (const, override));
 
-  MOCK_CONST_METHOD0_T(dofs_per_cell, int());
+  MOCK_METHOD(int, dofs_per_cell, (), (const, override));
 
-  MOCK_CONST_METHOD0_T(n_cell_quad_pts, int());
+  MOCK_METHOD(int, n_cell_quad_pts, (), (const, override));
 
-  MOCK_CONST_METHOD0_T(n_face_quad_pts, int());
+  MOCK_METHOD(int, n_face_quad_pts, (), (const, override));
 
-  MOCK_METHOD1_T(SetCell, bool(const CellPtr &));
+  MOCK_METHOD(bool, SetCell, (const CellPtr &));
 
-  MOCK_METHOD2_T(SetFace, bool(const CellPtr &to_set, const FaceNumber face));
+  MOCK_METHOD(bool, SetFace, (const CellPtr &to_set, const FaceNumber face), (override));
 
-  MOCK_CONST_METHOD2_T(ShapeValue, double(const int, const int));
+  MOCK_METHOD(double, ShapeValue, (const int, const int), (const, override));
 
-  MOCK_CONST_METHOD2_T(FaceShapeValue, double(const int, const int));
+  MOCK_METHOD(double, FaceShapeValue, (const int, const int), (const, override));
 
-  MOCK_CONST_METHOD2_T(ShapeGradient, dealii::Tensor<1, dim>(const int, const int));
+  MOCK_METHOD((dealii::Tensor<1, dim>), ShapeGradient, (const int, const int), (const, override));
 
-  MOCK_CONST_METHOD1_T(Jacobian, double(const int));
+  MOCK_METHOD(double, Jacobian, (const int), (const, override));
 
-  MOCK_CONST_METHOD1_T(FaceJacobian, double(const int));
+  MOCK_METHOD(double, FaceJacobian, (const int), (const, override));
 
-  MOCK_CONST_METHOD1_T(ValueAtQuadrature, std::vector<double>(
-      const system::moments::MomentVector moment));
+  MOCK_METHOD((dealii::Tensor<1, dim>), FaceNormal, (), (const, override));
 
-  MOCK_METHOD0_T(finite_element, dealii::FiniteElement<dim, dim>*());
+  MOCK_METHOD(std::vector<double>, ValueAtQuadrature, (const system::moments::MomentVector moment), (const, override));
 
-  MOCK_METHOD0_T(values, dealii::FEValues<dim>*());
+  MOCK_METHOD((dealii::FiniteElement<dim, dim>*), finite_element, (), (override));
 
-  MOCK_METHOD0_T(face_values, dealii::FEFaceValues<dim>*());
+  MOCK_METHOD(dealii::FEValues<dim>*, values, (), (override));
 
-  MOCK_METHOD0_T(neighbor_face_values, dealii::FEFaceValues<dim>*());
+  MOCK_METHOD(dealii::FEFaceValues<dim>*, face_values, (), (override));
+
+  MOCK_METHOD(dealii::FEFaceValues<dim>*, neighbor_face_values, (), (override));
 };
 
 } // namespace finite_element
