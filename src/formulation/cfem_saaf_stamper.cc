@@ -21,6 +21,25 @@ void CFEM_SAAF_Stamper<dim>::StampBoundaryBilinearTerm(
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
 
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  auto boundary_function =
+      [&, faces_per_cell](dealii::FullMatrix<double>& matrix,
+          const formulation::CellPtr<dim>& cell_ptr) -> void {
+        if (cell_ptr->at_boundary()) {
+          for (int face = 0; face < faces_per_cell; ++face) {
+            if (cell_ptr->face(face)->at_boundary()) {
+
+              formulation_ptr_->FillBoundaryBilinearTerm(matrix,
+                                               saaf_initialization_token_,
+                                               cell_ptr,
+                                               domain::FaceIndex(face),
+                                               quadrature_point,
+                                               group_number);
+            }
+          }
+        }
+      };
+  StampMatrix(to_stamp, boundary_function);
 }
 
 
