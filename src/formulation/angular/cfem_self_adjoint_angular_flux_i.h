@@ -4,6 +4,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
+#include "domain/domain_types.h"
 #include "formulation/formulation_types.h"
 #include "quadrature/quadrature_point_i.h"
 #include "system/system_types.h"
@@ -20,6 +21,35 @@ class CFEMSelfAdjointAngularFluxI {
   struct InitializationToken{};
 
   virtual ~CFEMSelfAdjointAngularFluxI() = default;
+
+  /*!
+  * \brief Integrates the bilinear boundary terms and fills a given matrix.
+  *
+  * For a given boundary in the triangulation, \f$\partial K \in \partial T_K\f$,
+  * with basis functions \f$\varphi\f$, this function integrates the bilinear
+  * boundary term for one group using the quadrature specified in the
+  * problem definition and adds them to the local cell matrix. For the case
+  * \f$(\vec{n} \cdot \vec{\Omega}) > 0\f$, the boundary condition is
+  * \f$\Psi_b(\vec{r},\vec{\Omega}) = \Psi(\vec{r},\vec{\Omega})\f$ and is
+  * partially handled by integrating the following bilinear term (there may
+  * also be a linear term):
+  * \f[
+  * \mathbf{A}(i,j)_{K,g}' = \mathbf{A}(i,j)_{K,g} +
+  * \int_{\partial K}
+  * (\hat{n}\cdot\vec{\Omega})\varphi_i(\vec{r})
+  * \varphi_j(\vec{r})
+  * dS
+  * \f]
+  *
+  * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.
+  !*/
+  virtual void FillBoundaryBilinearTerm(
+      FullMatrix& to_fill,
+      const InitializationToken init_token,
+      const CellPtr<dim>& cell_ptr,
+      const domain::FaceIndex face_number,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number) = 0;
 
   /*!
    * \brief Integrates the bilinear collision term and fills a given matrix.

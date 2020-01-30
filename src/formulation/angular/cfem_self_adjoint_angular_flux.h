@@ -27,6 +27,15 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   InitializationToken Initialize(const formulation::CellPtr<dim>&) override;
 
   // Fill functions
+
+  void FillBoundaryBilinearTerm(
+      FullMatrix &to_fill,
+      const InitializationToken init_token,
+      const CellPtr<dim> &cell_ptr,
+      const domain::FaceIndex face_number,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number) override;
+
   void FillCellCollisionTerm(
       FullMatrix &to_fill,
       const InitializationToken init_token,
