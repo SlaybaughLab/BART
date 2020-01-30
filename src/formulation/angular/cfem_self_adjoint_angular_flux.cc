@@ -78,12 +78,34 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
 template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
     FullMatrix &to_fill,
-    const InitializationToken init_token,
+    const InitializationToken /*init_token*/,
     const CellPtr<dim> &cell_ptr,
     const domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-const system::EnergyGroup group_number) {
+    const system::EnergyGroup /*group_number*/) {
+  ValidateMatrixSize(to_fill, __FUNCTION__);
+  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
+              dealii::ExcMessage("Bad cell given to FilLBoundaryBilinearTerm"))
+  finite_element_ptr_->SetFace(cell_ptr, face_number.get());
 
+  auto normal_vector = finite_element_ptr_->FaceNormal();
+  auto omega = quadrature_point->cartesian_position_tensor();
+
+  const double normal_dot_omega = normal_vector * omega;
+
+  if (normal_dot_omega > 0) {
+    for (int f_q = 0; f_q < face_quadrature_points_; ++f_q) {
+      const double jacobian = finite_element_ptr_->FaceJacobian(f_q);
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        for (int j = 0; j < cell_degrees_of_freedom_; ++j) {
+          to_fill(i,j) += normal_dot_omega
+              * finite_element_ptr_->FaceShapeValue(i, f_q)
+              * finite_element_ptr_->FaceShapeValue(j, f_q)
+              * jacobian;
+        }
+      }
+    }
+  }
 }
 
 template<int dim>
