@@ -23,6 +23,11 @@ class CFEM_SAAF_Stamper : public AngularStamperI<dim> {
   CFEM_SAAF_Stamper(std::unique_ptr<SAAFFormulationType> saaf_ptr,
                     std::shared_ptr<DomainDefinitionType> defintion_ptr);
 
+  void StampBoundaryBilinearTerm(
+      system::MPISparseMatrix &to_stamp,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number) override;
+
   void StampCollisionTerm(system::MPISparseMatrix& to_stamp,
                           const system::EnergyGroup group_number) override;
 

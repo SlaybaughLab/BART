@@ -125,6 +125,7 @@ class CFEMSAAFStamperMPITests :
 
   bart::system::MPISparseMatrix& system_matrix = this->matrix_1;
   bart::system::MPISparseMatrix& index_hits_ = this->matrix_2;
+  bart::system::MPISparseMatrix& boundary_hits_ = this->matrix_3;
   bart::system::MPIVector& system_rhs_vector = this->vector_1;
   bart::system::MPIVector& index_hits_vector_ = this->vector_2;
 };
@@ -147,9 +148,22 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
         index_hits_.add(index_i, index_j, 1);
       }
     }
+    if (cell->at_boundary()) {
+      int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          for (auto index_i : local_dof_indices) {
+            for (auto index_j : local_dof_indices) {
+              this->boundary_hits_.add(index_i, index_j, 1);
+            }
+          }
+        }
+      }
+    }
   }
   index_hits_.compress(dealii::VectorOperation::add);
   index_hits_vector_.compress(dealii::VectorOperation::add);
+  boundary_hits_.compress(dealii::VectorOperation::add);
 
   // Cell matrix and vector
   formulation::FullMatrix cell_matrix(cell_dofs, cell_dofs);
@@ -172,6 +186,36 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
 TYPED_TEST_SUITE(CFEMSAAFStamperMPITests, bart::testing::AllDimensions);
 
 // TESTS =======================================================================
+
+TYPED_TEST(CFEMSAAFStamperMPITests, StampBoundary) {
+  for (auto const& cell : this->cells_) {
+    if (cell->at_boundary()) {
+      int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+
+          EXPECT_CALL(*this->formulation_obs_ptr_,
+                      FillBoundaryBilinearTerm(_,_,cell, domain::FaceIndex(face),
+                                               this->quadrature_point_ptr_,
+                                               system::EnergyGroup(1)))
+              .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));
+        }
+      }
+    }
+  }
+
+  EXPECT_CALL(*this->definition_ptr_, GetCellMatrix()).WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+                    this->test_stamper_->StampBoundaryBilinearTerm(
+                        this->system_matrix,
+                        this->quadrature_point_ptr_,
+                        system::EnergyGroup(1));
+                  });
+
+  EXPECT_TRUE(CompareMPIMatrices(this->boundary_hits_, this->system_matrix));
+
+}
 
 TYPED_TEST(CFEMSAAFStamperMPITests, StampCollision) {
 

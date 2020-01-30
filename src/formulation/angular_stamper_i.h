@@ -17,6 +17,12 @@ class AngularStamperI : public StamperI {
  public:
   static constexpr int dimension = dim;
   virtual ~AngularStamperI() = default;
+
+  virtual void StampBoundaryBilinearTerm(
+      system::MPISparseMatrix& to_stamp,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number) = 0;
+
   virtual void StampCollisionTerm(system::MPISparseMatrix& to_stamp,
                                   const system::EnergyGroup group_number) = 0;
   virtual void StampFissionSourceTerm(

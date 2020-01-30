@@ -15,6 +15,14 @@ CFEM_SAAF_Stamper<dim>::CFEM_SAAF_Stamper(
   saaf_initialization_token_ = formulation_ptr_->Initialize(cells_.at(0));
 }
 
+template<int dim>
+void CFEM_SAAF_Stamper<dim>::StampBoundaryBilinearTerm(
+    system::MPISparseMatrix &to_stamp,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const system::EnergyGroup group_number) {
+
+}
+
 
 template<int dim>
 void CFEM_SAAF_Stamper<dim>::StampCollisionTerm(

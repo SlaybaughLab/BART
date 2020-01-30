@@ -12,6 +12,11 @@ namespace formulation {
 template <int dim>
 class AngularStamperMock : public AngularStamperI<dim> {
  public:
+  MOCK_METHOD(void, StampBoundaryBilinearTerm, (
+      system::MPISparseMatrix& to_stamp,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number), (override));
+
   MOCK_METHOD(void, StampCollisionTerm, (system::MPISparseMatrix& to_stamp,
       const system::EnergyGroup group_number), (override));
 
