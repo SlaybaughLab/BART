@@ -3,12 +3,16 @@
 
 #include <deal.II/dofs/dof_accessor.h>
 
+#include "utility/named_type.h"
+
 namespace bart {
 
 namespace domain {
 
 template <int dim>
 using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
+
+using FaceIndex = bart::utility::NamedType<int, struct FaceIndexParameter>;
 
 } // namespace domain
 
