@@ -17,7 +17,12 @@ class CFEMSelfAdjointAngularFluxMock :
  public:
 
   using typename CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
-
+  MOCK_METHOD(void, FillBoundaryBilinearTerm, (FullMatrix& to_fill,
+      const InitializationToken init_token,
+      const CellPtr<dim>& cell_ptr,
+      const domain::FaceIndex,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::EnergyGroup group_number), (override));
   MOCK_METHOD(void, FillCellCollisionTerm, (FullMatrix&,
       const InitializationToken, const CellPtr<dim>&,
       const system::EnergyGroup), (override));

@@ -109,11 +109,16 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
       .WillByDefault(Return(2));
   // Set default return values for shape functions and Jacobian
   for (int quad_pt_idx = 0; quad_pt_idx < 2; ++quad_pt_idx) {
+    int jacobian = 3*(quad_pt_idx + 1);
     ON_CALL(*mock_finite_element_ptr_, Jacobian(quad_pt_idx))
-        .WillByDefault(Return(3*(quad_pt_idx + 1)));
+        .WillByDefault(Return(jacobian));
+    ON_CALL(*mock_finite_element_ptr_, FaceJacobian(quad_pt_idx))
+        .WillByDefault(Return(jacobian));
     for (int dof_idx = 0; dof_idx < 2; ++dof_idx) {
       int entry = quad_pt_idx + 1 + 10*(dof_idx + 1);
       ON_CALL(*mock_finite_element_ptr_, ShapeValue(dof_idx, quad_pt_idx))
+          .WillByDefault(Return(entry));
+      ON_CALL(*mock_finite_element_ptr_, FaceShapeValue(dof_idx, quad_pt_idx))
           .WillByDefault(Return(entry));
       dealii::Tensor<1, dim> gradient_entry;
       for (int i = 0; i < dim; ++i)
@@ -424,6 +429,132 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 // =============================================================================
 // FUNCTION TESTS:
 // =============================================================================
+
+// FillBoundaryBilinearTerm
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+    FillBoundaryBilinearTermTestBadCellPtr) {
+  const int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix cell_matrix(2,2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  formulation::CellPtr<dim> invalid_cell_ptr;
+
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  EXPECT_ANY_THROW({
+    test_saaf.FillBoundaryBilinearTerm(cell_matrix, token, invalid_cell_ptr,
+                                       domain::FaceIndex(0), angle_ptr,
+                                       system::EnergyGroup(0));
+                   });
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellBoundaryBilinearTermBadMatrixSize) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix bad_cell_matrix(3,2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  EXPECT_ANY_THROW({
+    test_saaf.FillBoundaryBilinearTerm(bad_cell_matrix, token, this->cell_ptr_,
+                                       domain::FaceIndex(0), angle_ptr,
+                                       system::EnergyGroup(0));
+                   });
+
+  formulation::FullMatrix second_bad_cell_matrix(2,3);
+  EXPECT_ANY_THROW({
+    test_saaf.FillBoundaryBilinearTerm(second_bad_cell_matrix, token,
+                                       this->cell_ptr_, domain::FaceIndex(0),
+                                       angle_ptr, system::EnergyGroup(0));
+                   });
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellBoundaryTermLessThanZeroTest) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix expected_results(2,2);
+  formulation::FullMatrix cell_matrix(2, 2, std::array<double, 4>{2454, 4554, 4554, 8454}.begin());
+  expected_results = cell_matrix;
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  int face_index = 0;
+
+  dealii::Tensor<1, dim> normal;
+  for (int i = 0; i < dim; ++i)
+    normal[i] = -1;
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
+      .WillOnce(Return(normal));
+
+  EXPECT_NO_THROW({
+  test_saaf.FillBoundaryBilinearTerm(cell_matrix, token, this->cell_ptr_,
+                                     domain::FaceIndex(0), angle_ptr,
+                                     system::EnergyGroup(0));
+                  });
+  EXPECT_TRUE(CompareMatrices(expected_results, cell_matrix));
+}
+
+TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+           FillCellBoundaryTermTest) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix expected_results(2, 2, std::array<double, 4>{1227, 2277, 2277, 4227}.begin());
+  expected_results *= 3*dim;
+  formulation::FullMatrix cell_matrix(2,2);
+  cell_matrix = 0;
+
+  auto token = test_saaf.Initialize(this->cell_ptr_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  int face_index = 0;
+
+  dealii::Tensor<1, dim> normal;
+  for (int i = 0; i < dim; ++i)
+    normal[i] = 3;
+
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
+      .WillOnce(Return(normal));
+  auto mock_angle_ptr = dynamic_cast<quadrature::QuadraturePointMock<dim>*>(angle_ptr.get());
+  EXPECT_CALL(*mock_angle_ptr, cartesian_position_tensor())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceJacobian(_))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceShapeValue(_, _))
+      .Times(16)
+      .WillRepeatedly(DoDefault());
+
+  test_saaf.FillBoundaryBilinearTerm(cell_matrix, token, this->cell_ptr_,
+                                     domain::FaceIndex(0), angle_ptr,
+                                     system::EnergyGroup(0));
+
+  EXPECT_TRUE(CompareMatrices(expected_results, cell_matrix));
+}
+
 
 // FillStreamingTerm ===========================================================
 TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
