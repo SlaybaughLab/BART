@@ -151,7 +151,7 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
   using QuadraturePointType = quadrature::QuadraturePointI<this->dim>;
 
   // Get three random values to stamp
-  auto double_vector = btest::RandomVector(2, 1, 10);
+  auto double_vector = btest::RandomVector(3, 1, 10);
   double sum = std::accumulate(double_vector.begin(), double_vector.end(), 0);
   // Set the value of our expected result
   this->matrix_1 = 0;
@@ -177,6 +177,10 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
     int value = double_vector.at(1);
     this->StampMatrix(to_stamp, value);
   };
+  auto boundary_function = [&](system::MPISparseMatrix& to_stamp) {
+    int value = double_vector.at(2);
+    this->StampMatrix(to_stamp, value);
+  };
   EXPECT_CALL(*this->stamper_ptr_, StampCollisionTerm(Ref(*this->matrix_ptr_),
                                                       group_number))
       .WillOnce(WithArg<0>(Invoke(collision_function)));
@@ -184,6 +188,11 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
                                                       quadrature_point_ptr_,
                                                       group_number))
       .WillOnce(WithArg<0>(Invoke(streaming_function)));
+  EXPECT_CALL(*this->stamper_ptr_,
+              StampBoundaryBilinearTerm(Ref(*this->matrix_ptr_),
+                                        quadrature_point_ptr_,
+                                        group_number))
+      .WillOnce(WithArg<0>(Invoke(boundary_function)));
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_,
                                             this->group_number_,
                                             this->angle_index_);

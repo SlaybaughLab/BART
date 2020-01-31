@@ -43,6 +43,9 @@ void AngularFixedUpdater<StamperType>::UpdateFixedTerms(
                                    system::EnergyGroup(group));
   stamper_ptr_->StampCollisionTerm(*fixed_matrix_ptr_,
                                    system::EnergyGroup(group));
+  stamper_ptr_->StampBoundaryBilinearTerm(*fixed_matrix_ptr_,
+                                          quadrature_point_ptr,
+                                          system::EnergyGroup(group));
 }
 
 template class AngularFixedUpdater<formulation::AngularStamperI<1>>;
