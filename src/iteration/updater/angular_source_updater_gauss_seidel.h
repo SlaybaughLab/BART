@@ -24,13 +24,12 @@ class AngularSourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
   static constexpr int dim = StamperType::dimension;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
 
-  AngularSourceUpdaterGaussSeidel(
-      std::shared_ptr<StamperType> stamper_ptr,
-      std::shared_ptr<QuadratureSetType>);
+  AngularSourceUpdaterGaussSeidel(std::shared_ptr<StamperType>,
+                                  std::shared_ptr<QuadratureSetType>);
 
   void UpdateScatteringSource(system::System& system,
                               system::GroupNumber group,
-                              system::AngleIndex angle) override {};
+                              system::AngleIndex angle) override;
   void UpdateFissionSource(system::System& system,
                            system::GroupNumber group,
                            system::AngleIndex angle) override {};

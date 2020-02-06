@@ -1,3 +1,4 @@
+#include <formulation/angular_stamper_i.h>
 #include "iteration/updater/source_updater.h"
 #include "formulation/cfem_stamper_i.h"
 
@@ -26,6 +27,9 @@ std::shared_ptr<system::MPIVector> SourceUpdater<StamperType>::GetSourceVectorPt
 }
 
 template class SourceUpdater<formulation::CFEMStamperI>;
+template class SourceUpdater<formulation::AngularStamperI<1>>;
+template class SourceUpdater<formulation::AngularStamperI<2>>;
+template class SourceUpdater<formulation::AngularStamperI<3>>;
 
 } // namespace updater
 

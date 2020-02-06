@@ -18,7 +18,7 @@ namespace  {
 using namespace bart;
 using ::testing::A, ::testing::An, ::testing::Return, ::testing::_;
 using ::testing::NiceMock, ::testing::DoDefault, ::testing::WithArg;
-using ::testing::Invoke, ::testing::Ref;
+using ::testing::Invoke, ::testing::Ref, ::testing::ReturnRef;
 
 template <typename DimensionWrapper>
 class IterationUpdaterAngularSourceUpdaterGaussSeidelTest :
@@ -163,25 +163,6 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
 }
 
 TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
-    UpdateScatteringSourceBadIndex) {
-  int bad_group = btest::RandomDouble(this->total_groups,
-                                      this->total_groups + 4);
-  int bad_angle = btest::RandomDouble(this->total_angles,
-                                      this->total_angles + 4);
-  EXPECT_ANY_THROW({
-    this->test_updater_->UpdateScatteringSource(this->test_system_,
-                                                bad_group,
-                                                this->angle_number);
-  });
-
-  EXPECT_ANY_THROW({
-    this->test_updater_->UpdateScatteringSource(this->test_system_,
-                                                this->group,
-                                                bad_angle);
-  });
-}
-
-TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
     UpdateScatteringSource) {
   using term = bart::system::terms::VariableLinearTerms;
   StampMPIVector(*this->source_vector_ptr_, 3); // Fill with a random value, should be zero'd
@@ -205,6 +186,8 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
                   Ref(this->current_iteration_moments_[{this->group, 0, 0}]),
                   Ref(this->current_iteration_moments_)))
       .WillOnce(WithArg<0>(Invoke(stamper_function)));
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillOnce(ReturnRef(this->current_iteration_moments_));
 
   this->test_updater_->UpdateScatteringSource(this->test_system_,
                                               this->group,
@@ -230,24 +213,6 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
                    });
 }
 
-TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
-           UpdateFissionSourceBadIndex) {
-  int bad_group = btest::RandomDouble(this->total_groups,
-                                      this->total_groups + 4);
-  int bad_angle = btest::RandomDouble(this->total_angles,
-                                      this->total_angles + 4);
-  EXPECT_ANY_THROW({
-    this->test_updater_->UpdateFissionSource(this->test_system_,
-                                             bad_group,
-                                             this->angle_number);
-  });
-
-  EXPECT_ANY_THROW({
-    this->test_updater_->UpdateFissionSource(this->test_system_,
-                                             this->group,
-                                             bad_angle);
-  });
-}
 
 
 } // namespace
