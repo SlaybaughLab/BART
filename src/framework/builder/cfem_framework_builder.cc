@@ -3,6 +3,7 @@
 #include <fstream>
 #include <streambuf>
 #include <deal.II/base/mpi.h>
+#include <formulation/angular/cfem_self_adjoint_angular_flux.h>
 
 #include "calculator/cell/integrated_fission_source.h"
 #include "calculator/cell/total_aggregated_fission_source.h"
@@ -14,6 +15,7 @@
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/cfem_diffusion_stamper.h"
 #include "formulation/scalar/cfem_diffusion.h"
+#include "formulation/cfem_saaf_stamper.h"
 #include "framework/framework.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
@@ -413,6 +415,35 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
             domain_ptr,
             problem_parameters->ReflectiveBoundary()));
 
+  } else {
+    AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
+                                          "to BuildScalarFormulation"));
+  }
+
+  return return_ptr;
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildAngularStamper(
+    problem::ParametersI *problem_parameters,
+    const std::shared_ptr<Domain> &domain_ptr,
+    const std::shared_ptr<FiniteElement> &finite_element_ptr,
+    const std::shared_ptr<CrossSections> &cross_sections_ptr,
+    const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr)
+-> std::unique_ptr<CFEMAngularStamper> {
+
+  std::unique_ptr<CFEMAngularStamper> return_ptr = nullptr;
+
+  if (problem_parameters->TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+
+    auto saaf_formulation_ptr =
+        std::make_unique<formulation::angular::CFEMSelfAdjointAngularFlux<dim>>(
+        finite_element_ptr, cross_sections_ptr, quadrature_set_ptr);
+
+    return_ptr = std::move(
+        std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
+            std::move(saaf_formulation_ptr),
+            domain_ptr));
   } else {
     AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
                                           "to BuildScalarFormulation"));
