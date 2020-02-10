@@ -62,7 +62,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       std::istreambuf_iterator<char>());
 
   const int n_groups = prm.NEnergyGroups();
-  const int n_angles = 1;
+  int n_angles;
 
   MaterialProtobuf materials(d2_prm);
   auto cross_sections_ptr = std::make_shared<bart::data::CrossSections>(materials);
@@ -81,8 +81,15 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::shared_ptr<SourceUpdater> source_updater_ptr;
   std::unique_ptr<Initializer> initializer_ptr;
 
-  printf("Building Quadrature Set");
-  auto quadrature_ptr = BuildAngularQuadratureSet(&prm);
+  std::shared_ptr<AngularQuadratureSet> quadrature_ptr = nullptr;
+
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    printf("Building Quadrature Set");
+    quadrature_ptr = BuildAngularQuadratureSet(&prm);
+    n_angles = quadrature_ptr->size();
+  } else {
+    n_angles = 1;
+  }
 
   printf("Building Stamper");
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
@@ -114,7 +121,8 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   // Moment calculator
   auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
-      quadrature::MomentCalculatorImpl::kScalarMoment);
+      quadrature::MomentCalculatorImpl::kScalarMoment,
+      quadrature_ptr);
 
   // Solution group
   auto solution_ptr =
