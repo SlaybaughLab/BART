@@ -87,6 +87,10 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> stamper_ptr);
 
+//  std::unique_ptr<SourceUpdater> BuildSourceUpdater(
+//      problem::ParametersI* problem_parameters,
+//      const std::shared_ptr<CFEMAngularStamper> stamper_ptr);
+
   std::unique_ptr<CFEMStamper> BuildStamper(
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<Domain> &domain_ptr,

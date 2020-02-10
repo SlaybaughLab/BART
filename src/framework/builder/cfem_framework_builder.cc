@@ -76,16 +76,24 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::cout << "Setting up domain" << std::endl;
   domain_ptr->SetUpMesh().SetUpDOF();
 
-  std::cout << "Building Stamper" << std::endl;
-  std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
-      &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
+  std::shared_ptr<SourceUpdater> source_updater_ptr;
+  std::unique_ptr<Initializer> initializer_ptr;
 
-  std::cout << "Building source updater" << std::endl;
-  std::shared_ptr<SourceUpdater> source_updater_ptr(
-      std::move(BuildSourceUpdater(&prm, stamper_ptr)));
+  printf("Building Quadrature Set");
+  auto quadrature_ptr = BuildAngularQuadratureSet(&prm);
 
-  std::cout << "Building Initializer" << std::endl;
-  auto initializer_ptr = BuildInitializer(&prm, stamper_ptr);
+  printf("Building Stamper");
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    std::shared_ptr<CFEMAngularStamper> stamper_ptr(std::move(BuildAngularStamper(
+        &prm, domain_ptr, finite_element_ptr, cross_sections_ptr, quadrature_ptr)));
+  } else {
+    std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
+        &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
+    printf("Building Source Updater");
+    source_updater_ptr = std::move(BuildSourceUpdater(&prm, stamper_ptr));
+    printf("Building Initializer");
+    initializer_ptr = BuildInitializer(&prm, stamper_ptr);
+  }
 
   std::cout << "Building single group solver" << std::endl;
   auto single_group_solver_ptr = BuildSingleGroupSolver();
