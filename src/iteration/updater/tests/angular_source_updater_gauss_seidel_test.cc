@@ -203,8 +203,9 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
 TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
            UpdateFissionSourceBadRHS) {
   using term = bart::system::terms::VariableLinearTerms;
+  this->test_system_.k_effective = 1.0;
   EXPECT_CALL(*this->right_hand_side_obs_ptr_,
-              GetVariableTermPtr(this->solution_index, term::kScatteringSource))
+              GetVariableTermPtr(this->solution_index, term::kFissionSource))
       .WillOnce(Return(nullptr));
   EXPECT_ANY_THROW({
     this->test_updater_->UpdateFissionSource(this->test_system_,
@@ -213,6 +214,66 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
                    });
 }
 
+TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
+           UpdateFissionSource) {
+  using term = bart::system::terms::VariableLinearTerms;
+  const double k_eff = 1.1023;
+  this->test_system_.k_effective = k_eff;
+  StampMPIVector(*this->source_vector_ptr_, 3); // Fill with a value, should be zero'd
+  double expected_value = btest::RandomDouble(1, 20);
+  StampMPIVector(this->expected_vector_, expected_value);
 
+  auto stamper_function = [&](bart::system::MPIVector &to_stamp) {
+    StampMPIVector(to_stamp, expected_value);
+  };
+
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_,
+              GetVariableTermPtr(this->solution_index, term::kFissionSource))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetQuadraturePoint(quadrature::QuadraturePointIndex(this->angle_number)))
+      .WillOnce(Return(this->quadrature_point_ptr_));
+  EXPECT_CALL(*this->stamper_ptr_,
+              StampFissionSourceTerm(Ref(*this->source_vector_ptr_),
+                                     this->quadrature_point_ptr_,
+                                     system::EnergyGroup(this->group),
+                                     k_eff,
+                                     Ref(this->current_iteration_moments_[{this->group, 0, 0}]),
+                                     Ref(this->current_iteration_moments_)))
+      .WillOnce(WithArg<0>(Invoke(stamper_function)));
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillOnce(ReturnRef(this->current_iteration_moments_));
+
+  this->test_updater_->UpdateFissionSource(this->test_system_,
+                                           this->group,
+                                           this->angle_number);
+  EXPECT_TRUE(bart::testing::CompareMPIVectors(this->expected_vector_,
+                                               *this->source_vector_ptr_));
+}
+
+TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
+           UpdateFissionSourceBadKeff) {
+  using term = bart::system::terms::VariableLinearTerms;
+
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_,
+              GetVariableTermPtr(this->solution_index, term::kFissionSource))
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetQuadraturePoint(quadrature::QuadraturePointIndex(this->angle_number)))
+      .WillRepeatedly(Return(this->quadrature_point_ptr_));
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillRepeatedly(ReturnRef(this->current_iteration_moments_));
+
+  std::vector<std::optional<double>> bad_k_eff{-1.0, 0.0, std::nullopt};
+
+  for (const auto k_eff : bad_k_eff) {
+    this->test_system_.k_effective = k_eff;
+    EXPECT_ANY_THROW({
+    this->test_updater_->UpdateFissionSource(this->test_system_,
+                                             this->group,
+                                             this->angle_number);
+                     });
+  }
+}
 
 } // namespace
