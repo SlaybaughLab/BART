@@ -73,6 +73,11 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       const problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> &stamper_ptr);
 
+  std::unique_ptr<Initializer> BuildInitializer(
+      const problem::ParametersI* problem_parameters,
+      const std::shared_ptr<CFEMAngularStamper> &stamper_ptr,
+      const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr);
+
   std::unique_ptr<MomentConvergenceChecker> BuildMomentConvergenceChecker(
       double max_delta, int max_iterations);
 

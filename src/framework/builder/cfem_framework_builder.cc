@@ -20,6 +20,7 @@
 #include "iteration/updater/source_updater_gauss_seidel.h"
 #include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
+#include "iteration/updater/angular_fixed_updater.h"
 #include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
@@ -87,6 +88,10 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
     std::shared_ptr<CFEMAngularStamper> stamper_ptr(std::move(BuildAngularStamper(
         &prm, domain_ptr, finite_element_ptr, cross_sections_ptr, quadrature_ptr)));
+    printf("Building Source Updater");
+    source_updater_ptr = std::move(BuildSourceUpdater(&prm, stamper_ptr, quadrature_ptr));
+    printf("Building Initializer");
+    initializer_ptr = BuildInitializer(&prm, stamper_ptr, quadrature_ptr);
   } else {
     std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
         &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
@@ -338,6 +343,30 @@ auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
 
   return std::move(return_ptr);
 }
+
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
+    const problem::ParametersI *problem_parameters,
+    const std::shared_ptr<CFEMAngularStamper> &stamper_ptr,
+    const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr)
+-> std::unique_ptr<Initializer> {
+
+  std::unique_ptr<Initializer> return_ptr = nullptr;
+
+  using FixedUpdaterType = iteration::updater::AngularFixedUpdater<CFEMAngularStamper>;
+  auto fixed_updater_ptr = std::make_unique<FixedUpdaterType>(
+      stamper_ptr, quadrature_set_ptr);
+
+  if (problem_parameters->TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    return_ptr = std::make_unique<iteration::initializer::SetFixedTermsOnce>(
+        std::move(fixed_updater_ptr),
+        problem_parameters->NEnergyGroups(),
+        quadrature_set_ptr->size());
+  }
+
+  return std::move(return_ptr);
+}
+
 
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(

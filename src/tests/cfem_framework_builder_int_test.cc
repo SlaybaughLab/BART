@@ -24,6 +24,7 @@
 #include "iteration/updater/source_updater_gauss_seidel.h"
 #include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
+#include "iteration/updater/angular_fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
@@ -366,6 +367,39 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildInitializer) {
 
   EXPECT_EQ(dynamic_iteration_ptr->total_groups(), this->n_energy_groups);
   EXPECT_EQ(dynamic_iteration_ptr->total_angles(), 1);
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildAngularInitializer) {
+  constexpr int dim = this->dim;
+  auto stamper_ptr = std::make_shared<formulation::AngularStamperMock<dim>>();
+  auto quadrature_set_ptr = std::make_shared<quadrature::QuadratureSetMock<dim>>();
+  const int n_angles = 5;
+
+  EXPECT_CALL(this->parameters, NEnergyGroups())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(this->parameters, TransportModel())
+      .WillOnce(Return(problem::EquationType::kSelfAdjointAngularFlux));
+  EXPECT_CALL(*quadrature_set_ptr, size())
+      .WillOnce(Return(n_angles));
+
+  auto iteration_ptr = this->test_builder.BuildInitializer(&this->parameters,
+                                                           stamper_ptr,
+                                                           quadrature_set_ptr);
+
+  ASSERT_NE(nullptr, iteration_ptr);
+
+  using ExpectedInitializerType = iteration::initializer::SetFixedTermsOnce;
+  using ExpectedUpdaterType = iteration::updater::AngularFixedUpdater<formulation::AngularStamperI<dim>>;
+
+  auto dynamic_iteration_ptr =
+      dynamic_cast<ExpectedInitializerType*>(iteration_ptr.get());
+
+  ASSERT_NE(nullptr, dynamic_iteration_ptr);
+  ASSERT_NE(nullptr,
+            dynamic_cast<ExpectedUpdaterType*>(dynamic_iteration_ptr->fixed_updater_ptr()));
+
+  EXPECT_EQ(dynamic_iteration_ptr->total_groups(), this->n_energy_groups);
+  EXPECT_EQ(dynamic_iteration_ptr->total_angles(), n_angles);
 }
 
 template <typename DimensionWrapper>
