@@ -18,9 +18,11 @@
 #include "domain/tests/definition_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "formulation/tests/cfem_stamper_mock.h"
+#include "formulation/tests/angular_stamper_mock.h"
 #include "formulation/cfem_saaf_stamper.h"
 #include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
+#include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
@@ -275,6 +277,22 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSourceUpdater) {
                                             stamper_ptr);
   using SourceUpdater =
       iteration::updater::SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
+
+  ASSERT_NE(test_source_updater, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<SourceUpdater*>(test_source_updater.get()));
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildAngularSourceUpdater) {
+  constexpr int dim = this->dim;
+  auto stamper_ptr = std::make_shared<NiceMock<formulation::AngularStamperMock<dim>>>();
+  auto quadrature_ptr = std::make_shared<quadrature::QuadratureSetMock<dim>>();
+
+  auto test_source_updater =
+      this->test_builder.BuildSourceUpdater(&this->parameters,
+                                            stamper_ptr,
+                                            quadrature_ptr);
+  using SourceUpdater = iteration::updater::AngularSourceUpdaterGaussSeidel<formulation::AngularStamperI<dim>>;
 
   ASSERT_NE(test_source_updater, nullptr);
   EXPECT_NE(nullptr,

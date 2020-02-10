@@ -18,6 +18,7 @@
 #include "formulation/cfem_saaf_stamper.h"
 #include "framework/framework.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
+#include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
 #include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
@@ -399,6 +400,17 @@ auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
   // TODO(Josh): Add option for non-gauss-seidel updating
   using SourceUpdater = iteration::updater::SourceUpdaterGaussSeidel<CFEMStamper>;
   return std::make_unique<SourceUpdater>(stamper_ptr);
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
+    problem::ParametersI *,
+    const std::shared_ptr<CFEMAngularStamper> stamper_ptr,
+    const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr)
+-> std::unique_ptr<SourceUpdater> {
+  // TODO(Josh): Add option for non-gauss-seidel updating
+  using SourceUpdater = iteration::updater::AngularSourceUpdaterGaussSeidel<CFEMAngularStamper>;
+  return std::make_unique<SourceUpdater>(stamper_ptr, quadrature_set_ptr);
 }
 
 template<int dim>
