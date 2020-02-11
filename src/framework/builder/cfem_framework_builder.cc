@@ -84,27 +84,29 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::shared_ptr<AngularQuadratureSet> quadrature_ptr = nullptr;
 
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
-    printf("Building Quadrature Set");
+    printf("Building Quadrature Set\n");
     quadrature_ptr = BuildAngularQuadratureSet(&prm);
     n_angles = quadrature_ptr->size();
   } else {
+    printf("Scalar solve\n");
     n_angles = 1;
   }
 
-  printf("Building Stamper");
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    printf("Building Stamper\n");
     std::shared_ptr<CFEMAngularStamper> stamper_ptr(std::move(BuildAngularStamper(
         &prm, domain_ptr, finite_element_ptr, cross_sections_ptr, quadrature_ptr)));
-    printf("Building Source Updater");
+    printf("Building Source Updater\n");
     source_updater_ptr = std::move(BuildSourceUpdater(&prm, stamper_ptr, quadrature_ptr));
-    printf("Building Initializer");
+    printf("Building Initializer\n");
     initializer_ptr = BuildInitializer(&prm, stamper_ptr, quadrature_ptr);
   } else {
+    printf("Building Scalar Stamper\n");
     std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
         &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
-    printf("Building Source Updater");
+    printf("Building Source Updater\n");
     source_updater_ptr = std::move(BuildSourceUpdater(&prm, stamper_ptr));
-    printf("Building Initializer");
+    printf("Building Initializer\n");
     initializer_ptr = BuildInitializer(&prm, stamper_ptr);
   }
 
@@ -114,14 +116,20 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   std::cout << "Building inner iteration objects" << std::endl;
 
-  auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 100);
+  auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 1000);
 
   // Build reporter
   std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
+  auto moment_calculator_type = quadrature::MomentCalculatorImpl::kScalarMoment;
+
   // Moment calculator
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    moment_calculator_type = quadrature::MomentCalculatorImpl::kZerothMomentOnly;
+  }
+
   auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
-      quadrature::MomentCalculatorImpl::kScalarMoment,
+      moment_calculator_type,
       quadrature_ptr);
 
   // Solution group
@@ -206,21 +214,25 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   // Fill system with objects
   for (int group = 0; group < n_groups; ++group) {
+    for (int angle = 0; angle < n_angles; ++angle) {
+      system::Index index{group, angle};
+      // LHS
+      auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
+      system->left_hand_side_ptr_->SetFixedTermPtr(index, fixed_matrix_ptr);
 
-    // LHS
-    auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
-    system->left_hand_side_ptr_->SetFixedTermPtr(group, fixed_matrix_ptr);
+      // RHS
+      auto fixed_vector_ptr =
+          std::make_shared<bart::system::MPIVector>(matrix_param.rows,
+                                                    MPI_COMM_WORLD);
+      system->right_hand_side_ptr_->SetFixedTermPtr(index, fixed_vector_ptr);
 
-    // RHS
-    auto fixed_vector_ptr =
-        std::make_shared<bart::system::MPIVector>(matrix_param.rows, MPI_COMM_WORLD);
-    system->right_hand_side_ptr_->SetFixedTermPtr(group, fixed_vector_ptr);
-
-    for (auto term : source_terms) {
-      auto variable_vector_ptr =
-          std::make_shared<bart::system::MPIVector>(matrix_param.rows, MPI_COMM_WORLD);
-      system->right_hand_side_ptr_->SetVariableTermPtr(
-          group, term, variable_vector_ptr);
+      for (auto term : source_terms) {
+        auto variable_vector_ptr =
+            std::make_shared<bart::system::MPIVector>(matrix_param.rows,
+                                                      MPI_COMM_WORLD);
+        system->right_hand_side_ptr_->SetVariableTermPtr(
+            index, term, variable_vector_ptr);
+      }
     }
   }
 
@@ -474,7 +486,7 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
 
   } else {
     AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
-                                          "to BuildScalarFormulation"));
+                                          " to BuildScalarFormulation"));
   }
 
   return return_ptr;
