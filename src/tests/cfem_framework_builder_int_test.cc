@@ -104,7 +104,7 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildLSAngularQuadratureSet) {
   constexpr int dim = this->dim;
   const int order = 4;
   EXPECT_CALL(this->parameters, AngularQuad())
-      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetric));
+      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetricGaussian));
   EXPECT_CALL(this->parameters, AngularQuadOrder())
       .WillOnce(Return(order));
 
