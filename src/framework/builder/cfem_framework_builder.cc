@@ -116,7 +116,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   std::cout << "Building inner iteration objects" << std::endl;
 
-  auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 1000);
+  auto in_group_final_checker = BuildMomentConvergenceChecker(1e-10, 100);
 
   // Build reporter
   std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));

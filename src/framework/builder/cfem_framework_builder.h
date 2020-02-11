@@ -85,7 +85,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       double max_delta, int max_iterations);
 
   std::unique_ptr<SingleGroupSolver> BuildSingleGroupSolver(
-      const int max_iterations = 1000,
+      const int max_iterations = 100,
       const double convergence_tolerance = 1e-10);
 
   std::unique_ptr<SourceUpdater> BuildSourceUpdater(
