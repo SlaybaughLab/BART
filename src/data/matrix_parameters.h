@@ -3,6 +3,7 @@
 
 #include <deal.II/base/index_set.h>
 #include <deal.II/lac/sparsity_pattern.h>
+#include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 
 /*! This struct holds the parameters necessary for creation of a parallel
@@ -17,7 +18,7 @@ typedef dealii::PETScWrappers::MPI::SparseMatrix MPISparseMatrix;
 struct MatrixParameters {
   dealii::IndexSet rows;
   dealii::IndexSet columns;
-  dealii::SparsityPattern sparsity_pattern;
+  dealii::DynamicSparsityPattern sparsity_pattern;
 };
 
 std::shared_ptr<MPISparseMatrix> BuildMatrix(MatrixParameters &parameters); 

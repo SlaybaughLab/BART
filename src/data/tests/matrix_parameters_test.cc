@@ -26,14 +26,11 @@ TEST_F(MatrixParametersTest, BuildMatrixTest) {
   dealii::GridGenerator::hyper_cube(triangulation, 0, 1);
   dof_handler.distribute_dofs(finite_element);
 
-  dealii::DynamicSparsityPattern dsp(dof_handler.n_dofs());
-  dealii::DoFTools::make_sparsity_pattern(dof_handler, dsp);
-
   data::MatrixParameters test_parameters;
-
+  test_parameters.sparsity_pattern.reinit(dof_handler.n_dofs(), dof_handler.n_dofs());
+  dealii::DoFTools::make_sparsity_pattern(dof_handler, test_parameters.sparsity_pattern);
   test_parameters.rows = dof_handler.locally_owned_dofs();
   test_parameters.columns = dof_handler.locally_owned_dofs();
-  test_parameters.sparsity_pattern.copy_from(dsp);
 
   auto matrix_pointer = data::BuildMatrix(test_parameters);
 

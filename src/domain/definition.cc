@@ -104,8 +104,10 @@ void Definition<dim>::FillMatrixParameters(
   to_fill.rows = locally_owned_dofs_;
   to_fill.columns = locally_owned_dofs_;
 
-  dealii::DynamicSparsityPattern dsp(dof_handler_.n_dofs(),
-                                     dof_handler_.n_dofs());
+  dealii::DynamicSparsityPattern& dsp = to_fill.sparsity_pattern;
+  dsp.reinit(locally_relevant_dofs_.size(),
+             locally_relevant_dofs_.size(),
+             locally_relevant_dofs_);
 
   if (discretization_type ==  problem::DiscretizationType::kDiscontinuousFEM) {
     dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dsp,
@@ -115,9 +117,34 @@ void Definition<dim>::FillMatrixParameters(
                                             constraint_matrix_, false);
   }
 
-  constraint_matrix_.condense(dsp);
+  dealii::SparsityTools::distribute_sparsity_pattern(
+      dsp, dof_handler_.n_locally_owned_dofs_per_processor(),
+      MPI_COMM_WORLD, locally_relevant_dofs_);
 
-  to_fill.sparsity_pattern.copy_from(dsp);
+  constraint_matrix_.condense(dsp);
+}
+
+template <>
+void Definition<1>::FillMatrixParameters(
+    data::MatrixParameters &to_fill,
+    problem::DiscretizationType discretization_type) const {
+
+  AssertThrow(dof_handler_.has_active_dofs(),
+              dealii::ExcMessage("SetUpDOF must be called before MatrixParameters are generated"));
+
+  to_fill.rows = locally_owned_dofs_;
+  to_fill.columns = locally_owned_dofs_;
+
+  dealii::DynamicSparsityPattern& dsp = to_fill.sparsity_pattern;
+  dsp.reinit(dof_handler_.n_dofs(), dof_handler_.n_dofs());
+
+  if (discretization_type ==  problem::DiscretizationType::kDiscontinuousFEM) {
+    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dsp,
+                                                 constraint_matrix_, false);
+  } else {
+    dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp,
+                                            constraint_matrix_, false);
+  }
 }
 
 template <int dim>
