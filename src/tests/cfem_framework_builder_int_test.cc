@@ -252,7 +252,7 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder,
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSingleGroupSolver) {
   using ExpectedType = solver::group::SingleGroupSolver;
 
-  auto solver_ptr = this->test_builder.BuildSingleGroupSolver();
+  auto solver_ptr = this->test_builder.BuildSingleGroupSolver(100, 1e-12);
 
   ASSERT_NE(nullptr, solver_ptr);
 
@@ -265,7 +265,7 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSingleGroupSolver) {
       dynamic_ptr->linear_solver_ptr());
 
   ASSERT_NE(nullptr, linear_solver_ptr);
-  EXPECT_EQ(linear_solver_ptr->convergence_tolerance(), 1e-10);
+  EXPECT_EQ(linear_solver_ptr->convergence_tolerance(), 1e-12);
   EXPECT_EQ(linear_solver_ptr->max_iterations(), 100);
 }
 
