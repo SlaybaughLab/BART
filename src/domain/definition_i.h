@@ -9,6 +9,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "data/matrix_parameters.h"
+#include "domain/domain_types.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
@@ -33,9 +34,7 @@ namespace domain {
 template <int dim>
 class DefinitionI {
  public:
-
-  using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
-  using CellRange = std::vector<Cell>;
+  using CellRange = std::vector<domain::CellPtr<dim>>;
 
   virtual ~DefinitionI() = default;
 

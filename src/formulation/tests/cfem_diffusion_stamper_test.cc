@@ -86,7 +86,6 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value; // Problem dimension
 
-  using Cell = typename domain::DefinitionI<dim>::Cell;
   using InitToken = typename
       formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
 
@@ -105,8 +104,8 @@ void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
 
-  Cell test_cell;
-  std::vector<Cell> cells{test_cell};
+  domain::CellPtr<dim> test_cell;
+  std::vector<domain::CellPtr<dim>> cells{test_cell};
 
   ON_CALL(*mock_definition_ptr, Cells())
       .WillByDefault(Return(cells));
