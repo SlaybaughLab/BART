@@ -33,11 +33,11 @@ BART uses MPI for parallelism and is designed for computation on distributed mem
 - By utilizing distributed triangulation enabled by [p4est](https://www.mcs.anl.gov/petsc/) library wrapped in deal.II, BART can automatically partition the mesh by however many number of processors requested and distribute the triangulation onto different processors.
 - BART heavily depends on [PETSc](https://www.mcs.anl.gov/petsc/) by utilizing deal.II wrappers of PETSc data structure. Therefore, all the parallel-supported functionalities in PETSc (if wrapped by deal.II) can be invoked by BART. This includes parallel sparse matrix, parallel vectors and parallel preconditioners/algebraic solvers.
 
-### Formulations
+### Formulations & Methods
 
-BART supports the Diffusion Equation in 1/2/3D, and second-order forms of the transport equation (such as the Self-Adjoint Angular Flux and Even Parity) will be implemented.
-
-### Acelleration Methods
+BART supports the following formulations: 
+- the diffusion equation in 1/2/3D.
+- the Self-Adjoint Angular Flux formulation in 1/2/3D (Only 3D is currently usable because only a 3D angular quadrature set has been implemented).
 
 One of the major design goals of BART is to provide a framework for testing acceleration methods. There are no methods implemented in the current version, but multiple methods are planned to be implemented, including:
 
