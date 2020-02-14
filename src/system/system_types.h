@@ -8,12 +8,17 @@
 #include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #include <deal.II/lac/petsc_parallel_vector.h>
 
+#include "utility/named_type.h"
+
 namespace bart {
 
 namespace system {
 
 //! Group number for rhs and lhs
 using GroupNumber = int;
+
+using EnergyGroup = bart::utility::NamedType<int, struct EnergyGroupParameter>;
+
 //! Angle index for rhs and lhs
 using AngleIndex = int;
 //! Index used to store and access rhs vectors and lhs matrices

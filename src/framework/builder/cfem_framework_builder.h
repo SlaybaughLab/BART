@@ -13,6 +13,7 @@
 #include "framework/framework_i.h"
 #include "framework/builder/framework_builder_i.h"
 #include "formulation/cfem_stamper_i.h"
+#include "formulation/angular_stamper_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/updater/source_updater_i.h"
 #include "iteration/updater/fixed_updater_i.h"
@@ -34,6 +35,7 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
  public:
   using AngularQuadratureSet = quadrature::QuadratureSetI<dim>;
   using CFEMStamper = formulation::CFEMStamperI;
+  using CFEMAngularStamper = formulation::AngularStamperI<dim>;
   using ConvergenceReporter = convergence::reporter::MpiI;
   using CrossSections = data::CrossSections;
   using Domain = typename domain::DefinitionI<dim>;
@@ -71,6 +73,11 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       const problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> &stamper_ptr);
 
+  std::unique_ptr<Initializer> BuildInitializer(
+      const problem::ParametersI* problem_parameters,
+      const std::shared_ptr<CFEMAngularStamper> &stamper_ptr,
+      const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr);
+
   std::unique_ptr<MomentConvergenceChecker> BuildMomentConvergenceChecker(
       double max_delta, int max_iterations);
 
@@ -78,12 +85,17 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       double max_delta, int max_iterations);
 
   std::unique_ptr<SingleGroupSolver> BuildSingleGroupSolver(
-      const int max_iterations = 100,
+      const int max_iterations = 1000,
       const double convergence_tolerance = 1e-10);
 
   std::unique_ptr<SourceUpdater> BuildSourceUpdater(
       problem::ParametersI* problem_parameters,
       const std::shared_ptr<CFEMStamper> stamper_ptr);
+
+  std::unique_ptr<SourceUpdater> BuildSourceUpdater(
+      problem::ParametersI* problem_parameters,
+      const std::shared_ptr<CFEMAngularStamper> stamper_ptr,
+      const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr);
 
   std::unique_ptr<CFEMStamper> BuildStamper(
       problem::ParametersI* problem_parameters,
@@ -91,10 +103,12 @@ class CFEM_FrameworkBuilder : public FrameworkBuilderI {
       const std::shared_ptr<FiniteElement> &finite_element_ptr,
       const std::shared_ptr<CrossSections> &cross_sections_ptr);
 
-
-
-
-
+  std::unique_ptr<CFEMAngularStamper> BuildAngularStamper(
+      problem::ParametersI* problem_parameters,
+      const std::shared_ptr<Domain> &domain_ptr,
+      const std::shared_ptr<FiniteElement> &finite_element_ptr,
+      const std::shared_ptr<CrossSections> &cross_sections_ptr,
+      const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr);
 };
 
 } // namespace builder

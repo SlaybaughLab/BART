@@ -120,6 +120,13 @@ class FiniteElementI {
  */
   virtual double FaceJacobian(const int face_quadrature_point) const = 0;
 
+  /*! \brief Get the value of the face normal for the current face.
+   *
+   * Returns the normal vector for the specified face.
+   *
+   */
+   virtual dealii::Tensor<1, dim> FaceNormal() const = 0;
+
   /*! \brief Get the value of a flux moment at the interior cell quadrature points.
    *
    * \param moment flux moment to get the value of.

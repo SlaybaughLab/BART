@@ -19,6 +19,7 @@ class QuadraturePointMock : public QuadraturePointI<dim> {
   MOCK_CONST_METHOD0_T(ordinate, std::shared_ptr<OrdinateI<dim>>());
   MOCK_CONST_METHOD0_T(weight, double());
   MOCK_CONST_METHOD0_T(cartesian_position, std::array<double, dim>());
+  MOCK_CONST_METHOD0_T(cartesian_position_tensor, dealii::Tensor<1, dim>());
 };
 
 } // namespace quadrature

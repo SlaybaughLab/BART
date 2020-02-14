@@ -18,14 +18,20 @@
 #include "domain/tests/definition_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "formulation/tests/cfem_stamper_mock.h"
+#include "formulation/tests/angular_stamper_mock.h"
+#include "formulation/cfem_saaf_stamper.h"
 #include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
+#include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
+#include "iteration/updater/angular_fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "solver/group/single_group_solver.h"
 #include "quadrature/quadrature_set.h"
+#include "quadrature/tests/quadrature_set_mock.h"
+#include "test_helpers/dealii_test_domain.h"
 
 namespace  {
 
@@ -98,7 +104,7 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildLSAngularQuadratureSet) {
   constexpr int dim = this->dim;
   const int order = 4;
   EXPECT_CALL(this->parameters, AngularQuad())
-      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetric));
+      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetricGaussian));
   EXPECT_CALL(this->parameters, AngularQuadOrder())
       .WillOnce(Return(order));
 
@@ -198,6 +204,28 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildDiffusionStamper) {
   EXPECT_EQ(test_stamper_ptr->reflective_boundaries(), boundaries);
 }
 
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildAngularStamperBadEquation) {
+  constexpr int dim = this->dim;
+
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+  auto cross_sections_ptr =
+      std::make_shared<data::CrossSections>(this->mock_material);
+  auto domain_ptr = std::make_shared<NiceMock<domain::DefinitionMock<dim>>>();
+  auto quadrature_set_ptr = std::make_shared<quadrature::QuadratureSetMock<dim>>();
+
+  EXPECT_CALL(this->parameters, TransportModel())
+      .WillOnce(Return(problem::EquationType::kDiffusion));
+
+  EXPECT_ANY_THROW({
+  this->test_builder.BuildAngularStamper(
+      &this->parameters,
+      domain_ptr,
+      finite_element_ptr,
+      cross_sections_ptr,
+      quadrature_set_ptr);
+  });
+}
+
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder,
     BuildScalarFormulationBadEquationTypes) {
   using EquationType = problem::EquationType;
@@ -224,7 +252,7 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder,
 TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSingleGroupSolver) {
   using ExpectedType = solver::group::SingleGroupSolver;
 
-  auto solver_ptr = this->test_builder.BuildSingleGroupSolver();
+  auto solver_ptr = this->test_builder.BuildSingleGroupSolver(100, 1e-12);
 
   ASSERT_NE(nullptr, solver_ptr);
 
@@ -237,7 +265,7 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSingleGroupSolver) {
       dynamic_ptr->linear_solver_ptr());
 
   ASSERT_NE(nullptr, linear_solver_ptr);
-  EXPECT_EQ(linear_solver_ptr->convergence_tolerance(), 1e-10);
+  EXPECT_EQ(linear_solver_ptr->convergence_tolerance(), 1e-12);
   EXPECT_EQ(linear_solver_ptr->max_iterations(), 100);
 }
 
@@ -250,6 +278,22 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildSourceUpdater) {
                                             stamper_ptr);
   using SourceUpdater =
       iteration::updater::SourceUpdaterGaussSeidel<formulation::CFEMStamperI>;
+
+  ASSERT_NE(test_source_updater, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<SourceUpdater*>(test_source_updater.get()));
+}
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildAngularSourceUpdater) {
+  constexpr int dim = this->dim;
+  auto stamper_ptr = std::make_shared<NiceMock<formulation::AngularStamperMock<dim>>>();
+  auto quadrature_ptr = std::make_shared<quadrature::QuadratureSetMock<dim>>();
+
+  auto test_source_updater =
+      this->test_builder.BuildSourceUpdater(&this->parameters,
+                                            stamper_ptr,
+                                            quadrature_ptr);
+  using SourceUpdater = iteration::updater::AngularSourceUpdaterGaussSeidel<formulation::AngularStamperI<dim>>;
 
   ASSERT_NE(test_source_updater, nullptr);
   EXPECT_NE(nullptr,
@@ -325,6 +369,82 @@ TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildInitializer) {
   EXPECT_EQ(dynamic_iteration_ptr->total_angles(), 1);
 }
 
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilder, BuildAngularInitializer) {
+  constexpr int dim = this->dim;
+  auto stamper_ptr = std::make_shared<formulation::AngularStamperMock<dim>>();
+  auto quadrature_set_ptr = std::make_shared<quadrature::QuadratureSetMock<dim>>();
+  const int n_angles = 5;
 
+  EXPECT_CALL(this->parameters, NEnergyGroups())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(this->parameters, TransportModel())
+      .WillOnce(Return(problem::EquationType::kSelfAdjointAngularFlux));
+  EXPECT_CALL(*quadrature_set_ptr, size())
+      .WillOnce(Return(n_angles));
+
+  auto iteration_ptr = this->test_builder.BuildInitializer(&this->parameters,
+                                                           stamper_ptr,
+                                                           quadrature_set_ptr);
+
+  ASSERT_NE(nullptr, iteration_ptr);
+
+  using ExpectedInitializerType = iteration::initializer::SetFixedTermsOnce;
+  using ExpectedUpdaterType = iteration::updater::AngularFixedUpdater<formulation::AngularStamperI<dim>>;
+
+  auto dynamic_iteration_ptr =
+      dynamic_cast<ExpectedInitializerType*>(iteration_ptr.get());
+
+  ASSERT_NE(nullptr, dynamic_iteration_ptr);
+  ASSERT_NE(nullptr,
+            dynamic_cast<ExpectedUpdaterType*>(dynamic_iteration_ptr->fixed_updater_ptr()));
+
+  EXPECT_EQ(dynamic_iteration_ptr->total_groups(), this->n_energy_groups);
+  EXPECT_EQ(dynamic_iteration_ptr->total_angles(), n_angles);
+}
+
+template <typename DimensionWrapper>
+class IntegrationTestCFEMFrameworkBuilderDealiiDomain :
+    public IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>,
+    public bart::testing::DealiiTestDomain<DimensionWrapper::value>{
+ public:
+  void SetUp() override;
+};
+
+template <typename DimensionWrapper>
+void IntegrationTestCFEMFrameworkBuilderDealiiDomain<DimensionWrapper>::SetUp() {
+  IntegrationTestCFEMFrameworkBuilder<DimensionWrapper>::SetUp();
+  this->SetUpDealii();
+}
+
+TYPED_TEST_SUITE(IntegrationTestCFEMFrameworkBuilderDealiiDomain,
+                 bart::testing::AllDimensions);
+
+TYPED_TEST(IntegrationTestCFEMFrameworkBuilderDealiiDomain, BuildSAAFStamper) {
+  constexpr int dim = this->dim;
+
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+  auto cross_sections_ptr =
+      std::make_shared<data::CrossSections>(this->mock_material);
+  auto domain_ptr = std::make_shared<NiceMock<domain::DefinitionMock<dim>>>();
+  auto quadrature_set_ptr = std::make_shared<quadrature::QuadratureSetMock<dim>>();
+
+  EXPECT_CALL(this->parameters, TransportModel())
+      .WillOnce(Return(problem::EquationType::kSelfAdjointAngularFlux));
+  EXPECT_CALL(*domain_ptr, Cells())
+      .WillOnce(Return(this->cells_));
+
+  auto test_stamper_ptr =
+      this->test_builder.BuildAngularStamper(
+          &this->parameters,
+          domain_ptr,
+          finite_element_ptr,
+          cross_sections_ptr,
+          quadrature_set_ptr);
+
+  ASSERT_NE(test_stamper_ptr, nullptr);
+  EXPECT_NE(nullptr,
+            dynamic_cast<formulation::CFEM_SAAF_Stamper<this->dim>*>(
+                test_stamper_ptr.get()));
+}
 
 } // namespace

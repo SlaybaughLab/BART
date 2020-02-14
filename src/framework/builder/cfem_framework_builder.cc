@@ -3,6 +3,7 @@
 #include <fstream>
 #include <streambuf>
 #include <deal.II/base/mpi.h>
+#include <formulation/angular/cfem_self_adjoint_angular_flux.h>
 
 #include "calculator/cell/integrated_fission_source.h"
 #include "calculator/cell/total_aggregated_fission_source.h"
@@ -14,9 +15,12 @@
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/cfem_diffusion_stamper.h"
 #include "formulation/scalar/cfem_diffusion.h"
+#include "formulation/cfem_saaf_stamper.h"
 #include "framework/framework.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
+#include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
+#include "iteration/updater/angular_fixed_updater.h"
 #include "iteration/initializer/set_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
@@ -58,7 +62,7 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       std::istreambuf_iterator<char>());
 
   const int n_groups = prm.NEnergyGroups();
-  const int n_angles = 1;
+  int n_angles;
 
   MaterialProtobuf materials(d2_prm);
   auto cross_sections_ptr = std::make_shared<bart::data::CrossSections>(materials);
@@ -74,16 +78,37 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   std::cout << "Setting up domain" << std::endl;
   domain_ptr->SetUpMesh().SetUpDOF();
 
-  std::cout << "Building Stamper" << std::endl;
-  std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
-      &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
+  std::shared_ptr<SourceUpdater> source_updater_ptr;
+  std::unique_ptr<Initializer> initializer_ptr;
 
-  std::cout << "Building source updater" << std::endl;
-  std::shared_ptr<SourceUpdater> source_updater_ptr(
-      std::move(BuildSourceUpdater(&prm, stamper_ptr)));
+  std::shared_ptr<AngularQuadratureSet> quadrature_ptr = nullptr;
 
-  std::cout << "Building Initializer" << std::endl;
-  auto initializer_ptr = BuildInitializer(&prm, stamper_ptr);
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    printf("Building Quadrature Set\n");
+    quadrature_ptr = BuildAngularQuadratureSet(&prm);
+    n_angles = quadrature_ptr->size();
+  } else {
+    printf("Scalar solve\n");
+    n_angles = 1;
+  }
+
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    printf("Building Stamper\n");
+    std::shared_ptr<CFEMAngularStamper> stamper_ptr(std::move(BuildAngularStamper(
+        &prm, domain_ptr, finite_element_ptr, cross_sections_ptr, quadrature_ptr)));
+    printf("Building Source Updater\n");
+    source_updater_ptr = std::move(BuildSourceUpdater(&prm, stamper_ptr, quadrature_ptr));
+    printf("Building Initializer\n");
+    initializer_ptr = BuildInitializer(&prm, stamper_ptr, quadrature_ptr);
+  } else {
+    printf("Building Scalar Stamper\n");
+    std::shared_ptr<CFEMStamper> stamper_ptr(std::move(BuildStamper(
+        &prm, domain_ptr, finite_element_ptr, cross_sections_ptr)));
+    printf("Building Source Updater\n");
+    source_updater_ptr = std::move(BuildSourceUpdater(&prm, stamper_ptr));
+    printf("Building Initializer\n");
+    initializer_ptr = BuildInitializer(&prm, stamper_ptr);
+  }
 
   std::cout << "Building single group solver" << std::endl;
   auto single_group_solver_ptr = BuildSingleGroupSolver();
@@ -96,9 +121,16 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   // Build reporter
   std::shared_ptr<ConvergenceReporter> reporter(std::move(BuildConvergenceReporter()));
 
+  auto moment_calculator_type = quadrature::MomentCalculatorImpl::kScalarMoment;
+
   // Moment calculator
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    moment_calculator_type = quadrature::MomentCalculatorImpl::kZerothMomentOnly;
+  }
+
   auto moment_calculator_ptr = quadrature::factory::MakeMomentCalculator<dim>(
-      quadrature::MomentCalculatorImpl::kScalarMoment);
+      moment_calculator_type,
+      quadrature_ptr);
 
   // Solution group
   auto solution_ptr =
@@ -182,21 +214,25 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
 
   // Fill system with objects
   for (int group = 0; group < n_groups; ++group) {
+    for (int angle = 0; angle < n_angles; ++angle) {
+      system::Index index{group, angle};
+      // LHS
+      auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
+      system->left_hand_side_ptr_->SetFixedTermPtr(index, fixed_matrix_ptr);
 
-    // LHS
-    auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
-    system->left_hand_side_ptr_->SetFixedTermPtr(group, fixed_matrix_ptr);
+      // RHS
+      auto fixed_vector_ptr =
+          std::make_shared<bart::system::MPIVector>(matrix_param.rows,
+                                                    MPI_COMM_WORLD);
+      system->right_hand_side_ptr_->SetFixedTermPtr(index, fixed_vector_ptr);
 
-    // RHS
-    auto fixed_vector_ptr =
-        std::make_shared<bart::system::MPIVector>(matrix_param.rows, MPI_COMM_WORLD);
-    system->right_hand_side_ptr_->SetFixedTermPtr(group, fixed_vector_ptr);
-
-    for (auto term : source_terms) {
-      auto variable_vector_ptr =
-          std::make_shared<bart::system::MPIVector>(matrix_param.rows, MPI_COMM_WORLD);
-      system->right_hand_side_ptr_->SetVariableTermPtr(
-          group, term, variable_vector_ptr);
+      for (auto term : source_terms) {
+        auto variable_vector_ptr =
+            std::make_shared<bart::system::MPIVector>(matrix_param.rows,
+                                                      MPI_COMM_WORLD);
+        system->right_hand_side_ptr_->SetVariableTermPtr(
+            index, term, variable_vector_ptr);
+      }
     }
   }
 
@@ -328,6 +364,30 @@ auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
   return std::move(return_ptr);
 }
 
+template <int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildInitializer(
+    const problem::ParametersI *problem_parameters,
+    const std::shared_ptr<CFEMAngularStamper> &stamper_ptr,
+    const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr)
+-> std::unique_ptr<Initializer> {
+
+  std::unique_ptr<Initializer> return_ptr = nullptr;
+
+  using FixedUpdaterType = iteration::updater::AngularFixedUpdater<CFEMAngularStamper>;
+  auto fixed_updater_ptr = std::make_unique<FixedUpdaterType>(
+      stamper_ptr, quadrature_set_ptr);
+
+  if (problem_parameters->TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    return_ptr = std::make_unique<iteration::initializer::SetFixedTermsOnce>(
+        std::move(fixed_updater_ptr),
+        problem_parameters->NEnergyGroups(),
+        quadrature_set_ptr->size());
+  }
+
+  return std::move(return_ptr);
+}
+
+
 template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
     double max_delta, int max_iterations)
@@ -392,6 +452,17 @@ auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
 }
 
 template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildSourceUpdater(
+    problem::ParametersI *,
+    const std::shared_ptr<CFEMAngularStamper> stamper_ptr,
+    const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr)
+-> std::unique_ptr<SourceUpdater> {
+  // TODO(Josh): Add option for non-gauss-seidel updating
+  using SourceUpdater = iteration::updater::AngularSourceUpdaterGaussSeidel<CFEMAngularStamper>;
+  return std::make_unique<SourceUpdater>(stamper_ptr, quadrature_set_ptr);
+}
+
+template<int dim>
 auto CFEM_FrameworkBuilder<dim>::BuildStamper(
     problem::ParametersI *problem_parameters,
     const std::shared_ptr<Domain> &domain_ptr,
@@ -413,6 +484,35 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
             domain_ptr,
             problem_parameters->ReflectiveBoundary()));
 
+  } else {
+    AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
+                                          " to BuildScalarFormulation"));
+  }
+
+  return return_ptr;
+}
+
+template<int dim>
+auto CFEM_FrameworkBuilder<dim>::BuildAngularStamper(
+    problem::ParametersI *problem_parameters,
+    const std::shared_ptr<Domain> &domain_ptr,
+    const std::shared_ptr<FiniteElement> &finite_element_ptr,
+    const std::shared_ptr<CrossSections> &cross_sections_ptr,
+    const std::shared_ptr<AngularQuadratureSet>& quadrature_set_ptr)
+-> std::unique_ptr<CFEMAngularStamper> {
+
+  std::unique_ptr<CFEMAngularStamper> return_ptr = nullptr;
+
+  if (problem_parameters->TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+
+    auto saaf_formulation_ptr =
+        std::make_unique<formulation::angular::CFEMSelfAdjointAngularFlux<dim>>(
+        finite_element_ptr, cross_sections_ptr, quadrature_set_ptr);
+
+    return_ptr = std::move(
+        std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
+            std::move(saaf_formulation_ptr),
+            domain_ptr));
   } else {
     AssertThrow(false, dealii::ExcMessage("Unsuppored equation type passed"
                                           "to BuildScalarFormulation"));

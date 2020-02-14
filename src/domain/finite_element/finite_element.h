@@ -70,6 +70,10 @@ class FiniteElement : public FiniteElementI<dim> {
     return face_values_->JxW(face_quadrature_point);
   }
 
+  dealii::Tensor<1, dim> FaceNormal() const override {
+    return face_values_->normal_vector(0);
+  };
+
   std::vector<double> ValueAtQuadrature(const system::moments::MomentVector moment) const override;
 
  protected:

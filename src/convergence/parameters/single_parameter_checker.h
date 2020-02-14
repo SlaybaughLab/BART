@@ -33,6 +33,7 @@ class SingleParameterChecker : public SingleChecker<double> {
   bool CheckIfConverged(const double &current_iteration,
                         const double &previous_iteration) override {
     double diff = std::abs(current_iteration - previous_iteration);
+    this->delta_ = diff;
     return (diff/std::abs(current_iteration) <= max_delta_);
   }
 

@@ -141,6 +141,25 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
 
 }
 
+TYPED_TEST(DomainFiniteElementGaussianTest, FaceNormalTest) {
+  constexpr int dim = this->dim;
+  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{
+      problem::DiscretizationType::kContinuousFEM, 2};
+
+  // Triangulation and DOF handler to link to our values
+  dealii::Triangulation<dim> triangulation;
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  test_fe.SetFace(dof_handler.begin_active(), 0);
+
+  EXPECT_EQ(test_fe.face_values()->normal_vector(0),
+            test_fe.FaceNormal());
+}
+
 // BASE CLASS TESTS ============================================================
 template <typename DimensionWrapper>
 class DomainFiniteElementGaussianBaseMethodsTest :
