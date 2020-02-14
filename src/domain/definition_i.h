@@ -66,10 +66,13 @@ class DefinitionI {
   /*! Get a range of all cells to allow iterating over them */
   virtual CellRange Cells() const = 0;
 
-  /*! Get total degrees of freedom */
+  /*! Get locally owned degrees of freedom */
+  virtual dealii::IndexSet locally_owned_dofs() const = 0;
+
+  /*! Get internal DOF object */
   virtual const dealii::DoFHandler<dim>& dof_handler() const = 0;
 
-  /*! Get locally owned degrees of freedom */
+  /*! Get total degrees of freedom */
   virtual int total_degrees_of_freedom() const = 0;
 };
 

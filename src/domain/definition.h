@@ -72,14 +72,13 @@ class Definition : public DefinitionI<dim> {
 
   CellRange Cells() const override { return local_cells_; };
 
-
   int total_degrees_of_freedom() const override ;
 
-  dealii::IndexSet locally_owned_dofs() const {
+  dealii::IndexSet locally_owned_dofs() const override {
     return locally_owned_dofs_;
   }
 
-  /*! Get internal DOF object */
+
   const dealii::DoFHandler<dim>& dof_handler() const override {
     return dof_handler_;
   }

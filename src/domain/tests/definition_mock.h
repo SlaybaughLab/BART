@@ -21,15 +21,17 @@ class DefinitionMock : public DefinitionI<dim> {
  public:
   using typename DefinitionI<dim>::CellRange;
 
-  MOCK_METHOD0_T(SetUpMesh, DefinitionMock<dim>&());
-  MOCK_METHOD0_T(SetUpDOF, DefinitionMock<dim>&());
-  MOCK_CONST_METHOD2_T(FillMatrixParameters, void(data::MatrixParameters &to_fill,
-      problem::DiscretizationType discretization));
-  MOCK_CONST_METHOD0_T(GetCellMatrix, dealii::FullMatrix<double>());
-  MOCK_CONST_METHOD0_T(GetCellVector, dealii::Vector<double>());
-  MOCK_CONST_METHOD0_T(Cells, typename DefinitionI<dim>::CellRange());
-  MOCK_CONST_METHOD0_T(total_degrees_of_freedom, int());
-  MOCK_CONST_METHOD0_T(dof_handler, const dealii::DoFHandler<dim>&());
+  MOCK_METHOD(DefinitionMock<dim>&, SetUpMesh, (), (override));
+  MOCK_METHOD(DefinitionMock<dim>&, SetUpDOF, (), (override));
+  MOCK_METHOD(void, FillMatrixParameters,
+      (data::MatrixParameters &, problem::DiscretizationType),
+      (override, const));
+  MOCK_METHOD(dealii::FullMatrix<double>, GetCellMatrix, (), (override, const));
+  MOCK_METHOD(dealii::Vector<double>, GetCellVector, (), (override, const));
+  MOCK_METHOD(typename DefinitionI<dim>::CellRange, Cells, (), (override, const));
+  MOCK_METHOD(int, total_degrees_of_freedom, (), (override, const));
+  MOCK_METHOD(const dealii::DoFHandler<dim>&, dof_handler, (), (override, const));
+  MOCK_METHOD(dealii::IndexSet, locally_owned_dofs, (), (override, const));
 
   };
 
