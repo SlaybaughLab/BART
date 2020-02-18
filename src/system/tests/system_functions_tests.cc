@@ -90,7 +90,7 @@ TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, SetUpDefaultValue) {
 
 TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, ProvidedValues) {
   constexpr int dim = this->dim;
-  const double value_to_set = btest::RandomDouble(0, 20);
+  const double value_to_set = test_helpers::RandomDouble(0, 20);
 
   EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
   EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());

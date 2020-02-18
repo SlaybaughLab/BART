@@ -138,7 +138,7 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
   int cell_dofs = this->fe_.dofs_per_cell;
 
   for (const auto& cell : this->cells_) {
-    int material_id = btest::RandomDouble(0, 10);
+    int material_id = test_helpers::RandomDouble(0, 10);
     cell->set_material_id(material_id);
     std::vector<dealii::types::global_dof_index> local_dof_indices(cell_dofs);
     cell->get_dof_indices(local_dof_indices);

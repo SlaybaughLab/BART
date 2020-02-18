@@ -8,10 +8,21 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-namespace btest {
+namespace bart {
+
+namespace test_helpers {
 
 //! Generates a random double between min and max
 double RandomDouble(double min, double max);
+
+} // namespace test_helpers
+
+} // namespace bart
+
+namespace btest {
+
+//! Generates a random double between min and max
+[[deprecated]] double RandomDouble(double min, double max);
 
 //! Generates a vector populated with n random doubles between min and max
 std::vector<double> RandomVector(std::size_t n, double min, double max);

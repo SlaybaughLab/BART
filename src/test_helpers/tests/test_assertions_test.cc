@@ -18,6 +18,8 @@
 
 namespace  {
 
+using namespace bart;
+
 using ::testing::AssertionResult;
 using ::testing::AssertionFailure;
 using ::testing::AssertionSuccess;
@@ -104,7 +106,7 @@ TEST_F(TestAssertionsMPIMatricesTests, CompareMPIMatrices) {
   EXPECT_EQ(AssertionFailure(),
             bart::testing::CompareMPIMatrices(matrix_1, matrix_2));
 
-  int random_cell = btest::RandomDouble(0, cells_.size());
+  int random_cell = test_helpers::RandomDouble(0, cells_.size());
   std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
   cells_[random_cell]->get_dof_indices(local_dof_indices);
 
@@ -152,7 +154,7 @@ TEST_F(TestAssertionsMPIVectorTests, CompareMPIVectors) {
   EXPECT_EQ(AssertionFailure(),
             bart::testing::CompareMPIVectors(vector_1, vector_2));
 
-  int random_cell = btest::RandomDouble(0, cells_.size());
+  int random_cell = test_helpers::RandomDouble(0, cells_.size());
   std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
   cells_[random_cell]->get_dof_indices(local_dof_indices);
 

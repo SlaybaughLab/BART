@@ -104,8 +104,8 @@ class IterationUpdaterAngularFixedUpdaterDomainTest :
     public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   IterationUpdaterAngularFixedUpdaterDomainTest()
-      : group_number_(btest::RandomDouble(0, 10)),
-        angle_index_(btest::RandomDouble(0, 10)),
+      : group_number_(test_helpers::RandomDouble(0, 10)),
+        angle_index_(test_helpers::RandomDouble(0, 10)),
         index_({group_number_, angle_index_}) {};
 
   bart::system::System test_system_;

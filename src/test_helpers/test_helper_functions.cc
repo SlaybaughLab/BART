@@ -2,6 +2,23 @@
 
 // Free functions that are helpful for writing tests
 
+namespace bart {
+
+namespace test_helpers {
+
+double RandomDouble(double min, double max) {
+  if (min >= max)
+    throw std::runtime_error("Min must be less than max");
+  double random_zero_one =
+      static_cast<double>(std::rand())/static_cast<double>(RAND_MAX);
+  // multiply by total range and add to min
+  return (random_zero_one * (max - min)) + min;
+}
+
+} // namespace test_helpers
+
+} // namespace bart
+
 namespace btest {
 
 double RandomDouble(double min, double max) {

@@ -21,8 +21,8 @@ class IterationInitializerSetFixedTermsOnceTest : public ::testing::Test {
   using MockBilinearTermType = system::terms::BilinearTermMock;
 
   IterationInitializerSetFixedTermsOnceTest()
-      : total_groups_(btest::RandomDouble(1, 5)),
-        total_angles_(btest::RandomDouble(1, 5)) {}
+      : total_groups_(test_helpers::RandomDouble(1, 5)),
+        total_angles_(test_helpers::RandomDouble(1, 5)) {}
 
   // Initializer to be tested
   std::unique_ptr<InitializerType> test_initializer_;

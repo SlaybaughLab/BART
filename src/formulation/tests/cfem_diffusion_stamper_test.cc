@@ -245,7 +245,7 @@ void CFEMDiffusionStamperMPITests<TestDomain>::SetUp() {
 
   // Set all cell material IDs
   for (const auto& cell : this->cells_) {
-    int mat_id = btest::RandomDouble(0, 10);
+    int mat_id = test_helpers::RandomDouble(0, 10);
     cell->set_material_id(mat_id);
   }
 
