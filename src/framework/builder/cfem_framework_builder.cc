@@ -26,13 +26,10 @@
 #include "iteration/outer/outer_power_iteration.h"
 #include "material/material_protobuf.h"
 #include "problem/parameter_types.h"
-#include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/final_checker_or_n.h"
 #include "quadrature/utility/quadrature_utilities.h"
 #include "quadrature/factory/quadrature_factories.h"
-#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
-#include "quadrature/calculators/scalar_moment.h"
 #include "results/output_dealii_vtu.h"
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
@@ -41,7 +38,7 @@
 #include "system/terms/term.h"
 #include "system/terms/term_types.h"
 #include "system/moments/spherical_harmonic.h"
-
+#include "system/system_functions.h"
 
 namespace bart {
 
@@ -132,21 +129,13 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
       moment_calculator_type,
       quadrature_ptr);
 
+  std::cout << "Building and initializing system object" << std::endl;
+
   // Solution group
   auto solution_ptr =
       std::make_shared<system::solution::MPIGroupAngularSolution>(n_angles);
 
-  std::cout << "==Filling solution object" << std::endl;
-
-  for (int angle = 0; angle < n_angles; ++angle) {
-    auto &solution = solution_ptr->operator[](angle);
-    solution.reinit(domain_ptr->locally_owned_dofs(), MPI_COMM_WORLD);
-    auto local_elements = solution.locally_owned_elements();
-    for (auto index : local_elements) {
-      solution[index] = 1.0;
-    }
-    solution.compress(dealii::VectorOperation::insert);
-  }
+  system::SetUpMPIAngularSolution(*solution_ptr, *domain_ptr);
 
   std::cout << "Building in-group iteration" << std::endl;
 
