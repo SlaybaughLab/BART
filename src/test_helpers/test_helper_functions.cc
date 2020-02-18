@@ -15,6 +15,34 @@ double RandomDouble(double min, double max) {
   return (random_zero_one * (max - min)) + min;
 }
 
+std::vector<double> RandomVector(std::size_t n, double min, double max) {
+
+  if (n == 0u)
+    throw std::runtime_error("Vector length must be > 0");
+
+  std::vector<double> return_vector;
+  for (std::size_t i = 0; i < n; ++i) {
+    return_vector.push_back(RandomDouble(min, max));
+  }
+  return return_vector;
+}
+
+std::unordered_map<int, std::vector<double>>
+RandomIntVectorMap(std::size_t map_size, std::size_t vector_size, double min,
+                   double max) {
+  if (map_size == 0u)
+    throw std::runtime_error("IntVectorMap requires map size of at least 1");
+
+  std::unordered_map<int, std::vector<double>> return_map;
+
+  do {
+    int material_id = std::rand()%(map_size*10);
+    return_map.insert({material_id, RandomVector(vector_size, min, max)});
+  } while (return_map.size() < map_size);
+
+  return return_map;
+}
+
 } // namespace test_helpers
 
 } // namespace bart
@@ -34,7 +62,7 @@ std::vector<double> RandomVector(std::size_t n, double min, double max) {
 
   if (n == 0u)
     throw std::runtime_error("Vector length must be > 0");
-  
+
   std::vector<double> return_vector;
   for (std::size_t i = 0; i < n; ++i) {
     return_vector.push_back(RandomDouble(min, max));

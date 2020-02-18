@@ -151,7 +151,7 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
   using QuadraturePointType = quadrature::QuadraturePointI<this->dim>;
 
   // Get three random values to stamp
-  auto double_vector = btest::RandomVector(3, 1, 10);
+  auto double_vector = test_helpers::RandomVector(3, 1, 10);
   double sum = std::accumulate(double_vector.begin(), double_vector.end(), 0);
   // Set the value of our expected result
   this->matrix_1 = 0;

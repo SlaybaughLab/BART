@@ -29,8 +29,8 @@ TYPED_TEST_CASE(DomainMeshCartesianTest, bart::testing::AllDimensions);
 TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
   constexpr int dim = this->dim;
 
-  std::vector<double> spatial_max{btest::RandomVector(dim, 0, 100)};
-  std::vector<double> n_cells_double{btest::RandomVector(dim, 1, 20)};
+  std::vector<double> spatial_max{test_helpers::RandomVector(dim, 0, 100)};
+  std::vector<double> n_cells_double{test_helpers::RandomVector(dim, 1, 20)};
   std::vector<int> n_cells{n_cells_double.begin(), n_cells_double.end()};
 
   int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1,
@@ -125,10 +125,10 @@ TYPED_TEST(DomainMeshCartesianTest, BadSpatialSize) {
 
   std::vector<std::vector<double>> spatial_maxes{
       {},
-      btest::RandomVector(1, 0, 100),
-      btest::RandomVector(2, 0, 100),
-      btest::RandomVector(3, 0, 100),
-      btest::RandomVector(4, 0, 100)};
+      test_helpers::RandomVector(1, 0, 100),
+      test_helpers::RandomVector(2, 0, 100),
+      test_helpers::RandomVector(3, 0, 100),
+      test_helpers::RandomVector(4, 0, 100)};
 
   std::vector<std::vector<int>> n_cells{{}, {10}, {10, 20}, {10, 20, 30},
                                         {10, 20, 30, 40}};
@@ -144,8 +144,8 @@ TYPED_TEST(DomainMeshCartesianTest, BadSpatialSize) {
 
 TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
   constexpr int dim = this->dim;
-  std::vector<double> spatial_max{btest::RandomVector(dim, 5, 20)};
-  std::vector<double> n_cells_double{btest::RandomVector(dim, 5, 20)};
+  std::vector<double> spatial_max{test_helpers::RandomVector(dim, 5, 20)};
+  std::vector<double> n_cells_double{test_helpers::RandomVector(dim, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(),
                            n_cells_double.cend()};
 
@@ -229,8 +229,8 @@ TYPED_TEST(DomainMeshCartesianTest, FillMaterialIDTest) {
 class DomainMeshCartesianMappingTest : public ::testing::Test {};
 
 TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
-  std::vector<double> spatial_max{btest::RandomVector(1, 5, 20)};
-  std::vector<double> n_cells_double{btest::RandomVector(1, 5, 20)};
+  std::vector<double> spatial_max{test_helpers::RandomVector(1, 5, 20)};
+  std::vector<double> n_cells_double{test_helpers::RandomVector(1, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
   domain::mesh::MeshCartesian<1> test_mesh(spatial_max, n_cells);
@@ -260,8 +260,8 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping1D) {
 }
 
 TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping2D) {
-  std::vector<double> spatial_max{btest::RandomVector(2, 5, 20)};
-  std::vector<double> n_cells_double{btest::RandomVector(2, 5, 20)};
+  std::vector<double> spatial_max{test_helpers::RandomVector(2, 5, 20)};
+  std::vector<double> n_cells_double{test_helpers::RandomVector(2, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
   domain::mesh::MeshCartesian<2> test_mesh(spatial_max, n_cells);
@@ -307,8 +307,8 @@ TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping2D) {
 }
 
 TEST_F(DomainMeshCartesianMappingTest, MultipleMaterialMapping3D) {
-  std::vector<double> spatial_max{btest::RandomVector(3, 5, 20)};
-  std::vector<double> n_cells_double{btest::RandomVector(3, 5, 20)};
+  std::vector<double> spatial_max{test_helpers::RandomVector(3, 5, 20)};
+  std::vector<double> n_cells_double{test_helpers::RandomVector(3, 5, 20)};
   std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
   domain::mesh::MeshCartesian<3> test_mesh(spatial_max, n_cells);

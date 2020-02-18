@@ -1,4 +1,4 @@
-#include "../material_protobuf.h"
+#include "material/material_protobuf.h"
 
 #include <sstream>
 #include <exception>
@@ -7,7 +7,11 @@
 
 #include "gtest/gtest.h"
 
-#include "../../test_helpers/test_helper_functions.h"
+#include "test_helpers/test_helper_functions.h"
+
+namespace {
+
+using namespace bart;
 
 class MaterialProtobufTest : public ::testing::Test {
  protected:
@@ -1516,7 +1520,7 @@ TEST_F(MaterialProtobufTest, DiffusionCoefficientValuesTest) {
   
   diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
   
-  const std::vector<double> diffusion_coef(btest::RandomVector(7, 1e-3, 3));
+  const std::vector<double> diffusion_coef(test_helpers::RandomVector(7, 1e-3, 3));
   const std::vector<double> null_vector(7,0);
   
   for (const double& val : diffusion_coef) {
@@ -1543,7 +1547,7 @@ TEST_F(MaterialProtobufTest, DiffusionCoefficientInvalidTest) {
   
   diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
   
-  const std::vector<double> diffusion_coef(btest::RandomVector(5, 1e-3, 3));
+  const std::vector<double> diffusion_coef(test_helpers::RandomVector(5, 1e-3, 3));
   for (const double& val : diffusion_coef) {
     diffusion_ptr->add_value(val);
   }
@@ -1553,7 +1557,4 @@ TEST_F(MaterialProtobufTest, DiffusionCoefficientInvalidTest) {
     }, MaterialProtobuf::WrongNumberOfValues);
 }
 
-  
-
-
-  
+} // namespace

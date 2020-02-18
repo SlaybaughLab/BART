@@ -48,12 +48,12 @@ TEST_F(TestHelperFunctionTest, RandomVectorTest) {
   for (const auto vector_size : test_vector_length) {
     for (const auto p : test_pairs) {
       std::vector<double>
-          test_vector = btest::RandomVector(vector_size, p.first, p.second);
+          test_vector = test_helpers::RandomVector(vector_size, p.first, p.second);
       EXPECT_EQ(vector_size, test_vector.size());
       for (auto val : test_vector)
         EXPECT_THAT(val, ::testing::AllOf(::testing::Ge(p.first),
                                           ::testing::Le(p.second)));
-      EXPECT_ANY_THROW(btest::RandomVector(0, p.first, p.second));
+      EXPECT_ANY_THROW(test_helpers::RandomVector(0, p.first, p.second));
     }
   }
 }

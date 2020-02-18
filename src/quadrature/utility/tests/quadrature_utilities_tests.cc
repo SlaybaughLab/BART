@@ -28,7 +28,7 @@ TYPED_TEST_CASE(QuadratureUtilityTests, bart::testing::AllDimensions);
 TYPED_TEST(QuadratureUtilityTests, ReflectAcrossOrigin) {
   constexpr int dim = this->dim;
   std::array<double, dim> position, negative_position;
-  auto random_position = btest::RandomVector(dim, -10, 10);
+  auto random_position = test_helpers::RandomVector(dim, -10, 10);
 
   for (int i = 0; i < dim; ++i) {
     position.at(i) = random_position.at(i);
@@ -58,7 +58,7 @@ TYPED_TEST(QuadratureUtilityTests, GenerateAllPositiveX) {
 
   // Fill the quadrature set with random positions
   for (int i = 0; i < n_points; ++i) {
-    auto random_position = btest::RandomVector(dim, 1, 10);
+    auto random_position = test_helpers::RandomVector(dim, 1, 10);
     auto random_weight = test_helpers::RandomDouble(0, 2);
     std::array<double, dim> position;
     for (int j = 0; j < dim; ++j)
@@ -119,8 +119,8 @@ TYPED_TEST(QuadratureUtilityTests, QuadraturePointCompare) {
   const int dim = this->dim;
 
   std::array<double, dim> position_1, position_2;
-  auto random_position_1 = btest::RandomVector(dim, -100, 100);
-  auto random_position_2 = btest::RandomVector(dim, -100, 100);
+  auto random_position_1 = test_helpers::RandomVector(dim, -100, 100);
+  auto random_position_2 = test_helpers::RandomVector(dim, -100, 100);
 
   for (int i = 0; i < dim; ++i) {
     position_1.at(i) = random_position_1.at(i);

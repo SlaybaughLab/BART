@@ -124,7 +124,7 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest, FillQuadratureSet) {
       quadrature_points;
 
   for (int i = 0; i < n_points; ++i) {
-    auto random_position = btest::RandomVector(dim, 1, 10);
+    auto random_position = test_helpers::RandomVector(dim, 1, 10);
     auto random_weight = test_helpers::RandomDouble(0, 2);
     std::array<double, dim> position;
     for (int j = 0; j < dim; ++j)

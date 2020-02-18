@@ -15,6 +15,18 @@ namespace test_helpers {
 //! Generates a random double between min and max
 double RandomDouble(double min, double max);
 
+//! Generates a vector populated with n random doubles between min and max
+std::vector<double> RandomVector(std::size_t n, double min, double max);
+
+//! Generates a random unordered map of ints to vector<double>.
+/*! Generates a random unordered map of ints to vector<double> map_size keys to
+  vectors of length vector_size with values between min and max.
+*/
+
+std::unordered_map<int, std::vector<double>> RandomIntVectorMap(
+    std::size_t map_size = 4, std::size_t vector_size = 3, double min = 0,
+    double max = 100);
+
 } // namespace test_helpers
 
 } // namespace bart
@@ -25,7 +37,7 @@ namespace btest {
 [[deprecated]] double RandomDouble(double min, double max);
 
 //! Generates a vector populated with n random doubles between min and max
-std::vector<double> RandomVector(std::size_t n, double min, double max);
+[[deprecated]] std::vector<double> RandomVector(std::size_t n, double min, double max);
 
 //! Generates a random unordered map of ints to vector<double>.
 /*! Generates a random unordered map of ints to vector<double> map_size keys to

@@ -35,8 +35,8 @@ class TestAssertionsTest : public ::testing::Test {
 };
 
 void TestAssertionsTest::SetUp() {
-  vector_1 = btest::RandomVector(5, 0, 1.0);
-  vector_2 = btest::RandomVector(5, 1.0, 2.0);
+  vector_1 = test_helpers::RandomVector(5, 0, 1.0);
+  vector_2 = test_helpers::RandomVector(5, 1.0, 2.0);
   dealii_vector_1.reinit(5);
   dealii_vector_2.reinit(5);
 
