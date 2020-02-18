@@ -28,6 +28,11 @@ class SolutionI {
    * the user to use std::map methods directly.
    * @return reference to the internal solutions map.
    */
+  virtual SolutionMap& solutions() = 0;
+
+  /*! \brief Returns the full mapping of solutions as a const for access.
+   * @return reference to the internal solutions map.
+   */
   virtual const SolutionMap& solutions() const = 0;
 
   /*! \brief Returns the solution that corresponds to a provided index.

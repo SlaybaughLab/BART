@@ -14,7 +14,8 @@ namespace solution {
 class MPIGroupAngularSolutionMock : public MPIGroupAngularSolutionI {
  public:
   MOCK_CONST_METHOD0(total_angles, int());
-  MOCK_CONST_METHOD0(solutions, SolutionMap&());
+  MOCK_METHOD(const SolutionMap&, solutions, (), (override, const));
+  MOCK_METHOD(SolutionMap&, solutions, (), (override));
   MOCK_CONST_METHOD1(BracketOp, const MPIVector&(const AngleIndex));
   MOCK_METHOD1(BracketOp, MPIVector&(const AngleIndex));
   MOCK_METHOD1(GetSolution, MPIVector&(const AngleIndex));

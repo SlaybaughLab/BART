@@ -22,6 +22,8 @@ class Solution : public SolutionI<IndexType, SolutionType> {
  public:
   using typename SolutionI<IndexType, SolutionType>::SolutionMap;
   virtual ~Solution() = default;
+  virtual SolutionMap& solutions() override {
+    return solutions_; }
   virtual const SolutionMap& solutions() const override {
     return solutions_; }
   virtual SolutionType& GetSolution(const IndexType index) override {
