@@ -122,23 +122,6 @@ void GoldTestInit(std::string filename);
 */
 void GoldTestRun(std::string filename);
 
-//! This class provides a parallel gtest environment for BART.
-/*!
- The main functionality is to provide MPI initilization and a tear down function.
-
- \author Weixiong Zheng
- \date 2018/8
- */
-class BARTParallelEnvironment : public ::testing::Test {
- public:
-  BARTParallelEnvironment();
-  virtual ~BARTParallelEnvironment();
-
-  virtual void TearDown();
- protected:
-  void MPIInit();
-  void MPIFinalize();
-};
 } // namespace btest
 
 #endif // BART_TEST_HELPERS_BART_TEST_HELPER_H_

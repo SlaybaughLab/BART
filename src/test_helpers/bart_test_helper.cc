@@ -135,24 +135,4 @@ void GoldTestRun(std::string filename) {
       GlobalBARTTestHelper().GetFailMessage();
 }
 
-BARTParallelEnvironment::BARTParallelEnvironment()
-    : ::testing::Test() {}
-
-BARTParallelEnvironment::~BARTParallelEnvironment() {}
-
-void BARTParallelEnvironment::MPIFinalize() {
-  int err = MPI_Finalize();
-  ASSERT_FALSE(err);
-}
-
-void BARTParallelEnvironment::TearDown() {
-  MPIFinalize();
-}
-
-void BARTParallelEnvironment::MPIInit() {
-  char** argv;
-  int argc = 0;
-  int err = MPI_Init (&argc, &argv);
-  ASSERT_FALSE(err);
-}
 } // namespace btest
