@@ -38,6 +38,25 @@ struct TriangulationType<1> {
 template struct TriangulationType<2>;
 template struct TriangulationType<3>;
 
+/*! \brief Default implementation of a domain definition.
+ *
+ * See the base class for general information about domain definitions, an
+ * example of use is shown below:
+ *
+ * \code{.cpp}
+ *
+ * domain::definition<3> domain_definition(std::move(mesh_ptr),
+ *                                         finite_element_ptr,
+ *                                         problem::DiscretizationType::kContinuousFEM);
+ * domain_definition.SetUpMesh().SetUpDOF();
+ *
+ * auto cell_matrix = domain_definition.GetCellMatrix();
+ *
+ * \endcode
+ *
+ * \author Joshua Rehak
+ * \date 2019/02
+ */
 template <int dim>
 class Definition : public DefinitionI<dim> {
  public:

@@ -25,6 +25,11 @@ namespace domain {
  * is a mediator for all the required interactions between Dealii objects. It
  * maintains ownership of the mesh and finite element basis through unique pointers.
  *
+ * The class has two major functions: (1) it acts as a wrapper for the necessary
+ * dealii classes to couple a finite element basis to a mesh, and (2) provides
+ * matrices based on this coupling. The functions SetUpDOF() and SetUpMesh() are
+ * required for initializing the underlying objects.
+ *
  * Many portions of this class are adapted from the BARTDriver class written by
  * Weixiong Zheng.
  *
