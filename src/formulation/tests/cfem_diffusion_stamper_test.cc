@@ -31,8 +31,8 @@ using ::testing::_;
 using ::testing::WithArg;
 
 using namespace bart;
-using bart::testing::CompareMPIMatrices;
-using bart::testing::CompareMPIVectors;
+using bart::test_helpers::CompareMPIMatrices;
+using bart::test_helpers::CompareMPIVectors;
 using Matrix = dealii::FullMatrix<double>;
 using Vector = dealii::Vector<double>;
 

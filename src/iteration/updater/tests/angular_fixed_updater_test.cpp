@@ -196,7 +196,7 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_,
                                             this->group_number_,
                                             this->angle_index_);
-  EXPECT_TRUE(bart::testing::CompareMPIMatrices(*this->matrix_ptr_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIMatrices(*this->matrix_ptr_,
                                                 this->matrix_1));
 }
 

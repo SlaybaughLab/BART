@@ -15,7 +15,7 @@ using namespace bart;
 using ::testing::DoDefault, ::testing::Return, ::testing::_, ::testing::WithArg,
 ::testing::Invoke, ::testing::Ref, ::testing::NiceMock;
 
-using bart::testing::CompareMPIMatrices, bart::testing::CompareMPIVectors;
+using bart::test_helpers::CompareMPIMatrices, bart::test_helpers::CompareMPIVectors;
 
 template <typename DimensionWrapper>
 class CFEM_SAAF_StamperTest : public ::testing::Test {

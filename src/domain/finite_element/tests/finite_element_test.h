@@ -109,7 +109,7 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
 
   auto result_vector = test_fe->ValueAtQuadrature(test_moment);
 
-  EXPECT_TRUE(bart::testing::CompareVector(expected_vector, result_vector));
+  EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
 }
 
 } // namespace testing

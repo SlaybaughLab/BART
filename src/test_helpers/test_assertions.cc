@@ -4,7 +4,7 @@
 
 namespace bart {
 
-namespace testing {
+namespace test_helpers {
 
 AssertionResult CompareVector(const dealii::Vector<double>& expected,
                                      const dealii::Vector<double>& result,
@@ -96,6 +96,6 @@ AssertionResult CompareMPIVectors(
   }
 }
 
-} // namespace testing
+} // namespace test_helpers
 
 } // namespace bart

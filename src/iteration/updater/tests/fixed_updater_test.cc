@@ -162,7 +162,7 @@ TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedMPI) {
   test_updater_ptr_->UpdateFixedTerms(test_system_,
                                       group_number_,
                                       angle_index_);
-  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_1, *matrix_ptr_));
+  EXPECT_TRUE(bart::test_helpers::CompareMPIMatrices(matrix_1, *matrix_ptr_));
 }
 
 

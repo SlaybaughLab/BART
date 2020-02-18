@@ -181,7 +181,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
   // Tested call
   test_updater.UpdateScatteringSource(test_system_, group, angle);
 
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(*source_vector_ptr_,
                                                expected_vector_));
 }
 
@@ -266,7 +266,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
   // Tested call
   test_updater.UpdateFissionSource(test_system_, group, angle);
 
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(*source_vector_ptr_,
                                                expected_vector_));
 }
 

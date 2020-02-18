@@ -192,7 +192,7 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
   this->test_updater_->UpdateScatteringSource(this->test_system_,
                                               this->group,
                                               this->angle_number);
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(this->expected_vector_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(this->expected_vector_,
                                                *this->source_vector_ptr_));
 }
 
@@ -247,7 +247,7 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
   this->test_updater_->UpdateFissionSource(this->test_system_,
                                            this->group,
                                            this->angle_number);
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(this->expected_vector_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(this->expected_vector_,
                                                *this->source_vector_ptr_));
 }
 
