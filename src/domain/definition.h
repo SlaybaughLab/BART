@@ -134,6 +134,9 @@ class Definition : public DefinitionI<dim> {
   /*! Constraint matrix */
   dealii::ConstraintMatrix constraint_matrix_;
 
+  /*! Dynamic sparsity pattern for MPI matrices */
+  dealii::DynamicSparsityPattern dynamic_sparsity_pattern_;
+
   /*! local cells */
   CellRange local_cells_;
 

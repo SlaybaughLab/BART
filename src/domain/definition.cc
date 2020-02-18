@@ -68,6 +68,28 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
       local_cells_.push_back(cell);
   }
 
+  // Set up dynamic sparsity pattern
+  dynamic_sparsity_pattern_.reinit(locally_relevant_dofs_.size(),
+                                   locally_relevant_dofs_.size(),
+                                   locally_relevant_dofs_);
+
+  if (discretization_type_ ==  problem::DiscretizationType::kDiscontinuousFEM) {
+    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_,
+                                                 dynamic_sparsity_pattern_,
+                                                 constraint_matrix_, false);
+  } else {
+    dealii::DoFTools::make_sparsity_pattern(dof_handler_,
+                                            dynamic_sparsity_pattern_,
+                                            constraint_matrix_, false);
+  }
+
+  dealii::SparsityTools::distribute_sparsity_pattern(
+      dynamic_sparsity_pattern_,
+      dof_handler_.n_locally_owned_dofs_per_processor(),
+      MPI_COMM_WORLD, locally_relevant_dofs_);
+
+  constraint_matrix_.condense(dynamic_sparsity_pattern_);
+
   return *this;
 }
 
@@ -94,6 +116,16 @@ Definition<1>& Definition<1>::SetUpDOF() {
   dealii::DoFTools::make_hanging_node_constraints(dof_handler_,
                                                   constraint_matrix_);
   constraint_matrix_.close();
+
+  dynamic_sparsity_pattern_.reinit(dof_handler_.n_dofs(), dof_handler_.n_dofs());
+
+  if (discretization_type_ ==  problem::DiscretizationType::kDiscontinuousFEM) {
+    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dynamic_sparsity_pattern_,
+                                                 constraint_matrix_, false);
+  } else {
+    dealii::DoFTools::make_sparsity_pattern(dof_handler_, dynamic_sparsity_pattern_,
+                                            constraint_matrix_, false);
+  }
 
   return *this;
 }
