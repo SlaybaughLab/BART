@@ -12,6 +12,10 @@
 #include "../../test_helpers/gmock_wrapper.h"
 #include "../../test_helpers/test_helper_functions.h"
 
+namespace {
+
+using namespace bart;
+
 class CrossSectionsTest : public ::testing::Test {
  protected:
   using id_vector_map = std::unordered_map<int, std::vector<double>>;
@@ -22,16 +26,16 @@ class CrossSectionsTest : public ::testing::Test {
 class CrossSectionsTestConstructor : public CrossSectionsTest {
  protected:
   void SetUp() override;
-  id_vector_map diffusion_coef_map = btest::RandomIntVectorMap();
-  id_vector_map sigma_t_map = btest::RandomIntVectorMap();
-  id_vector_map sigma_t_inv_map = btest::RandomIntVectorMap();
-  id_vector_map q_map = btest::RandomIntVectorMap();
-  id_vector_map q_per_ster_map = btest::RandomIntVectorMap();
-  id_vector_map nu_sigf_map = btest::RandomIntVectorMap();
-  id_matrix_map sig_s_map = btest::RandomIntMatrixMap();
-  id_matrix_map sig_s_per_ster_map = btest::RandomIntMatrixMap();
-  id_matrix_map chi_nu_sig_f_map = btest::RandomIntMatrixMap();
-  id_matrix_map chi_nu_sig_f_per_ster_map = btest::RandomIntMatrixMap();
+  id_vector_map diffusion_coef_map = test_helpers::RandomIntVectorMap();
+  id_vector_map sigma_t_map = test_helpers::RandomIntVectorMap();
+  id_vector_map sigma_t_inv_map = test_helpers::RandomIntVectorMap();
+  id_vector_map q_map = test_helpers::RandomIntVectorMap();
+  id_vector_map q_per_ster_map = test_helpers::RandomIntVectorMap();
+  id_vector_map nu_sigf_map = test_helpers::RandomIntVectorMap();
+  id_matrix_map sig_s_map = test_helpers::RandomIntMatrixMap();
+  id_matrix_map sig_s_per_ster_map = test_helpers::RandomIntMatrixMap();
+  id_matrix_map chi_nu_sig_f_map = test_helpers::RandomIntMatrixMap();
+  id_matrix_map chi_nu_sig_f_per_ster_map = test_helpers::RandomIntMatrixMap();
   std::unordered_map<int, bool> fissile_id_map{{1, true}, {2, false}};
 };
 
@@ -75,3 +79,5 @@ TEST_F(CrossSectionsTestConstructor, CrossSectionsConstructor) {
   EXPECT_EQ(test_xsections.is_material_fissile, fissile_id_map);
 
 }
+
+} // namespace

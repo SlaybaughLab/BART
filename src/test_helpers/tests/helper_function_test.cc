@@ -68,7 +68,7 @@ TEST_F(TestHelperFunctionTest, RandomIntVectorMapTest) {
     for (const auto vector_size : test_vector_length) {
       for (const auto p : test_pairs) {
         std::unordered_map<int, std::vector<double>> test_map =
-            btest::RandomIntVectorMap(map_size, vector_size, p.first, p.second);
+            test_helpers::RandomIntVectorMap(map_size, vector_size, p.first, p.second);
 
         std::ostringstream test_msg;
         test_msg << "Map Size: " << map_size << "; vector size: "
@@ -89,7 +89,7 @@ TEST_F(TestHelperFunctionTest, RandomIntVectorMapTest) {
                       << test_msg.str();
         }
 
-        EXPECT_ANY_THROW(btest::RandomIntVectorMap(0, vector_size, p.first,
+        EXPECT_ANY_THROW(test_helpers::RandomIntVectorMap(0, vector_size, p.first,
                                                    p.second));
       }
     }
@@ -111,7 +111,7 @@ TEST_F(TestHelperFunctionTest, RandomMatrixTest) {
     test_msg << "Matrix Size: " << m << "x" << n << "; min/max: "
              << min_value << "/" << max_value;
 
-    dealii::FullMatrix<double> matrix = btest::RandomMatrix(m, n, min_value,
+    dealii::FullMatrix<double> matrix = test_helpers::RandomMatrix(m, n, min_value,
                                                             max_value);
 
     for (auto cit = matrix.begin(); cit < matrix.end(); ++cit)
@@ -140,7 +140,7 @@ TEST_F(TestHelperFunctionTest, RandomIntMatrixMapTest) {
     test_msg << "Map size: " << map_size << "; Matrix Size: " << m << "x"
              << n << "; min/max: " << min_value << "/" << max_value;
 
-    auto matrix_map = btest::RandomIntMatrixMap(map_size, m, n, min_value,
+    auto matrix_map = test_helpers::RandomIntMatrixMap(map_size, m, n, min_value,
                                                 max_value);
 
     EXPECT_EQ(matrix_map.size(), map_size) << test_msg.str();
