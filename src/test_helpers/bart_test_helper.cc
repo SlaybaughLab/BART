@@ -126,16 +126,16 @@ BARTTestHelper& GlobalBARTTestHelper() {
   static BARTTestHelper global_bth;
   return global_bth;
 }
-
-void GoldTestInit(std::string filename) {
-  GlobalBARTTestHelper().OpenLog(filename);
-}
-
-void GoldTestRun(std::string filename) {
-  GlobalBARTTestHelper().CloseLog();
-  ASSERT_TRUE(GlobalBARTTestHelper().GoldTest(filename)) <<
-      GlobalBARTTestHelper().GetFailMessage();
-}
+//
+//void GoldTestInit(std::string filename) {
+//  GlobalBARTTestHelper().OpenLog(filename);
+//}
+//
+//void GoldTestRun(std::string filename) {
+//  GlobalBARTTestHelper().CloseLog();
+//  ASSERT_TRUE(GlobalBARTTestHelper().GoldTest(filename)) <<
+//      GlobalBARTTestHelper().GetFailMessage();
+//}
 
 } // namespace test_helpers
 
