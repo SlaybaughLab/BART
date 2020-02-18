@@ -11,6 +11,7 @@
 #include "data/matrix_parameters.h"
 #include "domain/domain_types.h"
 #include "problem/parameter_types.h"
+#include "system/system_types.h"
 
 namespace bart {
 
@@ -67,6 +68,9 @@ class DefinitionI {
    * \return a dealii Vector<double> of appropriate size.
    */
   virtual dealii::Vector<double> GetCellVector() const = 0;
+
+  /*! Get an MPI matrix suitable for the system */
+  virtual std::shared_ptr<bart::system::MPISparseMatrix> MakeSystemMatrix() const = 0;
 
   /*! Get a range of all cells to allow iterating over them */
   virtual CellRange Cells() const = 0;

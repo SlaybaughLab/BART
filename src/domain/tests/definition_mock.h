@@ -28,6 +28,8 @@ class DefinitionMock : public DefinitionI<dim> {
       (override, const));
   MOCK_METHOD(dealii::FullMatrix<double>, GetCellMatrix, (), (override, const));
   MOCK_METHOD(dealii::Vector<double>, GetCellVector, (), (override, const));
+  MOCK_METHOD(std::shared_ptr<bart::system::MPISparseMatrix>, MakeSystemMatrix,
+      (), (const, override));
   MOCK_METHOD(typename DefinitionI<dim>::CellRange, Cells, (), (override, const));
   MOCK_METHOD(problem::DiscretizationType, discretization_type, (), (override, const));
   MOCK_METHOD(int, total_degrees_of_freedom, (), (override, const));

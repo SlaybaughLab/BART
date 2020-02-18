@@ -130,6 +130,16 @@ Definition<1>& Definition<1>::SetUpDOF() {
   return *this;
 }
 
+template<int dim>
+std::shared_ptr<system::MPISparseMatrix> Definition<dim>::MakeSystemMatrix() const {
+  auto system_matrix_ptr = std::make_shared<system::MPISparseMatrix>();
+  system_matrix_ptr->reinit(locally_owned_dofs_,
+      locally_owned_dofs_,
+      dynamic_sparsity_pattern_,
+      MPI_COMM_WORLD);
+  return system_matrix_ptr;
+}
+
 template <int dim>
 void Definition<dim>::FillMatrixParameters(
     data::MatrixParameters &to_fill,
@@ -190,6 +200,7 @@ int Definition<dim>::total_degrees_of_freedom() const {
     total_degrees_of_freedom_ = dof_handler_.n_dofs();
   return total_degrees_of_freedom_;
 }
+
 
 template class Definition<1>;
 template class Definition<2>;

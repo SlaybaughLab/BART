@@ -146,7 +146,7 @@ TYPED_TEST(DOFTest, SetUpDOFTestMPI) {
   EXPECT_EQ(vector.size(), 4);
 }
 
-TYPED_TEST(DOFTest, MatrixParametersMPI) {
+TYPED_TEST(DOFTest, SystemMatrixMPI) {
   EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
       WillOnce(::testing::Return(true));
   EXPECT_CALL(*this->nice_mesh_ptr, FillTriangulation(_))
@@ -159,12 +159,11 @@ TYPED_TEST(DOFTest, MatrixParametersMPI) {
   test_domain.SetUpMesh();
   test_domain.SetUpDOF();
 
-  bart::data::MatrixParameters test_parameters;
-  test_domain.FillMatrixParameters(test_parameters,
-      bart::problem::DiscretizationType::kContinuousFEM);
+  auto system_matrix_ptr = test_domain.MakeSystemMatrix();
 
-  EXPECT_EQ(test_parameters.rows, test_domain.locally_owned_dofs());
-  EXPECT_EQ(test_parameters.columns, test_domain.locally_owned_dofs());
+  ASSERT_NE(system_matrix_ptr, nullptr);
+  EXPECT_EQ(system_matrix_ptr->n(), test_domain.locally_owned_dofs().size());
+  EXPECT_EQ(system_matrix_ptr->m(), test_domain.locally_owned_dofs().size());
 }
 
 } // namespace

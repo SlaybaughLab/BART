@@ -90,6 +90,7 @@ class Definition : public DefinitionI<dim> {
     return vector;
   }
 
+  std::shared_ptr<system::MPISparseMatrix> MakeSystemMatrix() const override;
 
   CellRange Cells() const override { return local_cells_; };
 
