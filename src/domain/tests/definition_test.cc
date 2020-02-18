@@ -24,7 +24,7 @@ using ::testing::_;
 using ::testing::NiceMock;
 
 template <typename DimensionWrapper>
-class DefinitionTest : public ::testing::Test {
+class DomainDefinitionTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   std::unique_ptr<bart::domain::mesh::MeshMock<dim>> mesh_ptr;
@@ -34,16 +34,16 @@ class DefinitionTest : public ::testing::Test {
   void SetUp() override;
 };
 
-TYPED_TEST_CASE(DefinitionTest, bart::testing::AllDimensions);
+TYPED_TEST_CASE(DomainDefinitionTest, bart::testing::AllDimensions);
 
 template <typename DimensionWrapper>
-void DefinitionTest<DimensionWrapper>::SetUp() {
+void DomainDefinitionTest<DimensionWrapper>::SetUp() {
   mesh_ptr = std::make_unique<bart::domain::mesh::MeshMock<dim>>();
   nice_mesh_ptr = std::make_unique<NiceMock<bart::domain::mesh::MeshMock<dim>>>();
   fe_ptr = std::make_shared<bart::domain::finite_element::FiniteElementMock<dim>>();
 }
 
-TYPED_TEST(DefinitionTest, Constructor) {
+TYPED_TEST(DomainDefinitionTest, Constructor) {
 
   using Discretization = problem::DiscretizationType;
   std::array<Discretization, 2> discretizations{
@@ -60,7 +60,7 @@ TYPED_TEST(DefinitionTest, Constructor) {
   }
 }
 
-TYPED_TEST(DefinitionTest, SetUpMesh) {
+TYPED_TEST(DomainDefinitionTest, SetUpMesh) {
   EXPECT_CALL(*this->mesh_ptr, FillTriangulation(_));
   EXPECT_CALL(*this->mesh_ptr, FillMaterialID(_));
   EXPECT_CALL(*this->mesh_ptr, has_material_mapping()).
@@ -73,7 +73,7 @@ TYPED_TEST(DefinitionTest, SetUpMesh) {
   EXPECT_NO_THROW(test_domain.SetUpMesh(););
 }
 
-TYPED_TEST(DefinitionTest, SetUpMeshMaterialMappingError) {
+TYPED_TEST(DomainDefinitionTest, SetUpMeshMaterialMappingError) {
   EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
       WillOnce(::testing::Return(false));
 
@@ -83,10 +83,10 @@ TYPED_TEST(DefinitionTest, SetUpMeshMaterialMappingError) {
 }
 
 template <typename DimensionWrapper>
-class DOFTest : public DefinitionTest<DimensionWrapper> {
+class DomainDefinitionDOFTest : public DomainDefinitionTest<DimensionWrapper> {
  protected:
   static constexpr int dim = DimensionWrapper::value;
-  DOFTest() : fe(1) {};
+  DomainDefinitionDOFTest() : fe(1) {};
   dealii::Triangulation<dim> triangulation;
   dealii::FE_Q<dim> fe;
   int n_cells_;
@@ -102,14 +102,14 @@ class DOFTest : public DefinitionTest<DimensionWrapper> {
   }
 };
 
-TYPED_TEST_CASE(DOFTest, bart::testing::AllDimensions);
+TYPED_TEST_CASE(DomainDefinitionDOFTest, bart::testing::AllDimensions);
 
 template <typename DimensionWrapper>
-void DOFTest<DimensionWrapper>::SetUp() {
-  DefinitionTest<DimensionWrapper>::SetUp();
+void DomainDefinitionDOFTest<DimensionWrapper>::SetUp() {
+  DomainDefinitionTest<DimensionWrapper>::SetUp();
 }
 
-TYPED_TEST(DOFTest, SetUpDOFTestMPI) {
+TYPED_TEST(DomainDefinitionDOFTest, SetUpDOFTestMPI) {
   EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
       WillOnce(::testing::Return(true));
   EXPECT_CALL(*this->nice_mesh_ptr, FillTriangulation(_))
@@ -146,7 +146,7 @@ TYPED_TEST(DOFTest, SetUpDOFTestMPI) {
   EXPECT_EQ(vector.size(), 4);
 }
 
-TYPED_TEST(DOFTest, SystemMatrixMPI) {
+TYPED_TEST(DomainDefinitionDOFTest, SystemMatrixMPI) {
   EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
       WillOnce(::testing::Return(true));
   EXPECT_CALL(*this->nice_mesh_ptr, FillTriangulation(_))
