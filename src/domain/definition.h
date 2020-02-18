@@ -44,10 +44,12 @@ class Definition : public DefinitionI<dim> {
   typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
   
   /*! \brief Constructor.
-   * Takes ownership of injected dependencies (MeshI and FiniteElementI).
+   * Takes ownership of injected dependencies (MeshI and FiniteElementI) and
+   * sets the type of discretization (default: continuous FEM).
    */
   Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
-             std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element);
+             std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+             problem::DiscretizationType discretization = problem::DiscretizationType::kContinuousFEM);
   ~Definition() = default;
 
   Definition<dim>& SetUpDOF() override;
@@ -72,16 +74,17 @@ class Definition : public DefinitionI<dim> {
 
   CellRange Cells() const override { return local_cells_; };
 
+  problem::DiscretizationType discretization_type() const override {
+    return discretization_type_; }
+
   int total_degrees_of_freedom() const override ;
 
   dealii::IndexSet locally_owned_dofs() const override {
-    return locally_owned_dofs_;
-  }
+    return locally_owned_dofs_; }
 
 
   const dealii::DoFHandler<dim>& dof_handler() const override {
-    return dof_handler_;
-  }
+    return dof_handler_; }
   
  private:
 
@@ -114,6 +117,9 @@ class Definition : public DefinitionI<dim> {
 
   /*! local cells */
   CellRange local_cells_;
+
+  /*! Discretization type */
+  const problem::DiscretizationType discretization_type_;
 };
 
 } // namespace domain

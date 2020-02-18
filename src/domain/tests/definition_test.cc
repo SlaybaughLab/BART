@@ -14,8 +14,11 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "domain/mesh/tests/mesh_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
+#include "problem/parameter_types.h"
 
 namespace {
+
+using namespace bart;
 
 using ::testing::_;
 using ::testing::NiceMock;
@@ -41,11 +44,20 @@ void DefinitionTest<DimensionWrapper>::SetUp() {
 }
 
 TYPED_TEST(DefinitionTest, Constructor) {
-  bart::domain::Definition<this->dim> test_domain(std::move(this->mesh_ptr),
-                                                  this->fe_ptr);
-  // Verify ownership has been taken by constructor
-  EXPECT_EQ(this->mesh_ptr, nullptr);
-  EXPECT_EQ(this->fe_ptr.use_count(), 2);
+
+  using Discretization = problem::DiscretizationType;
+  std::array<Discretization, 2> discretizations{
+    Discretization::kContinuousFEM, Discretization::kDiscontinuousFEM};
+
+  for (const auto discretization : discretizations) {
+    bart::domain::Definition<this->dim> test_domain(std::move(this->mesh_ptr),
+                                                    this->fe_ptr,
+                                                    discretization);
+    // Verify ownership has been taken by constructor
+    EXPECT_EQ(this->mesh_ptr, nullptr);
+    EXPECT_EQ(this->fe_ptr.use_count(), 2);
+    EXPECT_EQ(test_domain.discretization_type(), discretization);
+  }
 }
 
 TYPED_TEST(DefinitionTest, SetUpMesh) {

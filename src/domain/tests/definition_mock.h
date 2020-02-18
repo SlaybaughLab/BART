@@ -29,6 +29,7 @@ class DefinitionMock : public DefinitionI<dim> {
   MOCK_METHOD(dealii::FullMatrix<double>, GetCellMatrix, (), (override, const));
   MOCK_METHOD(dealii::Vector<double>, GetCellVector, (), (override, const));
   MOCK_METHOD(typename DefinitionI<dim>::CellRange, Cells, (), (override, const));
+  MOCK_METHOD(problem::DiscretizationType, discretization_type, (), (override, const));
   MOCK_METHOD(int, total_degrees_of_freedom, (), (override, const));
   MOCK_METHOD(const dealii::DoFHandler<dim>&, dof_handler, (), (override, const));
   MOCK_METHOD(dealii::IndexSet, locally_owned_dofs, (), (override, const));

@@ -10,26 +10,31 @@ namespace bart {
 namespace domain {
 
 template <int dim>
-Definition<dim>::Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
-                    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element)
+Definition<dim>::Definition(
+    std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
+    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+    problem::DiscretizationType discretization)
     : mesh_(std::move(mesh)),                     
       finite_element_(finite_element),
       triangulation_(MPI_COMM_WORLD,
                      typename dealii::Triangulation<dim>::MeshSmoothing(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                          dealii::Triangulation<dim>::smoothing_on_coarsening)),
-      dof_handler_(triangulation_) {}
+      dof_handler_(triangulation_),
+      discretization_type_(discretization) {}
 
 template <>
 Definition<1>::Definition(
     std::unique_ptr<domain::mesh::MeshI<1>> mesh,
-    std::shared_ptr<domain::finite_element::FiniteElementI<1>> finite_element)
+    std::shared_ptr<domain::finite_element::FiniteElementI<1>> finite_element,
+    problem::DiscretizationType discretization)
     : mesh_(std::move(mesh)),
       finite_element_(finite_element),
       triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(
                          dealii::Triangulation<1>::smoothing_on_refinement |
                              dealii::Triangulation<1>::smoothing_on_coarsening)),
-      dof_handler_(triangulation_) {}
+      dof_handler_(triangulation_),
+      discretization_type_(discretization) {}
 
 template <int dim>
 Definition<dim>& Definition<dim>::SetUpMesh() {

@@ -66,6 +66,9 @@ class DefinitionI {
   /*! Get a range of all cells to allow iterating over them */
   virtual CellRange Cells() const = 0;
 
+  /*! Get discretization type */
+  virtual problem::DiscretizationType discretization_type() const = 0;
+
   /*! Get locally owned degrees of freedom */
   virtual dealii::IndexSet locally_owned_dofs() const = 0;
 
