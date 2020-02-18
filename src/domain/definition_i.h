@@ -8,7 +8,6 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/vector.h>
 
-#include "data/matrix_parameters.h"
 #include "domain/domain_types.h"
 #include "problem/parameter_types.h"
 #include "system/system_types.h"
@@ -52,11 +51,6 @@ class DefinitionI {
    * the mesh has a material mapping setup.
    */
   virtual DefinitionI<dim>& SetUpMesh() = 0;
-
-  /*! Get the parameters required to build a system matrix for this domain */
-  virtual void FillMatrixParameters(
-      data::MatrixParameters &to_fill,
-      problem::DiscretizationType discretization) const = 0;
 
   /*! Get a matrix suitible for a cell matrix.
    *

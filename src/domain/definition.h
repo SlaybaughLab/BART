@@ -8,6 +8,7 @@
 #include <deal.II/base/iterator_range.h>
 #include <deal.II/distributed/tria.h>
 #include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/lac/dynamic_sparsity_pattern.h>
 
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
@@ -73,10 +74,6 @@ class Definition : public DefinitionI<dim> {
 
   Definition<dim>& SetUpDOF() override;
   Definition<dim>& SetUpMesh() override;
-
-  void FillMatrixParameters(
-      data::MatrixParameters &to_fill,
-      problem::DiscretizationType discretization) const override;
 
   dealii::FullMatrix<double> GetCellMatrix() const override {
     int cell_dofs = finite_element_->dofs_per_cell();

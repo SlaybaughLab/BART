@@ -10,7 +10,6 @@
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/grid/grid_generator.h>
 
-#include "data/matrix_parameters.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "domain/mesh/tests/mesh_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"

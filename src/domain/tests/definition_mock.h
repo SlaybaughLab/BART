@@ -6,7 +6,6 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/vector.h>
 
-#include "data/matrix_parameters.h"
 #include "domain/definition_i.h"
 #include "problem/parameter_types.h"
 
@@ -23,9 +22,6 @@ class DefinitionMock : public DefinitionI<dim> {
 
   MOCK_METHOD(DefinitionMock<dim>&, SetUpMesh, (), (override));
   MOCK_METHOD(DefinitionMock<dim>&, SetUpDOF, (), (override));
-  MOCK_METHOD(void, FillMatrixParameters,
-      (data::MatrixParameters &, problem::DiscretizationType),
-      (override, const));
   MOCK_METHOD(dealii::FullMatrix<double>, GetCellMatrix, (), (override, const));
   MOCK_METHOD(dealii::Vector<double>, GetCellVector, (), (override, const));
   MOCK_METHOD(std::shared_ptr<bart::system::MPISparseMatrix>, MakeSystemMatrix,

@@ -136,14 +136,11 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
   auto solution_ptr =
       std::make_shared<system::solution::MPIGroupAngularSolution>(n_angles);
 
-  data::MatrixParameters matrix_param;
-  domain_ptr->FillMatrixParameters(matrix_param, prm.Discretization());
-
   std::cout << "==Filling solution object" << std::endl;
 
   for (int angle = 0; angle < n_angles; ++angle) {
     auto &solution = solution_ptr->operator[](angle);
-    solution.reinit(matrix_param.rows, MPI_COMM_WORLD);
+    solution.reinit(domain_ptr->locally_owned_dofs(), MPI_COMM_WORLD);
     auto local_elements = solution.locally_owned_elements();
     for (auto index : local_elements) {
       solution[index] = 1.0;
@@ -217,18 +214,18 @@ std::unique_ptr<FrameworkI> CFEM_FrameworkBuilder<dim>::BuildFramework(
     for (int angle = 0; angle < n_angles; ++angle) {
       system::Index index{group, angle};
       // LHS
-      auto fixed_matrix_ptr = bart::data::BuildMatrix(matrix_param);
+      auto fixed_matrix_ptr = domain_ptr->MakeSystemMatrix();
       system->left_hand_side_ptr_->SetFixedTermPtr(index, fixed_matrix_ptr);
 
       // RHS
       auto fixed_vector_ptr =
-          std::make_shared<bart::system::MPIVector>(matrix_param.rows,
+          std::make_shared<bart::system::MPIVector>(domain_ptr->locally_owned_dofs(),
                                                     MPI_COMM_WORLD);
       system->right_hand_side_ptr_->SetFixedTermPtr(index, fixed_vector_ptr);
 
       for (auto term : source_terms) {
         auto variable_vector_ptr =
-            std::make_shared<bart::system::MPIVector>(matrix_param.rows,
+            std::make_shared<bart::system::MPIVector>(domain_ptr->locally_owned_dofs(),
                                                       MPI_COMM_WORLD);
         system->right_hand_side_ptr_->SetVariableTermPtr(
             index, term, variable_vector_ptr);
