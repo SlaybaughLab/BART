@@ -9,10 +9,14 @@
 #include <sys/stat.h>
 
 #include <deal.II/base/logstream.h>
-#include <gtest/gtest.h>
-#include "gold_stream_evaluator.h"
 
-namespace btest {
+#include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/gold_stream_evaluator.h"
+
+namespace bart {
+
+namespace test_helpers {
+
 //! This class provides a test framework for BART using gTest.
 /*!
 
@@ -122,6 +126,8 @@ void GoldTestInit(std::string filename);
 */
 void GoldTestRun(std::string filename);
 
-} // namespace btest
+} // namespace test_helpers
+
+} // namespace bart
 
 #endif // BART_TEST_HELPERS_BART_TEST_HELPER_H_

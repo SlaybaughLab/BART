@@ -1,17 +1,20 @@
-#include <gmock/gmock.h>
-#include "../bart_test_helper.h"
+#include "test_helpers/bart_test_helper.h"
 
 #include <exception>
 #include <fstream>
 #include <sys/stat.h>
 
-#include <gtest/gtest.h>
+#include "test_helpers/gmock_wrapper.h"
+
+namespace {
+
+using namespace bart;
 
 class BARTTestHelperTest : public ::testing::Test {
  protected:
   virtual void TearDown() override;
   std::string gold_files_directory = "test_data/";
-  btest::BARTTestHelper test_helper;
+  test_helpers::BARTTestHelper test_helper;
 };
 
 void BARTTestHelperTest::TearDown() {
@@ -26,7 +29,7 @@ TEST_F(BARTTestHelperTest, InitializationNoReport) {
 }
 
 TEST_F(BARTTestHelperTest, ConstructorReport) {
-  btest::BARTTestHelper test_helper2(true, gold_files_directory);
+  test_helpers::BARTTestHelper test_helper2(true, gold_files_directory);
   std::string report_directory = test_helper2.GetReportDirectory();
   // Verify report directory name
   std::string regex = gold_files_directory + "........_...._.._report";
@@ -68,7 +71,7 @@ TEST_F(BARTTestHelperTest, SetGoldFilesDirectory) {
 
 TEST_F(BARTTestHelperTest, InitalizeBadDirectory) {
   std::string bad_directory = "testing_data/";
-  ASSERT_THROW(btest::BARTTestHelper new_test_helper(true, bad_directory),
+  ASSERT_THROW(test_helpers::BARTTestHelper new_test_helper(true, bad_directory),
                std::runtime_error);
 }
 
@@ -95,3 +98,4 @@ TEST_F(BARTTestHelperTest, LogTestThrow) {
   remove(filename.c_str());
 }
 
+} // namespace

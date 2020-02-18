@@ -30,11 +30,11 @@ int main(int argc, char** argv) {
   while ((c = getopt_long (argc, argv, "rmd:f:l:", longopts, &option_index)) != -1) {
     switch(c) {
       case 'r': {
-        btest::GlobalBARTTestHelper().SetReport(true);
+        bart::test_helpers::GlobalBARTTestHelper().SetReport(true);
         break;
       }
       case 'd': {
-        btest::GlobalBARTTestHelper().SetGoldFilesDirectory(optarg);
+        bart::test_helpers::GlobalBARTTestHelper().SetGoldFilesDirectory(optarg);
         break;
       }
       case 'm': {

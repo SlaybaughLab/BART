@@ -2,7 +2,9 @@
 
 #include "gtest/gtest.h"
 
-namespace btest {
+namespace bart {
+
+namespace test_helpers {
 
 BARTTestHelper::BARTTestHelper()
     : BARTTestHelper(false, "test_data/") {}
@@ -135,4 +137,6 @@ void GoldTestRun(std::string filename) {
       GlobalBARTTestHelper().GetFailMessage();
 }
 
-} // namespace btest
+} // namespace test_helpers
+
+} // namespace bart
