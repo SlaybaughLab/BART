@@ -16,8 +16,6 @@ namespace finite_element {
 template <int dim>
 class FiniteElementMock : public FiniteElementI<dim> {
  public:
-
-  using typename FiniteElementI<dim>::CellPtr;
   using typename FiniteElementI<dim>::FaceNumber;
 
   MOCK_METHOD(int, polynomial_degree, (), (const, override));
@@ -28,9 +26,9 @@ class FiniteElementMock : public FiniteElementI<dim> {
 
   MOCK_METHOD(int, n_face_quad_pts, (), (const, override));
 
-  MOCK_METHOD(bool, SetCell, (const CellPtr &));
+  MOCK_METHOD(bool, SetCell, (const domain::CellPtr<dim> &));
 
-  MOCK_METHOD(bool, SetFace, (const CellPtr &to_set, const FaceNumber face), (override));
+  MOCK_METHOD(bool, SetFace, (const domain::CellPtr<dim> &to_set, const FaceNumber face), (override));
 
   MOCK_METHOD(double, ShapeValue, (const int, const int), (const, override));
 

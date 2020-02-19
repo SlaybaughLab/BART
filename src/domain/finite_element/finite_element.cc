@@ -7,7 +7,7 @@ namespace domain {
 namespace finite_element {
 
 template <int dim>
-bool FiniteElement<dim>::SetCell(const CellPtr &to_set) {
+bool FiniteElement<dim>::SetCell(const domain::CellPtr<dim> &to_set) {
   bool already_set = false;
 
   if (values_reinit_called_) {
@@ -23,7 +23,7 @@ bool FiniteElement<dim>::SetCell(const CellPtr &to_set) {
 }
 
 template <int dim>
-bool FiniteElement<dim>::SetFace(const CellPtr &to_set, const FaceNumber face) {
+bool FiniteElement<dim>::SetFace(const domain::CellPtr<dim> &to_set, const FaceNumber face) {
   bool already_set = false;
   bool cell_already_set = false;
 

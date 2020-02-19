@@ -1,9 +1,10 @@
 #ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 #define BART_SRC_DOMAIN_FINITE_ELEMENT_I_H
 
-#include "system/moments/spherical_harmonic_types.h"
-
 #include <deal.II/fe/fe_values.h>
+
+#include "domain/domain_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 
 /*! \brief Interface for a finite element object based on the dealii library.
  *
@@ -24,7 +25,6 @@ class FiniteElementI {
  public:
   virtual ~FiniteElementI() = default;
   using FaceNumber = int;
-  using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
 
   // Basic FE properties
   /*! \brief Gets polynomial degree */
@@ -44,7 +44,7 @@ class FiniteElementI {
    * \param to_set cell to set
    * \return bool indicating if the cell was changed.
    */
-  virtual bool SetCell(const CellPtr &to_set) = 0;
+  virtual bool SetCell(const domain::CellPtr<dim> &to_set) = 0;
 
   /*! \brief Sets the face and cell.
    *
@@ -52,7 +52,7 @@ class FiniteElementI {
    * \param face face number to set
    * \return indicating if the cell was changed.
    */
-  virtual bool SetFace(const CellPtr &to_set,
+  virtual bool SetFace(const domain::CellPtr<dim> &to_set,
                        const FaceNumber face) = 0;
 
   /*! \brief Get the value of shape functions.
