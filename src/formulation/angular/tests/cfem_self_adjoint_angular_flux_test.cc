@@ -501,7 +501,8 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   dealii::Tensor<1, dim> normal;
   for (int i = 0; i < dim; ++i)
     normal[i] = -1;
-  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
   EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
       .WillOnce(Return(normal));
 
@@ -535,7 +536,8 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   for (int i = 0; i < dim; ++i)
     normal[i] = 3;
 
-  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
   EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
       .WillOnce(Return(normal));
   auto mock_angle_ptr = dynamic_cast<quadrature::QuadraturePointMock<dim>*>(angle_ptr.get());

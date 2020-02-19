@@ -307,7 +307,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
 
   auto init_token = test_diffusion.Precalculate(cell_ptr_);
 
-  EXPECT_CALL(*fe_mock_ptr, SetFace(cell_ptr_, 0))
+  EXPECT_CALL(*fe_mock_ptr, SetFace(cell_ptr_, domain::FaceIndex(0)))
       .Times(1);
   EXPECT_CALL(*fe_mock_ptr, FaceJacobian(_))
       .Times(2)

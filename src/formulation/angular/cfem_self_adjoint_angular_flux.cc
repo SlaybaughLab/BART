@@ -86,7 +86,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
   ValidateMatrixSize(to_fill, __FUNCTION__);
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage("Bad cell given to FilLBoundaryBilinearTerm"))
-  finite_element_ptr_->SetFace(cell_ptr, face_number.get());
+  finite_element_ptr_->SetFace(cell_ptr, face_number);
 
   auto normal_vector = finite_element_ptr_->FaceNormal();
   auto omega = quadrature_point->cartesian_position_tensor();

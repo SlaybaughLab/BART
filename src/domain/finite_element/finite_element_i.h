@@ -24,7 +24,6 @@ template <int dim>
 class FiniteElementI {
  public:
   virtual ~FiniteElementI() = default;
-  using FaceNumber = int;
 
   // Basic FE properties
   /*! \brief Gets polynomial degree */
@@ -53,7 +52,7 @@ class FiniteElementI {
    * \return indicating if the cell was changed.
    */
   virtual bool SetFace(const domain::CellPtr<dim> &to_set,
-                       const FaceNumber face) = 0;
+                       const domain::FaceIndex face) = 0;
 
   /*! \brief Get the value of shape functions.
    *

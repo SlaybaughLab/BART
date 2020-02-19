@@ -70,11 +70,11 @@ void FiniteElementBaseClassTest<dim>::TestSetCellAndFace(
   int face = 0;
   int face_index = cell->face_index(face);
 
-  test_fe->SetFace(cell, face);
+  test_fe->SetFace(cell, domain::FaceIndex(face));
 
   test_fe->face_values()->reinit(cell, face);
 
-  EXPECT_FALSE(test_fe->SetFace(cell, face));
+  EXPECT_FALSE(test_fe->SetFace(cell, domain::FaceIndex(face)));
   EXPECT_EQ(cell_id, test_fe->face_values()->get_cell()->id());
   EXPECT_EQ(face_index, test_fe->face_values()->get_face_index());
 
@@ -84,7 +84,7 @@ void FiniteElementBaseClassTest<dim>::TestSetCellAndFace(
   int next_face = face + 1;
   int next_face_index = next_cell->face_index(next_face);
 
-  EXPECT_TRUE(test_fe->SetFace(next_cell, next_face));
+  EXPECT_TRUE(test_fe->SetFace(next_cell, domain::FaceIndex(next_face)));
   EXPECT_EQ(next_cell_id, test_fe->face_values()->get_cell()->id());
   EXPECT_NE(face_index, test_fe->face_values()->get_face_index());
   EXPECT_EQ(next_face_index, test_fe->face_values()->get_face_index());

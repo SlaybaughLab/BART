@@ -15,8 +15,6 @@ namespace finite_element {
 template<int dim>
 class FiniteElement : public FiniteElementI<dim> {
  public:
-  using typename FiniteElementI<dim>::FaceNumber;
-
   virtual ~FiniteElement() = default;
 
   // Basic Finite Element data
@@ -44,7 +42,8 @@ class FiniteElement : public FiniteElementI<dim> {
 
   bool SetCell(const domain::CellPtr<dim> &to_set) override;
 
-  bool SetFace(const domain::CellPtr<dim> &to_set, const FaceNumber face) override;
+  bool SetFace(const domain::CellPtr<dim> &to_set,
+               const domain::FaceIndex face) override;
 
   double ShapeValue(const int cell_degree_of_freedom,
                     const int cell_quadrature_point) const override {
