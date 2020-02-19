@@ -43,8 +43,8 @@ void CFEM_SAAF_StamperTest<DimensionWrapper>::SetUp() {
   formulation_obs_ptr_ = formulation_ptr_.get();
   definition_ptr_ = std::make_shared<DefinitionType>();
 
-  formulation::CellPtr<dim> test_cell_ptr_;
-  std::vector<formulation::CellPtr<dim>> cells = {};
+  domain::CellPtr<dim> test_cell_ptr_;
+  std::vector<domain::CellPtr<dim>> cells = {};
   cells.push_back(test_cell_ptr_);
 
   ON_CALL(*definition_ptr_, Cells()).WillByDefault(Return(cells));
