@@ -8,6 +8,7 @@
 #include "formulation/formulation_types.h"
 #include "quadrature/quadrature_point_i.h"
 #include "system/system_types.h"
+#include "system/moments/spherical_harmonic_types.h"
 
 namespace bart {
 
