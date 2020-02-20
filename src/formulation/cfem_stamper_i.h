@@ -35,7 +35,7 @@ namespace formulation {
  * Source terms are calculated using moments.
  */
 
-class CFEMStamperI : public StamperI {
+class CFEMStamperI {
  public:
   using GroupNumber = int;
   using Boundary = bart::problem::Boundary;

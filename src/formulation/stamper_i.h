@@ -5,6 +5,15 @@ namespace bart {
 
 namespace formulation {
 
+/*! \brief Interface for a system matrix stamper.
+ * See the default implementation for detailed description for the purpose of
+ * this class.
+ *
+ * \tparam dim spatial dimension of the cells in the mesh.
+ *
+ * \author J.S. Rehak
+ */
+template <int dim>
 class StamperI {
  public:
   virtual ~StamperI() = default;
