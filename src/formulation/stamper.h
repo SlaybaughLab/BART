@@ -32,6 +32,12 @@ class Stamper : public StamperI<dim> {
   explicit Stamper(std::shared_ptr<domain::DefinitionI<dim>>);
   virtual ~Stamper() = default;
 
+  void StampMatrix(
+      system::MPISparseMatrix &to_stamp,
+      std::function<void(formulation::FullMatrix&,
+                         const domain::CellPtr<dim>&)> stamp_function)
+  override;
+
   /*! \brief Access domain definition dependency */
   domain::DefinitionI<dim>* domain_ptr() const { return domain_ptr_.get(); }
  private:
