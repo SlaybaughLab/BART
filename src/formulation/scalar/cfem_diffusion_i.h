@@ -5,7 +5,6 @@
 #include <deal.II/dofs/dof_accessor.h>
 
 #include "system/moments/spherical_harmonic_types.h"
-#include "formulation/scalar/cfem_i.h"
 
 namespace bart {
 
@@ -14,7 +13,7 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class CFEM_DiffusionI : public CFEM_I {
+class CFEM_DiffusionI {
  public:
   struct InitializationToken{};
 
