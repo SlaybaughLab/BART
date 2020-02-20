@@ -6,6 +6,7 @@
 #include "formulation/angular/cfem_self_adjoint_angular_flux_i.h"
 #include "formulation/stamper_i.h"
 #include "formulation/updater/fixed_updater_i.h"
+#include "quadrature/quadrature_set_i.h"
 
 namespace bart {
 
@@ -18,14 +19,19 @@ class SAAFUpdater {
  public:
   using SAAFFormulationType = formulation::angular::CFEMSelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
+  using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   SAAFUpdater(std::unique_ptr<SAAFFormulationType>,
-              std::unique_ptr<StamperType>);
+              std::unique_ptr<StamperType>,
+              const std::shared_ptr<QuadratureSetType>&);
 
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();};
   StamperType* stamper_ptr() const {return stamper_ptr_.get();};
+  QuadratureSetType* quadrature_set_ptr() const {
+    return quadrature_set_ptr_.get();};
  private:
   std::unique_ptr<SAAFFormulationType> formulation_ptr_;
   std::unique_ptr<StamperType> stamper_ptr_;
+  std::shared_ptr<QuadratureSetType> quadrature_set_ptr_;
 };
 
 } // namespace updater
