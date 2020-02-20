@@ -3,12 +3,13 @@
 #include "domain/tests/definition_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_assertions.h"
 
 namespace {
 
 using namespace bart;
 
-using ::testing::ReturnRef, ::testing::Return;
+using ::testing::ReturnRef, ::testing::Return, ::testing::DoDefault;
 
 /* ===== BASIC TESTS ===========================================================
  * These tests verify basic functionality of formulation::Stamper. */
@@ -102,6 +103,7 @@ void FormulationStamperTestDealiiDomain<DimensionWrapper>::SetUp() {
     cell->get_dof_indices(local_dof_indices);
     expected_matrix.add(local_dof_indices, local_dof_indices, ones_matrix);
   }
+  expected_matrix.compress(dealii::VectorOperation::add);
 
   // Set up the stamp function that just sets the provided matrix to all 1
   stamp_function = [](formulation::FullMatrix& to_stamp,
@@ -117,5 +119,16 @@ void FormulationStamperTestDealiiDomain<DimensionWrapper>::SetUp() {
 
 TYPED_TEST_SUITE(FormulationStamperTestDealiiDomain,
                  bart::testing::AllDimensions);
+
+TYPED_TEST(FormulationStamperTestDealiiDomain, StampMatrixMPI) {
+  EXPECT_CALL(*this->domain_ptr_, GetCellMatrix()).WillOnce(DoDefault());
+  EXPECT_CALL(*this->domain_ptr_, Cells()).WillOnce(DoDefault());
+  EXPECT_NO_THROW({
+    this->test_stamper_ptr_->StampMatrix(this->system_matrix,
+                                         this->stamp_function);
+  });
+  EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->system_matrix,
+                                               this->expected_matrix));
+}
 
 } // namespace
