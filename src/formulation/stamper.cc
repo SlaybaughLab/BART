@@ -29,6 +29,24 @@ void Stamper<dim>::StampMatrix(
   }
   to_stamp.compress(dealii::VectorOperation::add);
 }
+template<int dim>
+void Stamper<dim>::StampVector(
+    system::MPIVector& to_stamp,
+    std::function<void(formulation::Vector&,
+                       const domain::CellPtr<dim>&)> stamp_function) {
+  auto cell_vector = domain_ptr_->GetCellVector();
+  auto cells = domain_ptr_->Cells();
+  std::vector<dealii::types::global_dof_index> local_dof_indices(
+      cell_vector.size());
+
+  for (const auto& cell : cells) {
+    cell_vector = 0;
+    cell->get_dof_indices(local_dof_indices);
+    stamp_function(cell_vector, cell);
+    to_stamp.add(local_dof_indices, cell_vector);
+  }
+  to_stamp.compress(dealii::VectorOperation::add);
+}
 
 template class Stamper<1>;
 template class Stamper<2>;

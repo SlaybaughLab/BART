@@ -26,7 +26,11 @@ class StamperI {
   virtual void StampMatrix(
       system::MPISparseMatrix& to_stamp,
       std::function<void(formulation::FullMatrix&,
-                         const domain::CellPtr<dim>&)> stamping_function) = 0;
+                         const domain::CellPtr<dim>&)> stamp_function) = 0;
+  virtual void StampVector(
+      system::MPIVector& to_stamp,
+      std::function<void(formulation::Vector&,
+                         const domain::CellPtr<dim>&)> stamp_function) = 0;
 };
 
 } // namespace formulation

@@ -33,8 +33,14 @@ class Stamper : public StamperI<dim> {
   virtual ~Stamper() = default;
 
   void StampMatrix(
-      system::MPISparseMatrix &to_stamp,
+      system::MPISparseMatrix& to_stamp,
       std::function<void(formulation::FullMatrix&,
+                         const domain::CellPtr<dim>&)> stamp_function)
+  override;
+
+  void StampVector(
+      system::MPIVector& to_stamp,
+      std::function<void(formulation::Vector&,
                          const domain::CellPtr<dim>&)> stamp_function)
   override;
 
