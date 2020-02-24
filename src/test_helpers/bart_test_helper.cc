@@ -2,7 +2,9 @@
 
 #include "gtest/gtest.h"
 
-namespace btest {
+namespace bart {
+
+namespace test_helpers {
 
 BARTTestHelper::BARTTestHelper()
     : BARTTestHelper(false, "test_data/") {}
@@ -124,35 +126,17 @@ BARTTestHelper& GlobalBARTTestHelper() {
   static BARTTestHelper global_bth;
   return global_bth;
 }
+//
+//void GoldTestInit(std::string filename) {
+//  GlobalBARTTestHelper().OpenLog(filename);
+//}
+//
+//void GoldTestRun(std::string filename) {
+//  GlobalBARTTestHelper().CloseLog();
+//  ASSERT_TRUE(GlobalBARTTestHelper().GoldTest(filename)) <<
+//      GlobalBARTTestHelper().GetFailMessage();
+//}
 
-void GoldTestInit(std::string filename) {
-  GlobalBARTTestHelper().OpenLog(filename);
-}
+} // namespace test_helpers
 
-void GoldTestRun(std::string filename) {
-  GlobalBARTTestHelper().CloseLog();
-  ASSERT_TRUE(GlobalBARTTestHelper().GoldTest(filename)) <<
-      GlobalBARTTestHelper().GetFailMessage();
-}
-
-BARTParallelEnvironment::BARTParallelEnvironment()
-    : ::testing::Test() {}
-
-BARTParallelEnvironment::~BARTParallelEnvironment() {}
-
-void BARTParallelEnvironment::MPIFinalize() {
-  int err = MPI_Finalize();
-  ASSERT_FALSE(err);
-}
-
-void BARTParallelEnvironment::TearDown() {
-  MPIFinalize();
-}
-
-void BARTParallelEnvironment::MPIInit() {
-  char** argv;
-  int argc = 0;
-  int err = MPI_Init (&argc, &argv);
-  ASSERT_FALSE(err);
-}
-} // namespace btest
+} // namespace bart

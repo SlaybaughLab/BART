@@ -307,7 +307,7 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
 
   auto init_token = test_diffusion.Precalculate(cell_ptr_);
 
-  EXPECT_CALL(*fe_mock_ptr, SetFace(cell_ptr_, 0))
+  EXPECT_CALL(*fe_mock_ptr, SetFace(cell_ptr_, domain::FaceIndex(0)))
       .Times(1);
   EXPECT_CALL(*fe_mock_ptr, FaceJacobian(_))
       .Times(2)
@@ -350,7 +350,6 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
                                                         cross_sections_ptr);
 
   dealii::Vector<double> test_vector(2);
-  int material_id = 0;
   int group = 0;
   double k_effective = 1.05;
   // Make in-group moment
@@ -398,8 +397,6 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
                                                         cross_sections_ptr);
 
   dealii::Vector<double> test_vector(2);
-  int material_id = 0;
-  int group = 0;
   // Make in-group moment
   std::vector<double> in_group_moment_values{0.5, 0.5};
   system::moments::MomentVector in_group_moment(in_group_moment_values.begin(),

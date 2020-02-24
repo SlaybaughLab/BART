@@ -23,7 +23,7 @@ TYPED_TEST(QuadratureOrdinateTest, Construction) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position;
-  auto random_position = btest::RandomVector(dim, -10, 10);
+  auto random_position = test_helpers::RandomVector(dim, -10, 10);
   for (int i = 0; i < dim; ++i)
     position.at(i) = random_position.at(i);
 
@@ -52,8 +52,8 @@ TYPED_TEST(QuadratureOrdinateTest, SetCartesianPosition) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position, new_position;
-  auto random_position = btest::RandomVector(dim, -10, 10);
-  auto second_position = btest::RandomVector(dim, -10, 10);
+  auto random_position = test_helpers::RandomVector(dim, -10, 10);
+  auto second_position = test_helpers::RandomVector(dim, -10, 10);
 
   for (int i = 0; i < dim; ++i) {
     position.at(i) = random_position.at(i);
@@ -71,8 +71,8 @@ TYPED_TEST(QuadratureOrdinateTest, OperatorEquality) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position, negative_position, second_position;
-  auto random_position = btest::RandomVector(dim, -10, 10);
-  auto random_second_position = btest::RandomVector(dim, -10, 10);
+  auto random_position = test_helpers::RandomVector(dim, -10, 10);
+  auto random_second_position = test_helpers::RandomVector(dim, -10, 10);
   for (int i = 0; i < dim; ++i) {
     position.at(i) = random_position.at(i);
     negative_position.at(i) = -random_position.at(i);
@@ -111,7 +111,7 @@ TYPED_TEST(QuadratureOrdinateTest, Reflect) {
   constexpr int dim = this->dim;
 
   std::array<double, dim> position, negative_position;
-  auto random_position = btest::RandomVector(dim, -10, 10);
+  auto random_position = test_helpers::RandomVector(dim, -10, 10);
   for (int i = 0; i < dim; ++i) {
     position.at(i) = random_position.at(i);
     negative_position.at(i) = -random_position.at(i);

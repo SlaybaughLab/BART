@@ -46,7 +46,7 @@ class CFEMSelfAdjointAngularFluxI {
   virtual void FillBoundaryBilinearTerm(
       FullMatrix& to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const domain::FaceIndex face_number,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
@@ -75,7 +75,7 @@ class CFEMSelfAdjointAngularFluxI {
   virtual void FillCellCollisionTerm(
       FullMatrix& to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const system::EnergyGroup group_number) = 0;
 
   /*! \brief Integrates the linear fission terms and fills a given vector.
@@ -111,7 +111,7 @@ class CFEMSelfAdjointAngularFluxI {
   virtual void FillCellFissionSourceTerm(
       Vector& to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const double k_eff,
@@ -138,7 +138,7 @@ class CFEMSelfAdjointAngularFluxI {
   virtual void FillCellFixedSourceTerm(
       Vector& to_fill,
       const InitializationToken,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
 
@@ -169,7 +169,7 @@ class CFEMSelfAdjointAngularFluxI {
   virtual void FillCellScatteringSourceTerm(
       Vector& to_fill,
       const InitializationToken,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const system::moments::MomentVector& in_group_moment,
@@ -200,7 +200,7 @@ class CFEMSelfAdjointAngularFluxI {
   virtual void FillCellStreamingTerm(
       FullMatrix& to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
 
@@ -211,7 +211,7 @@ class CFEMSelfAdjointAngularFluxI {
    * @param cell_ptr cell pointer for initialization.
    * @return Initialization token required for other calls
    */
-  virtual InitializationToken Initialize(const formulation::CellPtr<dim>&) = 0;
+  virtual InitializationToken Initialize(const domain::CellPtr<dim>&) = 0;
 };
 
 } // namespace angular

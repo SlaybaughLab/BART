@@ -5,9 +5,6 @@ namespace bart {
 
 namespace formulation {
 
-template <int dim>
-using CellPtr = typename dealii::DoFHandler<dim>::active_cell_iterator;
-
 using FullMatrix = dealii::FullMatrix<double>;
 using Vector = dealii::Vector<double>;
 

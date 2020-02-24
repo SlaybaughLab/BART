@@ -8,6 +8,7 @@
 #include <deal.II/base/iterator_range.h>
 #include <deal.II/distributed/tria.h>
 #include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/lac/dynamic_sparsity_pattern.h>
 
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
@@ -38,24 +39,41 @@ struct TriangulationType<1> {
 template struct TriangulationType<2>;
 template struct TriangulationType<3>;
 
+/*! \brief Default implementation of a domain definition.
+ *
+ * See the base class for general information about domain definitions, an
+ * example of use is shown below:
+ *
+ * \code{.cpp}
+ *
+ * domain::definition<3> domain_definition(std::move(mesh_ptr),
+ *                                         finite_element_ptr,
+ *                                         problem::DiscretizationType::kContinuousFEM);
+ * domain_definition.SetUpMesh().SetUpDOF();
+ *
+ * auto cell_matrix = domain_definition.GetCellMatrix();
+ *
+ * \endcode
+ *
+ * \author Joshua Rehak
+ * \date 2019/02
+ */
 template <int dim>
 class Definition : public DefinitionI<dim> {
  public:
   typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
   
   /*! \brief Constructor.
-   * Takes ownership of injected dependencies (MeshI and FiniteElementI).
+   * Takes ownership of injected dependencies (MeshI and FiniteElementI) and
+   * sets the type of discretization (default: continuous FEM).
    */
   Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
-             std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element);
+             std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+             problem::DiscretizationType discretization = problem::DiscretizationType::kContinuousFEM);
   ~Definition() = default;
 
   Definition<dim>& SetUpDOF() override;
   Definition<dim>& SetUpMesh() override;
-
-  void FillMatrixParameters(
-      data::MatrixParameters &to_fill,
-      problem::DiscretizationType discretization) const override;
 
   dealii::FullMatrix<double> GetCellMatrix() const override {
     int cell_dofs = finite_element_->dofs_per_cell();
@@ -69,20 +87,21 @@ class Definition : public DefinitionI<dim> {
     return vector;
   }
 
+  std::shared_ptr<system::MPISparseMatrix> MakeSystemMatrix() const override;
 
   CellRange Cells() const override { return local_cells_; };
 
+  problem::DiscretizationType discretization_type() const override {
+    return discretization_type_; }
 
   int total_degrees_of_freedom() const override ;
 
-  dealii::IndexSet locally_owned_dofs() const {
-    return locally_owned_dofs_;
-  }
+  dealii::IndexSet locally_owned_dofs() const override {
+    return locally_owned_dofs_; }
 
-  /*! Get internal DOF object */
+
   const dealii::DoFHandler<dim>& dof_handler() const override {
-    return dof_handler_;
-  }
+    return dof_handler_; }
   
  private:
 
@@ -113,8 +132,14 @@ class Definition : public DefinitionI<dim> {
   /*! Constraint matrix */
   dealii::ConstraintMatrix constraint_matrix_;
 
+  /*! Dynamic sparsity pattern for MPI matrices */
+  dealii::DynamicSparsityPattern dynamic_sparsity_pattern_;
+
   /*! local cells */
   CellRange local_cells_;
+
+  /*! Discretization type */
+  const problem::DiscretizationType discretization_type_;
 };
 
 } // namespace domain

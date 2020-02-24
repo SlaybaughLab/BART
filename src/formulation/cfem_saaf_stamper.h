@@ -67,18 +67,18 @@ class CFEM_SAAF_Stamper : public AngularStamperI<dim> {
   std::unique_ptr<SAAFFormulationType> formulation_ptr_ = nullptr;
   std::shared_ptr<DomainDefinitionType> definition_ptr_ = nullptr;
 
-  std::vector<formulation::CellPtr<dim>> cells_;
+  std::vector<domain::CellPtr<dim>> cells_;
   InitializationTokenType saaf_initialization_token_;
 
   // Private functions
   void StampMatrix(
       system::MPISparseMatrix& to_stamp,
       std::function<void(formulation::FullMatrix&,
-                         const formulation::CellPtr<dim>&)> stamping_function);
+                         const domain::CellPtr<dim>&)> stamping_function);
   void StampVector(
       system::MPIVector& to_stamp,
       std::function<void(formulation::Vector&,
-                         const formulation::CellPtr<dim>&)> stamping_function);
+                         const domain::CellPtr<dim>&)> stamping_function);
 };
 
 } // namespace formulation

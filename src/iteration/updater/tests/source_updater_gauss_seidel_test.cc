@@ -149,8 +149,8 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceBadMoment) {
 
 // Verifies operation of the UpdateScatteringSource function
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
-  system::GroupNumber group = btest::RandomDouble(1, 3);
-  system::AngleIndex angle = btest::RandomDouble(0, 10);
+  system::GroupNumber group = test_helpers::RandomDouble(1, 3);
+  system::AngleIndex angle = test_helpers::RandomDouble(0, 10);
   system::Index index = {group, angle};
   // Fill source vector with the value 2
   StampMPIVector(*source_vector_ptr_, 3);
@@ -181,7 +181,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateScatteringSourceTestMPI) {
   // Tested call
   test_updater.UpdateScatteringSource(test_system_, group, angle);
 
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(*source_vector_ptr_,
                                                expected_vector_));
 }
 
@@ -226,8 +226,8 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceBadKeff) {
 }
 
 TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
-  system::GroupNumber group = btest::RandomDouble(1, 3);
-  system::AngleIndex angle = btest::RandomDouble(0, 10);
+  system::GroupNumber group = test_helpers::RandomDouble(1, 3);
+  system::AngleIndex angle = test_helpers::RandomDouble(0, 10);
   system::Index index = {group, angle};
   // Fill source vector with the value 3
   StampMPIVector(*source_vector_ptr_, 3);
@@ -266,7 +266,7 @@ TEST_F(IterationSourceUpdaterGaussSeidelTest, UpdateFissionSourceTestMPI) {
   // Tested call
   test_updater.UpdateFissionSource(test_system_, group, angle);
 
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(*source_vector_ptr_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(*source_vector_ptr_,
                                                expected_vector_));
 }
 

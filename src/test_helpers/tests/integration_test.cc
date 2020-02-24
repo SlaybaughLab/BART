@@ -1,29 +1,32 @@
-#include <gmock/gmock.h>
-#include "../bart_test_helper.h"
+#include "test_helpers/bart_test_helper.h"
 
 #include <exception>
 #include <fstream>
 #include <sys/stat.h>
 
-#include <gtest/gtest.h>
+#include "test_helpers/gmock_wrapper.h"
+
+namespace {
+
+using namespace bart;
 
 class TestHelperIntTest : public ::testing::Test {
  protected:
   std::string gold_files_directory = "test_data/";
-  btest::BARTTestHelper test_helper;
+  test_helpers::BARTTestHelper test_helper;
   void TearDown();
 };
 
 void TestHelperIntTest::TearDown() {
   std::string report_directory = test_helper.GetReportDirectory();
   if (!report_directory.empty() &&
-      (btest::GlobalBARTTestHelper().GetReportDirectory() != report_directory)) {
+      (test_helpers::GlobalBARTTestHelper().GetReportDirectory() != report_directory)) {
     rmdir(test_helper.GetReportDirectory().c_str());
   }
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
-  //btest::BARTTestHelper test_helper(false, gold_files_directory);
+  //test_helpers::BARTTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -36,7 +39,7 @@ TEST_F(TestHelperIntTest, IntegrationTestGoodNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
-  //btest::BARTTestHelper test_helper(false, gold_files_directory);
+  //test_helpers::BARTTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   std::ofstream actual_stream(filename, std::ios_base::out);
@@ -49,7 +52,7 @@ TEST_F(TestHelperIntTest, IntegrationTestBadNoReport) {
 }
 
 TEST_F(TestHelperIntTest, IntegrationTestNoActual) {
-  //btest::BARTTestHelper test_helper(false, gold_files_directory);
+  //test_helpers::BARTTestHelper test_helper(false, gold_files_directory);
   // Make actual file
   std::string filename = "bart_test_helper";
   EXPECT_FALSE(test_helper.GoldTest(filename));
@@ -122,4 +125,6 @@ TEST_F(TestHelperIntTest, IntegrationTestBadReport) {
   remove(new_name.c_str());
   remove(diff_name.c_str());
   //rmdir(report_directory.c_str());
-}  
+}
+
+} // namespace 

@@ -19,34 +19,34 @@ class CFEMSelfAdjointAngularFluxMock :
   using typename CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
   MOCK_METHOD(void, FillBoundaryBilinearTerm, (FullMatrix& to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim>& cell_ptr,
+      const domain::CellPtr<dim>& cell_ptr,
       const domain::FaceIndex,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number), (override));
   MOCK_METHOD(void, FillCellCollisionTerm, (FullMatrix&,
-      const InitializationToken, const CellPtr<dim>&,
+      const InitializationToken, const domain::CellPtr<dim>&,
       const system::EnergyGroup), (override));
   MOCK_METHOD(void, FillCellFissionSourceTerm, (Vector&,
-      const InitializationToken, const CellPtr<dim>&,
+      const InitializationToken, const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const double,
       const system::moments::MomentVector&,
       const system::moments::MomentsMap&), (override));
   MOCK_METHOD(void, FillCellFixedSourceTerm, (Vector&,
-      const InitializationToken, const CellPtr<dim>&,
+      const InitializationToken, const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup), (override));
   MOCK_METHOD(void, FillCellScatteringSourceTerm, (Vector&,
-      const InitializationToken, const CellPtr<dim>&,
+      const InitializationToken, const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const system::moments::MomentVector&,
       const system::moments::MomentsMap&), (override));
   MOCK_METHOD(void, FillCellStreamingTerm, (FullMatrix&,
-      const InitializationToken, const CellPtr<dim>&,
+      const InitializationToken, const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup), (override));
   MOCK_METHOD(InitializationToken, Initialize,
-      (const formulation::CellPtr<dim>&), (override));
+      (const domain::CellPtr<dim>&), (override));
 };
 
 } // namespace angular

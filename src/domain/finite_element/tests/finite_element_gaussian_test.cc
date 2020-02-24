@@ -127,7 +127,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
     }
   }
 
-  test_fe.SetFace(dof_handler.begin_active(), 0);
+  test_fe.SetFace(dof_handler.begin_active(), domain::FaceIndex(0));
 
   int face_quad_points = test_fe.n_face_quad_pts();
   for (int i = 0; i < cell_dofs; ++i) {
@@ -154,7 +154,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, FaceNormalTest) {
   dealii::DoFHandler dof_handler(triangulation);
   dof_handler.distribute_dofs(*test_fe.finite_element());
 
-  test_fe.SetFace(dof_handler.begin_active(), 0);
+  test_fe.SetFace(dof_handler.begin_active(), domain::FaceIndex(0));
 
   EXPECT_EQ(test_fe.face_values()->normal_vector(0),
             test_fe.FaceNormal());

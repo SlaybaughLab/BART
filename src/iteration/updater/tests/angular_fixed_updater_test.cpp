@@ -104,8 +104,8 @@ class IterationUpdaterAngularFixedUpdaterDomainTest :
     public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   IterationUpdaterAngularFixedUpdaterDomainTest()
-      : group_number_(btest::RandomDouble(0, 10)),
-        angle_index_(btest::RandomDouble(0, 10)),
+      : group_number_(test_helpers::RandomDouble(0, 10)),
+        angle_index_(test_helpers::RandomDouble(0, 10)),
         index_({group_number_, angle_index_}) {};
 
   bart::system::System test_system_;
@@ -151,7 +151,7 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
   using QuadraturePointType = quadrature::QuadraturePointI<this->dim>;
 
   // Get three random values to stamp
-  auto double_vector = btest::RandomVector(3, 1, 10);
+  auto double_vector = test_helpers::RandomVector(3, 1, 10);
   double sum = std::accumulate(double_vector.begin(), double_vector.end(), 0);
   // Set the value of our expected result
   this->matrix_1 = 0;
@@ -196,7 +196,7 @@ TYPED_TEST(IterationUpdaterAngularFixedUpdaterDomainTest,
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_,
                                             this->group_number_,
                                             this->angle_index_);
-  EXPECT_TRUE(bart::testing::CompareMPIMatrices(*this->matrix_ptr_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIMatrices(*this->matrix_ptr_,
                                                 this->matrix_1));
 }
 

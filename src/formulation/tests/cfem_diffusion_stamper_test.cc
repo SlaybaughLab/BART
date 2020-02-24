@@ -31,8 +31,8 @@ using ::testing::_;
 using ::testing::WithArg;
 
 using namespace bart;
-using bart::testing::CompareMPIMatrices;
-using bart::testing::CompareMPIVectors;
+using bart::test_helpers::CompareMPIMatrices;
+using bart::test_helpers::CompareMPIVectors;
 using Matrix = dealii::FullMatrix<double>;
 using Vector = dealii::Vector<double>;
 
@@ -86,7 +86,6 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value; // Problem dimension
 
-  using Cell = typename domain::DefinitionI<dim>::Cell;
   using InitToken = typename
       formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
 
@@ -105,8 +104,8 @@ void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
 
-  Cell test_cell;
-  std::vector<Cell> cells{test_cell};
+  domain::CellPtr<dim> test_cell;
+  std::vector<domain::CellPtr<dim>> cells{test_cell};
 
   ON_CALL(*mock_definition_ptr, Cells())
       .WillByDefault(Return(cells));
@@ -246,7 +245,7 @@ void CFEMDiffusionStamperMPITests<TestDomain>::SetUp() {
 
   // Set all cell material IDs
   for (const auto& cell : this->cells_) {
-    int mat_id = btest::RandomDouble(0, 10);
+    int mat_id = test_helpers::RandomDouble(0, 10);
     cell->set_material_id(mat_id);
   }
 

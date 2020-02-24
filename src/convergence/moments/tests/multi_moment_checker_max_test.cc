@@ -8,12 +8,12 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
-using ::testing::_;
-using ::testing::Return;
-using ::testing::ByRef;
-using ::testing::Ne;
-using ::testing::Sequence;
-using ::testing::Expectation;
+namespace  {
+
+using namespace bart;
+
+using ::testing::_, ::testing::Return, ::testing::ByRef, ::testing::Ne;
+using ::testing::Sequence, ::testing::Expectation;
 
 class MultiMomentCheckerMaxTest : public ::testing::Test {
  protected:
@@ -37,7 +37,7 @@ void MultiMomentCheckerMaxTest::SetUp() {
   for (int group = 0; group < groups; ++group) {
     for (int l = 0; l <= max_l; ++l) {
       for (int m = -l; m <= max_l; ++m) {
-        auto random_vector = btest::RandomVector(5, 0, 10);
+        auto random_vector = test_helpers::RandomVector(5, 0, 10);
         bart::system::moments::MomentVector temp_moment(random_vector.cbegin(),
                                              random_vector.cend());
         moments_map_one[{group, l, m}] = temp_moment;
@@ -172,3 +172,5 @@ TEST_F(MultiMomentCheckerMaxTest, WrongGroup) {
   EXPECT_ANY_THROW(
       test_checker.CheckIfConverged(moments_map_one, moments_map_two));
 }
+
+} // namespace

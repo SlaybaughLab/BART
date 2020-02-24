@@ -97,7 +97,7 @@ void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
                                            const FaceNumber face_number,
                                            const BoundaryType boundary_type) const {
   if (boundary_type == BoundaryType::kVacuum) {
-    finite_element_->SetFace(cell_ptr, face_number);
+    finite_element_->SetFace(cell_ptr, domain::FaceIndex(face_number));
 
     for (int q = 0; q < face_quadrature_points_; ++q) {
       const double jacobian = finite_element_->FaceJacobian(q);

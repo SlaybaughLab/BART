@@ -13,11 +13,12 @@ namespace solution {
 
 class MPIGroupAngularSolutionMock : public MPIGroupAngularSolutionI {
  public:
-  MOCK_CONST_METHOD0(total_angles, int());
-  MOCK_CONST_METHOD0(solutions, SolutionMap&());
-  MOCK_CONST_METHOD1(BracketOp, const MPIVector&(const AngleIndex));
-  MOCK_METHOD1(BracketOp, MPIVector&(const AngleIndex));
-  MOCK_METHOD1(GetSolution, MPIVector&(const AngleIndex));
+  MOCK_METHOD(int, total_angles, (), (override, const));
+  MOCK_METHOD(const SolutionMap&, solutions, (), (override, const));
+  MOCK_METHOD(SolutionMap&, solutions, (), (override));
+  MOCK_METHOD(const MPIVector&, BracketOp, (const AngleIndex), (const));
+  MOCK_METHOD(MPIVector&, BracketOp, (const AngleIndex));
+  MOCK_METHOD(MPIVector&, GetSolution, (const AngleIndex), (override));
 
   virtual const MPIVector& operator[](const AngleIndex angle) const override {
     return BracketOp(angle);};

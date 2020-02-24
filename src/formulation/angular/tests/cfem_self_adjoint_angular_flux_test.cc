@@ -423,7 +423,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
 
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
   EXPECT_ANY_THROW(test_saaf.Initialize(invalid_cell_ptr));
 }
 // =============================================================================
@@ -442,7 +442,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
   formulation::FullMatrix cell_matrix(2,2);
   auto angle_ptr = *this->quadrature_set_.begin();
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
 
 
   auto token = test_saaf.Initialize(this->cell_ptr_);
@@ -501,7 +501,8 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   dealii::Tensor<1, dim> normal;
   for (int i = 0; i < dim; ++i)
     normal[i] = -1;
-  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
   EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
       .WillOnce(Return(normal));
 
@@ -535,7 +536,8 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   for (int i = 0; i < dim; ++i)
     normal[i] = 3;
 
-  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
   EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
       .WillOnce(Return(normal));
   auto mock_angle_ptr = dynamic_cast<quadrature::QuadraturePointMock<dim>*>(angle_ptr.get());
@@ -568,7 +570,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
   formulation::FullMatrix cell_matrix(2,2);
   auto angle_ptr = *this->quadrature_set_.begin();
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
 
 
   auto token = test_saaf.Initialize(this->cell_ptr_);
@@ -673,7 +675,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       this->mock_quadrature_set_ptr_);
 
   formulation::FullMatrix cell_matrix(2,2);
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
   auto token = test_saaf.Initialize(this->cell_ptr_);
   EXPECT_ANY_THROW({test_saaf.FillCellCollisionTerm(cell_matrix, token,
                                                     invalid_cell_ptr,
@@ -739,7 +741,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       this->mock_quadrature_set_ptr_);
 
   formulation::Vector cell_vector(2);
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
   auto angle_ptr = *this->quadrature_set_.begin();
   auto token = test_saaf.Initialize(this->cell_ptr_);
 
@@ -840,7 +842,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       this->mock_quadrature_set_ptr_);
 
   formulation::Vector cell_vector(2);
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
   auto angle_ptr = *this->quadrature_set_.begin();
   auto token = test_saaf.Initialize(this->cell_ptr_);
 
@@ -970,7 +972,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       this->mock_quadrature_set_ptr_);
 
   formulation::Vector cell_vector(2);
-  formulation::CellPtr<dim> invalid_cell_ptr;
+  domain::CellPtr<dim> invalid_cell_ptr;
   auto angle_ptr = *this->quadrature_set_.begin();
   auto token = test_saaf.Initialize(this->cell_ptr_);
 

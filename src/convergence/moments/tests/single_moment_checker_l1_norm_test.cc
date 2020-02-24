@@ -10,6 +10,8 @@
 
 namespace {
 
+using namespace bart;
+
 class SingleMomentCheckerL1NormTest :
     public bart::convergence::testing::SingleCheckerTest<bart::system::moments::MomentVector> {
  protected:
@@ -22,7 +24,7 @@ class SingleMomentCheckerL1NormTest :
 void SingleMomentCheckerL1NormTest::SetUp() {
   moment_one.reinit(5);
   moment_two.reinit(5);
-  auto random_vector = btest::RandomVector(5, 0, 2);
+  auto random_vector = test_helpers::RandomVector(5, 0, 2);
   for (unsigned int i = 0; i < moment_one.size(); ++i) {
     moment_one(i) = random_vector[i];
     moment_two(i) = random_vector[i];

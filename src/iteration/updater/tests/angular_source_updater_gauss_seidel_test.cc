@@ -50,11 +50,11 @@ class IterationUpdaterAngularSourceUpdaterGaussSeidelTest :
       previous_iteration_moments_;
 
   // Test parameters
-  const int total_groups = btest::RandomDouble(2, 5);
-  const int total_angles = btest::RandomDouble(2, 5);
+  const int total_groups = test_helpers::RandomDouble(2, 5);
+  const int total_angles = test_helpers::RandomDouble(2, 5);
   const int l_max = 2;
-  const int group = btest::RandomDouble(0, total_groups + 1); // group number
-  const int angle_number = btest::RandomDouble(0, total_angles + 1);
+  const int group = test_helpers::RandomDouble(0, total_groups + 1); // group number
+  const int angle_number = test_helpers::RandomDouble(0, total_angles + 1);
   const bart::system::Index solution_index{group, angle_number};
 
   void SetUp() override;
@@ -166,7 +166,7 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
     UpdateScatteringSource) {
   using term = bart::system::terms::VariableLinearTerms;
   StampMPIVector(*this->source_vector_ptr_, 3); // Fill with a random value, should be zero'd
-  double expected_value = btest::RandomDouble(1, 20);
+  double expected_value = test_helpers::RandomDouble(1, 20);
   StampMPIVector(this->expected_vector_, expected_value);
 
   auto stamper_function = [&](bart::system::MPIVector &to_stamp) {
@@ -192,7 +192,7 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
   this->test_updater_->UpdateScatteringSource(this->test_system_,
                                               this->group,
                                               this->angle_number);
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(this->expected_vector_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(this->expected_vector_,
                                                *this->source_vector_ptr_));
 }
 
@@ -220,7 +220,7 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
   const double k_eff = 1.1023;
   this->test_system_.k_effective = k_eff;
   StampMPIVector(*this->source_vector_ptr_, 3); // Fill with a value, should be zero'd
-  double expected_value = btest::RandomDouble(1, 20);
+  double expected_value = test_helpers::RandomDouble(1, 20);
   StampMPIVector(this->expected_vector_, expected_value);
 
   auto stamper_function = [&](bart::system::MPIVector &to_stamp) {
@@ -247,7 +247,7 @@ TYPED_TEST(IterationUpdaterAngularSourceUpdaterGaussSeidelTest,
   this->test_updater_->UpdateFissionSource(this->test_system_,
                                            this->group,
                                            this->angle_number);
-  EXPECT_TRUE(bart::testing::CompareMPIVectors(this->expected_vector_,
+  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(this->expected_vector_,
                                                *this->source_vector_ptr_));
 }
 

@@ -58,7 +58,7 @@ std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGeneratorPtr(
 template <int dim>
 std::shared_ptr<QuadratureGeneratorI<dim>> MakeAngularQuadratureGeneratorPtr(
     const Order,
-    const AngularQuadratureSetType type) {
+    const AngularQuadratureSetType) {
   std::shared_ptr<QuadratureGeneratorI<dim>> generator_ptr = nullptr;
 
   AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error));

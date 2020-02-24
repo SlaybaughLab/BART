@@ -23,7 +23,7 @@ CFEMSelfAdjointAngularFlux<dim>::CFEMSelfAdjointAngularFlux(
 
 template<int dim>
 auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
-    const formulation::CellPtr<dim> &cell_ptr) -> InitializationToken {
+    const domain::CellPtr<dim> &cell_ptr) -> InitializationToken {
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux Initialize, "
                                  "cell pointer is invalid."))
@@ -79,14 +79,14 @@ template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
     FullMatrix &to_fill,
     const InitializationToken /*init_token*/,
-    const CellPtr<dim> &cell_ptr,
+    const domain::CellPtr<dim> &cell_ptr,
     const domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup /*group_number*/) {
   ValidateMatrixSize(to_fill, __FUNCTION__);
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage("Bad cell given to FilLBoundaryBilinearTerm"))
-  finite_element_ptr_->SetFace(cell_ptr, face_number.get());
+  finite_element_ptr_->SetFace(cell_ptr, face_number);
 
   auto normal_vector = finite_element_ptr_->FaceNormal();
   auto omega = quadrature_point->cartesian_position_tensor();
@@ -112,7 +112,7 @@ template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
     const InitializationToken,
-    const CellPtr<dim> &cell_ptr,
+    const domain::CellPtr<dim> &cell_ptr,
     const system::EnergyGroup group_number) {
 
   ValidateMatrixSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
@@ -136,7 +136,7 @@ template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
     Vector &to_fill,
     const InitializationToken /*init_token*/,
-    const CellPtr<dim> & cell_ptr,
+    const domain::CellPtr<dim> & cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
     const double k_eff,
@@ -185,7 +185,7 @@ template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     Vector &to_fill,
     const InitializationToken,
-    const CellPtr<dim> &cell_ptr,
+    const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
@@ -205,7 +205,7 @@ template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     Vector &to_fill,
     const InitializationToken,
-    const CellPtr<dim> &cell_ptr,
+    const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
     const system::moments::MomentVector &in_group_moment,
@@ -252,7 +252,7 @@ template<int dim>
 void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     FullMatrix &to_fill,
     const InitializationToken,
-    const CellPtr<dim> &cell_ptr,
+    const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
 
@@ -299,7 +299,7 @@ FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
 // PRIVATE FUNCTIONS ===========================================================
 template <int dim>
 void CFEMSelfAdjointAngularFlux<dim>::ValidateAndSetCell(
-    const bart::formulation::CellPtr<dim> &cell_ptr,
+    const bart::domain::CellPtr<dim> &cell_ptr,
     std::string function_name) {
   std::string error{"Error in CFEMSelfAdjointAngularFlux function " +
       function_name + ": passed cell pointer is invalid"};

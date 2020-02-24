@@ -15,7 +15,7 @@ using namespace bart;
 using ::testing::DoDefault, ::testing::Return, ::testing::_, ::testing::WithArg,
 ::testing::Invoke, ::testing::Ref, ::testing::NiceMock;
 
-using bart::testing::CompareMPIMatrices, bart::testing::CompareMPIVectors;
+using bart::test_helpers::CompareMPIMatrices, bart::test_helpers::CompareMPIVectors;
 
 template <typename DimensionWrapper>
 class CFEM_SAAF_StamperTest : public ::testing::Test {
@@ -43,8 +43,8 @@ void CFEM_SAAF_StamperTest<DimensionWrapper>::SetUp() {
   formulation_obs_ptr_ = formulation_ptr_.get();
   definition_ptr_ = std::make_shared<DefinitionType>();
 
-  formulation::CellPtr<dim> test_cell_ptr_;
-  std::vector<formulation::CellPtr<dim>> cells = {};
+  domain::CellPtr<dim> test_cell_ptr_;
+  std::vector<domain::CellPtr<dim>> cells = {};
   cells.push_back(test_cell_ptr_);
 
   ON_CALL(*definition_ptr_, Cells()).WillByDefault(Return(cells));
@@ -138,7 +138,7 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
   int cell_dofs = this->fe_.dofs_per_cell;
 
   for (const auto& cell : this->cells_) {
-    int material_id = btest::RandomDouble(0, 10);
+    int material_id = test_helpers::RandomDouble(0, 10);
     cell->set_material_id(material_id);
     std::vector<dealii::types::global_dof_index> local_dof_indices(cell_dofs);
     cell->get_dof_indices(local_dof_indices);

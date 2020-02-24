@@ -77,8 +77,8 @@ class IterationFixedUpdaterDomainTest : public IterationFixedUpdaterBasicTest,
   }
  protected:
   IterationFixedUpdaterDomainTest()
-  : group_number_(btest::RandomDouble(0, 10)),
-    angle_index_(btest::RandomDouble(0, 10)),
+  : group_number_(test_helpers::RandomDouble(0, 10)),
+    angle_index_(test_helpers::RandomDouble(0, 10)),
     index_({group_number_, angle_index_}) {};
 
   system::System test_system_;
@@ -162,7 +162,7 @@ TEST_F(IterationFixedUpdaterDomainTest, UpdateFixedMPI) {
   test_updater_ptr_->UpdateFixedTerms(test_system_,
                                       group_number_,
                                       angle_index_);
-  EXPECT_TRUE(bart::testing::CompareMPIMatrices(matrix_1, *matrix_ptr_));
+  EXPECT_TRUE(bart::test_helpers::CompareMPIMatrices(matrix_1, *matrix_ptr_));
 }
 
 

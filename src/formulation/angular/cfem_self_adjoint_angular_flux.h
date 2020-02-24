@@ -24,14 +24,14 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
       std::shared_ptr<data::CrossSections>,
       std::shared_ptr<quadrature::QuadratureSetI<dim>>);
 
-  InitializationToken Initialize(const formulation::CellPtr<dim>&) override;
+  InitializationToken Initialize(const domain::CellPtr<dim>&) override;
 
   // Fill functions
 
   void FillBoundaryBilinearTerm(
       FullMatrix &to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim> &cell_ptr,
+      const domain::CellPtr<dim> &cell_ptr,
       const domain::FaceIndex face_number,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
@@ -39,13 +39,13 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   void FillCellCollisionTerm(
       FullMatrix &to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim> &cell_ptr,
+      const domain::CellPtr<dim> &cell_ptr,
       const system::EnergyGroup group_number) override;
 
   void FillCellFissionSourceTerm(
       Vector &to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim> &cell_ptr,
+      const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const double k_eff,
@@ -55,14 +55,14 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   void FillCellFixedSourceTerm(
       Vector &to_fill,
       const InitializationToken token,
-      const CellPtr<dim> &cell_ptr,
+      const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
   void FillCellScatteringSourceTerm(
       Vector &to_fill,
       const InitializationToken token,
-      const CellPtr<dim> &cell_ptr,
+      const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const system::moments::MomentVector &in_group_moment,
@@ -71,7 +71,7 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   void FillCellStreamingTerm(
       FullMatrix &to_fill,
       const InitializationToken init_token,
-      const CellPtr<dim> &cell_ptr,
+      const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
@@ -94,19 +94,19 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
 
  protected:
   // Validation Functions
-  void ValidateMatrixSizeAndSetCell(const CellPtr<dim>& cell_ptr,
+  void ValidateMatrixSizeAndSetCell(const domain::CellPtr<dim>& cell_ptr,
                                     const FullMatrix& matrix_to_validate,
                                     std::string called_function_name) {
     ValidateAndSetCell(cell_ptr, called_function_name);
     ValidateMatrixSize(matrix_to_validate, called_function_name);
   }
-  void ValidateVectorSizeAndSetCell(const CellPtr<dim>& cell_ptr,
+  void ValidateVectorSizeAndSetCell(const domain::CellPtr<dim>& cell_ptr,
                                     const Vector& vector_to_validate,
                                     std::string called_function_name) {
     ValidateAndSetCell(cell_ptr, called_function_name);
     ValidateVectorSize(vector_to_validate, called_function_name);
   }
-  void ValidateAndSetCell(const CellPtr<dim>& cell_ptr,
+  void ValidateAndSetCell(const domain::CellPtr<dim>& cell_ptr,
                           std::string function_name);
   void ValidateMatrixSize(const FullMatrix&, std::string called_function_name);
   void ValidateVectorSize(const Vector&, std::string called_function_name);
