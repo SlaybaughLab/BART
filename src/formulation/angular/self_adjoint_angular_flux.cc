@@ -1,4 +1,4 @@
-#include "formulation/angular/cfem_self_adjoint_angular_flux.h"
+#include "formulation/angular/self_adjoint_angular_flux.h"
 
 #include <algorithm>
 #include <sstream>
@@ -10,7 +10,7 @@ namespace formulation {
 namespace angular {
 
 template <int dim>
-CFEMSelfAdjointAngularFlux<dim>::CFEMSelfAdjointAngularFlux(
+SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
     std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr,
     std::shared_ptr<data::CrossSections> cross_sections_ptr,
     std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr)
@@ -22,10 +22,10 @@ CFEMSelfAdjointAngularFlux<dim>::CFEMSelfAdjointAngularFlux(
       face_quadrature_points_(finite_element_ptr->n_face_quad_pts()) {}
 
 template<int dim>
-auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
+auto SelfAdjointAngularFlux<dim>::Initialize(
     const domain::CellPtr<dim> &cell_ptr) -> InitializationToken {
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
-              dealii::ExcMessage("Error in CFEMSelfAdjointAngularFlux Initialize, "
+              dealii::ExcMessage("Error in SelfAdjointAngularFlux Initialize, "
                                  "cell pointer is invalid."))
 
   finite_element_ptr_->SetCell(cell_ptr);
@@ -76,7 +76,7 @@ auto CFEMSelfAdjointAngularFlux<dim>::Initialize(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
+void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
     FullMatrix &to_fill,
     const InitializationToken /*init_token*/,
     const domain::CellPtr<dim> &cell_ptr,
@@ -109,7 +109,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
+void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
     const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
@@ -133,7 +133,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
+void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
     Vector &to_fill,
     const InitializationToken /*init_token*/,
     const domain::CellPtr<dim> & cell_ptr,
@@ -182,7 +182,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
+void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     Vector &to_fill,
     const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
@@ -202,7 +202,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
+void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     Vector &to_fill,
     const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
@@ -249,7 +249,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
 }
 
 template<int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
+void SelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     FullMatrix &to_fill,
     const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
@@ -278,7 +278,7 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
 }
 
 template <int dim>
-std::vector<double> CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradient(
+std::vector<double> SelfAdjointAngularFlux<dim>::OmegaDotGradient(
     int cell_quadrature_point,
     quadrature::QuadraturePointIndex angular_index) const {
   std::vector<double> return_vector(cell_degrees_of_freedom_);
@@ -289,7 +289,7 @@ std::vector<double> CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradient(
 }
 
 template <int dim>
-FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
+FullMatrix SelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
     int cell_quadrature_point,
     quadrature::QuadraturePointIndex angular_index) const {
   return omega_dot_gradient_squared_.at(
@@ -298,10 +298,10 @@ FullMatrix CFEMSelfAdjointAngularFlux<dim>::OmegaDotGradientSquared(
 
 // PRIVATE FUNCTIONS ===========================================================
 template <int dim>
-void CFEMSelfAdjointAngularFlux<dim>::ValidateAndSetCell(
+void SelfAdjointAngularFlux<dim>::ValidateAndSetCell(
     const bart::domain::CellPtr<dim> &cell_ptr,
     std::string function_name) {
-  std::string error{"Error in CFEMSelfAdjointAngularFlux function " +
+  std::string error{"Error in SelfAdjointAngularFlux function " +
       function_name + ": passed cell pointer is invalid"};
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage(error))
@@ -309,13 +309,13 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateAndSetCell(
 }
 
 template <int dim>
-void CFEMSelfAdjointAngularFlux<dim>::ValidateMatrixSize(
+void SelfAdjointAngularFlux<dim>::ValidateMatrixSize(
     const bart::formulation::FullMatrix& to_validate,
     std::string called_function_name) {
   auto [rows, cols] = std::pair{to_validate.n_rows(), to_validate.n_cols()};
 
   std::ostringstream error_string;
-  error_string << "Error in CFEMSelfAdjointAngularFlux function "
+  error_string << "Error in SelfAdjointAngularFlux function "
                << called_function_name
                <<": passed matrix size is invalid, expected size ("
                << cell_degrees_of_freedom_ << ", " << cell_degrees_of_freedom_
@@ -327,14 +327,14 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateMatrixSize(
 }
 
 template <int dim>
-void CFEMSelfAdjointAngularFlux<dim>::ValidateVectorSize(
+void SelfAdjointAngularFlux<dim>::ValidateVectorSize(
     const bart::formulation::Vector& to_validate,
     std::string called_function_name) {
 
   int rows = to_validate.size();
 
   std::ostringstream error_string;
-  error_string << "Error in CFEMSelfAdjointAngularFlux function "
+  error_string << "Error in SelfAdjointAngularFlux function "
                << called_function_name
                <<": passed vector size is invalid, expected size ("
                << cell_degrees_of_freedom_ << ", 1), actual size: (" << rows
@@ -345,7 +345,7 @@ void CFEMSelfAdjointAngularFlux<dim>::ValidateVectorSize(
 }
 
 template <int dim>
-void CFEMSelfAdjointAngularFlux<dim>::FillCellSourceTerm(
+void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
     bart::formulation::Vector &to_fill,
     const int material_id,
     const std::shared_ptr<bart::quadrature::QuadraturePointI<dim>> quadrature_point,
@@ -370,9 +370,9 @@ void CFEMSelfAdjointAngularFlux<dim>::FillCellSourceTerm(
   }
 }
 
-template class CFEMSelfAdjointAngularFlux<1>;
-template class CFEMSelfAdjointAngularFlux<2>;
-template class CFEMSelfAdjointAngularFlux<3>;
+template class SelfAdjointAngularFlux<1>;
+template class SelfAdjointAngularFlux<2>;
+template class SelfAdjointAngularFlux<3>;
 
 } // namespace angular
 

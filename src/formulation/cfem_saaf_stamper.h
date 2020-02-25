@@ -4,7 +4,7 @@
 #include "domain/definition_i.h"
 #include "formulation/angular_stamper_i.h"
 
-#include "formulation/angular/cfem_self_adjoint_angular_flux_i.h"
+#include "formulation/angular/self_adjoint_angular_flux_i.h"
 
 #include <memory>
 
@@ -18,7 +18,7 @@ class CFEM_SAAF_Stamper : public AngularStamperI<dim> {
   static constexpr int dimension = dim;
   using DomainDefinitionType = domain::DefinitionI<dim>;
   using SAAFFormulationType = typename
-      formulation::angular::CFEMSelfAdjointAngularFluxI<dim>;
+      formulation::angular::SelfAdjointAngularFluxI<dim>;
 
   CFEM_SAAF_Stamper(std::unique_ptr<SAAFFormulationType> saaf_ptr,
                     std::shared_ptr<DomainDefinitionType> defintion_ptr);

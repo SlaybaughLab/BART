@@ -3,7 +3,7 @@
 #include <fstream>
 #include <streambuf>
 #include <deal.II/base/mpi.h>
-#include <formulation/angular/cfem_self_adjoint_angular_flux.h>
+#include <formulation/angular/self_adjoint_angular_flux.h>
 
 #include "calculator/cell/integrated_fission_source.h"
 #include "calculator/cell/total_aggregated_fission_source.h"
@@ -492,7 +492,7 @@ auto CFEM_FrameworkBuilder<dim>::BuildAngularStamper(
   if (problem_parameters->TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
 
     auto saaf_formulation_ptr =
-        std::make_unique<formulation::angular::CFEMSelfAdjointAngularFlux<dim>>(
+        std::make_unique<formulation::angular::SelfAdjointAngularFlux<dim>>(
         finite_element_ptr, cross_sections_ptr, quadrature_set_ptr);
 
     return_ptr = std::move(

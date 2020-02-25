@@ -1,7 +1,7 @@
 #include "formulation/updater/saaf_updater.h"
 
 #include "quadrature/tests/quadrature_set_mock.h"
-#include "formulation/angular/tests/cfem_self_adjoint_angular_flux_mock.h"
+#include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -14,7 +14,7 @@ class FormulationUpdaterSAAFTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
 
-  using FormulationType = formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
+  using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
@@ -45,7 +45,7 @@ TYPED_TEST_SUITE(FormulationUpdaterSAAFTest, bart::testing::AllDimensions);
 
 TYPED_TEST(FormulationUpdaterSAAFTest, Constructor) {
   constexpr int dim = this->dim;
-  using FormulationType = formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
+  using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
@@ -67,7 +67,7 @@ TYPED_TEST(FormulationUpdaterSAAFTest, Constructor) {
 
 TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
   constexpr int dim = this->dim;
-  using FormulationType = formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
+  using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;

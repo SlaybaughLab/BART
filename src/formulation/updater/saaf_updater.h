@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "formulation/angular/cfem_self_adjoint_angular_flux_i.h"
+#include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/stamper_i.h"
 #include "formulation/updater/fixed_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
@@ -17,7 +17,7 @@ namespace updater {
 template <int dim>
 class SAAFUpdater {
  public:
-  using SAAFFormulationType = formulation::angular::CFEMSelfAdjointAngularFluxI<dim>;
+  using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   SAAFUpdater(std::unique_ptr<SAAFFormulationType>,

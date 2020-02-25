@@ -1,7 +1,7 @@
-#ifndef BART_SRC_FORMULATION_ANGULAR_TESTS_CFEM_SELF_ADJOINT_ANGULAR_FLUX_MOCK_H_
-#define BART_SRC_FORMULATION_ANGULAR_TESTS_CFEM_SELF_ADJOINT_ANGULAR_FLUX_MOCK_H_
+#ifndef BART_SRC_FORMULATION_ANGULAR_TESTS_SELF_ADJOINT_ANGULAR_FLUX_MOCK_H_
+#define BART_SRC_FORMULATION_ANGULAR_TESTS_SELF_ADJOINT_ANGULAR_FLUX_MOCK_H_
 
-#include "formulation/angular/cfem_self_adjoint_angular_flux_i.h"
+#include "formulation/angular/self_adjoint_angular_flux_i.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -12,11 +12,11 @@ namespace formulation {
 namespace angular {
 
 template <int dim>
-class CFEMSelfAdjointAngularFluxMock :
-    public CFEMSelfAdjointAngularFluxI<dim> {
+class SelfAdjointAngularFluxMock :
+    public SelfAdjointAngularFluxI<dim> {
  public:
 
-  using typename CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
+  using typename SelfAdjointAngularFluxI<dim>::InitializationToken;
   MOCK_METHOD(void, FillBoundaryBilinearTerm, (FullMatrix& to_fill,
       const InitializationToken init_token,
       const domain::CellPtr<dim>& cell_ptr,
@@ -55,4 +55,4 @@ class CFEMSelfAdjointAngularFluxMock :
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_ANGULAR_TESTS_CFEM_SELF_ADJOINT_ANGULAR_FLUX_MOCK_H_
+#endif //BART_SRC_FORMULATION_ANGULAR_TESTS_SELF_ADJOINT_ANGULAR_FLUX_MOCK_H_

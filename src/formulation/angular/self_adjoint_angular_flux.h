@@ -1,9 +1,9 @@
-#ifndef BART_SRC_FORMULATION_ANGULAR_CFEM_SELF_ADJOINT_ANGULAR_FLUX_H_
-#define BART_SRC_FORMULATION_ANGULAR_CFEM_SELF_ADJOINT_ANGULAR_FLUX_H_
+#ifndef BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_H_
+#define BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_H_
 
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_i.h"
-#include "formulation/angular/cfem_self_adjoint_angular_flux_i.h"
+#include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "quadrature/quadrature_set_i.h"
 
 #include <memory>
@@ -15,11 +15,11 @@ namespace formulation {
 namespace angular {
 
 template <int dim>
-class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
+class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
  public:
-  using typename CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
+  using typename SelfAdjointAngularFluxI<dim>::InitializationToken;
 
-  CFEMSelfAdjointAngularFlux(
+  SelfAdjointAngularFlux(
       std::shared_ptr<domain::finite_element::FiniteElementI<dim>>,
       std::shared_ptr<data::CrossSections>,
       std::shared_ptr<quadrature::QuadratureSetI<dim>>);
@@ -135,7 +135,6 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
   std::map<std::pair<CellQuadratureIndex, AngleIndex>,
            FullMatrix> omega_dot_gradient_squared_;
   std::map<CellQuadratureIndex, FullMatrix> shape_squared_ = {};
-
 };
 
 } // namespace angular
@@ -144,4 +143,4 @@ class CFEMSelfAdjointAngularFlux : public CFEMSelfAdjointAngularFluxI<dim> {
 
 } //namespace bart
 
-#endif //BART_SRC_FORMULATION_ANGULAR_CFEM_SELF_ADJOINT_ANGULAR_FLUX_H_
+#endif //BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_H_

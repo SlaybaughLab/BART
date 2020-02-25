@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_ANGULAR_CFEM_SELF_ADJOINT_ANGULAR_FLUX_I_H_
-#define BART_SRC_FORMULATION_ANGULAR_CFEM_SELF_ADJOINT_ANGULAR_FLUX_I_H_
+#ifndef BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_I_H_
+#define BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_I_H_
 
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
@@ -17,11 +17,11 @@ namespace formulation {
 namespace angular {
 
 template <int dim>
-class CFEMSelfAdjointAngularFluxI {
+class SelfAdjointAngularFluxI {
  public:
   struct InitializationToken{};
 
-  virtual ~CFEMSelfAdjointAngularFluxI() = default;
+  virtual ~SelfAdjointAngularFluxI() = default;
 
   /*!
   * \brief Integrates the bilinear boundary terms and fills a given matrix.
@@ -221,4 +221,4 @@ class CFEMSelfAdjointAngularFluxI {
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_ANGULAR_CFEM_SELF_ADJOINT_ANGULAR_FLUX_I_H_
+#endif //BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_I_H_

@@ -1,4 +1,4 @@
-#include "formulation/angular/cfem_self_adjoint_angular_flux.h"
+#include "formulation/angular/self_adjoint_angular_flux.h"
 
 #include <deal.II/base/tensor.h>
 
@@ -34,7 +34,7 @@ using ::testing::_;
  *
  */
 template <typename DimensionWrapper>
-class FormulationAngularCFEMSelfAdjointAngularFluxTest :
+class FormulationAngularSelfAdjointAngularFluxTest :
     public ::testing::Test ,
     bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
@@ -93,7 +93,7 @@ class FormulationAngularCFEMSelfAdjointAngularFluxTest :
  * 2. Set cell pointer to locally owned cell.
  */
 template <typename DimensionWrapper>
-void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
+void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
 
   // Make mocks and set up
@@ -200,7 +200,7 @@ void FormulationAngularCFEMSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp()
   }
 }
 
-TYPED_TEST_CASE(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST_CASE(FormulationAngularSelfAdjointAngularFluxTest,
                 bart::testing::AllDimensions);
 
 // HELPER FUNCTIONS ============================================================
@@ -234,7 +234,7 @@ AssertionResult CompareMatrices(const dealii::FullMatrix<double>& expected,
 // CONSTRUCTOR AND CONST ACCESSORS
 
 // Constructor should query appropriate values from finite element object
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest, Constructor) {
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest, Constructor) {
   constexpr int dim = this->dim;
 
   EXPECT_CALL(*this->mock_finite_element_ptr_, dofs_per_cell())
@@ -244,18 +244,18 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest, Constructor) {
   EXPECT_CALL(*this->mock_finite_element_ptr_, n_face_quad_pts())
       .WillOnce(::testing::DoDefault());
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
 }
 
 // Getters should return observation pointers to dependencies
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     DependencyPointers) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -268,11 +268,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 // FUNCTION TESTS: Initialize
 
 // Initialize should calculate the correct matrices for shape squared
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     InitializeValuesShapeSquared) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -299,11 +299,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 }
 
 // Initialize should calculate the correct matrices for Omega dot gradient vectors
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     InitializeOmegaDotGradient) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -370,7 +370,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
  * vectors. Returned as a matrix with entries corresponding to cell quadrature
  * points (i,j). No extra expectations are required, these are covered by
  * the above test. */
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     InitializeOmegaDotGradientSquared) {
   constexpr int dim = this->dim;
 
@@ -393,7 +393,7 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
       {1, {{0, odgs_10}, {1, odgs_11}}}
       };
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -414,11 +414,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 }
 
 // Initialize should throw an error if cell_ptr is invalid
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     InitializeBadCellPtr) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -431,11 +431,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 // =============================================================================
 
 // FillBoundaryBilinearTerm
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     FillBoundaryBilinearTermTestBadCellPtr) {
   const int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -453,11 +453,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellBoundaryBilinearTermBadMatrixSize) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -481,11 +481,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellBoundaryTermLessThanZeroTest) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -514,11 +514,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   EXPECT_TRUE(CompareMatrices(expected_results, cell_matrix));
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellBoundaryTermTest) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -559,11 +559,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
 
 // FillStreamingTerm ===========================================================
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     FillCellStreamingTermTestBadCellPtr) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -580,11 +580,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellStreamingTermTestBadMatrixSize) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -608,11 +608,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 }
 
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     FillCellStreamingTermTest) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -666,10 +666,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
 // FillCollisionTerm ===========================================================
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellCollisionTermTestBadCellPtr) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -682,10 +682,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                                                     system::EnergyGroup(0));});
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellCollisionTermTestBadMatrixSize) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -700,9 +700,9 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                                                     system::EnergyGroup(0));});
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     FillCellCollisionTermTest) {
-  formulation::angular::CFEMSelfAdjointAngularFlux<this->dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<this->dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -732,10 +732,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
 // FillCellFixedSourceTerm =====================================================
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFixedSourceTermBadCell) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -751,10 +751,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
   });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFixedSourceTermBadVectorLength) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -769,11 +769,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFixedSourceTerm) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -833,10 +833,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
 // FillCellScatteringSourceTerm =====================================================
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellScatteringSourceTermBadCell) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -854,10 +854,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellScatteringSourceTermBadVectorLength) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -874,11 +874,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellScatteringSourceTerm) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -963,10 +963,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
 
 // FillCellFissionSourceTerm =====================================================
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFissionSourceTermBadCell) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -985,10 +985,10 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFissionSourceTermBadVectorLength) {
   constexpr int dim = this->dim;
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
@@ -1006,11 +1006,11 @@ TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
                    });
 }
 
-TYPED_TEST(FormulationAngularCFEMSelfAdjointAngularFluxTest,
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFissionSourceTerm) {
   constexpr int dim = this->dim;
 
-  formulation::angular::CFEMSelfAdjointAngularFlux<dim> test_saaf(
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);

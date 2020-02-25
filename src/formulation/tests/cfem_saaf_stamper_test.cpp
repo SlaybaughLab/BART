@@ -1,7 +1,7 @@
 #include "formulation/cfem_saaf_stamper.h"
 
 #include "domain/tests/definition_mock.h"
-#include "formulation/angular/tests/cfem_self_adjoint_angular_flux_mock.h"
+#include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -22,9 +22,9 @@ class CFEM_SAAF_StamperTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
   using FormulationType =
-      formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
+      formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using DefinitionType = NiceMock<typename domain::DefinitionMock<dim>>;
-  using InitTokenType = typename formulation::angular::CFEMSelfAdjointAngularFluxI<dim>::InitializationToken;
+  using InitTokenType = typename formulation::angular::SelfAdjointAngularFluxI<dim>::InitializationToken;
 
   std::unique_ptr<FormulationType> formulation_ptr_;
   std::shared_ptr<DefinitionType> definition_ptr_;
@@ -58,7 +58,7 @@ TYPED_TEST_SUITE(CFEM_SAAF_StamperTest, bart::testing::AllDimensions);
 TYPED_TEST(CFEM_SAAF_StamperTest, Constructor) {
   constexpr int dim = this->dim;
   using FormulationType = typename
-      formulation::angular::CFEMSelfAdjointAngularFluxMock<dim>;
+      formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using DefinitionType = typename domain::DefinitionMock<dim>;
 
   std::unique_ptr<formulation::CFEM_SAAF_Stamper<dim>> test_stamper;
