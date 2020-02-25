@@ -71,12 +71,17 @@ class FormulationStamperTestDealiiDomain
   // Test parameters
   system::MPISparseMatrix& system_matrix = this->matrix_1;
   system::MPISparseMatrix& expected_matrix = this->matrix_2;
+  system::MPISparseMatrix& boundary_expected_matrix = this->matrix_3;
   system::MPIVector& system_vector = this->vector_1;
   system::MPIVector& expected_vector = this->vector_2;
+  system::MPIVector& boundary_expected_vector = this->vector_3;
   std::function<void(formulation::FullMatrix&,
                      const domain::CellPtr<dim>&)> matrix_stamp_function;
   std::function<void(formulation::Vector&,
                      const domain::CellPtr<dim>&)> vector_stamp_function;
+  std::function<void(formulation::Vector&,
+                     const domain::FaceIndex,
+                     const domain::CellPtr<dim>&)> vector_boundary_stamp_function;
 
   void SetUp() override;
 };
@@ -115,6 +120,16 @@ void FormulationStamperTestDealiiDomain<DimensionWrapper>::SetUp() {
     cell->get_dof_indices(local_dof_indices);
     expected_matrix.add(local_dof_indices, local_dof_indices, ones_matrix);
     expected_vector.add(local_dof_indices, ones_vector);
+    if (cell->at_boundary()) {
+      int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          boundary_expected_vector.add(local_dof_indices, ones_vector);
+          boundary_expected_matrix.add(local_dof_indices, local_dof_indices,
+                                       ones_matrix);
+        }
+      }
+    }
   }
   expected_matrix.compress(dealii::VectorOperation::add);
   expected_vector.compress(dealii::VectorOperation::add);
@@ -126,6 +141,11 @@ void FormulationStamperTestDealiiDomain<DimensionWrapper>::SetUp() {
   };
   vector_stamp_function = [](formulation::Vector& to_stamp,
                              const domain::CellPtr<dim>&) -> void {
+    SetVectorToOne(to_stamp);
+  };
+  vector_boundary_stamp_function = [](formulation::Vector& to_stamp,
+                                      const domain::FaceIndex,
+                                      const domain::CellPtr<dim>&) -> void {
     SetVectorToOne(to_stamp);
   };
 
@@ -160,6 +180,17 @@ TYPED_TEST(FormulationStamperTestDealiiDomain, StampVectorMPI) {
                   });
   EXPECT_TRUE(test_helpers::CompareMPIVectors(this->system_vector,
                                               this->expected_vector));
+}
+
+TYPED_TEST(FormulationStamperTestDealiiDomain, StampVectorBoundaryMPI) {
+  EXPECT_CALL(*this->domain_ptr_, GetCellVector()).WillOnce(DoDefault());
+  EXPECT_CALL(*this->domain_ptr_, Cells()).WillOnce(DoDefault());
+  EXPECT_NO_THROW({
+    this->test_stamper_ptr_->StampBoundaryVector(this->system_vector,
+                                                 this->vector_boundary_stamp_function);
+                  });
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->system_vector,
+                                              this->boundary_expected_vector));
 }
 
 } // namespace

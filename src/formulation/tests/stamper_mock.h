@@ -23,6 +23,13 @@ class StamperMock : public StamperI<dim> {
               std::function<void(formulation::Vector&,
                                  const domain::CellPtr<dim>&)> stamp_function),
               (override));
+  MOCK_METHOD(void,
+              StampVectorBoundary,
+              (system::MPIVector& to_stamp,
+                  std::function<void(formulation::Vector&,
+                                     const domain::FaceIndex,
+                                     const domain::CellPtr<dim>&)> stamp_function),
+              (override));
 };
 
 } // namespace formulation

@@ -44,6 +44,13 @@ class Stamper : public StamperI<dim> {
                          const domain::CellPtr<dim>&)> stamp_function)
   override;
 
+  void StampBoundaryVector(
+      system::MPIVector &to_stamp,
+      std::function<void(Vector &,
+                         const domain::FaceIndex,
+                         const domain::CellPtr<dim> &)> stamp_function)
+  override;
+
   /*! \brief Access domain definition dependency */
   domain::DefinitionI<dim>* domain_ptr() const { return domain_ptr_.get(); }
  private:
