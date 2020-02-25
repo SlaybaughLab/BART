@@ -33,7 +33,17 @@ int main(int argc, char* argv[]) {
 
     double k_eff_final;
 
-    std::ofstream output_stream((prm.OutputFilenameBase() + ".vtu").c_str());
+    const int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const int process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+
+    std::ofstream output_stream;
+    const std::string output_filename_base{prm.OutputFilenameBase()};
+    if (n_processes > 1) {
+      const std::string full_filename = output_filename_base + dealii::Utilities::int_to_string(process_id, 4);
+      output_stream.open((full_filename + ".vtu").c_str());
+    } else {
+      output_stream.open((output_filename_base + ".vtu").c_str());
+    }
 
     switch(prm.SpatialDimension()) {
       case 1: {
