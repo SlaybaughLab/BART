@@ -24,7 +24,7 @@ class StamperMock : public StamperI<dim> {
                                  const domain::CellPtr<dim>&)> stamp_function),
               (override));
   MOCK_METHOD(void,
-              StampVectorBoundary,
+              StampBoundaryVector,
               (system::MPIVector& to_stamp,
                   std::function<void(formulation::Vector&,
                                      const domain::FaceIndex,
