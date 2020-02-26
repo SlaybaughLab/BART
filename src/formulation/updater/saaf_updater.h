@@ -15,7 +15,7 @@ namespace formulation {
 namespace updater {
 
 template <int dim>
-class SAAFUpdater {
+class SAAFUpdater : public FixedUpdaterI {
  public:
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -23,6 +23,10 @@ class SAAFUpdater {
   SAAFUpdater(std::unique_ptr<SAAFFormulationType>,
               std::unique_ptr<StamperType>,
               const std::shared_ptr<QuadratureSetType>&);
+
+  void UpdateFixedTerms(system::System &to_update,
+                        system::EnergyGroup group,
+                        quadrature::QuadraturePointIndex index) override;
 
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();};
   StamperType* stamper_ptr() const {return stamper_ptr_.get();};

@@ -24,6 +24,36 @@ SAAFUpdater<dim>::SAAFUpdater(
               dealii::ExcMessage("Error in constructor of SAAFUpdater, "
                                  "quadrature set pointer passed is null"))
 }
+template<int dim>
+void SAAFUpdater<dim>::UpdateFixedTerms(
+    system::System &to_update,
+    system::EnergyGroup group,
+    quadrature::QuadraturePointIndex index) {
+  auto fixed_matrix_ptr =
+      to_update.left_hand_side_ptr_->GetFixedTermPtr({group.get(), index.get()});
+  auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(index);
+  auto streaming_term_function =
+      [&](formulation::FullMatrix& cell_matrix,
+          const domain::CellPtr<dim>& cell_ptr) -> void {
+        formulation_ptr_->FillCellStreamingTerm(cell_matrix, cell_ptr,
+                                                quadrature_point_ptr, group);
+      };
+  auto collision_term_function =
+      [&](formulation::FullMatrix& cell_matrix,
+          const domain::CellPtr<dim>& cell_ptr) -> void {
+        formulation_ptr_->FillCellCollisionTerm(cell_matrix, cell_ptr, group);
+      };
+  auto boundary_bilinear_term_function =
+      [&](formulation::FullMatrix& cell_matrix,
+          const domain::FaceIndex face_index,
+          const domain::CellPtr<dim>& cell_ptr) -> void {
+    formulation_ptr_->FillBoundaryBilinearTerm(cell_matrix, cell_ptr, face_index, quadrature_point_ptr, group);
+  };
+  stamper_ptr_->StampMatrix(*fixed_matrix_ptr, streaming_term_function);
+  stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
+  stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr,
+                                    boundary_bilinear_term_function);
+}
 
 template class SAAFUpdater<1>;
 template class SAAFUpdater<2>;
