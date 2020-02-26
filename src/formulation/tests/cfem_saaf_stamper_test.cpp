@@ -24,13 +24,9 @@ class CFEM_SAAF_StamperTest : public ::testing::Test {
   using FormulationType =
       formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using DefinitionType = NiceMock<typename domain::DefinitionMock<dim>>;
-  using InitTokenType = typename formulation::angular::SelfAdjointAngularFluxI<dim>::InitializationToken;
 
   std::unique_ptr<FormulationType> formulation_ptr_;
   std::shared_ptr<DefinitionType> definition_ptr_;
-
-  // Mock return objects
-  InitTokenType return_token_;
 
   // Observation Pointer
   FormulationType* formulation_obs_ptr_;
@@ -48,7 +44,6 @@ void CFEM_SAAF_StamperTest<DimensionWrapper>::SetUp() {
   cells.push_back(test_cell_ptr_);
 
   ON_CALL(*definition_ptr_, Cells()).WillByDefault(Return(cells));
-  ON_CALL(*formulation_ptr_, Initialize(_)).WillByDefault(Return(return_token_));
 }
 
 TYPED_TEST_SUITE(CFEM_SAAF_StamperTest, bart::testing::AllDimensions);
@@ -64,8 +59,7 @@ TYPED_TEST(CFEM_SAAF_StamperTest, Constructor) {
   std::unique_ptr<formulation::CFEM_SAAF_Stamper<dim>> test_stamper;
 
   EXPECT_CALL(*this->definition_ptr_, Cells()).WillOnce(DoDefault());
-  EXPECT_CALL(*this->formulation_ptr_, Initialize(_))
-      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->formulation_ptr_, Initialize(_));
   EXPECT_NO_THROW({
     test_stamper = std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
         std::move(this->formulation_ptr_), this->definition_ptr_);
@@ -173,7 +167,7 @@ void CFEMSAAFStamperMPITests<DimensionWrapper>::SetUp() {
   ON_CALL(*this->definition_ptr_, GetCellVector())
       .WillByDefault(Return(cell_vector));
 
-  EXPECT_CALL(*this->formulation_obs_ptr_, Initialize(_)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->formulation_obs_ptr_, Initialize(_));
   EXPECT_CALL(*this->definition_ptr_, Cells()).WillOnce(Return(this->cells_));
 
   test_stamper_ = std::make_unique<formulation::CFEM_SAAF_Stamper<dim>>(
@@ -195,7 +189,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampBoundary) {
         if (cell->face(face)->at_boundary()) {
 
           EXPECT_CALL(*this->formulation_obs_ptr_,
-                      FillBoundaryBilinearTerm(_,_,cell, domain::FaceIndex(face),
+                      FillBoundaryBilinearTerm(_, cell, domain::FaceIndex(face),
                                                this->quadrature_point_ptr_,
                                                system::EnergyGroup(1)))
               .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));
@@ -221,7 +215,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampCollision) {
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*this->formulation_obs_ptr_,
-        FillCellCollisionTerm(_,_,cell,system::EnergyGroup(1)))
+        FillCellCollisionTerm(_,cell,system::EnergyGroup(1)))
         .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));
   }
 
@@ -240,7 +234,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampFissionSource) {
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*this->formulation_obs_ptr_,
-        FillCellFissionSourceTerm(_,_,cell, this->quadrature_point_ptr_,
+        FillCellFissionSourceTerm(_, cell, this->quadrature_point_ptr_,
                                   system::EnergyGroup(1), k_effective,
                                   Ref(this->in_group_moment_),
                                   Ref(this->moments_map_)))
@@ -267,7 +261,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampFissionSource) {
 TYPED_TEST(CFEMSAAFStamperMPITests, StampFixedSource) {
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*this->formulation_obs_ptr_,
-                FillCellFixedSourceTerm(_, _, cell, this->quadrature_point_ptr_,
+                FillCellFixedSourceTerm(_, cell, this->quadrature_point_ptr_,
                     system::EnergyGroup(1)))
         .WillOnce(WithArg<0>(Invoke(StampVector)));
   }
@@ -288,7 +282,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampScatteringSource) {
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*this->formulation_obs_ptr_,
-                FillCellScatteringSourceTerm(_,_,cell,
+                FillCellScatteringSourceTerm(_,cell,
                                              this->quadrature_point_ptr_,
                                              system::EnergyGroup(1),
                                              Ref(this->in_group_moment_),
@@ -316,7 +310,7 @@ TYPED_TEST(CFEMSAAFStamperMPITests, StampStreaming) {
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*this->formulation_obs_ptr_,
-                FillCellStreamingTerm(_,_,cell,
+                FillCellStreamingTerm(_, cell,
                                       this->quadrature_point_ptr_,
                                       system::EnergyGroup(1)))
         .WillOnce(::testing::WithArg<0>(::testing::Invoke(StampMatrix)));

@@ -19,8 +19,6 @@ namespace angular {
 template <int dim>
 class SelfAdjointAngularFluxI {
  public:
-  struct InitializationToken{};
-
   virtual ~SelfAdjointAngularFluxI() = default;
 
   /*!
@@ -46,7 +44,6 @@ class SelfAdjointAngularFluxI {
   !*/
   virtual void FillBoundaryBilinearTerm(
       FullMatrix& to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim>& cell_ptr,
       const domain::FaceIndex face_number,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
@@ -68,14 +65,12 @@ class SelfAdjointAngularFluxI {
    * where \f$\psi\f$ is the angular flux.
    *
    * @param to_fill cell matrix to fill.
-   * @param init_token initialization token return by Initialize
    * @param cell_ptr pointer to the cell
    * @param group_number energy group to fill
    * \return No values returned, modifies input parameter \f$\mathbf{A}\to \mathbf{A}'\f$.
    */
   virtual void FillCellCollisionTerm(
       FullMatrix& to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim>& cell_ptr,
       const system::EnergyGroup group_number) = 0;
 
@@ -101,7 +96,6 @@ class SelfAdjointAngularFluxI {
    *
    *
    * @param to_fill cell vector to fill
-   * @param init_token initialization token returned by Initialize
    * @param cell_ptr pointer to the cell
    * @param quadrature_point quadrature point
    * @param group_number energy group number
@@ -111,7 +105,6 @@ class SelfAdjointAngularFluxI {
    */
   virtual void FillCellFissionSourceTerm(
       Vector& to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
@@ -138,7 +131,6 @@ class SelfAdjointAngularFluxI {
  */
   virtual void FillCellFixedSourceTerm(
       Vector& to_fill,
-      const InitializationToken,
       const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
@@ -169,7 +161,6 @@ class SelfAdjointAngularFluxI {
    */
   virtual void FillCellScatteringSourceTerm(
       Vector& to_fill,
-      const InitializationToken,
       const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
@@ -192,7 +183,6 @@ class SelfAdjointAngularFluxI {
    * where \f$\psi\f$ is the angular flux.
    *
    * @param to_fill cell matrix to fill.
-   * @param init_token initialization token return by Initialize
    * @param cell_ptr pointer to the cell
    * @param quadrature_point quadrature angle to provide \f$\Omega\f$
    * @param group_number energy group to fill
@@ -200,7 +190,6 @@ class SelfAdjointAngularFluxI {
    */
   virtual void FillCellStreamingTerm(
       FullMatrix& to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) = 0;
@@ -210,9 +199,8 @@ class SelfAdjointAngularFluxI {
    * In general, this will pre-calculate matrix terms. The cell pointer is only
    * used to initialize the finite element object.
    * @param cell_ptr cell pointer for initialization.
-   * @return Initialization token required for other calls
    */
-  virtual InitializationToken Initialize(const domain::CellPtr<dim>&) = 0;
+  virtual void Initialize(const domain::CellPtr<dim>&) = 0;
 };
 
 } // namespace angular

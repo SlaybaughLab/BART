@@ -15,37 +15,34 @@ template <int dim>
 class SelfAdjointAngularFluxMock :
     public SelfAdjointAngularFluxI<dim> {
  public:
-
-  using typename SelfAdjointAngularFluxI<dim>::InitializationToken;
   MOCK_METHOD(void, FillBoundaryBilinearTerm, (FullMatrix& to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim>& cell_ptr,
       const domain::FaceIndex,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number), (override));
   MOCK_METHOD(void, FillCellCollisionTerm, (FullMatrix&,
-      const InitializationToken, const domain::CellPtr<dim>&,
+      const domain::CellPtr<dim>&,
       const system::EnergyGroup), (override));
   MOCK_METHOD(void, FillCellFissionSourceTerm, (Vector&,
-      const InitializationToken, const domain::CellPtr<dim>&,
+      const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const double,
       const system::moments::MomentVector&,
       const system::moments::MomentsMap&), (override));
   MOCK_METHOD(void, FillCellFixedSourceTerm, (Vector&,
-      const InitializationToken, const domain::CellPtr<dim>&,
+      const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup), (override));
   MOCK_METHOD(void, FillCellScatteringSourceTerm, (Vector&,
-      const InitializationToken, const domain::CellPtr<dim>&,
+      const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const system::moments::MomentVector&,
       const system::moments::MomentsMap&), (override));
   MOCK_METHOD(void, FillCellStreamingTerm, (FullMatrix&,
-      const InitializationToken, const domain::CellPtr<dim>&,
+      const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup), (override));
-  MOCK_METHOD(InitializationToken, Initialize,
+  MOCK_METHOD(void, Initialize,
       (const domain::CellPtr<dim>&), (override));
 };
 

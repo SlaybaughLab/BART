@@ -60,15 +60,12 @@ class CFEM_SAAF_Stamper : public AngularStamperI<dim> {
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();}
 
  private:
-  using InitializationTokenType =
-  typename SAAFFormulationType::InitializationToken;
 
   // Dependencies
   std::unique_ptr<SAAFFormulationType> formulation_ptr_ = nullptr;
   std::shared_ptr<DomainDefinitionType> definition_ptr_ = nullptr;
 
   std::vector<domain::CellPtr<dim>> cells_;
-  InitializationTokenType saaf_initialization_token_;
 
   // Private functions
   void StampMatrix(

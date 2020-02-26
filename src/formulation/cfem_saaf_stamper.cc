@@ -12,7 +12,7 @@ CFEM_SAAF_Stamper<dim>::CFEM_SAAF_Stamper(
       definition_ptr_(defintion_ptr) {
 
   cells_ = definition_ptr_->Cells();
-  saaf_initialization_token_ = formulation_ptr_->Initialize(cells_.at(0));
+  formulation_ptr_->Initialize(cells_.at(0));
 }
 
 template<int dim>
@@ -30,7 +30,6 @@ void CFEM_SAAF_Stamper<dim>::StampBoundaryBilinearTerm(
             if (cell_ptr->face(face)->at_boundary()) {
 
               formulation_ptr_->FillBoundaryBilinearTerm(matrix,
-                                               saaf_initialization_token_,
                                                cell_ptr,
                                                domain::FaceIndex(face),
                                                quadrature_point,
@@ -51,7 +50,6 @@ void CFEM_SAAF_Stamper<dim>::StampCollisionTerm(
       [&](formulation::FullMatrix& cell_matrix,
           const domain::CellPtr<dim>& cell_ptr) -> void {
         formulation_ptr_->FillCellCollisionTerm(cell_matrix,
-                                                saaf_initialization_token_,
                                                 cell_ptr,
                                                 group_number);
   };
@@ -71,7 +69,7 @@ void CFEM_SAAF_Stamper<dim>::StampFissionSourceTerm(
       [&](dealii::Vector<double> &vector,
           const domain::CellPtr<dim>& cell_ptr) -> void {
     this->formulation_ptr_->FillCellFissionSourceTerm(
-        vector, this->saaf_initialization_token_, cell_ptr, quadrature_point,
+        vector, cell_ptr, quadrature_point,
         group_number, k_eff, in_group_moment, group_moments);
   };
 
@@ -87,7 +85,7 @@ void CFEM_SAAF_Stamper<dim>::StampFixedSourceTerm(
       [&](dealii::Vector<double> &vector,
           const domain::CellPtr<dim>& cell_ptr) -> void {
         this->formulation_ptr_->FillCellFixedSourceTerm(
-            vector, this->saaf_initialization_token_, cell_ptr,
+            vector, cell_ptr,
             quadrature_point, group_number);
   };
 
@@ -105,7 +103,7 @@ void CFEM_SAAF_Stamper<dim>::StampScatteringSourceTerm(
       [&](dealii::Vector<double> &vector,
           const domain::CellPtr<dim>& cell_ptr) -> void {
         this->formulation_ptr_->FillCellScatteringSourceTerm(
-            vector, this->saaf_initialization_token_, cell_ptr, quadrature_point,
+            vector, cell_ptr, quadrature_point,
             group_number, in_group_moment, group_moments);
       };
 
@@ -121,7 +119,6 @@ void CFEM_SAAF_Stamper<dim>::StampStreamingTerm(
       [&](formulation::FullMatrix& cell_matrix,
           const domain::CellPtr<dim>& cell_ptr) -> void {
         formulation_ptr_->FillCellStreamingTerm(cell_matrix,
-                                                saaf_initialization_token_,
                                                 cell_ptr,
                                                 quadrature_point,
                                                 group_number);

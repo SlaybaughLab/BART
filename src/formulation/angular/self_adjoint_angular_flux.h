@@ -17,20 +17,18 @@ namespace angular {
 template <int dim>
 class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
  public:
-  using typename SelfAdjointAngularFluxI<dim>::InitializationToken;
 
   SelfAdjointAngularFlux(
       std::shared_ptr<domain::finite_element::FiniteElementI<dim>>,
       std::shared_ptr<data::CrossSections>,
       std::shared_ptr<quadrature::QuadratureSetI<dim>>);
 
-  InitializationToken Initialize(const domain::CellPtr<dim>&) override;
+  void Initialize(const domain::CellPtr<dim>&) override;
 
   // Fill functions
 
   void FillBoundaryBilinearTerm(
       FullMatrix &to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim> &cell_ptr,
       const domain::FaceIndex face_number,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
@@ -38,13 +36,11 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   void FillCellCollisionTerm(
       FullMatrix &to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim> &cell_ptr,
       const system::EnergyGroup group_number) override;
 
   void FillCellFissionSourceTerm(
       Vector &to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
@@ -54,14 +50,12 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   void FillCellFixedSourceTerm(
       Vector &to_fill,
-      const InitializationToken token,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
   void FillCellScatteringSourceTerm(
       Vector &to_fill,
-      const InitializationToken token,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
@@ -70,7 +64,6 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   void FillCellStreamingTerm(
       FullMatrix &to_fill,
-      const InitializationToken init_token,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;

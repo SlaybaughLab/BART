@@ -22,8 +22,7 @@ SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
       face_quadrature_points_(finite_element_ptr->n_face_quad_pts()) {}
 
 template<int dim>
-auto SelfAdjointAngularFlux<dim>::Initialize(
-    const domain::CellPtr<dim> &cell_ptr) -> InitializationToken {
+void SelfAdjointAngularFlux<dim>::Initialize(const domain::CellPtr<dim> &cell_ptr) {
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage("Error in SelfAdjointAngularFlux Initialize, "
                                  "cell pointer is invalid."))
@@ -73,13 +72,11 @@ auto SelfAdjointAngularFlux<dim>::Initialize(
     }
   }
   is_initialized_ = true;
-  return InitializationToken();
 }
 
 template<int dim>
 void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
     FullMatrix &to_fill,
-    const InitializationToken /*init_token*/,
     const domain::CellPtr<dim> &cell_ptr,
     const domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
@@ -113,7 +110,6 @@ void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
 template<int dim>
 void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
-    const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
     const system::EnergyGroup group_number) {
   VerifyInitialized(__FUNCTION__);
@@ -137,7 +133,6 @@ void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 template<int dim>
 void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
     Vector &to_fill,
-    const InitializationToken /*init_token*/,
     const domain::CellPtr<dim> & cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
@@ -187,7 +182,6 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
 template<int dim>
 void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     Vector &to_fill,
-    const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
@@ -208,7 +202,6 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
 template<int dim>
 void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     Vector &to_fill,
-    const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
@@ -256,7 +249,6 @@ void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
 template<int dim>
 void SelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     FullMatrix &to_fill,
-    const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
