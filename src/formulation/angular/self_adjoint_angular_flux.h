@@ -92,6 +92,8 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   std::map<int, FullMatrix> shape_squared() const {
     return shape_squared_; }
 
+  bool is_initialized() const { return is_initialized_; }
+
  protected:
   // Validation Functions
   void ValidateMatrixSizeAndSetCell(const domain::CellPtr<dim>& cell_ptr,
@@ -110,6 +112,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
                           std::string function_name);
   void ValidateMatrixSize(const FullMatrix&, std::string called_function_name);
   void ValidateVectorSize(const Vector&, std::string called_function_name);
+  void VerifyInitialized(std::string called_function_name);
 
   // Combined implementation functions
   void FillCellSourceTerm(
@@ -135,6 +138,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   std::map<std::pair<CellQuadratureIndex, AngleIndex>,
            FullMatrix> omega_dot_gradient_squared_;
   std::map<CellQuadratureIndex, FullMatrix> shape_squared_ = {};
+  bool is_initialized_ = false;
 };
 
 } // namespace angular

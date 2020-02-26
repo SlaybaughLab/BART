@@ -248,6 +248,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest, Constructor) {
       this->mock_finite_element_ptr_,
       this->cross_section_ptr_,
       this->mock_quadrature_set_ptr_);
+  EXPECT_FALSE(test_saaf.is_initialized());
 }
 
 // Getters should return observation pointers to dependencies
@@ -263,6 +264,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   EXPECT_EQ(test_saaf.finite_element_ptr(), this->mock_finite_element_ptr_.get());
   EXPECT_EQ(test_saaf.cross_sections_ptr(), this->cross_section_ptr_.get());
   EXPECT_EQ(test_saaf.quadrature_set_ptr(), this->mock_quadrature_set_ptr_.get());
+  EXPECT_FALSE(test_saaf.is_initialized());
 }
 
 // FUNCTION TESTS: Initialize
@@ -296,6 +298,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   ASSERT_EQ(shape_squared.size(), 2);
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_0, shape_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(expected_shape_squared_q_1, shape_squared.at(1)));
+  EXPECT_TRUE(test_saaf.is_initialized());
 }
 
 // Initialize should calculate the correct matrices for Omega dot gradient vectors
@@ -364,6 +367,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                       omega_dot_gradient.at(cell_quad_point).at(angle_index)));
     }
   }
+  EXPECT_TRUE(test_saaf.is_initialized());
 }
 
 /* Initialize should generate the correct squares of the omega dot gradient
@@ -411,6 +415,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
           result));
     }
   }
+  EXPECT_TRUE(test_saaf.is_initialized());
 }
 
 // Initialize should throw an error if cell_ptr is invalid
@@ -425,6 +430,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
   domain::CellPtr<dim> invalid_cell_ptr;
   EXPECT_ANY_THROW(test_saaf.Initialize(invalid_cell_ptr));
+  EXPECT_FALSE(test_saaf.is_initialized());
 }
 // =============================================================================
 // FUNCTION TESTS:
@@ -557,6 +563,27 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   EXPECT_TRUE(CompareMatrices(expected_results, cell_matrix));
 }
 
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellBoundaryTermTestNotInitialized) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix cell_matrix(2,2);
+
+  using TokenType = typename formulation::angular::SelfAdjointAngularFlux<dim>::InitializationToken;
+  TokenType token;
+  auto angle_ptr = *this->quadrature_set_.begin();
+  EXPECT_ANY_THROW({
+  test_saaf.FillBoundaryBilinearTerm(cell_matrix, token, this->cell_ptr_,
+                                     domain::FaceIndex(0), angle_ptr,
+                                     system::EnergyGroup(0));
+                   });
+}
+
 
 // FillStreamingTerm ===========================================================
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
@@ -664,6 +691,26 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   }
 }
 
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellStreamingTermTestNotInitialized) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::FullMatrix cell_matrix(2,2);
+
+  using TokenType = typename formulation::angular::SelfAdjointAngularFlux<dim>::InitializationToken;
+  TokenType token;
+  auto angle_ptr = *this->quadrature_set_.begin();
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellStreamingTerm(cell_matrix, token, this->cell_ptr_,
+                                    angle_ptr, system::EnergyGroup(0));
+                   });
+}
+
 // FillCollisionTerm ===========================================================
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
@@ -679,6 +726,23 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   auto token = test_saaf.Initialize(this->cell_ptr_);
   EXPECT_ANY_THROW({test_saaf.FillCellCollisionTerm(cell_matrix, token,
                                                     invalid_cell_ptr,
+                                                    system::EnergyGroup(0));});
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellCollisionTermTestNotInitialized) {
+  constexpr int dim = this->dim;
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+  using TokenType = typename formulation::angular::SelfAdjointAngularFlux<dim>::InitializationToken;
+  TokenType token;
+
+  formulation::FullMatrix cell_matrix(2,2);
+
+  EXPECT_ANY_THROW({test_saaf.FillCellCollisionTerm(cell_matrix, token,
+                                                    this->cell_ptr_,
                                                     system::EnergyGroup(0));});
 }
 
@@ -749,6 +813,25 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
     test_saaf.FillCellFixedSourceTerm(cell_vector, token, invalid_cell_ptr,
                                     angle_ptr, system::EnergyGroup(0));
   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellFixedSourceTermTestNotInitialized) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  using TokenType = typename formulation::angular::SelfAdjointAngularFlux<dim>::InitializationToken;
+  TokenType token;
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellFixedSourceTerm(cell_vector, token, this->cell_ptr_,
+                                      angle_ptr, system::EnergyGroup(0));
+                   });
 }
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
@@ -848,6 +931,27 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
   EXPECT_ANY_THROW({
     test_saaf.FillCellScatteringSourceTerm(cell_vector, token, invalid_cell_ptr,
+                                           angle_ptr, system::EnergyGroup(0),
+                                           this->group_0_moment_,
+                                           this->out_group_moments_);
+                   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellScatteringSourceTermTestNotInitialized) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  using TokenType = typename formulation::angular::SelfAdjointAngularFlux<dim>::InitializationToken;
+  TokenType token;
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellScatteringSourceTerm(cell_vector, token, this->cell_ptr_,
                                            angle_ptr, system::EnergyGroup(0),
                                            this->group_0_moment_,
                                            this->out_group_moments_);
@@ -978,6 +1082,28 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
   EXPECT_ANY_THROW({
     test_saaf.FillCellFissionSourceTerm(cell_vector, token, invalid_cell_ptr,
+                                        angle_ptr, system::EnergyGroup(0),
+                                        this->k_effective_,
+                                        this->group_0_moment_,
+                                        this->out_group_moments_);
+                   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellFissionSourceTermTestNotInitialized) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  using TokenType = typename formulation::angular::SelfAdjointAngularFlux<dim>::InitializationToken;
+  TokenType token;
+  EXPECT_ANY_THROW({
+    test_saaf.FillCellFissionSourceTerm(cell_vector, token, this->cell_ptr_,
                                         angle_ptr, system::EnergyGroup(0),
                                         this->k_effective_,
                                         this->group_0_moment_,

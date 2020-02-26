@@ -72,6 +72,7 @@ auto SelfAdjointAngularFlux<dim>::Initialize(
           omega_dot_gradient_squared);
     }
   }
+  is_initialized_ = true;
   return InitializationToken();
 }
 
@@ -83,6 +84,7 @@ void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
     const domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup /*group_number*/) {
+  VerifyInitialized(__FUNCTION__);
   ValidateMatrixSize(to_fill, __FUNCTION__);
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
               dealii::ExcMessage("Bad cell given to FilLBoundaryBilinearTerm"))
@@ -114,7 +116,7 @@ void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     const InitializationToken,
     const domain::CellPtr<dim> &cell_ptr,
     const system::EnergyGroup group_number) {
-
+  VerifyInitialized(__FUNCTION__);
   ValidateMatrixSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
@@ -142,6 +144,7 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
     const double k_eff,
     const system::moments::MomentVector & in_group_moment,
     const system::moments::MomentsMap & group_moments) {
+  VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
@@ -188,6 +191,7 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
+  VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
@@ -210,6 +214,7 @@ void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     const system::EnergyGroup group_number,
     const system::moments::MomentVector &in_group_moment,
     const system::moments::MomentsMap &group_moments) {
+  VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
@@ -255,7 +260,7 @@ void SelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number) {
-
+  VerifyInitialized(__FUNCTION__);
   ValidateMatrixSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
@@ -344,6 +349,8 @@ void SelfAdjointAngularFlux<dim>::ValidateVectorSize(
               dealii::ExcMessage(error_string.str()))
 }
 
+
+
 template <int dim>
 void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
     bart::formulation::Vector &to_fill,
@@ -367,6 +374,22 @@ void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
               omega_dot_gradient.at(i) * inverse_sigma_t
       );
     }
+  }
+}
+
+template<int dim>
+void SelfAdjointAngularFlux<dim>::VerifyInitialized(
+    std::string called_function_name) {
+  if (!is_initialized_) {
+
+    std::ostringstream error_string;
+    error_string << "Error in SelfAdjointAngularFlux function "
+                 << called_function_name
+                 << ": formulation has not been initialized, call Initialize "
+                 << "prior to filing any cell matrices or vectors.";
+
+    AssertThrow(false,
+                dealii::ExcMessage(error_string.str()))
   }
 }
 
