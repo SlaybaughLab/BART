@@ -49,6 +49,33 @@ void Stamper<dim>::StampVector(
 }
 
 template<int dim>
+void Stamper<dim>::StampBoundaryMatrix(
+    system::MPISparseMatrix &to_stamp,
+    std::function<void(formulation::FullMatrix&,
+                       const domain::FaceIndex,
+                       const domain::CellPtr<dim> &)> stamp_function) {
+  auto cell_matrix = domain_ptr_->GetCellMatrix();
+  auto cells = domain_ptr_->Cells();
+  std::vector<dealii::types::global_dof_index> local_dof_indices(
+      cell_matrix.n_cols());
+
+  for (const auto& cell : cells) {
+    if (cell->at_boundary()) {
+      int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          cell_matrix = 0;
+          cell->get_dof_indices(local_dof_indices);
+          stamp_function(cell_matrix, domain::FaceIndex(face), cell);
+          to_stamp.add(local_dof_indices, local_dof_indices, cell_matrix);
+        }
+      }
+    }
+  }
+  to_stamp.compress(dealii::VectorOperation::add);
+}
+
+template<int dim>
 void Stamper<dim>::StampBoundaryVector(
     system::MPIVector &to_stamp,
     std::function<void(Vector &,

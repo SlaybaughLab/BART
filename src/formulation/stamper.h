@@ -44,9 +44,16 @@ class Stamper : public StamperI<dim> {
                          const domain::CellPtr<dim>&)> stamp_function)
   override;
 
+  void StampBoundaryMatrix(
+      system::MPISparseMatrix &to_stamp,
+      std::function<void(formulation::FullMatrix&,
+                         const domain::FaceIndex,
+                         const domain::CellPtr<dim> &)> stamp_function)
+  override;
+
   void StampBoundaryVector(
       system::MPIVector &to_stamp,
-      std::function<void(Vector &,
+      std::function<void(formulation::Vector &,
                          const domain::FaceIndex,
                          const domain::CellPtr<dim> &)> stamp_function)
   override;

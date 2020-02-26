@@ -79,6 +79,9 @@ class FormulationStamperTestDealiiDomain
                      const domain::CellPtr<dim>&)> matrix_stamp_function;
   std::function<void(formulation::Vector&,
                      const domain::CellPtr<dim>&)> vector_stamp_function;
+  std::function<void(formulation::FullMatrix&,
+                     const domain::FaceIndex,
+                     const domain::CellPtr<dim>&)> matrix_boundary_stamp_function;
   std::function<void(formulation::Vector&,
                      const domain::FaceIndex,
                      const domain::CellPtr<dim>&)> vector_boundary_stamp_function;
@@ -133,6 +136,8 @@ void FormulationStamperTestDealiiDomain<DimensionWrapper>::SetUp() {
   }
   expected_matrix.compress(dealii::VectorOperation::add);
   expected_vector.compress(dealii::VectorOperation::add);
+  boundary_expected_matrix.compress(dealii::VectorOperation::add);
+  boundary_expected_vector.compress(dealii::VectorOperation::add);
 
   // Set up the stamp function that just sets the provided matrix to all 1
   matrix_stamp_function = [](formulation::FullMatrix& to_stamp,
@@ -147,6 +152,11 @@ void FormulationStamperTestDealiiDomain<DimensionWrapper>::SetUp() {
                                       const domain::FaceIndex,
                                       const domain::CellPtr<dim>&) -> void {
     SetVectorToOne(to_stamp);
+  };
+  matrix_boundary_stamp_function = [](formulation::FullMatrix& to_stamp,
+                                      const domain::FaceIndex,
+                                      const domain::CellPtr<dim>&) -> void {
+    SetMatrixToOne(to_stamp);
   };
 
   // Set up expected calls for the definition object
@@ -180,6 +190,17 @@ TYPED_TEST(FormulationStamperTestDealiiDomain, StampVectorMPI) {
                   });
   EXPECT_TRUE(test_helpers::CompareMPIVectors(this->system_vector,
                                               this->expected_vector));
+}
+
+TYPED_TEST(FormulationStamperTestDealiiDomain, StampMatrixBoundaryMPI) {
+  EXPECT_CALL(*this->domain_ptr_, GetCellMatrix()).WillOnce(DoDefault());
+  EXPECT_CALL(*this->domain_ptr_, Cells()).WillOnce(DoDefault());
+  EXPECT_NO_THROW({
+    this->test_stamper_ptr_->StampBoundaryMatrix(this->system_matrix,
+                                                 this->matrix_boundary_stamp_function);
+                  });
+  EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->system_matrix,
+                                               this->boundary_expected_matrix));
 }
 
 TYPED_TEST(FormulationStamperTestDealiiDomain, StampVectorBoundaryMPI) {

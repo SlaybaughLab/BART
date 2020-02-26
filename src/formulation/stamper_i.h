@@ -31,6 +31,11 @@ class StamperI {
       system::MPIVector& to_stamp,
       std::function<void(formulation::Vector&,
                          const domain::CellPtr<dim>&)> stamp_function) = 0;
+  virtual void StampBoundaryMatrix(
+      system::MPISparseMatrix& to_stamp,
+      std::function<void(formulation::FullMatrix&,
+                         const domain::FaceIndex,
+                         const domain::CellPtr<dim>&)> stamp_function) = 0;
   virtual void StampBoundaryVector(
       system::MPIVector& to_stamp,
       std::function<void(formulation::Vector&,
