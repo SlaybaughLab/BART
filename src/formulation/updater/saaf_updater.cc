@@ -49,6 +49,7 @@ void SAAFUpdater<dim>::UpdateFixedTerms(
           const domain::CellPtr<dim>& cell_ptr) -> void {
     formulation_ptr_->FillBoundaryBilinearTerm(cell_matrix, cell_ptr, face_index, quadrature_point_ptr, group);
   };
+  *fixed_matrix_ptr = 0;
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, streaming_term_function);
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
   stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr,

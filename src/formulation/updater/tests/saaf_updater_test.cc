@@ -157,7 +157,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
   using QuadraturePointType = quadrature::QuadraturePointI<dim>;
   // Stamp the matrix we are going to stamp with a random value, it should be
   // reset to zero before being passed to the stamper.
-  this->StampMatrix(*this->matrix_to_stamp, test_helpers::RandomDouble(-10, 10));
+  *this->matrix_to_stamp = 0;
+  this->StampMatrix(*this->matrix_to_stamp, test_helpers::RandomDouble(1, 10));
   this->expected_result = 0;
   quadrature::QuadraturePointIndex quad_index(this->angle_index);
   system::EnergyGroup group_number(this->group_number);
