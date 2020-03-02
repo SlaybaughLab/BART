@@ -3,6 +3,7 @@
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/tests/stamper_mock.h"
+#include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "system/terms/tests/bilinear_term_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
@@ -21,6 +22,7 @@ using ::testing::Return, ::testing::Ref, ::testing::Invoke, ::testing::_,
 template <typename DimensionWrapper>
 class FormulationUpdaterSAAFTest :
     public ::testing::Test,
+    public bart::formulation::updater::test_helpers::UpdaterTests<DimensionWrapper::value>,
     public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
@@ -53,18 +55,7 @@ class FormulationUpdaterSAAFTest :
   const int group_number = test_helpers::RandomDouble(0, total_groups);
   const int angle_index = test_helpers::RandomDouble(0, 10);
   const system::Index index{group_number, angle_index};
-  static domain::CellPtr<dim> static_cell_ptr;
 
-  static void EvaluateFunction(std::function<void(formulation::FullMatrix&,
-                                                  const domain::CellPtr<dim>&)> stamp_function);
-  static void EvaluateVectorFunction(std::function<void(formulation::Vector&,
-                                                  const domain::CellPtr<dim>&)> stamp_function);
-  static void EvaluateBoundaryFunction(std::function<void(formulation::FullMatrix&,
-                                                          const domain::FaceIndex,
-                                                          const domain::CellPtr<dim>&)> stamp_function);
-  static void EvaluateVectorBoundaryFunction(std::function<void(formulation::Vector&,
-                                                          const domain::FaceIndex,
-                                                          const domain::CellPtr<dim>&)> stamp_function);
   void SetUp() override;
 };
 
@@ -73,7 +64,7 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
   auto formulation_ptr = std::make_unique<FormulationType>();
   formulation_obs_ptr_ = formulation_ptr.get();
-  auto stamper_ptr = std::make_unique<StamperType>();
+  auto stamper_ptr = this->MakeStamper();
   stamper_obs_ptr_ = stamper_ptr.get();
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
   test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
@@ -101,56 +92,8 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
   test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr);
   test_system_.current_moments = std::move(current_moments_ptr);
 
-  ON_CALL(*stamper_obs_ptr_, StampMatrix(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateFunction)));
-  ON_CALL(*stamper_obs_ptr_, StampBoundaryMatrix(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateBoundaryFunction)));
-  ON_CALL(*stamper_obs_ptr_, StampVector(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateVectorFunction)));
-  ON_CALL(*stamper_obs_ptr_, StampBoundaryVector(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateVectorBoundaryFunction)));
   ON_CALL(*current_moments_obs_ptr_, moments())
       .WillByDefault(ReturnRef(current_iteration_moments_));
-}
-
-template <typename DimensionWrapper>
-void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateFunction(
-    std::function<void(formulation::FullMatrix&,
-                       const domain::CellPtr<dim>&)> stamp_function) {
-  formulation::FullMatrix to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  stamp_function(to_stamp, cell_ptr);
-}
-
-template <typename DimensionWrapper>
-void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateVectorFunction(
-    std::function<void(formulation::Vector&,
-                       const domain::CellPtr<dim>&)> stamp_function) {
-  formulation::Vector to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  stamp_function(to_stamp, cell_ptr);
-}
-
-template <typename DimensionWrapper>
-void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateBoundaryFunction(
-    std::function<void(formulation::FullMatrix&,
-                       const domain::FaceIndex,
-                       const domain::CellPtr<dim>&)> stamp_function) {
-  formulation::FullMatrix to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  domain::FaceIndex index(0);
-  stamp_function(to_stamp, index, cell_ptr);
-}
-
-template <typename DimensionWrapper>
-void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateVectorBoundaryFunction(
-    std::function<void(formulation::Vector&,
-                       const domain::FaceIndex,
-                       const domain::CellPtr<dim>&)> stamp_function) {
-  formulation::Vector to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  domain::FaceIndex index(0);
-  stamp_function(to_stamp, index, cell_ptr);
 }
 
 TYPED_TEST_SUITE(FormulationUpdaterSAAFTest, bart::testing::AllDimensions);
