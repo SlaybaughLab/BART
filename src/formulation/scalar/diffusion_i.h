@@ -15,8 +15,6 @@ namespace scalar {
 template <int dim>
 class DiffusionI {
  public:
-  struct InitializationToken{};
-
   enum class BoundaryType {
     kVacuum,
     kReflective
@@ -32,20 +30,17 @@ class DiffusionI {
 
   virtual ~DiffusionI() = default;
 
-  virtual InitializationToken Precalculate(const CellPtr& cell_ptr) = 0;
+  virtual void Precalculate(const CellPtr& cell_ptr) = 0;
 
   virtual void FillCellStreamingTerm(Matrix& to_fill,
-                             const InitializationToken,
                              const CellPtr& cell_ptr,
                              const GroupNumber group) const = 0;
 
   virtual void FillCellCollisionTerm(Matrix& to_fill,
-                             const InitializationToken,
                              const CellPtr& cell_ptr,
                              const GroupNumber group) const = 0;
 
   virtual void FillBoundaryTerm(Matrix& to_fill,
-                        const InitializationToken,
                         const CellPtr& cell_ptr,
                         const FaceNumber face_number,
                         const BoundaryType boundary_type) const = 0;

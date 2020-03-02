@@ -86,13 +86,9 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value; // Problem dimension
 
-  using InitToken = typename
-      formulation::scalar::DiffusionI<dim>::InitializationToken;
-
   std::shared_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
   std::unique_ptr<NiceMock<formulation::scalar::DiffusionMock<dim>>> mock_diffusion_ptr;
   void SetUp() override;
-  InitToken init_token_;
 };
 
 template <typename DimensionWrapper>
@@ -100,9 +96,6 @@ void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
   mock_definition_ptr = std::make_shared<NiceMock<domain::DefinitionMock<dim>>>();
   mock_diffusion_ptr =
       std::make_unique<NiceMock<formulation::scalar::DiffusionMock<dim>>>();
-
-  ON_CALL(*mock_diffusion_ptr, Precalculate(_))
-      .WillByDefault(Return(init_token_));
 
   domain::CellPtr<dim> test_cell;
   std::vector<domain::CellPtr<dim>> cells{test_cell};
@@ -121,8 +114,7 @@ TYPED_TEST(CFEMDiffusionStamperTest, Constructor) {
 
   EXPECT_CALL(*mock_definition_ptr, Cells())
       .WillOnce(DoDefault());
-  EXPECT_CALL(*mock_diffusion_ptr, Precalculate(_))
-      .WillOnce(DoDefault());
+  EXPECT_CALL(*mock_diffusion_ptr, Precalculate(_));
 
   formulation::CFEM_DiffusionStamper<dim> test_stamper(
       std::move(mock_diffusion_ptr),
@@ -287,7 +279,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampStreaming) {
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
-                FillCellStreamingTerm(_, _, cell, group_number))
+                FillCellStreamingTerm(_, cell, group_number))
         .WillOnce(WithArg<0>(Invoke(FillMatrix)));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
@@ -310,7 +302,7 @@ TYPED_TEST(CFEMDiffusionStamperMPITests, StampCollision) {
 
   for (auto const& cell : this->cells_) {
     EXPECT_CALL(*mock_diffusion_ptr,
-                FillCellCollisionTerm(_, _, cell, group_number))
+                FillCellCollisionTerm(_, cell, group_number))
         .WillOnce(WithArg<0>(Invoke(FillMatrix)));
   }
   EXPECT_CALL(*mock_definition_ptr, GetCellMatrix())
@@ -513,7 +505,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
       for (int face = 0; face < faces_per_cell; ++face) {
         if (cell->face(face)->at_boundary()) {
           EXPECT_CALL(*mock_diffusion_ptr,
-                      FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
+                      FillBoundaryTerm( _, cell, face, BoundaryType::kVacuum))
               .WillOnce(WithArg<0>(Invoke(FillMatrix)));
         }
       }
@@ -546,11 +538,11 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumReflectiveBoundaryTe
         if (cell->face(face)->at_boundary()) {
           if (cell->face(face)->boundary_id() == static_cast<int>(Boundary::kXMin)) {
             EXPECT_CALL(*mock_diffusion_ptr,
-                        FillBoundaryTerm(_, _, cell, face, BoundaryType::kReflective))
+                        FillBoundaryTerm(_, cell, face, BoundaryType::kReflective))
                 .WillOnce(WithArg<0>(Invoke(FillMatrix)));
           } else {
             EXPECT_CALL(*mock_diffusion_ptr,
-                        FillBoundaryTerm(_, _, cell, face, BoundaryType::kVacuum))
+                        FillBoundaryTerm(_, cell, face, BoundaryType::kVacuum))
                 .WillOnce(WithArg<0>(Invoke(FillMatrix)));
           }
         }
@@ -574,9 +566,9 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumAndStreaming) {
   auto &mock_diffusion_ptr = this->mock_diffusion_ptr;
   auto &mock_definition_ptr = this->mock_definition_ptr;
 
-  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _, _))
+  ON_CALL(*mock_diffusion_ptr, FillCellStreamingTerm(_, _, _))
       .WillByDefault(WithArg<0>(Invoke(FillMatrix)));
-  ON_CALL(*mock_diffusion_ptr, FillBoundaryTerm(_, _, _, _, _))
+  ON_CALL(*mock_diffusion_ptr, FillBoundaryTerm(_, _, _, _))
       .WillByDefault(WithArg<0>(Invoke(FillMatrix)));
 
   formulation::CFEM_DiffusionStamper<this->dim> test_stamper(

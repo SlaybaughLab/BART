@@ -17,7 +17,6 @@ namespace scalar {
 template <int dim>
 class DiffusionMock : public DiffusionI<dim> {
  public:
-  using typename DiffusionI<dim>::InitializationToken;
   using typename DiffusionI<dim>::BoundaryType;
 
   using typename DiffusionI<dim>::CellPtr;
@@ -26,19 +25,17 @@ class DiffusionMock : public DiffusionI<dim> {
   using typename DiffusionI<dim>::GroupNumber;
   using typename DiffusionI<dim>::FaceNumber;
 
-  MOCK_METHOD(InitializationToken, Precalculate, (const CellPtr& cell_ptr),
+  MOCK_METHOD(void, Precalculate, (const CellPtr& cell_ptr),
               (override));
   MOCK_METHOD(void, FillCellStreamingTerm,
-              (Matrix&, const InitializationToken, const CellPtr&,
-                  const GroupNumber), (const, override));
+              (Matrix&, const CellPtr&, const GroupNumber), (const, override));
 
   MOCK_METHOD(void, FillCellCollisionTerm,
-              (Matrix&, const InitializationToken, const CellPtr&,
-                  const GroupNumber), (const, override));
+              (Matrix&, const CellPtr&, const GroupNumber), (const, override));
 
   MOCK_METHOD(void, FillBoundaryTerm,
-              (Matrix&, const InitializationToken, const CellPtr&,
-                  const FaceNumber, const BoundaryType), (const, override));
+              (Matrix&, const CellPtr&, const FaceNumber, const BoundaryType),
+              (const, override));
 
   MOCK_METHOD(void, FillCellFixedSource,
               (Vector& to_fill, const CellPtr&, const GroupNumber),

@@ -15,7 +15,7 @@ CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
         reflective_boundaries_(reflective_boundaries) {
 
   cells_ = definition_ptr_->Cells();
-  diffusion_init_token_ = diffusion_ptr_->Precalculate(cells_[0]);
+  diffusion_ptr_->Precalculate(cells_[0]);
 }
 
 template<int dim>
@@ -42,7 +42,6 @@ void CFEM_DiffusionStamper<dim>::StampStreamingTerm(MPISparseMatrix &to_stamp,
           const domain::CellPtr<dim>& cell_ptr) -> void
       {
         this->diffusion_ptr_->FillCellStreamingTerm(matrix,
-                                                    this->diffusion_init_token_,
                                                     cell_ptr,
                                                     group);
       };
@@ -59,7 +58,6 @@ void CFEM_DiffusionStamper<dim>::StampCollisionTerm(MPISparseMatrix &to_stamp,
           const domain::CellPtr<dim>& cell_ptr) -> void
       {
         this->diffusion_ptr_->FillCellCollisionTerm(matrix,
-                                                    this->diffusion_init_token_,
                                                     cell_ptr,
                                                     group);
       };
@@ -87,7 +85,6 @@ void CFEM_DiffusionStamper<dim>::StampBoundaryTerm(MPISparseMatrix &to_stamp) {
                 boundary_type = BoundaryType::kReflective;
 
               diffusion_ptr_->FillBoundaryTerm(matrix,
-                                               diffusion_init_token_,
                                                cell_ptr,
                                                face,
                                                boundary_type);

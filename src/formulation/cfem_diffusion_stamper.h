@@ -86,8 +86,6 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
     return reflective_boundaries_; };
 
  private:
-  using InitializationToken =
-      typename formulation::scalar::DiffusionI<dim>::InitializationToken;
 
   void StampMatrix(
       MPISparseMatrix& to_stamp,
@@ -101,7 +99,6 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
 
   std::unique_ptr<formulation::scalar::DiffusionI<dim>> diffusion_ptr_;
   std::shared_ptr<domain::DefinitionI<dim>> definition_ptr_;
-  InitializationToken diffusion_init_token_;
   std::vector<domain::CellPtr<dim>> cells_;
   std::unordered_set<Boundary> reflective_boundaries_ = {};
 };

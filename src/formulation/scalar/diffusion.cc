@@ -16,8 +16,7 @@ Diffusion<dim>::Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI
       face_quadrature_points_(finite_element->n_face_quad_pts()) {}
 
 template <int dim>
-typename Diffusion<dim>::InitializationToken
-Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
+void Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
 
   finite_element_->SetCell(cell_ptr);
 
@@ -41,13 +40,10 @@ Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
     gradient_squared_.push_back(gradient_squared);
   }
   is_initialized_ = true;
-  InitializationToken token;
-  return token;
 }
 
 template <int dim>
 void Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
-                                           const InitializationToken,
                                            const CellPtr& cell_ptr,
                                            const GroupNumber group) const {
   VerifyInitialized(__FUNCTION__);
@@ -70,7 +66,6 @@ void Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
 
 template <int dim>
 void Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
-                                           const InitializationToken,
                                            const CellPtr& cell_ptr,
                                            const GroupNumber group) const {
   VerifyInitialized(__FUNCTION__);
@@ -93,7 +88,6 @@ void Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
 
 template <int dim>
 void Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
-                                      const InitializationToken,
                                       const CellPtr& cell_ptr,
                                       const FaceNumber face_number,
                                       const BoundaryType boundary_type) const {

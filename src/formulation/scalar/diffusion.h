@@ -19,7 +19,6 @@ namespace scalar {
 template <int dim>
 class Diffusion : public DiffusionI<dim> {
  public:
-  using typename DiffusionI<dim>::InitializationToken;
   using typename DiffusionI<dim>::BoundaryType;
 
   using typename DiffusionI<dim>::CellPtr;
@@ -36,20 +35,17 @@ class Diffusion : public DiffusionI<dim> {
    *
    * \param cell_ptr any cell, no Jacobian is used so this is arbitrary.
    */
-  InitializationToken Precalculate(const CellPtr& cell_ptr) override;
+  void Precalculate(const CellPtr& cell_ptr) override;
 
   void FillCellStreamingTerm(Matrix& to_fill,
-                             const InitializationToken,
                              const CellPtr& cell_ptr,
                              const GroupNumber group) const override;
 
   void FillCellCollisionTerm(Matrix& to_fill,
-                             const InitializationToken,
                              const CellPtr& cell_ptr,
                              const GroupNumber group) const override;
 
   void FillBoundaryTerm(Matrix& to_fill,
-                        const InitializationToken,
                         const CellPtr& cell_ptr,
                         const FaceNumber face_number,
                         const BoundaryType boundary_type) const override;
