@@ -6,6 +6,7 @@
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/stamper_i.h"
 #include "formulation/updater/fixed_updater_i.h"
+#include "formulation/updater/scattering_source_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
 
 namespace bart {
@@ -15,7 +16,8 @@ namespace formulation {
 namespace updater {
 
 template <int dim>
-class SAAFUpdater : public FixedUpdaterI {
+class SAAFUpdater :
+    public FixedUpdaterI, public ScatteringSourceUpdaterI {
  public:
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -27,6 +29,9 @@ class SAAFUpdater : public FixedUpdaterI {
   void UpdateFixedTerms(system::System &to_update,
                         system::EnergyGroup group,
                         quadrature::QuadraturePointIndex index) override;
+  void UpdateScatteringSource(system::System &to_update,
+                              system::EnergyGroup group,
+                              quadrature::QuadraturePointIndex index) override;
 
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();};
   StamperType* stamper_ptr() const {return stamper_ptr_.get();};

@@ -5,6 +5,8 @@
 #include "formulation/tests/stamper_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "system/terms/tests/bilinear_term_mock.h"
+#include "system/terms/tests/linear_term_mock.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/test_assertions.h"
@@ -14,7 +16,7 @@ namespace {
 using namespace bart;
 
 using ::testing::Return, ::testing::Ref, ::testing::Invoke, ::testing::_,
-::testing::A, ::testing::WithArg;
+::testing::A, ::testing::WithArg, ::testing::DoDefault, ::testing::ReturnRef;
 
 template <typename DimensionWrapper>
 class FormulationUpdaterSAAFTest :
@@ -27,6 +29,7 @@ class FormulationUpdaterSAAFTest :
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
+  using MomentsType = system::moments::SphericalHarmonicMock;
 
   // Test object
   std::unique_ptr<UpdaterType> test_updater_ptr;
@@ -39,16 +42,27 @@ class FormulationUpdaterSAAFTest :
   // Other test objects and parameters
   system::System test_system_;
   std::shared_ptr<bart::system::MPISparseMatrix> matrix_to_stamp;
+  std::shared_ptr<bart::system::MPIVector> vector_to_stamp;
   bart::system::terms::BilinearTermMock* mock_lhs_obs_ptr_;
+  bart::system::terms::LinearTermMock* mock_rhs_obs_ptr_;
+  MomentsType* current_moments_obs_ptr_;
+  bart::system::moments::MomentsMap current_iteration_moments_;
   system::MPISparseMatrix& expected_result = this->matrix_2;
-  const int group_number = test_helpers::RandomDouble(0, 10);
+  system::MPIVector& expected_vector_result = this->vector_2;
+  const int total_groups = test_helpers::RandomDouble(2, 5);
+  const int group_number = test_helpers::RandomDouble(0, total_groups);
   const int angle_index = test_helpers::RandomDouble(0, 10);
   const system::Index index{group_number, angle_index};
   static domain::CellPtr<dim> static_cell_ptr;
 
   static void EvaluateFunction(std::function<void(formulation::FullMatrix&,
                                                   const domain::CellPtr<dim>&)> stamp_function);
+  static void EvaluateVectorFunction(std::function<void(formulation::Vector&,
+                                                  const domain::CellPtr<dim>&)> stamp_function);
   static void EvaluateBoundaryFunction(std::function<void(formulation::FullMatrix&,
+                                                          const domain::FaceIndex,
+                                                          const domain::CellPtr<dim>&)> stamp_function);
+  static void EvaluateVectorBoundaryFunction(std::function<void(formulation::Vector&,
                                                           const domain::FaceIndex,
                                                           const domain::CellPtr<dim>&)> stamp_function);
   void SetUp() override;
@@ -68,10 +82,35 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
 
   auto mock_lhs_ptr = std::make_unique<system::terms::BilinearTermMock>();
   mock_lhs_obs_ptr_ = mock_lhs_ptr.get();
+  auto mock_rhs_ptr = std::make_unique<system::terms::LinearTermMock>();
+  mock_rhs_obs_ptr_ = mock_rhs_ptr.get();
+  auto current_moments_ptr = std::make_unique<system::moments::SphericalHarmonicMock>();
+  current_moments_obs_ptr_ = current_moments_ptr.get();
+
+  for (int group = 0; group < this->total_groups; ++group) {
+    system::moments::MomentVector new_vector;
+    current_iteration_moments_.insert_or_assign({group, 0, 0}, new_vector);
+  }
+
   matrix_to_stamp = std::make_shared<system::MPISparseMatrix>();
   matrix_to_stamp->reinit(this->matrix_1);
+  vector_to_stamp = std::make_shared<system::MPIVector>();
+  vector_to_stamp->reinit(this->vector_1);
 
   test_system_.left_hand_side_ptr_ = std::move(mock_lhs_ptr);
+  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr);
+  test_system_.current_moments = std::move(current_moments_ptr);
+
+  ON_CALL(*stamper_obs_ptr_, StampMatrix(_,_))
+      .WillByDefault(WithArg<1>(Invoke(this->EvaluateFunction)));
+  ON_CALL(*stamper_obs_ptr_, StampBoundaryMatrix(_,_))
+      .WillByDefault(WithArg<1>(Invoke(this->EvaluateBoundaryFunction)));
+  ON_CALL(*stamper_obs_ptr_, StampVector(_,_))
+      .WillByDefault(WithArg<1>(Invoke(this->EvaluateVectorFunction)));
+  ON_CALL(*stamper_obs_ptr_, StampBoundaryVector(_,_))
+      .WillByDefault(WithArg<1>(Invoke(this->EvaluateVectorBoundaryFunction)));
+  ON_CALL(*current_moments_obs_ptr_, moments())
+      .WillByDefault(ReturnRef(current_iteration_moments_));
 }
 
 template <typename DimensionWrapper>
@@ -84,11 +123,31 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateFunction(
 }
 
 template <typename DimensionWrapper>
+void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateVectorFunction(
+    std::function<void(formulation::Vector&,
+                       const domain::CellPtr<dim>&)> stamp_function) {
+  formulation::Vector to_stamp;
+  domain::CellPtr<dim> cell_ptr;
+  stamp_function(to_stamp, cell_ptr);
+}
+
+template <typename DimensionWrapper>
 void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateBoundaryFunction(
     std::function<void(formulation::FullMatrix&,
                        const domain::FaceIndex,
                        const domain::CellPtr<dim>&)> stamp_function) {
   formulation::FullMatrix to_stamp;
+  domain::CellPtr<dim> cell_ptr;
+  domain::FaceIndex index(0);
+  stamp_function(to_stamp, index, cell_ptr);
+}
+
+template <typename DimensionWrapper>
+void FormulationUpdaterSAAFTest<DimensionWrapper>::EvaluateVectorBoundaryFunction(
+    std::function<void(formulation::Vector&,
+                       const domain::FaceIndex,
+                       const domain::CellPtr<dim>&)> stamp_function) {
+  formulation::Vector to_stamp;
   domain::CellPtr<dim> cell_ptr;
   domain::FaceIndex index(0);
   stamp_function(to_stamp, index, cell_ptr);
@@ -179,16 +238,51 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
   EXPECT_CALL(*this->stamper_obs_ptr_,
       StampMatrix(Ref(*this->matrix_to_stamp),_))
       .Times(2)
-      .WillRepeatedly(WithArg<1>(Invoke(this->EvaluateFunction)));
+      .WillRepeatedly(DoDefault());
 
   EXPECT_CALL(*this->stamper_obs_ptr_,
       StampBoundaryMatrix(Ref(*this->matrix_to_stamp),_))
-      .WillOnce(WithArg<1>(Invoke(this->EvaluateBoundaryFunction)));
+      .WillOnce(DoDefault());
 
   this->test_updater_ptr->UpdateFixedTerms(this->test_system_, group_number,
                                            quad_index);
   EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
                                                *this->matrix_to_stamp));
+}
+
+TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
+  constexpr int dim = this->dim;
+  using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  double random_value = test_helpers::RandomDouble(1, 10);
+  auto local_elements = this->vector_to_stamp->locally_owned_elements();
+  for (auto entry : local_elements)
+    this->vector_to_stamp->operator()(entry) = random_value;
+  this->vector_to_stamp->compress(dealii::VectorOperation::insert);
+
+  this->expected_vector_result = 0;
+  quadrature::QuadraturePointIndex quad_index(this->angle_index);
+  system::EnergyGroup group_number(this->group_number);
+  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
+
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      this->index,
+      system::terms::VariableLinearTerms::kScatteringSource))
+      .WillOnce(Return(this->vector_to_stamp));
+  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
+      .WillOnce(Return(quadrature_point_ptr_));
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(_,_))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->formulation_obs_ptr_, FillCellScatteringSourceTerm(
+      _, _, quadrature_point_ptr_, group_number,
+      Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
+      Ref(this->current_iteration_moments_)));
+
+  this->test_updater_ptr->UpdateScatteringSource(this->test_system_,
+                                                 group_number, quad_index);
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
 }
 
 } // namespace

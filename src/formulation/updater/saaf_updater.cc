@@ -55,6 +55,30 @@ void SAAFUpdater<dim>::UpdateFixedTerms(
   stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr,
                                     boundary_bilinear_term_function);
 }
+template<int dim>
+void SAAFUpdater<dim>::UpdateScatteringSource(
+    system::System &to_update,
+    system::EnergyGroup group,
+    quadrature::QuadraturePointIndex index) {
+  auto scattering_source_ptr =
+      to_update.right_hand_side_ptr_->GetVariableTermPtr({group.get(), index.get()},
+                                                         system::terms::VariableLinearTerms::kScatteringSource);
+  *scattering_source_ptr = 0;
+  auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(index);
+  const auto& current_moments = to_update.current_moments->moments();
+  const auto& in_group_moment = current_moments.at({group.get(), 0, 0});
+  auto scattering_source_function =
+      [&](formulation::Vector& cell_vector,
+          const domain::CellPtr<dim> &cell_ptr) -> void {
+    formulation_ptr_->FillCellScatteringSourceTerm(cell_vector,
+                                                   cell_ptr,
+                                                   quadrature_point_ptr,
+                                                   group,
+                                                   in_group_moment,
+                                                   current_moments);
+  };
+  stamper_ptr_->StampVector(*scattering_source_ptr, scattering_source_function);
+}
 
 template class SAAFUpdater<1>;
 template class SAAFUpdater<2>;
