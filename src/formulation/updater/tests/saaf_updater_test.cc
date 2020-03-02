@@ -5,11 +5,6 @@
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "system/terms/tests/bilinear_term_mock.h"
-#include "system/terms/tests/linear_term_mock.h"
-#include "system/moments/tests/spherical_harmonic_mock.h"
-#include "test_helpers/dealii_test_domain.h"
-#include "test_helpers/test_helper_functions.h"
 #include "test_helpers/test_assertions.h"
 
 namespace {
@@ -21,9 +16,7 @@ using ::testing::Return, ::testing::Ref, ::testing::Invoke, ::testing::_,
 
 template <typename DimensionWrapper>
 class FormulationUpdaterSAAFTest :
-    public ::testing::Test,
-    public bart::formulation::updater::test_helpers::UpdaterTests<DimensionWrapper::value>,
-    public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+    public bart::formulation::updater::test_helpers::UpdaterTests<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
 
@@ -31,7 +24,6 @@ class FormulationUpdaterSAAFTest :
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
-  using MomentsType = system::moments::SphericalHarmonicMock;
 
   // Test object
   std::unique_ptr<UpdaterType> test_updater_ptr;
@@ -41,59 +33,21 @@ class FormulationUpdaterSAAFTest :
   FormulationType* formulation_obs_ptr_;
   StamperType* stamper_obs_ptr_;
 
-  // Other test objects and parameters
-  system::System test_system_;
-  std::shared_ptr<bart::system::MPISparseMatrix> matrix_to_stamp;
-  std::shared_ptr<bart::system::MPIVector> vector_to_stamp;
-  bart::system::terms::BilinearTermMock* mock_lhs_obs_ptr_;
-  bart::system::terms::LinearTermMock* mock_rhs_obs_ptr_;
-  MomentsType* current_moments_obs_ptr_;
-  bart::system::moments::MomentsMap current_iteration_moments_;
-  system::MPISparseMatrix& expected_result = this->matrix_2;
-  system::MPIVector& expected_vector_result = this->vector_2;
-  const int total_groups = test_helpers::RandomDouble(2, 5);
-  const int group_number = test_helpers::RandomDouble(0, total_groups);
-  const int angle_index = test_helpers::RandomDouble(0, 10);
-  const system::Index index{group_number, angle_index};
-
   void SetUp() override;
 };
 
 template <typename DimensionWrapper>
 void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
-  this->SetUpDealii();
+  bart::formulation::updater::test_helpers::UpdaterTests<dim>::SetUp();
   auto formulation_ptr = std::make_unique<FormulationType>();
   formulation_obs_ptr_ = formulation_ptr.get();
   auto stamper_ptr = this->MakeStamper();
   stamper_obs_ptr_ = stamper_ptr.get();
+
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
   test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
                                                    std::move(stamper_ptr),
                                                    quadrature_set_ptr_);
-
-  auto mock_lhs_ptr = std::make_unique<system::terms::BilinearTermMock>();
-  mock_lhs_obs_ptr_ = mock_lhs_ptr.get();
-  auto mock_rhs_ptr = std::make_unique<system::terms::LinearTermMock>();
-  mock_rhs_obs_ptr_ = mock_rhs_ptr.get();
-  auto current_moments_ptr = std::make_unique<system::moments::SphericalHarmonicMock>();
-  current_moments_obs_ptr_ = current_moments_ptr.get();
-
-  for (int group = 0; group < this->total_groups; ++group) {
-    system::moments::MomentVector new_vector;
-    current_iteration_moments_.insert_or_assign({group, 0, 0}, new_vector);
-  }
-
-  matrix_to_stamp = std::make_shared<system::MPISparseMatrix>();
-  matrix_to_stamp->reinit(this->matrix_1);
-  vector_to_stamp = std::make_shared<system::MPIVector>();
-  vector_to_stamp->reinit(this->vector_1);
-
-  test_system_.left_hand_side_ptr_ = std::move(mock_lhs_ptr);
-  test_system_.right_hand_side_ptr_ = std::move(mock_rhs_ptr);
-  test_system_.current_moments = std::move(current_moments_ptr);
-
-  ON_CALL(*current_moments_obs_ptr_, moments())
-      .WillByDefault(ReturnRef(current_iteration_moments_));
 }
 
 TYPED_TEST_SUITE(FormulationUpdaterSAAFTest, bart::testing::AllDimensions);
@@ -157,17 +111,13 @@ TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
   constexpr int dim = this->dim;
   using QuadraturePointType = quadrature::QuadraturePointI<dim>;
-  // Stamp the matrix we are going to stamp with a random value, it should be
-  // reset to zero before being passed to the stamper.
-  *this->matrix_to_stamp = 0;
-  this->StampMatrix(*this->matrix_to_stamp, test_helpers::RandomDouble(1, 10));
-  this->expected_result = 0;
+
   quadrature::QuadraturePointIndex quad_index(this->angle_index);
   system::EnergyGroup group_number(this->group_number);
   std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
 
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(this->index))
-      .WillOnce(Return(this->matrix_to_stamp));
+      .WillOnce(DoDefault());
   EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
       .WillOnce(Return(quadrature_point_ptr_));
 
@@ -196,13 +146,7 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
   constexpr int dim = this->dim;
   using QuadraturePointType = quadrature::QuadraturePointI<dim>;
-  double random_value = test_helpers::RandomDouble(1, 10);
-  auto local_elements = this->vector_to_stamp->locally_owned_elements();
-  for (auto entry : local_elements)
-    this->vector_to_stamp->operator()(entry) = random_value;
-  this->vector_to_stamp->compress(dealii::VectorOperation::insert);
 
-  this->expected_vector_result = 0;
   quadrature::QuadraturePointIndex quad_index(this->angle_index);
   system::EnergyGroup group_number(this->group_number);
   std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
@@ -210,7 +154,7 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
   EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
       this->index,
       system::terms::VariableLinearTerms::kScatteringSource))
-      .WillOnce(Return(this->vector_to_stamp));
+      .WillOnce(DoDefault());
   EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
       .WillOnce(Return(quadrature_point_ptr_));
   EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(_,_))
@@ -231,13 +175,7 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
   constexpr int dim = this->dim;
   using QuadraturePointType = quadrature::QuadraturePointI<dim>;
-  double random_value = test_helpers::RandomDouble(1, 10);
-  auto local_elements = this->vector_to_stamp->locally_owned_elements();
-  for (auto entry : local_elements)
-    this->vector_to_stamp->operator()(entry) = random_value;
-  this->vector_to_stamp->compress(dealii::VectorOperation::insert);
 
-  this->expected_vector_result = 0;
   quadrature::QuadraturePointIndex quad_index(this->angle_index);
   system::EnergyGroup group_number(this->group_number);
   std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
@@ -248,7 +186,7 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
   EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
       this->index,
       system::terms::VariableLinearTerms::kFissionSource))
-      .WillOnce(Return(this->vector_to_stamp));
+      .WillOnce(DoDefault());
   EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
       .WillOnce(Return(quadrature_point_ptr_));
   EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(_,_))
