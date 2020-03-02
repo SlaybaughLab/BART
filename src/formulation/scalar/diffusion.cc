@@ -40,6 +40,7 @@ Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
     shape_squared_.push_back(shape_squared);
     gradient_squared_.push_back(gradient_squared);
   }
+  is_initialized_ = true;
   InitializationToken token;
   return token;
 }
@@ -49,7 +50,7 @@ void Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
                                            const InitializationToken,
                                            const CellPtr& cell_ptr,
                                            const GroupNumber group) const {
-
+  VerifyInitialized(__FUNCTION__);
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
 
@@ -72,7 +73,7 @@ void Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
                                            const InitializationToken,
                                            const CellPtr& cell_ptr,
                                            const GroupNumber group) const {
-
+  VerifyInitialized(__FUNCTION__);
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
 
@@ -96,6 +97,7 @@ void Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
                                       const CellPtr& cell_ptr,
                                       const FaceNumber face_number,
                                       const BoundaryType boundary_type) const {
+  VerifyInitialized(__FUNCTION__);
   if (boundary_type == BoundaryType::kVacuum) {
     finite_element_->SetFace(cell_ptr, domain::FaceIndex(face_number));
 
@@ -228,6 +230,20 @@ void Diffusion<dim>::FillCellScatteringSource(
   }
 }
 
+template<int dim>
+void Diffusion<dim>::VerifyInitialized(std::string called_function_name) const {
+  if (!is_initialized_) {
+
+    std::ostringstream error_string;
+    error_string << "Error in SelfAdjointAngularFlux function "
+                 << called_function_name
+                 << ": formulation has not been initialized, call Initialize "
+                 << "prior to filing any cell matrices or vectors.";
+
+    AssertThrow(false,
+                dealii::ExcMessage(error_string.str()))
+  }
+}
 
 template class Diffusion<1>;
 template class Diffusion<2>;

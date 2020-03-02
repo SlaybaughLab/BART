@@ -184,6 +184,7 @@ TEST_F(FormulationCFEMDiffusionTest, ConstructorTest) {
 
   EXPECT_EQ(fe_mock_ptr.use_count(), 2);
   EXPECT_EQ(cross_sections_ptr.use_count(), 2);
+  EXPECT_FALSE(test_diffusion.is_initialized());
 }
 
 TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
@@ -229,6 +230,7 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
   EXPECT_TRUE(CompareMatrices(shape_matrix_q_1, shape_squared.at(1)));
   EXPECT_TRUE(CompareMatrices(gradient_matrix_q_0, gradient_squared.at(0)));
   EXPECT_TRUE(CompareMatrices(gradient_matrix_q_1, gradient_squared.at(1)));
+  EXPECT_TRUE(test_diffusion.is_initialized());
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
@@ -241,15 +243,20 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,
                                                    cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(cell_ptr_);
-
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
   EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_))
-      .Times(1);
+      .Times(2);
 
-  test_diffusion.FillCellStreamingTerm(test_matrix, init_token, cell_ptr_, 0);
+  EXPECT_ANY_THROW({
+    formulation::scalar::Diffusion<2>::InitializationToken bad_init_token;
+    test_diffusion.FillCellStreamingTerm(test_matrix, bad_init_token, cell_ptr_, 0);
+  });
+  EXPECT_NO_THROW({
+    auto init_token = test_diffusion.Precalculate(cell_ptr_);
+    test_diffusion.FillCellStreamingTerm(test_matrix, init_token, cell_ptr_, 0);
+  });
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -264,15 +271,21 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellCollisionTermTest) {
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,
                                                    cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(cell_ptr_);
-
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
       .Times(2)
       .WillRepeatedly(DoDefault());
   EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_))
-      .Times(1);
+      .Times(2);
 
-  test_diffusion.FillCellCollisionTerm(test_matrix, init_token, cell_ptr_, 0);
+  EXPECT_ANY_THROW({
+    formulation::scalar::Diffusion<2>::InitializationToken bad_init_token;
+    test_diffusion.FillCellCollisionTerm(test_matrix, bad_init_token, cell_ptr_, 0);
+                   });
+  EXPECT_NO_THROW({
+    auto init_token = test_diffusion.Precalculate(cell_ptr_);
+    test_diffusion.FillCellCollisionTerm(test_matrix, init_token, cell_ptr_, 0);
+                  });
+
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -286,8 +299,14 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestReflective) {
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,
                                                    cross_sections_ptr);
 
-  auto init_token = test_diffusion.Precalculate(cell_ptr_);
-  test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell_ptr_, 0, boundary);
+  EXPECT_ANY_THROW({
+    formulation::scalar::Diffusion<2>::InitializationToken bad_init_token;
+    test_diffusion.FillBoundaryTerm(test_matrix, bad_init_token, cell_ptr_, 0, boundary);
+                   });
+  EXPECT_NO_THROW({
+    auto init_token = test_diffusion.Precalculate(cell_ptr_);
+    test_diffusion.FillBoundaryTerm(test_matrix, init_token, cell_ptr_, 0, boundary);
+                  });
 
   EXPECT_TRUE(CompareMatrices(expected_matrix, test_matrix));
 }
@@ -341,8 +360,9 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
   test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0);
 
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
-
 }
+
+
 
 TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
 

@@ -66,6 +66,8 @@ class DiffusionI {
                                 const GroupNumber group,
                                 const system::moments::MomentsMap& group_moments) const = 0;
 
+  virtual bool is_initialized() const = 0;
+
 };
 
 } // namespace scalar

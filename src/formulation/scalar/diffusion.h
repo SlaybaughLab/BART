@@ -88,6 +88,8 @@ class Diffusion : public DiffusionI<dim> {
     return gradient_squared_;
   }
 
+  bool is_initialized() const override { return is_initialized_; }
+
  protected:
   //! Finite element object to provide shape function values
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_;
@@ -101,6 +103,9 @@ class Diffusion : public DiffusionI<dim> {
   int cell_degrees_of_freedom_ = 0; //!< Number of degrees of freedom per cell
   int cell_quadrature_points_ = 0; //!< Number of quadrature points per cell
   int face_quadrature_points_ = 0; //!< Number of quadrature points per face
+
+  void VerifyInitialized(std::string called_function_name) const;
+  bool is_initialized_ = false;
 };
 
 
