@@ -9,7 +9,7 @@
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "domain/tests/definition_mock.h"
-#include "formulation/scalar/tests/cfem_diffusion_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.h"
 #include "problem/parameter_types.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.h"
@@ -90,7 +90,7 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
       formulation::scalar::DiffusionI<dim>::InitializationToken;
 
   std::shared_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
-  std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>> mock_diffusion_ptr;
+  std::unique_ptr<NiceMock<formulation::scalar::DiffusionMock<dim>>> mock_diffusion_ptr;
   void SetUp() override;
   InitToken init_token_;
 };
@@ -99,7 +99,7 @@ template <typename DimensionWrapper>
 void CFEMDiffusionStamperTest<DimensionWrapper>::SetUp() {
   mock_definition_ptr = std::make_shared<NiceMock<domain::DefinitionMock<dim>>>();
   mock_diffusion_ptr =
-      std::make_unique<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>>();
+      std::make_unique<NiceMock<formulation::scalar::DiffusionMock<dim>>>();
 
   ON_CALL(*mock_diffusion_ptr, Precalculate(_))
       .WillByDefault(Return(init_token_));
