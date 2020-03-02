@@ -1,4 +1,4 @@
-#include "formulation/scalar/cfem_diffusion.h"
+#include "formulation/scalar/diffusion.h"
 
 namespace bart {
 
@@ -7,8 +7,8 @@ namespace formulation {
 namespace scalar {
 
 template<int dim>
-CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-                                    std::shared_ptr<data::CrossSections> cross_sections)
+Diffusion<dim>::Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+                          std::shared_ptr<data::CrossSections> cross_sections)
     : finite_element_(finite_element),
       cross_sections_(cross_sections),
       cell_degrees_of_freedom_(finite_element->dofs_per_cell()),
@@ -16,8 +16,8 @@ CFEM_Diffusion<dim>::CFEM_Diffusion(std::shared_ptr<domain::finite_element::Fini
       face_quadrature_points_(finite_element->n_face_quad_pts()) {}
 
 template <int dim>
-typename CFEM_Diffusion<dim>::InitializationToken
-CFEM_Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
+typename Diffusion<dim>::InitializationToken
+Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
 
   finite_element_->SetCell(cell_ptr);
 
@@ -45,10 +45,10 @@ CFEM_Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
-                                                const InitializationToken,
-                                                const CellPtr& cell_ptr,
-                                                const GroupNumber group) const {
+void Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
+                                           const InitializationToken,
+                                           const CellPtr& cell_ptr,
+                                           const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
@@ -68,10 +68,10 @@ void CFEM_Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
-                                                const InitializationToken,
-                                                const CellPtr& cell_ptr,
-                                                const GroupNumber group) const {
+void Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
+                                           const InitializationToken,
+                                           const CellPtr& cell_ptr,
+                                           const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
@@ -91,11 +91,11 @@ void CFEM_Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
-                                           const InitializationToken,
-                                           const CellPtr& cell_ptr,
-                                           const FaceNumber face_number,
-                                           const BoundaryType boundary_type) const {
+void Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
+                                      const InitializationToken,
+                                      const CellPtr& cell_ptr,
+                                      const FaceNumber face_number,
+                                      const BoundaryType boundary_type) const {
   if (boundary_type == BoundaryType::kVacuum) {
     finite_element_->SetFace(cell_ptr, domain::FaceIndex(face_number));
 
@@ -113,9 +113,9 @@ void CFEM_Diffusion<dim>::FillBoundaryTerm(Matrix& to_fill,
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
-                                              const CellPtr& cell_ptr,
-                                              const GroupNumber group) const {
+void Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
+                                         const CellPtr& cell_ptr,
+                                         const GroupNumber group) const {
 
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
@@ -132,7 +132,7 @@ void CFEM_Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillCellFissionSource(
+void Diffusion<dim>::FillCellFissionSource(
     Vector& to_fill,
     const CellPtr& cell_ptr,
     const GroupNumber group,
@@ -185,7 +185,7 @@ void CFEM_Diffusion<dim>::FillCellFissionSource(
 }
 
 template <int dim>
-void CFEM_Diffusion<dim>::FillCellScatteringSource(
+void Diffusion<dim>::FillCellScatteringSource(
       Vector& to_fill,
       const CellPtr& cell_ptr,
       const GroupNumber group,
@@ -229,9 +229,9 @@ void CFEM_Diffusion<dim>::FillCellScatteringSource(
 }
 
 
-template class CFEM_Diffusion<1>;
-template class CFEM_Diffusion<2>;
-template class CFEM_Diffusion<3>;
+template class Diffusion<1>;
+template class Diffusion<2>;
+template class Diffusion<3>;
 
 } // namespace scalar
 

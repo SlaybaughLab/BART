@@ -14,7 +14,7 @@
 #include "domain/mesh/mesh_cartesian.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/cfem_diffusion_stamper.h"
-#include "formulation/scalar/cfem_diffusion.h"
+#include "formulation/scalar/diffusion.h"
 #include "formulation/cfem_saaf_stamper.h"
 #include "framework/framework.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
@@ -461,7 +461,7 @@ auto CFEM_FrameworkBuilder<dim>::BuildStamper(
   // Diffusion Stamper
   if (problem_parameters->TransportModel() == problem::EquationType::kDiffusion) {
 
-    auto diffusion_ptr = std::make_unique<formulation::scalar::CFEM_Diffusion<dim>>(
+    auto diffusion_ptr = std::make_unique<formulation::scalar::Diffusion<dim>>(
         finite_element_ptr, cross_sections_ptr);
 
     return_ptr = std::move(

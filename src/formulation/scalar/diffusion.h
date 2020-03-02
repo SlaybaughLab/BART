@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_SCALAR_CFEM_DIFFUSION_H_
-#define BART_SRC_FORMULATION_SCALAR_CFEM_DIFFUSION_H_
+#ifndef BART_SRC_FORMULATION_SCALAR_DIFFUSION_H_
+#define BART_SRC_FORMULATION_SCALAR_DIFFUSION_H_
 
 #include <memory>
 
@@ -17,7 +17,7 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class CFEM_Diffusion : public DiffusionI<dim> {
+class Diffusion : public DiffusionI<dim> {
  public:
   using typename DiffusionI<dim>::InitializationToken;
   using typename DiffusionI<dim>::BoundaryType;
@@ -29,8 +29,8 @@ class CFEM_Diffusion : public DiffusionI<dim> {
   using typename DiffusionI<dim>::FaceNumber;
 
 
-  CFEM_Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-                 std::shared_ptr<data::CrossSections> cross_sections);
+  Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+            std::shared_ptr<data::CrossSections> cross_sections);
 
   /*! \brief Precalculate matrices.
    *
@@ -110,4 +110,4 @@ class CFEM_Diffusion : public DiffusionI<dim> {
 
 } // namespace bart
 
-#endif // BART_SRC_FORMULATION_SCALAR_CFEM_DIFFUSION_H_
+#endif //BART_SRC_FORMULATION_SCALAR_DIFFUSION_H_
