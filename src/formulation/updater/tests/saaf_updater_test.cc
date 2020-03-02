@@ -285,4 +285,42 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
                                               *this->vector_to_stamp));
 }
 
+TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
+  constexpr int dim = this->dim;
+  using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  double random_value = test_helpers::RandomDouble(1, 10);
+  auto local_elements = this->vector_to_stamp->locally_owned_elements();
+  for (auto entry : local_elements)
+    this->vector_to_stamp->operator()(entry) = random_value;
+  this->vector_to_stamp->compress(dealii::VectorOperation::insert);
+
+  this->expected_vector_result = 0;
+  quadrature::QuadraturePointIndex quad_index(this->angle_index);
+  system::EnergyGroup group_number(this->group_number);
+  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
+
+  const double k_effective = 1.045;
+  this->test_system_.k_effective = k_effective;
+
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      this->index,
+      system::terms::VariableLinearTerms::kFissionSource))
+      .WillOnce(Return(this->vector_to_stamp));
+  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
+      .WillOnce(Return(quadrature_point_ptr_));
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(_,_))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->formulation_obs_ptr_, FillCellFissionSourceTerm(
+      _, _, quadrature_point_ptr_, group_number, k_effective,
+      Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
+      Ref(this->current_iteration_moments_)));
+
+  this->test_updater_ptr->UpdateFissionSource(this->test_system_,
+                                              group_number, quad_index);
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
+}
+
 } // namespace
