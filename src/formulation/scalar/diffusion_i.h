@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_SCALAR_CFEM_DIFFUSION_I_H_
-#define BART_SRC_FORMULATION_SCALAR_CFEM_DIFFUSION_I_H_
+#ifndef BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_H_
+#define BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_H_
 
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
@@ -13,7 +13,7 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class CFEM_DiffusionI {
+class DiffusionI {
  public:
   struct InitializationToken{};
 
@@ -30,7 +30,7 @@ class CFEM_DiffusionI {
   using FaceNumber = int;
 
 
-  virtual ~CFEM_DiffusionI() = default;
+  virtual ~DiffusionI() = default;
 
   virtual InitializationToken Precalculate(const CellPtr& cell_ptr) = 0;
 
@@ -74,4 +74,4 @@ class CFEM_DiffusionI {
 
 } // namespace bart
 
-#endif // BART_SRC_FORMULATION_SCALAR_CFEM_DIFFUSION_I_H_
+#endif //BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_H_

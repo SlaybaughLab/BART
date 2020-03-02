@@ -87,7 +87,7 @@ class CFEMDiffusionStamperTest : public ::testing::Test {
   static constexpr int dim = DimensionWrapper::value; // Problem dimension
 
   using InitToken = typename
-      formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
+      formulation::scalar::DiffusionI<dim>::InitializationToken;
 
   std::shared_ptr<NiceMock<domain::DefinitionMock<dim>>> mock_definition_ptr;
   std::unique_ptr<NiceMock<formulation::scalar::CFEM_DiffusionMock<dim>>> mock_diffusion_ptr;
@@ -503,7 +503,7 @@ TYPED_TEST_CASE(CFEMDiffusionStamperBoundaryMPITests,
 
 TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
   using BoundaryType =
-      typename formulation::scalar::CFEM_DiffusionI<this->dim>::BoundaryType;
+      typename formulation::scalar::DiffusionI<this->dim>::BoundaryType;
   int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
   auto &mock_diffusion_ptr = this->mock_diffusion_ptr;
   auto &mock_definition_ptr = this->mock_definition_ptr;
@@ -534,7 +534,7 @@ TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumBoundaryTerm) {
 
 TYPED_TEST(CFEMDiffusionStamperBoundaryMPITests, StampVacuumReflectiveBoundaryTerm) {
   using BoundaryType =
-      typename formulation::scalar::CFEM_DiffusionI<this->dim>::BoundaryType;
+      typename formulation::scalar::DiffusionI<this->dim>::BoundaryType;
   using Boundary = problem::Boundary;
   int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
   auto &mock_diffusion_ptr = this->mock_diffusion_ptr;

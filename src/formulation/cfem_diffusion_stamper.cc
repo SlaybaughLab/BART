@@ -7,7 +7,7 @@ namespace formulation {
 
 template<int dim>
 CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
-    std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
+    std::unique_ptr<formulation::scalar::DiffusionI<dim>> diffusion_ptr,
     std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
     const std::unordered_set<Boundary> reflective_boundaries)
       : diffusion_ptr_(std::move(diffusion_ptr)),
@@ -20,7 +20,7 @@ CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
 
 template<int dim>
 CFEM_DiffusionStamper<dim>::CFEM_DiffusionStamper(
-    std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
+    std::unique_ptr<formulation::scalar::DiffusionI<dim>> diffusion_ptr,
     std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
     const std::map<Boundary, bool> reflective_boundary_map)
     : CFEM_DiffusionStamper<dim>(std::move(diffusion_ptr),

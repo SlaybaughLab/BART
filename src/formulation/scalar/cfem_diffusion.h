@@ -8,7 +8,7 @@
 #include "system/moments/spherical_harmonic_types.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_i.h"
-#include "formulation/scalar/cfem_diffusion_i.h"
+#include "formulation/scalar/diffusion_i.h"
 
 namespace bart {
 
@@ -17,16 +17,16 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class CFEM_Diffusion : public CFEM_DiffusionI<dim> {
+class CFEM_Diffusion : public DiffusionI<dim> {
  public:
-  using typename CFEM_DiffusionI<dim>::InitializationToken;
-  using typename CFEM_DiffusionI<dim>::BoundaryType;
+  using typename DiffusionI<dim>::InitializationToken;
+  using typename DiffusionI<dim>::BoundaryType;
 
-  using typename CFEM_DiffusionI<dim>::CellPtr;
-  using typename CFEM_DiffusionI<dim>::Matrix;
-  using typename CFEM_DiffusionI<dim>::Vector;
-  using typename CFEM_DiffusionI<dim>::GroupNumber;
-  using typename CFEM_DiffusionI<dim>::FaceNumber;
+  using typename DiffusionI<dim>::CellPtr;
+  using typename DiffusionI<dim>::Matrix;
+  using typename DiffusionI<dim>::Vector;
+  using typename DiffusionI<dim>::GroupNumber;
+  using typename DiffusionI<dim>::FaceNumber;
 
 
   CFEM_Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,

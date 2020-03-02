@@ -5,7 +5,7 @@
 #include <deal.II/dofs/dof_accessor.h>
 
 #include "system/moments/spherical_harmonic_types.h"
-#include "formulation/scalar/cfem_diffusion_i.h"
+#include "formulation/scalar/diffusion_i.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
@@ -15,16 +15,16 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class CFEM_DiffusionMock : public CFEM_DiffusionI<dim> {
+class CFEM_DiffusionMock : public DiffusionI<dim> {
  public:
-  using typename CFEM_DiffusionI<dim>::InitializationToken;
-  using typename CFEM_DiffusionI<dim>::BoundaryType;
+  using typename DiffusionI<dim>::InitializationToken;
+  using typename DiffusionI<dim>::BoundaryType;
 
-  using typename CFEM_DiffusionI<dim>::CellPtr;
-  using typename CFEM_DiffusionI<dim>::Matrix;
-  using typename CFEM_DiffusionI<dim>::Vector;
-  using typename CFEM_DiffusionI<dim>::GroupNumber;
-  using typename CFEM_DiffusionI<dim>::FaceNumber;
+  using typename DiffusionI<dim>::CellPtr;
+  using typename DiffusionI<dim>::Matrix;
+  using typename DiffusionI<dim>::Vector;
+  using typename DiffusionI<dim>::GroupNumber;
+  using typename DiffusionI<dim>::FaceNumber;
 
   MOCK_METHOD1_T(Precalculate, InitializationToken(const CellPtr& cell_ptr));
   MOCK_CONST_METHOD4_T(FillCellStreamingTerm, void(Matrix&,

@@ -8,7 +8,7 @@
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "domain/definition_i.h"
-#include "formulation/scalar/cfem_diffusion_i.h"
+#include "formulation/scalar/diffusion_i.h"
 #include "formulation/cfem_stamper_i.h"
 #include "problem/parameter_types.h"
 
@@ -23,7 +23,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
   using MPISparseMatrix = dealii::PETScWrappers::MPI::SparseMatrix;
   using MPIVector = dealii::PETScWrappers::MPI::Vector;
   using Boundary = bart::problem::Boundary;
-  using BoundaryType = typename formulation::scalar::CFEM_DiffusionI<dim>::BoundaryType;
+  using BoundaryType = typename formulation::scalar::DiffusionI<dim>::BoundaryType;
 
   /*! Constructor, using a provided set of reflective boundary conditions.
    *
@@ -36,7 +36,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
    *        boundaries.
    */
   CFEM_DiffusionStamper(
-      std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
+      std::unique_ptr<formulation::scalar::DiffusionI<dim>> diffusion_ptr,
       std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::unordered_set<Boundary> reflective_boundaries = {});
 
@@ -51,7 +51,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
    * @param reflective_boundary_map mapping of reflective boundaries.
    */
   CFEM_DiffusionStamper(
-      std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr,
+      std::unique_ptr<formulation::scalar::DiffusionI<dim>> diffusion_ptr,
       std::shared_ptr<domain::DefinitionI<dim>> definition_ptr,
       const std::map<Boundary, bool> reflective_boundary_map);
 
@@ -87,7 +87,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
 
  private:
   using InitializationToken =
-      typename formulation::scalar::CFEM_DiffusionI<dim>::InitializationToken;
+      typename formulation::scalar::DiffusionI<dim>::InitializationToken;
 
   void StampMatrix(
       MPISparseMatrix& to_stamp,
@@ -99,7 +99,7 @@ class CFEM_DiffusionStamper : public CFEMStamperI {
       std::function<void(dealii::Vector<double>&,
                          const domain::CellPtr<dim>&)> function);
 
-  std::unique_ptr<formulation::scalar::CFEM_DiffusionI<dim>> diffusion_ptr_;
+  std::unique_ptr<formulation::scalar::DiffusionI<dim>> diffusion_ptr_;
   std::shared_ptr<domain::DefinitionI<dim>> definition_ptr_;
   InitializationToken diffusion_init_token_;
   std::vector<domain::CellPtr<dim>> cells_;
