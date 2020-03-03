@@ -60,6 +60,28 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, Constructor) {
   ASSERT_NE(test_updater_ptr->stamper_ptr(), nullptr);
 }
 
+TYPED_TEST(FormulationUpdaterDiffusionTest, ConstructorReflective) {
+  constexpr int dim = this->dim;
+  using FormulationType = formulation::scalar::DiffusionMock<dim>;
+  using StamperType = formulation::StamperMock<dim>;
+  using UpdaterType = formulation::updater::DiffusionUpdater<dim>;
+
+  auto formulation_ptr = std::make_unique<FormulationType>();
+  auto stamper_ptr = std::make_unique<StamperType>();
+  std::unordered_set<problem::Boundary> reflective_boundaries{problem::Boundary::kXMin};
+  std::unique_ptr<UpdaterType> test_updater_ptr;
+  EXPECT_NO_THROW(
+      {
+        test_updater_ptr = std::make_unique<UpdaterType>(
+            std::move(formulation_ptr), std::move(stamper_ptr),
+            reflective_boundaries);
+      }
+  );
+  ASSERT_NE(test_updater_ptr->formulation_ptr(), nullptr);
+  ASSERT_NE(test_updater_ptr->stamper_ptr(), nullptr);
+  EXPECT_EQ(reflective_boundaries, test_updater_ptr->reflective_boundaries());
+}
+
 TYPED_TEST(FormulationUpdaterDiffusionTest, ConstructorBadDependencies) {
   constexpr int dim = this->dim;
   using FormulationType = formulation::scalar::DiffusionMock<dim>;
