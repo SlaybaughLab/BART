@@ -20,7 +20,8 @@ namespace updater {
 
 template <int dim>
 class DiffusionUpdater
-    : public FixedUpdaterI, public ScatteringSourceUpdaterI {
+    : public FixedUpdaterI, public ScatteringSourceUpdaterI,
+      public FissionSourceUpdaterI {
  public:
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -37,8 +38,13 @@ class DiffusionUpdater
       quadrature::QuadraturePointIndex) override;
 
   void UpdateScatteringSource(
-      system::System &to_update,
-      system::EnergyGroup group,
+      system::System &,
+      system::EnergyGroup,
+      quadrature::QuadraturePointIndex) override;
+
+  void UpdateFissionSource(
+      system::System &,
+      system::EnergyGroup,
       quadrature::QuadraturePointIndex) override;
 
   std::unordered_set<problem::Boundary>& reflective_boundaries() {

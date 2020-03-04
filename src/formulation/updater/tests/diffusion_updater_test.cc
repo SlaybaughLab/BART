@@ -181,4 +181,33 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateScatteringSourceTest) {
                                               *this->vector_to_stamp));
 }
 
+// ===== UpdateFissionSource TEST ==============================================
+TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFissionSourceTest) {
+  system::EnergyGroup group_number(this->group_number);
+  quadrature::QuadraturePointIndex angle_index(this->angle_index);
+  bart::system::Index scalar_index{this->group_number, 0};
+
+  const double k_effective = bart::test_helpers::RandomDouble(0, 1.5);
+  this->test_system_.k_effective = k_effective;
+
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      scalar_index, system::terms::VariableLinearTerms::kFissionSource))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(_,_))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillOnce(DoDefault());
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_, FillCellFissionSource(
+        _, cell, group_number.get(), k_effective,
+        Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
+        Ref(this->current_iteration_moments_)))
+        .WillOnce(DoDefault());
+  }
+
+  this->test_updater_ptr_->UpdateFissionSource(this->test_system_, group_number, angle_index);
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
+}
+
 } // namespace
