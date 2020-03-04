@@ -63,6 +63,27 @@ void DiffusionUpdater<dim>::UpdateFixedTerms(
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
   stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr, boundary_function);
 }
+template<int dim>
+void DiffusionUpdater<dim>::UpdateScatteringSource(
+    system::System &to_update,
+    system::EnergyGroup energy_group,
+    quadrature::QuadraturePointIndex /*index*/) {
+  int group = energy_group.get();
+  auto scattering_source_ptr =
+      to_update.right_hand_side_ptr_->GetVariableTermPtr({group, 0},
+                                                          system::terms::VariableLinearTerms::kScatteringSource);
+  *scattering_source_ptr = 0;
+  const auto& current_moments = to_update.current_moments->moments();
+  auto scattering_source_function =
+      [&](formulation::Vector& cell_vector,
+          const domain::CellPtr<dim> &cell_ptr) -> void {
+        formulation_ptr_->FillCellScatteringSource(cell_vector,
+                                                   cell_ptr,
+                                                   group,
+                                                   current_moments);
+      };
+  stamper_ptr_->StampVector(*scattering_source_ptr, scattering_source_function);
+}
 
 template class DiffusionUpdater<1>;
 template class DiffusionUpdater<2>;

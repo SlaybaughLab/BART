@@ -143,8 +143,6 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
     }
   }
 
-
-
   EXPECT_CALL(*this->stamper_obs_ptr_,
       StampMatrix(Ref(*this->matrix_to_stamp), _))
       .Times(2)
@@ -156,6 +154,31 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
   EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
                                                *this->matrix_to_stamp));
+}
+
+// ====== UpdateScatteringSource TESTS =========================================
+
+TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateScatteringSourceTest) {
+  system::EnergyGroup group_number(this->group_number);
+  quadrature::QuadraturePointIndex angle_index(this->angle_index);
+  bart::system::Index scalar_index{this->group_number, 0};
+
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      scalar_index, system::terms::VariableLinearTerms::kScatteringSource))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(_,_))
+      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
+      .WillOnce(DoDefault());
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_, FillCellScatteringSource(
+        _, cell, group_number.get(), Ref(this->current_iteration_moments_)))
+        .WillOnce(DoDefault());
+  }
+
+  this->test_updater_ptr_->UpdateScatteringSource(this->test_system_, group_number, angle_index);
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
 }
 
 } // namespace
