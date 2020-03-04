@@ -13,6 +13,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/dealii_test_domain.h"
+#include "problem/parameter_types.h"
 
 namespace bart {
 
@@ -62,24 +63,26 @@ class UpdaterTests : public ::testing::Test,
   void SetUp() override;
 
   // Functions invoked by the Stamper to actually evaluate the passed function
-  static void EvaluateFunction(std::function<void(formulation::FullMatrix&,
-                                                  const domain::CellPtr<dim>&)> stamp_function);
-  static void EvaluateVectorFunction(std::function<void(formulation::Vector&,
-                                                        const domain::CellPtr<dim>&)> stamp_function);
-  static void EvaluateBoundaryFunction(std::function<void(formulation::FullMatrix&,
+  void EvaluateMatrixFunctionOnDomain(std::function<void(formulation::FullMatrix&,
+                                                         const domain::CellPtr<dim>&)> stamp_function);
+  void EvaluateVectorFunctionOnDomain(std::function<void(formulation::Vector&,
+                                                         const domain::CellPtr<dim>&)> stamp_function);
+  void EvaluateMatrixFunctionOnBoundary(std::function<void(formulation::FullMatrix&,
                                                           const domain::FaceIndex,
                                                           const domain::CellPtr<dim>&)> stamp_function);
-  static void EvaluateVectorBoundaryFunction(std::function<void(formulation::Vector&,
-                                                                const domain::FaceIndex,
-                                                                const domain::CellPtr<dim>&)> stamp_function);
+  void EvaluateVectorFunctionOnBoundary(std::function<void(formulation::Vector&,
+                                                           const domain::FaceIndex,
+                                                           const domain::CellPtr<dim>&)> stamp_function);
  private:
   void SetUpSystem();
+  void SetUpBoundaries();
 };
 
 template <int dim>
 void UpdaterTests<dim>::SetUp() {
   this->SetUpDealii();
   this->SetUpSystem();
+  this->SetUpBoundaries();
 }
 
 template <int dim>
@@ -87,13 +90,14 @@ std::unique_ptr<StamperMock<dim>> UpdaterTests<dim>::MakeStamper() {
   auto mock_stamper_ptr = std::make_unique<StamperMock<dim>>();
 
   ON_CALL(*mock_stamper_ptr, StampMatrix(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateFunction)));
+      .WillByDefault(WithArg<1>(Invoke(this, &formulation::updater::test_helpers::UpdaterTests<dim>::EvaluateMatrixFunctionOnDomain)));
   ON_CALL(*mock_stamper_ptr, StampBoundaryMatrix(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateBoundaryFunction)));
+      .WillByDefault(WithArg<1>(Invoke(this, &formulation::updater::test_helpers::UpdaterTests<dim>::EvaluateMatrixFunctionOnBoundary)));
   ON_CALL(*mock_stamper_ptr, StampVector(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateVectorFunction)));
+      .WillByDefault(WithArg<1>(Invoke(this, &formulation::updater::test_helpers::UpdaterTests<dim>::EvaluateVectorFunctionOnDomain)));
   ON_CALL(*mock_stamper_ptr, StampBoundaryVector(_,_))
-      .WillByDefault(WithArg<1>(Invoke(this->EvaluateVectorBoundaryFunction)));
+      .WillByDefault(WithArg<1>(Invoke(this, &formulation::updater::test_helpers::UpdaterTests<dim>::EvaluateVectorFunctionOnBoundary)));
+
 
   return std::move(mock_stamper_ptr);
 }
@@ -141,43 +145,105 @@ void UpdaterTests<dim>::SetUpSystem() {
 }
 
 template <int dim>
-void UpdaterTests<dim>::EvaluateFunction(
+void UpdaterTests<dim>::SetUpBoundaries() {
+  using Boundary = bart::problem::Boundary;
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  double zero_tol = 1.0e-14;
+
+  for (auto &cell : this->cells_) {
+    for (int face_id = 0; face_id < faces_per_cell; ++face_id) {
+      auto face = cell->face(face_id);
+      dealii::Point<dim> face_center = face->center();
+
+      switch (dim) {
+        case 3: {
+          if (std::fabs(face_center[2]) < zero_tol) {
+            face->set_boundary_id(static_cast<int>(Boundary::kZMin));
+            break;
+          } else if (std::fabs(face_center[2] - 1) < zero_tol) {
+            face->set_boundary_id(static_cast<int>(Boundary::kZMax));
+            break;
+          }
+          [[fallthrough]];
+        }
+        case 2: {
+          if (std::fabs(face_center[1]) < zero_tol) {
+            face->set_boundary_id(static_cast<int>(Boundary::kYMin));
+            break;
+          } else if (std::fabs(face_center[1] - 1) < zero_tol) {
+            face->set_boundary_id(static_cast<int>(Boundary::kYMax));
+            break;
+          }
+          [[fallthrough]];
+        }
+        case 1: {
+          if (std::fabs(face_center[0]) < zero_tol) {
+            face->set_boundary_id(static_cast<int>(Boundary::kXMin));
+            break;
+          } else if (std::fabs(face_center[0] - 1) < zero_tol) {
+            face->set_boundary_id(static_cast<int>(Boundary::kXMax));
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+template <int dim>
+void UpdaterTests<dim>::EvaluateMatrixFunctionOnDomain(
     std::function<void(formulation::FullMatrix&,
                        const domain::CellPtr<dim>&)> stamp_function) {
   formulation::FullMatrix to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  stamp_function(to_stamp, cell_ptr);
+  for (auto& cell_ptr : this->cells_) {
+    stamp_function(to_stamp, cell_ptr);
+  }
 }
 
 template <int dim>
-void UpdaterTests<dim>::EvaluateVectorFunction(
+void UpdaterTests<dim>::EvaluateVectorFunctionOnDomain(
     std::function<void(formulation::Vector&,
                        const domain::CellPtr<dim>&)> stamp_function) {
   formulation::Vector to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  stamp_function(to_stamp, cell_ptr);
+  for (auto& cell_ptr : this->cells_) {
+    stamp_function(to_stamp, cell_ptr);
+  }
 }
 
 template <int dim>
-void UpdaterTests<dim>::EvaluateBoundaryFunction(
+void UpdaterTests<dim>::EvaluateMatrixFunctionOnBoundary(
     std::function<void(formulation::FullMatrix&,
                        const domain::FaceIndex,
                        const domain::CellPtr<dim>&)> stamp_function) {
   formulation::FullMatrix to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  domain::FaceIndex index(0);
-  stamp_function(to_stamp, index, cell_ptr);
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  for (auto& cell_ptr : this->cells_) {
+    if (cell_ptr->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell_ptr->face(face)->at_boundary()) {
+          stamp_function(to_stamp, domain::FaceIndex(face), cell_ptr);
+        }
+      }
+    }
+  }
 }
 
 template <int dim>
-void UpdaterTests<dim>::EvaluateVectorBoundaryFunction(
+void UpdaterTests<dim>::EvaluateVectorFunctionOnBoundary(
     std::function<void(formulation::Vector&,
                        const domain::FaceIndex,
                        const domain::CellPtr<dim>&)> stamp_function) {
   formulation::Vector to_stamp;
-  domain::CellPtr<dim> cell_ptr;
-  domain::FaceIndex index(0);
-  stamp_function(to_stamp, index, cell_ptr);
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  for (auto& cell_ptr : this->cells_) {
+    if (cell_ptr->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell_ptr->face(face)->at_boundary()) {
+          stamp_function(to_stamp, domain::FaceIndex(face), cell_ptr);
+        }
+      }
+    }
+  }
 }
 
 } // namespace test_helpers

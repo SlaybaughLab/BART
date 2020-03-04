@@ -121,12 +121,26 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
   EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
       .WillOnce(Return(quadrature_point_ptr_));
 
-  EXPECT_CALL(*this->formulation_obs_ptr_,
-              FillCellStreamingTerm(_, _, quadrature_point_ptr_, group_number));
-  EXPECT_CALL(*this->formulation_obs_ptr_,
-              FillCellCollisionTerm(_, _, group_number));
-  EXPECT_CALL(*this->formulation_obs_ptr_,
-              FillBoundaryBilinearTerm(_, _, _, quadrature_point_ptr_, group_number));
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellStreamingTerm(_,
+                                      cell,
+                                      quadrature_point_ptr_,
+                                      group_number));
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellCollisionTerm(_, cell, group_number));
+    int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+    if (cell->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          EXPECT_CALL(*this->formulation_obs_ptr_,
+                      FillBoundaryBilinearTerm(_, cell, domain::FaceIndex(face),
+                                               quadrature_point_ptr_,
+                                               group_number));
+        }
+      }
+    }
+  }
 
   EXPECT_CALL(*this->stamper_obs_ptr_,
       StampMatrix(Ref(*this->matrix_to_stamp),_))
@@ -161,10 +175,12 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
       .WillOnce(DoDefault());
   EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
       .WillOnce(DoDefault());
-  EXPECT_CALL(*this->formulation_obs_ptr_, FillCellScatteringSourceTerm(
-      _, _, quadrature_point_ptr_, group_number,
-      Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
-      Ref(this->current_iteration_moments_)));
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_, FillCellScatteringSourceTerm(
+        _, cell, quadrature_point_ptr_, group_number,
+        Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
+        Ref(this->current_iteration_moments_)));
+  }
 
   this->test_updater_ptr->UpdateScatteringSource(this->test_system_,
                                                  group_number, quad_index);
@@ -193,10 +209,12 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
       .WillOnce(DoDefault());
   EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
       .WillOnce(DoDefault());
-  EXPECT_CALL(*this->formulation_obs_ptr_, FillCellFissionSourceTerm(
-      _, _, quadrature_point_ptr_, group_number, k_effective,
-      Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
-      Ref(this->current_iteration_moments_)));
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_, FillCellFissionSourceTerm(
+        _, cell, quadrature_point_ptr_, group_number, k_effective,
+        Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
+        Ref(this->current_iteration_moments_)));
+  }
 
   this->test_updater_ptr->UpdateFissionSource(this->test_system_,
                                               group_number, quad_index);
