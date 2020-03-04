@@ -19,7 +19,8 @@ namespace formulation {
 namespace updater {
 
 template <int dim>
-class DiffusionUpdater {
+class DiffusionUpdater
+    : public FixedUpdaterI {
  public:
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -29,6 +30,11 @@ class DiffusionUpdater {
                    std::unique_ptr<StamperType>,
                    std::unordered_set<problem::Boundary>);
   virtual ~DiffusionUpdater() = default;
+
+  void UpdateFixedTerms(
+      system::System&,
+      system::EnergyGroup,
+      quadrature::QuadraturePointIndex) override;
 
   std::unordered_set<problem::Boundary>& reflective_boundaries() {
     return reflective_boundaries_; }

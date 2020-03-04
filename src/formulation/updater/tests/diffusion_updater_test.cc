@@ -10,6 +10,9 @@ namespace {
 
 using namespace bart;
 
+using ::testing::DoDefault, ::testing::_, ::testing::Ref, ::testing::Invoke,
+::testing::WithArg;
+
 template <typename DimensionWrapper>
 class FormulationUpdaterDiffusionTest :
     public bart::formulation::updater::test_helpers::UpdaterTests<DimensionWrapper::value> {
@@ -19,11 +22,14 @@ class FormulationUpdaterDiffusionTest :
   using FormulationType = formulation::scalar::DiffusionMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::DiffusionUpdater<dim>;
+  using Boundary = problem::Boundary;
 
   std::unique_ptr<UpdaterType> test_updater_ptr_;
 
   FormulationType* formulation_obs_ptr_;
   StamperType* stamper_obs_ptr_;
+
+  std::unordered_set<Boundary> reflective_boundaries{Boundary::kXMin, Boundary::kYMax};
 
   void SetUp() override;
 };
@@ -37,6 +43,10 @@ void FormulationUpdaterDiffusionTest<DimensionWrapper>::SetUp() {
   formulation_obs_ptr_ = formulation_ptr.get();
   auto stamper_ptr = this->MakeStamper();
   stamper_obs_ptr_ = stamper_ptr.get();
+
+  test_updater_ptr_ = std::make_unique<UpdaterType>(std::move(formulation_ptr),
+                                                    std::move(stamper_ptr),
+                                                    reflective_boundaries);
 }
 
 // ===== CONSTRUCTOR TESTS =====================================================
@@ -97,6 +107,55 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, ConstructorBadDependencies) {
         std::move(formulation_ptr), nullptr); });
   EXPECT_ANY_THROW({test_updater_ptr = std::make_unique<UpdaterType>(
       nullptr, nullptr); });
+}
+
+// ===== UpdateFixedTerms() TESTS ==============================================
+
+TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
+  system::EnergyGroup group_number(this->group_number);
+  quadrature::QuadraturePointIndex angle_index(this->angle_index);
+  bart::system::Index scalar_index{this->group_number, 0};
+
+  EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(scalar_index))
+      .WillOnce(DoDefault());
+
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellStreamingTerm(_, cell, this->group_number));
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellCollisionTerm(_, cell, this->group_number));
+    if (cell->at_boundary()) {
+      int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          problem::Boundary boundary_id = static_cast<problem::Boundary>(
+              cell->face(face)->boundary_id());
+
+          using BoundaryType = typename formulation::scalar::DiffusionI<this->dim>::BoundaryType;
+          BoundaryType boundary_type = BoundaryType::kVacuum;
+          if (this->reflective_boundaries.count(boundary_id) == 1)
+            boundary_type = BoundaryType::kReflective;
+
+          EXPECT_CALL(*this->formulation_obs_ptr_,
+                      FillBoundaryTerm(_, cell, face, boundary_type));
+        }
+      }
+    }
+  }
+
+
+
+  EXPECT_CALL(*this->stamper_obs_ptr_,
+      StampMatrix(Ref(*this->matrix_to_stamp), _))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_,
+      StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _))
+      .WillOnce(DoDefault());
+
+  this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
+  EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
+                                               *this->matrix_to_stamp));
 }
 
 } // namespace
