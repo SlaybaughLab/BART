@@ -138,6 +138,8 @@ void UpdaterTests<dim>::SetUpSystem() {
 
   ON_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(A<system::Index>(), _))
       .WillByDefault(Return(this->vector_to_stamp));
+  ON_CALL(*this->mock_rhs_obs_ptr_, GetFixedTermPtr(A<system::Index>()))
+      .WillByDefault(Return(this->vector_to_stamp));
   ON_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(A<system::Index>()))
       .WillByDefault(Return(this->matrix_to_stamp));
   ON_CALL(*current_moments_obs_ptr_, moments())

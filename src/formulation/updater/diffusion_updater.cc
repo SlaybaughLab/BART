@@ -108,6 +108,23 @@ void DiffusionUpdater<dim>::UpdateFissionSource(
       };
   stamper_ptr_->StampVector(*scattering_source_ptr, fission_source_function);
 }
+template<int dim>
+void DiffusionUpdater<dim>::UpdateFixedSource(
+    system::System &to_update,
+    system::EnergyGroup energy_group,
+    quadrature::QuadraturePointIndex /*index*/) {
+  int group = energy_group.get();
+  auto fixed_source_ptr =
+      to_update.right_hand_side_ptr_->GetFixedTermPtr({group, 0});
+  *fixed_source_ptr = 0;
+  auto fixed_source_function =
+      [&](formulation::Vector& cell_vector,
+          const domain::CellPtr<dim> &cell_ptr) -> void {
+        formulation_ptr_->FillCellFixedSource(cell_vector,
+                                              cell_ptr, group);
+      };
+  stamper_ptr_->StampVector(*fixed_source_ptr, fixed_source_function);
+}
 
 template class DiffusionUpdater<1>;
 template class DiffusionUpdater<2>;

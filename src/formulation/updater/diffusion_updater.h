@@ -7,6 +7,7 @@
 #include "formulation/scalar/diffusion_i.h"
 #include "formulation/stamper_i.h"
 #include "formulation/updater/fixed_updater_i.h"
+#include "formulation/updater/fixed_source_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
@@ -21,7 +22,7 @@ namespace updater {
 template <int dim>
 class DiffusionUpdater
     : public FixedUpdaterI, public ScatteringSourceUpdaterI,
-      public FissionSourceUpdaterI {
+      public FissionSourceUpdaterI, public FixedSourceUpdaterI {
  public:
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -46,6 +47,11 @@ class DiffusionUpdater
       system::System &,
       system::EnergyGroup,
       quadrature::QuadraturePointIndex) override;
+
+  void UpdateFixedSource(
+      system::System &to_update,
+      system::EnergyGroup group,
+      quadrature::QuadraturePointIndex index) override;
 
   std::unordered_set<problem::Boundary>& reflective_boundaries() {
     return reflective_boundaries_; }
