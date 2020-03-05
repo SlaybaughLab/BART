@@ -15,7 +15,7 @@ namespace initializer {
  * call to Initialize, subsequent calls will not do anything.
  *
  */
-class SetFixedTermsOnce : public SetFixedTerms {
+class [[deprecated]] SetFixedTermsOnce : public SetFixedTerms {
  public:
   SetFixedTermsOnce(std::unique_ptr<updater::FixedUpdaterI> fixed_updater_ptr,
                     const int total_groups,
