@@ -23,10 +23,17 @@ void IterationInitializerInitializeFixedTermsTest::SetUp() {
 TEST_F(IterationInitializerInitializeFixedTermsTest, Constructor) {
   auto updater_ptr = std::make_unique<FixedUpdaterType>();
   EXPECT_NO_THROW({
-    test_initializer_ptr_ = std::make_unique<InitializerType>();
+    test_initializer_ptr_ = std::make_unique<InitializerType>(
+        std::move(updater_ptr));
   });
+  ASSERT_NE(test_initializer_ptr_->fixed_updater_ptr(), nullptr);
 }
 
+TEST_F(IterationInitializerInitializeFixedTermsTest, ConstructorBadDependency) {
+  EXPECT_ANY_THROW({
+  test_initializer_ptr_ = std::make_unique<InitializerType>(nullptr);
+  });
+}
 
 
 
