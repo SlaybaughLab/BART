@@ -6,6 +6,8 @@
 
 namespace {
 
+using ::testing::Ref;
+
 using namespace bart;
 
 class IterationInitializerInitializeFixedTermsTest : public ::testing::Test {
@@ -14,6 +16,12 @@ class IterationInitializerInitializeFixedTermsTest : public ::testing::Test {
   using InitializerType = iteration::initializer::InitializeFixedTerms;
 
   std::unique_ptr<InitializerType> test_initializer_ptr_;
+
+  // Supporting objects
+  system::System test_system_;
+
+  // Supporting dependency pointers
+  FixedUpdaterType* fixed_updater_obs_ptr_;
 
   // Test parameters
   const int total_groups_ = test_helpers::RandomDouble(1, 5);
@@ -24,6 +32,9 @@ class IterationInitializerInitializeFixedTermsTest : public ::testing::Test {
 
 void IterationInitializerInitializeFixedTermsTest::SetUp() {
   auto updater_ptr = std::make_unique<FixedUpdaterType>();
+  fixed_updater_obs_ptr_ = updater_ptr.get();
+  test_initializer_ptr_ = std::make_unique<InitializerType>(
+      std::move(updater_ptr), total_groups_, total_angles_);
 }
 
 TEST_F(IterationInitializerInitializeFixedTermsTest, Constructor) {
@@ -64,6 +75,19 @@ TEST_F(IterationInitializerInitializeFixedTermsTest, ConstructorBadGroupAngle) {
           std::move(updater_ptr), bad_value, bad_value);
     });
   }
+}
+
+TEST_F(IterationInitializerInitializeFixedTermsTest, InitializeSystem) {
+  for (int group = 0; group < total_groups_; ++group) {
+    for (int angle = 0; angle < total_angles_; ++angle) {
+      system::EnergyGroup energy_group(group);
+      quadrature::QuadraturePointIndex angle_index(angle);
+      EXPECT_CALL(*fixed_updater_obs_ptr_, UpdateFixedTerms(Ref(test_system_),
+                                                            energy_group,
+                                                            angle_index));
+    }
+  }
+  test_initializer_ptr_->Initialize(test_system_);
 }
 
 

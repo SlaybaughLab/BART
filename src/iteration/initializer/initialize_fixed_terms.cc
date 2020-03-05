@@ -25,7 +25,13 @@ InitializeFixedTerms::InitializeFixedTerms(
 }
 
 void InitializeFixedTerms::Initialize(system::System &sys) {
-
+  for (int group = 0; group < total_groups_; ++group) {
+    for (int angle = 0; angle < total_angles_; ++angle) {
+      system::EnergyGroup energy_group(group);
+      quadrature::QuadraturePointIndex angle_index(angle);
+      fixed_updater_ptr_->UpdateFixedTerms(sys, energy_group, angle_index);
+    }
+  }
 }
 
 } // namespace initializer
