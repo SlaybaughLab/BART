@@ -21,7 +21,7 @@ namespace initializer {
  * uses the UpdateFixedTerms method to initialize the system.
  *
  */
-class SetFixedTerms : public InitializerI {
+class [[deprecated]] SetFixedTerms : public InitializerI {
  public:
   /*! \brief Constructor, takes ownership of fixed updater.
    *
