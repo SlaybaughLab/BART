@@ -25,7 +25,7 @@ namespace updater {
  *                     the system.
  */
 template <typename StamperType>
-class SourceUpdater : public SourceUpdaterI {
+class [[deprecated]] SourceUpdater : public SourceUpdaterI {
  public:
   using VariableTerms = system::terms::VariableLinearTerms;
   using MPIVector = system::MPIVector;

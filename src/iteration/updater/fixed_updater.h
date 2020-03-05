@@ -21,7 +21,7 @@ namespace updater {
  *                     the system.
  */
 template <typename StamperType>
-class FixedUpdater : public FixedUpdaterI {
+class [[deprecated]] FixedUpdater : public FixedUpdaterI {
  public:
   /*! \brief Constructor, takes ownership of stamper.
    *

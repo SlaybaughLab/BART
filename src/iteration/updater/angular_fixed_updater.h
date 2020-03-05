@@ -11,7 +11,7 @@ namespace iteration {
 namespace updater {
 
 template <typename StamperType>
-class AngularFixedUpdater : public FixedUpdaterI {
+class [[deprecated]] AngularFixedUpdater : public FixedUpdaterI {
  public:
   static constexpr int dim = StamperType::dimension;
 

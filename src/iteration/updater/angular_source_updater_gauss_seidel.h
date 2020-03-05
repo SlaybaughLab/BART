@@ -18,7 +18,7 @@ namespace iteration {
 namespace updater {
 
 template <typename StamperType>
-class AngularSourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
+class [[deprecated]] AngularSourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
 
   static constexpr int dim = StamperType::dimension;

@@ -30,7 +30,7 @@ namespace updater {
  * @tparam StamperType
  */
 template <typename StamperType>
-class SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
+class [[deprecated]] SourceUpdaterGaussSeidel : public SourceUpdater<StamperType> {
  public:
 
   using VariableTerms = system::terms::VariableLinearTerms;

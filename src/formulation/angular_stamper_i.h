@@ -13,7 +13,7 @@ namespace bart {
 namespace formulation {
 
 template <int dim>
-class AngularStamperI {
+class [[deprecated]] AngularStamperI {
  public:
   static constexpr int dimension = dim;
   virtual ~AngularStamperI() = default;

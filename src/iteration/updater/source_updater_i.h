@@ -12,7 +12,7 @@ namespace updater {
 
 /*! \brief Interface for classes that update source terms in systems.
  */
-class SourceUpdaterI {
+class [[deprecated]] SourceUpdaterI {
  public:
   virtual ~SourceUpdaterI() = default;
    /*! \brief Updates the scattering source term in the provided system.

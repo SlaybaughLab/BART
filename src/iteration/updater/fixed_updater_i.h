@@ -17,7 +17,7 @@ namespace iteration {
 namespace updater {
 /*! \brief Interface for classes that update fixed terms in systems.
  */
-class FixedUpdaterI {
+class [[deprecated]] FixedUpdaterI {
  public:
   virtual ~FixedUpdaterI() = default;
   /*! \brief Updates the fixed term in the provided system.
