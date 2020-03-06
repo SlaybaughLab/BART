@@ -21,7 +21,8 @@
 #include "iteration/updater/angular_source_updater_gauss_seidel.h"
 #include "iteration/updater/fixed_updater.h"
 #include "iteration/updater/angular_fixed_updater.h"
-#include "iteration/initializer/set_fixed_terms_once.h"
+#include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/initializer/set_fixed_terms_once.h" // to be removed
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
 #include "material/material_protobuf.h"
