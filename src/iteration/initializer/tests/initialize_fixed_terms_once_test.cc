@@ -77,13 +77,15 @@ TEST_F(IterationInitializerInitializeFixedTermsOnceTest, ConstructorThrows) {
 
 TEST_F(IterationInitializerInitializeFixedTermsOnceTest, Initialize) {
   // Initializer should access all left hand side terms (all groups/angles)
+  // This will run only twice despite us calling it three times.
   for (int group = 0; group < total_groups_; ++group) {
     for (int angle = 0; angle < total_angles_; ++angle) {
       system::EnergyGroup energy_group(group);
       quadrature::QuadraturePointIndex angle_index(angle);
       EXPECT_CALL(*updater_obs_ptr_, UpdateFixedTerms(Ref(test_system_),
                                                       energy_group,
-                                                      angle_index));
+                                                      angle_index))
+          .Times(2);
     }
   }
   EXPECT_FALSE(test_initializer_->initialize_was_called());
@@ -95,16 +97,8 @@ TEST_F(IterationInitializerInitializeFixedTermsOnceTest, Initialize) {
 
   // Reset status of initialize called
   test_initializer_->set_initialize_was_called(false);
-  for (int group = 0; group < total_groups_; ++group) {
-    for (int angle = 0; angle < total_angles_; ++angle) {
-      system::EnergyGroup energy_group(group);
-      quadrature::QuadraturePointIndex angle_index(angle);
-      EXPECT_CALL(*updater_obs_ptr_, UpdateFixedTerms(Ref(test_system_),
-                                                      energy_group,
-                                                      angle_index));
-    }
-  }
   test_initializer_->Initialize(test_system_);
+  EXPECT_TRUE(test_initializer_->initialize_was_called());
 }
 
 } // namespace
