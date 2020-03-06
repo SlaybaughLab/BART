@@ -10,18 +10,21 @@ OuterPowerIteration::OuterPowerIteration(
     std::unique_ptr<GroupIterator> group_iterator_ptr,
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
     std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr,
-    const std::shared_ptr<SourceUpdater> &source_updater_ptr,
+    const std::shared_ptr<SourceUpdaterType> &source_updater_ptr,
     const std::shared_ptr<Reporter> &reporter_ptr)
     : OuterIteration(
         std::move(group_iterator_ptr),
         std::move(convergence_checker_ptr),
-        source_updater_ptr,
         reporter_ptr),
+      source_updater_ptr_(source_updater_ptr),
       k_effective_updater_ptr_(std::move(k_effective_updater_ptr)) {
 
   AssertThrow(k_effective_updater_ptr_ != nullptr,
               dealii::ExcMessage("KEffective updater pointer passed to "
                                  "OuterPowerIteration constructor is null"));
+  AssertThrow(source_updater_ptr_ != nullptr,
+              dealii::ExcMessage("Source updater pointer passed to OuterIteration "
+                                 "constructor is null"));
 }
 
 convergence::Status OuterPowerIteration::CheckConvergence(system::System &system) {
@@ -34,7 +37,9 @@ convergence::Status OuterPowerIteration::CheckConvergence(system::System &system
 }
 void OuterPowerIteration::UpdateSystem(system::System &system, const int group,
     const int angle) {
-  source_updater_ptr_->UpdateFissionSource(system, group, angle);
+  source_updater_ptr_->UpdateFissionSource(system,
+      system::EnergyGroup(group),
+      quadrature::QuadraturePointIndex(angle));
 }
 
 } // namespace outer
