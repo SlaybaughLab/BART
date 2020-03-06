@@ -2,6 +2,7 @@
 #define BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_H_
 
 #include "iteration/group/group_solve_iteration.h"
+#include "formulation/updater/scattering_source_updater_i.h"
 
 namespace bart {
 
@@ -18,7 +19,7 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
   using typename GroupSolveIteration<dim>::GroupSolution;
   using typename GroupSolveIteration<dim>::Reporter;
 
-  using SourceUpdater = iteration::updater::SourceUpdaterI;
+  using SourceUpdater = formulation::updater::ScatteringSourceUpdaterI;
 
   GroupSourceIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,

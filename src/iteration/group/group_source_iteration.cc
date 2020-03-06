@@ -28,7 +28,9 @@ GroupSourceIteration<dim>::GroupSourceIteration(
 template<int dim>
 void GroupSourceIteration<dim>::UpdateSystem(system::System &system,
     const int group, const int angle) {
-  this->source_updater_ptr_->UpdateScatteringSource(system, group, angle);
+  this->source_updater_ptr_->UpdateScatteringSource(system,
+      system::EnergyGroup(group),
+      quadrature::QuadraturePointIndex(angle));
 }
 
 template class GroupSourceIteration<1>;
