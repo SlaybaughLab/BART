@@ -4,7 +4,6 @@
 #include "convergence/final_i.h"
 #include "convergence/reporter/mpi_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
-#include "iteration/updater/source_updater_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
 
