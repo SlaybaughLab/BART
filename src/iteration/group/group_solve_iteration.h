@@ -25,7 +25,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
-  using SourceUpdater = iteration::updater::SourceUpdaterI;
   using Reporter = convergence::reporter::MpiI;
 
   GroupSolveIteration(
@@ -33,7 +32,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
-      const std::shared_ptr<SourceUpdater> &source_updater_ptr,
       const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
   virtual ~GroupSolveIteration() = default;
 
@@ -53,10 +51,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
 
   std::shared_ptr<GroupSolution> group_solution_ptr() const {
     return group_solution_ptr_;
-  }
-
-  SourceUpdater* source_updater_ptr() const {
-    return source_updater_ptr_.get();
   }
 
   Reporter* reporter_ptr() const {
@@ -79,7 +73,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
-  std::shared_ptr<SourceUpdater> source_updater_ptr_ = nullptr;
   std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
 };
 

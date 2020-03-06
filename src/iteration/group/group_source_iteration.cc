@@ -18,9 +18,13 @@ GroupSourceIteration<dim>::GroupSourceIteration(
         std::move(convergence_checker_ptr),
         std::move(moment_calculator_ptr),
         group_solution_ptr,
-        source_updater_ptr,
-        reporter_ptr)
-{}
+        reporter_ptr) {
+  source_updater_ptr_ = source_updater_ptr;
+  AssertThrow(source_updater_ptr_ != nullptr,
+              dealii::ExcMessage("Source updater pointer passed to "
+                                 "GroupSolveIteration constructor is null"));
+}
+
 template<int dim>
 void GroupSourceIteration<dim>::UpdateSystem(system::System &system,
     const int group, const int angle) {
