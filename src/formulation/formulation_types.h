@@ -26,6 +26,10 @@ enum class SAAFFormulationImpl {
   kDefault = 0,
 };
 
+enum class StamperImpl {
+  kDefault = 0,
+};
+
 } // namespace formulation
 
 } // namespace bart

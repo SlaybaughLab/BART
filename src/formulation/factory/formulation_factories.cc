@@ -1,5 +1,6 @@
 #include "formulation/factory/formulation_factories.h"
 
+#include "formulation/stamper.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/scalar/diffusion.h"
 
@@ -42,6 +43,20 @@ std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
   return return_ptr;
 }
 
+template <int dim>
+std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
+    const std::shared_ptr<domain::DefinitionI<dim>>& definition_ptr,
+    const StamperImpl implementation) {
+  std::unique_ptr<formulation::StamperI<dim>> return_ptr = nullptr;
+
+  if (implementation == formulation::StamperImpl::kDefault) {
+    return_ptr = std::move(
+        std::make_unique<Stamper<dim>>(definition_ptr));
+  }
+
+  return return_ptr;
+}
+
 template std::unique_ptr<formulation::scalar::DiffusionI<1>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<1>>&,
     const std::shared_ptr<data::CrossSections>&,
@@ -70,6 +85,17 @@ template std::unique_ptr<angular::SelfAdjointAngularFluxI<3>> MakeSAAFFormulatio
     const std::shared_ptr<data::CrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<3>>&,
     const SAAFFormulationImpl);
+
+template std::unique_ptr<formulation::StamperI<1>> MakeStamperPtr(
+    const std::shared_ptr<domain::DefinitionI<1>>&,
+    const StamperImpl implementation);
+template std::unique_ptr<formulation::StamperI<2>> MakeStamperPtr(
+    const std::shared_ptr<domain::DefinitionI<2>>&,
+    const StamperImpl implementation);
+template std::unique_ptr<formulation::StamperI<3>> MakeStamperPtr(
+    const std::shared_ptr<domain::DefinitionI<3>>&,
+    const StamperImpl implementation);
+
 } // namespace factory
 
 } // namespace formulation
