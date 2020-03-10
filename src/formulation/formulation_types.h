@@ -16,6 +16,12 @@ enum class BoundaryType {
   kReflective = 1
 };
 
+// Formulation Implementations
+
+enum class DiffusionFormulationImpl {
+  kDefault = 0,
+};
+
 enum class SAAFFormulationImpl {
   kDefault = 0,
 };

@@ -4,6 +4,7 @@
 
 // Built by factory
 #include "formulation/angular/self_adjoint_angular_flux.h"
+#include "formulation/scalar/diffusion.h"
 
 // Dependencies and mocks
 #include "data/cross_sections.h"
@@ -56,6 +57,21 @@ TYPED_TEST(FormulationFactoryTests, MakeSAAFFormulationPtr) {
         this->finite_element_ptr_,
         this->cross_section_ptr_,
         this->quadrature_ptr_));
+  });
+  ASSERT_NE(returned_ptr, nullptr);
+  ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(returned_ptr.get()));
+}
+
+TYPED_TEST(FormulationFactoryTests, MakeDiffusionPtr) {
+  constexpr int dim = this->dim;
+  using BaseType = formulation::scalar::DiffusionI<dim>;
+  using ExpectedType = formulation::scalar::Diffusion<dim>;
+
+  std::unique_ptr<BaseType> returned_ptr = nullptr;
+  EXPECT_NO_THROW({
+    returned_ptr = std::move(formulation::factory::MakeDiffusionPtr<dim>(
+        this->finite_element_ptr_,
+        this->cross_section_ptr_));
   });
   ASSERT_NE(returned_ptr, nullptr);
   ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(returned_ptr.get()));

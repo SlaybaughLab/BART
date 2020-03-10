@@ -1,12 +1,29 @@
 #include "formulation/factory/formulation_factories.h"
 
 #include "formulation/angular/self_adjoint_angular_flux.h"
+#include "formulation/scalar/diffusion.h"
 
 namespace bart {
 
 namespace formulation {
 
 namespace factory {
+
+template <int dim>
+std::unique_ptr<formulation::scalar::DiffusionI<dim>> MakeDiffusionPtr(
+    const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>& finite_element_ptr,
+    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const DiffusionFormulationImpl implementation) {
+  std::unique_ptr<formulation::scalar::DiffusionI<dim>> return_ptr = nullptr;
+
+  if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
+    return_ptr = std::move(
+        std::make_unique<scalar::Diffusion<dim>>(
+            finite_element_ptr, cross_sections_ptr));
+  }
+
+  return return_ptr;
+}
 
 template <int dim>
 std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
@@ -24,6 +41,19 @@ std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
 
   return return_ptr;
 }
+
+template std::unique_ptr<formulation::scalar::DiffusionI<1>> MakeDiffusionPtr(
+    const std::shared_ptr<domain::finite_element::FiniteElementI<1>>&,
+    const std::shared_ptr<data::CrossSections>&,
+    const DiffusionFormulationImpl);
+template std::unique_ptr<formulation::scalar::DiffusionI<2>> MakeDiffusionPtr(
+    const std::shared_ptr<domain::finite_element::FiniteElementI<2>>&,
+    const std::shared_ptr<data::CrossSections>&,
+    const DiffusionFormulationImpl);
+template std::unique_ptr<formulation::scalar::DiffusionI<3>> MakeDiffusionPtr(
+    const std::shared_ptr<domain::finite_element::FiniteElementI<3>>&,
+    const std::shared_ptr<data::CrossSections>&,
+    const DiffusionFormulationImpl);
 
 template std::unique_ptr<angular::SelfAdjointAngularFluxI<1>> MakeSAAFFormulationPtr<1>(
     const std::shared_ptr<domain::finite_element::FiniteElementI<1>>&,

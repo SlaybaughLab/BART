@@ -5,8 +5,9 @@
 
 #include "formulation/formulation_types.h"
 
-// Formulation
+// Formulations
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
+#include "formulation/scalar/diffusion_i.h"
 
 // Dependencies
 #include "data/cross_sections.h"
@@ -18,6 +19,12 @@ namespace bart {
 namespace formulation {
 
 namespace factory {
+
+template <int dim>
+std::unique_ptr<formulation::scalar::DiffusionI<dim>> MakeDiffusionPtr(
+    const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>&,
+    const std::shared_ptr<data::CrossSections>&,
+    const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault);
 
 template <int dim>
 std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
