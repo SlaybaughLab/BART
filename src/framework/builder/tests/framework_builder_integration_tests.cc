@@ -1,6 +1,8 @@
+
 #include "framework/builder/framework_builder.h"
 
 // Instantiated concerete classes
+#include "convergence/reporter/mpi_noisy.h"
 #include "quadrature/quadrature_set.h"
 
 // Mock objects
@@ -94,5 +96,15 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
     });
   }
 }
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
+  using ExpectedType = convergence::reporter::MpiNoisy;
+
+  auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
+
+  ASSERT_NE(nullptr,
+      dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
+}
+
 
 } // namespace

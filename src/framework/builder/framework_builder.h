@@ -8,6 +8,7 @@
 
 // Interface classes built by this factory
 #include "quadrature/quadrature_set_i.h"
+#include "convergence/reporter/mpi_i.h"
 
 namespace bart {
 
@@ -22,9 +23,12 @@ class FrameworkBuilder {
   ~FrameworkBuilder() = default;
 
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
+  using ReporterType = convergence::reporter::MpiI;
 
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(
       const problem::ParametersI&);
+
+  std::unique_ptr<ReporterType> BuildConvergenceReporter();
 
 };
 
