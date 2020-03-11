@@ -5,10 +5,19 @@
 
 
 // Convergence classes
+#include "convergence/final_checker_or_n.h"
+#include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/reporter/mpi_noisy.h"
 
 // Domain classes
+#include "domain/definition.h"
 #include "domain/finite_element/finite_element_gaussian.h"
+#include "domain/mesh/mesh_cartesian.h"
+
+// Solver classes
+#include "solver/group/single_group_solver.h"
+#include "solver/gmres.h"
 
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"
@@ -36,12 +45,65 @@ auto FrameworkBuilder<dim>::BuildConvergenceReporter()
 }
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildDomain(
+    ParametersType problem_parameters,
+    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
+    std::string material_mapping)
+-> std::unique_ptr<DomainType>{
+
+  auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
+      problem_parameters.SpatialMax(),
+      problem_parameters.NCells(),
+      material_mapping);
+
+  return std::make_unique<domain::Definition<dim>>(std::move(mesh_ptr),
+                                                   finite_element_ptr);
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters)
 -> std::unique_ptr<FiniteElementType>{
   using FiniteElementGaussianType = domain::finite_element::FiniteElementGaussian<dim>;
   return std::make_unique<FiniteElementGaussianType>(
       problem::DiscretizationType::kContinuousFEM,
       problem_parameters.FEPolynomialDegree());
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
+    double max_delta, int max_iterations)
+-> std::unique_ptr<MomentConvergenceCheckerType>{
+  //TODO(Josh): Add option for using other than L1Norm
+
+  using CheckerType = convergence::moments::SingleMomentCheckerL1Norm;
+  using FinalCheckerType = convergence::FinalCheckerOrN<
+      system::moments::MomentVector,
+      convergence::moments::SingleMomentCheckerI>;
+
+  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::move(single_checker_ptr));
+
+  return_ptr->SetMaxIterations(max_iterations);
+
+  return std::move(return_ptr);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
+    double max_delta, int max_iterations)
+-> std::unique_ptr<ParameterConvergenceCheckerType>{
+
+  using CheckerType = convergence::parameters::SingleParameterChecker;
+  using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;
+
+  auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::move(single_checker_ptr));
+
+  return_ptr->SetMaxIterations(max_iterations);
+
+  return std::move(return_ptr);
 }
 
 template<int dim>
@@ -77,6 +139,22 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
                                               quadrature_points);
 
   return std::move(return_ptr);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
+    const int max_iterations,
+    const double convergence_tolerance)
+-> std::unique_ptr<SingleGroupSolverType> {
+  std::unique_ptr<SingleGroupSolverType> return_ptr = nullptr;
+
+  auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
+                                                           convergence_tolerance);
+
+  return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(
+          std::move(linear_solver_ptr)));
+
+  return return_ptr;
 }
 
 template class FrameworkBuilder<1>;
