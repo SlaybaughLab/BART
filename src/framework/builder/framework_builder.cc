@@ -3,8 +3,12 @@
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/mpi.h>
 
-// Convergence
+
+// Convergence classes
 #include "convergence/reporter/mpi_noisy.h"
+
+// Domain classes
+#include "domain/finite_element/finite_element_gaussian.h"
 
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"
@@ -18,8 +22,30 @@ namespace framework {
 namespace builder {
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildQuadratureSet(
-    const problem::ParametersI& problem_parameters)
+auto FrameworkBuilder<dim>::BuildConvergenceReporter()
+-> std::unique_ptr<ReporterType> {
+  using Reporter = bart::convergence::reporter::MpiNoisy;
+
+  std::unique_ptr<ReporterType> return_ptr = nullptr;
+
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
+  return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
+
+  return std::move(return_ptr);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters)
+-> std::unique_ptr<FiniteElementType>{
+  using FiniteElementGaussianType = domain::finite_element::FiniteElementGaussian<dim>;
+  return std::make_unique<FiniteElementGaussianType>(
+      problem::DiscretizationType::kContinuousFEM,
+      problem_parameters.FEPolynomialDegree());
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters)
 -> std::shared_ptr<QuadratureSetType> {
   using QuadratureGeneratorType = quadrature::QuadratureGeneratorI<dim>;
 
@@ -49,20 +75,6 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(
 
   quadrature::factory::FillQuadratureSet<dim>(return_ptr.get(),
                                               quadrature_points);
-
-  return std::move(return_ptr);
-}
-
-template<int dim>
-auto FrameworkBuilder<dim>::BuildConvergenceReporter()
--> std::unique_ptr<ReporterType> {
-  using Reporter = bart::convergence::reporter::MpiNoisy;
-
-  std::unique_ptr<ReporterType> return_ptr = nullptr;
-
-  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
-  return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
 
   return std::move(return_ptr);
 }

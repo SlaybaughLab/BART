@@ -1,8 +1,11 @@
 
+#include <deal.II/fe/fe_q.h>
+
 #include "framework/builder/framework_builder.h"
 
 // Instantiated concerete classes
 #include "convergence/reporter/mpi_noisy.h"
+#include "domain/finite_element/finite_element_gaussian.h"
 #include "quadrature/quadrature_set.h"
 
 // Mock objects
@@ -15,7 +18,7 @@ namespace {
 
 using namespace bart;
 
-using ::testing::Return, ::testing::NiceMock;
+using ::testing::Return, ::testing::NiceMock, ::testing::DoDefault;
 
 template <typename DimensionWrapper>
 class FrameworkBuilderIntegrationTest : public ::testing::Test {
@@ -76,6 +79,32 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
                 bart::testing::AllDimensions);
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
+  using ExpectedType = convergence::reporter::MpiNoisy;
+
+  auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
+
+  ASSERT_NE(nullptr,
+            dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
+  constexpr int dim = this->dim;
+  EXPECT_CALL(this->parameters, FEPolynomialDegree())
+      .WillOnce(DoDefault());
+
+  using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
+
+  auto finite_element_ptr = this->test_builder.BuildFiniteElement(this->parameters);
+  auto gaussian_ptr = dynamic_cast<ExpectedType*>(finite_element_ptr.get());
+
+  EXPECT_NE(gaussian_ptr, nullptr);
+  EXPECT_EQ(finite_element_ptr->polynomial_degree(), this->polynomial_degree);
+  auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(
+      finite_element_ptr->finite_element());
+  EXPECT_NE(dealii_finite_element_ptr, nullptr);
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
   constexpr int dim = this->dim;
   const int order = 4;
@@ -97,14 +126,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
   }
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
-  using ExpectedType = convergence::reporter::MpiNoisy;
-
-  auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
-
-  ASSERT_NE(nullptr,
-      dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
-}
 
 
 } // namespace

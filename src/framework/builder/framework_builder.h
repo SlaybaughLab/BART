@@ -7,8 +7,10 @@
 #include "problem/parameters_i.h"
 
 // Interface classes built by this factory
-#include "quadrature/quadrature_set_i.h"
 #include "convergence/reporter/mpi_i.h"
+#include "domain/finite_element/finite_element_i.h"
+#include "quadrature/quadrature_set_i.h"
+
 
 namespace bart {
 
@@ -22,14 +24,15 @@ class FrameworkBuilder {
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
 
+  using ParametersType = const problem::ParametersI&;
+
+  using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using ReporterType = convergence::reporter::MpiI;
 
-  std::shared_ptr<QuadratureSetType> BuildQuadratureSet(
-      const problem::ParametersI&);
-
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
-
+  std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
+  std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
 };
 
 } // namespace builder
