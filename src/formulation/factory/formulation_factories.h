@@ -12,6 +12,9 @@
 // Stamper
 #include "formulation/stamper_i.h"
 
+// Updaters
+#include "formulation/updater/saaf_updater.h"
+
 // Dependencies
 #include "data/cross_sections.h"
 #include "domain/definition_i.h"
@@ -36,6 +39,12 @@ std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
     const std::shared_ptr<data::CrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<dim>>&,
     const SAAFFormulationImpl implementation = SAAFFormulationImpl::kDefault);
+
+template <int dim>
+std::unique_ptr<formulation::updater::SAAFUpdater<dim>> MakeSAAFUpdater(
+    std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>>,
+    std::unique_ptr<StamperI<dim>>,
+    const std::shared_ptr<quadrature::QuadratureSetI<dim>>&);
 
 template <int dim>
 std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(

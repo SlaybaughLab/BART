@@ -44,6 +44,22 @@ std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
 }
 
 template <int dim>
+std::unique_ptr<formulation::updater::SAAFUpdater<dim>> MakeSAAFUpdater(
+    std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> formulation_ptr,
+    std::unique_ptr<StamperI<dim>> stamper_ptr,
+    const std::shared_ptr<quadrature::QuadratureSetI<dim>>& quadrature_set_ptr) {
+  std::unique_ptr<formulation::updater::SAAFUpdater<dim>> return_ptr = nullptr;
+
+  return_ptr = std::move(
+      std::make_unique<formulation::updater::SAAFUpdater<dim>>(
+          std::move(formulation_ptr),
+          std::move(stamper_ptr),
+          quadrature_set_ptr));
+
+  return return_ptr;
+}
+
+template <int dim>
 std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
     const std::shared_ptr<domain::DefinitionI<dim>>& definition_ptr,
     const StamperImpl implementation) {
@@ -85,6 +101,20 @@ template std::unique_ptr<angular::SelfAdjointAngularFluxI<3>> MakeSAAFFormulatio
     const std::shared_ptr<data::CrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<3>>&,
     const SAAFFormulationImpl);
+
+
+template std::unique_ptr<formulation::updater::SAAFUpdater<1>> MakeSAAFUpdater<1>(
+    std::unique_ptr<angular::SelfAdjointAngularFluxI<1>>,
+    std::unique_ptr<StamperI<1>>,
+    const std::shared_ptr<quadrature::QuadratureSetI<1>>&);
+template std::unique_ptr<formulation::updater::SAAFUpdater<2>> MakeSAAFUpdater<2>(
+    std::unique_ptr<angular::SelfAdjointAngularFluxI<2>>,
+    std::unique_ptr<StamperI<2>>,
+    const std::shared_ptr<quadrature::QuadratureSetI<2>>&);
+template std::unique_ptr<formulation::updater::SAAFUpdater<3>> MakeSAAFUpdater<3>(
+    std::unique_ptr<angular::SelfAdjointAngularFluxI<3>>,
+    std::unique_ptr<StamperI<3>>,
+    const std::shared_ptr<quadrature::QuadratureSetI<3>>&);
 
 template std::unique_ptr<formulation::StamperI<1>> MakeStamperPtr(
     const std::shared_ptr<domain::DefinitionI<1>>&,
