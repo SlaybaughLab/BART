@@ -14,7 +14,8 @@ class InitializeFixedTerms : public InitializerI {
  public:
   using FixedUpdaterType = formulation::updater::FixedUpdaterI;
 
-  InitializeFixedTerms(std::unique_ptr<FixedUpdaterType> fixed_updater_ptr,
+  InitializeFixedTerms(
+      const std::shared_ptr<FixedUpdaterType>&,
       int total_groups, int total_angles);
   void Initialize(system::System &sys) override;
   virtual ~InitializeFixedTerms() = default;
@@ -23,7 +24,7 @@ class InitializeFixedTerms : public InitializerI {
   int total_groups() { return total_groups_; };
   int total_angles() { return total_angles_; };
  private:
-  std::unique_ptr<FixedUpdaterType> fixed_updater_ptr_ = nullptr;
+  std::shared_ptr<FixedUpdaterType> fixed_updater_ptr_ = nullptr;
   const int total_groups_, total_angles_;
 };
 

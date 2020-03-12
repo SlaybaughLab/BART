@@ -18,11 +18,11 @@ namespace initializer {
 class InitializeFixedTermsOnce : public InitializeFixedTerms {
  public:
   using FixedUpdaterType = InitializeFixedTerms::FixedUpdaterType;
-  InitializeFixedTermsOnce(std::unique_ptr<FixedUpdaterType> fixed_updater_ptr,
-                           const int total_groups,
-                           const int total_angles)
-      : InitializeFixedTerms(std::move(fixed_updater_ptr),
-                             total_groups, total_angles) {};
+  InitializeFixedTermsOnce(
+      const std::shared_ptr<FixedUpdaterType>& fixed_updater_ptr,
+      const int total_groups,
+      const int total_angles)
+      : InitializeFixedTerms(fixed_updater_ptr, total_groups, total_angles) {};
 
 
   void Initialize(system::System& sys) override {

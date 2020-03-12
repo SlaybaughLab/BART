@@ -7,10 +7,10 @@ namespace iteration {
 namespace initializer {
 
 InitializeFixedTerms::InitializeFixedTerms(
-    std::unique_ptr<FixedUpdaterType> fixed_updater_ptr,
+    const std::shared_ptr<FixedUpdaterType>& fixed_updater_ptr,
     int total_groups,
     int total_angles)
-    : fixed_updater_ptr_(std::move(fixed_updater_ptr)),
+    : fixed_updater_ptr_(fixed_updater_ptr),
       total_groups_(total_groups),
       total_angles_(total_angles) {
   AssertThrow(total_groups_ > 0,
