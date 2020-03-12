@@ -26,6 +26,20 @@ std::unique_ptr<formulation::scalar::DiffusionI<dim>> MakeDiffusionPtr(
   return return_ptr;
 }
 
+template<int dim>
+std::unique_ptr<updater::DiffusionUpdater<dim>> MakeDiffusionUpdater(
+    std::unique_ptr<scalar::DiffusionI<dim>> formulation_ptr,
+    std::unique_ptr<StamperI<dim>> stamper_ptr) {
+  std::unique_ptr<updater::DiffusionUpdater<dim>> return_ptr = nullptr;
+
+  return_ptr = std::move(
+      std::make_unique<updater::DiffusionUpdater<dim>>(
+          std::move(formulation_ptr),
+          std::move(stamper_ptr)));
+
+  return return_ptr;
+}
+
 template <int dim>
 std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>& finite_element_ptr,
@@ -85,6 +99,16 @@ template std::unique_ptr<formulation::scalar::DiffusionI<3>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<3>>&,
     const std::shared_ptr<data::CrossSections>&,
     const DiffusionFormulationImpl);
+
+template std::unique_ptr<updater::DiffusionUpdater<1>> MakeDiffusionUpdater<1>(
+    std::unique_ptr<scalar::DiffusionI<1>>,
+    std::unique_ptr<StamperI<1>>);
+template std::unique_ptr<updater::DiffusionUpdater<2>> MakeDiffusionUpdater<2>(
+    std::unique_ptr<scalar::DiffusionI<2>>,
+    std::unique_ptr<StamperI<2>>);
+template std::unique_ptr<updater::DiffusionUpdater<3>> MakeDiffusionUpdater<3>(
+    std::unique_ptr<scalar::DiffusionI<3>>,
+    std::unique_ptr<StamperI<3>>);
 
 template std::unique_ptr<angular::SelfAdjointAngularFluxI<1>> MakeSAAFFormulationPtr<1>(
     const std::shared_ptr<domain::finite_element::FiniteElementI<1>>&,
