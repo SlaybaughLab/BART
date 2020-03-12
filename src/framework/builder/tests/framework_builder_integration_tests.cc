@@ -13,13 +13,16 @@
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
 #include "solver/group/single_group_solver.h"
+#include "iteration/initializer/initialize_fixed_terms_once.h"
 
 // Mock objects
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
+#include "formulation/updater/tests/fixed_updater_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace {
 
@@ -208,6 +211,34 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
             dynamic_cast<MomentConvergenceChecker*>(convergence_ptr.get()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
+}
+
+/* ===== Non-dimensional tests =================================================
+ * These tests instantiate classes and use depdent classes that do not have a
+ * dimension template varaible and therefore only need to be run in a single
+ * dimension.
+*/
+
+
+class FrameworkBuilderIntegrationNonDimTest
+ : public FrameworkBuilderIntegrationTest<bart::testing::OneD> {};
+
+TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
+  auto fixed_updater_ptr =
+      std::make_shared<formulation::updater::FixedUpdaterMock>();
+
+  using ExpectedType = iteration::initializer::InitializeFixedTermsOnce;
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+
+  auto initializer_ptr = this->test_builder.BuildInitializer(fixed_updater_ptr,
+                                                             total_groups,
+                                                             total_angles);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(initializer_ptr.get());
+  ASSERT_NE(initializer_ptr, nullptr);
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_EQ(dynamic_ptr->total_angles(), total_angles);
+  EXPECT_EQ(dynamic_ptr->total_groups(), total_groups);
 }
 
 

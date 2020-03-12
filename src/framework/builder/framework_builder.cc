@@ -19,6 +19,9 @@
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
 
+// Iteration classes
+#include "iteration/initializer/initialize_fixed_terms_once.h"
+
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"
 #include "quadrature/factory/quadrature_factories.h"
@@ -67,6 +70,21 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
   return std::make_unique<FiniteElementGaussianType>(
       problem::DiscretizationType::kContinuousFEM,
       problem_parameters.FEPolynomialDegree());
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildInitializer(
+    const std::shared_ptr<formulation::updater::FixedUpdaterI>& updater_ptr,
+    const int total_groups,
+    const int total_angles) -> std::unique_ptr<InitializerType> {
+  std::unique_ptr<InitializerType> return_ptr = nullptr;
+
+  using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
+
+  return_ptr = std::move(std::make_unique<InitializeOnceType>(
+      updater_ptr, total_groups, total_angles));
+
+  return return_ptr;
 }
 
 template<int dim>
