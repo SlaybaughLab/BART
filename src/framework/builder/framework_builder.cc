@@ -15,6 +15,9 @@
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/mesh/mesh_cartesian.h"
 
+// Formulation classes
+#include "formulation/angular/self_adjoint_angular_flux.h"
+
 // Solver classes
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
@@ -157,6 +160,23 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
                                               quadrature_points);
 
   return std::move(return_ptr);
+}
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildSAAFFormulation(
+    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
+    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr)
+-> std::unique_ptr<SAAFFormulationType> {
+  std::unique_ptr<SAAFFormulationType> return_ptr;
+
+  using ReturnType = formulation::angular::SelfAdjointAngularFlux<dim>;
+
+  return_ptr = std::move(std::make_unique<ReturnType>(finite_element_ptr,
+                                                      cross_sections_ptr,
+                                                      quadrature_set_ptr));
+
+  return return_ptr;
 }
 
 template<int dim>

@@ -8,8 +8,10 @@
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
+#include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_gaussian.h"
-#include "domain//definition.h"
+#include "domain/definition.h"
+#include "formulation/angular/self_adjoint_angular_flux.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
 #include "solver/group/single_group_solver.h"
@@ -20,6 +22,7 @@
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
+#include "quadrature/tests/quadrature_set_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -211,6 +214,29 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
             dynamic_cast<MomentConvergenceChecker*>(convergence_ptr.get()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
+  constexpr int dim = this->dim;
+
+  auto finite_element_ptr =
+      std::make_shared<domain::finite_element::FiniteElementMock<dim>>();
+  auto cross_sections_ptr =
+      std::make_shared<data::CrossSections>(this->mock_material);
+  auto quadrature_set_ptr =
+      std::make_shared<quadrature::QuadratureSetMock<dim>>();
+
+  EXPECT_CALL(*finite_element_ptr, dofs_per_cell());
+  EXPECT_CALL(*finite_element_ptr, n_cell_quad_pts());
+  EXPECT_CALL(*finite_element_ptr, n_face_quad_pts());
+
+  auto saaf_formulation_ptr = this->test_builder.BuildSAAFFormulation(
+      finite_element_ptr, cross_sections_ptr, quadrature_set_ptr);
+
+  using ExpectedType = formulation::angular::SelfAdjointAngularFlux<dim>;
+
+  ASSERT_NE(saaf_formulation_ptr, nullptr);
+  EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(saaf_formulation_ptr.get()));
 }
 
 /* ===== Non-dimensional tests =================================================
