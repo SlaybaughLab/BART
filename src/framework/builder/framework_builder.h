@@ -61,7 +61,8 @@ class FrameworkBuilder {
   std::unique_ptr<SAAFFormulationType> BuildSAAFFormulation(
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<data::CrossSections>&,
-      const std::shared_ptr<QuadratureSetType>&);
+      const std::shared_ptr<QuadratureSetType>&,
+      const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault);
   std::unique_ptr<SingleGroupSolverType> BuildSingleGroupSolver(
       const int max_iterations = 1000,
       const double convergence_tolerance = 1e-10);
