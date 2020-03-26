@@ -13,12 +13,14 @@
 #include "domain/definition.h"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
+#include "formulation/stamper.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
 #include "solver/group/single_group_solver.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 
 // Mock objects
+#include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
@@ -33,6 +35,7 @@ namespace {
 using namespace bart;
 
 using ::testing::Return, ::testing::NiceMock, ::testing::DoDefault;
+using ::testing::WhenDynamicCastTo, ::testing::NotNull;
 
 template <typename DimensionWrapper>
 class FrameworkBuilderIntegrationTest : public ::testing::Test {
@@ -259,6 +262,17 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
 
   ASSERT_NE(saaf_formulation_ptr, nullptr);
   EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(saaf_formulation_ptr.get()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
+  constexpr int dim = this->dim;
+
+  auto domain_ptr = std::make_shared<domain::DefinitionMock<dim>>();
+
+  using ExpectedType = formulation::Stamper<dim>;
+  auto stamper_ptr = this->test_builder.BuildStamper(domain_ptr);
+
+  EXPECT_THAT(stamper_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 /* ===== Non-dimensional tests =================================================

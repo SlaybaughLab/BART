@@ -12,8 +12,10 @@
 #include "convergence/final_i.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
+#include "formulation/stamper_i.h"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
+#include "formulation/updater/fixed_updater_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -39,6 +41,7 @@ class FrameworkBuilder {
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
+  using FixedUpdaterType = formulation::updater::FixedUpdaterI;
   using InitializerType = iteration::initializer::InitializerI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
@@ -46,6 +49,7 @@ class FrameworkBuilder {
   using ReporterType = convergence::reporter::MpiI;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
+  using StamperType = formulation::StamperI<dim>;
 
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
@@ -72,6 +76,7 @@ class FrameworkBuilder {
   std::unique_ptr<SingleGroupSolverType> BuildSingleGroupSolver(
       const int max_iterations = 1000,
       const double convergence_tolerance = 1e-10);
+  std::unique_ptr<StamperType> BuildStamper(const std::shared_ptr<DomainType>&);
 
 };
 

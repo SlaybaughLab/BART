@@ -18,6 +18,7 @@
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/scalar/diffusion.h"
+#include "formulation/stamper.h"
 
 // Solver classes
 #include "solver/group/single_group_solver.h"
@@ -212,6 +213,18 @@ auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
 
   return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(
           std::move(linear_solver_ptr)));
+
+  return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildStamper(
+    const std::shared_ptr<DomainType>& domain_ptr)
+-> std::unique_ptr<StamperType> {
+  std::unique_ptr<StamperType> return_ptr = nullptr;
+
+  return_ptr = std::move(
+      std::make_unique<formulation::Stamper<dim>>(domain_ptr));
 
   return return_ptr;
 }
