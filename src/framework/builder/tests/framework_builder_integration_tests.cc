@@ -11,6 +11,7 @@
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/definition.h"
+#include "formulation/scalar/diffusion.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
@@ -99,6 +100,27 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
 
   ASSERT_NE(nullptr,
             dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
+  constexpr int dim = this->dim;
+
+  auto finite_element_ptr =
+      std::make_shared<domain::finite_element::FiniteElementMock<dim>>();
+  auto cross_sections_ptr =
+      std::make_shared<data::CrossSections>(this->mock_material);
+
+  EXPECT_CALL(*finite_element_ptr, dofs_per_cell());
+  EXPECT_CALL(*finite_element_ptr, n_cell_quad_pts());
+  EXPECT_CALL(*finite_element_ptr, n_face_quad_pts());
+
+  auto diffusion_formulation_ptr = this->test_builder.BuildDiffusionFormulation(
+      finite_element_ptr, cross_sections_ptr);
+
+  using ExpectedType = formulation::scalar::Diffusion<dim>;
+
+  ASSERT_NE(diffusion_formulation_ptr, nullptr);
+  EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(diffusion_formulation_ptr.get()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {

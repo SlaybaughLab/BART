@@ -17,6 +17,7 @@
 
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"
+#include "formulation/scalar/diffusion.h"
 
 // Solver classes
 #include "solver/group/single_group_solver.h"
@@ -48,6 +49,23 @@ auto FrameworkBuilder<dim>::BuildConvergenceReporter()
   return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
 
   return std::move(return_ptr);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
+    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
+    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const formulation::DiffusionFormulationImpl implementation)
+-> std::unique_ptr<DiffusionFormulationType> {
+  std::unique_ptr<DiffusionFormulationType> return_ptr = nullptr;
+
+  if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
+    using ReturnType = formulation::scalar::Diffusion<dim>;
+    return_ptr = std::move(std::make_unique<ReturnType>(
+        finite_element_ptr, cross_sections_ptr));
+  }
+
+  return return_ptr;
 }
 
 template<int dim>

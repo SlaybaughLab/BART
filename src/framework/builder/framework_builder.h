@@ -13,6 +13,7 @@
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
+#include "formulation/scalar/diffusion_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -35,6 +36,7 @@ class FrameworkBuilder {
 
   using ParametersType = const problem::ParametersI&;
 
+  using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using InitializerType = iteration::initializer::InitializerI;
@@ -46,6 +48,10 @@ class FrameworkBuilder {
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
 
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
+  std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
+      const std::shared_ptr<FiniteElementType>&,
+      const std::shared_ptr<data::CrossSections>&,
+      const formulation::DiffusionFormulationImpl implementation = formulation::DiffusionFormulationImpl::kDefault);
   std::unique_ptr<DomainType> BuildDomain(
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
