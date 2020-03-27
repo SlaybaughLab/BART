@@ -13,6 +13,7 @@
 #include "domain/definition.h"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
+#include "formulation/updater/saaf_updater.h"
 #include "formulation/stamper.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
@@ -22,6 +23,8 @@
 // Mock objects
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
+#include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
+#include "formulation/tests/stamper_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
@@ -46,12 +49,22 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using ProblemParameters = NiceMock<problem::ParametersMock>;
   using Material = NiceMock<btest::MockMaterial>;
 
+  // Mock object types
+  using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
+  using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
+  using StamperType = formulation::StamperMock<dim>;
+
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
 
   FrameworkBuilder test_builder;
   ProblemParameters parameters;
   Material mock_material;
+
+  // Various mock objects to be used
+  std::shared_ptr<QuadratureSetType> quadrature_set_sptr_;
+  std::unique_ptr<SAAFFormulationType> saaf_formulation_uptr_;
+  std::unique_ptr<StamperType> stamper_uptr_;
 
   // Test Parameters
   const int polynomial_degree = 2;
@@ -65,6 +78,10 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
+  quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
+  saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
+  stamper_uptr_ = std::move(std::make_unique<StamperType>());
+
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(10);
     n_cells.push_back(2);
@@ -123,6 +140,17 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSAAFUpdater) {
+  constexpr int dim = this->dim;
+  using ExpectedType = formulation::updater::SAAFUpdater<dim>;
+  auto fixed_updater_ptr = this->test_builder.BuildFixedUpdater(
+      std::move(this->saaf_formulation_uptr_),
+      std::move(this->stamper_uptr_),
+      this->quadrature_set_sptr_);
+  EXPECT_THAT(fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
   constexpr int dim = this->dim;
   auto finite_element_ptr =
@@ -175,7 +203,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
     EXPECT_EQ(quadrature_set->size(), order * (order + 2));
   } else {
     EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder.BuildQuadrat
+      auto quadrature_set = this->test_builder.BuildQuadratureSet(this->parameters);
     });
   }
 }

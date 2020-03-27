@@ -60,6 +60,10 @@ class FrameworkBuilder {
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
+  std::unique_ptr<FixedUpdaterType> BuildFixedUpdater(
+      std::unique_ptr<SAAFFormulationType>,
+      std::unique_ptr<StamperType>,
+      const std::shared_ptr<QuadratureSetType>&);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
