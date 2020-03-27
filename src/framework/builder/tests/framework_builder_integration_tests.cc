@@ -14,6 +14,7 @@
 #include "formulation/scalar/diffusion.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/updater/saaf_updater.h"
+#include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
@@ -24,6 +25,7 @@
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
@@ -50,6 +52,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using Material = NiceMock<btest::MockMaterial>;
 
   // Mock object types
+  using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
@@ -62,6 +65,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   Material mock_material;
 
   // Various mock objects to be used
+  std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::shared_ptr<QuadratureSetType> quadrature_set_sptr_;
   std::unique_ptr<SAAFFormulationType> saaf_formulation_uptr_;
   std::unique_ptr<StamperType> stamper_uptr_;
@@ -78,6 +82,8 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
+  diffusion_formulation_uptr_ =
+      std::move(std::make_unique<DiffusionFormulationType>());
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
@@ -137,6 +143,16 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
 
   using ExpectedType = formulation::scalar::Diffusion<dim>;
   EXPECT_THAT(diffusion_formulation_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedDiffusionUpdater) {
+  constexpr int dim = this->dim;
+  using ExpectedType = formulation::updater::DiffusionUpdater<dim>;
+  auto fixed_updater_ptr = this->test_builder.BuildFixedUpdater(
+      std::move(this->diffusion_formulation_uptr_),
+      std::move(this->stamper_uptr_));
+  EXPECT_THAT(fixed_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 

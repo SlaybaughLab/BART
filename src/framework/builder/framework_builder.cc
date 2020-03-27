@@ -20,6 +20,7 @@
 #include "formulation/scalar/diffusion.h"
 #include "formulation/stamper.h"
 #include "formulation/updater/saaf_updater.h"
+#include "formulation/updater/diffusion_updater.h"
 
 // Solver classes
 #include "solver/group/single_group_solver.h"
@@ -93,6 +94,21 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
   return std::make_unique<FiniteElementGaussianType>(
       problem::DiscretizationType::kContinuousFEM,
       problem_parameters.FEPolynomialDegree());
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildFixedUpdater(
+    std::unique_ptr<DiffusionFormulationType> formulation_ptr,
+    std::unique_ptr<StamperType> stamper_ptr)
+-> std::unique_ptr<FixedUpdaterType> {
+  std::unique_ptr<FixedUpdaterType> return_ptr = nullptr;
+
+  using ReturnType = formulation::updater::DiffusionUpdater<dim>;
+  return_ptr = std::move(std::make_unique<ReturnType>(
+      std::move(formulation_ptr),
+      std::move(stamper_ptr)));
+
+  return return_ptr;
 }
 
 template<int dim>
