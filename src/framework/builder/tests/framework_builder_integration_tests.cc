@@ -98,11 +98,9 @@ TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
   using ExpectedType = convergence::reporter::MpiNoisy;
-
   auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
-
-  ASSERT_NE(nullptr,
-            dynamic_cast<ExpectedType*>(convergence_reporter_ptr.get()));
+  EXPECT_THAT(convergence_reporter_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
@@ -121,9 +119,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
       finite_element_ptr, cross_sections_ptr);
 
   using ExpectedType = formulation::scalar::Diffusion<dim>;
-
-  ASSERT_NE(diffusion_formulation_ptr, nullptr);
-  EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(diffusion_formulation_ptr.get()));
+  EXPECT_THAT(diffusion_formulation_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
@@ -139,8 +136,10 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
   auto test_domain_ptr = this->test_builder.BuildDomain(
       this->parameters, finite_element_ptr, "1 1 2 2");
 
-  EXPECT_NE(dynamic_cast<domain::Definition<this->dim>*>(test_domain_ptr.get()),
-            nullptr);
+  using ExpectedType = domain::Definition<this->dim>;
+
+  EXPECT_THAT(test_domain_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
@@ -176,7 +175,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
     EXPECT_EQ(quadrature_set->size(), order * (order + 2));
   } else {
     EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder.BuildQuadratureSet(this->parameters);
+      auto quadrature_set = this->test_builder.BuildQuadrat
     });
   }
 }
@@ -229,14 +228,12 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
           max_delta,
           max_iterations);
 
-  using MomentConvergenceChecker =
+  using ExpectedType =
   convergence::FinalCheckerOrN<system::moments::MomentVector,
                                convergence::moments::SingleMomentCheckerI>;
 
-
-  ASSERT_NE(convergence_ptr, nullptr);
-  EXPECT_NE(nullptr,
-            dynamic_cast<MomentConvergenceChecker*>(convergence_ptr.get()));
+  EXPECT_THAT(convergence_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
 }
@@ -260,8 +257,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
 
   using ExpectedType = formulation::angular::SelfAdjointAngularFlux<dim>;
 
-  ASSERT_NE(saaf_formulation_ptr, nullptr);
-  EXPECT_NE(nullptr, dynamic_cast<ExpectedType*>(saaf_formulation_ptr.get()));
+  EXPECT_THAT(saaf_formulation_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
