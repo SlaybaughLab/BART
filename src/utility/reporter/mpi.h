@@ -29,10 +29,18 @@ class Mpi : public MpiI, private Uncopyable {
     *pout_ptr_ << to_report;
   }
 
+  virtual void Report(const std::string &to_report, Color color) override {
+    *pout_ptr_ << color_string_.at(color) + to_report + color_string_.at(Color::Reset);
+  }
+
  private:
   std::unique_ptr<dealii::ConditionalOStream> pout_ptr_;
-
-
+  std::unordered_map<Color, std::string> color_string_{
+      {Color::Reset, "\033[0m"},
+      {Color::Red,   "\033[31m"},
+      {Color::Green, "\033[32m"},
+      {Color::Blue,  "\033[34m"},
+  };
 };
 } // namespace reporter
 

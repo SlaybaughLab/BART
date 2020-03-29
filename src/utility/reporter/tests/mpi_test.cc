@@ -3,7 +3,7 @@
 #include <deal.II/base/conditional_ostream.h>
 #include <gtest/gtest.h>
 
-#include "convergence/status.h"
+#include "utility/reporter/colors.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -27,6 +27,25 @@ TEST_F(UtilityReporterMpiTest, StringReport) {
   std::string to_report = "report me";
   test_reporter_->Report(to_report);
   EXPECT_EQ(string_stream.str(), to_report);
+}
+
+TEST_F(UtilityReporterMpiTest, ColoredStringReport) {
+  using Color = utility::reporter::Color;
+  std::unordered_map<Color, std::string> color_string{
+      {Color::Reset, "\033[0m"},
+      {Color::Red,   "\033[31m"},
+      {Color::Green, "\033[32m"},
+      {Color::Blue,  "\033[34m"},
+  };
+
+  for (auto color_pair : color_string) {
+    string_stream.str("");
+    std::string to_report = "report me";
+    std::string colored_report = color_pair.second + to_report + color_string.at(Color::Reset);
+    test_reporter_->Report(to_report, color_pair.first);
+    EXPECT_EQ(string_stream.str(), colored_report);
+  }
+
 }
 
 } // namespace

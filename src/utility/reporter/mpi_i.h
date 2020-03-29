@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "convergence/status.h"
+#include "utility/reporter/colors.h"
 
 namespace bart {
 
@@ -25,6 +25,7 @@ class MpiI {
    * \param to_report string to output.
    */
   virtual void Report(const std::string &to_report) = 0;
+  virtual void Report(const std::string &to_report, Color) = 0;
 };
 
 } // namespace reporter
