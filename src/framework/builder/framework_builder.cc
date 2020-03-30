@@ -2,13 +2,15 @@
 
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/mpi.h>
+#include <sstream>
 
+#include "utility/reporter/mpi.h"
 
 // Convergence classes
 #include "convergence/final_checker_or_n.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/parameters/single_parameter_checker.h"
-#include "convergence/reporter/mpi_noisy.h"
+#include "convergence/reporter/mpi.h"
 
 // Domain classes
 #include "domain/definition.h"
@@ -39,6 +41,11 @@ namespace bart {
 namespace framework {
 
 namespace builder {
+
+template<int dim>
+void FrameworkBuilder<dim>::BuildFramework(std::string name, ParametersType& prm) {
+  auto finite_element_ptr = BuildFiniteElement(prm);
+}
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildConvergenceReporter()

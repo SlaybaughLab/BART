@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <data/cross_sections.h>
+#include <deal.II/base/conditional_ostream.h>
 
 // Problem parameters
 #include "problem/parameters_i.h"
@@ -22,6 +23,7 @@
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
+#include "utility/reporter/basic_reporter_i.h"
 
 
 namespace bart {
@@ -33,9 +35,7 @@ namespace builder {
 template <int dim>
 class FrameworkBuilder {
  public:
-  FrameworkBuilder() = default;
-  ~FrameworkBuilder() = default;
-
+  using FrameworkReporterType = utility::reporter::BasicReporterI;
   using ParametersType = const problem::ParametersI&;
 
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
@@ -50,6 +50,15 @@ class FrameworkBuilder {
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
+
+  FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr) {
+    int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+    pout_ptr_ = std::move(
+        std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0));
+  }
+  ~FrameworkBuilder() = default;
+
+  void BuildFramework(std::string name, ParametersType&);
 
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
@@ -85,6 +94,11 @@ class FrameworkBuilder {
       const double convergence_tolerance = 1e-10);
   std::unique_ptr<StamperType> BuildStamper(const std::shared_ptr<DomainType>&);
 
+  FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
+
+ private:
+  std::unique_ptr<dealii::ConditionalOStream> pout_ptr_;
+  std::shared_ptr<FrameworkReporterType> reporter_ptr_;
 };
 
 } // namespace builder

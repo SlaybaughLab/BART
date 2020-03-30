@@ -4,7 +4,7 @@
 #include "framework/builder/framework_builder.h"
 
 // Instantiated concerete classes
-#include "convergence/reporter/mpi_noisy.h"
+#include "convergence/reporter/mpi.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
@@ -31,6 +31,7 @@
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
+#include "utility/reporter/tests/basic_reporter_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -60,9 +61,10 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
 
-  FrameworkBuilder test_builder;
+  std::unique_ptr<FrameworkBuilder> test_builder_ptr_;
   ProblemParameters parameters;
   Material mock_material;
+  std::shared_ptr<utility::reporter::BasicReporterMock> mock_reporter_ptr_;
 
   // Various mock objects to be used
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
@@ -87,6 +89,9 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
+  mock_reporter_ptr_ = std::make_shared<utility::reporter::BasicReporterMock>();
+
+  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(mock_reporter_ptr_));
 
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(10);
@@ -119,9 +124,13 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
                 bart::testing::AllDimensions);
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFramework) {
+  this->test_builder_ptr_->BuildFramework("main", this->parameters);
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
   using ExpectedType = convergence::reporter::MpiNoisy;
-  auto convergence_reporter_ptr = this->test_builder.BuildConvergenceReporter();
+  auto convergence_reporter_ptr = this->test_builder_ptr_->BuildConvergenceReporter();
   EXPECT_THAT(convergence_reporter_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
@@ -138,7 +147,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   EXPECT_CALL(*finite_element_ptr, n_cell_quad_pts());
   EXPECT_CALL(*finite_element_ptr, n_face_quad_pts());
 
-  auto diffusion_formulation_ptr = this->test_builder.BuildDiffusionFormulation(
+  auto diffusion_formulation_ptr = this->test_builder_ptr_->BuildDiffusionFormulation(
       finite_element_ptr, cross_sections_ptr);
 
   using ExpectedType = formulation::scalar::Diffusion<dim>;
@@ -149,7 +158,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedDiffusionUpdater) {
   constexpr int dim = this->dim;
   using ExpectedType = formulation::updater::DiffusionUpdater<dim>;
-  auto fixed_updater_ptr = this->test_builder.BuildFixedUpdater(
+  auto fixed_updater_ptr = this->test_builder_ptr_->BuildFixedUpdater(
       std::move(this->diffusion_formulation_uptr_),
       std::move(this->stamper_uptr_));
   EXPECT_THAT(fixed_updater_ptr.get(),
@@ -159,7 +168,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedDiffusionUpdater) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSAAFUpdater) {
   constexpr int dim = this->dim;
   using ExpectedType = formulation::updater::SAAFUpdater<dim>;
-  auto fixed_updater_ptr = this->test_builder.BuildFixedUpdater(
+  auto fixed_updater_ptr = this->test_builder_ptr_->BuildFixedUpdater(
       std::move(this->saaf_formulation_uptr_),
       std::move(this->stamper_uptr_),
       this->quadrature_set_sptr_);
@@ -177,7 +186,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
   EXPECT_CALL(this->parameters, SpatialMax())
       .WillOnce(DoDefault());
 
-  auto test_domain_ptr = this->test_builder.BuildDomain(
+  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(
       this->parameters, finite_element_ptr, "1 1 2 2");
 
   using ExpectedType = domain::Definition<this->dim>;
@@ -193,7 +202,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
 
   using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
 
-  auto finite_element_ptr = this->test_builder.BuildFiniteElement(this->parameters);
+  auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(this->parameters);
   auto gaussian_ptr = dynamic_cast<ExpectedType*>(finite_element_ptr.get());
 
   EXPECT_NE(gaussian_ptr, nullptr);
@@ -213,13 +222,13 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
 
   if (dim == 3) {
     using ExpectedType = quadrature::QuadratureSet<dim>;
-    auto quadrature_set = this->test_builder.BuildQuadratureSet(this->parameters);
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
     ASSERT_NE(nullptr, quadrature_set);
     ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
     EXPECT_EQ(quadrature_set->size(), order * (order + 2));
   } else {
     EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder.BuildQuadratureSet(this->parameters);
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
     });
   }
 }
@@ -227,7 +236,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSingleGroupSolver) {
   using ExpectedType = solver::group::SingleGroupSolver;
 
-  auto solver_ptr = this->test_builder.BuildSingleGroupSolver(100, 1e-12);
+  auto solver_ptr = this->test_builder_ptr_->BuildSingleGroupSolver(100, 1e-12);
 
   ASSERT_NE(nullptr, solver_ptr);
 
@@ -249,7 +258,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceChecker) {
   const int max_iterations = 100;
 
   auto convergence_ptr =
-      this->test_builder.BuildParameterConvergenceChecker(
+      this->test_builder_ptr_->BuildParameterConvergenceChecker(
           max_delta,
           max_iterations);
 
@@ -268,7 +277,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
   const int max_iterations = 100;
 
   auto convergence_ptr =
-      this->test_builder.BuildMomentConvergenceChecker(
+      this->test_builder_ptr_->BuildMomentConvergenceChecker(
           max_delta,
           max_iterations);
 
@@ -296,7 +305,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
   EXPECT_CALL(*finite_element_ptr, n_cell_quad_pts());
   EXPECT_CALL(*finite_element_ptr, n_face_quad_pts());
 
-  auto saaf_formulation_ptr = this->test_builder.BuildSAAFFormulation(
+  auto saaf_formulation_ptr = this->test_builder_ptr_->BuildSAAFFormulation(
       finite_element_ptr, cross_sections_ptr, quadrature_set_ptr);
 
   using ExpectedType = formulation::angular::SelfAdjointAngularFlux<dim>;
@@ -311,7 +320,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
   auto domain_ptr = std::make_shared<domain::DefinitionMock<dim>>();
 
   using ExpectedType = formulation::Stamper<dim>;
-  auto stamper_ptr = this->test_builder.BuildStamper(domain_ptr);
+  auto stamper_ptr = this->test_builder_ptr_->BuildStamper(domain_ptr);
 
   EXPECT_THAT(stamper_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
@@ -334,9 +343,9 @@ TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
   const int total_groups = bart::test_helpers::RandomDouble(1, 10);
   const int total_angles = total_groups + 1;
 
-  auto initializer_ptr = this->test_builder.BuildInitializer(fixed_updater_ptr,
-                                                             total_groups,
-                                                             total_angles);
+  auto initializer_ptr = this->test_builder_ptr_->BuildInitializer(fixed_updater_ptr,
+                                                                  total_groups,
+                                                                  total_angles);
   auto dynamic_ptr = dynamic_cast<ExpectedType*>(initializer_ptr.get());
   ASSERT_NE(initializer_ptr, nullptr);
   ASSERT_NE(dynamic_ptr, nullptr);
