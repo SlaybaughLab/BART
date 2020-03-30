@@ -6,7 +6,7 @@
 #include <deal.II/base/conditional_ostream.h>
 #include <ostream>
 
-#include "utility/reporter/mpi_i.h"
+#include "utility/reporter/basic_reporter_i.h"
 #include "utility/uncopyable.h"
 
 namespace bart {
@@ -19,7 +19,7 @@ namespace reporter {
  * convergence, or a passed string.
  */
 
-class Mpi : public MpiI, private Uncopyable {
+class Mpi : public BasicReporterI, private Uncopyable {
  public:
   Mpi(std::unique_ptr<dealii::ConditionalOStream> pout_ptr)
       : pout_ptr_(std::move(pout_ptr)) {};

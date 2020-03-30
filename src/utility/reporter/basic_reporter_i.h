@@ -1,5 +1,5 @@
-#ifndef BART_SRC_UTILITY_REPORTER_MPI_I_H_
-#define BART_SRC_UTILITY_REPORTER_MPI_I_H_
+#ifndef BART_SRC_UTILITY_REPORTER_BASIC_REPORTER_I_H_
+#define BART_SRC_UTILITY_REPORTER_BASIC_REPORTER_I_H_
 
 #include <string>
 
@@ -17,9 +17,9 @@ namespace reporter {
  * using multiple processors.
  *
  */
-class MpiI {
+class BasicReporterI {
  public:
-  virtual ~MpiI() = default;
+  virtual ~BasicReporterI() = default;
   /*! \brief Report a given string.
    *
    * \param to_report string to output.
@@ -34,4 +34,4 @@ class MpiI {
 
 } // namespace bart
 
-#endif // BART_SRC_UTILITY_REPORTER_MPI_I_H_
+#endif //BART_SRC_UTILITY_REPORTER_BASIC_REPORTER_I_H_

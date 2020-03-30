@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_REPORTER_TESTS_MPI_MOCK_H_
 #define BART_SRC_CONVERGENCE_REPORTER_TESTS_MPI_MOCK_H_
 
-#include "convergence/reporter/mpi_i.h"
+#include "utility/reporter/basic_reporter_i.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -11,9 +11,10 @@ namespace convergence {
 
 namespace reporter {
 
-class MpiMock : public MpiI {
+class MpiMock : public BasicReporterI {
  public:
   MOCK_METHOD(void, Report, (const std::string &to_report), (override));
+  MOCK_METHOD(void, Report, (const std::string &to_report, Color), (override));
 };
 
 } // namespace reporter
