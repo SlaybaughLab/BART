@@ -51,11 +51,8 @@ class FrameworkBuilder {
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
 
-  FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr) {
-    int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-    pout_ptr_ = std::move(
-        std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0));
-  }
+  FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr)
+  : reporter_ptr_(reporter_ptr) {}
   ~FrameworkBuilder() = default;
 
   void BuildFramework(std::string name, ParametersType&);
@@ -97,7 +94,6 @@ class FrameworkBuilder {
   FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
 
  private:
-  std::unique_ptr<dealii::ConditionalOStream> pout_ptr_;
   std::shared_ptr<FrameworkReporterType> reporter_ptr_;
 };
 

@@ -124,6 +124,12 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
                 bart::testing::AllDimensions);
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
+  auto reporter_ptr = this->test_builder_ptr_->reporter_ptr();
+  EXPECT_THAT(reporter_ptr,
+              WhenDynamicCastTo<utility::reporter::BasicReporterMock*>(NotNull()));
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFramework) {
   this->test_builder_ptr_->BuildFramework("main", this->parameters);
 }
