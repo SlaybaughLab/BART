@@ -26,6 +26,38 @@ class DomainMeshCartesianTest : public ::testing::Test {
 
 TYPED_TEST_CASE(DomainMeshCartesianTest, bart::testing::AllDimensions);
 
+TYPED_TEST(DomainMeshCartesianTest, DescriptionTest) {
+  constexpr int dim = this->dim;
+
+  std::vector<double> spatial_max{test_helpers::RandomVector(dim, 0, 100)};
+  std::vector<double> n_cells_double{test_helpers::RandomVector(dim, 1, 20)};
+  std::vector<int> n_cells{n_cells_double.begin(), n_cells_double.end()};
+
+  domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
+
+  std::string expected_description = "deal.II Cartesian Mesh, "
+      + std::to_string(dim) + "D, Size: {";
+
+  auto int_comma_fold = [](std::string a, int b) {
+    return std::move(a) + ", " + std::to_string(b);
+  };
+  auto double_comma_fold = [](std::string a, double b) {
+    return std::move(a) + ", " + std::to_string(b);
+  };
+
+  std::string size_string = std::accumulate(std::next(spatial_max.begin()),
+                                            spatial_max.end(),
+                                            std::to_string(spatial_max.at(0)),
+                                            double_comma_fold);
+  std::string n_cells_string = std::accumulate(std::next(n_cells.begin()),
+                                               n_cells.end(),
+                                               std::to_string(n_cells.at(0)),
+                                               int_comma_fold);
+  expected_description += size_string + "}, N_cells: {" + n_cells_string + "}";
+
+  EXPECT_EQ(expected_description, test_mesh.description());
+}
+
 TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
   constexpr int dim = this->dim;
 
