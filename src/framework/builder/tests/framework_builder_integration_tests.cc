@@ -42,6 +42,7 @@ using namespace bart;
 
 using ::testing::Return, ::testing::NiceMock, ::testing::DoDefault;
 using ::testing::WhenDynamicCastTo, ::testing::NotNull;
+using ::testing::HasSubstr, ::testing::_;
 
 template <typename DimensionWrapper>
 class FrameworkBuilderIntegrationTest : public ::testing::Test {
@@ -131,7 +132,10 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFramework) {
-  this->test_builder_ptr_->BuildFramework("main", this->parameters);
+  std::string framework_name = "main";
+  EXPECT_CALL(*this->mock_reporter_ptr_,
+              Report(HasSubstr(framework_name), _));
+  this->test_builder_ptr_->BuildFramework(framework_name, this->parameters);
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {

@@ -2,10 +2,12 @@
 #include <iostream>
 #include <fstream>
 
+#include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
 
-//#include "framework/builder/cfem_framework_builder.h"
+#include "framework/builder/framework_builder.h"
+#include "utility/reporter/mpi.h"
 #include "problem/parameters_dealii_handler.h"
 
 int main(int argc, char* argv[]) {
@@ -45,33 +47,35 @@ int main(int argc, char* argv[]) {
       output_stream.open((output_filename_base + ".vtu").c_str());
     }
 
-//    switch(prm.SpatialDimension()) {
-//      case 1: {
-////        bart::framework::builder::CFEM_FrameworkBuilder<1> builder;
-////        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+    auto reporter_ptr = std::make_shared<bart::utility::reporter::Mpi>(
+        std::make_unique<dealii::ConditionalOStream>(std::cout, process_id == 0));
+    switch(prm.SpatialDimension()) {
+      case 1: {
+        bart::framework::builder::FrameworkBuilder<1> builder(reporter_ptr);
+        builder.BuildFramework("main", prm);
 //        framework_ptr->SolveSystem();
 //        framework_ptr->OutputResults(output_stream);
 //        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
-//        break;
-//      }
-//      case 2: {
-//        bart::framework::builder::CFEM_FrameworkBuilder<2> builder;
-//        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        break;
+      }
+      case 2: {
+        bart::framework::builder::FrameworkBuilder<2> builder(reporter_ptr);
+        builder.BuildFramework("main", prm);
 //        framework_ptr->SolveSystem();
 //        framework_ptr->OutputResults(output_stream);
 //        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
-//        break;
-//      }
-//      case 3: {
-//        bart::framework::builder::CFEM_FrameworkBuilder<3> builder;
-//        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        break;
+      }
+      case 3: {
+        bart::framework::builder::FrameworkBuilder<3> builder(reporter_ptr);
+        builder.BuildFramework("main", prm);
 //        framework_ptr->SolveSystem();
 //        framework_ptr->OutputResults(output_stream);
 //        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
-//        break;
-//      }
-//    }
-//
+        break;
+      }
+    }
+
     std::cout << "Final k_effective: " << k_eff_final << std::endl;
 
   } catch (std::exception &exc) {

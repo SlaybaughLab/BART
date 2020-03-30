@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "utility/reporter/mpi.h"
+#include "utility/reporter/colors.h"
 
 // Convergence classes
 #include "convergence/final_checker_or_n.h"
@@ -43,7 +44,11 @@ namespace framework {
 namespace builder {
 
 template<int dim>
-void FrameworkBuilder<dim>::BuildFramework(std::string name, ParametersType& prm) {
+void FrameworkBuilder<dim>::BuildFramework(std::string name,
+                                           ParametersType& prm) {
+
+  std::string report{"Building Framework: " + name + "\n"};
+  reporter_ptr_->Report(report, utility::reporter::Color::Blue);
   auto finite_element_ptr = BuildFiniteElement(prm);
 }
 
