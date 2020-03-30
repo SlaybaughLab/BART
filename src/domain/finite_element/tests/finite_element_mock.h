@@ -16,6 +16,8 @@ namespace finite_element {
 template <int dim>
 class FiniteElementMock : public FiniteElementI<dim> {
  public:
+  MOCK_METHOD(std::string, description, (), (const, override));
+
   MOCK_METHOD(int, polynomial_degree, (), (const, override));
 
   MOCK_METHOD(int, dofs_per_cell, (), (const, override));
