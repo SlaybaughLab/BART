@@ -44,6 +44,8 @@ using ::testing::Return, ::testing::NiceMock, ::testing::DoDefault;
 using ::testing::WhenDynamicCastTo, ::testing::NotNull;
 using ::testing::HasSubstr, ::testing::_;
 
+using ::testing::AtLeast;
+
 template <typename DimensionWrapper>
 class FrameworkBuilderIntegrationTest : public ::testing::Test {
  public:
@@ -58,6 +60,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
+  using ReporterType = NiceMock<utility::reporter::BasicReporterMock>;
 
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
@@ -65,7 +68,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::unique_ptr<FrameworkBuilder> test_builder_ptr_;
   ProblemParameters parameters;
   Material mock_material;
-  std::shared_ptr<utility::reporter::BasicReporterMock> mock_reporter_ptr_;
+  std::shared_ptr<ReporterType> mock_reporter_ptr_;
 
   // Various mock objects to be used
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
@@ -90,7 +93,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
-  mock_reporter_ptr_ = std::make_shared<utility::reporter::BasicReporterMock>();
+  mock_reporter_ptr_ = std::make_shared<ReporterType>();
 
   test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(mock_reporter_ptr_));
 
@@ -133,8 +136,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFramework) {
   std::string framework_name = "main";
-  EXPECT_CALL(*this->mock_reporter_ptr_,
-              Report(HasSubstr(framework_name), _));
   this->test_builder_ptr_->BuildFramework(framework_name, this->parameters);
 }
 

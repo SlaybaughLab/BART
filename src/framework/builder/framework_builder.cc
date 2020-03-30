@@ -47,8 +47,8 @@ template<int dim>
 void FrameworkBuilder<dim>::BuildFramework(std::string name,
                                            ParametersType& prm) {
 
-  std::string report{"Building Framework: " + name + "\n"};
-  reporter_ptr_->Report(report, utility::reporter::Color::Blue);
+  reporter_ptr_->Report("Building Framework: ");
+  reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
   auto finite_element_ptr = BuildFiniteElement(prm);
 }
 
@@ -102,10 +102,20 @@ auto FrameworkBuilder<dim>::BuildDomain(
 template<int dim>
 auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters)
 -> std::unique_ptr<FiniteElementType>{
+  std::unique_ptr<FiniteElementType> return_ptr = nullptr;
+
   using FiniteElementGaussianType = domain::finite_element::FiniteElementGaussian<dim>;
-  return std::make_unique<FiniteElementGaussianType>(
+
+  reporter_ptr_->Report("\tBuilding Finite Element:\t\t");
+
+  return_ptr = std::move(std::make_unique<FiniteElementGaussianType>(
       problem::DiscretizationType::kContinuousFEM,
-      problem_parameters.FEPolynomialDegree());
+      problem_parameters.FEPolynomialDegree()));
+
+  reporter_ptr_->Report("Built " + return_ptr->description() + "\n",
+                        utility::reporter::Color::Green);
+
+  return return_ptr;
 }
 
 template<int dim>
