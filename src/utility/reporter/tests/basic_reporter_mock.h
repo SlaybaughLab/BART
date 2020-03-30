@@ -7,11 +7,11 @@
 
 namespace bart {
 
-namespace convergence {
+namespace utility {
 
 namespace reporter {
 
-class MpiMock : public BasicReporterI {
+class BasicReporterMock : public BasicReporterI {
  public:
   MOCK_METHOD(void, Report, (const std::string &to_report), (override));
   MOCK_METHOD(void, Report, (const std::string &to_report, Color), (override));
@@ -19,7 +19,7 @@ class MpiMock : public BasicReporterI {
 
 } // namespace reporter
 
-} // namespace convergence
+} // namespace utility
 
 } // namespace bart
 
