@@ -98,6 +98,10 @@ class FrameworkBuilder {
 
  private:
   std::shared_ptr<FrameworkReporterType> reporter_ptr_;
+  template <typename T>
+  inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
+    return std::move(to_convert_ptr);
+  }
 };
 
 } // namespace builder

@@ -52,8 +52,10 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   reporter_ptr_->Report("Building Framework: ");
   reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
-  std::shared_ptr<FiniteElementType> finite_element_ptr =
-      std::move(BuildFiniteElement(prm));
+
+//  std::shared_ptr<FiniteElementType> finite_element_ptr =
+//      std::move(BuildFiniteElement(prm));
+  auto finite_element_ptr = Shared(BuildFiniteElement(prm));
   std::shared_ptr<CrossSectionType> cross_sections_ptr =
       std::move(BuildCrossSections(prm));
 
