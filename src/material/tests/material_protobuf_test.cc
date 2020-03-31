@@ -818,7 +818,7 @@ TEST_F(MaterialProtobufTest, InconsistentMaterialsInConstructor) {
 // tests for MaterialProtobuf working correctly and returning the correct data given a map of Materials
 
 TEST_F(MaterialProtobufTest, NullMaterialProtobuf) {
-  MaterialProtobuf mp_0({}, false, false, 0, 0);
+  MaterialProtobuf mp_0(std::unordered_map<int, Material>(), false, false, 0, 0);
 
   EXPECT_EQ(mp_0.GetFissileIDMap(), null_bool_map_);
   EXPECT_EQ(mp_0.GetSigT(), null_vector_map_);

@@ -42,6 +42,12 @@ class MaterialProtobuf : public MaterialBase {
                    int number_of_groups,
                    int number_of_materials);
 
+  MaterialProtobuf(const std::unordered_map<int, std::string>& material_filename_map,
+                   bool is_eigen_problem,
+                   bool do_nda,
+                   int number_of_groups,
+                   int number_of_materials);
+
   /*!
     gets the necessary information from the parameter handler and
     delegates to the other constructor

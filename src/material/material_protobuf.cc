@@ -31,6 +31,16 @@ MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& mate
   PopulateData();
 }
 
+MaterialProtobuf::MaterialProtobuf(
+    const std::unordered_map<int, std::string>& material_filename_map,
+    bool is_eigen_problem,
+    bool do_nda,
+    int number_of_groups,
+    int number_of_materials)
+    : MaterialProtobuf(ParseMaterials(material_filename_map),
+                       is_eigen_problem, do_nda, number_of_groups,
+                       number_of_materials) {}
+
 MaterialProtobuf::MaterialProtobuf(dealii::ParameterHandler& prm)
     : MaterialProtobuf(
         ParseMaterials(ReadMaterialFileNames(prm)),
