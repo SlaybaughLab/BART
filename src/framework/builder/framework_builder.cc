@@ -58,18 +58,33 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto finite_element_ptr = Shared(BuildFiniteElement(prm));
   auto cross_sections_ptr = Shared(BuildCrossSections(prm));
 
-  auto domain_ptr = BuildDomain(prm, finite_element_ptr,
-                                ReadMappingFile(prm.MaterialMapFilename()));
+  auto domain_ptr = Shared(BuildDomain(prm, finite_element_ptr,
+                                       ReadMappingFile(prm.MaterialMapFilename())));
   reporter_ptr_->Report("\tSetting up domain\n");
   domain_ptr->SetUpMesh().SetUpDOF();
 
-  std::shared_ptr<QuadratureSetType> quadrature_ptr = nullptr;
+  std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
+  std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
-    quadrature_ptr = BuildQuadratureSet(prm);
-    n_angles = quadrature_ptr->size();
+    quadrature_set_ptr = BuildQuadratureSet(prm);
+    n_angles = quadrature_set_ptr->size();
+    auto stamper_ptr = BuildStamper(domain_ptr);
+    auto saaf_formulation_ptr = BuildSAAFFormulation(finite_element_ptr,
+                                                     cross_sections_ptr,
+                                                     quadrature_set_ptr);
+    fixed_updater_ptr = Shared(BuildFixedUpdater(
+        std::move(saaf_formulation_ptr),
+        std::move(stamper_ptr),
+        quadrature_set_ptr));
+  } else if (prm.TransportModel() == problem::EquationType::kDiffusion) {
+    auto diffusion_formulation_ptr = BuildDiffusionFormulation(
+        finite_element_ptr,
+        cross_sections_ptr);
+    auto stamper_ptr = BuildStamper(domain_ptr);
+    fixed_updater_ptr = Shared(BuildFixedUpdater(
+        std::move(diffusion_formulation_ptr),
+        std::move(stamper_ptr)));
   }
-
-
 }
 
 template<int dim>
@@ -116,6 +131,7 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
     const formulation::DiffusionFormulationImpl implementation)
 -> std::unique_ptr<DiffusionFormulationType> {
+  reporter_ptr_->Report("\tBuilding Diffusion Formulation\n");
   std::unique_ptr<DiffusionFormulationType> return_ptr = nullptr;
 
   if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
@@ -177,6 +193,7 @@ auto FrameworkBuilder<dim>::BuildFixedUpdater(
     std::unique_ptr<DiffusionFormulationType> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr)
 -> std::unique_ptr<FixedUpdaterType> {
+  reporter_ptr_->Report("\tBuilding Diffusion Formulation updater\n");
   std::unique_ptr<FixedUpdaterType> return_ptr = nullptr;
 
   using ReturnType = formulation::updater::DiffusionUpdater<dim>;
@@ -193,6 +210,7 @@ auto FrameworkBuilder<dim>::BuildFixedUpdater(
     std::unique_ptr<StamperType> stamper_ptr,
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr)
 -> std::unique_ptr<FixedUpdaterType> {
+  reporter_ptr_->Report("\tBuilding SAAF Formulation updater\n");
   std::unique_ptr<FixedUpdaterType> return_ptr = nullptr;
 
   using ReturnType = formulation::updater::SAAFUpdater<dim>;
@@ -299,6 +317,7 @@ auto FrameworkBuilder<dim>::BuildSAAFFormulation(
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
     const formulation::SAAFFormulationImpl implementation)
 -> std::unique_ptr<SAAFFormulationType> {
+  reporter_ptr_->Report("\tBuilding SAAF Formulation\n");
   std::unique_ptr<SAAFFormulationType> return_ptr;
 
   if (implementation == formulation::SAAFFormulationImpl::kDefault) {
@@ -332,6 +351,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildStamper(
     const std::shared_ptr<DomainType>& domain_ptr)
 -> std::unique_ptr<StamperType> {
+  reporter_ptr_->Report("\tBuilding Stamper\n");
   std::unique_ptr<StamperType> return_ptr = nullptr;
 
   return_ptr = std::move(
