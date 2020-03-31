@@ -58,6 +58,9 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   auto domain_ptr = BuildDomain(prm, finite_element_ptr,
                                 ReadMappingFile(prm.MaterialMapFilename()));
+  reporter_ptr_->Report("\tSetting up domain\n");
+  domain_ptr->SetUpMesh().SetUpDOF();
+
 }
 
 template<int dim>
@@ -121,6 +124,7 @@ auto FrameworkBuilder<dim>::BuildDomain(
     const std::shared_ptr<FiniteElementType>& finite_element_ptr,
     std::string material_mapping)
 -> std::unique_ptr<DomainType>{
+  std::unique_ptr<DomainType> return_ptr = nullptr;
   reporter_ptr_->Report("\tBuilding Mesh: ");
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
       problem_parameters.SpatialMax(),
@@ -128,9 +132,12 @@ auto FrameworkBuilder<dim>::BuildDomain(
       material_mapping);
   reporter_ptr_->Report("Built: " + mesh_ptr->description() + "\n",
                         utility::reporter::Color::Green);
-
-  return std::make_unique<domain::Definition<dim>>(std::move(mesh_ptr),
-                                                   finite_element_ptr);
+  reporter_ptr_->Report("\tBuilding Domain: ");
+  return_ptr = std::move(std::make_unique<domain::Definition<dim>>(
+      std::move(mesh_ptr),
+      finite_element_ptr));
+  reporter_ptr_->Report("Built (default) Domain\n", Color::Green);
+  return return_ptr;
 }
 
 template<int dim>
