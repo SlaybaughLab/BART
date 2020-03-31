@@ -51,6 +51,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
                                            ParametersType& prm) {
   // Framework parameters
   int n_angles = 1; // Set to default value of 1 for scalar solve
+  const int n_groups = prm.NEnergyGroups();
 
   reporter_ptr_->Report("Building Framework: ");
   reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
@@ -85,6 +86,9 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
         std::move(diffusion_formulation_ptr),
         std::move(stamper_ptr)));
   }
+
+  auto initializer_ptr = BuildInitializer(fixed_updater_ptr, n_groups, n_angles);
+  
 }
 
 template<int dim>
@@ -227,6 +231,7 @@ auto FrameworkBuilder<dim>::BuildInitializer(
     const std::shared_ptr<formulation::updater::FixedUpdaterI>& updater_ptr,
     const int total_groups,
     const int total_angles) -> std::unique_ptr<InitializerType> {
+  reporter_ptr_->Report("\tBuilding Initializer\n");
   std::unique_ptr<InitializerType> return_ptr = nullptr;
 
   using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
