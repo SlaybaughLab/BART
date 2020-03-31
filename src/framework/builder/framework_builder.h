@@ -11,6 +11,7 @@
 // Interface classes built by this factory
 #include "convergence/reporter/mpi_i.h"
 #include "convergence/final_i.h"
+#include "data/cross_sections.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
 #include "formulation/stamper_i.h"
@@ -38,6 +39,7 @@ class FrameworkBuilder {
   using FrameworkReporterType = utility::reporter::BasicReporterI;
   using ParametersType = const problem::ParametersI&;
 
+  using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
@@ -58,6 +60,7 @@ class FrameworkBuilder {
   void BuildFramework(std::string name, ParametersType&);
 
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
+  std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<data::CrossSections>&,

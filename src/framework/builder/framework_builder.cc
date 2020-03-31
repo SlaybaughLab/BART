@@ -25,6 +25,9 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 
+// Material classes
+#include "material/material_protobuf.h"
+
 // Solver classes
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
@@ -49,7 +52,13 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   reporter_ptr_->Report("Building Framework: ");
   reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
-  auto finite_element_ptr = BuildFiniteElement(prm);
+  std::shared_ptr<FiniteElementType> finite_element_ptr =
+      std::move(BuildFiniteElement(prm));
+  std::shared_ptr<CrossSectionType> cross_sections_ptr =
+      std::move(BuildCrossSections(prm));
+
+  auto domain_ptr = BuildDomain(prm, finite_element_ptr, "");
+
 }
 
 template<int dim>
@@ -64,6 +73,30 @@ auto FrameworkBuilder<dim>::BuildConvergenceReporter()
   return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
 
   return std::move(return_ptr);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildCrossSections(
+    const problem::ParametersI& problem_parameters)
+    -> std::unique_ptr<CrossSectionType> {
+  reporter_ptr_->Report("\tBuilding Cross-sections: ");
+  std::unique_ptr<CrossSectionType> return_ptr = nullptr;
+  // Default implementation using protocol buffers
+  try {
+    MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
+                               problem_parameters.IsEigenvalueProblem(),
+                               problem_parameters.DoNDA(),
+                               problem_parameters.NEnergyGroups(),
+                               problem_parameters.NumberOfMaterials());
+    return_ptr = std::move(std::make_unique<CrossSectionType>(materials));
+    reporter_ptr_->Report("Built (default) Cross-sections using protobuf\n",
+                          utility::reporter::Color::Green);
+  } catch (...) {
+    reporter_ptr_->Report("Error building (default) Cross-sections using protobuf\n",
+                          utility::reporter::Color::Red);
+    throw;
+  }
+  return return_ptr;
 }
 
 template<int dim>
@@ -89,11 +122,13 @@ auto FrameworkBuilder<dim>::BuildDomain(
     const std::shared_ptr<FiniteElementType>& finite_element_ptr,
     std::string material_mapping)
 -> std::unique_ptr<DomainType>{
-
+  reporter_ptr_->Report("\tBuilding Mesh: ");
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
       problem_parameters.SpatialMax(),
       problem_parameters.NCells(),
       material_mapping);
+  reporter_ptr_->Report("Built: " + mesh_ptr->description() + "\n",
+                        utility::reporter::Color::Green);
 
   return std::make_unique<domain::Definition<dim>>(std::move(mesh_ptr),
                                                    finite_element_ptr);
@@ -106,15 +141,19 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
 
   using FiniteElementGaussianType = domain::finite_element::FiniteElementGaussian<dim>;
 
-  reporter_ptr_->Report("\tBuilding Finite Element:\t\t");
+  reporter_ptr_->Report("\tBuilding Finite Element: ");
 
-  return_ptr = std::move(std::make_unique<FiniteElementGaussianType>(
-      problem::DiscretizationType::kContinuousFEM,
-      problem_parameters.FEPolynomialDegree()));
+  try {
+    return_ptr = std::move(std::make_unique<FiniteElementGaussianType>(
+        problem::DiscretizationType::kContinuousFEM,
+        problem_parameters.FEPolynomialDegree()));
 
-  reporter_ptr_->Report("Built " + return_ptr->description() + "\n",
-                        utility::reporter::Color::Green);
-
+    reporter_ptr_->Report("Built: " + return_ptr->description() + "\n",
+                          utility::reporter::Color::Green);
+  } catch (...) {
+    reporter_ptr_->Report("Error");
+    throw;
+  }
   return return_ptr;
 }
 

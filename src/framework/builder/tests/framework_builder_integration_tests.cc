@@ -134,11 +134,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
               WhenDynamicCastTo<utility::reporter::BasicReporterMock*>(NotNull()));
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFramework) {
-  std::string framework_name = "main";
-  this->test_builder_ptr_->BuildFramework(framework_name, this->parameters);
-}
-
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
   using ExpectedType = convergence::reporter::MpiNoisy;
   auto convergence_reporter_ptr = this->test_builder_ptr_->BuildConvergenceReporter();
