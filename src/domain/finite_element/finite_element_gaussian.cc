@@ -15,7 +15,7 @@ FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretizat
                                   int polynomial_degree)
     : polynomial_degree_(polynomial_degree) {
 
-  description_ = "deal.II Gaussian, " + std::to_string(dim) + "D, ";
+  description_ = "(Default) deal.II Gaussian, " + std::to_string(dim) + "D, ";
 
   const auto update_flags = dealii::update_values | dealii::update_gradients |
                             dealii::update_quadrature_points |

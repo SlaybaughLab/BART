@@ -38,7 +38,7 @@ MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
   
   std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
   std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());
-  description_ = "deal.II Cartesian Mesh, "+ std::to_string(dim) + "D, Size: {";
+  description_ = "(Default) deal.II Cartesian Mesh, "+ std::to_string(dim) + "D, Size: {";
 
   auto int_comma_fold = [](std::string a, int b) {
     return std::move(a) + ", " + std::to_string(b);

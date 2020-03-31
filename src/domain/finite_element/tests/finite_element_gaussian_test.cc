@@ -47,7 +47,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
 
     domain::finite_element::FiniteElementGaussian<dim> test_fe{discretization_type, 2};
 
-    std::string expected_description{"deal.II Gaussian, " + std::to_string(dim) + "D, "};
+    std::string expected_description{"(Default) deal.II Gaussian, " + std::to_string(dim) + "D, "};
 
     // Verify correct objects were instantiated
     ASSERT_NE(nullptr, dynamic_cast<dealii::FEValues<dim> *>(test_fe.values()));

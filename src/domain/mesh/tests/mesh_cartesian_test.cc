@@ -35,7 +35,7 @@ TYPED_TEST(DomainMeshCartesianTest, DescriptionTest) {
 
   domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
 
-  std::string expected_description = "deal.II Cartesian Mesh, "
+  std::string expected_description = "(Default) deal.II Cartesian Mesh, "
       + std::to_string(dim) + "D, Size: {";
 
   auto int_comma_fold = [](std::string a, int b) {
