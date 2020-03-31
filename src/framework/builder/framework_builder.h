@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_H_
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_H_
 
+#include <fstream>
 #include <memory>
 #include <data/cross_sections.h>
 #include <deal.II/base/conditional_ostream.h>
@@ -38,6 +39,7 @@ class FrameworkBuilder {
  public:
   using FrameworkReporterType = utility::reporter::BasicReporterI;
   using ParametersType = const problem::ParametersI&;
+  using Color = utility::reporter::Color;
 
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
@@ -102,6 +104,7 @@ class FrameworkBuilder {
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return std::move(to_convert_ptr);
   }
+  std::string ReadMappingFile(std::string filename);
 };
 
 } // namespace builder

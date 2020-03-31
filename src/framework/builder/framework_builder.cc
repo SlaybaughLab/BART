@@ -53,14 +53,11 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   reporter_ptr_->Report("Building Framework: ");
   reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
 
-//  std::shared_ptr<FiniteElementType> finite_element_ptr =
-//      std::move(BuildFiniteElement(prm));
   auto finite_element_ptr = Shared(BuildFiniteElement(prm));
-  std::shared_ptr<CrossSectionType> cross_sections_ptr =
-      std::move(BuildCrossSections(prm));
+  auto cross_sections_ptr = Shared(BuildCrossSections(prm));
 
-  auto domain_ptr = BuildDomain(prm, finite_element_ptr, "");
-
+  auto domain_ptr = BuildDomain(prm, finite_element_ptr,
+                                ReadMappingFile(prm.MaterialMapFilename()));
 }
 
 template<int dim>
@@ -324,6 +321,23 @@ auto FrameworkBuilder<dim>::BuildStamper(
       std::make_unique<formulation::Stamper<dim>>(domain_ptr));
 
   return return_ptr;
+}
+template<int dim>
+std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
+  reporter_ptr_->Report("\tReading mapping file: ");
+
+  std::ifstream mapping_file(filename);
+  if (mapping_file.is_open()) {
+    reporter_ptr_->Report(filename + '\n', Color::Green);
+
+    return std::string(
+        (std::istreambuf_iterator<char>(mapping_file)),
+        std::istreambuf_iterator<char>());
+  } else {
+    reporter_ptr_->Report("Error reading " + filename + "\n", Color::Red);
+    AssertThrow(false,
+                dealii::ExcMessage("Failed to open material mapping file"))
+  }
 }
 
 template class FrameworkBuilder<1>;
