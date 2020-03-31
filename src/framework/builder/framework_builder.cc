@@ -49,6 +49,8 @@ namespace builder {
 template<int dim>
 void FrameworkBuilder<dim>::BuildFramework(std::string name,
                                            ParametersType& prm) {
+  // Framework parameters
+  int n_angles = 1; // Set to default value of 1 for scalar solve
 
   reporter_ptr_->Report("Building Framework: ");
   reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
@@ -60,6 +62,13 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
                                 ReadMappingFile(prm.MaterialMapFilename()));
   reporter_ptr_->Report("\tSetting up domain\n");
   domain_ptr->SetUpMesh().SetUpDOF();
+
+  std::shared_ptr<QuadratureSetType> quadrature_ptr = nullptr;
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+    quadrature_ptr = BuildQuadratureSet(prm);
+    n_angles = quadrature_ptr->size();
+  }
+
 
 }
 
@@ -250,6 +259,7 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
 template<int dim>
 auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters)
 -> std::shared_ptr<QuadratureSetType> {
+  reporter_ptr_->Report("\tBuilding quadrature set\n");
   using QuadratureGeneratorType = quadrature::QuadratureGeneratorI<dim>;
 
   std::shared_ptr<QuadratureSetType> return_ptr = nullptr;
