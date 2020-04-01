@@ -88,12 +88,15 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   }
 
   auto initializer_ptr = BuildInitializer(fixed_updater_ptr, n_groups, n_angles);
-  
+  auto single_group_solver_ptr = BuildSingleGroupSolver();
+  auto moment_convergence_checker_ptr = BuildMomentConvergenceChecker(1e-10, 100);
+  auto convergence_reporter_ptr = BuildConvergenceReporter();
 }
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildConvergenceReporter()
 -> std::unique_ptr<ReporterType> {
+  reporter_ptr_->Report("\tBuilding ConvergenceReporter\n");
   using Reporter = bart::convergence::reporter::MpiNoisy;
 
   std::unique_ptr<ReporterType> return_ptr = nullptr;
@@ -247,7 +250,7 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
     double max_delta, int max_iterations)
 -> std::unique_ptr<MomentConvergenceCheckerType>{
   //TODO(Josh): Add option for using other than L1Norm
-
+  reporter_ptr_->Report("\tBuilding Moment Convergence Checker\n");
   using CheckerType = convergence::moments::SingleMomentCheckerL1Norm;
   using FinalCheckerType = convergence::FinalCheckerOrN<
       system::moments::MomentVector,
@@ -341,11 +344,14 @@ auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
     const int max_iterations,
     const double convergence_tolerance)
 -> std::unique_ptr<SingleGroupSolverType> {
+  reporter_ptr_->Report("\tBuilding SingleGroupSolver: ");
   std::unique_ptr<SingleGroupSolverType> return_ptr = nullptr;
 
   auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
                                                            convergence_tolerance);
-
+  reporter_ptr_->Report("Built GMRES: tol = " + std::to_string(convergence_tolerance)
+                            + "iter_max = " + std::to_string(max_iterations) + "\n",
+                            Color::Green);
   return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(
           std::move(linear_solver_ptr)));
 
