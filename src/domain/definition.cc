@@ -21,7 +21,16 @@ Definition<dim>::Definition(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                          dealii::Triangulation<dim>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
-      discretization_type_(discretization) {}
+      discretization_type_(discretization) {
+  std::string description{"Domain, " + std::to_string(dim) + "D"};
+  if (discretization == problem::DiscretizationType::kContinuousFEM) {
+    description += ", Continuous";
+  } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
+    description += ", Discontinuous";
+  }
+  this->set_description(description);
+  this->is_default_implementation(true);
+}
 
 template <>
 Definition<1>::Definition(
@@ -34,7 +43,16 @@ Definition<1>::Definition(
                          dealii::Triangulation<1>::smoothing_on_refinement |
                              dealii::Triangulation<1>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
-      discretization_type_(discretization) {}
+      discretization_type_(discretization) {
+  std::string description{"Domain, 1D"};
+  if (discretization == problem::DiscretizationType::kContinuousFEM) {
+    description += ", Continuous";
+  } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
+    description += ", Discontinuous";
+  }
+  this->set_description(description);
+  this->is_default_implementation(true);
+}
 
 template <int dim>
 Definition<dim>& Definition<dim>::SetUpMesh() {

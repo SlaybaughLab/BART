@@ -109,6 +109,13 @@ class FrameworkBuilder {
   FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
 
  private:
+  void ReportBuildingComponant(std::string componant) {
+    reporter_ptr_->Report("\tBuilding " + componant + ": "); }
+  void ReportBuilt(std::string description) {
+    reporter_ptr_->Report("Built " + description + "\n", Color::Green); }
+  void ReportError() {
+    reporter_ptr_->Report("Error\n", Color::Red); }
+
   std::shared_ptr<FrameworkReporterType> reporter_ptr_;
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {

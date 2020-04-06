@@ -11,6 +11,7 @@
 #include "domain/domain_types.h"
 #include "problem/parameter_types.h"
 #include "system/system_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -37,7 +38,7 @@ namespace domain {
  * \date 2019/02
  */
 template <int dim>
-class DefinitionI {
+class DefinitionI : public utility::HasDescription {
  public:
   using CellRange = std::vector<domain::CellPtr<dim>>;
 

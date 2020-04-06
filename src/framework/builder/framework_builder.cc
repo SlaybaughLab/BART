@@ -144,7 +144,7 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
     const formulation::DiffusionFormulationImpl implementation)
 -> std::unique_ptr<DiffusionFormulationType> {
-  reporter_ptr_->Report("\tBuilding Diffusion Formulation: ");
+  ReportBuildingComponant("Diffusion formulation");
   std::unique_ptr<DiffusionFormulationType> return_ptr = nullptr;
 
   if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
@@ -152,8 +152,7 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     return_ptr = std::move(std::make_unique<ReturnType>(
         finite_element_ptr, cross_sections_ptr));
   }
-  reporter_ptr_->Report("Built " + return_ptr->description() + "\n",
-                        Color::Green);
+  ReportBuilt(return_ptr->description());
 
   return return_ptr;
 }
@@ -165,18 +164,19 @@ auto FrameworkBuilder<dim>::BuildDomain(
     std::string material_mapping)
 -> std::unique_ptr<DomainType>{
   std::unique_ptr<DomainType> return_ptr = nullptr;
-  reporter_ptr_->Report("\tBuilding Mesh: ");
+
+  ReportBuildingComponant("Mesh");
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
       problem_parameters.SpatialMax(),
       problem_parameters.NCells(),
       material_mapping);
-  reporter_ptr_->Report("Built: " + mesh_ptr->description() + "\n",
-                        utility::reporter::Color::Green);
-  reporter_ptr_->Report("\tBuilding Domain: ");
+  ReportBuilt(mesh_ptr->description());
+
+  ReportBuildingComponant("Domain");
   return_ptr = std::move(std::make_unique<domain::Definition<dim>>(
       std::move(mesh_ptr),
       finite_element_ptr));
-  reporter_ptr_->Report("Built (default) Domain\n", Color::Green);
+  ReportBuilt(return_ptr->description());
   return return_ptr;
 }
 
