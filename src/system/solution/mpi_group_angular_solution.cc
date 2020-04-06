@@ -13,7 +13,8 @@ MPIGroupAngularSolution::MPIGroupAngularSolution(const int total_angles)
     MPIVector new_vector;
     solutions_[angle] = new_vector;
   }
-  this->set_description("Group solution (MPI), total angles = " + total_angles);
+  this->set_description("Group solution (MPI), total angles = " +
+      std::to_string(total_angles));
   this->is_default_implementation(true);
 }
 
