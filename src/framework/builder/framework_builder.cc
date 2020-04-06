@@ -187,17 +187,16 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
 
   using FiniteElementGaussianType = domain::finite_element::FiniteElementGaussian<dim>;
 
-  reporter_ptr_->Report("\tBuilding Finite Element: ");
+  ReportBuildingComponant("Cell finite element basis");
 
   try {
     return_ptr = std::move(std::make_unique<FiniteElementGaussianType>(
         problem::DiscretizationType::kContinuousFEM,
         problem_parameters.FEPolynomialDegree()));
 
-    reporter_ptr_->Report("Built: " + return_ptr->description() + "\n",
-                          utility::reporter::Color::Green);
+    ReportBuilt(return_ptr->description());
   } catch (...) {
-    reporter_ptr_->Report("Error");
+    ReportError();
     throw;
   }
   return return_ptr;
