@@ -66,6 +66,8 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
   std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
+  std::unique_ptr<MomentCalculatorType> moment_calculator_ptr = nullptr;
+
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
     quadrature_set_ptr = BuildQuadratureSet(prm);
     n_angles = quadrature_set_ptr->size();
@@ -77,6 +79,8 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
         std::move(saaf_formulation_ptr),
         std::move(stamper_ptr),
         quadrature_set_ptr));
+    moment_calculator_ptr = std::move(BuildMomentCalculator(quadrature_set_ptr));
+
   } else if (prm.TransportModel() == problem::EquationType::kDiffusion) {
     auto diffusion_formulation_ptr = BuildDiffusionFormulation(
         finite_element_ptr,
@@ -85,12 +89,14 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
     fixed_updater_ptr = Shared(BuildFixedUpdater(
         std::move(diffusion_formulation_ptr),
         std::move(stamper_ptr)));
+    moment_calculator_ptr = std::move(BuildMomentCalculator());
   }
 
   auto initializer_ptr = BuildInitializer(fixed_updater_ptr, n_groups, n_angles);
   auto single_group_solver_ptr = BuildSingleGroupSolver();
   auto moment_convergence_checker_ptr = BuildMomentConvergenceChecker(1e-10, 100);
   auto convergence_reporter_ptr = BuildConvergenceReporter();
+
 }
 
 template<int dim>
@@ -246,6 +252,48 @@ auto FrameworkBuilder<dim>::BuildInitializer(
 }
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildMomentCalculator(
+    MomentCalculatorImpl implementation)
+-> std::unique_ptr<MomentCalculatorType> {
+  return BuildMomentCalculator(nullptr, implementation);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildMomentCalculator(
+    std::shared_ptr<QuadratureSetType> quadrature_set_ptr,
+    FrameworkBuilder::MomentCalculatorImpl implementation)
+-> std::unique_ptr<MomentCalculatorType> {
+  reporter_ptr_->Report("\tBuilding Moment Calculator: ");
+  std::unique_ptr<MomentCalculatorType> return_ptr = nullptr;
+
+  try {
+    return_ptr = std::move(quadrature::factory::MakeMomentCalculator<dim>(
+        implementation, quadrature_set_ptr));
+
+    if (implementation == MomentCalculatorImpl::kScalarMoment) {
+      reporter_ptr_->Report("Built (default) calculator for scalar solve\n",
+                            Color::Green);
+    } else if (implementation == MomentCalculatorImpl::kZerothMomentOnly) {
+      reporter_ptr_->Report("Built (default) calculator for 0th moment only\n",
+                            Color::Green);
+    } else {
+      AssertThrow(false,
+                  dealii::ExcMessage("Unsupported implementation of moment "
+                                     "calculator specified in call to "
+                                     "BuildMomentCalculator"))
+    }
+  } catch (...) {
+    reporter_ptr_->Report("Error building calculator for scalar solve \n",
+                          Color::Red);
+    throw;
+  }
+
+  return return_ptr;
+}
+
+
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
     double max_delta, int max_iterations)
 -> std::unique_ptr<MomentConvergenceCheckerType>{
@@ -387,6 +435,7 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
                 dealii::ExcMessage("Failed to open material mapping file"))
   }
 }
+
 
 template class FrameworkBuilder<1>;
 template class FrameworkBuilder<2>;

@@ -6,6 +6,8 @@
 #include <data/cross_sections.h>
 #include <deal.II/base/conditional_ostream.h>
 
+#include "quadrature/quadrature_types.h"
+
 // Problem parameters
 #include "problem/parameters_i.h"
 
@@ -21,6 +23,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "quadrature/quadrature_set_i.h"
+#include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
 
 // Dependency clases
@@ -40,6 +43,7 @@ class FrameworkBuilder {
   using FrameworkReporterType = utility::reporter::BasicReporterI;
   using ParametersType = const problem::ParametersI&;
   using Color = utility::reporter::Color;
+  using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
@@ -47,6 +51,7 @@ class FrameworkBuilder {
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FixedUpdaterType = formulation::updater::FixedUpdaterI;
   using InitializerType = iteration::initializer::InitializerI;
+  using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
@@ -81,6 +86,11 @@ class FrameworkBuilder {
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
+  std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
+      MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment);
+  std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
+      std::shared_ptr<QuadratureSetType>,
+      MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly);
   std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
       double max_delta, int max_iterations);
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(

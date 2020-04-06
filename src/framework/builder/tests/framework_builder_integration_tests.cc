@@ -16,6 +16,8 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
+#include "quadrature/calculators/scalar_moment.h"
+#include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
 #include "solver/group/single_group_solver.h"
@@ -216,6 +218,33 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
   auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(
       finite_element_ptr->finite_element());
   EXPECT_NE(dealii_finite_element_ptr, nullptr);
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentCalculatorScalar) {
+  using ExpectedType = quadrature::calculators::ScalarMoment;
+
+  auto moment_calculator_ptr = this->test_builder_ptr_->BuildMomentCalculator();
+  ASSERT_THAT(moment_calculator_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentCalculatorScalarQuadSet) {
+  using ExpectedType = quadrature::calculators::ScalarMoment;
+  using Implementation = quadrature::MomentCalculatorImpl;
+  auto moment_calculator_ptr = this->test_builder_ptr_->BuildMomentCalculator(
+      this->quadrature_set_sptr_, Implementation::kScalarMoment);
+  ASSERT_THAT(moment_calculator_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BulidMomentCalculatorAngular) {
+  constexpr int dim = this->dim;
+  using ExpectedType = quadrature::calculators::SphericalHarmonicZerothMoment<dim>;
+
+  auto moment_calculator_ptr = this->test_builder_ptr_->BuildMomentCalculator(
+      this->quadrature_set_sptr_);
+  ASSERT_THAT(moment_calculator_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
