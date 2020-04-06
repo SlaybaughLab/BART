@@ -25,6 +25,7 @@
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
+#include "system/solution/mpi_group_angular_solution_i.h"
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
@@ -50,6 +51,7 @@ class FrameworkBuilder {
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FixedUpdaterType = formulation::updater::FixedUpdaterI;
+  using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using InitializerType = iteration::initializer::InitializerI;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
@@ -59,6 +61,7 @@ class FrameworkBuilder {
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
+
 
   FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr)
   : reporter_ptr_(reporter_ptr) {}
@@ -86,6 +89,7 @@ class FrameworkBuilder {
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
+  std::unique_ptr<GroupSolutionType> BuildGroupSolution(const int n_angles);
   std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment);
   std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(

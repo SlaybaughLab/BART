@@ -40,6 +40,9 @@
 #include "quadrature/factory/quadrature_factories.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
+// System classes
+#include "system/solution/mpi_group_angular_solution.h"
+
 namespace bart {
 
 namespace framework {
@@ -233,6 +236,18 @@ auto FrameworkBuilder<dim>::BuildFixedUpdater(
       std::move(stamper_ptr),
       quadrature_set_ptr));
 
+  return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles)
+-> std::unique_ptr<GroupSolutionType> {
+  std::unique_ptr<GroupSolutionType> return_ptr = nullptr;
+  ReportBuildingComponant("Group solution");
+
+  return_ptr = std::move(
+      std::make_unique<system::solution::MPIGroupAngularSolution>(n_angles));
+  ReportBuilt(return_ptr->description());
   return return_ptr;
 }
 
@@ -436,7 +451,6 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
                 dealii::ExcMessage("Failed to open material mapping file"))
   }
 }
-
 
 template class FrameworkBuilder<1>;
 template class FrameworkBuilder<2>;

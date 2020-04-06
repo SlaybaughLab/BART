@@ -21,6 +21,7 @@
 #include "quadrature/quadrature_set.h"
 #include "solver/gmres.h"
 #include "solver/group/single_group_solver.h"
+#include "system/solution/mpi_group_angular_solution.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 
 // Mock objects
@@ -201,6 +202,16 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
 
   EXPECT_THAT(test_domain_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSolution) {
+  using ExpectedType = system::solution::MPIGroupAngularSolution;
+  const int n_angles = bart::test_helpers::RandomDouble(1, 10);
+  auto group_solution_ptr = this->test_builder_ptr_->BuildGroupSolution(n_angles);
+
+  ASSERT_THAT(group_solution_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(n_angles, group_solution_ptr->total_angles());
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
