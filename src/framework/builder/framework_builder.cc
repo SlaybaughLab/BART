@@ -99,6 +99,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto single_group_solver_ptr = BuildSingleGroupSolver();
   auto moment_convergence_checker_ptr = BuildMomentConvergenceChecker(1e-10, 100);
   auto convergence_reporter_ptr = BuildConvergenceReporter();
+  auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
 
 }
 
