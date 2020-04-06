@@ -13,7 +13,10 @@ Diffusion<dim>::Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI
       cross_sections_(cross_sections),
       cell_degrees_of_freedom_(finite_element->dofs_per_cell()),
       cell_quadrature_points_(finite_element->n_cell_quad_pts()),
-      face_quadrature_points_(finite_element->n_face_quad_pts()) {}
+      face_quadrature_points_(finite_element->n_face_quad_pts()) {
+  this->set_description("Diffusion Formulation");
+  this->is_default_implementation(true);
+}
 
 template <int dim>
 void Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) {

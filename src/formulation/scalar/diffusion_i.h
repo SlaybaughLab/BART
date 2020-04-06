@@ -5,6 +5,7 @@
 #include <deal.II/dofs/dof_accessor.h>
 
 #include "system/moments/spherical_harmonic_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -13,7 +14,7 @@ namespace formulation {
 namespace scalar {
 
 template <int dim>
-class DiffusionI {
+class DiffusionI : public utility::HasDescription {
  public:
   enum class BoundaryType {
     kVacuum,

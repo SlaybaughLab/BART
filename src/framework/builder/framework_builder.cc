@@ -144,7 +144,7 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
     const formulation::DiffusionFormulationImpl implementation)
 -> std::unique_ptr<DiffusionFormulationType> {
-  reporter_ptr_->Report("\tBuilding Diffusion Formulation\n");
+  reporter_ptr_->Report("\tBuilding Diffusion Formulation: ");
   std::unique_ptr<DiffusionFormulationType> return_ptr = nullptr;
 
   if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
@@ -152,6 +152,8 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     return_ptr = std::move(std::make_unique<ReturnType>(
         finite_element_ptr, cross_sections_ptr));
   }
+  reporter_ptr_->Report("Built " + return_ptr->description() + "\n",
+                        Color::Green);
 
   return return_ptr;
 }
