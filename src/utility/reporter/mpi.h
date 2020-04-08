@@ -39,6 +39,7 @@ class Mpi : public BasicReporterI, private Uncopyable {
       {Color::Reset, "\033[0m"},
       {Color::Red,   "\033[31m"},
       {Color::Green, "\033[32m"},
+      {Color::Yellow,"\033[33m"},
       {Color::Blue,  "\033[34m"},
   };
 };
