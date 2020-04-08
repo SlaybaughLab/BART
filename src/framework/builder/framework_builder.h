@@ -120,12 +120,17 @@ class FrameworkBuilder {
   void ReportError() {
     reporter_ptr_->Report("Error\n", Color::Red); }
 
+  void Validate() const;
+
   std::shared_ptr<FrameworkReporterType> reporter_ptr_;
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return std::move(to_convert_ptr);
   }
   std::string ReadMappingFile(std::string filename);
+
+  bool has_scattering_source_update_ = false;
+  bool has_fission_source_update_ = false;
 };
 
 } // namespace builder

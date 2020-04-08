@@ -101,6 +101,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto convergence_reporter_ptr = BuildConvergenceReporter();
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
 
+  Validate();
 }
 
 template<int dim>
@@ -450,6 +451,30 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
     reporter_ptr_->Report("Error reading " + filename + "\n", Color::Red);
     AssertThrow(false,
                 dealii::ExcMessage("Failed to open material mapping file"))
+  }
+}
+
+template<int dim>
+void FrameworkBuilder<dim>::Validate() const {
+  bool issue = false;
+  reporter_ptr_->Report("Validating framework\n");
+  reporter_ptr_->Report("\tHas scattering source update: ");
+  if (has_scattering_source_update_) {
+    reporter_ptr_->Report("True\n", Color::Green);
+  } else {
+    reporter_ptr_->Report("False\n", Color::Red);
+    issue = true;
+  }
+  reporter_ptr_->Report("\tHas fission source update: ");
+  if (has_scattering_source_update_) {
+    reporter_ptr_->Report("True\n", Color::Green);
+  } else {
+    reporter_ptr_->Report("False\n", Color::Red);
+    issue = true;
+  }
+  if (issue) {
+    reporter_ptr_->Report("Warning: one or more issues identified during "
+                          "framework validation\n", Color::Yellow);
   }
 }
 
