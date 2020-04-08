@@ -34,6 +34,7 @@
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/group/group_source_iteration.h"
 
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"
@@ -237,6 +238,32 @@ auto FrameworkBuilder<dim>::BuildFixedUpdater(
       std::move(formulation_ptr),
       std::move(stamper_ptr),
       quadrature_set_ptr));
+
+  return return_ptr;
+}
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
+    std::unique_ptr<SingleGroupSolverType> single_group_solver_ptr,
+    std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
+    std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
+    const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
+    const std::shared_ptr<ScatteringSourceUpdaterType>& scattering_source_updater_ptr,
+    const std::shared_ptr<ReporterType>& convergence_report_ptr)
+    -> std::unique_ptr<GroupSolveIterationType> {
+  std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
+
+  ReportBuildingComponant("Iterative group solver");
+
+  return_ptr = std::move(
+      std::make_unique<iteration::group::GroupSourceIteration<dim>>(
+          std::move(single_group_solver_ptr),
+          std::move(moment_convergence_checker_ptr),
+          std::move(moment_calculator_ptr),
+          group_solution_ptr,
+          scattering_source_updater_ptr,
+          convergence_report_ptr)
+      );
 
   return return_ptr;
 }

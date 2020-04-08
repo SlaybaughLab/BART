@@ -1,10 +1,9 @@
-
 #include <deal.II/fe/fe_q.h>
 
 #include "framework/builder/framework_builder.h"
 
 // Instantiated concerete classes
-#include "convergence/reporter/mpi.h"
+#include "convergence/reporter/mpi_noisy.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
@@ -26,6 +25,7 @@
 #include "iteration/group/group_source_iteration.h"
 
 // Mock objects
+#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
@@ -65,6 +65,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using Material = NiceMock<btest::MockMaterial>;
 
   // Mock object types
+  using ConvergenceReporterType = convergence::reporter::MpiMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
@@ -85,6 +86,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<ReporterType> mock_reporter_ptr_;
 
   // Various mock objects to be used
+  std::shared_ptr<ConvergenceReporterType> convergence_reporter_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::shared_ptr<GroupSolutionType> group_solution_sptr_;
   std::unique_ptr<MomentCalculatorType> moment_calculator_uptr_;
@@ -107,6 +109,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
+  convergence_reporter_sptr_ = std::make_shared<ConvergenceReporterType>();
   diffusion_formulation_uptr_ =
       std::move(std::make_unique<DiffusionFormulationType>());
   group_solution_sptr_ = std::make_shared<GroupSolutionType>();
@@ -227,7 +230,17 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
-  //using ExpectedType
+  using ExpectedType = iteration::group::GroupSourceIteration<this->dim>;
+
+  auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
+      std::move(this->single_group_solver_uptr_),
+      std::move(this->moment_convergence_checker_uptr_),
+      std::move(this->moment_calculator_uptr_),
+      this->group_solution_sptr_,
+      this->scattering_source_updater_sptr_,
+      this->convergence_reporter_sptr_);
+  EXPECT_THAT(source_iteration_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSolution) {

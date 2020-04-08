@@ -21,6 +21,8 @@
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
 #include "formulation/updater/fixed_updater_i.h"
+#include "formulation/updater/scattering_source_updater_i.h"
+#include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
@@ -52,6 +54,7 @@ class FrameworkBuilder {
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FixedUpdaterType = formulation::updater::FixedUpdaterI;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
+  using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using InitializerType = iteration::initializer::InitializerI;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
@@ -59,6 +62,7 @@ class FrameworkBuilder {
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using ReporterType = convergence::reporter::MpiI;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
+  using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterI;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
 
@@ -86,6 +90,13 @@ class FrameworkBuilder {
       std::unique_ptr<SAAFFormulationType>,
       std::unique_ptr<StamperType>,
       const std::shared_ptr<QuadratureSetType>&);
+  std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
+      std::unique_ptr<SingleGroupSolverType>,
+      std::unique_ptr<MomentConvergenceCheckerType>,
+      std::unique_ptr<MomentCalculatorType>,
+      const std::shared_ptr<GroupSolutionType>&,
+      const std::shared_ptr<ScatteringSourceUpdaterType>&,
+      const std::shared_ptr<ReporterType>&);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
