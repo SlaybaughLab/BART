@@ -1,5 +1,5 @@
-#ifndef BART_SRC_CONVERGENCE_REPORTER_TESTS_MPI_MOCK_H_
-#define BART_SRC_CONVERGENCE_REPORTER_TESTS_MPI_MOCK_H_
+#ifndef BART_SRC_UTILITY_REPORTER_TESTS_MPI_MOCK_H_
+#define BART_SRC_UTILITY_REPORTER_TESTS_MPI_MOCK_H_
 
 #include "utility/reporter/basic_reporter_i.h"
 
@@ -23,4 +23,4 @@ class BasicReporterMock : public BasicReporterI {
 
 } // namespace bart
 
-#endif //BART_SRC_CONVERGENCE_REPORTER_TESTS_MPI_MOCK_H_
+#endif //BART_SRC_UTILITY_REPORTER_TESTS_MPI_MOCK_H_
