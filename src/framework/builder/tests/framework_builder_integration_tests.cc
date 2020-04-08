@@ -23,17 +23,23 @@
 #include "solver/group/single_group_solver.h"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/group/group_source_iteration.h"
 
 // Mock objects
+#include "convergence/tests/final_checker_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
+#include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
+#include "solver/group/tests/single_group_solver_mock.h"
+#include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "utility/reporter/tests/basic_reporter_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
@@ -60,8 +66,13 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   // Mock object types
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
+  using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
+  using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
+  using MomentConvergenceCheckerType = convergence::FinalCheckerMock<bart::system::moments::MomentVector>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
+  using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
+  using SingleGroupSolverType = solver::group::SingleGroupSolverMock;
   using StamperType = formulation::StamperMock<dim>;
   using ReporterType = NiceMock<utility::reporter::BasicReporterMock>;
 
@@ -75,8 +86,13 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   // Various mock objects to be used
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
+  std::shared_ptr<GroupSolutionType> group_solution_sptr_;
+  std::unique_ptr<MomentCalculatorType> moment_calculator_uptr_;
+  std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_uptr_;
   std::shared_ptr<QuadratureSetType> quadrature_set_sptr_;
   std::unique_ptr<SAAFFormulationType> saaf_formulation_uptr_;
+  std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_sptr_;
+  std::unique_ptr<SingleGroupSolverType> single_group_solver_uptr_;
   std::unique_ptr<StamperType> stamper_uptr_;
 
   // Test Parameters
@@ -93,10 +109,16 @@ template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   diffusion_formulation_uptr_ =
       std::move(std::make_unique<DiffusionFormulationType>());
+  group_solution_sptr_ = std::make_shared<GroupSolutionType>();
+  moment_calculator_uptr_ = std::move(std::make_unique<MomentCalculatorType>());
+  moment_convergence_checker_uptr_ =
+      std::move(std::make_unique<MomentConvergenceCheckerType>());
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
+  scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
   mock_reporter_ptr_ = std::make_shared<ReporterType>();
+  single_group_solver_uptr_ = std::move(std::make_unique<SingleGroupSolverType>());
 
   test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(mock_reporter_ptr_));
 
@@ -202,6 +224,10 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
 
   EXPECT_THAT(test_domain_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
+  //using ExpectedType
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSolution) {
