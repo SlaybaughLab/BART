@@ -209,7 +209,7 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildFixedUpdater(
+auto FrameworkBuilder<dim>::BuildUpdaterPointers(
     std::unique_ptr<DiffusionFormulationType> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr)
 -> UpdaterPointers {
@@ -226,7 +226,7 @@ auto FrameworkBuilder<dim>::BuildFixedUpdater(
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildFixedUpdater(
+auto FrameworkBuilder<dim>::BuildUpdaterPointers(
     std::unique_ptr<SAAFFormulationType> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr,
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr)

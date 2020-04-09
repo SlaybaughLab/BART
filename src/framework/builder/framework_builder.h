@@ -86,10 +86,10 @@ class FrameworkBuilder {
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  UpdaterPointers BuildFixedUpdater(
+  UpdaterPointers BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulationType>,
       std::unique_ptr<StamperType>);
-  UpdaterPointers BuildFixedUpdater(
+  UpdaterPointers BuildUpdaterPointers(
       std::unique_ptr<SAAFFormulationType>,
       std::unique_ptr<StamperType>,
       const std::shared_ptr<QuadratureSetType>&);
