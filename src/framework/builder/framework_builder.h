@@ -67,7 +67,8 @@ class FrameworkBuilder {
   using StamperType = formulation::StamperI<dim>;
 
   struct UpdaterPointers {
-    std::shared_ptr<FixedUpdaterType> fixed_updater_ptr;
+    std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
+    std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
   };
 
   FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr)

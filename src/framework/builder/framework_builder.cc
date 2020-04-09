@@ -79,10 +79,10 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
     auto saaf_formulation_ptr = BuildSAAFFormulation(finite_element_ptr,
                                                      cross_sections_ptr,
                                                      quadrature_set_ptr);
-    fixed_updater_ptr = Shared(BuildFixedUpdater(
+    updater_pointers = BuildUpdaterPointers(
         std::move(saaf_formulation_ptr),
         std::move(stamper_ptr),
-        quadrature_set_ptr));
+        quadrature_set_ptr);
     moment_calculator_ptr = std::move(BuildMomentCalculator(quadrature_set_ptr));
 
   } else if (prm.TransportModel() == problem::EquationType::kDiffusion) {
@@ -90,17 +90,24 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
         finite_element_ptr,
         cross_sections_ptr);
     auto stamper_ptr = BuildStamper(domain_ptr);
-    fixed_updater_ptr = Shared(BuildFixedUpdater(
+    updater_pointers = BuildUpdaterPointers(
         std::move(diffusion_formulation_ptr),
-        std::move(stamper_ptr)));
+        std::move(stamper_ptr));
     moment_calculator_ptr = std::move(BuildMomentCalculator());
   }
 
-  auto initializer_ptr = BuildInitializer(fixed_updater_ptr, n_groups, n_angles);
-  auto single_group_solver_ptr = BuildSingleGroupSolver();
-  auto moment_convergence_checker_ptr = BuildMomentConvergenceChecker(1e-10, 100);
-  auto convergence_reporter_ptr = BuildConvergenceReporter();
+  auto initializer_ptr = BuildInitializer(
+      updater_pointers.fixed_updater_ptr, n_groups, n_angles);
+  auto convergence_reporter_ptr = Shared(BuildConvergenceReporter());
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
+
+  auto iterative_group_solver_ptr = BuildGroupSolveIteration(
+      BuildSingleGroupSolver(),
+      BuildMomentConvergenceChecker(1e-10, 100),
+      std::move(moment_calculator_ptr),
+      group_solution_ptr,
+      updater_pointers.scattering_source_updater_ptr,
+      convergence_reporter_ptr);
 
   Validate();
 }
@@ -215,13 +222,15 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
 -> UpdaterPointers {
   ReportBuildingComponant("Building Diffusion Formulation updater");
   UpdaterPointers return_struct;
-  return_struct.fixed_updater_ptr = nullptr;
 
   using ReturnType = formulation::updater::DiffusionUpdater<dim>;
-  return_struct.fixed_updater_ptr = std::make_shared<ReturnType>(
+
+  auto diffusion_updater_ptr = std::make_shared<ReturnType>(
       std::move(formulation_ptr),
       std::move(stamper_ptr));
-
+  return_struct.fixed_updater_ptr = diffusion_updater_ptr;
+  return_struct.scattering_source_updater_ptr = diffusion_updater_ptr;
+  ReportBuilt("");
   return return_struct;
 }
 
@@ -233,14 +242,15 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
 -> UpdaterPointers {
   ReportBuildingComponant("Building SAAF Formulation updater");
   UpdaterPointers return_struct;
-  return_struct.fixed_updater_ptr = nullptr;
 
   using ReturnType = formulation::updater::SAAFUpdater<dim>;
-  return_struct.fixed_updater_ptr = std::make_shared<ReturnType>(
+  auto saaf_updater_ptr = std::make_shared<ReturnType>(
       std::move(formulation_ptr),
       std::move(stamper_ptr),
       quadrature_set_ptr);
-
+  return_struct.fixed_updater_ptr = saaf_updater_ptr;
+  return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
+  ReportBuilt("");
   return return_struct;
 }
 
@@ -496,7 +506,7 @@ void FrameworkBuilder<dim>::Validate() const {
     issue = true;
   }
   reporter_ptr_->Report("\tHas fission source update: ");
-  if (has_scattering_source_update_) {
+  if (has_fission_source_update_) {
     reporter_ptr_->Report("True\n", Color::Green);
   } else {
     reporter_ptr_->Report("False\n", Color::Red);

@@ -197,6 +197,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointers) {
       std::move(this->stamper_uptr_));
   EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
@@ -207,6 +209,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
       std::move(this->stamper_uptr_),
       this->quadrature_set_sptr_);
   EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
