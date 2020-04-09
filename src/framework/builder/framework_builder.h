@@ -66,6 +66,9 @@ class FrameworkBuilder {
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
 
+  struct UpdaterPointers {
+    std::shared_ptr<FixedUpdaterType> fixed_updater_ptr;
+  };
 
   FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr)
   : reporter_ptr_(reporter_ptr) {}
@@ -83,10 +86,10 @@ class FrameworkBuilder {
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  std::unique_ptr<FixedUpdaterType> BuildFixedUpdater(
+  UpdaterPointers BuildFixedUpdater(
       std::unique_ptr<DiffusionFormulationType>,
       std::unique_ptr<StamperType>);
-  std::unique_ptr<FixedUpdaterType> BuildFixedUpdater(
+  UpdaterPointers BuildFixedUpdater(
       std::unique_ptr<SAAFFormulationType>,
       std::unique_ptr<StamperType>,
       const std::shared_ptr<QuadratureSetType>&);

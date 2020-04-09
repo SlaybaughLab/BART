@@ -192,21 +192,21 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedDiffusionUpdater) {
   constexpr int dim = this->dim;
   using ExpectedType = formulation::updater::DiffusionUpdater<dim>;
-  auto fixed_updater_ptr = this->test_builder_ptr_->BuildFixedUpdater(
+  auto updater_struct = this->test_builder_ptr_->BuildFixedUpdater(
       std::move(this->diffusion_formulation_uptr_),
       std::move(this->stamper_uptr_));
-  EXPECT_THAT(fixed_updater_ptr.get(),
+  EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSAAFUpdater) {
   constexpr int dim = this->dim;
   using ExpectedType = formulation::updater::SAAFUpdater<dim>;
-  auto fixed_updater_ptr = this->test_builder_ptr_->BuildFixedUpdater(
+  auto updater_struct = this->test_builder_ptr_->BuildFixedUpdater(
       std::move(this->saaf_formulation_uptr_),
       std::move(this->stamper_uptr_),
       this->quadrature_set_sptr_);
-  EXPECT_THAT(fixed_updater_ptr.get(),
+  EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 

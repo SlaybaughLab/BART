@@ -69,7 +69,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   domain_ptr->SetUpMesh().SetUpDOF();
 
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
-  std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
+  UpdaterPointers updater_pointers;
   std::unique_ptr<MomentCalculatorType> moment_calculator_ptr = nullptr;
 
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
@@ -212,16 +212,17 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildFixedUpdater(
     std::unique_ptr<DiffusionFormulationType> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr)
--> std::unique_ptr<FixedUpdaterType> {
-  reporter_ptr_->Report("\tBuilding Diffusion Formulation updater\n");
-  std::unique_ptr<FixedUpdaterType> return_ptr = nullptr;
+-> UpdaterPointers {
+  ReportBuildingComponant("Building Diffusion Formulation updater");
+  UpdaterPointers return_struct;
+  return_struct.fixed_updater_ptr = nullptr;
 
   using ReturnType = formulation::updater::DiffusionUpdater<dim>;
-  return_ptr = std::move(std::make_unique<ReturnType>(
+  return_struct.fixed_updater_ptr = std::make_shared<ReturnType>(
       std::move(formulation_ptr),
-      std::move(stamper_ptr)));
+      std::move(stamper_ptr));
 
-  return return_ptr;
+  return return_struct;
 }
 
 template<int dim>
@@ -229,17 +230,18 @@ auto FrameworkBuilder<dim>::BuildFixedUpdater(
     std::unique_ptr<SAAFFormulationType> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr,
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr)
--> std::unique_ptr<FixedUpdaterType> {
-  reporter_ptr_->Report("\tBuilding SAAF Formulation updater\n");
-  std::unique_ptr<FixedUpdaterType> return_ptr = nullptr;
+-> UpdaterPointers {
+  ReportBuildingComponant("Building SAAF Formulation updater");
+  UpdaterPointers return_struct;
+  return_struct.fixed_updater_ptr = nullptr;
 
   using ReturnType = formulation::updater::SAAFUpdater<dim>;
-  return_ptr = std::move(std::make_unique<ReturnType>(
+  return_struct.fixed_updater_ptr = std::make_shared<ReturnType>(
       std::move(formulation_ptr),
       std::move(stamper_ptr),
-      quadrature_set_ptr));
+      quadrature_set_ptr);
 
-  return return_ptr;
+  return return_struct;
 }
 
 template <int dim>
@@ -264,7 +266,8 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
           scattering_source_updater_ptr,
           convergence_report_ptr)
       );
-
+  has_scattering_source_update_ = true;
+  ReportBuilt(return_ptr->description());
   return return_ptr;
 }
 
