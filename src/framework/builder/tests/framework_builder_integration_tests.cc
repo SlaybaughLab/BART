@@ -10,6 +10,7 @@
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/definition.h"
+#include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/updater/saaf_updater.h"
@@ -67,6 +68,8 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   // Mock object types
   using ConvergenceReporterType = convergence::reporter::MpiMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
+  using DomainType = domain::DefinitionMock<dim>;
+  using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerType = convergence::FinalCheckerMock<bart::system::moments::MomentVector>;
@@ -87,7 +90,10 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   // Various mock objects to be used
   std::shared_ptr<ConvergenceReporterType> convergence_reporter_sptr_;
+  std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
+  std::shared_ptr<DomainType> domain_sptr_;
+  std::shared_ptr<FiniteElementType> finite_element_sptr_;
   std::shared_ptr<GroupSolutionType> group_solution_sptr_;
   std::unique_ptr<MomentCalculatorType> moment_calculator_uptr_;
   std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_uptr_;
@@ -110,8 +116,11 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   convergence_reporter_sptr_ = std::make_shared<ConvergenceReporterType>();
+  cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ =
       std::move(std::make_unique<DiffusionFormulationType>());
+  domain_sptr_ = std::make_shared<DomainType>();
+  finite_element_sptr_ = std::make_shared<FiniteElementType>();
   group_solution_sptr_ = std::make_shared<GroupSolutionType>();
   moment_calculator_uptr_ = std::move(std::make_unique<MomentCalculatorType>());
   moment_convergence_checker_uptr_ =
@@ -272,6 +281,17 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
   auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(
       finite_element_ptr->finite_element());
   EXPECT_NE(dealii_finite_element_ptr, nullptr);
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
+  using ExpectedType = eigenvalue::k_effective::UpdaterViaFissionSource;
+
+  auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater(
+      this->finite_element_sptr_,
+      this->cross_sections_sptr_,
+      this->domain_sptr_);
+  EXPECT_THAT(k_effective_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentCalculatorScalar) {

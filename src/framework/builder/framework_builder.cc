@@ -25,6 +25,11 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 
+// KEffective Updater Classes
+#include "calculator/cell/total_aggregated_fission_source.h"
+#include "calculator/cell/integrated_fission_source.h"
+#include "eigenvalue/k_effective/updater_via_fission_source.h"
+
 // Material classes
 #include "material/material_protobuf.h"
 
@@ -108,6 +113,10 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
       group_solution_ptr,
       updater_pointers.scattering_source_updater_ptr,
       convergence_reporter_ptr);
+
+  auto k_effective_updater = BuildKEffectiveUpdater(finite_element_ptr,
+                                                    cross_sections_ptr,
+                                                    domain_ptr);
 
   Validate();
 }
@@ -310,6 +319,32 @@ auto FrameworkBuilder<dim>::BuildInitializer(
 }
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
+    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
+    const std::shared_ptr<CrossSectionType>& cross_sections_ptr,
+    const std::shared_ptr<DomainType>& domain_ptr)
+-> std::unique_ptr<KEffectiveUpdaterType> {
+  using AggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
+  using IntegratedFissionSource = calculator::cell::IntegratedFissionSource<dim>;
+  using ReturnType = eigenvalue::k_effective::UpdaterViaFissionSource;
+
+  ReportBuildingComponant("K_Effective updater");
+  std::unique_ptr<KEffectiveUpdaterType> return_ptr = nullptr;
+
+  return_ptr = std::move(
+      std::make_unique<ReturnType>(
+          std::make_unique<AggregatedFissionSource>(
+              std::make_unique<IntegratedFissionSource>(finite_element_ptr,
+                                                        cross_sections_ptr),
+              domain_ptr),
+          2.0,
+          10));
+
+  ReportBuilt("");
+  return return_ptr;
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildMomentCalculator(
     MomentCalculatorImpl implementation)
 -> std::unique_ptr<MomentCalculatorType> {
@@ -375,14 +410,14 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
     double max_delta, int max_iterations)
 -> std::unique_ptr<ParameterConvergenceCheckerType>{
-
+  ReportBuildingComponant("Parameter (double) convergence checker");
   using CheckerType = convergence::parameters::SingleParameterChecker;
   using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;
 
   auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
   auto return_ptr = std::make_unique<FinalCheckerType>(
       std::move(single_checker_ptr));
-
+  ReportBuilt("");
   return_ptr->SetMaxIterations(max_iterations);
 
   return std::move(return_ptr);

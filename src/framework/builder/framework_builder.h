@@ -17,6 +17,7 @@
 #include "data/cross_sections.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
+#include "eigenvalue/k_effective/k_effective_updater_i.h"
 #include "formulation/stamper_i.h"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
@@ -56,6 +57,7 @@ class FrameworkBuilder {
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using InitializerType = iteration::initializer::InitializerI;
+  using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
@@ -105,6 +107,10 @@ class FrameworkBuilder {
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
   std::unique_ptr<GroupSolutionType> BuildGroupSolution(const int n_angles);
+  std::unique_ptr<KEffectiveUpdaterType> BuildKEffectiveUpdater(
+      const std::shared_ptr<FiniteElementType>&,
+      const std::shared_ptr<CrossSectionType>&,
+      const std::shared_ptr<DomainType>&);
   std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment);
   std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
