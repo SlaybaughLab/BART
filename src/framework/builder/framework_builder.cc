@@ -239,6 +239,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
       std::move(stamper_ptr));
   return_struct.fixed_updater_ptr = diffusion_updater_ptr;
   return_struct.scattering_source_updater_ptr = diffusion_updater_ptr;
+  return_struct.fission_source_updater_ptr = diffusion_updater_ptr;
   ReportBuilt("");
   return return_struct;
 }
@@ -259,6 +260,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
       quadrature_set_ptr);
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
+  return_struct.fission_source_updater_ptr = saaf_updater_ptr;
   ReportBuilt("");
   return return_struct;
 }

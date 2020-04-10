@@ -21,10 +21,12 @@
 #include "formulation/stamper_i.h"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
+#include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
+#include "iteration/outer/outer_iteration_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -53,6 +55,7 @@ class FrameworkBuilder {
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
+  using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterI;
   using FixedUpdaterType = formulation::updater::FixedUpdaterI;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
@@ -69,6 +72,7 @@ class FrameworkBuilder {
   using StamperType = formulation::StamperI<dim>;
 
   struct UpdaterPointers {
+    std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
     std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
     std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
   };

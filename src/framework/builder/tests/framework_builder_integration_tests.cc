@@ -208,6 +208,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointers) {
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
@@ -220,6 +222,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
   EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
