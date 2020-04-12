@@ -33,6 +33,16 @@ class Mpi : public BasicReporterI, private Uncopyable {
     *pout_ptr_ << color_string_.at(color) + to_report + color_string_.at(Color::Reset);
   }
 
+  Mpi& operator<<(const std::string &to_report) {
+    *pout_ptr_ << to_report;
+    return *this;
+  }
+
+  Mpi& operator<<(const Color color) {
+    *pout_ptr_ << color_string_.at(color);
+    return *this;
+  }
+
  private:
   std::unique_ptr<dealii::ConditionalOStream> pout_ptr_;
   std::unordered_map<Color, std::string> color_string_{
