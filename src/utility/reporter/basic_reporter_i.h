@@ -26,6 +26,8 @@ class BasicReporterI {
    */
   virtual void Report(const std::string &to_report) = 0;
   virtual void Report(const std::string &to_report, Color) = 0;
+  virtual BasicReporterI& operator<<(const std::string&) = 0;
+  virtual BasicReporterI& operator<<(const Color) = 0;
 };
 
 } // namespace reporter

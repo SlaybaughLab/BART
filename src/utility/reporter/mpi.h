@@ -33,12 +33,12 @@ class Mpi : public BasicReporterI, private Uncopyable {
     *pout_ptr_ << color_string_.at(color) + to_report + color_string_.at(Color::Reset);
   }
 
-  Mpi& operator<<(const std::string &to_report) {
+  Mpi& operator<<(const std::string &to_report) override {
     *pout_ptr_ << to_report;
     return *this;
   }
 
-  Mpi& operator<<(const Color color) {
+  Mpi& operator<<(const Color color) override {
     *pout_ptr_ << color_string_.at(color);
     return *this;
   }

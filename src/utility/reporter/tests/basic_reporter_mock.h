@@ -15,6 +15,14 @@ class BasicReporterMock : public BasicReporterI {
  public:
   MOCK_METHOD(void, Report, (const std::string &to_report), (override));
   MOCK_METHOD(void, Report, (const std::string &to_report, Color), (override));
+  MOCK_METHOD(BasicReporterI&, Instream, (const std::string&));
+  MOCK_METHOD(BasicReporterI&, Instream, (const Color));
+  BasicReporterMock& operator<<(const std::string& to_report) override {
+    Instream(to_report);
+    return *this; }
+  BasicReporterMock& operator<<(const Color color) override {
+    Instream(color);
+    return *this; }
 };
 
 } // namespace reporter
