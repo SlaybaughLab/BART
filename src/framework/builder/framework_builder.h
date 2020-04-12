@@ -8,6 +8,8 @@
 
 #include "quadrature/quadrature_types.h"
 
+#include "utility/has_description.h"
+
 // Problem parameters
 #include "problem/parameters_i.h"
 
@@ -139,15 +141,27 @@ class FrameworkBuilder {
 
  private:
   void ReportBuildingComponant(std::string componant) {
-    reporter_ptr_->Report("\tBuilding " + componant + ": "); }
-  void ReportBuilt(std::string description) {
-    reporter_ptr_->Report("Built " + description + "\n", Color::Green); }
-  void ReportError() {
-    reporter_ptr_->Report("Error\n", Color::Red); }
+    *reporter_ptr_ << "\tBuilding " << componant << ": ";
+  }
+
+  void Report(const std::string to_report, const Color color = Color::Reset) {
+    *reporter_ptr_ << color << to_report << Color::Reset;
+  }
+
+  void ReportBuildSuccess(std::string description = "") {
+    *reporter_ptr_ << Color::Green << "Built " << description << Color::Reset
+                   << "\n";
+  }
+
+  void ReportBuildError(std::string description = "") {
+    *reporter_ptr_ << Color::Red << "Error: " << description << Color::Reset
+                   << "\n";
+  }
 
   void Validate() const;
 
   std::shared_ptr<FrameworkReporterType> reporter_ptr_;
+
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return std::move(to_convert_ptr);
@@ -156,6 +170,7 @@ class FrameworkBuilder {
 
   bool has_scattering_source_update_ = false;
   bool has_fission_source_update_ = false;
+  bool build_report_in_progress_ = false;
 };
 
 } // namespace builder

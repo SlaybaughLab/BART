@@ -62,15 +62,15 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   int n_angles = 1; // Set to default value of 1 for scalar solve
   const int n_groups = prm.NEnergyGroups();
 
-  reporter_ptr_->Report("Building Framework: ");
-  reporter_ptr_->Report(name + "\n", utility::reporter::Color::Green);
+  *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
+                 Color::Reset << "\n";
 
   auto finite_element_ptr = Shared(BuildFiniteElement(prm));
   auto cross_sections_ptr = Shared(BuildCrossSections(prm));
 
   auto domain_ptr = Shared(BuildDomain(prm, finite_element_ptr,
                                        ReadMappingFile(prm.MaterialMapFilename())));
-  reporter_ptr_->Report("\tSetting up domain\n");
+  *reporter_ptr_ << "\tSetting up domain\n";
   domain_ptr->SetUpMesh().SetUpDOF();
 
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
@@ -174,7 +174,7 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     return_ptr = std::move(std::make_unique<ReturnType>(
         finite_element_ptr, cross_sections_ptr));
   }
-  ReportBuilt(return_ptr->description());
+  ReportBuildSuccess(return_ptr->description());
 
   return return_ptr;
 }
@@ -192,13 +192,13 @@ auto FrameworkBuilder<dim>::BuildDomain(
       problem_parameters.SpatialMax(),
       problem_parameters.NCells(),
       material_mapping);
-  ReportBuilt(mesh_ptr->description());
+  ReportBuildSuccess(mesh_ptr->description());
 
   ReportBuildingComponant("Domain");
   return_ptr = std::move(std::make_unique<domain::Definition<dim>>(
       std::move(mesh_ptr),
       finite_element_ptr));
-  ReportBuilt(return_ptr->description());
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 
@@ -216,9 +216,9 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
         problem::DiscretizationType::kContinuousFEM,
         problem_parameters.FEPolynomialDegree()));
 
-    ReportBuilt(return_ptr->description());
+    ReportBuildSuccess(return_ptr->description());
   } catch (...) {
-    ReportError();
+    ReportBuildError();
     throw;
   }
   return return_ptr;
@@ -240,7 +240,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   return_struct.fixed_updater_ptr = diffusion_updater_ptr;
   return_struct.scattering_source_updater_ptr = diffusion_updater_ptr;
   return_struct.fission_source_updater_ptr = diffusion_updater_ptr;
-  ReportBuilt("");
+  ReportBuildSuccess("");
   return return_struct;
 }
 
@@ -261,7 +261,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
   return_struct.fission_source_updater_ptr = saaf_updater_ptr;
-  ReportBuilt("");
+  ReportBuildSuccess("");
   return return_struct;
 }
 
@@ -288,7 +288,7 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
           convergence_report_ptr)
       );
   has_scattering_source_update_ = true;
-  ReportBuilt(return_ptr->description());
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 
@@ -300,7 +300,7 @@ auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles)
 
   return_ptr = std::move(
       std::make_unique<system::solution::MPIGroupAngularSolution>(n_angles));
-  ReportBuilt(return_ptr->description());
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 
@@ -342,7 +342,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
           2.0,
           10));
 
-  ReportBuilt("");
+  ReportBuildSuccess("");
   return return_ptr;
 }
 
@@ -419,7 +419,7 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
   auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
   auto return_ptr = std::make_unique<FinalCheckerType>(
       std::move(single_checker_ptr));
-  ReportBuilt("");
+  ReportBuildSuccess("");
   return_ptr->SetMaxIterations(max_iterations);
 
   return std::move(return_ptr);
