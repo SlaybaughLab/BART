@@ -65,6 +65,7 @@ class FrameworkBuilder {
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
+  using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using ReporterType = convergence::reporter::MpiI;
@@ -124,6 +125,12 @@ class FrameworkBuilder {
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly);
   std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
       double max_delta, int max_iterations);
+  std::unique_ptr<OuterIterationType> BuildOuterIteration(
+      std::unique_ptr<GroupSolveIterationType>,
+      std::unique_ptr<ParameterConvergenceCheckerType>,
+      std::unique_ptr<KEffectiveUpdaterType>,
+      const std::shared_ptr<FissionSourceUpdaterType>&,
+      const std::shared_ptr<ReporterType>&);
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
       double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);

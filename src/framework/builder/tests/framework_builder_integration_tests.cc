@@ -16,6 +16,7 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
+#include "iteration/outer/outer_power_iteration.h"
 #include "quadrature/calculators/scalar_moment.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/quadrature_set.h"
@@ -30,10 +31,14 @@
 #include "convergence/tests/final_checker_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
+#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
+#include "formulation/updater/tests/fission_source_updater_mock.h"
+#include "formulation/updater/tests/fixed_updater_mock.h"
+#include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
@@ -53,6 +58,7 @@ using namespace bart;
 using ::testing::Return, ::testing::NiceMock, ::testing::DoDefault;
 using ::testing::WhenDynamicCastTo, ::testing::NotNull;
 using ::testing::HasSubstr, ::testing::_;
+using ::testing::ReturnRef, ::testing::A;
 
 using ::testing::AtLeast;
 
@@ -70,9 +76,13 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
+  using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterMock;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
+  using GroupSolveIterationType = iteration::group::GroupSolveIterationMock;
+  using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerType = convergence::FinalCheckerMock<bart::system::moments::MomentVector>;
+  using ParameterConvergenceCheckerType = convergence::FinalCheckerMock<double>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
@@ -94,9 +104,13 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::shared_ptr<DomainType> domain_sptr_;
   std::shared_ptr<FiniteElementType> finite_element_sptr_;
+  std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_sptr_;
   std::shared_ptr<GroupSolutionType> group_solution_sptr_;
+  std::unique_ptr<GroupSolveIterationType> group_solve_iteration_uptr_;
+  std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_uptr_;
   std::unique_ptr<MomentCalculatorType> moment_calculator_uptr_;
   std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_uptr_;
+  std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_uptr_;
   std::shared_ptr<QuadratureSetType> quadrature_set_sptr_;
   std::unique_ptr<SAAFFormulationType> saaf_formulation_uptr_;
   std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_sptr_;
@@ -121,10 +135,17 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
       std::move(std::make_unique<DiffusionFormulationType>());
   domain_sptr_ = std::make_shared<DomainType>();
   finite_element_sptr_ = std::make_shared<FiniteElementType>();
+  fission_source_updater_sptr_ = std::make_shared<FissionSourceUpdaterType>();
   group_solution_sptr_ = std::make_shared<GroupSolutionType>();
+  group_solve_iteration_uptr_  = std::move(
+      std::make_unique<GroupSolveIterationType>());
+  k_effective_updater_uptr_ = std::move(
+      std::make_unique<KEffectiveUpdaterType>());
   moment_calculator_uptr_ = std::move(std::make_unique<MomentCalculatorType>());
   moment_convergence_checker_uptr_ =
       std::move(std::make_unique<MomentConvergenceCheckerType>());
+  parameter_convergence_checker_uptr_ = std::move(
+      std::make_unique<ParameterConvergenceCheckerType>());
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
@@ -160,6 +181,10 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(problem::EquationType::kDiffusion));
   ON_CALL(parameters, ReflectiveBoundary())
       .WillByDefault(Return(reflective_bcs));
+  ON_CALL(*mock_reporter_ptr_, Instream(A<const std::string&>()))
+      .WillByDefault(ReturnRef(*mock_reporter_ptr_));
+  ON_CALL(*mock_reporter_ptr_, Instream(A<utility::reporter::Color>()))
+      .WillByDefault(ReturnRef(*mock_reporter_ptr_));
 }
 
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
@@ -323,6 +348,18 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BulidMomentCalculatorAngular) {
       this->quadrature_set_sptr_);
   ASSERT_THAT(moment_calculator_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
+  auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
+      std::move(this->group_solve_iteration_uptr_),
+      std::move(this->parameter_convergence_checker_uptr_),
+      std::move(this->k_effective_updater_uptr_),
+      this->fission_source_updater_sptr_,
+      this->convergence_reporter_sptr_);
+  using ExpectedType = iteration::outer::OuterPowerIteration;
+  ASSERT_THAT(power_iteration_ptr.get(),
+                  WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {

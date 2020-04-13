@@ -40,6 +40,7 @@
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
+#include "iteration/outer/outer_power_iteration.h"
 
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"
@@ -117,6 +118,13 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto k_effective_updater = BuildKEffectiveUpdater(finite_element_ptr,
                                                     cross_sections_ptr,
                                                     domain_ptr);
+
+  auto outer_iteration_ptr = BuildOuterIteration(
+      std::move(iterative_group_solver_ptr),
+      BuildParameterConvergenceChecker(1e-6, 100),
+      std::move(k_effective_updater),
+      updater_pointers.fission_source_updater_ptr,
+      convergence_reporter_ptr);
 
   Validate();
 }
@@ -399,6 +407,32 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
       std::move(single_checker_ptr));
   return_ptr->SetMaxIterations(max_iterations);
   return std::move(return_ptr);
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildOuterIteration(
+    std::unique_ptr<GroupSolveIterationType> group_solve_iteration_ptr,
+    std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_ptr,
+    std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
+    const std::shared_ptr<FissionSourceUpdaterType>& fission_source_updater_ptr,
+    const std::shared_ptr<ReporterType>& convergence_reporter_ptr)
+-> std::unique_ptr<OuterIterationType> {
+  std::unique_ptr<OuterIterationType> return_ptr = nullptr;
+  ReportBuildingComponant("Outer Iteration");
+
+  using DefaultOuterPowerIteration = iteration::outer::OuterPowerIteration;
+
+  return_ptr = std::move(
+      std::make_unique<DefaultOuterPowerIteration>(
+          std::move(group_solve_iteration_ptr),
+          std::move(parameter_convergence_checker_ptr),
+          std::move(k_effective_updater_ptr),
+          fission_source_updater_ptr,
+          convergence_reporter_ptr));
+
+  has_fission_source_update_ = true;
+
+  return return_ptr;
 }
 
 template<int dim>
