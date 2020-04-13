@@ -6,6 +6,7 @@
 #include "domain/domain_types.h"
 #include "formulation/formulation_types.h"
 #include "system/system_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -20,7 +21,7 @@ namespace formulation {
  * \author J.S. Rehak
  */
 template <int dim>
-class StamperI {
+class StamperI : public utility::HasDescription {
  public:
   virtual ~StamperI() = default;
   virtual void StampMatrix(

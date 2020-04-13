@@ -10,7 +10,10 @@ Stamper<dim>::Stamper(std::shared_ptr<domain::DefinitionI<dim>> domain_ptr)
   AssertThrow(domain_ptr_ != nullptr,
       dealii::ExcMessage("Error in constructor of formulation::Stamper, "
                          "provided domain::DefinitionI pointer is null"))
+  this->set_description("system matrix stamper");
+  this->is_default_implementation(true);
 }
+
 template<int dim>
 void Stamper<dim>::StampMatrix(
     system::MPISparseMatrix& to_stamp,

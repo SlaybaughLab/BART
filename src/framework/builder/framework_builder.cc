@@ -530,12 +530,12 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildStamper(
     const std::shared_ptr<DomainType>& domain_ptr)
 -> std::unique_ptr<StamperType> {
-  reporter_ptr_->Report("\tBuilding Stamper\n");
+  ReportBuildingComponant("Stamper");
   std::unique_ptr<StamperType> return_ptr = nullptr;
 
   return_ptr = std::move(
       std::make_unique<formulation::Stamper<dim>>(domain_ptr));
-
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 template<int dim>
