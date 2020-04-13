@@ -22,7 +22,10 @@ class InitializeFixedTermsOnce : public InitializeFixedTerms {
       const std::shared_ptr<FixedUpdaterType>& fixed_updater_ptr,
       const int total_groups,
       const int total_angles)
-      : InitializeFixedTerms(fixed_updater_ptr, total_groups, total_angles) {};
+      : InitializeFixedTerms(fixed_updater_ptr, total_groups, total_angles) {
+    this->set_description("fixed terms initializer (initialize once)");
+    this->is_default_implementation(true);
+  };
 
 
   void Initialize(system::System& sys) override {

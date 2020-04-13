@@ -322,6 +322,7 @@ auto FrameworkBuilder<dim>::BuildInitializer(
 
   return_ptr = std::move(std::make_unique<InitializeOnceType>(
       updater_ptr, total_groups, total_angles));
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 

@@ -15,13 +15,15 @@ InitializeFixedTerms::InitializeFixedTerms(
       total_angles_(total_angles) {
   AssertThrow(total_groups_ > 0,
               dealii::ExcMessage("Error in iteration::initializer::InitializeFixedTerms "
-                                 "constructor: total_groups !> 0"));
+                                 "constructor: total_groups !> 0"))
   AssertThrow(total_angles_ > 0,
               dealii::ExcMessage("Error in iteration::initializer::InitializeFixedTerms "
-                                 "constructor: total_angles !> 0"));
+                                 "constructor: total_angles !> 0"))
   AssertThrow(fixed_updater_ptr_ != nullptr,
               dealii::ExcMessage("Error in iteration::initializer::InitializeFixedTerms "
                                  "constructor: fixed updater ptr is nullptr"))
+  this->set_description("fixed terms initializer");
+  this->is_default_implementation(false);
 }
 
 void InitializeFixedTerms::Initialize(system::System &sys) {
