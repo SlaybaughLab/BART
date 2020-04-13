@@ -141,21 +141,27 @@ class FrameworkBuilder {
 
  private:
   void ReportBuildingComponant(std::string componant) {
+    if (!build_report_closed_) {
+      *reporter_ptr_ << "\n" << Color::Reset;
+    }
     *reporter_ptr_ << "\tBuilding " << componant << ": ";
+    build_report_closed_ = false;
   }
 
-  void Report(const std::string to_report, const Color color = Color::Reset) {
+  void Report(const std::string to_report, const Color color = Color::Reset) const {
     *reporter_ptr_ << color << to_report << Color::Reset;
   }
 
   void ReportBuildSuccess(std::string description = "") {
     *reporter_ptr_ << Color::Green << "Built " << description << Color::Reset
                    << "\n";
+    build_report_closed_ = true;
   }
 
   void ReportBuildError(std::string description = "") {
     *reporter_ptr_ << Color::Red << "Error: " << description << Color::Reset
                    << "\n";
+    build_report_closed_ = true;
   }
 
   void Validate() const;
@@ -170,7 +176,7 @@ class FrameworkBuilder {
 
   bool has_scattering_source_update_ = false;
   bool has_fission_source_update_ = false;
-  bool build_report_in_progress_ = false;
+  bool build_report_closed_ = true;
 };
 
 } // namespace builder

@@ -124,7 +124,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
 template<int dim>
 auto FrameworkBuilder<dim>::BuildConvergenceReporter()
 -> std::unique_ptr<ReporterType> {
-  reporter_ptr_->Report("\tBuilding ConvergenceReporter\n");
+  ReportBuildingComponant("ConvergenceReporter");
   using Reporter = bart::convergence::reporter::MpiNoisy;
 
   std::unique_ptr<ReporterType> return_ptr = nullptr;
@@ -132,7 +132,6 @@ auto FrameworkBuilder<dim>::BuildConvergenceReporter()
   int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
   return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
-
   return std::move(return_ptr);
 }
 
@@ -140,7 +139,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildCrossSections(
     const problem::ParametersI& problem_parameters)
     -> std::unique_ptr<CrossSectionType> {
-  reporter_ptr_->Report("\tBuilding Cross-sections: ");
+  ReportBuildingComponant("Cross-sections");
   std::unique_ptr<CrossSectionType> return_ptr = nullptr;
   // Default implementation using protocol buffers
   try {
@@ -150,11 +149,9 @@ auto FrameworkBuilder<dim>::BuildCrossSections(
                                problem_parameters.NEnergyGroups(),
                                problem_parameters.NumberOfMaterials());
     return_ptr = std::move(std::make_unique<CrossSectionType>(materials));
-    reporter_ptr_->Report("Built (default) Cross-sections using protobuf\n",
-                          utility::reporter::Color::Green);
+    ReportBuildSuccess("(default) Cross-sections using protobuf");
   } catch (...) {
-    reporter_ptr_->Report("Error building (default) Cross-sections using protobuf\n",
-                          utility::reporter::Color::Red);
+    ReportBuildError("(default) Cross-sections using protobuf");
     throw;
   }
   return return_ptr;
@@ -240,7 +237,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   return_struct.fixed_updater_ptr = diffusion_updater_ptr;
   return_struct.scattering_source_updater_ptr = diffusion_updater_ptr;
   return_struct.fission_source_updater_ptr = diffusion_updater_ptr;
-  ReportBuildSuccess("");
+
   return return_struct;
 }
 
@@ -261,7 +258,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
   return_struct.fission_source_updater_ptr = saaf_updater_ptr;
-  ReportBuildSuccess("");
+
   return return_struct;
 }
 
@@ -309,14 +306,14 @@ auto FrameworkBuilder<dim>::BuildInitializer(
     const std::shared_ptr<formulation::updater::FixedUpdaterI>& updater_ptr,
     const int total_groups,
     const int total_angles) -> std::unique_ptr<InitializerType> {
-  reporter_ptr_->Report("\tBuilding Initializer\n");
+  ReportBuildingComponant("Initializer");
+
   std::unique_ptr<InitializerType> return_ptr = nullptr;
 
   using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
 
   return_ptr = std::move(std::make_unique<InitializeOnceType>(
       updater_ptr, total_groups, total_angles));
-
   return return_ptr;
 }
 
@@ -342,7 +339,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
           2.0,
           10));
 
-  ReportBuildSuccess("");
+
   return return_ptr;
 }
 
@@ -358,7 +355,7 @@ auto FrameworkBuilder<dim>::BuildMomentCalculator(
     std::shared_ptr<QuadratureSetType> quadrature_set_ptr,
     FrameworkBuilder::MomentCalculatorImpl implementation)
 -> std::unique_ptr<MomentCalculatorType> {
-  reporter_ptr_->Report("\tBuilding Moment Calculator: ");
+  ReportBuildingComponant("Moment calculator");
   std::unique_ptr<MomentCalculatorType> return_ptr = nullptr;
 
   try {
@@ -366,11 +363,9 @@ auto FrameworkBuilder<dim>::BuildMomentCalculator(
         implementation, quadrature_set_ptr));
 
     if (implementation == MomentCalculatorImpl::kScalarMoment) {
-      reporter_ptr_->Report("Built (default) calculator for scalar solve\n",
-                            Color::Green);
+      ReportBuildSuccess("(default) calculator for scalar solve");
     } else if (implementation == MomentCalculatorImpl::kZerothMomentOnly) {
-      reporter_ptr_->Report("Built (default) calculator for 0th moment only\n",
-                            Color::Green);
+      ReportBuildSuccess("(default) calculator for 0th moment only");
     } else {
       AssertThrow(false,
                   dealii::ExcMessage("Unsupported implementation of moment "
@@ -378,8 +373,7 @@ auto FrameworkBuilder<dim>::BuildMomentCalculator(
                                      "BuildMomentCalculator"))
     }
   } catch (...) {
-    reporter_ptr_->Report("Error building calculator for scalar solve \n",
-                          Color::Red);
+    ReportBuildError();
     throw;
   }
 
@@ -393,7 +387,8 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
     double max_delta, int max_iterations)
 -> std::unique_ptr<MomentConvergenceCheckerType>{
   //TODO(Josh): Add option for using other than L1Norm
-  reporter_ptr_->Report("\tBuilding Moment Convergence Checker\n");
+  ReportBuildingComponant("Moment convergence checker");
+
   using CheckerType = convergence::moments::SingleMomentCheckerL1Norm;
   using FinalCheckerType = convergence::FinalCheckerOrN<
       system::moments::MomentVector,
@@ -402,9 +397,7 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
   auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
   auto return_ptr = std::make_unique<FinalCheckerType>(
       std::move(single_checker_ptr));
-
   return_ptr->SetMaxIterations(max_iterations);
-
   return std::move(return_ptr);
 }
 
@@ -419,7 +412,6 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
   auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
   auto return_ptr = std::make_unique<FinalCheckerType>(
       std::move(single_checker_ptr));
-  ReportBuildSuccess("");
   return_ptr->SetMaxIterations(max_iterations);
 
   return std::move(return_ptr);
@@ -428,7 +420,7 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
 template<int dim>
 auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters)
 -> std::shared_ptr<QuadratureSetType> {
-  reporter_ptr_->Report("\tBuilding quadrature set\n");
+  ReportBuildingComponant("quadrature set");
   using QuadratureGeneratorType = quadrature::QuadratureGeneratorI<dim>;
 
   std::shared_ptr<QuadratureSetType> return_ptr = nullptr;
@@ -487,14 +479,13 @@ auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
     const int max_iterations,
     const double convergence_tolerance)
 -> std::unique_ptr<SingleGroupSolverType> {
-  reporter_ptr_->Report("\tBuilding SingleGroupSolver: ");
+  ReportBuildingComponant("Single group solver");
   std::unique_ptr<SingleGroupSolverType> return_ptr = nullptr;
 
   auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
                                                            convergence_tolerance);
-  reporter_ptr_->Report("Built GMRES: tol = " + std::to_string(convergence_tolerance)
-                            + "iter_max = " + std::to_string(max_iterations) + "\n",
-                            Color::Green);
+  ReportBuildSuccess("GMRES: tol = " + std::to_string(convergence_tolerance)
+                            + "iter_max = " + std::to_string(max_iterations));
   return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(
           std::move(linear_solver_ptr)));
 
@@ -534,7 +525,7 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
 template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
   bool issue = false;
-  reporter_ptr_->Report("Validating framework\n");
+  Report("\nValidating framework\n");
   reporter_ptr_->Report("\tHas scattering source update: ");
   if (has_scattering_source_update_) {
     reporter_ptr_->Report("True\n", Color::Green);
