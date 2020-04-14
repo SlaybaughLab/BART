@@ -49,6 +49,7 @@
 
 // System classes
 #include "system/solution/mpi_group_angular_solution.h"
+#include "system/system_functions.h"
 
 namespace bart {
 
@@ -106,6 +107,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
       updater_pointers.fixed_updater_ptr, n_groups, n_angles);
   auto convergence_reporter_ptr = Shared(BuildConvergenceReporter());
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
+  system::SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
   auto iterative_group_solver_ptr = BuildGroupSolveIteration(
       BuildSingleGroupSolver(),
