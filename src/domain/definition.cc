@@ -158,6 +158,13 @@ std::shared_ptr<system::MPISparseMatrix> Definition<dim>::MakeSystemMatrix() con
   return system_matrix_ptr;
 }
 
+template<int dim>
+std::shared_ptr<system::MPIVector> Definition<dim>::MakeSystemVector() const {
+  auto system_vector_ptr = std::make_shared<system::MPIVector>();
+  system_vector_ptr->reinit(locally_owned_dofs_, MPI_COMM_WORLD);
+  return system_vector_ptr;
+}
+
 template <int dim>
 int Definition<dim>::total_degrees_of_freedom() const {
   if (total_degrees_of_freedom_ == 0)

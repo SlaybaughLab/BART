@@ -67,6 +67,9 @@ class DefinitionI : public utility::HasDescription {
   /*! Get an MPI matrix suitable for the system */
   virtual std::shared_ptr<bart::system::MPISparseMatrix> MakeSystemMatrix() const = 0;
 
+  /*! Get an MPI vector suitable for the system */
+  virtual std::shared_ptr<bart::system::MPIVector> MakeSystemVector() const = 0;
+
   /*! Get a range of all cells to allow iterating over them */
   virtual CellRange Cells() const = 0;
 

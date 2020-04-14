@@ -165,4 +165,23 @@ TYPED_TEST(DomainDefinitionDOFTest, SystemMatrixMPI) {
   EXPECT_EQ(system_matrix_ptr->m(), test_domain.locally_owned_dofs().size());
 }
 
+TYPED_TEST(DomainDefinitionDOFTest, SystemVectorMPI) {
+  EXPECT_CALL(*this->nice_mesh_ptr, has_material_mapping()).
+      WillOnce(::testing::Return(true));
+  EXPECT_CALL(*this->nice_mesh_ptr, FillTriangulation(_))
+      .WillOnce(::testing::Invoke(this->SetTriangulation));
+  EXPECT_CALL(*this->fe_ptr, finite_element())
+      .WillOnce(::testing::Return(&this->fe));
+
+  bart::domain::Definition<this->dim> test_domain(std::move(this->nice_mesh_ptr),
+                                                  this->fe_ptr);
+  test_domain.SetUpMesh();
+  test_domain.SetUpDOF();
+
+  auto system_vector_ptr = test_domain.MakeSystemVector();
+
+  ASSERT_NE(system_vector_ptr, nullptr);
+  EXPECT_EQ(system_vector_ptr->size(), test_domain.locally_owned_dofs().size());
+}
+
 } // namespace
