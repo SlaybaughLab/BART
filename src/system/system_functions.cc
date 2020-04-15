@@ -27,12 +27,23 @@ void SetUpMPIAngularSolution(
     solution.compress(dealii::VectorOperation::insert);
   }
 }
-template <int dim>
+
 void InitializeSystem(system::System &system_to_setup,
                  const int total_groups,
                  const int total_angles,
                  const bool is_eigenvalue_problem) {
   using VariableLinearTerms = system::terms::VariableLinearTerms;
+
+  std::string error_start{"Error: attempting to call Initialize System on a "
+                          "system that appears to be already initialized: "};
+  AssertThrow(system_to_setup.right_hand_side_ptr_ == nullptr,
+              dealii::ExcMessage(error_start + "right hand side pointer is not null"))
+  AssertThrow(system_to_setup.left_hand_side_ptr_ == nullptr,
+              dealii::ExcMessage(error_start + "left hand side pointer is not null"))
+  AssertThrow(system_to_setup.current_moments == nullptr,
+              dealii::ExcMessage(error_start + "current moments pointer is not null"))
+  AssertThrow(system_to_setup.previous_moments == nullptr,
+              dealii::ExcMessage(error_start + "previous moments pointer is not null"))
 
   system_to_setup.total_groups = total_groups;
   system_to_setup.total_angles = total_angles;
@@ -59,9 +70,6 @@ template void SetUpMPIAngularSolution<1>(system::solution::MPIGroupAngularSoluti
 template void SetUpMPIAngularSolution<2>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<2>&, const double);
 template void SetUpMPIAngularSolution<3>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<3>&, const double);
 
-template void InitializeSystem<1>(system::System &, const int, const int, const bool);
-template void InitializeSystem<2>(system::System &, const int, const int, const bool);
-template void InitializeSystem<3>(system::System &, const int, const int, const bool);
 } // namespace system
 
 } // namespace bart

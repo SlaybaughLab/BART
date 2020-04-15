@@ -116,6 +116,91 @@ TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, ProvidedValues) {
   }
 }
 
+// == InitializeSystem Tests ===================================================
+
+class SystemInitializeSystemTest : public ::testing::Test {
+ public:
+  bart::system::System test_system;
+};
+
+TEST_F(SystemInitializeSystemTest, DefaultCall) {
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
+  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
+  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+  std::unordered_set<VariableLinearTerms> source_terms{
+      VariableLinearTerms::kScatteringSource,
+      VariableLinearTerms::kFissionSource};
+
+  system::InitializeSystem(test_system, total_groups, total_angles);
+
+  EXPECT_EQ(test_system.total_angles, total_angles);
+  EXPECT_EQ(test_system.total_groups, total_groups);
+  EXPECT_EQ(test_system.k_effective, 1.0);
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
+  EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
+  ASSERT_THAT(test_system.current_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
+  EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
+}
+
+TEST_F(SystemInitializeSystemTest, NonEigenvalueProblem) {
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
+  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
+  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+  std::unordered_set<VariableLinearTerms> source_terms{
+      VariableLinearTerms::kScatteringSource};
+
+  system::InitializeSystem(test_system, total_groups, total_angles, false);
+
+  EXPECT_EQ(test_system.total_angles, total_angles);
+  EXPECT_EQ(test_system.total_groups, total_groups);
+  EXPECT_EQ(test_system.k_effective, std::nullopt);
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
+  EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
+  ASSERT_THAT(test_system.current_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
+  EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
+}
+
+TEST_F(SystemInitializeSystemTest, ErrorOnSecondCall) {
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
+  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
+  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+  std::unordered_set<VariableLinearTerms> source_terms{
+      VariableLinearTerms::kScatteringSource,
+      VariableLinearTerms::kFissionSource};
+
+  system::InitializeSystem(test_system, total_groups, total_angles);
+  EXPECT_ANY_THROW(bart::system::InitializeSystem(test_system, total_groups,
+                                                  total_angles));
+}
+
+// ==
+
 template <typename DimensionWrapper>
 class SystemSetUpTests : public ::testing::Test,
                          bart::testing::DealiiTestDomain<DimensionWrapper::value> {
@@ -151,34 +236,6 @@ TYPED_TEST_SUITE(SystemSetUpTests, bart::testing::AllDimensions);
 TYPED_TEST(SystemSetUpTests, InitializeSystem) {
   constexpr int dim = this->dim;
   auto& test_system = this->test_system;
-  using VariableLinearTerms = system::terms::VariableLinearTerms;
-  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
-  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
-  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
-
-  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
-  const int total_angles = total_groups + 1;
-  std::unordered_set<VariableLinearTerms> source_terms{
-      VariableLinearTerms::kScatteringSource,
-      VariableLinearTerms::kFissionSource};
-
-  system::InitializeSystem<dim>(test_system, total_groups, total_angles);
-
-  EXPECT_EQ(test_system.total_angles, total_angles);
-  EXPECT_EQ(test_system.total_groups, total_groups);
-  EXPECT_EQ(test_system.k_effective, 1.0);
-  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedRHSType*>(NotNull()));
-  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedLHSType*>(NotNull()));
-  EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
-  ASSERT_THAT(test_system.current_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType*>(NotNull()));
-  ASSERT_THAT(test_system.previous_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType*>(NotNull()));
-  EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
-  EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
-
 //  To be moved to "Set up terms" test
 //  EXPECT_CALL(*this->domain_mock_obs_ptr_, MakeSystemMatrix())
 //      .Times(total_groups * total_angles)
