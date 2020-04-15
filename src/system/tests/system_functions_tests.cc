@@ -9,11 +9,15 @@
 #include "test_helpers/test_assertions.h"
 #include "test_helpers/test_helper_functions.h"
 
+#include "system/terms/term.h"
+#include "system/moments/spherical_harmonic.h"
+
 namespace  {
 
 using namespace bart;
 using ::testing::DoDefault;
 using ::testing::Return, ::testing::ReturnRef;
+using ::testing::WhenDynamicCastTo, ::testing::NotNull;
 
 void StampMPIVector(bart::system::MPIVector &to_fill, double value = 2) {
   auto [local_begin, local_end] = to_fill.local_range();
@@ -112,7 +116,92 @@ TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, ProvidedValues) {
   }
 }
 
+template <typename DimensionWrapper>
+class SystemSetUpTests : public ::testing::Test,
+                         bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+ public:
+  static constexpr int dim = DimensionWrapper::value;
+  using DomainType = domain::DefinitionMock<dim>;
 
+  bart::system::System test_system;
+  std::shared_ptr<domain::DefinitionI<dim>> definition_ptr;
+  DomainType* domain_mock_obs_ptr_;
+  void SetUp() override;
+};
+
+template <typename DimensionWrapper>
+void SystemSetUpTests<DimensionWrapper>::SetUp() {
+  this->SetUpDealii();
+  definition_ptr = std::make_shared<DomainType>();
+  domain_mock_obs_ptr_ = dynamic_cast<DomainType*>(definition_ptr.get());
+
+  auto system_matrix_ptr = std::make_shared<bart::system::MPISparseMatrix>();
+  system_matrix_ptr->reinit(this->matrix_1);
+  auto system_vector_ptr = std::make_shared<bart::system::MPIVector>();
+  system_vector_ptr->reinit(this->vector_1);
+
+  ON_CALL(*domain_mock_obs_ptr_, MakeSystemMatrix())
+      .WillByDefault(Return(system_matrix_ptr));
+  ON_CALL(*domain_mock_obs_ptr_, MakeSystemVector())
+      .WillByDefault(Return(system_vector_ptr));
+}
+
+TYPED_TEST_SUITE(SystemSetUpTests, bart::testing::AllDimensions);
+
+TYPED_TEST(SystemSetUpTests, InitializeSystem) {
+  constexpr int dim = this->dim;
+  auto& test_system = this->test_system;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
+  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
+  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+  std::unordered_set<VariableLinearTerms> source_terms{
+      VariableLinearTerms::kScatteringSource,
+      VariableLinearTerms::kFissionSource};
+
+  system::InitializeSystem<dim>(test_system, total_groups, total_angles);
+
+  EXPECT_EQ(test_system.total_angles, total_angles);
+  EXPECT_EQ(test_system.total_groups, total_groups);
+  EXPECT_EQ(test_system.k_effective, 1.0);
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedRHSType*>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedLHSType*>(NotNull()));
+  EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
+  ASSERT_THAT(test_system.current_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType*>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType*>(NotNull()));
+  EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
+  EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
+
+//  To be moved to "Set up terms" test
+//  EXPECT_CALL(*this->domain_mock_obs_ptr_, MakeSystemMatrix())
+//      .Times(total_groups * total_angles)
+//      .WillRepeatedly(DoDefault());
+//  EXPECT_CALL(*this->domain_mock_obs_ptr_, MakeSystemVector())
+//      .Times(3 * total_groups * total_angles)
+//      .WillRepeatedly(DoDefault());
+//
+//  for (int group = 0; group < total_groups; ++group) {
+//    for (int angle = 0; angle < total_angles; ++angle) {
+//      bart::system::Index index{group, angle};
+//      EXPECT_THAT(test_system.left_hand_side_ptr_->GetFixedTermPtr(index),
+//                  NotNull());
+//      EXPECT_THAT(test_system.right_hand_side_ptr_->GetFixedTermPtr(index),
+//                  NotNull());
+//      for (auto term : source_terms) {
+//        EXPECT_THAT(
+//            test_system.right_hand_side_ptr_->GetVariableTermPtr(index, term),
+//            NotNull());
+//      }
+//    }
+//  }
+}
 
 
 } // namespace

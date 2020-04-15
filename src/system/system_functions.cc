@@ -1,5 +1,8 @@
 #include "system/system_functions.h"
 
+#include "system/terms/term.h"
+#include "system/moments/spherical_harmonic.h"
+
 namespace bart {
 
 namespace system {
@@ -24,12 +27,41 @@ void SetUpMPIAngularSolution(
     solution.compress(dealii::VectorOperation::insert);
   }
 }
+template <int dim>
+void InitializeSystem(system::System &system_to_setup,
+                 const int total_groups,
+                 const int total_angles,
+                 const bool is_eigenvalue_problem) {
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+
+  system_to_setup.total_groups = total_groups;
+  system_to_setup.total_angles = total_angles;
+
+  std::unordered_set<VariableLinearTerms> rhs_variable_terms{
+    VariableLinearTerms::kScatteringSource};
+
+  if (is_eigenvalue_problem) {
+    system_to_setup.k_effective = 1.0;
+    rhs_variable_terms.insert(VariableLinearTerms::kFissionSource);
+  }
+
+  system_to_setup.right_hand_side_ptr_ = std::move(
+      std::make_unique<system::terms::MPILinearTerm>(rhs_variable_terms));
+  system_to_setup.left_hand_side_ptr_ = std::move(
+      std::make_unique<system::terms::MPIBilinearTerm>());
+  system_to_setup.current_moments = std::move(
+      std::make_unique<system::moments::SphericalHarmonic>(total_groups, 0));
+  system_to_setup.previous_moments = std::move(
+      std::make_unique<system::moments::SphericalHarmonic>(total_groups, 0));
+}
 
 template void SetUpMPIAngularSolution<1>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<1>&, const double);
 template void SetUpMPIAngularSolution<2>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<2>&, const double);
 template void SetUpMPIAngularSolution<3>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<3>&, const double);
 
-
+template void InitializeSystem<1>(system::System &, const int, const int, const bool);
+template void InitializeSystem<2>(system::System &, const int, const int, const bool);
+template void InitializeSystem<3>(system::System &, const int, const int, const bool);
 } // namespace system
 
 } // namespace bart
