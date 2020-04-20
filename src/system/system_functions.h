@@ -32,6 +32,10 @@ void InitializeSystem(system::System& system_to_setup,
                       const int total_angles,
                       const bool is_eigenvalue_problem = true);
 
+template <int dim>
+void SetUpSystemTerms(system::System& system_to_setup,
+                      const domain::DefinitionI<dim>& domain_definition);
+
 } // namespace system
 
 } // namespace bart

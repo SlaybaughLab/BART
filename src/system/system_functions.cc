@@ -66,9 +66,38 @@ void InitializeSystem(system::System &system_to_setup,
       std::make_unique<system::moments::SphericalHarmonic>(total_groups, 0));
 }
 
+template <int dim>
+void SetUpSystemTerms(system::System& system_to_setup,
+                      const domain::DefinitionI<dim>& domain_definition) {
+  const auto variable_terms =
+      system_to_setup.right_hand_side_ptr_->GetVariableTerms();
+  const int total_groups = system_to_setup.total_groups;
+  const int total_angles = system_to_setup.total_angles;
+
+  for (int group = 0; group < total_groups; ++group) {
+    for (int angle = 0; angle < total_angles; ++angle) {
+      system::Index index{group, angle};
+      auto& lhs = system_to_setup.left_hand_side_ptr_;
+      auto& rhs = system_to_setup.right_hand_side_ptr_;
+
+      lhs->SetFixedTermPtr(index, domain_definition.MakeSystemMatrix());
+      rhs->SetFixedTermPtr(index, domain_definition.MakeSystemVector());
+
+      for (const auto variable_term : variable_terms) {
+        rhs->SetVariableTermPtr(index, variable_term,
+                                domain_definition.MakeSystemVector());
+      }
+    }
+  }
+}
+
 template void SetUpMPIAngularSolution<1>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<1>&, const double);
 template void SetUpMPIAngularSolution<2>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<2>&, const double);
 template void SetUpMPIAngularSolution<3>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<3>&, const double);
+
+template void SetUpSystemTerms(system::System&, const domain::DefinitionI<1>&);
+template void SetUpSystemTerms(system::System&, const domain::DefinitionI<2>&);
+template void SetUpSystemTerms(system::System&, const domain::DefinitionI<3>&);
 
 } // namespace system
 
