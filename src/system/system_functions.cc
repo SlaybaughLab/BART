@@ -91,6 +91,20 @@ void SetUpSystemTerms(system::System& system_to_setup,
   }
 }
 
+void SetUpSystemMoments(system::System& system_to_setup,
+                        const std::size_t solution_size) {
+
+  auto initialize_moments = [=](system::moments::SphericalHarmonicI& to_initialize) {
+    for (auto& moment : to_initialize) {
+      moment.second.reinit(solution_size);
+      moment.second = 1;
+    }
+  };
+
+  initialize_moments(*system_to_setup.current_moments);
+  initialize_moments(*system_to_setup.previous_moments);
+}
+
 template void SetUpMPIAngularSolution<1>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<1>&, const double);
 template void SetUpMPIAngularSolution<2>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<2>&, const double);
 template void SetUpMPIAngularSolution<3>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<3>&, const double);

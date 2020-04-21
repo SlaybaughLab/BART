@@ -36,6 +36,9 @@ template <int dim>
 void SetUpSystemTerms(system::System& system_to_setup,
                       const domain::DefinitionI<dim>& domain_definition);
 
+void SetUpSystemMoments(system::System& system_to_setup,
+                        const std::size_t solution_size);
+
 } // namespace system
 
 } // namespace bart

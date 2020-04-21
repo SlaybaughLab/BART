@@ -11,6 +11,8 @@
 
 #include "system/terms/term.h"
 #include "system/moments/spherical_harmonic.h"
+#include "system/moments/spherical_harmonic_types.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/terms/tests/bilinear_term_mock.h"
 
@@ -20,7 +22,7 @@ using namespace bart;
 using ::testing::DoDefault;
 using ::testing::Return, ::testing::ReturnRef;
 using ::testing::WhenDynamicCastTo, ::testing::NotNull;
-using ::testing::_;
+using ::testing::_, ::testing::NiceMock;
 
 void StampMPIVector(bart::system::MPIVector &to_fill, double value = 2) {
   auto [local_begin, local_end] = to_fill.local_range();
@@ -289,5 +291,87 @@ TYPED_TEST(SystemFunctionsSetUpSystemTermsTests, SetUpProperly) {
   bart::system::SetUpSystemTerms(test_system, *this->definition_ptr);
 }
 
+// ===== SetUpSystemMomentsTests ===============================================
+
+class SystemFunctionsSetUpSystemMomentsTests : public ::testing::Test {
+ public:
+  using MomentsType = NiceMock<bart::system::moments::SphericalHarmonicMock>;
+
+  bart::system::System test_system;
+  MomentsType* current_moments_obs_ptr_;
+  MomentsType* previous_moments_obs_ptr_;
+
+  template <typename T> inline MomentsType* MockCast(T* to_cast) {
+    return dynamic_cast<MomentsType*>(to_cast); }
+
+  const int solution_size = test_helpers::RandomDouble(0, 100);
+  bart::system::moments::MomentsMap current_moments_, previous_moments_;
+
+  void SetUp() override;
+};
+
+void SystemFunctionsSetUpSystemMomentsTests::SetUp() {
+  test_system.current_moments = std::make_unique<MomentsType>();
+  test_system.previous_moments = std::make_unique<MomentsType>();
+
+  current_moments_obs_ptr_ = MockCast(test_system.current_moments.get());
+  previous_moments_obs_ptr_ = MockCast(test_system.previous_moments.get());
+
+  const int n_groups = bart::test_helpers::RandomDouble(1, 4);
+  const int max_harmonic_l = bart::test_helpers::RandomDouble(0, 3);
+  test_system.total_groups = n_groups;
+
+  for (auto& mock_moment_ptr : {current_moments_obs_ptr_,
+                                previous_moments_obs_ptr_}) {
+    ON_CALL(*mock_moment_ptr, total_groups())
+        .WillByDefault(Return(n_groups));
+    ON_CALL(*mock_moment_ptr, max_harmonic_l())
+        .WillByDefault(Return(max_harmonic_l));
+  }
+
+
+  for (int group = 0; group < n_groups; ++group) {
+    for (int harmonic_l = 0; harmonic_l <= max_harmonic_l; ++harmonic_l) {
+      for (int harmonic_m = -harmonic_l; harmonic_m <= harmonic_l; ++harmonic_m) {
+        system::moments::MomentIndex index{group, harmonic_l, harmonic_m};
+        current_moments_.emplace(index, dealii::Vector<double>{});
+        previous_moments_.emplace(index, dealii::Vector<double>{});
+      }
+    }
+  }
+
+  ON_CALL(*current_moments_obs_ptr_, moments())
+      .WillByDefault(ReturnRef(current_moments_));
+  ON_CALL(*current_moments_obs_ptr_, begin())
+      .WillByDefault(Return(current_moments_.begin()));
+  ON_CALL(*current_moments_obs_ptr_, end())
+      .WillByDefault(Return(current_moments_.end()));
+  ON_CALL(*previous_moments_obs_ptr_, moments())
+      .WillByDefault(ReturnRef(previous_moments_));
+  ON_CALL(*previous_moments_obs_ptr_, begin())
+      .WillByDefault(Return(previous_moments_.begin()));
+  ON_CALL(*previous_moments_obs_ptr_, end())
+      .WillByDefault(Return(previous_moments_.end()));
+}
+
+TEST_F(SystemFunctionsSetUpSystemMomentsTests, SetUpProperly) {
+  for (auto& mock_obs_ptr : {current_moments_obs_ptr_,
+                             previous_moments_obs_ptr_}) {
+    EXPECT_CALL(*mock_obs_ptr, begin()).WillOnce(DoDefault());
+    EXPECT_CALL(*mock_obs_ptr, end()).WillOnce(DoDefault());
+  }
+
+  system::SetUpSystemMoments(test_system, solution_size);
+  dealii::Vector<double> expected(solution_size);
+  expected = 1;
+
+  for (const auto& moment_map : {current_moments_, previous_moments_}) {
+    for (const auto& moment_pair : moment_map) {
+      const auto& moment_vector = moment_pair.second;
+      ASSERT_EQ(moment_vector.size(), solution_size);
+      EXPECT_EQ(moment_vector, expected);
+    }
+  }
+}
 
 } // namespace
