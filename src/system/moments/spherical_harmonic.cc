@@ -27,6 +27,18 @@ SphericalHarmonic::SphericalHarmonic(const int total_groups,
     }
   }
 }
+MomentsMap::const_iterator SphericalHarmonic::cbegin() const {
+  return moments_.cbegin();
+}
+MomentsMap::iterator SphericalHarmonic::begin() {
+  return moments_.begin();
+}
+MomentsMap::const_iterator SphericalHarmonic::cend() const {
+  return moments_.cend();
+}
+MomentsMap::iterator SphericalHarmonic::end() {
+  return moments_.end();
+}
 } // namespace moments
 
 } // namespace system
