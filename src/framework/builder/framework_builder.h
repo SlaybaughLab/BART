@@ -26,6 +26,7 @@
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
+#include "framework/framework_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.h"
@@ -60,6 +61,7 @@ class FrameworkBuilder {
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterI;
   using FixedUpdaterType = formulation::updater::FixedUpdaterI;
+  using FrameworkType = framework::FrameworkI;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using InitializerType = iteration::initializer::InitializerI;
@@ -86,7 +88,7 @@ class FrameworkBuilder {
   : reporter_ptr_(reporter_ptr) {}
   ~FrameworkBuilder() = default;
 
-  void BuildFramework(std::string name, ParametersType&);
+  std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
 
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);

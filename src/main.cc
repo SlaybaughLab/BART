@@ -52,26 +52,26 @@ int main(int argc, char* argv[]) {
     switch(prm.SpatialDimension()) {
       case 1: {
         bart::framework::builder::FrameworkBuilder<1> builder(reporter_ptr);
-        builder.BuildFramework("main", prm);
-//        framework_ptr->SolveSystem();
-//        framework_ptr->OutputResults(output_stream);
-//        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+        auto framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
       case 2: {
         bart::framework::builder::FrameworkBuilder<2> builder(reporter_ptr);
-        builder.BuildFramework("main", prm);
-//        framework_ptr->SolveSystem();
-//        framework_ptr->OutputResults(output_stream);
-//        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+        auto framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
       case 3: {
         bart::framework::builder::FrameworkBuilder<3> builder(reporter_ptr);
-        builder.BuildFramework("main", prm);
-//        framework_ptr->SolveSystem();
-//        framework_ptr->OutputResults(output_stream);
-//        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+        auto framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr->SolveSystem();
+        framework_ptr->OutputResults(output_stream);
+        k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
     }

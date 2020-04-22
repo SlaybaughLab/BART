@@ -25,6 +25,9 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 
+// Framework class
+#include "framework/framework.h"
+
 // KEffective Updater Classes
 #include "calculator/cell/total_aggregated_fission_source.h"
 #include "calculator/cell/integrated_fission_source.h"
@@ -47,6 +50,9 @@
 #include "quadrature/factory/quadrature_factories.h"
 #include "quadrature/utility/quadrature_utilities.h"
 
+// Results class
+#include "results/output_dealii_vtu.h"
+
 // System classes
 #include "system/system.h"
 #include "system/solution/mpi_group_angular_solution.h"
@@ -59,8 +65,9 @@ namespace framework {
 namespace builder {
 
 template<int dim>
-void FrameworkBuilder<dim>::BuildFramework(std::string name,
-                                           ParametersType& prm) {
+auto FrameworkBuilder<dim>::BuildFramework(std::string name,
+                                           ParametersType& prm)
+-> std::unique_ptr<FrameworkType> {
   // Framework parameters
   int n_angles = 1; // Set to default value of 1 for scalar solve
   const int n_groups = prm.NEnergyGroups();
@@ -87,6 +94,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
     auto saaf_formulation_ptr = BuildSAAFFormulation(finite_element_ptr,
                                                      cross_sections_ptr,
                                                      quadrature_set_ptr);
+    saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
     updater_pointers = BuildUpdaterPointers(
         std::move(saaf_formulation_ptr),
         std::move(stamper_ptr),
@@ -97,6 +105,7 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
     auto diffusion_formulation_ptr = BuildDiffusionFormulation(
         finite_element_ptr,
         cross_sections_ptr);
+    diffusion_formulation_ptr->Precalculate(domain_ptr->Cells().at(0));
     auto stamper_ptr = BuildStamper(domain_ptr);
     updater_pointers = BuildUpdaterPointers(
         std::move(diffusion_formulation_ptr),
@@ -129,10 +138,19 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
       updater_pointers.fission_source_updater_ptr,
       convergence_reporter_ptr);
 
-  auto system = BuildSystem(n_groups, n_angles, *domain_ptr,
-                            group_solution_ptr->solutions().at(0).size());
+  auto system_ptr = BuildSystem(n_groups, n_angles, *domain_ptr,
+                                group_solution_ptr->solutions().at(0).size());
+
+  auto results_output_ptr =
+      std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr);
 
   Validate();
+
+  return std::make_unique<framework::Framework>(
+      std::move(system_ptr),
+      std::move(initializer_ptr),
+      std::move(outer_iteration_ptr),
+      std::move(results_output_ptr));
 }
 
 template<int dim>
