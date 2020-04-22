@@ -304,7 +304,7 @@ class SystemFunctionsSetUpSystemMomentsTests : public ::testing::Test {
   template <typename T> inline MomentsType* MockCast(T* to_cast) {
     return dynamic_cast<MomentsType*>(to_cast); }
 
-  const int solution_size = test_helpers::RandomDouble(0, 100);
+  const int solution_size = test_helpers::RandomDouble(1, 100);
   bart::system::moments::MomentsMap current_moments_, previous_moments_;
 
   void SetUp() override;
