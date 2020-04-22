@@ -14,8 +14,8 @@ Diffusion<dim>::Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI
       cell_degrees_of_freedom_(finite_element->dofs_per_cell()),
       cell_quadrature_points_(finite_element->n_cell_quad_pts()),
       face_quadrature_points_(finite_element->n_face_quad_pts()) {
-  this->set_description("Diffusion Formulation");
-  this->is_default_implementation(true);
+  this->set_description("Diffusion Formulation",
+                        utility::DefaultImplementation(true));
 }
 
 template <int dim>

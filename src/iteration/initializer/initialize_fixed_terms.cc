@@ -22,8 +22,8 @@ InitializeFixedTerms::InitializeFixedTerms(
   AssertThrow(fixed_updater_ptr_ != nullptr,
               dealii::ExcMessage("Error in iteration::initializer::InitializeFixedTerms "
                                  "constructor: fixed updater ptr is nullptr"))
-  this->set_description("fixed terms initializer");
-  this->is_default_implementation(false);
+  this->set_description("fixed terms initializer",
+                        utility::DefaultImplementation(true));
 }
 
 void InitializeFixedTerms::Initialize(system::System &sys) {

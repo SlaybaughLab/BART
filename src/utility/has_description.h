@@ -8,16 +8,35 @@ namespace bart {
 
 namespace utility {
 
+using DefaultImplementation = NamedType<bool, struct DefaultImplementationStruct>;
+
 class HasDescription {
  public:
   ~HasDescription() = default;
-  void set_description(const std::string to_set) { description_ = to_set; };
-  void is_default_implementation(const bool to_set) {
-    is_default_implementation_ = to_set; }
-  std::string description() const {
+
+  inline HasDescription& set_description(const std::string to_set,
+                                         const DefaultImplementation is_default) {
+    description_ = to_set;
+    is_default_implementation_ = is_default.get();
+    return *this;
+  }
+
+  inline HasDescription& set_description(const std::string to_set) {
+    return set_description(to_set,
+                           DefaultImplementation(is_default_implementation_));
+  }
+
+  inline HasDescription& set_is_default_implementation(const bool to_set) {
+    is_default_implementation_ = to_set;
+    return *this;
+  }
+
+  inline std::string description() const {
     if (is_default_implementation_)
       return "(default) " + description_;
-    return description_; }
+    return description_;
+  }
+
  private:
   bool is_default_implementation_ = false;
   std::string description_ = "";

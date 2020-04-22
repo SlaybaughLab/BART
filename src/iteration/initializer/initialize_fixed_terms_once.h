@@ -23,8 +23,8 @@ class InitializeFixedTermsOnce : public InitializeFixedTerms {
       const int total_groups,
       const int total_angles)
       : InitializeFixedTerms(fixed_updater_ptr, total_groups, total_angles) {
-    this->set_description("fixed terms initializer (initialize once)");
-    this->is_default_implementation(true);
+    this->set_description("fixed terms initializer (initialize once)",
+                          utility::DefaultImplementation(true));
   };
 
 

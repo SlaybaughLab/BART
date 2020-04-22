@@ -28,8 +28,7 @@ Definition<dim>::Definition(
   } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
     description += ", Discontinuous";
   }
-  this->set_description(description);
-  this->is_default_implementation(true);
+  this->set_description(description, utility::DefaultImplementation(true));
 }
 
 template <>
@@ -50,8 +49,7 @@ Definition<1>::Definition(
   } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
     description += ", Discontinuous";
   }
-  this->set_description(description);
-  this->is_default_implementation(true);
+  this->set_description(description, utility::DefaultImplementation(true));
 }
 
 template <int dim>

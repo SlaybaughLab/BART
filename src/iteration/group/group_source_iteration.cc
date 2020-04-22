@@ -23,8 +23,8 @@ GroupSourceIteration<dim>::GroupSourceIteration(
   AssertThrow(source_updater_ptr_ != nullptr,
               dealii::ExcMessage("Source updater pointer passed to "
                                  "GroupSolveIteration constructor is null"));
-  this->set_description("Group source iteration");
-  this->is_default_implementation(true);
+  this->set_description("Group source iteration",
+                        utility::DefaultImplementation(true));
 }
 
 template<int dim>
