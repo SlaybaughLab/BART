@@ -25,6 +25,7 @@
 #include "system/solution/mpi_group_angular_solution.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
+#include "system/system_types.h"
 
 // Mock objects
 #include "convergence/reporter/tests/mpi_mock.h"
@@ -503,5 +504,8 @@ TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
   EXPECT_EQ(dynamic_ptr->total_groups(), total_groups);
 }
 
+TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildSystemDefaut) {
+
+}
 
 } // namespace

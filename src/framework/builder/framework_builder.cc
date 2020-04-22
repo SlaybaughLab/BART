@@ -48,6 +48,7 @@
 #include "quadrature/utility/quadrature_utilities.h"
 
 // System classes
+#include "system/system.h"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "system/system_functions.h"
 
@@ -127,6 +128,9 @@ void FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(k_effective_updater),
       updater_pointers.fission_source_updater_ptr,
       convergence_reporter_ptr);
+
+  auto system = BuildSystem(n_groups, n_angles, *domain_ptr,
+                            group_solution_ptr->solutions().at(0).size());
 
   Validate();
 }
@@ -525,6 +529,30 @@ auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
                             + "iter_max = " + std::to_string(max_iterations));
   return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(
           std::move(linear_solver_ptr)));
+
+  return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildSystem(
+    const int total_groups,
+    const int total_angles,
+    const DomainType& domain,
+    const std::size_t solution_size,
+    bool is_eigenvalue_problem) -> std::unique_ptr<SystemType> {
+  std::unique_ptr<SystemType> return_ptr;
+
+  ReportBuildingComponant("system");
+  try {
+    return_ptr = std::move(std::make_unique<SystemType>());
+    system::InitializeSystem(*return_ptr, total_groups, total_angles,
+                             is_eigenvalue_problem);
+    system::SetUpSystemTerms(*return_ptr, domain);
+    system::SetUpSystemMoments(*return_ptr, solution_size);
+  } catch (...) {
+    ReportBuildError("system initialization error.");
+    throw;
+  }
 
   return return_ptr;
 }

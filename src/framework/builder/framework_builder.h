@@ -33,6 +33,7 @@
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
+#include "system/system.h"
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
@@ -73,6 +74,7 @@ class FrameworkBuilder {
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterI;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
+  using SystemType = system::System;
 
   struct UpdaterPointers {
     std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
@@ -143,6 +145,10 @@ class FrameworkBuilder {
       const int max_iterations = 1000,
       const double convergence_tolerance = 1e-10);
   std::unique_ptr<StamperType> BuildStamper(const std::shared_ptr<DomainType>&);
+  std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
+                                          const DomainType& domain,
+                                          const std::size_t solution_size,
+                                          bool is_eigenvalue_problem = true);
 
   FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
 
