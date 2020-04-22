@@ -7,9 +7,7 @@ namespace problem {
 
 enum class AngularQuadType {
   kNone,
-  kLevelSymmetric,
-  kLevelSymmetricGaussChebyshev,
-  kGaussLegendre,
+  kLevelSymmetricGaussian,
 };
 
 enum class DiscretizationType {

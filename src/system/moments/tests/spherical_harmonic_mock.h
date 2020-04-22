@@ -19,6 +19,11 @@ class SphericalHarmonicMock : public SphericalHarmonicI {
   MOCK_CONST_METHOD1(GetMoment, const MomentVector&(const MomentIndex));
   MOCK_CONST_METHOD1(BracketOp, const MomentVector&(const MomentIndex));
   MOCK_METHOD1(BracketOp, MomentVector&(const MomentIndex));
+  MOCK_METHOD(MomentsMap::const_iterator, cbegin, (), (const, override));
+  MOCK_METHOD(MomentsMap::iterator, begin, (), (override));
+  MOCK_METHOD(MomentsMap::const_iterator, cend, (), (const, override));
+  MOCK_METHOD(MomentsMap::iterator, end, (), (override));
+
 
   const MomentVector& operator[](const MomentIndex index) const override {
     return BracketOp(index);

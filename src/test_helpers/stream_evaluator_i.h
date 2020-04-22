@@ -3,7 +3,10 @@
 
 #include <string>
 
-namespace btest {
+namespace bart {
+
+namespace test_helpers {
+
 //! This class provides an interface for a class to evaluate two streams
 /*!
   The two streams are the "gold" standard `gold_stream` and an "actual" stream
@@ -31,6 +34,8 @@ class StreamEvaluatorI {
   virtual bool ActualGood() const = 0;
 };
 
-} // namespace btest
+} // namespace test_helpers
+
+} // namespace bart
 
 #endif // BART_SRC_TEST_HELPERS_STREAM_EVALUATOR_I_H_

@@ -9,10 +9,14 @@
 #include <sys/stat.h>
 
 #include <deal.II/base/logstream.h>
-#include <gtest/gtest.h>
-#include "gold_stream_evaluator.h"
 
-namespace btest {
+#include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/gold_stream_evaluator.h"
+
+namespace bart {
+
+namespace test_helpers {
+
 //! This class provides a test framework for BART using gTest.
 /*!
 
@@ -122,23 +126,8 @@ void GoldTestInit(std::string filename);
 */
 void GoldTestRun(std::string filename);
 
-//! This class provides a parallel gtest environment for BART.
-/*!
- The main functionality is to provide MPI initilization and a tear down function.
+} // namespace test_helpers
 
- \author Weixiong Zheng
- \date 2018/8
- */
-class BARTParallelEnvironment : public ::testing::Test {
- public:
-  BARTParallelEnvironment();
-  virtual ~BARTParallelEnvironment();
-
-  virtual void TearDown();
- protected:
-  void MPIInit();
-  void MPIFinalize();
-};
-} // namespace btest
+} // namespace bart
 
 #endif // BART_TEST_HELPERS_BART_TEST_HELPER_H_

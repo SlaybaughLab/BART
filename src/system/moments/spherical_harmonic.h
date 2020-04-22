@@ -52,6 +52,11 @@ class SphericalHarmonic : public SphericalHarmonicI {
 
   int total_groups() const override { return total_groups_; }
   int max_harmonic_l() const override { return max_harmonic_l_;}
+
+  std::map<MomentIndex, MomentVector>::const_iterator cbegin() const override;
+  std::map<MomentIndex, MomentVector>::iterator begin() override;
+  std::map<MomentIndex, MomentVector>::const_iterator cend() const override;
+  std::map<MomentIndex, MomentVector>::iterator end() override;
  private:
   MomentsMap moments_ = {};
   const int total_groups_ = 0;

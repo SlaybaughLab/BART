@@ -12,24 +12,18 @@ template <typename ConvergenceType>
 OuterIteration<ConvergenceType>::OuterIteration(
     std::unique_ptr<GroupIterator> group_iterator_ptr,
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
-    const std::shared_ptr<SourceUpdater> &source_updater_ptr,
     const std::shared_ptr<Reporter> &reporter_ptr)
     : group_iterator_ptr_(std::move(group_iterator_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)),
-      source_updater_ptr_(source_updater_ptr),
       reporter_ptr_(reporter_ptr) {
 
   AssertThrow(group_iterator_ptr_ != nullptr,
               dealii::ExcMessage("GroupSolveIteration pointer passed to "
-                                 "OuterIteration constructor is null"));
+                                 "OuterIteration constructor is null"))
 
   AssertThrow(convergence_checker_ptr_ != nullptr,
               dealii::ExcMessage("Convergence checker pointer passed to "
-                                 "OuterIteration constructor is null"));
-
-  AssertThrow(source_updater_ptr_ != nullptr,
-      dealii::ExcMessage("Source updater pointer passed to OuterIteration "
-                         "constructor is null"));
+                                 "OuterIteration constructor is null"))
 }
 
 template <typename ConvergenceType>

@@ -8,6 +8,8 @@
 
 namespace {
 
+using namespace bart;
+
 class ConvergenceSingleParameterCheckerTest :
  public bart::convergence::testing::SingleCheckerTest<double>{
 
@@ -18,7 +20,7 @@ class ConvergenceSingleParameterCheckerTest :
 };
 void ConvergenceSingleParameterCheckerTest::SetUp() {
   // Get four random doubles between 0.01 and 10
-  test_values = btest::RandomVector(4, 0.01, 10);
+  test_values = test_helpers::RandomVector(4, 0.01, 10);
 }
 
 TEST_F(ConvergenceSingleParameterCheckerTest, BaseClassTests) {

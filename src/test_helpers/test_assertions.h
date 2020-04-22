@@ -8,7 +8,7 @@
 
 namespace bart {
 
-namespace testing {
+namespace test_helpers {
 
 using ::testing::AssertionResult;
 using ::testing::AssertionFailure;
@@ -30,7 +30,7 @@ AssertionResult CompareMPIVectors(
     const dealii::PETScWrappers::MPI::Vector& expected,
     const dealii::PETScWrappers::MPI::Vector& result);
 
-} // namespace testing
+} // namespace test_helpers
 
 } // namespace bart
 

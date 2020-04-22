@@ -1,4 +1,4 @@
-#include "../material_protobuf.h"
+#include "material/material_protobuf.h"
 
 #include <sstream>
 #include <exception>
@@ -7,7 +7,11 @@
 
 #include "gtest/gtest.h"
 
-#include "../../test_helpers/test_helper_functions.h"
+#include "test_helpers/test_helper_functions.h"
+
+namespace {
+
+using namespace bart;
 
 class MaterialProtobufTest : public ::testing::Test {
  protected:
@@ -814,7 +818,7 @@ TEST_F(MaterialProtobufTest, InconsistentMaterialsInConstructor) {
 // tests for MaterialProtobuf working correctly and returning the correct data given a map of Materials
 
 TEST_F(MaterialProtobufTest, NullMaterialProtobuf) {
-  MaterialProtobuf mp_0({}, false, false, 0, 0);
+  MaterialProtobuf mp_0(std::unordered_map<int, Material>(), false, false, 0, 0);
 
   EXPECT_EQ(mp_0.GetFissileIDMap(), null_bool_map_);
   EXPECT_EQ(mp_0.GetSigT(), null_vector_map_);
@@ -1516,7 +1520,7 @@ TEST_F(MaterialProtobufTest, DiffusionCoefficientValuesTest) {
   
   diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
   
-  const std::vector<double> diffusion_coef(btest::RandomVector(7, 1e-3, 3));
+  const std::vector<double> diffusion_coef(test_helpers::RandomVector(7, 1e-3, 3));
   const std::vector<double> null_vector(7,0);
   
   for (const double& val : diffusion_coef) {
@@ -1543,7 +1547,7 @@ TEST_F(MaterialProtobufTest, DiffusionCoefficientInvalidTest) {
   
   diffusion_ptr->set_id(Material::DIFFUSION_COEFF);
   
-  const std::vector<double> diffusion_coef(btest::RandomVector(5, 1e-3, 3));
+  const std::vector<double> diffusion_coef(test_helpers::RandomVector(5, 1e-3, 3));
   for (const double& val : diffusion_coef) {
     diffusion_ptr->add_value(val);
   }
@@ -1553,7 +1557,4 @@ TEST_F(MaterialProtobufTest, DiffusionCoefficientInvalidTest) {
     }, MaterialProtobuf::WrongNumberOfValues);
 }
 
-  
-
-
-  
+} // namespace

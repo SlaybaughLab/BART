@@ -13,8 +13,8 @@ template <int dim>
 class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
  public:
   SphericalHarmonicZerothMoment(
-      std::shared_ptr<angular::AngularQuadratureSetI<dim>> angular_quadrature_ptr)
-      : SphericalHarmonicMoments<dim>(angular_quadrature_ptr) {}
+      std::shared_ptr<QuadratureSetI<dim>> quadrature_set_ptr)
+      : SphericalHarmonicMoments<dim>(quadrature_set_ptr) {}
 
   system::moments::MomentVector CalculateMoment(
       system::solution::MPIGroupAngularSolutionI* solution,
@@ -25,7 +25,7 @@ class SphericalHarmonicZerothMoment : public SphericalHarmonicMoments<dim> {
   virtual ~SphericalHarmonicZerothMoment() = default;
 
  protected:
-  using SphericalHarmonicMoments<dim>::angular_quadrature_ptr_;
+  using SphericalHarmonicMoments<dim>::quadrature_set_ptr_;
 };
 
 } // namespace calculators

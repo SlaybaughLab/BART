@@ -10,26 +10,47 @@ namespace bart {
 namespace domain {
 
 template <int dim>
-Definition<dim>::Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
-                    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element)
+Definition<dim>::Definition(
+    std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
+    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+    problem::DiscretizationType discretization)
     : mesh_(std::move(mesh)),                     
       finite_element_(finite_element),
       triangulation_(MPI_COMM_WORLD,
                      typename dealii::Triangulation<dim>::MeshSmoothing(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                          dealii::Triangulation<dim>::smoothing_on_coarsening)),
-      dof_handler_(triangulation_) {}
+      dof_handler_(triangulation_),
+      discretization_type_(discretization) {
+  std::string description{"Domain, " + std::to_string(dim) + "D"};
+  if (discretization == problem::DiscretizationType::kContinuousFEM) {
+    description += ", Continuous";
+  } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
+    description += ", Discontinuous";
+  }
+  this->set_description(description, utility::DefaultImplementation(true));
+}
 
 template <>
 Definition<1>::Definition(
     std::unique_ptr<domain::mesh::MeshI<1>> mesh,
-    std::shared_ptr<domain::finite_element::FiniteElementI<1>> finite_element)
+    std::shared_ptr<domain::finite_element::FiniteElementI<1>> finite_element,
+    problem::DiscretizationType discretization)
     : mesh_(std::move(mesh)),
       finite_element_(finite_element),
       triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(
                          dealii::Triangulation<1>::smoothing_on_refinement |
                              dealii::Triangulation<1>::smoothing_on_coarsening)),
-      dof_handler_(triangulation_) {}
+      dof_handler_(triangulation_),
+      discretization_type_(discretization) {
+  std::string description{"Domain, 1D"};
+  if (discretization == problem::DiscretizationType::kContinuousFEM) {
+    description += ", Continuous";
+  } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
+    description += ", Discontinuous";
+  }
+  this->set_description(description, utility::DefaultImplementation(true));
+}
 
 template <int dim>
 Definition<dim>& Definition<dim>::SetUpMesh() {
@@ -63,6 +84,28 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
       local_cells_.push_back(cell);
   }
 
+  // Set up dynamic sparsity pattern
+  dynamic_sparsity_pattern_.reinit(locally_relevant_dofs_.size(),
+                                   locally_relevant_dofs_.size(),
+                                   locally_relevant_dofs_);
+
+  if (discretization_type_ ==  problem::DiscretizationType::kDiscontinuousFEM) {
+    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_,
+                                                 dynamic_sparsity_pattern_,
+                                                 constraint_matrix_, false);
+  } else {
+    dealii::DoFTools::make_sparsity_pattern(dof_handler_,
+                                            dynamic_sparsity_pattern_,
+                                            constraint_matrix_, false);
+  }
+
+  dealii::SparsityTools::distribute_sparsity_pattern(
+      dynamic_sparsity_pattern_,
+      dof_handler_.n_locally_owned_dofs_per_processor(),
+      MPI_COMM_WORLD, locally_relevant_dofs_);
+
+  constraint_matrix_.condense(dynamic_sparsity_pattern_);
+
   return *this;
 }
 
@@ -90,34 +133,34 @@ Definition<1>& Definition<1>::SetUpDOF() {
                                                   constraint_matrix_);
   constraint_matrix_.close();
 
-  return *this;
-}
+  dynamic_sparsity_pattern_.reinit(dof_handler_.n_dofs(), dof_handler_.n_dofs());
 
-template <int dim>
-void Definition<dim>::FillMatrixParameters(
-    data::MatrixParameters &to_fill,
-    problem::DiscretizationType discretization_type) const {
-
-  AssertThrow(dof_handler_.has_active_dofs(),
-              dealii::ExcMessage("SetUpDOF must be called before MatrixParameters are generated"));              
-  
-  to_fill.rows = locally_owned_dofs_;
-  to_fill.columns = locally_owned_dofs_;
-
-  dealii::DynamicSparsityPattern dsp(dof_handler_.n_dofs(),
-                                     dof_handler_.n_dofs());
-
-  if (discretization_type ==  problem::DiscretizationType::kDiscontinuousFEM) {
-    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dsp,
+  if (discretization_type_ ==  problem::DiscretizationType::kDiscontinuousFEM) {
+    dealii::DoFTools::make_flux_sparsity_pattern(dof_handler_, dynamic_sparsity_pattern_,
                                                  constraint_matrix_, false);
   } else {
-    dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp,
+    dealii::DoFTools::make_sparsity_pattern(dof_handler_, dynamic_sparsity_pattern_,
                                             constraint_matrix_, false);
   }
 
-  constraint_matrix_.condense(dsp);
+  return *this;
+}
 
-  to_fill.sparsity_pattern.copy_from(dsp);
+template<int dim>
+std::shared_ptr<system::MPISparseMatrix> Definition<dim>::MakeSystemMatrix() const {
+  auto system_matrix_ptr = std::make_shared<system::MPISparseMatrix>();
+  system_matrix_ptr->reinit(locally_owned_dofs_,
+      locally_owned_dofs_,
+      dynamic_sparsity_pattern_,
+      MPI_COMM_WORLD);
+  return system_matrix_ptr;
+}
+
+template<int dim>
+std::shared_ptr<system::MPIVector> Definition<dim>::MakeSystemVector() const {
+  auto system_vector_ptr = std::make_shared<system::MPIVector>();
+  system_vector_ptr->reinit(locally_owned_dofs_, MPI_COMM_WORLD);
+  return system_vector_ptr;
 }
 
 template <int dim>
@@ -126,6 +169,7 @@ int Definition<dim>::total_degrees_of_freedom() const {
     total_degrees_of_freedom_ = dof_handler_.n_dofs();
   return total_degrees_of_freedom_;
 }
+
 
 template class Definition<1>;
 template class Definition<2>;

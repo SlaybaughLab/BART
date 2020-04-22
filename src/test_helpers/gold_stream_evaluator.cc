@@ -4,7 +4,9 @@
 #include <sstream>
 #include <vector>
 
-namespace btest {
+namespace bart {
+
+namespace test_helpers {
 
 GoldStreamEvaluator::GoldStreamEvaluator(
     std::unique_ptr<std::istream> gold_stream,
@@ -103,4 +105,6 @@ void GoldStreamEvaluator::ResetStreams() const {
   actual_stream_->seekg(0, std::ios::beg);
 }
 
-} // namespace btest
+} // namespace test_helpers
+
+} // namespace bart

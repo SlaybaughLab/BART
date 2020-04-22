@@ -39,6 +39,8 @@ TEST_F(SolutionMPIAngularTests, OperatorBraketsPair) {
                   Ref(test_solution.solutions().at(angle)));
       EXPECT_THAT(const_test_solution[angle],
                   Ref(const_test_solution.solutions().at(angle)));
+      EXPECT_THAT(test_solution.GetSolution(angle),
+                  Ref(test_solution.solutions().at(angle)));
   }
 }
 

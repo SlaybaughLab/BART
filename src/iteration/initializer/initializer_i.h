@@ -2,6 +2,7 @@
 #define BART_SRC_ITERATION_INITIALIZER_INITIALIZER_I_H_
 
 #include "system/system.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -11,7 +12,7 @@ namespace initializer {
 /*! \brief Interface for class that initialize a system for an iteration.
  *
  */
-class InitializerI {
+class InitializerI : public utility::HasDescription {
  public:
   virtual ~InitializerI() = default;
   virtual void Initialize(system::System& sys) = 0;

@@ -312,13 +312,13 @@ TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {
 
 TEST_F(ParametersDealiiHandlerTest, AngularQuadParametersParsed) {
 
-  test_parameter_handler.set(key_words.kAngularQuad_, "lsgc");
+  test_parameter_handler.set(key_words.kAngularQuad_, "level_symmetric_gaussian");
   test_parameter_handler.set(key_words.kAngularQuadOrder_, "8");
   
   test_parameters.Parse(test_parameter_handler);
   
   ASSERT_EQ(test_parameters.AngularQuad(),
-            bart::problem::AngularQuadType::kLevelSymmetricGaussChebyshev)
+            bart::problem::AngularQuadType::kLevelSymmetricGaussian)
       << "Parsed angular quadrature";
   ASSERT_EQ(test_parameters.AngularQuadOrder(), 8)
       << "Parsed angular quadrature order";

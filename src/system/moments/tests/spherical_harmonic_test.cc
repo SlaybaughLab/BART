@@ -8,7 +8,7 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::Ref;
+using ::testing::Ref, ::testing::WhenDynamicCastTo, ::testing::NotNull;
 
 class SystemMomentsSphericalHarmonicTest : public ::testing::Test {
  protected:
@@ -68,6 +68,14 @@ TEST_F(SystemMomentsSphericalHarmonicTest, Assignment) {
 
   test_moments[index] = moment;
   EXPECT_EQ(test_moments[index], moment);
+}
+
+TEST_F(SystemMomentsSphericalHarmonicTest, BeginEndIterators) {
+  EXPECT_EQ(test_moments.begin(), test_moments.moments().begin());
+  EXPECT_EQ(test_moments.end(), test_moments.moments().end());
+  EXPECT_EQ(test_moments.cbegin(), test_moments.moments().cbegin());
+  EXPECT_EQ(test_moments.cend(), test_moments.moments().cend());
+
 }
 
 } // namespace

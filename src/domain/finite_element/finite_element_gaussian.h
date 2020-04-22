@@ -30,8 +30,9 @@ class FiniteElementGaussian : public FiniteElement<dim>{
   ~FiniteElementGaussian() = default;
 
   int polynomial_degree() const override { return polynomial_degree_; };
-
+  std::string description() const override { return description_; };
  private:
+  std::string description_ = "";
   const int polynomial_degree_;
   using FiniteElement<dim>::finite_element_;
   using FiniteElement<dim>::values_;

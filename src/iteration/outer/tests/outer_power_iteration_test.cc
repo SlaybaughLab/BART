@@ -6,7 +6,7 @@
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/tests/final_checker_mock.h"
-#include "iteration/updater/tests/source_updater_mock.h"
+#include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "system/system.h"
 
@@ -23,7 +23,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using ConvergenceChecker = convergence::FinalCheckerMock<double>;
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
-  using SourceUpdater = iteration::updater::SourceUpdaterMock;
+  using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using Reporter = convergence::reporter::MpiMock;
 
   std::unique_ptr<OuterPowerIteration> test_iterator;
@@ -109,7 +109,9 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   for (int group = 0; group < this->total_groups; ++group) {
     for (int angle = 0; angle < this->total_angles; ++angle) {
       EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(
-          Ref(this->test_system),group, angle))
+          Ref(this->test_system),
+          bart::system::EnergyGroup(group),
+          quadrature::QuadraturePointIndex(angle)))
           .Times(this->iterations_);
     }
   }

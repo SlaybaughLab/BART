@@ -44,8 +44,9 @@ class MeshCartesian : public MeshI<dim> {
   std::array<double, dim> spatial_max() const override { return spatial_max_; };
   /*! \brief Get number of cells in each direction */
   std::array<int, dim> n_cells() const override { return n_cells_; };
-      
+  std::string description() const override { return description_; }
  private:
+  std::string description_ = "";
   std::array<double, dim> spatial_max_;
   std::array<int, dim>    n_material_cells_;
   std::array<int, dim>    n_cells_;

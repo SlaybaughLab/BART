@@ -8,7 +8,7 @@
 #include <deal.II/lac/petsc_solver.h>
 #include <deal.II/lac/petsc_full_matrix.h>
 
-#include "iteration/updater/tests/source_updater_mock.h"
+#include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "convergence/reporter/tests/mpi_mock.h"
@@ -38,9 +38,9 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
-  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<dim>;
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
-  using SourceUpdater = iteration::updater::SourceUpdaterMock;
+  using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
   using Reporter = convergence::reporter::MpiMock;
 
@@ -100,8 +100,8 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
-  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock<this->dim>;
-  using SourceUpdater = iteration::updater::SourceUpdaterMock;
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
+  using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
 
   auto single_group_test_ptr = dynamic_cast<GroupSolver*>(
       this->test_iterator_ptr_->group_solver_ptr());
@@ -129,7 +129,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrows) {
     auto convergence_checker_ptr = (i == 1) ? nullptr :
         std::make_unique<convergence::FinalCheckerMock<system::moments::MomentVector>>();
     auto moment_calculator_ptr = (i == 2) ? nullptr :
-        std::make_unique<quadrature::calculators::SphericalHarmonicMomentsMock<this->dim>>();
+        std::make_unique<quadrature::calculators::SphericalHarmonicMomentsMock>();
     auto group_solution_ptr = (i == 3) ? nullptr :
         this->group_solution_ptr_;
     auto source_updater_ptr = (i == 4) ? nullptr :
@@ -240,8 +240,8 @@ ACTION_P(Solve, test_class) {
 }
 
 ACTION_P(Update, test_class) {
-  auto& rhs = test_class->group_rhs_.at(arg1);
-  auto& solution = test_class->group_solutions_.at(arg1);
+  auto& rhs = test_class->group_rhs_.at(arg1.get());
+  auto& solution = test_class->group_solutions_.at(arg1.get());
   rhs = 0;
   test_class->U_.vmult_add(rhs, solution);
   rhs.add(-1, test_class->b_);
@@ -296,7 +296,9 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
 
     for (int angle = 0; angle < this->total_angles; ++angle) {
       EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
-          Ref(this->test_system), group, angle))
+          Ref(this->test_system),
+          bart::system::EnergyGroup(group),
+          quadrature::QuadraturePointIndex(angle)))
           .Times(AtLeast(1))
           .WillRepeatedly(Update(this));
     }

@@ -6,7 +6,10 @@
 
 #include "stream_evaluator_i.h"
 
-namespace btest {
+namespace bart {
+
+namespace test_helpers {
+
 //! This class will conduct a line by line comparison test on two streams.
 /*!
  The two streams are the "gold" standard `gold_stream` and an "actual" stream
@@ -62,6 +65,8 @@ inline bool GoldStreamEvaluator::ActualGood() const {
   return actual_good_;
 }
 
-} // namespace btest
+} // namespace test_helpers
+
+} // namespace bart
 
 #endif // BART_SRC_TEST_HELPERS_GOLD_STREAM_EVALUATOR_H_

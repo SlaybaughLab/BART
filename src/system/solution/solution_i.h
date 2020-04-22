@@ -10,12 +10,10 @@ namespace system {
 namespace solution {
 
 /*! \brief Interface for solution storage class.
- *
  * This class is the interface for classes that store system solution.
  * Generally, this is just a resource management class, to own the solutions.
  * They can be defined using any time to uniquely identify them that can be
  * hashed by a mapping. Solution type is generally a vector.
- *
  * @tparam IndexType type of index used to identify solutions.
  * @tparam SolutionType type for solutions.
  */
@@ -24,26 +22,33 @@ class SolutionI {
  public:
   using SolutionMap = std::map<IndexType, SolutionType>;
   virtual ~SolutionI() = default;
+
   /*! \brief Returns the full mapping of solutions.
-   *
    * This method is intended to expose the internally managed resource to allow
    * the user to use std::map methods directly.
-   *
+   * @return reference to the internal solutions map.
+   */
+  virtual SolutionMap& solutions() = 0;
+
+  /*! \brief Returns the full mapping of solutions as a const for access.
    * @return reference to the internal solutions map.
    */
   virtual const SolutionMap& solutions() const = 0;
 
   /*! \brief Returns the solution that corresponds to a provided index.
-   *
+   * @return a reference to the solution.
+   */
+  virtual SolutionType& GetSolution(const IndexType) = 0;
+
+  /*! \brief Returns the solution that corresponds to a provided index.
    * @return a constant reference to the solution.
    */
   virtual const SolutionType& operator[](const IndexType) const = 0;
 
   /*! \brief Returns the solution that corresponds to a provided index.
-   *
    * @return a reference to the solution.
    */
-  virtual       SolutionType& operator[](const IndexType) = 0;
+  virtual SolutionType& operator[](const IndexType) = 0;
 };
 
 } // namespace solution

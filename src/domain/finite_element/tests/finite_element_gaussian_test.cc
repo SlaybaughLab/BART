@@ -17,6 +17,8 @@ namespace {
 
 using namespace bart;
 
+using ::testing::ContainsRegex;
+
 /* Tests for the FiniteElementGaussian class.
  *
  * As this class mostly just instantiates other classes and forwards to them
@@ -45,6 +47,8 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
 
     domain::finite_element::FiniteElementGaussian<dim> test_fe{discretization_type, 2};
 
+    std::string expected_description{"(Default) deal.II Gaussian, " + std::to_string(dim) + "D, "};
+
     // Verify correct objects were instantiated
     ASSERT_NE(nullptr, dynamic_cast<dealii::FEValues<dim> *>(test_fe.values()));
     ASSERT_NE(nullptr,
@@ -61,13 +65,17 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
       ASSERT_NE(nullptr,
                 dynamic_cast<dealii::FEFaceValues<dim> *>(
                     test_fe.neighbor_face_values()));
+      expected_description += "Discontinuous, ";
     } else {
       ASSERT_NE(nullptr,
                 dynamic_cast<dealii::FE_Q<dim> *>(test_fe.finite_element()));
       ASSERT_EQ(nullptr,
                 dynamic_cast<dealii::FEFaceValues<dim> *>(
                     test_fe.neighbor_face_values()));
+      expected_description += "Continuous, ";
     }
+    expected_description += "Q = 2";
+    EXPECT_EQ(expected_description, test_fe.description());
   }
 }
 
@@ -127,7 +135,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
     }
   }
 
-  test_fe.SetFace(dof_handler.begin_active(), 0);
+  test_fe.SetFace(dof_handler.begin_active(), domain::FaceIndex(0));
 
   int face_quad_points = test_fe.n_face_quad_pts();
   for (int i = 0; i < cell_dofs; ++i) {
@@ -139,6 +147,25 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
     }
   }
 
+}
+
+TYPED_TEST(DomainFiniteElementGaussianTest, FaceNormalTest) {
+  constexpr int dim = this->dim;
+  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{
+      problem::DiscretizationType::kContinuousFEM, 2};
+
+  // Triangulation and DOF handler to link to our values
+  dealii::Triangulation<dim> triangulation;
+  dealii::GridGenerator::hyper_cube(triangulation, -1, 1);
+  triangulation.refine_global(2);
+
+  dealii::DoFHandler dof_handler(triangulation);
+  dof_handler.distribute_dofs(*test_fe.finite_element());
+
+  test_fe.SetFace(dof_handler.begin_active(), domain::FaceIndex(0));
+
+  EXPECT_EQ(test_fe.face_values()->normal_vector(0),
+            test_fe.FaceNormal());
 }
 
 // BASE CLASS TESTS ============================================================
