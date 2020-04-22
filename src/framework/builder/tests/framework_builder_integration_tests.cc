@@ -315,7 +315,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
   using ExpectedType = eigenvalue::k_effective::UpdaterViaFissionSource;
-
+  EXPECT_CALL(*this->finite_element_sptr_, n_cell_quad_pts())
+      .WillOnce(Return(10));
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater(
       this->finite_element_sptr_,
       this->cross_sections_sptr_,
