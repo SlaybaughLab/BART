@@ -48,6 +48,11 @@ class SphericalHarmonicI {
   virtual int total_groups() const = 0;
   /*! \brief Returns the value of \f$\ell_{\text{max}}\f$. */
   virtual int max_harmonic_l() const = 0;
+
+  virtual MomentsMap::const_iterator cbegin() const = 0;
+  virtual MomentsMap::iterator begin() = 0;
+  virtual MomentsMap::const_iterator cend() const = 0;
+  virtual MomentsMap::iterator end() = 0;
 };
 
 } // namespace moments

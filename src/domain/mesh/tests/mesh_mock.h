@@ -31,7 +31,8 @@ class MeshMock : public MeshI<dim> {
   MOCK_CONST_METHOD0_T(spatial_max, std::array<double, dim>());
 
   MOCK_CONST_METHOD0_T(n_cells,  std::array<int, dim>());
-     
+
+  MOCK_METHOD(std::string, description, (), (const, override));
 };
 
 } // namespace mesh

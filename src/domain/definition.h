@@ -89,6 +89,8 @@ class Definition : public DefinitionI<dim> {
 
   std::shared_ptr<system::MPISparseMatrix> MakeSystemMatrix() const override;
 
+  std::shared_ptr<system::MPIVector> MakeSystemVector() const override;
+
   CellRange Cells() const override { return local_cells_; };
 
   problem::DiscretizationType discretization_type() const override {

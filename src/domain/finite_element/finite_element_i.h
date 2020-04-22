@@ -25,6 +25,9 @@ class FiniteElementI {
  public:
   virtual ~FiniteElementI() = default;
 
+  // Description
+  virtual std::string description() const = 0;
+
   // Basic FE properties
   /*! \brief Gets polynomial degree */
   virtual int polynomial_degree() const = 0;

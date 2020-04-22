@@ -21,7 +21,15 @@ Definition<dim>::Definition(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                          dealii::Triangulation<dim>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
-      discretization_type_(discretization) {}
+      discretization_type_(discretization) {
+  std::string description{"Domain, " + std::to_string(dim) + "D"};
+  if (discretization == problem::DiscretizationType::kContinuousFEM) {
+    description += ", Continuous";
+  } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
+    description += ", Discontinuous";
+  }
+  this->set_description(description, utility::DefaultImplementation(true));
+}
 
 template <>
 Definition<1>::Definition(
@@ -34,7 +42,15 @@ Definition<1>::Definition(
                          dealii::Triangulation<1>::smoothing_on_refinement |
                              dealii::Triangulation<1>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
-      discretization_type_(discretization) {}
+      discretization_type_(discretization) {
+  std::string description{"Domain, 1D"};
+  if (discretization == problem::DiscretizationType::kContinuousFEM) {
+    description += ", Continuous";
+  } else if (discretization == problem::DiscretizationType::kDiscontinuousFEM ){
+    description += ", Discontinuous";
+  }
+  this->set_description(description, utility::DefaultImplementation(true));
+}
 
 template <int dim>
 Definition<dim>& Definition<dim>::SetUpMesh() {
@@ -138,6 +154,13 @@ std::shared_ptr<system::MPISparseMatrix> Definition<dim>::MakeSystemMatrix() con
       dynamic_sparsity_pattern_,
       MPI_COMM_WORLD);
   return system_matrix_ptr;
+}
+
+template<int dim>
+std::shared_ptr<system::MPIVector> Definition<dim>::MakeSystemVector() const {
+  auto system_vector_ptr = std::make_shared<system::MPIVector>();
+  system_vector_ptr->reinit(locally_owned_dofs_, MPI_COMM_WORLD);
+  return system_vector_ptr;
 }
 
 template <int dim>

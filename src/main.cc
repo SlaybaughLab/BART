@@ -2,10 +2,12 @@
 #include <iostream>
 #include <fstream>
 
+#include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
 
-#include "framework/builder/cfem_framework_builder.h"
+#include "framework/builder/framework_builder.h"
+#include "utility/reporter/mpi.h"
 #include "problem/parameters_dealii_handler.h"
 
 int main(int argc, char* argv[]) {
@@ -33,28 +35,40 @@ int main(int argc, char* argv[]) {
 
     double k_eff_final;
 
-    std::ofstream output_stream((prm.OutputFilenameBase() + ".vtu").c_str());
+    const int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const int process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
+    std::ofstream output_stream;
+    const std::string output_filename_base{prm.OutputFilenameBase()};
+    if (n_processes > 1) {
+      const std::string full_filename = output_filename_base + dealii::Utilities::int_to_string(process_id, 4);
+      output_stream.open((full_filename + ".vtu").c_str());
+    } else {
+      output_stream.open((output_filename_base + ".vtu").c_str());
+    }
+
+    auto reporter_ptr = std::make_shared<bart::utility::reporter::Mpi>(
+        std::make_unique<dealii::ConditionalOStream>(std::cout, process_id == 0));
     switch(prm.SpatialDimension()) {
       case 1: {
-        bart::framework::builder::CFEM_FrameworkBuilder<1> builder;
-        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        bart::framework::builder::FrameworkBuilder<1> builder(reporter_ptr);
+        auto framework_ptr = builder.BuildFramework("main", prm);
         framework_ptr->SolveSystem();
         framework_ptr->OutputResults(output_stream);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
       case 2: {
-        bart::framework::builder::CFEM_FrameworkBuilder<2> builder;
-        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        bart::framework::builder::FrameworkBuilder<2> builder(reporter_ptr);
+        auto framework_ptr = builder.BuildFramework("main", prm);
         framework_ptr->SolveSystem();
         framework_ptr->OutputResults(output_stream);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
       case 3: {
-        bart::framework::builder::CFEM_FrameworkBuilder<3> builder;
-        auto framework_ptr = builder.BuildFramework(prm, d2_prm);
+        bart::framework::builder::FrameworkBuilder<3> builder(reporter_ptr);
+        auto framework_ptr = builder.BuildFramework("main", prm);
         framework_ptr->SolveSystem();
         framework_ptr->OutputResults(output_stream);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);

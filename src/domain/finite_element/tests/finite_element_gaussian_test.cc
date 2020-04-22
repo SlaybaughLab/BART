@@ -17,6 +17,8 @@ namespace {
 
 using namespace bart;
 
+using ::testing::ContainsRegex;
+
 /* Tests for the FiniteElementGaussian class.
  *
  * As this class mostly just instantiates other classes and forwards to them
@@ -45,6 +47,8 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
 
     domain::finite_element::FiniteElementGaussian<dim> test_fe{discretization_type, 2};
 
+    std::string expected_description{"(Default) deal.II Gaussian, " + std::to_string(dim) + "D, "};
+
     // Verify correct objects were instantiated
     ASSERT_NE(nullptr, dynamic_cast<dealii::FEValues<dim> *>(test_fe.values()));
     ASSERT_NE(nullptr,
@@ -61,13 +65,17 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
       ASSERT_NE(nullptr,
                 dynamic_cast<dealii::FEFaceValues<dim> *>(
                     test_fe.neighbor_face_values()));
+      expected_description += "Discontinuous, ";
     } else {
       ASSERT_NE(nullptr,
                 dynamic_cast<dealii::FE_Q<dim> *>(test_fe.finite_element()));
       ASSERT_EQ(nullptr,
                 dynamic_cast<dealii::FEFaceValues<dim> *>(
                     test_fe.neighbor_face_values()));
+      expected_description += "Continuous, ";
     }
+    expected_description += "Q = 2";
+    EXPECT_EQ(expected_description, test_fe.description());
   }
 }
 

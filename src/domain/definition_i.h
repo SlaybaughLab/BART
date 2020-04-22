@@ -11,6 +11,7 @@
 #include "domain/domain_types.h"
 #include "problem/parameter_types.h"
 #include "system/system_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -37,7 +38,7 @@ namespace domain {
  * \date 2019/02
  */
 template <int dim>
-class DefinitionI {
+class DefinitionI : public utility::HasDescription {
  public:
   using CellRange = std::vector<domain::CellPtr<dim>>;
 
@@ -65,6 +66,9 @@ class DefinitionI {
 
   /*! Get an MPI matrix suitable for the system */
   virtual std::shared_ptr<bart::system::MPISparseMatrix> MakeSystemMatrix() const = 0;
+
+  /*! Get an MPI vector suitable for the system */
+  virtual std::shared_ptr<bart::system::MPIVector> MakeSystemVector() const = 0;
 
   /*! Get a range of all cells to allow iterating over them */
   virtual CellRange Cells() const = 0;

@@ -38,6 +38,24 @@ MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
   
   std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
   std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());
+  description_ = "(Default) deal.II Cartesian Mesh, "+ std::to_string(dim) + "D, Size: {";
+
+  auto int_comma_fold = [](std::string a, int b) {
+    return std::move(a) + ", " + std::to_string(b);
+  };
+  auto double_comma_fold = [](std::string a, double b) {
+    return std::move(a) + ", " + std::to_string(b);
+  };
+
+  std::string size_string = std::accumulate(std::next(spatial_max.begin()),
+                                            spatial_max.end(),
+                                            std::to_string(spatial_max.at(0)),
+                                            double_comma_fold);
+  std::string n_cells_string = std::accumulate(std::next(n_cells.begin()),
+                                               n_cells.end(),
+                                               std::to_string(n_cells.at(0)),
+                                               int_comma_fold);
+  description_ += size_string + "}, N_cells: {" + n_cells_string + "}";
 }
 
 template <int dim>

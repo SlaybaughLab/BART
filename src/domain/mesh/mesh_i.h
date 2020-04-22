@@ -31,7 +31,8 @@ class MeshI {
   virtual std::array<double, dim> spatial_max() const = 0;
   /* \brief Gets number of cells in each dimension */
   virtual std::array<int, dim> n_cells() const = 0;
-     
+
+  virtual std::string description() const = 0;
 };
 
 } // namespace mesh
