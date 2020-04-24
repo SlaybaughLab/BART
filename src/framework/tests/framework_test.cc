@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <deal.II/base/mpi.h>
+
 #include "iteration/outer/tests/outer_iteration_mock.h"
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "results/tests/output_mock.h"
@@ -11,7 +13,7 @@ namespace  {
 
 using namespace bart;
 
-using ::testing::Ref;
+using ::testing::Ref, ::testing::_;
 
 class FrameworkTest : public ::testing::Test {
  public:
@@ -114,6 +116,23 @@ TEST_F(FrameworkTest, OutputResults) {
   EXPECT_CALL(*results_output_obs_ptr_, WriteData(Ref(output_stream)));
 
   test_framework_->OutputResults(output_stream);
+}
+
+TEST_F(FrameworkTest, OutputMasterFileMPI) {
+  std::ostringstream output_stream;
+  const int process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+
+  std::vector<std::string> filenames{"mock_1", "mock_2"};
+
+  if (process_id == 0) {
+    EXPECT_CALL(*results_output_obs_ptr_, WriteMasterFile(Ref(output_stream),
+                                                          filenames));
+  } else {
+    EXPECT_CALL(*results_output_obs_ptr_, WriteMasterFile(_,_))
+        .Times(0);
+  }
+
+  test_framework_->OutputMasterFile(output_stream, filenames, process_id);
 }
 
 

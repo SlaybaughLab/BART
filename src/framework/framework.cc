@@ -33,12 +33,21 @@ void Framework::SolveSystem() {
 
 void Framework::OutputResults(std::ostream &output_stream) {
   AssertThrow(results_output_ptr_ != nullptr,
-              dealii::ExcMessage("Results output poitner is null"));
+              dealii::ExcMessage("Results output pointer is null"));
   AssertThrow(output_stream.good(),
               dealii::ExcMessage("Bad stream passed to OutputResults"));
 
   results_output_ptr_->AddData(*system_ptr_);
   results_output_ptr_->WriteData(output_stream);
+}
+
+void Framework::OutputMasterFile(std::ostream &output_stream,
+                                 const std::vector<std::string>& filenames,
+                                 const int process_id) {
+  if (process_id == 0) {
+    results_output_ptr_->WriteMasterFile(output_stream,
+                                         filenames);
+  }
 }
 
 } // namespace framework
