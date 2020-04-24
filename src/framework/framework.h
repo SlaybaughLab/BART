@@ -31,6 +31,10 @@ class Framework : public FrameworkI {
 
   void OutputResults(std::ostream& output_stream);
 
+  void OutputMasterFile(std::ostream& output_stream,
+                        const std::vector<std::string>& filenames,
+                        const int process_id);
+
   Initializer* initializer_ptr() const {
     return initializer_ptr_.get();
   }

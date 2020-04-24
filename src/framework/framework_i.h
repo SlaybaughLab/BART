@@ -15,6 +15,9 @@ class FrameworkI {
   virtual void SolveSystem() = 0;
   virtual system::System* system() const = 0;
   virtual void OutputResults(std::ostream& output_stream) = 0;
+  virtual void OutputMasterFile(std::ostream& output_stream,
+                                const std::vector<std::string>& filenames,
+                                const int process_id) = 0;
 };
 
 } // namespace framework
