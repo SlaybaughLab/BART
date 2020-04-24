@@ -17,7 +17,7 @@ using namespace bart;
 
 using ::testing::Return, ::testing::ReturnRef;
 
-template <typename DimensionWrapper>
+template<typename DimensionWrapper>
 class ResultsOutputDealiiVtuTest
     : public ::testing::Test,
       public ::bart::testing::DealiiTestDomain<DimensionWrapper::value> {
@@ -29,7 +29,7 @@ class ResultsOutputDealiiVtuTest
   dealii::DataOut<dim> test_data_out_;
   system::System test_system_;
 
-  system::moments::SphericalHarmonicMock* moments_obs_ptr_;
+  system::moments::SphericalHarmonicMock *moments_obs_ptr_;
 
   std::array<double, 2> group_phi_values_{1.45, 1.67};
   system::moments::MomentVector group_0_moment, group_1_moment;
@@ -39,7 +39,7 @@ class ResultsOutputDealiiVtuTest
   void SetUp() override;
 };
 
-template <typename DimensionWrapper>
+template<typename DimensionWrapper>
 void ResultsOutputDealiiVtuTest<DimensionWrapper>::SetUp() {
   // Dependencies
   domain_ptr_ = std::make_shared<domain::DefinitionMock<dim>>();
@@ -69,7 +69,8 @@ void ResultsOutputDealiiVtuTest<DimensionWrapper>::SetUp() {
   test_data_out_.build_patches();
 }
 
-TYPED_TEST_CASE(ResultsOutputDealiiVtuTest, bart::testing::AllDimensions);
+TYPED_TEST_CASE
+(ResultsOutputDealiiVtuTest, bart::testing::AllDimensions);
 
 TYPED_TEST(ResultsOutputDealiiVtuTest, Constructor) {
   constexpr int dim = this->dim;
@@ -78,14 +79,18 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, Constructor) {
   auto domain_ptr = this->test_output_->domain_ptr();
 
   ASSERT_NE(domain_ptr, nullptr);
-  EXPECT_NE(nullptr, dynamic_cast<domain::DefinitionMock<dim>*>(domain_ptr));
+  EXPECT_NE(nullptr, dynamic_cast<domain::DefinitionMock<dim> *>(domain_ptr));
 }
 
 TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
   constexpr int dim = this->dim;
+  const int
+      n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const int
+      process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   std::ostringstream expected_stream, test_stream;
 
-  this->test_data_out_.write_vtu(test_stream);
+  this->test_data_out_.write_vtu(expected_stream);
 
   system::moments::MomentIndex group_0_index{0, 0, 0},
       group_1_index{1, 0, 0};
@@ -96,17 +101,38 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
       .WillOnce(ReturnRef(this->group_1_moment));
 
   // Check that dof_handler is called to attach to data
-  auto mock_domain_ptr = dynamic_cast<domain::DefinitionMock<dim>*>(
+  auto mock_domain_ptr = dynamic_cast<domain::DefinitionMock<dim> *>(
       this->test_output_->domain_ptr());
   ASSERT_NE(nullptr, mock_domain_ptr);
 
   EXPECT_CALL(*mock_domain_ptr, dof_handler())
       .WillOnce(ReturnRef(this->dof_handler_));
 
-  this->test_output_->AddData(this->test_system_);
-  this->test_output_->WriteData(expected_stream);
+  // Filenames for master pvtu record
+  std::string filename_base{"base_name"};
+  std::vector<std::string> filenames{};
+  for (int process = 0; process < n_processes; ++process) {
+    const std::string full_filename =
+        filename_base + dealii::Utilities::int_to_string(process, 4);
+    filenames.push_back(full_filename);
+  }
 
-  EXPECT_EQ(test_stream.str().erase(1, 141), expected_stream.str().erase(1, 141));
+  this->test_output_->AddData(this->test_system_);
+  this->test_output_->WriteData(test_stream);
+
+  EXPECT_EQ(test_stream.str().erase(1, 141),
+            expected_stream.str().erase(1, 141));
+
+  test_stream.str("");
+  expected_stream.str("");
+
+  if (process_id == 0) {
+    this->test_data_out_.write_pvtu_record(expected_stream, filenames);
+    this->test_output_->WriteMasterFile(test_stream, filenames);
+    EXPECT_EQ(test_stream.str().erase(0, 99),
+              expected_stream.str().erase(0, 99));
+
+  }
 }
 
 }

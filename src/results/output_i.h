@@ -16,7 +16,8 @@ class OutputI {
   virtual ~OutputI() = default;
   virtual void AddData(system::System &to_output) = 0;
   virtual void WriteData(std::ostream &output_stream) const = 0;
-  // virtual void ClearData() = 0;
+  virtual void WriteMasterFile(std::ostream &output_stream,
+                               std::vector<std::string> filenames) const = 0;
 };
 
 } // namespace results
