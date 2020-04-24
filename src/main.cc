@@ -38,13 +38,25 @@ int main(int argc, char* argv[]) {
     const int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
     const int process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
-    std::ofstream output_stream;
+    // Open file for output, if there are multiple processes they will end with
+    // a number indicating the process number.
+    std::ofstream output_stream, master_output_stream;
     const std::string output_filename_base{prm.OutputFilenameBase()};
     if (n_processes > 1) {
       const std::string full_filename = output_filename_base + dealii::Utilities::int_to_string(process_id, 4);
       output_stream.open((full_filename + ".vtu").c_str());
+      master_output_stream.open(output_filename_base + ".pvtu");
     } else {
       output_stream.open((output_filename_base + ".vtu").c_str());
+    }
+    std::vector<std::string> filenames;
+    // Write master pvtu record if multiple files are required
+    if ((n_processes > 1) && (process_id == 0)) {
+      for (int process = 0; process < n_processes; ++process) {
+        const std::string full_filename =
+            output_filename_base + dealii::Utilities::int_to_string(process, 4);
+        filenames.push_back(full_filename + ".vtu");
+      }
     }
 
     auto reporter_ptr = std::make_shared<bart::utility::reporter::Mpi>(
@@ -55,6 +67,8 @@ int main(int argc, char* argv[]) {
         auto framework_ptr = builder.BuildFramework("main", prm);
         framework_ptr->SolveSystem();
         framework_ptr->OutputResults(output_stream);
+        if (n_processes > 1)
+          framework_ptr->OutputMasterFile(master_output_stream, filenames, process_id);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
@@ -63,6 +77,8 @@ int main(int argc, char* argv[]) {
         auto framework_ptr = builder.BuildFramework("main", prm);
         framework_ptr->SolveSystem();
         framework_ptr->OutputResults(output_stream);
+        if (n_processes > 1)
+          framework_ptr->OutputMasterFile(master_output_stream, filenames, process_id);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
@@ -71,6 +87,8 @@ int main(int argc, char* argv[]) {
         auto framework_ptr = builder.BuildFramework("main", prm);
         framework_ptr->SolveSystem();
         framework_ptr->OutputResults(output_stream);
+        if (n_processes > 1)
+          framework_ptr->OutputMasterFile(master_output_stream, filenames, process_id);
         k_eff_final = framework_ptr->system()->k_effective.value_or(0);
         break;
       }
