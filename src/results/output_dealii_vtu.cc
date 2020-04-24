@@ -32,6 +32,13 @@ void OutputDealiiVtu<dim>::WriteData(std::ostream &output_stream) const {
   data_out_.write_vtu(output_stream);
 }
 
+template<int dim>
+void OutputDealiiVtu<dim>::WriteMasterFile(
+    std::ostream &output_stream,
+    std::vector<std::string> filenames) const {
+  data_out_.write_pvtu_record(output_stream, filenames);
+}
+
 template class OutputDealiiVtu<1>;
 template class OutputDealiiVtu<2>;
 template class OutputDealiiVtu<3>;

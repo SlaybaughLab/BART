@@ -19,6 +19,8 @@ class OutputDealiiVtu : public OutputI {
 
   void AddData(system::System &to_output) override;
   void WriteData(std::ostream &output_stream) const override;
+  void WriteMasterFile(std::ostream &output_stream,
+                       std::vector<std::string> filenames) const override;
 
   domain::DefinitionI<dim>* domain_ptr() const { return domain_ptr_.get(); };
 

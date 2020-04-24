@@ -12,8 +12,10 @@ namespace results {
 
 class OutputMock : public OutputI {
  public:
-  MOCK_METHOD1(AddData, void(system::System&));
-  MOCK_CONST_METHOD1(WriteData, void(std::ostream&));
+  MOCK_METHOD(void, AddData, (system::System&), (override));
+  MOCK_METHOD(void, WriteData, (std::ostream&), (override, const));
+  MOCK_METHOD(void, WriteMasterFile, (std::ostream &output_stream,
+      std::vector<std::string> filenames), (override, const));
 };
 
 } // namespace results
