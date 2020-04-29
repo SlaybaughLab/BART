@@ -34,6 +34,13 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
+  void FillReflectiveBoundaryLinearTerm(
+      Vector &to_fill,
+      const domain::CellPtr<dim> &cell_ptr,
+      domain::FaceIndex face_number,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const system::MPIVector& incoming_flux) override;
+
   void FillCellCollisionTerm(
       FullMatrix &to_fill,
       const domain::CellPtr<dim> &cell_ptr,

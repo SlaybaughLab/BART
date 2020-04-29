@@ -12,6 +12,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_assertions.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace  {
 
@@ -21,6 +22,7 @@ using ::testing::AssertionResult, ::testing::AssertionSuccess, ::testing::Assert
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
 using ::testing::ByRef;
 using ::testing::_;
+using ::testing::A;
 
 /* Tests for CFEM Self Adjoint Angular Flux formulation class. This class is
  * responsible for filling cell matrices for the SAAF angular formulation.
@@ -187,6 +189,9 @@ void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
   ON_CALL(*mock_finite_element_ptr_,
       ValueAtQuadrature(group_1_moment_))
       .WillByDefault(Return(group_1_moment_values_));
+  ON_CALL(*mock_finite_element_ptr_,
+      ValueAtFaceQuadrature(A<const bart::system::MPIVector&>()))
+      .WillByDefault(Return(group_0_moment_values_));
 
 
   // Instantiate cross-section object
@@ -585,6 +590,141 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                    });
 }
 
+// FillReflectiveBoundaryLinearTerm ======================================================
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+    FillReflectiveBoundaryLinearTermTestBadCellPtr) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  domain::CellPtr<dim> invalid_cell_ptr;
+  auto angle_ptr = *this->quadrature_set_.begin();
+  test_saaf.Initialize(this->cell_ptr_);
+
+  EXPECT_ANY_THROW({
+    test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+        invalid_cell_ptr,
+        domain::FaceIndex(0),
+        angle_ptr,
+        system::MPIVector{});
+                   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillReflectiveBoundaryLinearTermTestBadVectorSize) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(3);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  test_saaf.Initialize(this->cell_ptr_);
+
+  EXPECT_ANY_THROW({
+                     test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+                                                      this->cell_ptr_,
+                                                      domain::FaceIndex(0),
+                                                      angle_ptr,
+                                                      system::MPIVector{});
+                   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+    FillReflectiveBoundaryLinearTermTestLessThanZero) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector expected_results(2);
+  formulation::Vector cell_vector(2);
+  cell_vector[0] = test_helpers::RandomDouble(1, 1000);
+  cell_vector[1] = test_helpers::RandomDouble(1, 1000);
+  expected_results = cell_vector;
+
+  test_saaf.Initialize(this->cell_ptr_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  int face_index = 0;
+
+  dealii::Tensor<1, dim> normal;
+  for (int i = 0; i < dim; ++i)
+    normal[i] = -1;
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
+      .WillOnce(Return(normal));
+
+  EXPECT_NO_THROW({
+                    test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+                                                     this->cell_ptr_,
+                                                     domain::FaceIndex(0),
+                                                     angle_ptr,
+                                                     system::MPIVector{});
+                  });
+
+  EXPECT_EQ(expected_results, cell_vector);
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillReflectiveBoundaryLinearTermTest) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector expected_results(2);
+  expected_results[0] = 78.75 * dim;
+  expected_results[1] = 146.25 * dim;
+  formulation::Vector cell_vector(2);
+
+  test_saaf.Initialize(this->cell_ptr_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  int face_index = 0;
+
+  dealii::Tensor<1, dim> normal;
+  for (int i = 0; i < dim; ++i)
+    normal[i] = 1;
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
+      .WillOnce(Return(normal));
+
+  for (const auto f_q : {0, 1}) {
+    EXPECT_CALL(*this->mock_finite_element_ptr_, FaceJacobian(f_q))
+        .WillOnce(DoDefault());
+    for (const auto dof : {0, 1}) {
+      EXPECT_CALL(*this->mock_finite_element_ptr_, FaceShapeValue(dof, f_q))
+          .WillOnce(DoDefault());
+    }
+  }
+
+
+  EXPECT_CALL(*this->mock_finite_element_ptr_,
+      ValueAtFaceQuadrature(A<const bart::system::MPIVector&>()))
+      .WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+                    test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+                                                     this->cell_ptr_,
+                                                     domain::FaceIndex(0),
+                                                     angle_ptr,
+                                                     system::MPIVector{});
+                  });
+
+  EXPECT_EQ(expected_results, cell_vector);
+}
 
 // FillStreamingTerm ===========================================================
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
