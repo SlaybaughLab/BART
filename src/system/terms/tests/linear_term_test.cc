@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_set>
 
-#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_vector.h>
 #include <deal.II/base/mpi.h>
 
 #include "system/system_types.h"
