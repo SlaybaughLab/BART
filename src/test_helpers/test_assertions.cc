@@ -28,8 +28,8 @@ AssertionResult CompareVector(const dealii::Vector<double>& expected,
 AssertionResult CompareVector(const std::vector<double> expected,
                                      const std::vector<double> result,
                                      const double tol) {
-  dealii::Vector<double> expected_vec{expected.begin(), expected.end()};
-  dealii::Vector<double> result_vec{result.begin(), result.end()};
+  dealii::Vector<double> expected_vec(expected.begin(), expected.end());
+  dealii::Vector<double> result_vec(result.begin(), result.end());
   return CompareVector(expected_vec, result_vec, tol);
 }
 
