@@ -100,7 +100,7 @@ template <int dim>
                     double value = 1);
 
    using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
-   dealii::ConstraintMatrix constraint_matrix_;
+   dealii::AffineConstraints<double> constraint_matrix_;
    typename TriangulationType<dim>::type triangulation_;
    dealii::DoFHandler<dim> dof_handler_;
    dealii::FE_Q<dim> fe_;
