@@ -5,26 +5,30 @@ notifications:
 
 language: cpp
 
+env:
+ global:
+  - DOCKER_TAG=v9.1.0
+
 services:
  - docker
 
 before_install:
- - sudo docker pull jsrehak/bart
+ - sudo docker pull jsrehak/bart:$DOCKER_TAG
  - ci_env=`bash <(curl -s https://codecov.io/env)`
 
 install:
- - sudo docker run jsrehak/bart
+ - sudo docker run jsrehak/bart:$DOCKER_TAG
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
  - sudo docker cp ../BART $id:/home/bart
  - id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
- - sudo docker commit $id jsrehak/bart
- - sudo docker run $ci_env -it -u="root" -d -w="/home/bart/BART" --name bart jsrehak/bart
+ - sudo docker commit $id jsrehak/bart:$DOCKER_TAG
+ - sudo docker run $ci_env -it -u="root" -d -w="/home/bart/BART" --name bart jsrehak/bart:$DOCKER_TAG
 
 script:
  - docker exec bart cmake .
  - docker exec bart make -j4
  - docker exec bart bash -c "./bart_test"
- - docker exec bart bash -c "mpirun -np 2 --allow-run-as-root ./bart_test --mpi -l 0"
+ - docker exec bart bash -c "mpirun -np 2 --allow-run-as-root --oversubscribe ./bart_test --mpi -l 0"
 
 after_success:
  - docker exec bart bash -c "./coverage.sh"
