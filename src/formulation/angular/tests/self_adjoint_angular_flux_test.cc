@@ -77,7 +77,7 @@ class FormulationAngularSelfAdjointAngularFluxTest :
                                    0.75*fission_test_factor_,
                                    0.5*fission_test_factor_,
                                    fission_test_factor_}.begin()}}};
-  system::moments::MomentVector group_0_moment_{2}, group_1_moment_{2};
+  system::moments::MomentVector group_0_moment_, group_1_moment_;
   system::moments::MomentsMap out_group_moments_;
   const std::vector<double> group_0_moment_values_{0.75, 0.75};
   const std::vector<double> group_1_moment_values_{1.0, 1.0};
@@ -95,6 +95,9 @@ class FormulationAngularSelfAdjointAngularFluxTest :
 template <typename DimensionWrapper>
 void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
+
+  group_0_moment_.reinit(2);
+  group_1_moment_.reinit(2);
 
   // Make mocks and set up
   mock_finite_element_ptr_ = std::make_shared<NiceMock<FiniteElementType>>();
