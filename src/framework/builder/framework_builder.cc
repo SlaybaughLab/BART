@@ -164,7 +164,7 @@ auto FrameworkBuilder<dim>::BuildConvergenceReporter()
   int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
   return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
-  return std::move(return_ptr);
+  return return_ptr;
 }
 
 template<int dim>
@@ -431,7 +431,7 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
   auto return_ptr = std::make_unique<FinalCheckerType>(
       std::move(single_checker_ptr));
   return_ptr->SetMaxIterations(max_iterations);
-  return std::move(return_ptr);
+  return return_ptr;
 }
 
 template<int dim>
@@ -473,7 +473,7 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
       std::move(single_checker_ptr));
   return_ptr->SetMaxIterations(max_iterations);
 
-  return std::move(return_ptr);
+  return return_ptr;
 }
 
 template<int dim>
@@ -509,7 +509,7 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
   quadrature::factory::FillQuadratureSet<dim>(return_ptr.get(),
                                               quadrature_points);
 
-  return std::move(return_ptr);
+  return return_ptr;
 }
 
 template <int dim>
