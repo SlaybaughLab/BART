@@ -2,7 +2,7 @@
 #define BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_H_
 
 #include <deal.II/lac/vector.h>
-#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
+#include <deal.II/lac/petsc_sparse_matrix.h>
 
 #include "test_helpers/gmock_wrapper.h"
 

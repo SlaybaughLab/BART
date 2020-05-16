@@ -7,7 +7,7 @@
 #include <deal.II/base/index_set.h>
 #include <deal.II/base/iterator_range.h>
 #include <deal.II/distributed/tria.h>
-#include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/lac/affine_constraints.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 
 #include "domain/definition_i.h"
@@ -132,7 +132,7 @@ class Definition : public DefinitionI<dim> {
   dealii::IndexSet locally_relevant_dofs_;
 
   /*! Constraint matrix */
-  dealii::ConstraintMatrix constraint_matrix_;
+  dealii::AffineConstraints<double> constraint_matrix_;
 
   /*! Dynamic sparsity pattern for MPI matrices */
   dealii::DynamicSparsityPattern dynamic_sparsity_pattern_;

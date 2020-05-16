@@ -335,10 +335,8 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
-  std::vector<double> expected_values{6, 15};
 
-  dealii::Vector<double> expected_vector{expected_values.begin(),
-                                         expected_values.end()};
+  dealii::Vector<double> expected_vector{6, 15};
   dealii::Vector<double> test_vector(2);
 
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,
@@ -376,21 +374,15 @@ TEST_F(FormulationCFEMDiffusionTest, FillFissionSourceTest) {
   /* Make out-group moments (specifically in-group values in this are different
    * This is a somewhat tortured process due to the way dealii::Vectors are
    * defined (system::moments::MomentVector is an alias) */
-  std::vector<double> group_0_moment_values{0.75, 0.75};
   std::vector<double> group_1_moment_values{1.0, 1.0};
-  system::moments::MomentVector group_0_moment{group_0_moment_values.begin(),
-                                    group_0_moment_values.end()};
-  system::moments::MomentVector group_1_moment{group_1_moment_values.begin(),
-                                    group_1_moment_values.end()};
+  system::moments::MomentVector group_0_moment{0.75, 0.75};
+  system::moments::MomentVector group_1_moment{1.0, 1.0};
   system::moments::MomentsMap out_group_moments;
   out_group_moments[{0,0,0}] = group_0_moment;
   out_group_moments[{1,0,0}] = group_1_moment;
 
   // Expected answer
-  std::vector<double> expected_values{5,
-                                      12.5};
-  dealii::Vector<double> expected_vector{expected_values.begin(),
-                                         expected_values.end()};
+  dealii::Vector<double> expected_vector{5.0, 12.5};
 
   EXPECT_CALL(*fe_mock_ptr, SetCell(_))
       .Times(1);
@@ -423,10 +415,10 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
    * defined (system::moments::MomentVector is an alias) */
   std::vector<double> group_0_moment_values{0.75, 0.75};
   std::vector<double> group_1_moment_values{1.0, 1.0};
-  system::moments::MomentVector group_0_moment{group_0_moment_values.begin(),
-                                    group_0_moment_values.end()};
-  system::moments::MomentVector group_1_moment{group_1_moment_values.begin(),
-                                    group_1_moment_values.end()};
+  system::moments::MomentVector group_0_moment(group_0_moment_values.begin(),
+                                               group_0_moment_values.end());
+  system::moments::MomentVector group_1_moment(group_1_moment_values.begin(),
+                                               group_1_moment_values.end());
   system::moments::MomentsMap out_group_moments;
   out_group_moments[{0,0,0}] = group_0_moment;
   out_group_moments[{1,0,0}] = group_1_moment;
@@ -434,12 +426,12 @@ TEST_F(FormulationCFEMDiffusionTest, FillScatteringSourceTest) {
   // Expected solutions
   std::vector<double> expected_group_0_values{3.0,
                                               7.5};
-  dealii::Vector<double> expected_group_0_vector{expected_group_0_values.begin(),
-                                                 expected_group_0_values.end()};
+  dealii::Vector<double> expected_group_0_vector(expected_group_0_values.begin(),
+                                                 expected_group_0_values.end());
   std::vector<double> expected_group_1_values{3.375,
                                               8.4375};
-  dealii::Vector<double> expected_group_1_vector{expected_group_1_values.begin(),
-                                                 expected_group_1_values.end()};
+  dealii::Vector<double> expected_group_1_vector(expected_group_1_values.begin(),
+                                                 expected_group_1_values.end());
   std::array<dealii::Vector<double>, 2> expected_vectors{
       expected_group_0_vector,
       expected_group_1_vector};

@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include <deal.II/base/tensor.h>
-#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_vector.h>
 
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"

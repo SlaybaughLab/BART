@@ -185,7 +185,7 @@ class FrameworkBuilder {
 
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
-    return std::move(to_convert_ptr);
+    return to_convert_ptr;
   }
   std::string ReadMappingFile(std::string filename);
 
