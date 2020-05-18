@@ -30,10 +30,20 @@ SAAFUpdater<dim>::SAAFUpdater(
     std::unique_ptr<SAAFFormulationType> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr,
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    const EnergyGroupToAngularSolutionPtrMap& angular_solution_ptr_map,
     const std::unordered_set<Boundary> reflective_boundaries)
     : SAAFUpdater(std::move(formulation_ptr), std::move(stamper_ptr),
                   quadrature_set_ptr) {
   reflective_boundaries_ = reflective_boundaries;
+  angular_solution_ptr_map_ = angular_solution_ptr_map;
+  for (const int total_angles = quadrature_set_ptr_->size();
+       auto& [energy_group, solution_ptr] : angular_solution_ptr_map_) {
+    AssertThrow(total_angles == solution_ptr->total_angles(),
+                dealii::ExcMessage("Error in construction of SAAF Updater, "
+                                   "total angles in quadrature set does not "
+                                   "match size of one or more angular "
+                                   "solutions"));
+  }
 }
 
 template<int dim>

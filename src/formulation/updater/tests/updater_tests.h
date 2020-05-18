@@ -35,6 +35,7 @@ class UpdaterTests : public ::testing::Test,
 
   // Test parameters
   const int total_groups = bart::test_helpers::RandomDouble(2, 5);
+  const int total_angles = total_groups + 1;
 
   // Call parameters (objects and parameters used in update calls)
   system::System test_system_;
@@ -98,8 +99,7 @@ std::unique_ptr<StamperMock<dim>> UpdaterTests<dim>::MakeStamper() {
   ON_CALL(*mock_stamper_ptr, StampBoundaryVector(_,_))
       .WillByDefault(WithArg<1>(Invoke(this, &formulation::updater::test_helpers::UpdaterTests<dim>::EvaluateVectorFunctionOnBoundary)));
 
-
-  return std::move(mock_stamper_ptr);
+  return mock_stamper_ptr;
 }
 
 template <int dim>

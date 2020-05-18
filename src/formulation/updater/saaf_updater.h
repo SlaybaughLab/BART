@@ -11,6 +11,7 @@
 #include "formulation/updater/fission_source_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
+#include "system/solution/solution_types.h"
 
 namespace bart {
 
@@ -25,6 +26,7 @@ class SAAFUpdater :
     public FissionSourceUpdaterI {
  public:
   using Boundary = problem::Boundary;
+  using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
@@ -35,6 +37,7 @@ class SAAFUpdater :
   SAAFUpdater(std::unique_ptr<SAAFFormulationType>,
               std::unique_ptr<StamperType>,
               const std::shared_ptr<QuadratureSetType>&,
+              const EnergyGroupToAngularSolutionPtrMap&,
               const std::unordered_set<Boundary>);
 
   void UpdateFixedTerms(system::System &to_update,
@@ -47,6 +50,8 @@ class SAAFUpdater :
                               system::EnergyGroup group,
                               quadrature::QuadraturePointIndex index) override;
 
+  EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map() const {
+    return angular_solution_ptr_map_; }
   std::unordered_set<Boundary> reflective_boundaries() const {
     return reflective_boundaries_; }
   SAAFFormulationType* formulation_ptr() const {return formulation_ptr_.get();};
@@ -57,6 +62,7 @@ class SAAFUpdater :
   std::unique_ptr<SAAFFormulationType> formulation_ptr_;
   std::unique_ptr<StamperType> stamper_ptr_;
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr_;
+  EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map_;
   std::unordered_set<Boundary> reflective_boundaries_ = {};
 };
 
