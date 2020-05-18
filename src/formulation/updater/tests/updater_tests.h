@@ -10,6 +10,7 @@
 #include "system/terms/tests/bilinear_term_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
+#include "system/system.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/dealii_test_domain.h"
@@ -32,16 +33,19 @@ class UpdaterTests : public ::testing::Test,
  public:
   using StamperType = formulation::StamperMock<dim>;
   using MomentsType = system::moments::SphericalHarmonicMock;
+  using SystemType = system::System;
 
   // Test parameters
   const int total_groups = bart::test_helpers::RandomDouble(2, 5);
   const int total_angles = total_groups + 1;
 
   // Call parameters (objects and parameters used in update calls)
-  system::System test_system_;
+  SystemType test_system_;
   const int group_number = bart::test_helpers::RandomDouble(0, total_groups);
   const int angle_index = bart::test_helpers::RandomDouble(0, 10);
+  const int reflected_angle_index = bart::test_helpers::RandomDouble(11, 20);
   const system::Index index{group_number, angle_index};
+  const system::Index reflected_index{group_number, reflected_angle_index};
 
   // Mock system object observation pointers
   bart::system::terms::BilinearTermMock* mock_lhs_obs_ptr_;

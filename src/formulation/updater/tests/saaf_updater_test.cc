@@ -43,6 +43,10 @@ class FormulationUpdaterSAAFTest :
                                                      Boundary::kZMin};
   system::solution::EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map_;
   void SetUp() override;
+  bool IsAReflectiveFace(int boundary_id) {
+    return this->reflective_boundaries.count(
+        static_cast<Boundary>(boundary_id)) == 1;
+  }
 };
 
 template <typename DimensionWrapper>
@@ -54,12 +58,13 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
   stamper_obs_ptr_ = stamper_ptr.get();
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
 
-  auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
-  ON_CALL(*angular_solution_ptr, total_angles())
-      .WillByDefault(Return(this->total_angles));
-
-  angular_solution_ptr_map_.insert({system::EnergyGroup(this->group_number),
-                                    angular_solution_ptr});
+  for (int group = 0; group < this->total_groups; ++group) {
+    auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
+    ON_CALL(*angular_solution_ptr, total_angles())
+        .WillByDefault(Return(this->total_angles));
+    angular_solution_ptr_map_.insert({system::EnergyGroup(this->group_number),
+                                      angular_solution_ptr});
+  }
 
   ON_CALL(*quadrature_set_ptr_, size())
       .WillByDefault(Return(this->total_angles));
@@ -206,7 +211,70 @@ TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
   }
 }
 
+// ===== Update Boundary Conditions Tests ======================================
 
+TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
+  constexpr int dim = this->dim;
+  using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using MockSolutionType = system::solution::MPIGroupAngularSolutionMock;
+
+  system::EnergyGroup group_number(this->group_number);
+
+  // Quadrature point and reflection
+  quadrature::QuadraturePointIndex quad_index(this->angle_index),
+      reflected_index(this->reflected_angle_index);
+  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_,
+      reflected_point_ptr_;
+
+  // Angular flux vector to return
+  system::MPIVector angular_flux_vector;
+  angular_flux_vector.reinit(this->vector_1);
+
+  // Mock expectation layout
+  // -- Retrieve the correct variable term to update, returns vector_to_stamp
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      this->index, VariableLinearTerms::kReflectiveBoundaryCondition))
+      .WillOnce(DoDefault());
+  // -- Get the quadrature point identified by the passed index
+  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
+      .WillOnce(Return(quadrature_point_ptr_));
+  // -- Get the quadrature point's reflection for angular flux
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetReflectionIndex(quadrature_point_ptr_))
+      .WillOnce(Return(std::optional<int>{this->reflected_angle_index}));
+  // -- Get the correct angular flux from the map, returns an MPI vector
+  auto solution_mock_ptr = dynamic_cast<MockSolutionType*>(
+      this->angular_solution_ptr_map_.at(group_number).get());
+  EXPECT_CALL(*solution_mock_ptr, GetSolution(this->reflected_angle_index))
+      .WillOnce(ReturnRef(angular_flux_vector));
+  // -- For each cell that is on a reflective boundary, we expect a call to the
+  // formulation.
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  for (auto& cell : this->cells_) {
+    if (cell->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (this->IsAReflectiveFace(cell->face(face)->boundary_id())) {
+          EXPECT_CALL(*this->formulation_obs_ptr_,
+              FillReflectiveBoundaryLinearTerm(_,
+                                               cell,
+                                               domain::FaceIndex(face),
+                                               quadrature_point_ptr_,
+                                               Ref(angular_flux_vector)));
+        }
+      }
+    }
+  }
+  // -- We expect the stamper to be called just once to execute the stamping.
+  EXPECT_CALL(*this->stamper_obs_ptr_,
+      StampBoundaryVector(Ref(*this->vector_to_stamp), _))
+      .WillOnce(DoDefault());
+
+  this->test_updater_ptr->UpdateBoundaryConditions(this->test_system_,
+                                                   group_number, quad_index);
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
+}
 
 // ===== Update Fixed Terms Tests ==============================================
 
