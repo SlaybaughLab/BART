@@ -47,6 +47,14 @@ SAAFUpdater<dim>::SAAFUpdater(
 }
 
 template<int dim>
+void SAAFUpdater<dim>::UpdateBoundaryConditions(
+    system::System &to_update,
+    system::EnergyGroup group,
+    quadrature::QuadraturePointIndex index) {
+
+}
+
+template<int dim>
 void SAAFUpdater<dim>::UpdateFixedTerms(
     system::System &to_update,
     system::EnergyGroup group,

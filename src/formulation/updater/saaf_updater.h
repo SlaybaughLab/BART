@@ -7,6 +7,7 @@
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/stamper_i.h"
 #include "formulation/updater/fixed_updater_i.h"
+#include "formulation/updater/boundary_conditions_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
@@ -22,6 +23,7 @@ namespace updater {
 template <int dim>
 class SAAFUpdater :
     public FixedUpdaterI,
+    public BoundaryConditionsUpdaterI,
     public ScatteringSourceUpdaterI,
     public FissionSourceUpdaterI {
  public:
@@ -40,6 +42,9 @@ class SAAFUpdater :
               const EnergyGroupToAngularSolutionPtrMap&,
               const std::unordered_set<Boundary>);
 
+  void UpdateBoundaryConditions(system::System &to_update,
+                                system::EnergyGroup group,
+                                quadrature::QuadraturePointIndex index) override;
   void UpdateFixedTerms(system::System &to_update,
                         system::EnergyGroup group,
                         quadrature::QuadraturePointIndex index) override;
