@@ -64,6 +64,12 @@ class SAAFUpdater :
   QuadratureSetType* quadrature_set_ptr() const {
     return quadrature_set_ptr_.get();};
  private:
+  bool IsOnReflectiveBoundary(const domain::CellPtr<dim>& cell_ptr,
+                              const domain::FaceIndex face_index) const {
+    return reflective_boundaries_.count(
+        static_cast<const Boundary>(
+            cell_ptr->face(face_index.get())->boundary_id()));
+  }
   std::unique_ptr<SAAFFormulationType> formulation_ptr_;
   std::unique_ptr<StamperType> stamper_ptr_;
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr_;
