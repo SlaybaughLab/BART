@@ -24,6 +24,18 @@ SAAFUpdater<dim>::SAAFUpdater(
               dealii::ExcMessage("Error in constructor of SAAFUpdater, "
                                  "quadrature set pointer passed is null"))
 }
+
+template<int dim>
+SAAFUpdater<dim>::SAAFUpdater(
+    std::unique_ptr<SAAFFormulationType> formulation_ptr,
+    std::unique_ptr<StamperType> stamper_ptr,
+    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    const std::unordered_set<Boundary> reflective_boundaries)
+    : SAAFUpdater(std::move(formulation_ptr), std::move(stamper_ptr),
+                  quadrature_set_ptr) {
+  reflective_boundaries_ = reflective_boundaries;
+}
+
 template<int dim>
 void SAAFUpdater<dim>::UpdateFixedTerms(
     system::System &to_update,

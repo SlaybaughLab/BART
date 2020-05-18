@@ -24,6 +24,7 @@ class FormulationUpdaterSAAFTest :
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
+  using Boundary = problem::Boundary;
 
   // Test object
   std::unique_ptr<UpdaterType> test_updater_ptr;
@@ -32,6 +33,10 @@ class FormulationUpdaterSAAFTest :
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr_;
   FormulationType* formulation_obs_ptr_;
   StamperType* stamper_obs_ptr_;
+
+  std::unordered_set<Boundary> reflective_boundaries{Boundary::kXMin,
+                                                     Boundary::kYMax,
+                                                     Boundary::kZMin};
 
   void SetUp() override;
 };
@@ -47,7 +52,8 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
   test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
                                                    std::move(stamper_ptr),
-                                                   quadrature_set_ptr_);
+                                                   quadrature_set_ptr_,
+                                                   reflective_boundaries);
 }
 
 TYPED_TEST_SUITE(FormulationUpdaterSAAFTest, bart::testing::AllDimensions);
@@ -74,6 +80,31 @@ TYPED_TEST(FormulationUpdaterSAAFTest, Constructor) {
   EXPECT_NE(test_updater_ptr->formulation_ptr(), nullptr);
   EXPECT_NE(test_updater_ptr->stamper_ptr(), nullptr);
   EXPECT_NE(test_updater_ptr->quadrature_set_ptr(), nullptr);
+  EXPECT_EQ(test_updater_ptr->reflective_boundaries().size(), 0);
+}
+
+TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorReflective) {
+  constexpr int dim = this->dim;
+  using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
+  using StamperType = formulation::StamperMock<dim>;
+  using UpdaterType = formulation::updater::SAAFUpdater<dim>;
+  using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
+
+  auto formulation_ptr = std::make_unique<FormulationType>();
+  auto stamper_ptr = std::make_unique<StamperType>();
+  auto quadrature_set_ptr = std::make_shared<QuadratureSetType>();
+  std::unique_ptr<UpdaterType> test_updater_ptr;
+
+  EXPECT_NO_THROW({
+    test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
+                                                     std::move(stamper_ptr),
+                                                     quadrature_set_ptr,
+                                                     this->reflective_boundaries);
+                  });
+  EXPECT_NE(test_updater_ptr->formulation_ptr(), nullptr);
+  EXPECT_NE(test_updater_ptr->stamper_ptr(), nullptr);
+  EXPECT_NE(test_updater_ptr->quadrature_set_ptr(), nullptr);
+  EXPECT_EQ(test_updater_ptr->reflective_boundaries(), this->reflective_boundaries);
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
