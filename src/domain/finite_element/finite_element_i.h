@@ -5,6 +5,7 @@
 
 #include "domain/domain_types.h"
 #include "system/moments/spherical_harmonic_types.h"
+#include "system/system_types.h"
 
 /*! \brief Interface for a finite element object based on the dealii library.
  *
@@ -136,6 +137,14 @@ class FiniteElementI {
    */
   virtual std::vector<double> ValueAtQuadrature(
       const system::moments::MomentVector moment) const = 0;
+
+  /*! \brief Get the value of an MPI Vector at the cell face quadrature points.
+   *
+   * @param mpi_vector mpi vector to get the face values of.
+   * @return a vector holding the value of the mpi vector at each face quadrature point.
+   */
+   virtual std::vector<double> ValueAtFaceQuadrature(
+       const system::MPIVector& mpi_vector) const = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
