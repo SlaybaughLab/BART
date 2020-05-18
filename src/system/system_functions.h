@@ -4,6 +4,7 @@
 #include "system/solution/mpi_group_angular_solution_i.h"
 #include "domain/definition_i.h"
 #include "system/system.h"
+#include "system/solution/solution_types.h"
 
 namespace bart {
 
@@ -38,6 +39,11 @@ void SetUpSystemTerms(system::System& system_to_setup,
 
 void SetUpSystemMoments(system::System& system_to_setup,
                         const std::size_t solution_size);
+
+void SetUpEnergyGroupToAngularSolutionPtrMap(
+    solution::EnergyGroupToAngularSolutionPtrMap& to_setup,
+    const int total_groups,
+    const int total_angles);
 
 } // namespace system
 

@@ -2,6 +2,7 @@
 
 #include "system/terms/term.h"
 #include "system/moments/spherical_harmonic.h"
+#include "system/solution/mpi_group_angular_solution.h"
 
 namespace bart {
 
@@ -103,6 +104,18 @@ void SetUpSystemMoments(system::System& system_to_setup,
 
   initialize_moments(*system_to_setup.current_moments);
   initialize_moments(*system_to_setup.previous_moments);
+}
+void SetUpEnergyGroupToAngularSolutionPtrMap(
+    solution::EnergyGroupToAngularSolutionPtrMap& to_setup,
+    const int total_groups,
+    const int total_angles) {
+  using SolutionType = system::solution::MPIGroupAngularSolution;
+
+  for (int group = 0; group < total_groups; ++group) {
+    to_setup.insert(
+        {system::EnergyGroup(group),
+         std::make_shared<SolutionType>(total_angles)});
+  }
 }
 
 template void SetUpMPIAngularSolution<1>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<1>&, const double);
