@@ -28,6 +28,29 @@ GroupSourceIteration<dim>::GroupSourceIteration(
 }
 
 template<int dim>
+GroupSourceIteration<dim>::GroupSourceIteration(
+    std::unique_ptr<GroupSolver> group_solver_ptr,
+    std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
+    std::unique_ptr<MomentCalculator> moment_calculator_ptr,
+    const std::shared_ptr<GroupSolution> &group_solution_ptr,
+    const std::shared_ptr<SourceUpdater> &source_updater_ptr,
+    const std::shared_ptr<BoundaryConditionsUpdater> &boundary_condition_updater_ptr,
+    const std::shared_ptr<Reporter> &reporter_ptr)
+    : GroupSourceIteration<dim>::GroupSourceIteration(
+        std::move(group_solver_ptr),
+        std::move(convergence_checker_ptr),
+        std::move(moment_calculator_ptr),
+        group_solution_ptr,
+        source_updater_ptr,
+        reporter_ptr) {
+  boundary_condition_updater_ptr_ = boundary_condition_updater_ptr;
+  AssertThrow(boundary_condition_updater_ptr_ != nullptr,
+      dealii::ExcMessage("Boundary conditions updater pointer passed to "
+                         "GroupSolveIteration constructor is null"));
+
+}
+
+template<int dim>
 void GroupSourceIteration<dim>::UpdateSystem(system::System &system,
     const int group, const int angle) {
   this->source_updater_ptr_->UpdateScatteringSource(system,

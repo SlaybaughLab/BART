@@ -8,6 +8,7 @@
 #include <deal.II/lac/petsc_solver.h>
 #include <deal.II/lac/petsc_full_matrix.h>
 
+#include "formulation/updater/tests/boundary_conditions_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
@@ -40,6 +41,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
+  using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
   using Reporter = convergence::reporter::MpiMock;
@@ -54,6 +56,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
   std::shared_ptr<GroupSolution> group_solution_ptr_;
+  std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_;
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
   std::shared_ptr<Reporter> reporter_ptr_;
 
@@ -81,6 +84,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   moment_calculator_ptr_ = std::make_unique<MomentCalculator>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr_.get();
   group_solution_ptr_ = std::make_shared<GroupSolution>();
+  boundary_conditions_updater_ptr_ = std::make_shared<BoundaryConditionsUpdater>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
   source_updater_obs_ptr_ = source_updater_ptr_.get();
   reporter_ptr_ = std::make_shared<Reporter>();
@@ -94,6 +98,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       std::move(moment_calculator_ptr_),
       group_solution_ptr_,
       source_updater_ptr_,
+      boundary_conditions_updater_ptr_,
       reporter_ptr_);
 }
 
@@ -102,6 +107,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
+  using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
 
   auto single_group_test_ptr = dynamic_cast<GroupSolver*>(
       this->test_iterator_ptr_->group_solver_ptr());
@@ -111,6 +117,8 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
       this->test_iterator_ptr_->moment_calculator_ptr());
   auto source_updater_test_ptr = dynamic_cast<SourceUpdater*>(
       this->test_iterator_ptr_->source_updater_ptr());
+  auto boundary_conditions_test_ptr = dynamic_cast<BoundaryConditionsUpdater*>(
+      this->test_iterator_ptr_->boundary_conditions_updater_ptr());
 
   EXPECT_NE(nullptr, single_group_test_ptr);
   EXPECT_NE(nullptr, convergence_checker_test_ptr);
@@ -120,6 +128,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
             this->test_iterator_ptr_->group_solution_ptr().get());
   EXPECT_NE(nullptr, source_updater_test_ptr);
   EXPECT_NE(nullptr, this->test_iterator_ptr_->reporter_ptr());
+  EXPECT_NE(nullptr, boundary_conditions_test_ptr);
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrows) {
@@ -144,6 +153,27 @@ TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrows) {
           );
     });
   }
+}
+
+TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrowNoBoundaryUpdater) {
+  using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
+
+  auto group_solver_ptr = std::make_unique<solver::group::SingleGroupSolverMock>();
+  auto convergence_checker_ptr = std::make_unique<convergence::FinalCheckerMock<system::moments::MomentVector>>();
+  auto moment_calculator_ptr = std::make_unique<quadrature::calculators::SphericalHarmonicMomentsMock>();
+  auto group_solution_ptr = this->group_solution_ptr_;
+  auto source_updater_ptr = this->source_updater_ptr_;
+  std::shared_ptr<BoundaryConditionsUpdater> boundary_condition_updater_ptr;
+
+  EXPECT_ANY_THROW({
+    iteration::group::GroupSourceIteration<this->dim> test_iteration(
+        std::move(group_solver_ptr),
+        std::move(convergence_checker_ptr),
+        std::move(moment_calculator_ptr),
+        group_solution_ptr,
+        source_updater_ptr,
+        boundary_condition_updater_ptr);
+  });
 }
 
 
