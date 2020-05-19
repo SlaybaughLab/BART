@@ -47,7 +47,8 @@ GroupSourceIteration<dim>::GroupSourceIteration(
   AssertThrow(boundary_condition_updater_ptr_ != nullptr,
       dealii::ExcMessage("Boundary conditions updater pointer passed to "
                          "GroupSolveIteration constructor is null"));
-
+  this->set_description("Group source iteration w/boundary conditions update",
+                        utility::DefaultImplementation(true));
 }
 
 template<int dim>
