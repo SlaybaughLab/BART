@@ -49,6 +49,8 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
   void UpdateSystem(system::System &system, const int group,
                     const int angle) override;
+  virtual void PerformPerGroup(system::System& system,
+                               const int group) override;
 
 };
 

@@ -331,6 +331,11 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
           quadrature::QuadraturePointIndex(angle)))
           .Times(AtLeast(1))
           .WillRepeatedly(Update(this));
+      EXPECT_CALL(*this->boundary_conditions_updater_ptr_,
+                  UpdateBoundaryConditions(
+                      Ref(this->test_system),
+                          bart::system::EnergyGroup(group),
+                          quadrature::QuadraturePointIndex(angle)));
     }
   }
 

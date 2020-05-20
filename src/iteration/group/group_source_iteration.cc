@@ -58,6 +58,19 @@ void GroupSourceIteration<dim>::UpdateSystem(system::System &system,
       system::EnergyGroup(group),
       quadrature::QuadraturePointIndex(angle));
 }
+template<int dim>
+void GroupSourceIteration<dim>::PerformPerGroup(system::System &system,
+                                                const int group) {
+  GroupSolveIteration<dim>::PerformPerGroup(system, group);
+  if (boundary_condition_updater_ptr_ != nullptr) {
+    for (int angle = 0; angle < system.total_angles; ++angle) {
+      boundary_condition_updater_ptr_->UpdateBoundaryConditions(
+          system,
+          system::EnergyGroup(group),
+          quadrature::QuadraturePointIndex(angle));
+    }
+  }
+}
 
 template class GroupSourceIteration<1>;
 template class GroupSourceIteration<2>;
