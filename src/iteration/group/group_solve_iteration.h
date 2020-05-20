@@ -57,7 +57,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
   }
 
  protected:
-
+  virtual void PerformPerGroup(system::System& system, const int group);
   virtual void SolveGroup(const int group, system::System &system);
   virtual system::moments::MomentVector GetScalarFlux(const int group,
                                                       system::System& system);
