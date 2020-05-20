@@ -17,6 +17,7 @@
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/system.h"
+#include "system/solution/solution_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -36,6 +37,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
 
+  using EnergyGroupToAngularSolutionPtrMap = bart::system::solution::EnergyGroupToAngularSolutionPtrMap;
   using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
@@ -62,6 +64,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
 
   // Supporting objects
   system::System test_system;
+  EnergyGroupToAngularSolutionPtrMap energy_group_angular_solution_ptr_map_;
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
@@ -181,6 +184,9 @@ template <typename DimensionWrapper>
 class IterationGroupSourceSystemSolvingTest :
     public IterationGroupSourceIterationTest<DimensionWrapper> {
  public:
+
+  using GroupSolution = typename IterationGroupSourceIterationTest<DimensionWrapper>::GroupSolution;
+
   virtual ~IterationGroupSourceSystemSolvingTest() = default;
   IterationGroupSourceSystemSolvingTest()
       : L_(4,4), U_(4,4), b_(MPI_COMM_WORLD, 4, 4),
@@ -258,6 +264,9 @@ void IterationGroupSourceSystemSolvingTest<DimensionWrapper>::SetUp() {
     group_solutions_[group] = std::move(group_solution);
     group_rhs_[group] = std::move(group_rhs_vector);
 
+    this->energy_group_angular_solution_ptr_map_.insert(
+        {system::EnergyGroup(group), std::make_shared<GroupSolution>()}
+    );
   }
 }
 
@@ -300,6 +309,14 @@ ACTION_P(ResetIterations, test_class) {
 }
 
 TYPED_TEST_CASE(IterationGroupSourceSystemSolvingTest, bart::testing::AllDimensions);
+
+TYPED_TEST(IterationGroupSourceSystemSolvingTest, UpdateThisAngularSolution) {
+  this->test_iterator_ptr_->UpdateThisAngularSolutionMap(
+      this->energy_group_angular_solution_ptr_map_);
+  EXPECT_TRUE(this->test_iterator_ptr_->is_storing_angular_solution());
+  EXPECT_EQ(this->test_iterator_ptr_->angular_solution_ptr_map().size(),
+            this->total_groups);
+}
 
 TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   // This is the mock map to hold system current_moments

@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "solver/group/single_group_solver_i.h"
+#include "system/solution/solution_types.h"
 
 namespace bart {
 
@@ -25,6 +26,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using Reporter = convergence::reporter::MpiI;
+  using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
@@ -32,9 +34,24 @@ class GroupSolveIteration : public GroupSolveIterationI {
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
       const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
+
+  GroupSolveIteration& UpdateThisAngularSolutionMap(
+      EnergyGroupToAngularSolutionPtrMap& to_update) {
+    is_storing_angular_solution_ = true;
+    angular_solution_ptr_map_ = to_update;
+  }
+
   virtual ~GroupSolveIteration() = default;
 
   void Iterate(system::System &system) override;
+
+  bool is_storing_angular_solution() const {
+    return is_storing_angular_solution_;
+  }
+
+  EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map() const {
+    return angular_solution_ptr_map_;
+  }
 
   GroupSolver* group_solver_ptr() const {
     return group_solver_ptr_.get();
@@ -73,6 +90,8 @@ class GroupSolveIteration : public GroupSolveIterationI {
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
   std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
+  bool is_storing_angular_solution_ = false;
+  EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map_;
 };
 
 } // namespace group
