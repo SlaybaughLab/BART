@@ -39,6 +39,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
       EnergyGroupToAngularSolutionPtrMap& to_update) {
     is_storing_angular_solution_ = true;
     angular_solution_ptr_map_ = to_update;
+    return *this;
   }
 
   virtual ~GroupSolveIteration() = default;
@@ -76,6 +77,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
  protected:
   virtual void PerformPerGroup(system::System& system, const int group);
   virtual void SolveGroup(const int group, system::System &system);
+  virtual void StoreAngularSolution(system::System& system, const int group);
   virtual system::moments::MomentVector GetScalarFlux(const int group,
                                                       system::System& system);
   virtual convergence::Status CheckConvergence(

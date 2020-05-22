@@ -74,6 +74,8 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
     } while (!convergence_status.is_complete);
     UpdateCurrentMoments(system, group);
+    if (is_storing_angular_solution_)
+      StoreAngularSolution(system, group);
   }
 }
 
@@ -113,13 +115,24 @@ void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
 }
 
 template<int dim>
-void GroupSolveIteration<dim>::PerformPerGroup(system::System &system,
+void GroupSolveIteration<dim>::PerformPerGroup(system::System &/*system*/,
                                                const int group) {
   if (reporter_ptr_ != nullptr) {
     std::string report{"....Group: "};
     report += std::to_string(group);
     report += "\n";
     reporter_ptr_->Report(report);
+  }
+}
+template<int dim>
+void GroupSolveIteration<dim>::StoreAngularSolution(system::System& system,
+                                                    const int group) {
+  for (int angle = 0; angle < system.total_angles; ++angle) {
+    auto& stored_solution = angular_solution_ptr_map_.at(
+        system::EnergyGroup(group))->GetSolution(angle);
+    auto& current_solution = group_solution_ptr_->GetSolution(angle);
+    stored_solution = current_solution;
+    stored_solution.compress(dealii::VectorOperation::insert);
   }
 }
 

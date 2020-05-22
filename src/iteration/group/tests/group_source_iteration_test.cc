@@ -19,6 +19,7 @@
 #include "system/system.h"
 #include "system/solution/solution_types.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_assertions.h"
 
 namespace  {
 
@@ -209,8 +210,14 @@ class IterationGroupSourceSystemSolvingTest :
   dealii::PETScWrappers::SolverGMRES solver_;
 
   // Group solutions
-  std::array<dealii::PETScWrappers::MPI::Vector, total_groups> group_solutions_;
-  std::array<dealii::PETScWrappers::MPI::Vector, total_groups> group_rhs_;
+  std::array<dealii::PETScWrappers::MPI::Vector, total_groups> group_solutions_,
+      group_rhs_;
+
+  std::array<
+      std::array<dealii::PETScWrappers::MPI::Vector, total_angles>,
+      total_groups> stored_solutions_;
+  dealii::PETScWrappers::MPI::Vector expected_stored_solution_;
+
 
   int iterations = 0;
 
@@ -254,6 +261,12 @@ void IterationGroupSourceSystemSolvingTest<DimensionWrapper>::SetUp() {
     for (int i = 0; i < 4; ++i) {
       group_solution[i] = 1;
     }
+
+    for (int angle = 0; angle < this->total_angles; ++angle) {
+      dealii::PETScWrappers::MPI::Vector stored_solution(MPI_COMM_WORLD, 4, 4);
+      stored_solutions_.at(group).at(angle) = std::move(stored_solution);
+    }
+
     group_solution.compress(dealii::VectorOperation::insert);
     // Generate initial RHS, b - Ux_0
     U_.vmult_add(group_rhs_vector, group_solution);
@@ -267,7 +280,13 @@ void IterationGroupSourceSystemSolvingTest<DimensionWrapper>::SetUp() {
     this->energy_group_angular_solution_ptr_map_.insert(
         {system::EnergyGroup(group), std::make_shared<GroupSolution>()}
     );
+    this->test_iterator_ptr_->UpdateThisAngularSolutionMap(
+        this->energy_group_angular_solution_ptr_map_);
   }
+  expected_stored_solution_.reinit(MPI_COMM_WORLD, 4, 4);
+  for (int i = 0; i < 4; ++i)
+    expected_stored_solution_[i] = 2.0;
+  expected_stored_solution_.compress(dealii::VectorOperation::insert);
 }
 
 ACTION_P(Solve, test_class) {
@@ -320,6 +339,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, UpdateThisAngularSolution) {
 
 TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   // This is the mock map to hold system current_moments
+  using MockSolutionType = bart::system::solution::MPIGroupAngularSolutionMock;
   system::moments::MomentsMap current_moments;
   for (int group = 0; group < this->total_groups; ++group) {
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
@@ -340,7 +360,9 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
         group, Ref(this->test_system), Ref(*this->group_solution_ptr_)))
         .Times(AtLeast(1))
         .WillRepeatedly(Solve(this));
-
+    auto mock_solution_ptr = dynamic_cast<MockSolutionType*>(
+        this->energy_group_angular_solution_ptr_map_.at(
+            system::EnergyGroup(group)).get());
     for (int angle = 0; angle < this->total_angles; ++angle) {
       EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
           Ref(this->test_system),
@@ -353,8 +375,17 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
                       Ref(this->test_system),
                           bart::system::EnergyGroup(group),
                           quadrature::QuadraturePointIndex(angle)));
+      EXPECT_CALL(*mock_solution_ptr, GetSolution(angle))
+          .Times(AtLeast(1))
+          .WillRepeatedly(ReturnRef(this->stored_solutions_.at(group).at(angle)));
     }
   }
+
+  auto mock_group_solution_ptr = dynamic_cast<MockSolutionType*>(this->group_solution_ptr_.get());
+
+  EXPECT_CALL(*mock_group_solution_ptr, GetSolution(_))
+      .Times(this->total_groups * this->total_angles)
+      .WillRepeatedly(ReturnRef(this->expected_stored_solution_));
 
   EXPECT_CALL(*this->convergence_checker_obs_ptr_, Reset())
   .Times(AtLeast(1))
@@ -379,6 +410,10 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   for (int i = 0; i < 4; ++i) {
     EXPECT_NEAR(current_moments.at({0, 0, 0})[i],
                      this->true_scalar_flux_[i], 1e-6);
+  }
+  for (const auto& [angle, stored_solution] : this->stored_solutions_) {
+    EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_stored_solution_,
+                                                stored_solution));
   }
 }
 } // namespace
