@@ -41,6 +41,8 @@ TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestNonEigenvalue) {
   EXPECT_TRUE(test_validator.HasNeededParts());
   EXPECT_THAT(test_validator.NeededParts(),
               UnorderedElementsAreArray({Part::ScatteringSourceUpdate}));
+  EXPECT_FALSE(test_validator.HasUnneededParts());
+  EXPECT_EQ(test_validator.UnneededParts().size(), 0);
 }
 
 TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestEigenvalue) {

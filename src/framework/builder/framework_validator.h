@@ -3,7 +3,7 @@
 
 #include "problem/parameters_i.h"
 
-#include <map>
+#include <set>
 
 namespace bart {
 
@@ -22,16 +22,27 @@ class FrameworkValidator {
   void Parse(const problem::ParametersI& to_parse);
 
   bool HasNeededParts() const {
-    return needed_parts_are_present_.size() > 0; }
+    return needed_parts_.size() > 0; }
 
-  std::vector<FrameworkPart> NeededParts() const {
-    std::vector<FrameworkPart> return_vector;
-    for (const auto part_pair : needed_parts_are_present_)
-      return_vector.push_back(part_pair.first);
-    return return_vector; }
+  bool HasUnneededParts() const {
+    return parts_.size() > needed_parts_.size(); }
+
+  std::set<FrameworkPart> NeededParts() const {
+    return needed_parts_; }
+
+  std::set<FrameworkPart> UnneededParts() const {
+    std::set<FrameworkPart> return_set;
+    if (HasUnneededParts()) {
+      for (const auto part : needed_parts_) {
+        if (parts_.count(part) > 0)
+          return_set.insert(part);
+      }
+    }
+    return return_set; }
  private:
 
-  std::map<FrameworkPart, bool> needed_parts_are_present_{};
+  std::set<FrameworkPart> needed_parts_{};
+  std::set<FrameworkPart> parts_{};
 
   std::map<FrameworkPart, std::string> framework_part_descriptions_{
       {FrameworkPart::ScatteringSourceUpdate, "scattering source updater"},
