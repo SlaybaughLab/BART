@@ -9,7 +9,7 @@ namespace  {
 using namespace bart;
 
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return,
-::testing::UnorderedElementsAreArray;
+::testing::UnorderedElementsAreArray, ::testing::IsEmpty;
 
 using Part = framework::builder::FrameworkPart;
 
@@ -43,6 +43,7 @@ TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestNonEigenvalue) {
               UnorderedElementsAreArray({Part::ScatteringSourceUpdate}));
   EXPECT_FALSE(test_validator.HasUnneededParts());
   EXPECT_EQ(test_validator.UnneededParts().size(), 0);
+  EXPECT_TRUE(test_validator.Parts().empty());
 }
 
 TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestEigenvalue) {
@@ -57,6 +58,7 @@ TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestEigenvalue) {
   EXPECT_THAT(test_validator.NeededParts(),
               UnorderedElementsAreArray({Part::FissionSourceUpdate,
                                          Part::ScatteringSourceUpdate}));
+  EXPECT_TRUE(test_validator.Parts().empty());
 }
 
 TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestSAAFWithoutReflective) {
@@ -72,6 +74,7 @@ TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestSAAFWithoutReflective) {
   EXPECT_THAT(test_validator.NeededParts(),
               UnorderedElementsAreArray({Part::FissionSourceUpdate,
                                          Part::ScatteringSourceUpdate}));
+  EXPECT_TRUE(test_validator.Parts().empty());
 }
 
 TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestSAAFWithReflective) {
@@ -89,6 +92,31 @@ TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestSAAFWithReflective) {
               UnorderedElementsAreArray({Part::FissionSourceUpdate,
                                          Part::ScatteringSourceUpdate,
                                          Part::AngularSolutionStorage}));
+  EXPECT_TRUE(test_validator.Parts().empty());
+}
+
+TEST_F(FrameworkBuilderFrameworkValidatorTest, AddPart) {
+  test_validator.Parse(mock_parameters);
+  EXPECT_TRUE(test_validator.Parts().empty());
+  test_validator
+      .AddPart(Part::ScatteringSourceUpdate)
+      .AddPart(Part::FissionSourceUpdate);
+  EXPECT_THAT(test_validator.NeededParts(),
+              UnorderedElementsAreArray({Part::ScatteringSourceUpdate,
+                                         Part::FissionSourceUpdate}));
+  EXPECT_THAT(test_validator.Parts(),
+              UnorderedElementsAreArray({Part::ScatteringSourceUpdate,
+                                         Part::FissionSourceUpdate}));
+  EXPECT_FALSE(test_validator.HasUnneededParts());
+  EXPECT_TRUE(test_validator.UnneededParts().empty());
+  test_validator.AddPart(Part::AngularSolutionStorage);
+  EXPECT_THAT(test_validator.Parts(),
+              UnorderedElementsAreArray({Part::ScatteringSourceUpdate,
+                                         Part::FissionSourceUpdate,
+                                         Part::AngularSolutionStorage}));
+  EXPECT_TRUE(test_validator.HasUnneededParts());
+  EXPECT_THAT(test_validator.UnneededParts(),
+              UnorderedElementsAreArray({Part::AngularSolutionStorage}));
 }
 
 } // namespace

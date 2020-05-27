@@ -19,26 +19,19 @@ enum class FrameworkPart {
 
 class FrameworkValidator {
  public:
-  void Parse(const problem::ParametersI& to_parse);
+  FrameworkValidator& AddPart(const FrameworkPart to_add);
 
   bool HasNeededParts() const {
     return needed_parts_.size() > 0; }
 
   bool HasUnneededParts() const {
     return parts_.size() > needed_parts_.size(); }
-
   std::set<FrameworkPart> NeededParts() const {
     return needed_parts_; }
-
-  std::set<FrameworkPart> UnneededParts() const {
-    std::set<FrameworkPart> return_set;
-    if (HasUnneededParts()) {
-      for (const auto part : needed_parts_) {
-        if (parts_.count(part) > 0)
-          return_set.insert(part);
-      }
-    }
-    return return_set; }
+  void Parse(const problem::ParametersI& to_parse);
+  std::set<FrameworkPart> Parts() const {
+    return parts_; }
+  std::set<FrameworkPart> UnneededParts() const;
  private:
 
   std::set<FrameworkPart> needed_parts_{};
