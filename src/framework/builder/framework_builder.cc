@@ -68,6 +68,8 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildFramework(std::string name,
                                            ParametersType& prm)
 -> std::unique_ptr<FrameworkType> {
+
+  validator_.Parse(prm);
   // Framework parameters
   int n_angles = 1; // Set to default value of 1 for scalar solve
   const int n_groups = prm.NEnergyGroups();
@@ -316,7 +318,7 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
           scattering_source_updater_ptr,
           convergence_report_ptr)
       );
-  has_scattering_source_update_ = true;
+  validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
@@ -455,7 +457,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           fission_source_updater_ptr,
           convergence_reporter_ptr));
 
-  has_fission_source_update_ = true;
+  validator_.AddPart(FrameworkPart::FissionSourceUpdate);
 
   return return_ptr;
 }
@@ -567,6 +569,7 @@ auto FrameworkBuilder<dim>::BuildSystem(
                              is_eigenvalue_problem);
     system::SetUpSystemTerms(*return_ptr, domain);
     system::SetUpSystemMoments(*return_ptr, solution_size);
+    ReportBuildSuccess("system");
   } catch (...) {
     ReportBuildError("system initialization error.");
     throw;
@@ -607,26 +610,7 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
 
 template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
-  bool issue = false;
-  Report("\nValidating framework\n");
-  reporter_ptr_->Report("\tHas scattering source update: ");
-  if (has_scattering_source_update_) {
-    reporter_ptr_->Report("True\n", Color::Green);
-  } else {
-    reporter_ptr_->Report("False\n", Color::Red);
-    issue = true;
-  }
-  reporter_ptr_->Report("\tHas fission source update: ");
-  if (has_fission_source_update_) {
-    reporter_ptr_->Report("True\n", Color::Green);
-  } else {
-    reporter_ptr_->Report("False\n", Color::Red);
-    issue = true;
-  }
-  if (issue) {
-    reporter_ptr_->Report("Warning: one or more issues identified during "
-                          "framework validation\n", Color::Yellow);
-  }
+  validator_.ReportValidation(*reporter_ptr_);
 }
 
 template class FrameworkBuilder<1>;

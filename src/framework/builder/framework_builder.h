@@ -10,6 +10,7 @@
 
 #include "utility/has_description.h"
 
+#include "framework/builder/framework_validator.h"
 // Problem parameters
 #include "problem/parameters_i.h"
 
@@ -189,8 +190,7 @@ class FrameworkBuilder {
   }
   std::string ReadMappingFile(std::string filename);
 
-  bool has_scattering_source_update_ = false;
-  bool has_fission_source_update_ = false;
+  FrameworkValidator validator_;
   bool build_report_closed_ = true;
 };
 
