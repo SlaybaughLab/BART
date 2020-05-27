@@ -19,8 +19,20 @@ enum class FrameworkPart {
 
 class FrameworkValidator {
  public:
+  void Parse(const problem::ParametersI& to_parse);
 
+  bool HasNeededParts() const {
+    return needed_parts_are_present_.size() > 0; }
+
+  std::vector<FrameworkPart> NeededParts() const {
+    std::vector<FrameworkPart> return_vector;
+    for (const auto part_pair : needed_parts_are_present_)
+      return_vector.push_back(part_pair.first);
+    return return_vector; }
  private:
+
+  std::map<FrameworkPart, bool> needed_parts_are_present_{};
+
   std::map<FrameworkPart, std::string> framework_part_descriptions_{
       {FrameworkPart::ScatteringSourceUpdate, "scattering source updater"},
       {FrameworkPart::FissionSourceUpdate, "fission source updater"},
