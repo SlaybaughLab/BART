@@ -31,6 +31,39 @@ std::set<FrameworkPart> FrameworkValidator::UnneededParts() const {
   }
   return return_set; }
 
+void FrameworkValidator::ReportValidation(
+    utility::reporter::BasicReporterI& to_report) const {
+  using Color = utility::reporter::Color;
+  bool issue = false;
+  to_report << "Validating framework components:\n";
+
+  for (const auto part : parts_) {
+    std::string description = framework_part_descriptions_.at(part);
+    description[0] = std::toupper(description[0]);
+    to_report << "\t";
+    if (needed_parts_.count(part) > 0) {
+      to_report << Color::Green << description << "\n";
+    } else {
+      to_report << Color::Yellow << description << " (Unneeded)\n";
+      issue = true;
+    }
+  }
+
+  for (const auto part : needed_parts_) {
+    if (parts_.count(part) == 0) {
+      std::string description = framework_part_descriptions_.at(part);
+      description[0] = std::toupper(description[0]);
+      to_report << "\t" << Color::Red << description << " (Missing)\n";
+      issue = true;
+    }
+  }
+
+  if (issue) {
+    to_report.Report("Warning: one or more issues identified during "
+                     "framework validation\n", Color::Yellow);
+  }
+}
+
 } // namespace builder
 
 } // namespace framework

@@ -2,6 +2,7 @@
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_H_
 
 #include "problem/parameters_i.h"
+#include "utility/reporter/basic_reporter_i.h"
 
 #include <set>
 
@@ -31,6 +32,7 @@ class FrameworkValidator {
   void Parse(const problem::ParametersI& to_parse);
   std::set<FrameworkPart> Parts() const {
     return parts_; }
+  void ReportValidation(utility::reporter::BasicReporterI&) const;
   std::set<FrameworkPart> UnneededParts() const;
  private:
 
