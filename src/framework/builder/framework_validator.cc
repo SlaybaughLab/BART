@@ -42,9 +42,9 @@ void FrameworkValidator::ReportValidation(
     description[0] = std::toupper(description[0]);
     to_report << "\t";
     if (needed_parts_.count(part) > 0) {
-      to_report << Color::Green << description << "\n";
+      to_report << Color::Green << description << "\n" << Color::Reset;
     } else {
-      to_report << Color::Yellow << description << " (Unneeded)\n";
+      to_report << Color::Yellow << description << " (Unneeded)\n" << Color::Reset;
       issue = true;
     }
   }
@@ -53,7 +53,7 @@ void FrameworkValidator::ReportValidation(
     if (parts_.count(part) == 0) {
       std::string description = framework_part_descriptions_.at(part);
       description[0] = std::toupper(description[0]);
-      to_report << "\t" << Color::Red << description << " (Missing)\n";
+      to_report << "\t" << Color::Red << description << " (Missing)\n" << Color::Reset;
       issue = true;
     }
   }
