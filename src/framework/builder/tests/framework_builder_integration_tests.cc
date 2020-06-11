@@ -26,6 +26,8 @@
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
 #include "system/system_types.h"
+#include "system/solution/solution_types.h"
+#include "system/system_functions.h"
 
 // Mock objects
 #include "convergence/reporter/tests/mpi_mock.h"
@@ -123,7 +125,9 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::vector<double> spatial_max;
   std::vector<int> n_cells;
   const int n_energy_groups = 3;
+  const int n_angles = 2;
   std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
+  std::map<problem::Boundary, bool> reflective_bcs_;
 
   void SetUp() override;
 };
@@ -161,7 +165,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
     n_cells.push_back(2);
   }
 
-  std::map<problem::Boundary, bool> reflective_bcs{
+  reflective_bcs_ = {
       {problem::Boundary::kXMin, true},
       {problem::Boundary::kXMax, true},
       {problem::Boundary::kYMin, false},
@@ -181,7 +185,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   ON_CALL(parameters, TransportModel())
       .WillByDefault(Return(problem::EquationType::kDiffusion));
   ON_CALL(parameters, ReflectiveBoundary())
-      .WillByDefault(Return(reflective_bcs));
+      .WillByDefault(Return(reflective_bcs_));
   ON_CALL(*mock_reporter_ptr_, Instream(A<const std::string&>()))
       .WillByDefault(ReturnRef(*mock_reporter_ptr_));
   ON_CALL(*mock_reporter_ptr_, Instream(A<utility::reporter::Color>()))
@@ -250,6 +254,33 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
   EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest,
+    BuildSAAFUpdaterPointersWithReflectiveBCs) {
+  using ExpectedType = formulation::updater::SAAFUpdater<this->dim>;
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_flux_storage;
+
+  system::SetUpEnergyGroupToAngularSolutionPtrMap(
+      angular_flux_storage, this->n_energy_groups, this->n_angles);
+
+  EXPECT_CALL(*this->quadrature_set_sptr_, size())
+      .WillOnce(Return(this->n_angles));
+
+  auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
+      std::move(this->saaf_formulation_uptr_),
+      std::move(this->stamper_uptr_),
+      this->quadrature_set_sptr_,
+      this->reflective_bcs_,
+      angular_flux_storage);
+  EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.boundary_conditions_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 

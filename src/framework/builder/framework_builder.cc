@@ -57,6 +57,7 @@
 #include "system/system.h"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "system/system_functions.h"
+#include "system/solution/solution_types.h"
 
 namespace bart {
 
@@ -73,6 +74,9 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   // Framework parameters
   int n_angles = 1; // Set to default value of 1 for scalar solve
   const int n_groups = prm.NEnergyGroups();
+  const bool need_angular_solution_storage =
+      validator_.NeededParts().find(FrameworkPart::AngularSolutionStorage) !=
+      validator_.NeededParts().end();
 
   *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
                  Color::Reset << "\n";
@@ -85,9 +89,11 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   *reporter_ptr_ << "\tSetting up domain\n";
   domain_ptr->SetUpMesh().SetUpDOF();
 
+  // Various objects to be initialized
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
   UpdaterPointers updater_pointers;
   std::unique_ptr<MomentCalculatorType> moment_calculator_ptr = nullptr;
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_solutions_;
 
   if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
     quadrature_set_ptr = BuildQuadratureSet(prm);
@@ -292,6 +298,43 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
   return_struct.fission_source_updater_ptr = saaf_updater_ptr;
+
+  return return_struct;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildUpdaterPointers(
+    std::unique_ptr<SAAFFormulationType> formulation_ptr,
+    std::unique_ptr<StamperType> stamper_ptr,
+    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    const std::map<problem::Boundary, bool>& reflective_boundaries,
+    const AngularFluxStorage& angular_flux_storage)
+-> UpdaterPointers {
+  ReportBuildingComponant("Building SAAF Formulation updater "
+                          "(with boundary conditions update)");
+  UpdaterPointers return_struct;
+
+  // Transform map into set
+
+  std::unordered_set<problem::Boundary> reflective_boundary_set;
+
+  for (const auto boundary_pair : reflective_boundaries) {
+    if (boundary_pair.second)
+      reflective_boundary_set.insert(boundary_pair.first);
+  }
+
+  using ReturnType = formulation::updater::SAAFUpdater<dim>;
+  auto saaf_updater_ptr = std::make_shared<ReturnType>(
+      std::move(formulation_ptr),
+      std::move(stamper_ptr),
+      quadrature_set_ptr,
+      angular_flux_storage,
+      reflective_boundary_set);
+
+  return_struct.fixed_updater_ptr = saaf_updater_ptr;
+  return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
+  return_struct.fission_source_updater_ptr = saaf_updater_ptr;
+  return_struct.boundary_conditions_updater_ptr = saaf_updater_ptr;
 
   return return_struct;
 }

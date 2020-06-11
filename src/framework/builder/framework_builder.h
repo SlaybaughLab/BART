@@ -13,6 +13,7 @@
 #include "framework/builder/framework_validator.h"
 // Problem parameters
 #include "problem/parameters_i.h"
+#include "system/solution/solution_types.h"
 
 // Interface classes built by this factory
 #include "convergence/reporter/mpi_i.h"
@@ -27,6 +28,7 @@
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
+#include "formulation/updater/boundary_conditions_updater_i.h"
 #include "framework/framework_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
@@ -56,6 +58,9 @@ class FrameworkBuilder {
   using Color = utility::reporter::Color;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
+  using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
+
+  using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterI;
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
@@ -80,6 +85,7 @@ class FrameworkBuilder {
   using SystemType = system::System;
 
   struct UpdaterPointers {
+    std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
     std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
     std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
     std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
@@ -108,6 +114,12 @@ class FrameworkBuilder {
       std::unique_ptr<SAAFFormulationType>,
       std::unique_ptr<StamperType>,
       const std::shared_ptr<QuadratureSetType>&);
+  UpdaterPointers BuildUpdaterPointers(
+      std::unique_ptr<SAAFFormulationType>,
+      std::unique_ptr<StamperType>,
+      const std::shared_ptr<QuadratureSetType>&,
+      const std::map<problem::Boundary, bool>& reflective_boundaries,
+      const AngularFluxStorage&);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
       std::unique_ptr<SingleGroupSolverType>,
       std::unique_ptr<MomentConvergenceCheckerType>,
