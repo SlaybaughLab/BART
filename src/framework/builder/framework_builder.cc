@@ -95,18 +95,38 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   std::unique_ptr<MomentCalculatorType> moment_calculator_ptr = nullptr;
   system::solution::EnergyGroupToAngularSolutionPtrMap angular_solutions_;
 
-  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+  if (prm.TransportModel() != problem::EquationType::kDiffusion) {
     quadrature_set_ptr = BuildQuadratureSet(prm);
     n_angles = quadrature_set_ptr->size();
+  };
+
+  if (need_angular_solution_storage) {
+    system::SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_,
+                                                    n_groups, n_angles);
+  }
+
+
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
     auto stamper_ptr = BuildStamper(domain_ptr);
+
     auto saaf_formulation_ptr = BuildSAAFFormulation(finite_element_ptr,
                                                      cross_sections_ptr,
                                                      quadrature_set_ptr);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
-    updater_pointers = BuildUpdaterPointers(
-        std::move(saaf_formulation_ptr),
-        std::move(stamper_ptr),
-        quadrature_set_ptr);
+
+    if (prm.HaveReflectiveBC()) {
+      updater_pointers = BuildUpdaterPointers(
+          std::move(saaf_formulation_ptr),
+          std::move(stamper_ptr),
+          quadrature_set_ptr);
+    } else {
+      updater_pointers = BuildUpdaterPointers(
+          std::move(saaf_formulation_ptr),
+          std::move(stamper_ptr),
+          quadrature_set_ptr,
+          prm.ReflectiveBoundary(),
+          angular_solutions_);
+    }
     moment_calculator_ptr = std::move(BuildMomentCalculator(quadrature_set_ptr));
 
   } else if (prm.TransportModel() == problem::EquationType::kDiffusion) {
