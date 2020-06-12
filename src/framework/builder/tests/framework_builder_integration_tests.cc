@@ -38,6 +38,7 @@
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
+#include "formulation/updater/tests/boundary_conditions_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
@@ -75,6 +76,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using Material = NiceMock<btest::MockMaterial>;
 
   // Mock object types
+  using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
   using ConvergenceReporterType = convergence::reporter::MpiMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
@@ -102,6 +104,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<ReporterType> mock_reporter_ptr_;
 
   // Various mock objects to be used
+  std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
   std::shared_ptr<ConvergenceReporterType> convergence_reporter_sptr_;
   std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
@@ -134,6 +137,8 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
+  boundary_conditions_updater_sptr_ =
+      std::make_shared<BoundaryConditionsUpdaterType>();
   convergence_reporter_sptr_ = std::make_shared<ConvergenceReporterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ =
@@ -305,13 +310,36 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
   using ExpectedType = iteration::group::GroupSourceIteration<this->dim>;
+  using UpdaterPointersStruct = typename framework::builder::FrameworkBuilder<this->dim>::UpdaterPointers;
+
+  UpdaterPointersStruct updater_ptrs;
+  updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
 
   auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
       std::move(this->single_group_solver_uptr_),
       std::move(this->moment_convergence_checker_uptr_),
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
-      this->scattering_source_updater_sptr_,
+      updater_ptrs,
+      this->convergence_reporter_sptr_);
+  EXPECT_THAT(source_iteration_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdateTest) {
+  using ExpectedType = iteration::group::GroupSourceIteration<this->dim>;
+  using UpdaterPointersStruct = typename framework::builder::FrameworkBuilder<this->dim>::UpdaterPointers;
+
+  UpdaterPointersStruct updater_ptrs;
+  updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
+  updater_ptrs.boundary_conditions_updater_ptr = this->boundary_conditions_updater_sptr_;
+
+  auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
+      std::move(this->single_group_solver_uptr_),
+      std::move(this->moment_convergence_checker_uptr_),
+      std::move(this->moment_calculator_uptr_),
+      this->group_solution_sptr_,
+      updater_ptrs,
       this->convergence_reporter_sptr_);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));

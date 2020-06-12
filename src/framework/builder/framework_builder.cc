@@ -42,6 +42,7 @@
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/group/group_solve_iteration.h"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
 
@@ -75,8 +76,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   int n_angles = 1; // Set to default value of 1 for scalar solve
   const int n_groups = prm.NEnergyGroups();
   const bool need_angular_solution_storage =
-      validator_.NeededParts().find(FrameworkPart::AngularSolutionStorage) !=
-      validator_.NeededParts().end();
+      validator_.NeededParts().count(FrameworkPart::AngularSolutionStorage);
 
   *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
                  Color::Reset << "\n";
@@ -114,7 +114,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
                                                      quadrature_set_ptr);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
 
-    if (prm.HaveReflectiveBC()) {
+    if (!prm.HaveReflectiveBC()) {
       updater_pointers = BuildUpdaterPointers(
           std::move(saaf_formulation_ptr),
           std::move(stamper_ptr),
@@ -152,8 +152,15 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       BuildMomentConvergenceChecker(1e-10, 100),
       std::move(moment_calculator_ptr),
       group_solution_ptr,
-      updater_pointers.scattering_source_updater_ptr,
+      updater_pointers,
       convergence_reporter_ptr);
+
+  if (need_angular_solution_storage) {
+    dynamic_cast<iteration::group::GroupSolveIteration<dim>*>(
+        iterative_group_solver_ptr.get())->UpdateThisAngularSolutionMap(
+            angular_solutions_);
+    validator_.AddPart(FrameworkPart::AngularSolutionStorage);
+  };
 
   auto k_effective_updater = BuildKEffectiveUpdater(finite_element_ptr,
                                                     cross_sections_ptr,
@@ -365,22 +372,35 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
     std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
     const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
-    const std::shared_ptr<ScatteringSourceUpdaterType>& scattering_source_updater_ptr,
+    const UpdaterPointers& updater_ptrs,
     const std::shared_ptr<ReporterType>& convergence_report_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
   std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
 
   ReportBuildingComponant("Iterative group solver");
 
-  return_ptr = std::move(
-      std::make_unique<iteration::group::GroupSourceIteration<dim>>(
-          std::move(single_group_solver_ptr),
-          std::move(moment_convergence_checker_ptr),
-          std::move(moment_calculator_ptr),
-          group_solution_ptr,
-          scattering_source_updater_ptr,
-          convergence_report_ptr)
-      );
+  if (updater_ptrs.boundary_conditions_updater_ptr == nullptr) {
+    return_ptr = std::move(
+        std::make_unique<iteration::group::GroupSourceIteration<dim>>(
+            std::move(single_group_solver_ptr),
+            std::move(moment_convergence_checker_ptr),
+            std::move(moment_calculator_ptr),
+            group_solution_ptr,
+            updater_ptrs.scattering_source_updater_ptr,
+            convergence_report_ptr)
+    );
+  } else {
+    return_ptr = std::move(
+        std::make_unique<iteration::group::GroupSourceIteration<dim>>(
+            std::move(single_group_solver_ptr),
+            std::move(moment_convergence_checker_ptr),
+            std::move(moment_calculator_ptr),
+            group_solution_ptr,
+            updater_ptrs.scattering_source_updater_ptr,
+            updater_ptrs.boundary_conditions_updater_ptr,
+            convergence_report_ptr)
+    );
+  }
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
