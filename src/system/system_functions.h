@@ -31,7 +31,8 @@ void SetUpMPIAngularSolution(
 void InitializeSystem(system::System& system_to_setup,
                       const int total_groups,
                       const int total_angles,
-                      const bool is_eigenvalue_problem = true);
+                      const bool is_eigenvalue_problem = true,
+                      const bool is_rhs_boundary_term_variable = false);
 
 template <int dim>
 void SetUpSystemTerms(system::System& system_to_setup,

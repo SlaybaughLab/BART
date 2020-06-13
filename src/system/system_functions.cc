@@ -32,7 +32,8 @@ void SetUpMPIAngularSolution(
 void InitializeSystem(system::System &system_to_setup,
                  const int total_groups,
                  const int total_angles,
-                 const bool is_eigenvalue_problem) {
+                 const bool is_eigenvalue_problem,
+                 const bool is_rhs_boundary_term_variable) {
   using VariableLinearTerms = system::terms::VariableLinearTerms;
 
   std::string error_start{"Error: attempting to call Initialize System on a "
@@ -55,6 +56,10 @@ void InitializeSystem(system::System &system_to_setup,
   if (is_eigenvalue_problem) {
     system_to_setup.k_effective = 1.0;
     rhs_variable_terms.insert(VariableLinearTerms::kFissionSource);
+  }
+
+  if (is_rhs_boundary_term_variable) {
+    rhs_variable_terms.insert(VariableLinearTerms::kReflectiveBoundaryCondition);
   }
 
   system_to_setup.right_hand_side_ptr_ = std::move(
