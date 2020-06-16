@@ -174,7 +174,9 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       convergence_reporter_ptr);
 
   auto system_ptr = BuildSystem(n_groups, n_angles, *domain_ptr,
-                                group_solution_ptr->solutions().at(0).size());
+                                group_solution_ptr->solutions().at(0).size(),
+                                prm.IsEigenvalueProblem(),
+                                need_angular_solution_storage);
 
   auto results_output_ptr =
       std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr);
@@ -642,14 +644,15 @@ auto FrameworkBuilder<dim>::BuildSystem(
     const int total_angles,
     const DomainType& domain,
     const std::size_t solution_size,
-    bool is_eigenvalue_problem) -> std::unique_ptr<SystemType> {
+    bool is_eigenvalue_problem,
+    bool need_rhs_boundary_condition) -> std::unique_ptr<SystemType> {
   std::unique_ptr<SystemType> return_ptr;
 
   ReportBuildingComponant("system");
   try {
     return_ptr = std::move(std::make_unique<SystemType>());
     system::InitializeSystem(*return_ptr, total_groups, total_angles,
-                             is_eigenvalue_problem);
+                             is_eigenvalue_problem, need_rhs_boundary_condition);
     system::SetUpSystemTerms(*return_ptr, domain);
     system::SetUpSystemMoments(*return_ptr, solution_size);
     ReportBuildSuccess("system");

@@ -163,7 +163,8 @@ class FrameworkBuilder {
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
                                           const DomainType& domain,
                                           const std::size_t solution_size,
-                                          bool is_eigenvalue_problem = true);
+                                          bool is_eigenvalue_problem = true,
+                                          bool need_rhs_boundary_condition = false);
 
   FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
 
