@@ -133,7 +133,7 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
       for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
         to_fill(i) += normal_dot_omega
             * finite_element_ptr_->FaceShapeValue(i, f_q)
-            * incoming_angular_flux.at(i)
+            * incoming_angular_flux.at(f_q)
             * jacobian;
       }
     }
