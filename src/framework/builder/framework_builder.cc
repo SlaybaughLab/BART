@@ -103,6 +103,9 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   if (need_angular_solution_storage) {
     system::SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_,
                                                     n_groups, n_angles);
+    for (auto& solution_pair : angular_solutions_) {
+      system::SetUpMPIAngularSolution(*solution_pair.second, *domain_ptr);
+    }
   }
 
 
