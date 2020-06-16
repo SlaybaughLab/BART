@@ -200,4 +200,12 @@ TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseValueAtQuadrature) {
   this->TestValueAtQuadrature(&test_fe);
 }
 
+TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseValueAtFaceQuadrature) {
+  bart::domain::finite_element::FiniteElementGaussian<this->dim> test_fe{
+      problem::DiscretizationType::kDiscontinuousFEM, 2};
+  this->TestValueAtFaceQuadrature(&test_fe);
+}
+
+
+
 } // namespace

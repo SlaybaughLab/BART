@@ -53,6 +53,13 @@ std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
 
   return return_vector;
 }
+template<int dim>
+std::vector<double> FiniteElement<dim>::ValueAtFaceQuadrature(
+    const system::MPIVector &mpi_vector) const {
+  std::vector<double> return_vector(n_face_quad_pts(), 0);
+  face_values_->get_function_values(mpi_vector, return_vector);
+  return return_vector;
+}
 
 template class FiniteElement<1>;
 template class FiniteElement<2>;

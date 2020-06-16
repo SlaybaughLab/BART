@@ -77,11 +77,7 @@ class FiniteElement : public FiniteElementI<dim> {
       const system::moments::MomentVector moment) const override;
 
   std::vector<double> ValueAtFaceQuadrature(
-      const system::MPIVector &mpi_vector) const override {
-    std::vector<double> return_vector(finite_element_->dofs_per_cell, 0);
-    face_values_->get_function_values(mpi_vector, return_vector);
-    return return_vector;
-  }
+      const system::MPIVector &mpi_vector) const override;
 
  protected:
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
