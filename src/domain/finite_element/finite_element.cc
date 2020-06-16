@@ -47,7 +47,7 @@ template<int dim>
 std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
     const system::moments::MomentVector moment) const {
 
-  std::vector<double> return_vector(finite_element_->dofs_per_cell, 0);
+  std::vector<double> return_vector(n_cell_quad_pts(), 0);
 
   values_->get_function_values(moment, return_vector);
 
