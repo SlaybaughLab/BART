@@ -157,7 +157,6 @@ void DomainFiniteElementBaseDomainTest<dim>::TestValueAtFaceQuadrature(
   dealii::DoFHandler<dim> dof_handler(this->triangulation_);
   dof_handler.distribute_dofs(*test_fe->finite_element());
 
-  auto n_mpi_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   dealii::IndexSet locally_owned_dofs;
@@ -181,7 +180,7 @@ void DomainFiniteElementBaseDomainTest<dim>::TestValueAtFaceQuadrature(
         int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
         for (int face = 0; face < faces_per_cell; ++face) {
           if (cell->face(face)->at_boundary()) {
-            test_fe->SetFace(cell, domain::FaceIndex(face));
+            EXPECT_TRUE(test_fe->SetFace(cell, domain::FaceIndex(face)));
             break;
           }
         }
@@ -191,7 +190,6 @@ void DomainFiniteElementBaseDomainTest<dim>::TestValueAtFaceQuadrature(
   }
 
   auto result_vector = test_fe->ValueAtFaceQuadrature(test_vector);
-
   EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
 }
 
