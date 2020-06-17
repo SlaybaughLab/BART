@@ -124,15 +124,11 @@ void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(
 
   EXPECT_NO_THROW(test_fe->SetFace(cell, domain::FaceIndex(0)));
 
-  int n_dofs = dof_handler_.n_dofs();
-
-  system::MPIVector test_vector(MPI_COMM_WORLD, n_dofs, n_dofs);
-  test_vector = 0.5;
-  test_vector.compress(dealii::VectorOperation::insert);
-
+  dealii::Vector<double> values_at_dofs(dof_handler_.n_dofs());
+  values_at_dofs = 0.5;
   std::vector<double> expected_vector(test_fe->n_face_quad_pts(), 0.5);
 
-  auto result_vector = test_fe->ValueAtFaceQuadrature(test_vector);
+  auto result_vector = test_fe->ValueAtFaceQuadrature(values_at_dofs);
 
   EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
 }

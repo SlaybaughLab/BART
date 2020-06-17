@@ -79,6 +79,9 @@ class FiniteElement : public FiniteElementI<dim> {
   std::vector<double> ValueAtFaceQuadrature(
       const system::MPIVector &mpi_vector) const override;
 
+  std::vector<double> ValueAtFaceQuadrature(
+      const dealii::Vector<double>& values_at_dofs) const override;
+
  protected:
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
   std::shared_ptr<dealii::FEValues<dim>> values_;

@@ -146,6 +146,9 @@ class FiniteElementI {
    virtual std::vector<double> ValueAtFaceQuadrature(
        const system::MPIVector& mpi_vector) const = 0;
 
+   virtual std::vector<double> ValueAtFaceQuadrature(
+       const dealii::Vector<double>& values_at_dofs) const = 0;
+
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
   /*! \brief Gets pointer to the underlying finite element object */

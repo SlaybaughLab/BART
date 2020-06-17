@@ -62,6 +62,13 @@ std::vector<double> FiniteElement<dim>::ValueAtFaceQuadrature(
   face_values_->get_function_values(vector_to_interpolate, return_vector);
   return return_vector;
 }
+template<int dim>
+std::vector<double> FiniteElement<dim>::ValueAtFaceQuadrature(
+    const dealii::Vector<double>& values_at_dofs) const {
+  std::vector<double> return_vector(n_face_quad_pts(), 0);
+  face_values_->get_function_values(values_at_dofs, return_vector);
+  return return_vector;
+}
 
 template class FiniteElement<1>;
 template class FiniteElement<2>;
