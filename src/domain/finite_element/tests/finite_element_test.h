@@ -154,7 +154,45 @@ void DomainFiniteElementBaseDomainTest<dim>::SetUp() {
 template <int dim>
 void DomainFiniteElementBaseDomainTest<dim>::TestValueAtFaceQuadrature(
     FiniteElement<dim> *test_fe) {
-  EXPECT_TRUE(false);
+  dealii::DoFHandler<dim> dof_handler(this->triangulation_);
+  dof_handler.distribute_dofs(*test_fe->finite_element());
+
+  auto n_mpi_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  auto this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+
+  dealii::IndexSet locally_owned_dofs;
+  if (dim > 1) {
+    locally_owned_dofs = dof_handler.locally_owned_dofs();
+  } else {
+    dealii::DoFRenumbering::subdomain_wise(dof_handler);
+    locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_per_subdomain(
+        dof_handler).at(this_process);
+  }
+
+  system::MPIVector test_vector(locally_owned_dofs, MPI_COMM_WORLD);
+  test_vector = 0.5;
+  test_vector.compress(dealii::VectorOperation::insert);
+
+  std::vector<double> expected_vector(test_fe->n_face_quad_pts(), 0.5);
+
+  for (auto cell = dof_handler.begin_active(); cell != dof_handler.end(); ++cell) {
+    if (cell->is_locally_owned()) {
+      if (cell->at_boundary()) {
+        int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+        for (int face = 0; face < faces_per_cell; ++face) {
+          if (cell->face(face)->at_boundary()) {
+            test_fe->SetFace(cell, domain::FaceIndex(face));
+            break;
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  auto result_vector = test_fe->ValueAtFaceQuadrature(test_vector);
+
+  EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
 }
 
 
