@@ -125,13 +125,13 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
 
   const double normal_dot_omega = normal_vector * omega;
 
-  if (normal_dot_omega > 0) {
+  if (normal_dot_omega < 0) {
     const auto incoming_angular_flux = finite_element_ptr_->ValueAtFaceQuadrature(
         incoming_flux);
     for (int f_q = 0; f_q < face_quadrature_points_; ++f_q) {
       const double jacobian = finite_element_ptr_->FaceJacobian(f_q);
       for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-        to_fill(i) += normal_dot_omega
+        to_fill(i) -= normal_dot_omega
             * finite_element_ptr_->FaceShapeValue(i, f_q)
             * incoming_angular_flux.at(f_q)
             * jacobian;

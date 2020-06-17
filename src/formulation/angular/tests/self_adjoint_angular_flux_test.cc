@@ -638,7 +638,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 }
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
-    FillReflectiveBoundaryLinearTermTestLessThanZero) {
+    FillReflectiveBoundaryLinearTermTestGreaterThanZero) {
   constexpr int dim = this->dim;
 
   formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
@@ -657,8 +657,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   int face_index = 0;
 
   dealii::Tensor<1, dim> normal;
-  for (int i = 0; i < dim; ++i)
-    normal[i] = -1;
+
   EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
                                                        domain::FaceIndex(face_index)));
   EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
@@ -695,7 +694,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
   dealii::Tensor<1, dim> normal;
   for (int i = 0; i < dim; ++i)
-    normal[i] = 1;
+    normal[i] = -1;
   EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
                                                        domain::FaceIndex(face_index)));
   EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
