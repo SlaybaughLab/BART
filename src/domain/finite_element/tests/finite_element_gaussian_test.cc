@@ -206,6 +206,26 @@ TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseValueAtFaceQuadrature
   this->TestValueAtFaceQuadrature(&test_fe);
 }
 
+// BASE CLASS MPI TESTS ========================================================
 
+template <typename DimensionWrapper>
+class DomainFiniteElementGaussianBaseMethodsMPITest :
+    public domain::finite_element::testing::DomainFiniteElementBaseDomainTest<DimensionWrapper::value> {
+ protected:
+  static constexpr int dim = DimensionWrapper::value;
+  void SetUp() override {
+    domain::finite_element::testing::DomainFiniteElementBaseDomainTest<dim>::SetUp();
+  }
+};
+
+TYPED_TEST_SUITE(DomainFiniteElementGaussianBaseMethodsMPITest,
+                 bart::testing::AllDimensions);
+
+TYPED_TEST(DomainFiniteElementGaussianBaseMethodsMPITest,
+    BaseValueAtFaceQuadratureMPITest) {
+  bart::domain::finite_element::FiniteElementGaussian<this->dim> test_fe{
+      problem::DiscretizationType::kContinuousFEM, 2};
+  this->TestValueAtFaceQuadrature(&test_fe);
+}
 
 } // namespace

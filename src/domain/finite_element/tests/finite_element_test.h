@@ -5,6 +5,7 @@
 
 #include "test_helpers/test_assertions.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/dealii_test_domain.h"
 
 namespace bart {
 
@@ -135,6 +136,28 @@ void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(
 
   EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
 }
+
+template <int dim>
+class DomainFiniteElementBaseDomainTest :
+    public ::testing::Test,
+    public bart::testing::DealiiTestDomain<dim> {
+ public:
+  void SetUp() override;
+  void TestValueAtFaceQuadrature(FiniteElement<dim> *test_fe);
+};
+
+template <int dim>
+void DomainFiniteElementBaseDomainTest<dim>::SetUp() {
+  this->SetUpDealii();
+}
+
+template <int dim>
+void DomainFiniteElementBaseDomainTest<dim>::TestValueAtFaceQuadrature(
+    FiniteElement<dim> *test_fe) {
+  EXPECT_TRUE(false);
+}
+
+
 
 } // namespace testing
 
