@@ -270,9 +270,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest,
   system::SetUpEnergyGroupToAngularSolutionPtrMap(
       angular_flux_storage, this->n_energy_groups, this->n_angles);
 
-  EXPECT_CALL(*this->quadrature_set_sptr_, size())
-      .WillOnce(Return(this->n_angles));
-
   auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
       std::move(this->saaf_formulation_uptr_),
       std::move(this->stamper_uptr_),
