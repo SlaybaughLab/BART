@@ -24,7 +24,7 @@ class SelfAdjointAngularFluxMock :
       const domain::CellPtr<dim>&,
       const domain::FaceIndex,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
-      const system::MPIVector&), (override));
+      const dealii::Vector<double>&), (override));
   MOCK_METHOD(void, FillCellCollisionTerm, (FullMatrix&,
       const domain::CellPtr<dim>&,
       const system::EnergyGroup), (override));

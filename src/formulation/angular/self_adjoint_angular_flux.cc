@@ -113,7 +113,7 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
     const domain::CellPtr<dim>& cell_ptr,
     domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-    const system::MPIVector& incoming_flux) {
+    const dealii::Vector<double>& incoming_flux) {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSize(to_fill, __FUNCTION__);
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,

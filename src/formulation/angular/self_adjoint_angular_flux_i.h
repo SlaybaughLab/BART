@@ -57,7 +57,7 @@ class SelfAdjointAngularFluxI {
        const domain::CellPtr<dim>& cell_ptr,
        const domain::FaceIndex face_number,
        const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-       const system::MPIVector& incoming_flux) = 0;
+       const dealii::Vector<double>& incoming_flux) = 0;
 
   /*!
    * \brief Integrates the bilinear collision term and fills a given matrix.

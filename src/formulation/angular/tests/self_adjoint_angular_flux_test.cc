@@ -189,8 +189,7 @@ void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
   ON_CALL(*mock_finite_element_ptr_,
       ValueAtQuadrature(group_1_moment_))
       .WillByDefault(Return(group_1_moment_values_));
-  ON_CALL(*mock_finite_element_ptr_,
-      ValueAtFaceQuadrature(A<const bart::system::MPIVector&>()))
+  ON_CALL(*mock_finite_element_ptr_, ValueAtFaceQuadrature(_))
       .WillByDefault(Return(group_0_moment_values_));
 
 
@@ -611,7 +610,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
         invalid_cell_ptr,
         domain::FaceIndex(0),
         angle_ptr,
-        system::MPIVector{});
+        dealii::Vector<double>{});
                    });
 }
 
@@ -633,7 +632,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                                                       this->cell_ptr_,
                                                       domain::FaceIndex(0),
                                                       angle_ptr,
-                                                      system::MPIVector{});
+                                                      dealii::Vector<double>{});
                    });
 }
 
@@ -668,7 +667,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                                                      this->cell_ptr_,
                                                      domain::FaceIndex(0),
                                                      angle_ptr,
-                                                     system::MPIVector{});
+                                                     dealii::Vector<double>{});
                   });
 
   EXPECT_EQ(expected_results, cell_vector);
@@ -710,8 +709,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
   }
 
 
-  EXPECT_CALL(*this->mock_finite_element_ptr_,
-      ValueAtFaceQuadrature(A<const bart::system::MPIVector&>()))
+  EXPECT_CALL(*this->mock_finite_element_ptr_, ValueAtFaceQuadrature(_))
       .WillOnce(DoDefault());
 
   EXPECT_NO_THROW({
@@ -719,7 +717,7 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                                                      this->cell_ptr_,
                                                      domain::FaceIndex(0),
                                                      angle_ptr,
-                                                     system::MPIVector{});
+                                                     dealii::Vector<double>{});
                   });
 
   EXPECT_EQ(expected_results, cell_vector);
