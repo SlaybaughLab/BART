@@ -36,14 +36,6 @@ SAAFUpdater<dim>::SAAFUpdater(
                   quadrature_set_ptr) {
   reflective_boundaries_ = reflective_boundaries;
   angular_solution_ptr_map_ = angular_solution_ptr_map;
-  const int total_angles = quadrature_set_ptr_->size();
-  for (auto& [energy_group, solution_ptr] : angular_solution_ptr_map_) {
-    AssertThrow(total_angles == solution_ptr->total_angles(),
-                dealii::ExcMessage("Error in construction of SAAF Updater, "
-                                   "total angles in quadrature set does not "
-                                   "match size of one or more angular "
-                                   "solutions"));
-  }
 }
 
 template<int dim>
@@ -63,8 +55,8 @@ void SAAFUpdater<dim>::UpdateBoundaryConditions(
       dealii::ExcMessage("Error in UpdateBoundaryConditions, passed "
                          "quadrature point has no reflection"))
 
-  const auto &incoming_flux = angular_solution_ptr_map_.at(group)->GetSolution(
-      reflected_quadrature_point_index.value());
+  const auto incoming_flux = angular_solution_ptr_map_.at(
+      system::SolutionIndex(group, reflected_quadrature_point_index.value()));
   auto reflective_boundary_term_function =
       [&](formulation::Vector &cell_vector,
           const domain::FaceIndex face_index,
@@ -75,7 +67,7 @@ void SAAFUpdater<dim>::UpdateBoundaryConditions(
           cell_ptr,
           face_index,
           quadrature_point_ptr,
-          incoming_flux);
+          *incoming_flux);
     }
   };
   *boundary_vector_ptr = 0;

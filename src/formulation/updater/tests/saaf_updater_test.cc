@@ -23,7 +23,6 @@ class FormulationUpdaterSAAFTest :
  public:
   static constexpr int dim = DimensionWrapper::value;
 
-  using AngularSolutionType = NiceMock<system::solution::MPIGroupAngularSolutionMock>;
   using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
@@ -58,16 +57,15 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
   stamper_obs_ptr_ = stamper_ptr.get();
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
 
-  for (int group = 0; group < this->total_groups; ++group) {
-    auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
-    ON_CALL(*angular_solution_ptr, total_angles())
-        .WillByDefault(Return(this->total_angles));
-    angular_solution_ptr_map_.insert({system::EnergyGroup(this->group_number),
-                                      angular_solution_ptr});
-  }
-
   ON_CALL(*quadrature_set_ptr_, size())
       .WillByDefault(Return(this->total_angles));
+
+  angular_solution_ptr_map_.insert({system::SolutionIndex(this->group_number,
+                                                          this->angle_index),
+                                    std::make_shared<dealii::Vector<double>>()});
+  angular_solution_ptr_map_.insert({system::SolutionIndex(this->group_number,
+                                                          this->reflected_angle_index),
+                                    std::make_shared<dealii::Vector<double>>()});
 
   test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
                                                    std::move(stamper_ptr),
@@ -119,16 +117,6 @@ TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorReflective) {
 
   auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
 
-  EXPECT_CALL(*quadrature_set_ptr, size()).WillOnce(Return(this->total_angles));
-
-  for (int group = 0; group < this->total_groups; ++group) {
-    auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
-    EXPECT_CALL(*angular_solution_ptr, total_angles())
-        .WillOnce(Return(this->total_angles));
-    angular_solution_ptr_map.insert(
-        {bart::system::EnergyGroup(group), angular_solution_ptr});
-  }
-
   EXPECT_NO_THROW({
     test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
                                                      std::move(stamper_ptr),
@@ -142,45 +130,6 @@ TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorReflective) {
   EXPECT_EQ(test_updater_ptr->angular_solution_ptr_map(),
             angular_solution_ptr_map);
   EXPECT_EQ(test_updater_ptr->reflective_boundaries(), this->reflective_boundaries);
-}
-
-TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorReflectiveBadAngleMatch) {
-  constexpr int dim = this->dim;
-  using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
-  using StamperType = formulation::StamperMock<dim>;
-  using UpdaterType = formulation::updater::SAAFUpdater<dim>;
-  using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
-  using AngularSolutionType = bart::system::solution::MPIGroupAngularSolutionMock;
-
-  auto formulation_ptr = std::make_unique<FormulationType>();
-  auto stamper_ptr = std::make_unique<StamperType>();
-  auto quadrature_set_ptr = std::make_shared<QuadratureSetType>();
-  std::unique_ptr<UpdaterType> test_updater_ptr;
-  system::solution::EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map;
-
-  EXPECT_CALL(*quadrature_set_ptr, size()).WillOnce(Return(this->total_angles));
-
-  for (int group = 0; group < this->total_groups; ++group) {
-    auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
-    if (group != this->group_number) {
-      EXPECT_CALL(*angular_solution_ptr, total_angles())
-          .Times(::testing::AtMost(1))
-          .WillRepeatedly(Return(this->total_angles));
-    } else {
-      EXPECT_CALL(*angular_solution_ptr, total_angles())
-          .WillOnce(Return(this->total_angles + 1));
-    }
-    angular_solution_ptr_map.insert(
-        {bart::system::EnergyGroup(group), angular_solution_ptr});
-  }
-
-  EXPECT_ANY_THROW({
-    test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
-                                                     std::move(stamper_ptr),
-                                                     quadrature_set_ptr,
-                                                     angular_solution_ptr_map,
-                                                     this->reflective_boundaries);
-                  });
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
@@ -227,10 +176,6 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
   std::shared_ptr<QuadraturePointType> quadrature_point_ptr_,
       reflected_point_ptr_;
 
-  // Angular flux vector to return
-  system::MPIVector angular_flux_vector;
-  angular_flux_vector.reinit(this->vector_1);
-
   // Mock expectation layout
   // -- Retrieve the correct variable term to update, returns vector_to_stamp
   EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
@@ -243,11 +188,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
   EXPECT_CALL(*this->quadrature_set_ptr_,
               GetReflectionIndex(quadrature_point_ptr_))
       .WillOnce(Return(std::optional<int>{this->reflected_angle_index}));
-  // -- Get the correct angular flux from the map, returns an MPI vector
-  auto solution_mock_ptr = dynamic_cast<MockSolutionType*>(
-      this->angular_solution_ptr_map_.at(group_number).get());
-  EXPECT_CALL(*solution_mock_ptr, GetSolution(this->reflected_angle_index))
-      .WillOnce(ReturnRef(angular_flux_vector));
+  auto angular_flux_vector_ptr = this->angular_solution_ptr_map_.at(
+      system::SolutionIndex(this->group_number, this->reflected_angle_index));
   // -- For each cell that is on a reflective boundary, we expect a call to the
   // formulation.
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
@@ -260,7 +202,7 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
                                                cell,
                                                domain::FaceIndex(face),
                                                quadrature_point_ptr_,
-                                               Ref(angular_flux_vector)));
+                                               Ref(*angular_flux_vector_ptr)));
         }
       }
     }
