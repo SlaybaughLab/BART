@@ -423,17 +423,17 @@ TEST_F(SystemFunctionsSetUpEnergyGroupToAngularSolutionPtrMapIntTests,
                                                   total_groups_,
                                                   total_angles_);
 
-  using ExpectedType = bart::system::solution::MPIGroupAngularSolution;
-  std::vector<int> groups{};
-  EXPECT_EQ(solution_map_.size(), total_groups_);
-  for (auto& [energy_group, solution_ptr] : solution_map_) {
+  using ExpectedType = dealii::Vector<double>;
+  std::vector<int> energy_groups{};
+  EXPECT_EQ(solution_map_.size(), total_groups_ * total_angles_);
+  for (auto& [index, solution_ptr] : solution_map_) {
+    auto [energy_group, angle] = index;
     ASSERT_THAT(solution_ptr.get(),
                 WhenDynamicCastTo<ExpectedType*>(NotNull()));
-    EXPECT_EQ(solution_ptr->total_angles(), total_angles_);
     EXPECT_LT(energy_group.get(), total_groups_);
     EXPECT_GE(energy_group.get(), 0);
-    EXPECT_EQ(std::count(groups.cbegin(), groups.cend(), energy_group.get()), 0);
-    groups.push_back(energy_group.get());
+    EXPECT_LT(angle.get(), total_angles_);
+    EXPECT_GE(angle.get(), 0);
   }
 }
 

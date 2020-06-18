@@ -12,9 +12,9 @@ namespace system {
 
 namespace solution {
 
-using AngularSolutionPtr = std::shared_ptr<MPIGroupAngularSolutionI>;
+using AngularSolutionPtr = std::shared_ptr<dealii::Vector<double>>;
 
-using EnergyGroupToAngularSolutionPtrMap = std::map<EnergyGroup, AngularSolutionPtr>;
+using EnergyGroupToAngularSolutionPtrMap = std::map<SolutionIndex, AngularSolutionPtr>;
 
 } // namespace solution
 

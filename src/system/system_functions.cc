@@ -117,9 +117,10 @@ void SetUpEnergyGroupToAngularSolutionPtrMap(
   using SolutionType = system::solution::MPIGroupAngularSolution;
 
   for (int group = 0; group < total_groups; ++group) {
-    to_setup.insert(
-        {system::EnergyGroup(group),
-         std::make_shared<SolutionType>(total_angles)});
+    for (int angle = 0; angle < total_angles; ++angle) {
+      to_setup.insert({system::SolutionIndex(group, angle),
+                       std::make_shared<dealii::Vector<double>>()});
+    };
   }
 }
 
