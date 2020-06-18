@@ -62,10 +62,10 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
 
   angular_solution_ptr_map_.insert({system::SolutionIndex(this->group_number,
                                                           this->angle_index),
-                                    std::make_shared<dealii::Vector<double>>()});
+                                    std::make_shared<dealii::Vector<double>>(4)});
   angular_solution_ptr_map_.insert({system::SolutionIndex(this->group_number,
                                                           this->reflected_angle_index),
-                                    std::make_shared<dealii::Vector<double>>()});
+                                    std::make_shared<dealii::Vector<double>>(4)});
 
   test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
                                                    std::move(stamper_ptr),

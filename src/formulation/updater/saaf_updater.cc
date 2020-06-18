@@ -57,22 +57,24 @@ void SAAFUpdater<dim>::UpdateBoundaryConditions(
 
   const auto incoming_flux = angular_solution_ptr_map_.at(
       system::SolutionIndex(group, reflected_quadrature_point_index.value()));
-  auto reflective_boundary_term_function =
-      [&](formulation::Vector &cell_vector,
-          const domain::FaceIndex face_index,
-          const domain::CellPtr<dim>& cell_ptr) -> void {
-    if (IsOnReflectiveBoundary(cell_ptr, face_index)) {
-      formulation_ptr_->FillReflectiveBoundaryLinearTerm(
-          cell_vector,
-          cell_ptr,
-          face_index,
-          quadrature_point_ptr,
-          *incoming_flux);
-    }
-  };
-  *boundary_vector_ptr = 0;
-  stamper_ptr_->StampBoundaryVector(*boundary_vector_ptr,
-                                    reflective_boundary_term_function);
+  if (incoming_flux->size() > 0) {
+    auto reflective_boundary_term_function =
+        [&](formulation::Vector &cell_vector,
+            const domain::FaceIndex face_index,
+            const domain::CellPtr <dim> &cell_ptr) -> void {
+          if (IsOnReflectiveBoundary(cell_ptr, face_index)) {
+            formulation_ptr_->FillReflectiveBoundaryLinearTerm(
+                cell_vector,
+                cell_ptr,
+                face_index,
+                quadrature_point_ptr,
+                *incoming_flux);
+          }
+        };
+    *boundary_vector_ptr = 0;
+    stamper_ptr_->StampBoundaryVector(*boundary_vector_ptr,
+                                      reflective_boundary_term_function);
+  }
 }
 
 template<int dim>
