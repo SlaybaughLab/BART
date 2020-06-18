@@ -129,10 +129,9 @@ void GroupSolveIteration<dim>::StoreAngularSolution(system::System& system,
                                                     const int group) {
   for (int angle = 0; angle < system.total_angles; ++angle) {
     auto& stored_solution = angular_solution_ptr_map_.at(
-        system::EnergyGroup(group))->GetSolution(angle);
+        system::SolutionIndex(group, angle));
     auto& current_solution = group_solution_ptr_->GetSolution(angle);
-    stored_solution = current_solution;
-    stored_solution.compress(dealii::VectorOperation::insert);
+    *stored_solution = current_solution;
   }
 }
 

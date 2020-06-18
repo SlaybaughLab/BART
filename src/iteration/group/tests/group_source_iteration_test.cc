@@ -213,9 +213,6 @@ class IterationGroupSourceSystemSolvingTest :
   std::array<dealii::PETScWrappers::MPI::Vector, total_groups> group_solutions_,
       group_rhs_;
 
-  std::array<
-      std::array<dealii::PETScWrappers::MPI::Vector, total_angles>,
-      total_groups> stored_solutions_;
   dealii::PETScWrappers::MPI::Vector expected_stored_solution_;
 
 
@@ -263,8 +260,9 @@ void IterationGroupSourceSystemSolvingTest<DimensionWrapper>::SetUp() {
     }
 
     for (int angle = 0; angle < this->total_angles; ++angle) {
-      dealii::PETScWrappers::MPI::Vector stored_solution(MPI_COMM_WORLD, 4, 4);
-      stored_solutions_.at(group).at(angle) = std::move(stored_solution);
+      this->energy_group_angular_solution_ptr_map_.insert(
+          {system::SolutionIndex(group, angle),
+           std::make_shared<dealii::Vector<double>>()});
     }
 
     group_solution.compress(dealii::VectorOperation::insert);
@@ -277,11 +275,6 @@ void IterationGroupSourceSystemSolvingTest<DimensionWrapper>::SetUp() {
     group_solutions_[group] = std::move(group_solution);
     group_rhs_[group] = std::move(group_rhs_vector);
 
-    this->energy_group_angular_solution_ptr_map_.insert(
-        {system::EnergyGroup(group), std::make_shared<GroupSolution>()}
-    );
-    this->test_iterator_ptr_->UpdateThisAngularSolutionMap(
-        this->energy_group_angular_solution_ptr_map_);
   }
   expected_stored_solution_.reinit(MPI_COMM_WORLD, 4, 4);
   for (int i = 0; i < 4; ++i)
@@ -334,7 +327,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, UpdateThisAngularSolution) {
       this->energy_group_angular_solution_ptr_map_);
   EXPECT_TRUE(this->test_iterator_ptr_->is_storing_angular_solution());
   EXPECT_EQ(this->test_iterator_ptr_->angular_solution_ptr_map().size(),
-            this->total_groups);
+            this->total_groups*this->total_angles);
 }
 
 TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
@@ -360,9 +353,6 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
         group, Ref(this->test_system), Ref(*this->group_solution_ptr_)))
         .Times(AtLeast(1))
         .WillRepeatedly(Solve(this));
-    auto mock_solution_ptr = dynamic_cast<MockSolutionType*>(
-        this->energy_group_angular_solution_ptr_map_.at(
-            system::EnergyGroup(group)).get());
     for (int angle = 0; angle < this->total_angles; ++angle) {
       EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
           Ref(this->test_system),
@@ -375,9 +365,6 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
                       Ref(this->test_system),
                           bart::system::EnergyGroup(group),
                           quadrature::QuadraturePointIndex(angle)));
-      EXPECT_CALL(*mock_solution_ptr, GetSolution(angle))
-          .Times(AtLeast(1))
-          .WillRepeatedly(ReturnRef(this->stored_solutions_.at(group).at(angle)));
     }
   }
 
@@ -406,14 +393,18 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   EXPECT_CALL(*this->moments_obs_ptr_, max_harmonic_l())
       .WillRepeatedly(Return(this->max_harmonic_l));
 
+  this->test_iterator_ptr_->UpdateThisAngularSolutionMap(
+      this->energy_group_angular_solution_ptr_map_);
+
   this->test_iterator_ptr_->Iterate(this->test_system);
   for (int i = 0; i < 4; ++i) {
     EXPECT_NEAR(current_moments.at({0, 0, 0})[i],
                      this->true_scalar_flux_[i], 1e-6);
   }
-  for (const auto& [angle, stored_solution] : this->stored_solutions_) {
-    EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_stored_solution_,
-                                                stored_solution));
+  for (const auto& [index, solution_ptr] : this->energy_group_angular_solution_ptr_map_) {
+    dealii::Vector<double> expected_solution;
+    expected_solution = this->expected_stored_solution_;
+    EXPECT_TRUE(test_helpers::CompareVector(expected_solution, *solution_ptr));
   }
 }
 } // namespace
