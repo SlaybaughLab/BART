@@ -53,15 +53,7 @@ std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
 
   return return_vector;
 }
-template<int dim>
-std::vector<double> FiniteElement<dim>::ValueAtFaceQuadrature(
-    const system::MPIVector &mpi_vector) const {
-  std::vector<double> return_vector(n_face_quad_pts(), 0);
-  dealii::Vector<double> vector_to_interpolate;
-  vector_to_interpolate = mpi_vector;
-  face_values_->get_function_values(vector_to_interpolate, return_vector);
-  return return_vector;
-}
+
 template<int dim>
 std::vector<double> FiniteElement<dim>::ValueAtFaceQuadrature(
     const dealii::Vector<double>& values_at_dofs) const {

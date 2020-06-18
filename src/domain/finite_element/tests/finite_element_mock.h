@@ -46,9 +46,6 @@ class FiniteElementMock : public FiniteElementI<dim> {
   MOCK_METHOD(std::vector<double>, ValueAtQuadrature, (const system::moments::MomentVector moment), (const, override));
 
   MOCK_METHOD(std::vector<double>, ValueAtFaceQuadrature,
-      (const system::MPIVector&), (const, override));
-
-  MOCK_METHOD(std::vector<double>, ValueAtFaceQuadrature,
       (const dealii::Vector<double>&), (const, override));
 
   MOCK_METHOD((dealii::FiniteElement<dim, dim>*), finite_element, (), (override));

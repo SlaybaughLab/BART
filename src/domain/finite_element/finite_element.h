@@ -77,9 +77,6 @@ class FiniteElement : public FiniteElementI<dim> {
       const system::moments::MomentVector moment) const override;
 
   std::vector<double> ValueAtFaceQuadrature(
-      const system::MPIVector &mpi_vector) const override;
-
-  std::vector<double> ValueAtFaceQuadrature(
       const dealii::Vector<double>& values_at_dofs) const override;
 
  protected:

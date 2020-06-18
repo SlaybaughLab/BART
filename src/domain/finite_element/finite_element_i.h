@@ -144,9 +144,6 @@ class FiniteElementI {
    * @return a vector holding the value of the mpi vector at each face quadrature point.
    */
    virtual std::vector<double> ValueAtFaceQuadrature(
-       const system::MPIVector& mpi_vector) const = 0;
-
-   virtual std::vector<double> ValueAtFaceQuadrature(
        const dealii::Vector<double>& values_at_dofs) const = 0;
 
   // DealII Finite element object access. These methods access the underlying
