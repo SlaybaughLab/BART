@@ -3,6 +3,7 @@
 
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/fe/fe_values.h>
+#include <system/system_types.h>
 
 #include "domain/finite_element/finite_element_i.h"
 
@@ -72,7 +73,11 @@ class FiniteElement : public FiniteElementI<dim> {
     return face_values_->normal_vector(0);
   };
 
-  std::vector<double> ValueAtQuadrature(const system::moments::MomentVector moment) const override;
+  std::vector<double> ValueAtQuadrature(
+      const system::moments::MomentVector moment) const override;
+
+  std::vector<double> ValueAtFaceQuadrature(
+      const dealii::Vector<double>& values_at_dofs) const override;
 
  protected:
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;

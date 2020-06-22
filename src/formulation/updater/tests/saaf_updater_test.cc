@@ -6,13 +6,16 @@
 #include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.h"
+#include "system/solution/solution_types.h"
+#include "system/solution/tests/mpi_group_angular_solution_mock.h"
 
 namespace {
 
 using namespace bart;
 
 using ::testing::Return, ::testing::Ref, ::testing::Invoke, ::testing::_,
-::testing::A, ::testing::WithArg, ::testing::DoDefault, ::testing::ReturnRef;
+::testing::A, ::testing::WithArg, ::testing::DoDefault, ::testing::ReturnRef,
+::testing::NiceMock;
 
 template <typename DimensionWrapper>
 class FormulationUpdaterSAAFTest :
@@ -23,7 +26,8 @@ class FormulationUpdaterSAAFTest :
   using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using StamperType = formulation::StamperMock<dim>;
   using UpdaterType = formulation::updater::SAAFUpdater<dim>;
-  using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
+  using QuadratureSetType = NiceMock<quadrature::QuadratureSetMock<dim>>;
+  using Boundary = problem::Boundary;
 
   // Test object
   std::unique_ptr<UpdaterType> test_updater_ptr;
@@ -33,7 +37,15 @@ class FormulationUpdaterSAAFTest :
   FormulationType* formulation_obs_ptr_;
   StamperType* stamper_obs_ptr_;
 
+  std::unordered_set<Boundary> reflective_boundaries{Boundary::kXMin,
+                                                     Boundary::kYMax,
+                                                     Boundary::kZMin};
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map_;
   void SetUp() override;
+  bool IsAReflectiveFace(int boundary_id) {
+    return this->reflective_boundaries.count(
+        static_cast<Boundary>(boundary_id)) == 1;
+  }
 };
 
 template <typename DimensionWrapper>
@@ -43,11 +55,23 @@ void FormulationUpdaterSAAFTest<DimensionWrapper>::SetUp() {
   formulation_obs_ptr_ = formulation_ptr.get();
   auto stamper_ptr = this->MakeStamper();
   stamper_obs_ptr_ = stamper_ptr.get();
-
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
+
+  ON_CALL(*quadrature_set_ptr_, size())
+      .WillByDefault(Return(this->total_angles));
+
+  angular_solution_ptr_map_.insert({system::SolutionIndex(this->group_number,
+                                                          this->angle_index),
+                                    std::make_shared<dealii::Vector<double>>(4)});
+  angular_solution_ptr_map_.insert({system::SolutionIndex(this->group_number,
+                                                          this->reflected_angle_index),
+                                    std::make_shared<dealii::Vector<double>>(4)});
+
   test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
                                                    std::move(stamper_ptr),
-                                                   quadrature_set_ptr_);
+                                                   quadrature_set_ptr_,
+                                                   angular_solution_ptr_map_,
+                                                   reflective_boundaries);
 }
 
 TYPED_TEST_SUITE(FormulationUpdaterSAAFTest, bart::testing::AllDimensions);
@@ -74,6 +98,38 @@ TYPED_TEST(FormulationUpdaterSAAFTest, Constructor) {
   EXPECT_NE(test_updater_ptr->formulation_ptr(), nullptr);
   EXPECT_NE(test_updater_ptr->stamper_ptr(), nullptr);
   EXPECT_NE(test_updater_ptr->quadrature_set_ptr(), nullptr);
+  EXPECT_EQ(test_updater_ptr->reflective_boundaries().size(), 0);
+}
+
+TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorReflective) {
+  constexpr int dim = this->dim;
+  using FormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
+  using StamperType = formulation::StamperMock<dim>;
+  using UpdaterType = formulation::updater::SAAFUpdater<dim>;
+  using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
+  using AngularSolutionType = bart::system::solution::MPIGroupAngularSolutionMock;
+
+  auto formulation_ptr = std::make_unique<FormulationType>();
+  auto stamper_ptr = std::make_unique<StamperType>();
+  auto quadrature_set_ptr = std::make_shared<QuadratureSetType>();
+  std::unique_ptr<UpdaterType> test_updater_ptr;
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map;
+
+  auto angular_solution_ptr = std::make_shared<AngularSolutionType>();
+
+  EXPECT_NO_THROW({
+    test_updater_ptr = std::make_unique<UpdaterType>(std::move(formulation_ptr),
+                                                     std::move(stamper_ptr),
+                                                     quadrature_set_ptr,
+                                                     angular_solution_ptr_map,
+                                                     this->reflective_boundaries);
+                  });
+  EXPECT_NE(test_updater_ptr->formulation_ptr(), nullptr);
+  EXPECT_NE(test_updater_ptr->stamper_ptr(), nullptr);
+  EXPECT_NE(test_updater_ptr->quadrature_set_ptr(), nullptr);
+  EXPECT_EQ(test_updater_ptr->angular_solution_ptr_map(),
+            angular_solution_ptr_map);
+  EXPECT_EQ(test_updater_ptr->reflective_boundaries(), this->reflective_boundaries);
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
@@ -104,7 +160,97 @@ TYPED_TEST(FormulationUpdaterSAAFTest, ConstructorBadDepdendencies) {
   }
 }
 
+// ===== Update Boundary Conditions Tests ======================================
 
+TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
+  constexpr int dim = this->dim;
+  using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using MockSolutionType = system::solution::MPIGroupAngularSolutionMock;
+
+  system::EnergyGroup group_number(this->group_number);
+
+  // Quadrature point and reflection
+  quadrature::QuadraturePointIndex quad_index(this->angle_index),
+      reflected_index(this->reflected_angle_index);
+  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_,
+      reflected_point_ptr_;
+
+  // Mock expectation layout
+  // -- Retrieve the correct variable term to update, returns vector_to_stamp
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      this->index, VariableLinearTerms::kReflectiveBoundaryCondition))
+      .WillOnce(DoDefault());
+  // -- Get the quadrature point identified by the passed index
+  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
+      .WillOnce(Return(quadrature_point_ptr_));
+  // -- Get the quadrature point's reflection for angular flux
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetReflectionIndex(quadrature_point_ptr_))
+      .WillOnce(Return(std::optional<int>{this->reflected_angle_index}));
+  auto angular_flux_vector_ptr = this->angular_solution_ptr_map_.at(
+      system::SolutionIndex(this->group_number, this->reflected_angle_index));
+  // -- For each cell that is on a reflective boundary, we expect a call to the
+  // formulation.
+  int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+  for (auto& cell : this->cells_) {
+    if (cell->at_boundary()) {
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (this->IsAReflectiveFace(cell->face(face)->boundary_id())) {
+          EXPECT_CALL(*this->formulation_obs_ptr_,
+              FillReflectiveBoundaryLinearTerm(_,
+                                               cell,
+                                               domain::FaceIndex(face),
+                                               quadrature_point_ptr_,
+                                               Ref(*angular_flux_vector_ptr)));
+        }
+      }
+    }
+  }
+  // -- We expect the stamper to be called just once to execute the stamping.
+  EXPECT_CALL(*this->stamper_obs_ptr_,
+      StampBoundaryVector(Ref(*this->vector_to_stamp), _))
+      .WillOnce(DoDefault());
+
+  this->test_updater_ptr->UpdateBoundaryConditions(this->test_system_,
+                                                   group_number, quad_index);
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
+}
+
+TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsNoReflectionTest) {
+  constexpr int dim = this->dim;
+  using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using MockSolutionType = system::solution::MPIGroupAngularSolutionMock;
+
+  system::EnergyGroup group_number(this->group_number);
+
+  // Quadrature point and reflection
+  quadrature::QuadraturePointIndex quad_index(this->angle_index),
+      reflected_index(this->reflected_angle_index);
+  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_,
+      reflected_point_ptr_;
+
+  // Mock expectation layout
+  // -- Retrieve the correct variable term to update, returns vector_to_stamp
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
+      this->index, VariableLinearTerms::kReflectiveBoundaryCondition))
+      .WillOnce(DoDefault());
+  // -- Get the quadrature point identified by the passed index
+  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
+      .WillOnce(Return(quadrature_point_ptr_));
+  // -- Get the quadrature point's reflection for angular flux
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetReflectionIndex(quadrature_point_ptr_))
+      .WillOnce(Return(std::nullopt));
+  EXPECT_ANY_THROW({
+    this->test_updater_ptr->UpdateBoundaryConditions(this->test_system_,
+                                                     group_number,
+                                                     quad_index);
+                   }
+  );
+}
 
 // ===== Update Fixed Terms Tests ==============================================
 

@@ -44,12 +44,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
     reporter_ptr_->Report("..Inner group iteration\n");
 
   for (int group = 0; group < total_groups; ++group) {
-    if (reporter_ptr_ != nullptr) {
-      std::string report{"....Group: "};
-      report += std::to_string(group);
-      report += "\n";
-      reporter_ptr_->Report(report);
-    }
+    PerformPerGroup(system, group);
 
     convergence::Status convergence_status;
     convergence_checker_ptr_->Reset();
@@ -79,6 +74,8 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
     } while (!convergence_status.is_complete);
     UpdateCurrentMoments(system, group);
+    if (is_storing_angular_solution_)
+      StoreAngularSolution(system, group);
   }
 }
 
@@ -114,6 +111,27 @@ void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
       current_moments[{group, l, m}] = moment_calculator_ptr_->CalculateMoment(
           group_solution_ptr_.get(), group, l, m);
     }
+  }
+}
+
+template<int dim>
+void GroupSolveIteration<dim>::PerformPerGroup(system::System &/*system*/,
+                                               const int group) {
+  if (reporter_ptr_ != nullptr) {
+    std::string report{"....Group: "};
+    report += std::to_string(group);
+    report += "\n";
+    reporter_ptr_->Report(report);
+  }
+}
+template<int dim>
+void GroupSolveIteration<dim>::StoreAngularSolution(system::System& system,
+                                                    const int group) {
+  for (int angle = 0; angle < system.total_angles; ++angle) {
+    auto& stored_solution = angular_solution_ptr_map_.at(
+        system::SolutionIndex(group, angle));
+    auto& current_solution = group_solution_ptr_->GetSolution(angle);
+    *stored_solution = current_solution;
   }
 }
 

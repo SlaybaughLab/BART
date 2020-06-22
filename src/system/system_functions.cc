@@ -2,6 +2,7 @@
 
 #include "system/terms/term.h"
 #include "system/moments/spherical_harmonic.h"
+#include "system/solution/mpi_group_angular_solution.h"
 
 namespace bart {
 
@@ -31,7 +32,8 @@ void SetUpMPIAngularSolution(
 void InitializeSystem(system::System &system_to_setup,
                  const int total_groups,
                  const int total_angles,
-                 const bool is_eigenvalue_problem) {
+                 const bool is_eigenvalue_problem,
+                 const bool is_rhs_boundary_term_variable) {
   using VariableLinearTerms = system::terms::VariableLinearTerms;
 
   std::string error_start{"Error: attempting to call Initialize System on a "
@@ -54,6 +56,10 @@ void InitializeSystem(system::System &system_to_setup,
   if (is_eigenvalue_problem) {
     system_to_setup.k_effective = 1.0;
     rhs_variable_terms.insert(VariableLinearTerms::kFissionSource);
+  }
+
+  if (is_rhs_boundary_term_variable) {
+    rhs_variable_terms.insert(VariableLinearTerms::kReflectiveBoundaryCondition);
   }
 
   system_to_setup.right_hand_side_ptr_ = std::move(
@@ -103,6 +109,19 @@ void SetUpSystemMoments(system::System& system_to_setup,
 
   initialize_moments(*system_to_setup.current_moments);
   initialize_moments(*system_to_setup.previous_moments);
+}
+void SetUpEnergyGroupToAngularSolutionPtrMap(
+    solution::EnergyGroupToAngularSolutionPtrMap& to_setup,
+    const int total_groups,
+    const int total_angles) {
+  using SolutionType = system::solution::MPIGroupAngularSolution;
+
+  for (int group = 0; group < total_groups; ++group) {
+    for (int angle = 0; angle < total_angles; ++angle) {
+      to_setup.insert({system::SolutionIndex(group, angle),
+                       std::make_shared<dealii::Vector<double>>()});
+    };
+  }
 }
 
 template void SetUpMPIAngularSolution<1>(system::solution::MPIGroupAngularSolutionI&, const domain::DefinitionI<1>&, const double);

@@ -15,6 +15,7 @@
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/terms/tests/bilinear_term_mock.h"
+#include "system/solution/solution_types.h"
 
 namespace  {
 
@@ -170,6 +171,36 @@ TEST_F(SystemFunctionsInitializeSystemTest, NonEigenvalueProblem) {
       VariableLinearTerms::kScatteringSource};
 
   system::InitializeSystem(test_system, total_groups, total_angles, false);
+
+  EXPECT_EQ(test_system.total_angles, total_angles);
+  EXPECT_EQ(test_system.total_groups, total_groups);
+  EXPECT_EQ(test_system.k_effective, std::nullopt);
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
+              WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
+  EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
+  ASSERT_THAT(test_system.current_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(),
+              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
+  EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
+}
+
+TEST_F(SystemFunctionsInitializeSystemTest, BoundaryConditions) {
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
+  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
+  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+  std::unordered_set<VariableLinearTerms> source_terms{
+      VariableLinearTerms::kScatteringSource,
+      VariableLinearTerms::kReflectiveBoundaryCondition};
+
+  system::InitializeSystem(test_system, total_groups, total_angles, false, true);
 
   EXPECT_EQ(test_system.total_angles, total_angles);
   EXPECT_EQ(test_system.total_groups, total_groups);
@@ -373,5 +404,39 @@ TEST_F(SystemFunctionsSetUpSystemMomentsTests, SetUpProperly) {
     }
   }
 }
+
+// ===== SetUpSystemAngularSolution Tests ======================================
+
+class SystemFunctionsSetUpEnergyGroupToAngularSolutionPtrMapIntTests
+    : public ::testing::Test {
+ public:
+  system::solution::EnergyGroupToAngularSolutionPtrMap solution_map_;
+
+  const int total_groups_ = test_helpers::RandomDouble(2, 4);
+  const int total_angles_{total_groups_ + 1};
+
+};
+
+TEST_F(SystemFunctionsSetUpEnergyGroupToAngularSolutionPtrMapIntTests,
+       DefaultCall) {
+  system::SetUpEnergyGroupToAngularSolutionPtrMap(solution_map_,
+                                                  total_groups_,
+                                                  total_angles_);
+
+  using ExpectedType = dealii::Vector<double>;
+  std::vector<int> energy_groups{};
+  EXPECT_EQ(solution_map_.size(), total_groups_ * total_angles_);
+  for (auto& [index, solution_ptr] : solution_map_) {
+    auto [energy_group, angle] = index;
+    ASSERT_THAT(solution_ptr.get(),
+                WhenDynamicCastTo<ExpectedType*>(NotNull()));
+    EXPECT_LT(energy_group.get(), total_groups_);
+    EXPECT_GE(energy_group.get(), 0);
+    EXPECT_LT(angle.get(), total_angles_);
+    EXPECT_GE(angle.get(), 0);
+  }
+}
+
+
 
 } // namespace

@@ -13,8 +13,8 @@ namespace updater {
 class BoundaryConditionsUpdaterMock : public BoundaryConditionsUpdaterI {
  public:
   MOCK_METHOD(void, UpdateBoundaryConditions,
-      (system::SystemWithAngularSolution&, system::EnergyGroup,
-          quadrature::QuadraturePointIndex), (override));
+      (system::System&, system::EnergyGroup, quadrature::QuadraturePointIndex),
+      (override));
 };
 
 } // namespace updater

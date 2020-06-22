@@ -24,6 +24,59 @@ SAAFUpdater<dim>::SAAFUpdater(
               dealii::ExcMessage("Error in constructor of SAAFUpdater, "
                                  "quadrature set pointer passed is null"))
 }
+
+template<int dim>
+SAAFUpdater<dim>::SAAFUpdater(
+    std::unique_ptr<SAAFFormulationType> formulation_ptr,
+    std::unique_ptr<StamperType> stamper_ptr,
+    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    const EnergyGroupToAngularSolutionPtrMap& angular_solution_ptr_map,
+    const std::unordered_set<Boundary> reflective_boundaries)
+    : SAAFUpdater(std::move(formulation_ptr), std::move(stamper_ptr),
+                  quadrature_set_ptr) {
+  reflective_boundaries_ = reflective_boundaries;
+  angular_solution_ptr_map_ = angular_solution_ptr_map;
+}
+
+template<int dim>
+void SAAFUpdater<dim>::UpdateBoundaryConditions(
+    system::System &to_update,
+    system::EnergyGroup group,
+    quadrature::QuadraturePointIndex index) {
+  using system::terms::VariableLinearTerms;
+  auto boundary_vector_ptr = to_update.right_hand_side_ptr_->GetVariableTermPtr(
+          {group.get(), index.get()},
+          VariableLinearTerms::kReflectiveBoundaryCondition);
+  const auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(index);
+  const auto reflected_quadrature_point_index =
+      quadrature_set_ptr_->GetReflectionIndex(quadrature_point_ptr);
+
+  AssertThrow(reflected_quadrature_point_index.has_value(),
+      dealii::ExcMessage("Error in UpdateBoundaryConditions, passed "
+                         "quadrature point has no reflection"))
+
+  const auto incoming_flux = angular_solution_ptr_map_.at(
+      system::SolutionIndex(group, reflected_quadrature_point_index.value()));
+  if (incoming_flux->size() > 0) {
+    auto reflective_boundary_term_function =
+        [&](formulation::Vector &cell_vector,
+            const domain::FaceIndex face_index,
+            const domain::CellPtr <dim> &cell_ptr) -> void {
+          if (IsOnReflectiveBoundary(cell_ptr, face_index)) {
+            formulation_ptr_->FillReflectiveBoundaryLinearTerm(
+                cell_vector,
+                cell_ptr,
+                face_index,
+                quadrature_point_ptr,
+                *incoming_flux);
+          }
+        };
+    *boundary_vector_ptr = 0;
+    stamper_ptr_->StampBoundaryVector(*boundary_vector_ptr,
+                                      reflective_boundary_term_function);
+  }
+}
+
 template<int dim>
 void SAAFUpdater<dim>::UpdateFixedTerms(
     system::System &to_update,

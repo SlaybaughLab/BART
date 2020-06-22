@@ -28,6 +28,9 @@ class NamedType
   bool operator==(const NamedType& rhs) const {
     return rhs.get() == value_;
   }
+  bool operator<(const NamedType& rhs) const {
+    return rhs.get() < value_;
+  }
  private:
   T value_;
 };

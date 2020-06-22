@@ -42,6 +42,7 @@
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/group/group_solve_iteration.h"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
 
@@ -57,6 +58,7 @@
 #include "system/system.h"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "system/system_functions.h"
+#include "system/solution/solution_types.h"
 
 namespace bart {
 
@@ -68,9 +70,13 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildFramework(std::string name,
                                            ParametersType& prm)
 -> std::unique_ptr<FrameworkType> {
+
+  validator_.Parse(prm);
   // Framework parameters
   int n_angles = 1; // Set to default value of 1 for scalar solve
   const int n_groups = prm.NEnergyGroups();
+  const bool need_angular_solution_storage =
+      validator_.NeededParts().count(FrameworkPart::AngularSolutionStorage);
 
   *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
                  Color::Reset << "\n";
@@ -83,22 +89,44 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   *reporter_ptr_ << "\tSetting up domain\n";
   domain_ptr->SetUpMesh().SetUpDOF();
 
+  // Various objects to be initialized
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
   UpdaterPointers updater_pointers;
   std::unique_ptr<MomentCalculatorType> moment_calculator_ptr = nullptr;
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_solutions_;
 
-  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
+  if (prm.TransportModel() != problem::EquationType::kDiffusion) {
     quadrature_set_ptr = BuildQuadratureSet(prm);
     n_angles = quadrature_set_ptr->size();
+  };
+
+  if (need_angular_solution_storage) {
+    system::SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_,
+                                                    n_groups, n_angles);
+  }
+
+
+  if (prm.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
     auto stamper_ptr = BuildStamper(domain_ptr);
+
     auto saaf_formulation_ptr = BuildSAAFFormulation(finite_element_ptr,
                                                      cross_sections_ptr,
                                                      quadrature_set_ptr);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
-    updater_pointers = BuildUpdaterPointers(
-        std::move(saaf_formulation_ptr),
-        std::move(stamper_ptr),
-        quadrature_set_ptr);
+
+    if (!prm.HaveReflectiveBC()) {
+      updater_pointers = BuildUpdaterPointers(
+          std::move(saaf_formulation_ptr),
+          std::move(stamper_ptr),
+          quadrature_set_ptr);
+    } else {
+      updater_pointers = BuildUpdaterPointers(
+          std::move(saaf_formulation_ptr),
+          std::move(stamper_ptr),
+          quadrature_set_ptr,
+          prm.ReflectiveBoundary(),
+          angular_solutions_);
+    }
     moment_calculator_ptr = std::move(BuildMomentCalculator(quadrature_set_ptr));
 
   } else if (prm.TransportModel() == problem::EquationType::kDiffusion) {
@@ -124,8 +152,15 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       BuildMomentConvergenceChecker(1e-10, 100),
       std::move(moment_calculator_ptr),
       group_solution_ptr,
-      updater_pointers.scattering_source_updater_ptr,
+      updater_pointers,
       convergence_reporter_ptr);
+
+  if (need_angular_solution_storage) {
+    dynamic_cast<iteration::group::GroupSolveIteration<dim>*>(
+        iterative_group_solver_ptr.get())->UpdateThisAngularSolutionMap(
+            angular_solutions_);
+    validator_.AddPart(FrameworkPart::AngularSolutionStorage);
+  };
 
   auto k_effective_updater = BuildKEffectiveUpdater(finite_element_ptr,
                                                     cross_sections_ptr,
@@ -139,7 +174,9 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       convergence_reporter_ptr);
 
   auto system_ptr = BuildSystem(n_groups, n_angles, *domain_ptr,
-                                group_solution_ptr->solutions().at(0).size());
+                                group_solution_ptr->solutions().at(0).size(),
+                                prm.IsEigenvalueProblem(),
+                                need_angular_solution_storage);
 
   auto results_output_ptr =
       std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr);
@@ -294,29 +331,79 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   return return_struct;
 }
 
+template<int dim>
+auto FrameworkBuilder<dim>::BuildUpdaterPointers(
+    std::unique_ptr<SAAFFormulationType> formulation_ptr,
+    std::unique_ptr<StamperType> stamper_ptr,
+    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    const std::map<problem::Boundary, bool>& reflective_boundaries,
+    const AngularFluxStorage& angular_flux_storage)
+-> UpdaterPointers {
+  ReportBuildingComponant("Building SAAF Formulation updater "
+                          "(with boundary conditions update)");
+  UpdaterPointers return_struct;
+
+  // Transform map into set
+
+  std::unordered_set<problem::Boundary> reflective_boundary_set;
+
+  for (const auto boundary_pair : reflective_boundaries) {
+    if (boundary_pair.second)
+      reflective_boundary_set.insert(boundary_pair.first);
+  }
+
+  using ReturnType = formulation::updater::SAAFUpdater<dim>;
+  auto saaf_updater_ptr = std::make_shared<ReturnType>(
+      std::move(formulation_ptr),
+      std::move(stamper_ptr),
+      quadrature_set_ptr,
+      angular_flux_storage,
+      reflective_boundary_set);
+
+  return_struct.fixed_updater_ptr = saaf_updater_ptr;
+  return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
+  return_struct.fission_source_updater_ptr = saaf_updater_ptr;
+  return_struct.boundary_conditions_updater_ptr = saaf_updater_ptr;
+
+  return return_struct;
+}
+
 template <int dim>
 auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<SingleGroupSolverType> single_group_solver_ptr,
     std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
     std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
     const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
-    const std::shared_ptr<ScatteringSourceUpdaterType>& scattering_source_updater_ptr,
+    const UpdaterPointers& updater_ptrs,
     const std::shared_ptr<ReporterType>& convergence_report_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
   std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
 
   ReportBuildingComponant("Iterative group solver");
 
-  return_ptr = std::move(
-      std::make_unique<iteration::group::GroupSourceIteration<dim>>(
-          std::move(single_group_solver_ptr),
-          std::move(moment_convergence_checker_ptr),
-          std::move(moment_calculator_ptr),
-          group_solution_ptr,
-          scattering_source_updater_ptr,
-          convergence_report_ptr)
-      );
-  has_scattering_source_update_ = true;
+  if (updater_ptrs.boundary_conditions_updater_ptr == nullptr) {
+    return_ptr = std::move(
+        std::make_unique<iteration::group::GroupSourceIteration<dim>>(
+            std::move(single_group_solver_ptr),
+            std::move(moment_convergence_checker_ptr),
+            std::move(moment_calculator_ptr),
+            group_solution_ptr,
+            updater_ptrs.scattering_source_updater_ptr,
+            convergence_report_ptr)
+    );
+  } else {
+    return_ptr = std::move(
+        std::make_unique<iteration::group::GroupSourceIteration<dim>>(
+            std::move(single_group_solver_ptr),
+            std::move(moment_convergence_checker_ptr),
+            std::move(moment_calculator_ptr),
+            group_solution_ptr,
+            updater_ptrs.scattering_source_updater_ptr,
+            updater_ptrs.boundary_conditions_updater_ptr,
+            convergence_report_ptr)
+    );
+  }
+  validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
@@ -455,7 +542,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           fission_source_updater_ptr,
           convergence_reporter_ptr));
 
-  has_fission_source_update_ = true;
+  validator_.AddPart(FrameworkPart::FissionSourceUpdate);
 
   return return_ptr;
 }
@@ -557,16 +644,18 @@ auto FrameworkBuilder<dim>::BuildSystem(
     const int total_angles,
     const DomainType& domain,
     const std::size_t solution_size,
-    bool is_eigenvalue_problem) -> std::unique_ptr<SystemType> {
+    bool is_eigenvalue_problem,
+    bool need_rhs_boundary_condition) -> std::unique_ptr<SystemType> {
   std::unique_ptr<SystemType> return_ptr;
 
   ReportBuildingComponant("system");
   try {
     return_ptr = std::move(std::make_unique<SystemType>());
     system::InitializeSystem(*return_ptr, total_groups, total_angles,
-                             is_eigenvalue_problem);
+                             is_eigenvalue_problem, need_rhs_boundary_condition);
     system::SetUpSystemTerms(*return_ptr, domain);
     system::SetUpSystemMoments(*return_ptr, solution_size);
+    ReportBuildSuccess("system");
   } catch (...) {
     ReportBuildError("system initialization error.");
     throw;
@@ -607,26 +696,7 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
 
 template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
-  bool issue = false;
-  Report("\nValidating framework\n");
-  reporter_ptr_->Report("\tHas scattering source update: ");
-  if (has_scattering_source_update_) {
-    reporter_ptr_->Report("True\n", Color::Green);
-  } else {
-    reporter_ptr_->Report("False\n", Color::Red);
-    issue = true;
-  }
-  reporter_ptr_->Report("\tHas fission source update: ");
-  if (has_fission_source_update_) {
-    reporter_ptr_->Report("True\n", Color::Green);
-  } else {
-    reporter_ptr_->Report("False\n", Color::Red);
-    issue = true;
-  }
-  if (issue) {
-    reporter_ptr_->Report("Warning: one or more issues identified during "
-                          "framework validation\n", Color::Yellow);
-  }
+  validator_.ReportValidation(*reporter_ptr_);
 }
 
 template class FrameworkBuilder<1>;
