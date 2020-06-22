@@ -533,6 +533,47 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
   EXPECT_THAT(stamper_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSystem) {
+  constexpr int dim = this->dim;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+
+  domain::DefinitionMock<dim> mock_domain;
+  const int total_groups = 2, total_angles = 3;
+  const std::size_t solution_size = 10;
+  const bool is_eigenvalue_problem = true, need_rhs_boundary_condition = false;
+
+  EXPECT_CALL(mock_domain, MakeSystemMatrix())
+      .Times(total_angles * total_groups)
+      .WillRepeatedly(Return(std::make_shared<system::MPISparseMatrix>()));
+  EXPECT_CALL(mock_domain, MakeSystemVector())
+      .Times(3*total_angles * total_groups)
+      .WillRepeatedly(Return(std::make_shared<system::MPIVector>()));
+
+  auto system_ptr = this->test_builder_ptr_->BuildSystem(
+      total_groups, total_angles, mock_domain, solution_size,
+      is_eigenvalue_problem, need_rhs_boundary_condition);
+
+  auto& system = *system_ptr;
+
+  EXPECT_EQ(system.total_groups, total_groups);
+  EXPECT_EQ(system.total_angles, total_angles);
+  EXPECT_EQ(system.k_effective.value(), 1.0);
+  ASSERT_NE(nullptr, system.right_hand_side_ptr_);
+  EXPECT_THAT(system.right_hand_side_ptr_->GetVariableTerms(),
+            ::testing::UnorderedElementsAre(VariableLinearTerms::kFissionSource,
+                                            VariableLinearTerms::kScatteringSource));
+  ASSERT_NE(nullptr, system.left_hand_side_ptr_);
+
+  for (const auto& moments : {system.current_moments.get(),
+                              system.previous_moments.get()}) {
+    ASSERT_NE(nullptr, moments);
+    EXPECT_EQ(moments->total_groups(), total_groups);
+    EXPECT_EQ(moments->max_harmonic_l(), 0);
+    for (const auto& moment : *moments)
+      EXPECT_EQ(moment.second.size(), solution_size);
+  }
+}
+
 /* ===== Non-dimensional tests =================================================
  * These tests instantiate classes and use depdent classes that do not have a
  * dimension template varaible and therefore only need to be run in a single
