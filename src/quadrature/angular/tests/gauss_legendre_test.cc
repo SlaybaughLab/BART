@@ -7,25 +7,20 @@ namespace  {
 
 using namespace bart;
 
-/* Tests for the quadrature::angular::GaussLegendre class. */
-class QuadratureAngularGaussLegendreTest : public ::testing::Test {
+/* Constructor test for quadrature::angular::GaussLegendre class */
+class QuadratureAngularGaussLegendreConstructorTest : public ::testing::Test {
  public:
-  QuadratureAngularGaussLegendreTest() : test_quadrature_(n_points) {}
-
-  // Object to be tested
-  quadrature::angular::GaussLegendre test_quadrature_;
-
   // Test parameters
   const int n_points = 4; // number of quadrature points
 };
 
 // Constructor given a valid number of points should not throw
-TEST_F(QuadratureAngularGaussLegendreTest, Constructor) {
+TEST_F(QuadratureAngularGaussLegendreConstructorTest, Constructor) {
   EXPECT_NO_THROW(quadrature::angular::GaussLegendre test_quadrature(n_points));
 }
 
 // Constructor given an invalid number of points should throw
-TEST_F(QuadratureAngularGaussLegendreTest, ConstructorBadNPoints) {
+TEST_F(QuadratureAngularGaussLegendreConstructorTest, ConstructorBadNPoints) {
   auto bad_n_points = test_helpers::RandomVector(5, -5, 0);
   bad_n_points.push_back(0);
   for (const int n_points : bad_n_points) {
@@ -34,6 +29,16 @@ TEST_F(QuadratureAngularGaussLegendreTest, ConstructorBadNPoints) {
                      });
   }
 }
+
+/* Tests for the quadrature::angular::GaussLegendre class. */
+class QuadratureAngularGaussLegendreTest
+    : public QuadratureAngularGaussLegendreConstructorTest {
+ public:
+  QuadratureAngularGaussLegendreTest() : test_quadrature_(n_points) {}
+
+  // Object to be tested
+  quadrature::angular::GaussLegendre test_quadrature_;
+};
 
 // Order getter should return number of points
 TEST_F(QuadratureAngularGaussLegendreTest, Order) {
