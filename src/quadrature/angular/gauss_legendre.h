@@ -11,9 +11,9 @@ namespace angular {
 
 /*! \brief Generates a 1D Gauss-Legendre quadrature set.
  *
- * The Gauss-Legendre polynomial set with $$n$$-points will integrate
- * polynomials up to degree $$2n-1$$ exactly. The points are generated on the
- * interval $$[0, 1]$$.
+ * The Gauss-Legendre polynomial set with \f$n\f$-points will integrate
+ * polynomials up to degree \f$2n-1\f$ exactly. The points are generated on the
+ * interval \f$[0, 1]\f$.
  *
  */
 class GaussLegendre : public QuadratureGeneratorI<1> {
@@ -23,7 +23,7 @@ class GaussLegendre : public QuadratureGeneratorI<1> {
 
   /*! \brief Constructor.
    *
-   * @param n_points number of points on $$[0, 1]$$
+   * @param n_points number of points on \f$[0, 1]\f$
    */
   GaussLegendre(const int n_points);
   virtual ~GaussLegendre() = default;
