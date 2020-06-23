@@ -7,18 +7,24 @@ namespace  {
 
 using namespace bart;
 
+/* Tests for the quadrature::angular::GaussLegendre class. */
 class QuadratureAngularGaussLegendreTest : public ::testing::Test {
  public:
   QuadratureAngularGaussLegendreTest() : test_quadrature_(n_points) {}
-  quadrature::angular::GaussLegendre test_quadrature_;
-  const int n_points = 4;
 
+  // Object to be tested
+  quadrature::angular::GaussLegendre test_quadrature_;
+
+  // Test parameters
+  const int n_points = 4; // number of quadrature points
 };
 
+// Constructor given a valid number of points should not throw
 TEST_F(QuadratureAngularGaussLegendreTest, Constructor) {
   EXPECT_NO_THROW(quadrature::angular::GaussLegendre test_quadrature(n_points));
 }
 
+// Constructor given an invalid number of points should throw
 TEST_F(QuadratureAngularGaussLegendreTest, ConstructorBadNPoints) {
   auto bad_n_points = test_helpers::RandomVector(5, -5, 0);
   bad_n_points.push_back(0);
@@ -29,17 +35,22 @@ TEST_F(QuadratureAngularGaussLegendreTest, ConstructorBadNPoints) {
   }
 }
 
+// Order getter should return number of points
 TEST_F(QuadratureAngularGaussLegendreTest, Order) {
   EXPECT_EQ(n_points, test_quadrature_.order());
 }
 
+/* Generate set should return a set of points and weights that exactly
+ * integrate a polynomial (Legendre is used here). P_1 Legendre polynomial
+ * integrates to 0.4 over [-1, 1]. The quadrature set will numerically integrate
+ * over [0, 1] so the final result is multiplied by 2 before checking. */
 TEST_F(QuadratureAngularGaussLegendreTest, GenerateSet) {
   auto set = test_quadrature_.GenerateSet();
   EXPECT_EQ(set.size(), n_points);
 
   double sum{0.0};
 
-  // P_1 Legendre polynomial should integrate to 0.4 over [-1, 1]
+  // P_1 Legendre polynomial integrates to 0.4 over [-1, 1]
   auto legendre = [](const double point) {
     return 0.5 * (3*point*point - 1);
   };
