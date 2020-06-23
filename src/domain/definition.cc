@@ -55,11 +55,17 @@ Definition<1>::Definition(
 template <int dim>
 Definition<dim>& Definition<dim>::SetUpMesh() {
   // SetUp triangulation using the mesh dependency
+  return SetUpMesh(0);
+}
+
+template<int dim>
+Definition<dim>& Definition<dim>::SetUpMesh(const int global_refinements) {
   AssertThrow(mesh_->has_material_mapping(),
-                    dealii::ExcMessage("Mesh object must have initialized material mapping"));
+              dealii::ExcMessage("Mesh object must have initialized material mapping"));
   mesh_->FillTriangulation(triangulation_);
   mesh_->FillBoundaryID(triangulation_);
   mesh_->FillMaterialID(triangulation_);
+  triangulation_.refine_global(global_refinements);
   return *this;
 }
 
@@ -169,7 +175,6 @@ int Definition<dim>::total_degrees_of_freedom() const {
     total_degrees_of_freedom_ = dof_handler_.n_dofs();
   return total_degrees_of_freedom_;
 }
-
 
 template class Definition<1>;
 template class Definition<2>;

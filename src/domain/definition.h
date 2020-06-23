@@ -74,6 +74,7 @@ class Definition : public DefinitionI<dim> {
 
   Definition<dim>& SetUpDOF() override;
   Definition<dim>& SetUpMesh() override;
+  Definition<dim>& SetUpMesh(const int global_refinements) override;
 
   dealii::FullMatrix<double> GetCellMatrix() const override {
     int cell_dofs = finite_element_->dofs_per_cell();

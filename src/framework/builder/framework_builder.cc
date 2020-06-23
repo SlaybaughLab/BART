@@ -87,7 +87,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto domain_ptr = Shared(BuildDomain(prm, finite_element_ptr,
                                        ReadMappingFile(prm.MaterialMapFilename())));
   *reporter_ptr_ << "\tSetting up domain\n";
-  domain_ptr->SetUpMesh().SetUpDOF();
+  domain_ptr->SetUpMesh(prm.UniformRefinements()).SetUpDOF();
 
   // Various objects to be initialized
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
