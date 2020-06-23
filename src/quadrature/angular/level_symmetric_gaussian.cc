@@ -20,6 +20,7 @@ LevelSymmetricGaussian::LevelSymmetricGaussian(bart::quadrature::Order order)
   AssertThrow(order_ <= 16,
               dealii::ExcMessage("Error in constructor of "
                                  "LevelSymmetricGaussian order must be <= 16"))
+  this->set_description("Level-symmetric-type Gaussian quadrature (3D)");
 }
 
 std::vector<std::pair<CartesianPosition<3>, Weight>>

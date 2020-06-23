@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 
+#include "utility/has_description.h"
+
 namespace bart {
 
 namespace quadrature {
@@ -18,7 +20,7 @@ namespace quadrature {
  * @tparam dim spatial dimension.
  */
 template <int dim>
-class QuadratureGeneratorI {
+class QuadratureGeneratorI : public bart::utility::HasDescription {
  public:
   virtual ~QuadratureGeneratorI() = default;
   /*! \brief Generates a quadrature set.

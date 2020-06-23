@@ -13,6 +13,7 @@ GaussLegendre::GaussLegendre(const int n_points)
   AssertThrow(n_points > 0,
       dealii::ExcMessage("Error in constructor of GaussLegendre, n_points must "
                          "be greater than or equal to 0"))
+  this->set_description("Gauss-Legendre quadrature (1D)");
 }
 
 

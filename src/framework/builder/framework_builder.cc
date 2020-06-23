@@ -600,6 +600,7 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
       break;
     }
   }
+  ReportBuildSuccess(quadrature_generator_ptr->description());
 
   return_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
 
