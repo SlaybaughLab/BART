@@ -574,17 +574,30 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
 
   const int order_value = problem_parameters.AngularQuadOrder();
   switch (problem_parameters.AngularQuad()) {
+    case problem::AngularQuadType::kLevelSymmetricGaussian: {
+      AssertThrow(dim == 3, dealii::ExcMessage("Error in BuildQuadratureSet "
+                                               "LSGC only available for 3D"))
+      quadrature_generator_ptr =
+          quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+              quadrature::Order(order_value),
+              quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
+      break;
+    }
+    case problem::AngularQuadType::kGaussLegendre: {
+      AssertThrow(dim == 1, dealii::ExcMessage("Error in BuildQuadratureSet "
+                                               "GaussLegendre only available "
+                                               "for 1D"))
+      quadrature_generator_ptr =
+          quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+              quadrature::Order(order_value),
+              quadrature::AngularQuadratureSetType::kGaussLegendre);
+      break;
+    }
     default: {
-      if (dim == 3) {
-        quadrature_generator_ptr =
-            quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
-                quadrature::Order(order_value),
-                quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
-      } else {
         AssertThrow(false,
                     dealii::ExcMessage("No supported quadratures for this dimension "
                                        "and transport model"))
-      }
+      break;
     }
   }
 

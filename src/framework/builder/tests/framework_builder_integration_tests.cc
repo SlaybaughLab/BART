@@ -420,6 +420,27 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSet) {
+  constexpr int dim = this->dim;
+  const int order = 4;
+  EXPECT_CALL(this->parameters, AngularQuad())
+      .WillOnce(Return(problem::AngularQuadType::kGaussLegendre));
+  EXPECT_CALL(this->parameters, AngularQuadOrder())
+      .WillOnce(Return(order));
+
+  if (dim == 1) {
+    using ExpectedType = quadrature::QuadratureSet<dim>;
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+    ASSERT_NE(nullptr, quadrature_set);
+    ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
+    EXPECT_EQ(quadrature_set->size(), 2*order);
+  } else {
+    EXPECT_ANY_THROW({
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+                     });
+  }
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
   constexpr int dim = this->dim;
   const int order = 4;
