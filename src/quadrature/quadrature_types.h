@@ -28,6 +28,7 @@ using QuadraturePointIndex =
 enum class AngularQuadratureSetType {
   kNone = 0,
   kLevelSymmetricGaussian = 1,
+  kGaussLegendre = 2,
 };
 
 enum class OrdinateType {

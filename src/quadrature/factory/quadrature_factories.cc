@@ -4,6 +4,7 @@
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
+#include "quadrature/angular/gauss_legendre.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
 #include "quadrature/calculators/scalar_moment.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
@@ -49,7 +50,22 @@ std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGeneratorPtr(
   if (type == AngularQuadratureSetType::kLevelSymmetricGaussian) {
     generator_ptr = std::make_shared<angular::LevelSymmetricGaussian>(order);
   } else {
-    AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error));
+    AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error))
+  }
+
+  return generator_ptr;
+}
+
+template <>
+std::shared_ptr<QuadratureGeneratorI<1>> MakeAngularQuadratureGeneratorPtr(
+    const Order order,
+    const AngularQuadratureSetType type) {
+  std::shared_ptr<QuadratureGeneratorI<1>> generator_ptr = nullptr;
+
+  if (type == AngularQuadratureSetType::kGaussLegendre) {
+    generator_ptr = std::make_shared<angular::GaussLegendre>(order.get());
+  } else {
+    AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error))
   }
 
   return generator_ptr;
@@ -61,7 +77,7 @@ std::shared_ptr<QuadratureGeneratorI<dim>> MakeAngularQuadratureGeneratorPtr(
     const AngularQuadratureSetType) {
   std::shared_ptr<QuadratureGeneratorI<dim>> generator_ptr = nullptr;
 
-  AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error));
+  AssertThrow(false, dealii::ExcMessage(unsupported_quadrature_error))
 
   return generator_ptr;
 }
@@ -88,19 +104,18 @@ std::unique_ptr<calculators::SphericalHarmonicMomentsI> MakeMomentCalculator(
       nullptr;
 
   if (impl == MomentCalculatorImpl::kScalarMoment) {
-    return_pointer = std::move(
-        std::make_unique<calculators::ScalarMoment>());
+    return_pointer = std::make_unique<calculators::ScalarMoment>();
   } else if (impl == MomentCalculatorImpl::kZerothMomentOnly) {
     AssertThrow(quadrature_set_ptr != nullptr,
                 dealii::ExcMessage("Error in factory building moment calculator, "
                                    "implementation requires quadrature set but provided"
                                    " set pointer is a nullptr"))
-    return_pointer = std::move(
+    return_pointer =
         std::make_unique<calculators::SphericalHarmonicZerothMoment<dim>>(
-            quadrature_set_ptr));
+            quadrature_set_ptr);
   }
 
-  return std::move(return_pointer);
+  return return_pointer;
 }
 
 template <int dim>
@@ -109,7 +124,7 @@ void FillQuadratureSet(
     const std::vector<std::pair<quadrature::CartesianPosition<dim>, quadrature::Weight>>& point_vector) {
 
   AssertThrow(to_fill->size() == 0,
-      dealii::ExcMessage("Error in FillQuadratureSet, set is not empty"));
+      dealii::ExcMessage("Error in FillQuadratureSet, set is not empty"))
 
   for (const auto& [position, weight] : point_vector) {
     auto ordinate_ptr = MakeOrdinatePtr<dim>();
@@ -146,9 +161,7 @@ template std::shared_ptr<QuadraturePointI<1>> MakeQuadraturePointPtr(const Quadr
 template std::shared_ptr<QuadraturePointI<2>> MakeQuadraturePointPtr(const QuadraturePointImpl);
 template std::shared_ptr<QuadraturePointI<3>> MakeQuadraturePointPtr(const QuadraturePointImpl);
 
-template std::shared_ptr<QuadratureGeneratorI<1>> MakeAngularQuadratureGeneratorPtr(const Order, const AngularQuadratureSetType);
 template std::shared_ptr<QuadratureGeneratorI<2>> MakeAngularQuadratureGeneratorPtr(const Order, const AngularQuadratureSetType);
-template std::shared_ptr<QuadratureGeneratorI<3>> MakeAngularQuadratureGeneratorPtr(const Order, const AngularQuadratureSetType);
 
 template std::shared_ptr<QuadratureSetI<1>> MakeQuadratureSetPtr(const QuadratureSetImpl);
 template std::shared_ptr<QuadratureSetI<2>> MakeQuadratureSetPtr(const QuadratureSetImpl);
