@@ -94,11 +94,6 @@ class DomainDefinitionDOFTest : public DomainDefinitionTest<DimensionWrapper> {
   void SetUp() override;
   static void SetTriangulation(dealii::Triangulation<dim> &to_fill) {
     dealii::GridGenerator::hyper_cube(to_fill, -1, 1);
-//    if (dim == 1) {
-//      to_fill.refine_global(4);
-//    } else {
-//      to_fill.refine_global(2);
-//    }
   }
 };
 
