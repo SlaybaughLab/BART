@@ -59,7 +59,7 @@ class FormulationAngularSelfAdjointAngularFluxTest :
   std::set<int> quadrature_point_indices_ = {};
 
   // Test parameters
-  const int material_id_ = 1;
+  const int material_id_ = 1, non_fissile_material_id_ = 0;
   const double k_effective_ = 1.107;
   // This factor is used to get fission transfer matrices from sigma_s_per_ster_
   const double fission_test_factor_ = 2.3465;
@@ -173,6 +173,10 @@ void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(sigma_s_per_ster_));
   ON_CALL(mock_material_, GetChiNuSigFPerSter())
       .WillByDefault(Return(fission_xfer_per_ster_));
+  ON_CALL(mock_material_, GetFissileIDMap())
+      .WillByDefault(Return(std::unordered_map<int, bool>{
+        {material_id_, true},
+        {non_fissile_material_id_, false}}));
 
   // Set up moment values
   for (int i = 0; i < 2; ++i) {
@@ -1261,6 +1265,34 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                                         this->group_0_moment_,
                                         this->out_group_moments_);
                    });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellFissionSourceTermNonFissileMaterial) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  test_saaf.Initialize(this->cell_ptr_);
+  this->cell_ptr_->set_material_id(this->non_fissile_material_id_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  const int group = 0;
+  system::moments::MomentVector& in_group_moment = this->group_0_moment_;
+  auto out_group_moments_map = this->out_group_moments_;
+
+  EXPECT_NO_THROW({
+        test_saaf.FillCellFissionSourceTerm(cell_vector, this->cell_ptr_,
+                                            angle_ptr,
+                                            system::EnergyGroup(group),
+                                            this->k_effective_,
+                                            in_group_moment,
+                                            out_group_moments_map);
+                      });
+  EXPECT_TRUE(cell_vector.l2_norm() < 1e-10);
 }
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
