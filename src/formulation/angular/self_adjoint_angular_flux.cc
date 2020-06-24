@@ -178,38 +178,42 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
   const int material_id = cell_ptr->material_id();
   const int group = group_number.get();
 
-  /* The scattering source is determined as the common values in both of the
-   * scattering source terms in SAAF, specifically scalar flux times the
-   * scattering cross-section per steradian */
+  if (cross_sections_ptr_->is_material_fissile.at(material_id)) {
 
-  std::vector<double> fission_source(cell_quadrature_points_);
+    /* The scattering source is determined as the common values in both of the
+     * scattering source terms in SAAF, specifically scalar flux times the
+     * scattering cross-section per steradian */
 
-  // Get the contribution from each group
-  for (const auto& moment_pair : group_moments) {
-    auto &[index, moment] = moment_pair;
-    const auto &[group_in, harmonic_l, harmonic_m] = index;
+    std::vector<double> fission_source(cell_quadrature_points_);
 
-    if ((harmonic_l == 0) && (harmonic_m == 0)) {
-      std::vector<double> scalar_flux(cell_quadrature_points_);
+    // Get the contribution from each group
+    for (const auto &moment_pair : group_moments) {
+      auto &[index, moment] = moment_pair;
+      const auto &[group_in, harmonic_l, harmonic_m] = index;
 
-      if (group_in == group) {
-        scalar_flux = finite_element_ptr_->ValueAtQuadrature(in_group_moment);
-      } else {
-        scalar_flux = finite_element_ptr_->ValueAtQuadrature(moment);
-      }
+      if ((harmonic_l == 0) && (harmonic_m == 0)) {
+        std::vector<double> scalar_flux(cell_quadrature_points_);
 
-      const auto fission_xfer_per_ster =
-          cross_sections_ptr_->fiss_transfer_per_ster.at(material_id)(group_in,
-                                                                      group);
+        if (group_in == group) {
+          scalar_flux = finite_element_ptr_->ValueAtQuadrature(in_group_moment);
+        } else {
+          scalar_flux = finite_element_ptr_->ValueAtQuadrature(moment);
+        }
 
-      for (int q = 0; q < cell_quadrature_points_; ++q){
-        fission_source.at(q) += fission_xfer_per_ster * scalar_flux.at(q) / k_eff;
+        const auto fission_xfer_per_ster =
+            cross_sections_ptr_->fiss_transfer_per_ster.at(material_id)(group_in,
+                                                                        group);
+
+        for (int q = 0; q < cell_quadrature_points_; ++q) {
+          fission_source.at(q) +=
+              fission_xfer_per_ster * scalar_flux.at(q) / k_eff;
+        }
       }
     }
-  }
 
-  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
-                     fission_source);
+    FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                       fission_source);
+  }
 }
 
 template<int dim>
