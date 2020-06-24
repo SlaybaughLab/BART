@@ -21,6 +21,7 @@ class DefinitionMock : public DefinitionI<dim> {
   using typename DefinitionI<dim>::CellRange;
 
   MOCK_METHOD(DefinitionMock<dim>&, SetUpMesh, (), (override));
+  MOCK_METHOD(DefinitionMock<dim>&, SetUpMesh, (const int), (override));
   MOCK_METHOD(DefinitionMock<dim>&, SetUpDOF, (), (override));
   MOCK_METHOD(dealii::FullMatrix<double>, GetCellMatrix, (), (override, const));
   MOCK_METHOD(dealii::Vector<double>, GetCellVector, (), (override, const));

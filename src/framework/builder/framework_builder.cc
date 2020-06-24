@@ -87,7 +87,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto domain_ptr = Shared(BuildDomain(prm, finite_element_ptr,
                                        ReadMappingFile(prm.MaterialMapFilename())));
   *reporter_ptr_ << "\tSetting up domain\n";
-  domain_ptr->SetUpMesh().SetUpDOF();
+  domain_ptr->SetUpMesh(prm.UniformRefinements()).SetUpDOF();
 
   // Various objects to be initialized
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
@@ -574,19 +574,33 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
 
   const int order_value = problem_parameters.AngularQuadOrder();
   switch (problem_parameters.AngularQuad()) {
+    case problem::AngularQuadType::kLevelSymmetricGaussian: {
+      AssertThrow(dim == 3, dealii::ExcMessage("Error in BuildQuadratureSet "
+                                               "LSGC only available for 3D"))
+      quadrature_generator_ptr =
+          quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+              quadrature::Order(order_value),
+              quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
+      break;
+    }
+    case problem::AngularQuadType::kGaussLegendre: {
+      AssertThrow(dim == 1, dealii::ExcMessage("Error in BuildQuadratureSet "
+                                               "GaussLegendre only available "
+                                               "for 1D"))
+      quadrature_generator_ptr =
+          quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+              quadrature::Order(order_value),
+              quadrature::AngularQuadratureSetType::kGaussLegendre);
+      break;
+    }
     default: {
-      if (dim == 3) {
-        quadrature_generator_ptr =
-            quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
-                quadrature::Order(order_value),
-                quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
-      } else {
         AssertThrow(false,
                     dealii::ExcMessage("No supported quadratures for this dimension "
                                        "and transport model"))
-      }
+      break;
     }
   }
+  ReportBuildSuccess(quadrature_generator_ptr->description());
 
   return_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
 

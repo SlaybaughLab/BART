@@ -311,7 +311,8 @@ class ParametersDealiiHandler : public ParametersI {
 
   const std::unordered_map<std::string, AngularQuadType> kAngularQuadTypeMap_ {
     {"level_symmetric_gaussian", AngularQuadType::kLevelSymmetricGaussian},
-    {"none", AngularQuadType::kNone},
+    {"gauss_legendre",           AngularQuadType::kGaussLegendre},
+    {"none",                     AngularQuadType::kNone},
   }; /*!< Maps angular quadrature type to strings used in parsed input files. */
 
   // Setup functions

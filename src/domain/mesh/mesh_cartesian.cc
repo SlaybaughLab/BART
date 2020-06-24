@@ -156,11 +156,12 @@ void MeshCartesian<dim>::FillBoundaryID(dealii::Triangulation<dim> &to_fill) {
                 face->set_boundary_id(static_cast<int>(Boundary::kXMax));
                 break;
               }
-              break;
+              [[fallthrough]];
             }
             default: {
               AssertThrow(false,
-                          dealii::ExcMessage("Unsupported number of dimensions in FillBoundaryID"));
+                          dealii::ExcMessage("The location of a boundary could "
+                                             "not be determined."))
             }
           }
         }

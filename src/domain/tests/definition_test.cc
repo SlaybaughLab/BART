@@ -89,15 +89,11 @@ class DomainDefinitionDOFTest : public DomainDefinitionTest<DimensionWrapper> {
   dealii::Triangulation<dim> triangulation;
   dealii::FE_Q<dim> fe;
   int n_cells_;
+  int global_refinements_ = 2;
 
   void SetUp() override;
   static void SetTriangulation(dealii::Triangulation<dim> &to_fill) {
     dealii::GridGenerator::hyper_cube(to_fill, -1, 1);
-    if (dim == 1) {
-      to_fill.refine_global(4);
-    } else {
-      to_fill.refine_global(2);
-    }
   }
 };
 
@@ -106,6 +102,9 @@ TYPED_TEST_CASE(DomainDefinitionDOFTest, bart::testing::AllDimensions);
 template <typename DimensionWrapper>
 void DomainDefinitionDOFTest<DimensionWrapper>::SetUp() {
   DomainDefinitionTest<DimensionWrapper>::SetUp();
+  if (this->dim == 1) {
+    global_refinements_ = 4;
+  }
 }
 
 TYPED_TEST(DomainDefinitionDOFTest, SetUpDOFTestMPI) {
@@ -118,7 +117,8 @@ TYPED_TEST(DomainDefinitionDOFTest, SetUpDOFTestMPI) {
 
   bart::domain::Definition<this->dim> test_domain(std::move(this->nice_mesh_ptr),
                                                   this->fe_ptr);
-  test_domain.SetUpMesh();
+
+  test_domain.SetUpMesh(this->global_refinements_);
   test_domain.SetUpDOF();
 
   EXPECT_EQ(test_domain.total_degrees_of_freedom(),
@@ -155,7 +155,7 @@ TYPED_TEST(DomainDefinitionDOFTest, SystemMatrixMPI) {
 
   bart::domain::Definition<this->dim> test_domain(std::move(this->nice_mesh_ptr),
                                                   this->fe_ptr);
-  test_domain.SetUpMesh();
+  test_domain.SetUpMesh(this->global_refinements_);
   test_domain.SetUpDOF();
 
   auto system_matrix_ptr = test_domain.MakeSystemMatrix();
@@ -175,7 +175,7 @@ TYPED_TEST(DomainDefinitionDOFTest, SystemVectorMPI) {
 
   bart::domain::Definition<this->dim> test_domain(std::move(this->nice_mesh_ptr),
                                                   this->fe_ptr);
-  test_domain.SetUpMesh();
+  test_domain.SetUpMesh(this->global_refinements_);
   test_domain.SetUpDOF();
 
   auto system_vector_ptr = test_domain.MakeSystemVector();

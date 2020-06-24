@@ -12,8 +12,9 @@ namespace quadrature {
 template <int dim>
 class QuadratureGeneratorMock : QuadratureGeneratorI<dim> {
  public:
-  MOCK_CONST_METHOD0_T(GenerateSet, std::vector<std::pair<CartesianPosition<dim>, Weight>>());
-  MOCK_CONST_METHOD0_T(order, int());
+  MOCK_METHOD((std::vector<std::pair<CartesianPosition<dim>, Weight>>),
+              GenerateSet, (), (override, const));
+  MOCK_METHOD(int, order, (), (override, const));
 };
 
 } // namespace quadrature
