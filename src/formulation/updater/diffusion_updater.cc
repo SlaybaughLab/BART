@@ -18,6 +18,8 @@ DiffusionUpdater<dim>::DiffusionUpdater(
   AssertThrow(stamper_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of DiffusionUpdater, "
                                  "stamper pointer passed is null"))
+  this->set_description("diffusion formulation updater",
+                        utility::DefaultImplementation(true));
 }
 
 template<int dim>
@@ -27,6 +29,8 @@ DiffusionUpdater<dim>::DiffusionUpdater(
     std::unordered_set<problem::Boundary> reflective_boundaries)
     : DiffusionUpdater(std::move(formulation_ptr), std::move(stamper_ptr)) {
   reflective_boundaries_ = reflective_boundaries;
+  this->set_description("diffusion formulation updater with reflective BCs",
+                        utility::DefaultImplementation(true));
 }
 template<int dim>
 void DiffusionUpdater<dim>::UpdateFixedTerms(

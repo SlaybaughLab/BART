@@ -247,6 +247,30 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointers) {
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointersRefl) {
+  constexpr int dim = this->dim;
+  using ExpectedType = formulation::updater::DiffusionUpdater<dim>;
+
+  auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
+      std::move(this->diffusion_formulation_uptr_),
+      std::move(this->stamper_uptr_),
+      this->reflective_bcs_);
+  ASSERT_THAT(updater_struct.fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+
+  auto dynamic_ptr =
+      dynamic_cast<ExpectedType*>(updater_struct.fixed_updater_ptr.get());
+  for (auto& [boundary, is_reflective] : this->reflective_bcs_ ) {
+    if (is_reflective) {
+      EXPECT_EQ(dynamic_ptr->reflective_boundaries().count(boundary), 1);
+    }
+  }
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
   constexpr int dim = this->dim;
   using ExpectedType = formulation::updater::SAAFUpdater<dim>;

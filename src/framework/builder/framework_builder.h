@@ -111,6 +111,10 @@ class FrameworkBuilder {
       std::unique_ptr<DiffusionFormulationType>,
       std::unique_ptr<StamperType>);
   UpdaterPointers BuildUpdaterPointers(
+      std::unique_ptr<DiffusionFormulationType>,
+      std::unique_ptr<StamperType>,
+      const std::map<problem::Boundary, bool>& reflective_boundaries);
+  UpdaterPointers BuildUpdaterPointers(
       std::unique_ptr<SAAFFormulationType>,
       std::unique_ptr<StamperType>,
       const std::shared_ptr<QuadratureSetType>&);
