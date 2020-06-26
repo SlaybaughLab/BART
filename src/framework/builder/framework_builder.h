@@ -109,9 +109,6 @@ class FrameworkBuilder {
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
   UpdaterPointers BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulationType>,
-      std::unique_ptr<StamperType>);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<DiffusionFormulationType>,
       std::unique_ptr<StamperType>,
       const std::map<problem::Boundary, bool>& reflective_boundaries);
   UpdaterPointers BuildUpdaterPointers(
