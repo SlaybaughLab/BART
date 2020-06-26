@@ -13,6 +13,7 @@
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 #include "system/solution/solution_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -25,7 +26,8 @@ class SAAFUpdater :
     public FixedUpdaterI,
     public BoundaryConditionsUpdaterI,
     public ScatteringSourceUpdaterI,
-    public FissionSourceUpdaterI {
+    public FissionSourceUpdaterI,
+    public utility::HasDescription {
  public:
   using Boundary = problem::Boundary;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;

@@ -146,7 +146,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
           std::move(diffusion_formulation_ptr),
           std::move(stamper_ptr));
     }
-    
+
     moment_calculator_ptr = std::move(BuildMomentCalculator());
   }
 
@@ -365,6 +365,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
       std::move(formulation_ptr),
       std::move(stamper_ptr),
       quadrature_set_ptr);
+  ReportBuildSuccess(saaf_updater_ptr->description());
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
   return_struct.fission_source_updater_ptr = saaf_updater_ptr;
@@ -400,6 +401,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
       quadrature_set_ptr,
       angular_flux_storage,
       reflective_boundary_set);
+  ReportBuildSuccess(saaf_updater_ptr->description());
 
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
