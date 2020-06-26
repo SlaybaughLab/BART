@@ -135,9 +135,12 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
         cross_sections_ptr);
     diffusion_formulation_ptr->Precalculate(domain_ptr->Cells().at(0));
     auto stamper_ptr = BuildStamper(domain_ptr);
+
     updater_pointers = BuildUpdaterPointers(
         std::move(diffusion_formulation_ptr),
-        std::move(stamper_ptr));
+        std::move(stamper_ptr),
+        prm.ReflectiveBoundary());
+
     moment_calculator_ptr = std::move(BuildMomentCalculator());
   }
 
@@ -293,16 +296,26 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
 template<int dim>
 auto FrameworkBuilder<dim>::BuildUpdaterPointers(
     std::unique_ptr<DiffusionFormulationType> formulation_ptr,
-    std::unique_ptr<StamperType> stamper_ptr)
+    std::unique_ptr<StamperType> stamper_ptr,
+    const std::map<problem::Boundary, bool>& reflective_boundaries)
 -> UpdaterPointers {
   ReportBuildingComponant("Building Diffusion Formulation updater");
   UpdaterPointers return_struct;
+
+  std::unordered_set<problem::Boundary> reflective_boundary_set;
+
+  for (const auto boundary_pair : reflective_boundaries) {
+    if (boundary_pair.second)
+      reflective_boundary_set.insert(boundary_pair.first);
+  }
 
   using ReturnType = formulation::updater::DiffusionUpdater<dim>;
 
   auto diffusion_updater_ptr = std::make_shared<ReturnType>(
       std::move(formulation_ptr),
-      std::move(stamper_ptr));
+      std::move(stamper_ptr),
+      reflective_boundary_set);
+  ReportBuildSuccess(diffusion_updater_ptr->description());
   return_struct.fixed_updater_ptr = diffusion_updater_ptr;
   return_struct.scattering_source_updater_ptr = diffusion_updater_ptr;
   return_struct.fission_source_updater_ptr = diffusion_updater_ptr;
@@ -324,6 +337,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
       std::move(formulation_ptr),
       std::move(stamper_ptr),
       quadrature_set_ptr);
+  ReportBuildSuccess(saaf_updater_ptr->description());
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
   return_struct.fission_source_updater_ptr = saaf_updater_ptr;
@@ -359,6 +373,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
       quadrature_set_ptr,
       angular_flux_storage,
       reflective_boundary_set);
+  ReportBuildSuccess(saaf_updater_ptr->description());
 
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;

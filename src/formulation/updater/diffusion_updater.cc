@@ -9,25 +9,26 @@ namespace updater {
 template<int dim>
 DiffusionUpdater<dim>::DiffusionUpdater(
     std::unique_ptr<DiffusionFormulationType> formulation_ptr,
-    std::unique_ptr<StamperType> stamper_ptr)
+    std::unique_ptr<StamperType> stamper_ptr,
+    std::unordered_set<problem::Boundary> reflective_boundaries)
     : formulation_ptr_(std::move(formulation_ptr)),
-      stamper_ptr_(std::move(stamper_ptr)) {
+      stamper_ptr_(std::move(stamper_ptr)),
+      reflective_boundaries_(reflective_boundaries) {
   AssertThrow(formulation_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of DiffusionUpdater, "
                                  "formulation pointer passed is null"))
   AssertThrow(stamper_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of DiffusionUpdater, "
                                  "stamper pointer passed is null"))
+  this->set_description("diffusion formulation updater",
+                        utility::DefaultImplementation(true));
+
+  if (!reflective_boundaries_.empty()) {
+    this->set_description(this->description() + " (reflective BCs)",
+                          utility::DefaultImplementation(true));
+  }
 }
 
-template<int dim>
-DiffusionUpdater<dim>::DiffusionUpdater(
-    std::unique_ptr<DiffusionFormulationType> formulation_ptr,
-    std::unique_ptr<StamperType> stamper_ptr,
-    std::unordered_set<problem::Boundary> reflective_boundaries)
-    : DiffusionUpdater(std::move(formulation_ptr), std::move(stamper_ptr)) {
-  reflective_boundaries_ = reflective_boundaries;
-}
 template<int dim>
 void DiffusionUpdater<dim>::UpdateFixedTerms(
     system::System& to_update,

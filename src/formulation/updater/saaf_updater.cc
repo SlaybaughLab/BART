@@ -23,6 +23,8 @@ SAAFUpdater<dim>::SAAFUpdater(
   AssertThrow(quadrature_set_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of SAAFUpdater, "
                                  "quadrature set pointer passed is null"))
+  this->set_description("Self-adjoint angular flux updater",
+                        utility::DefaultImplementation(true));
 }
 
 template<int dim>
@@ -36,6 +38,9 @@ SAAFUpdater<dim>::SAAFUpdater(
                   quadrature_set_ptr) {
   reflective_boundaries_ = reflective_boundaries;
   angular_solution_ptr_map_ = angular_solution_ptr_map;
+  this->set_description("Self-adjoint angular flux updater with reflective "
+                        "boundaries",
+                        utility::DefaultImplementation(true));
 }
 
 template<int dim>
