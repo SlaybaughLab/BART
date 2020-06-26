@@ -29,10 +29,8 @@ class DiffusionUpdater
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using StamperType = formulation::StamperI<dim>;
   DiffusionUpdater(std::unique_ptr<DiffusionFormulationType>,
-                   std::unique_ptr<StamperType>);
-  DiffusionUpdater(std::unique_ptr<DiffusionFormulationType>,
                    std::unique_ptr<StamperType>,
-                   std::unordered_set<problem::Boundary>);
+                   std::unordered_set<problem::Boundary> reflective_boundaries = {});
   virtual ~DiffusionUpdater() = default;
 
   void UpdateFixedTerms(
