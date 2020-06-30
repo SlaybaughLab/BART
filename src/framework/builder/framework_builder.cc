@@ -152,7 +152,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   auto iterative_group_solver_ptr = BuildGroupSolveIteration(
       BuildSingleGroupSolver(),
-      BuildMomentConvergenceChecker(1e-10, 100),
+      BuildMomentConvergenceChecker(1e-6, 10000),
       std::move(moment_calculator_ptr),
       group_solution_ptr,
       updater_pointers,
@@ -171,7 +171,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   auto outer_iteration_ptr = BuildOuterIteration(
       std::move(iterative_group_solver_ptr),
-      BuildParameterConvergenceChecker(1e-6, 100),
+      BuildParameterConvergenceChecker(1e-6, 10000),
       std::move(k_effective_updater),
       updater_pointers.fission_source_updater_ptr,
       convergence_reporter_ptr);
