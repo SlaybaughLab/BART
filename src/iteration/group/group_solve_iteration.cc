@@ -49,7 +49,6 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
     convergence::Status convergence_status;
     convergence_checker_ptr_->Reset();
     do {
-
       if (!convergence_status.is_complete) {
         for (int angle = 0; angle < total_angles; ++angle)
           UpdateSystem(system, group, angle);
@@ -65,15 +64,19 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
         previous_scalar_flux = current_scalar_flux;
         previous_scalar_flux = 0;
       }
+//      std::cout << "Current scalar flux: ";
+//      current_scalar_flux.print(std::cout);
+//      std::cout << "Previous scalar flux: ";
+//      previous_scalar_flux.print(std::cout);
 
       convergence_status = CheckConvergence(current_scalar_flux,
                                             previous_scalar_flux);
 
       if (reporter_ptr_ != nullptr)
         reporter_ptr_->Report(convergence_status);
-
+      UpdateCurrentMoments(system, group);
     } while (!convergence_status.is_complete);
-    UpdateCurrentMoments(system, group);
+
     if (is_storing_angular_solution_)
       StoreAngularSolution(system, group);
   }
