@@ -27,7 +27,7 @@ std::vector<GaussLegendre::PositionWeightPairType>
 
   for (int i = 0; i < static_cast<int>(gaussian_quadrature.size()); ++i) {
     CartesianPosition<1> x_position({points.at(i)[0]});
-    Weight weight(weights.at(i));
+    Weight weight(2*M_PI*weights.at(i));
     return_vector.push_back({x_position, weight});
   }
 
