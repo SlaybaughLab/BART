@@ -1,5 +1,7 @@
 #include "framework/builder/framework_validator.h"
 
+#include <algorithm>
+
 namespace bart {
 
 namespace framework {
@@ -15,7 +17,14 @@ void FrameworkValidator::Parse(const problem::ParametersI& to_parse) {
   needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
   if (to_parse.IsEigenvalueProblem())
     needed_parts_.insert(FrameworkPart::FissionSourceUpdate);
-  if (to_parse.HaveReflectiveBC() == true &&
+
+  const auto reflective_boundary = to_parse.ReflectiveBoundary();
+  bool has_reflective = std::any_of(
+      reflective_boundary.begin(),
+      reflective_boundary.end(),
+      [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
+
+  if (has_reflective &&
       to_parse.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
     needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
   }
