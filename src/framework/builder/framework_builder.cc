@@ -77,6 +77,11 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   const int n_groups = prm.NEnergyGroups();
   const bool need_angular_solution_storage =
       validator_.NeededParts().count(FrameworkPart::AngularSolutionStorage);
+  const auto reflective_boundaries = prm.ReflectiveBoundary();
+  const bool has_reflective = std::any_of(
+      reflective_boundaries.begin(),
+      reflective_boundaries.end(),
+      [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
 
   *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
                  Color::Reset << "\n";
@@ -114,7 +119,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
                                                      quadrature_set_ptr);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
 
-    if (!prm.HaveReflectiveBC()) {
+    if (!has_reflective) {
       updater_pointers = BuildUpdaterPointers(
           std::move(saaf_formulation_ptr),
           std::move(stamper_ptr),
