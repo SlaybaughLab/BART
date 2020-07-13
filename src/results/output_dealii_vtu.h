@@ -6,14 +6,14 @@
 #include <deal.II/numerics/data_out.h>
 
 #include "domain/definition_i.h"
-#include "results/output_i.h"
+#include "results/output.h"
 
 namespace bart {
 
 namespace results {
 
 template <int dim>
-class OutputDealiiVtu : public OutputI {
+class OutputDealiiVtu : public Output {
  public:
   OutputDealiiVtu(const std::shared_ptr<domain::DefinitionI<dim>> &domain_ptr);
 

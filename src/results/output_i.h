@@ -2,6 +2,7 @@
 #define BART_SRC_RESULTS_OUTPUT_I_H_
 
 #include <ostream>
+#include <vector>
 
 namespace bart {
 
@@ -18,6 +19,8 @@ class OutputI {
   virtual void WriteData(std::ostream &output_stream) const = 0;
   virtual void WriteMasterFile(std::ostream &output_stream,
                                std::vector<std::string> filenames) const = 0;
+  virtual void WriteVector(const std::vector<double> to_write,
+                           std::ostream &output_stream) const = 0;
 };
 
 } // namespace results
