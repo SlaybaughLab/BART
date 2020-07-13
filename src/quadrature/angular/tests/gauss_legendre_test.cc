@@ -46,27 +46,30 @@ TEST_F(QuadratureAngularGaussLegendreTest, Order) {
 }
 
 /* Generate set should return a set of points and weights that exactly
- * integrate a polynomial (Legendre is used here). P_1 Legendre polynomial
- * integrates to 0.4 over [-1, 1]. The quadrature set will numerically integrate
- * over [0, 1] so the final result is multiplied by 2 before checking. */
+ * integrate a spherical harmonic (Y_1_1) is used here */
 TEST_F(QuadratureAngularGaussLegendreTest, GenerateSet) {
   auto set = test_quadrature_.GenerateSet();
   EXPECT_EQ(set.size(), n_points);
 
+  // Generate negative x points to integrate over -1, 1
+  for (auto point_pair : set) {
+    point_pair.first.get().at(0) *= -1;
+    set.push_back(point_pair);
+  }
+
   double sum{0.0};
 
-  // P_1 Legendre polynomial integrates to 0.4 over [-1, 1]
+  // Y l = 1, m = 1
   auto legendre = [](const double point) {
-    return 0.5 * (3*point*point - 1);
+    return 0.25 * 3 / M_PI * point * point;
   };
 
   for (const auto point_pair : set) {
     const auto point = point_pair.first.get().at(0);
     const auto weight = point_pair.second.get();
-    sum += weight * legendre(point) * legendre(point);
+    sum += weight * legendre(point);
   }
-  // Multiply by 2 because points are generated from [0, 1]
-  EXPECT_NEAR(0.4, 2*sum, 1e-5);
+  EXPECT_NEAR(1.0, sum, 1e-5);
 }
 
 } // namespace

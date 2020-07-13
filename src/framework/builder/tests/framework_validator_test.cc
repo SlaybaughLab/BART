@@ -25,12 +25,15 @@ class FrameworkBuilderFrameworkValidatorTest : public ::testing::Test {
 };
 
 void FrameworkBuilderFrameworkValidatorTest::SetUp() {
+  using Boundary = problem::Boundary;
   ON_CALL(mock_parameters, IsEigenvalueProblem())
       .WillByDefault(Return(true));
   ON_CALL(mock_parameters, TransportModel())
       .WillByDefault(Return(problem::EquationType::kDiffusion));
-  ON_CALL(mock_parameters, HaveReflectiveBC())
-      .WillByDefault(Return(false));
+  ON_CALL(mock_parameters, ReflectiveBoundary())
+      .WillByDefault(Return(std::map<Boundary, bool>{
+          {Boundary::kXMin, false},
+          {Boundary::kXMax, false}}));
   ON_CALL(mock_reporter, Instream(A<utility::reporter::Color>()))
       .WillByDefault(ReturnRef(mock_reporter));
 }
@@ -83,12 +86,15 @@ TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestSAAFWithoutReflective) {
 }
 
 TEST_F(FrameworkBuilderFrameworkValidatorTest, ParseTestSAAFWithReflective) {
+  using Boundary = problem::Boundary;
   EXPECT_FALSE(test_validator.HasNeededParts());
 
   EXPECT_CALL(mock_parameters, TransportModel())
       .WillOnce(Return(problem::EquationType::kSelfAdjointAngularFlux));
-  EXPECT_CALL(mock_parameters, HaveReflectiveBC())
-      .WillOnce(Return(true));
+  EXPECT_CALL(mock_parameters, ReflectiveBoundary())
+      .WillOnce(Return(std::map<Boundary, bool>{
+          {Boundary::kXMin, true},
+          {Boundary::kXMax, false}}));
 
   test_validator.Parse(mock_parameters);
 
