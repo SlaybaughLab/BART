@@ -47,6 +47,8 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
     InnerIterationToConvergence(system);
 
     convergence_status = CheckConvergence(system);
+    if (convergence_status.delta.has_value())
+      iteration_error_.push_back(convergence_status.delta.value());
 
     if (reporter_ptr_ != nullptr) {
       reporter_ptr_->Report("Outer iteration Status: ");

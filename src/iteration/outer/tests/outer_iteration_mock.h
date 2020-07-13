@@ -14,7 +14,8 @@ namespace outer {
 
 class OuterIterationMock : public OuterIterationI {
  public:
-  MOCK_METHOD1(IterateToConvergence, void(system::System &system));
+  MOCK_METHOD(void, IterateToConvergence, (system::System &), (override));
+  MOCK_METHOD(std::vector<double>, iteration_error, (), (override, const));
 }; // namespace outer
 
 } // namespace iteration
