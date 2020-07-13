@@ -8,12 +8,13 @@
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "results/tests/output_mock.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace  {
 
 using namespace bart;
 
-using ::testing::Ref, ::testing::_;
+using ::testing::Ref, ::testing::_, ::testing::Return;
 
 class FrameworkTest : public ::testing::Test {
  public:
@@ -135,5 +136,17 @@ TEST_F(FrameworkTest, OutputMasterFileMPI) {
   test_framework_->OutputMasterFile(output_stream, filenames, process_id);
 }
 
+TEST_F(FrameworkTest, OutputErrorIteration) {
+  std::ostringstream output_stream;
+  std::vector<double> error = bart::test_helpers::RandomVector(4, -100, 100);
+  std::vector<std::string> headers{"iteration", "error"};
+  auto& results_output_mock = *results_output_obs_ptr_;
+  auto& outer_iteration_mock = *outer_iterator_obs_ptr_;
+
+  EXPECT_CALL(outer_iteration_mock, iteration_error()).WillOnce(Return(error));
+  EXPECT_CALL(results_output_mock, WriteVector(Ref(output_stream), error, headers));
+
+  test_framework_->OutputIterationError(output_stream);
+}
 
 } // namespace
