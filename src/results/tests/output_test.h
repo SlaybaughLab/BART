@@ -21,6 +21,7 @@ class OutputTest : public ::testing::Test {
   virtual ~OutputTest() = default;
   // Test writing of vector to a .csv file
   void TestWriteVector(results::Output* test_output);
+  void TestWriteVectorWithHeaders(results::Output* test_output);
 };
 
 /* Test for TestWriteVector. Verifies that a vector is converted into a csv
@@ -35,7 +36,31 @@ void OutputTest::TestWriteVector(results::Output *test_output) {
     regex << "\\s*" << i << "\\s*\\,\\s*" << output_vector.at(i) << "\\s*\n\\s*";
   }
   test_output->WriteVector(output_string_stream, output_vector);
-  EXPECT_THAT(output_string_stream.str(), ::testing::MatchesRegex(regex.str()));
+  EXPECT_THAT(output_string_stream.str(), ::testing::MatchesRegex(regex.str()))
+            << "TestWriteVector failed";
+}
+
+/* Test for TestWriteVector with headers.  */
+void OutputTest::TestWriteVectorWithHeaders(results::Output *test_output) {
+  std::ostringstream output_string_stream, regex;
+  const auto output_vector = test_helpers::RandomVector(4, -100, 100);
+  const std::vector<std::string> headers{"index", "values"},
+      short_header{"index"}, long_header{"index", "values", "extra"};
+  // Create expected string
+  regex << "\\s*index\\s*\\,\\s*values\\s*\n\\s*";
+  for (std::vector<double>::size_type i = 0; i < output_vector.size(); ++i) {
+    regex << "\\s*" << i << "\\s*\\,\\s*" << output_vector.at(i) << "\\s*\n\\s*";
+  }
+  // verify bad header length throws
+  for (auto& bad_header : {short_header, long_header}) {
+    EXPECT_ANY_THROW(test_output->WriteVector(output_string_stream, output_vector, bad_header))
+              << "TestWriteVectorWithHeaders failed bad header throw";
+    output_string_stream.str() = "";
+  }
+
+  test_output->WriteVector(output_string_stream, output_vector, headers);
+  EXPECT_THAT(output_string_stream.str(), ::testing::MatchesRegex(regex.str()))
+            << "TestWriteVectorWithHeaders failed regex match";
 }
 
 } // namespace testing

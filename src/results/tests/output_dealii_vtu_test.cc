@@ -85,6 +85,7 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, Constructor) {
 
 TYPED_TEST(ResultsOutputDealiiVtuTest, BaseClassTests) {
   this->TestWriteVector(this->test_output_.get());
+  this->TestWriteVectorWithHeaders(this->test_output_.get());
 }
 
 TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
