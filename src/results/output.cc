@@ -4,8 +4,8 @@ namespace bart {
 
 namespace results {
 
-void Output::WriteVector(const std::vector<double> to_write,
-    std::ostream &output_stream) const {
+void Output::WriteVector(std::ostream &output_stream,
+                         const std::vector<double> to_write) const {
   for (std::vector<double>::size_type i =0 ; i < to_write.size(); ++i)
     output_stream << i << ", " << to_write.at(i) << "\n";
 }

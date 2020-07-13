@@ -10,8 +10,8 @@ namespace results {
 class Output : public OutputI {
  public:
   virtual ~Output() = default;
-  virtual void WriteVector(const std::vector<double> to_write,
-                           std::ostream &output_stream) const;
+  virtual void WriteVector(std::ostream &output_stream,
+                           const std::vector<double> to_write) const;
 };
 
 } // namespace results

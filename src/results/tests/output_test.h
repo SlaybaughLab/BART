@@ -34,7 +34,7 @@ void OutputTest::TestWriteVector(results::Output *test_output) {
   for (std::vector<double>::size_type i = 0; i < output_vector.size(); ++i) {
     regex << "\\s*" << i << "\\s*\\,\\s*" << output_vector.at(i) << "\\s*\n\\s*";
   }
-  test_output->WriteVector(output_vector, output_string_stream);
+  test_output->WriteVector(output_string_stream, output_vector);
   EXPECT_THAT(output_string_stream.str(), ::testing::MatchesRegex(regex.str()));
 }
 

@@ -19,8 +19,8 @@ class OutputI {
   virtual void WriteData(std::ostream &output_stream) const = 0;
   virtual void WriteMasterFile(std::ostream &output_stream,
                                std::vector<std::string> filenames) const = 0;
-  virtual void WriteVector(const std::vector<double> to_write,
-                           std::ostream &output_stream) const = 0;
+  virtual void WriteVector(std::ostream &output_stream,
+                           const std::vector<double> to_write) const = 0;
 };
 
 } // namespace results
