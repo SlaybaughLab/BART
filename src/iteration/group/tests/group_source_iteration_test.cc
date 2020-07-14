@@ -42,7 +42,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<const system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
@@ -71,6 +71,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   MomentCalculator* moment_calculator_obs_ptr_ = nullptr;
   MomentMapConvergenceChecker* moment_map_convergence_checker_obs_ptr_ = nullptr;
   Moments* moments_obs_ptr_ = nullptr;
+  Moments* previous_moments_obs_ptr_ = nullptr;
 
   void SetUp() override;
 };
@@ -96,6 +97,9 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
+  test_system.previous_moments = std::make_unique<Moments>();
+  previous_moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.previous_moments.get());
+
 
   test_iterator_ptr_ = std::make_unique<TestGroupIterator>(
       std::move(single_group_solver_ptr_),
@@ -112,7 +116,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
-  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<bart::system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<const bart::system::moments::MomentsMap>;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
 
@@ -340,15 +344,19 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, UpdateThisAngularSolution) {
 TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   // This is the mock map to hold system current_moments
   using MockSolutionType = bart::system::solution::MPIGroupAngularSolutionMock;
-  system::moments::MomentsMap current_moments;
+  system::moments::MomentsMap current_moments, previous_moments;
   for (int group = 0; group < this->total_groups; ++group) {
     for (int l = 0; l <= this->max_harmonic_l; ++l) {
       for (int m = -l; m <= l; ++m) {
         system::moments::MomentIndex index{group, l, m};
         current_moments.emplace(index, 4);
+        previous_moments.emplace(index, 4);
         EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(current_moments.at(index)));
+        EXPECT_CALL(*this->previous_moments_obs_ptr_, BracketOp(index))
+            .Times(AtLeast(1))
+            .WillRepeatedly(ReturnRef(previous_moments.at(index)));
 
         EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
             this->group_solution_ptr_.get(), group, l, m))
@@ -376,6 +384,14 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   }
 
   auto mock_group_solution_ptr = dynamic_cast<MockSolutionType*>(this->group_solution_ptr_.get());
+
+  convergence::Status moment_map_status;
+  moment_map_status.is_complete = true;
+  EXPECT_CALL(*this->moments_obs_ptr_, moments())
+      .WillOnce(ReturnRef(current_moments));
+  EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_,
+              CheckFinalConvergence(Ref(current_moments), _))
+              .WillOnce(Return(moment_map_status));
 
   EXPECT_CALL(*mock_group_solution_ptr, GetSolution(_))
       .Times(this->total_groups * this->total_angles)
