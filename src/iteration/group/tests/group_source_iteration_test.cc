@@ -217,6 +217,7 @@ class IterationGroupSourceSystemSolvingTest :
 
 
   int iterations = 0;
+  const int max_iterations{1000};
 
   void SetUp() override;
 };
@@ -307,11 +308,11 @@ ACTION_P(CalculatedScalarFlux, test_class) {
 
 ACTION_P(ReturnConvergence, test_class) {
   convergence::Status status;
-  ++test_class->iterations;
+  status.iteration_number = ++test_class->iterations;
   auto diff = arg0;
   diff.add(-1, arg1);
-  double err = diff.l1_norm();
-  if (err < 1e-6 || test_class->iterations > 1000)
+  status.delta = diff.l1_norm();
+  if (status.delta.value() < 1e-7 || test_class->iterations >= test_class->max_iterations)
     status.is_complete = true;
   return status;
 }
@@ -375,12 +376,12 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       .WillRepeatedly(ReturnRef(this->expected_stored_solution_));
 
   EXPECT_CALL(*this->convergence_checker_obs_ptr_, Reset())
-  .Times(AtLeast(1))
-  .WillRepeatedly(ResetIterations(this));
+      .Times(AtLeast(1))
+      .WillRepeatedly(ResetIterations(this));
 
   EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_, _))
-  .Times(AtLeast(1))
-  .WillRepeatedly(ReturnConvergence(this));
+      .Times(AtLeast(1))
+      .WillRepeatedly(ReturnConvergence(this));
 
   EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
       .Times(AtLeast(1));
@@ -397,6 +398,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       this->energy_group_angular_solution_ptr_map_);
 
   this->test_iterator_ptr_->Iterate(this->test_system);
+  EXPECT_LT(this->iterations, this->max_iterations);
   for (int i = 0; i < 4; ++i) {
     EXPECT_NEAR(current_moments.at({0, 0, 0})[i],
                      this->true_scalar_flux_[i], 1e-6);
