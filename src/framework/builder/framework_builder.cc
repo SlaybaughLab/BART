@@ -10,6 +10,7 @@
 // Convergence classes
 #include "convergence/final_checker_or_n.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "convergence/moments/multi_moment_checker_max.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/reporter/mpi.h"
 
@@ -537,6 +538,25 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
   auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
   auto return_ptr = std::make_unique<FinalCheckerType>(
       std::move(single_checker_ptr));
+  return_ptr->SetMaxIterations(max_iterations);
+  return return_ptr;
+}
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
+    double max_delta, int max_iterations)
+-> std::unique_ptr<MomentMapConvergenceCheckerType> {
+  ReportBuildingComponant("Moment map convergence checker");
+
+  using SingleCheckerType = convergence::moments::SingleMomentCheckerL1Norm;
+  using CheckerType = convergence::moments::MultiMomentCheckerMax;
+  using FinalCheckerType = convergence::FinalCheckerOrN<
+      const system::moments::MomentsMap,
+      convergence::moments::MultiMomentCheckerI>;
+  auto checker_ptr = std::make_unique<CheckerType>(
+      std::make_unique<SingleCheckerType>(max_delta));
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::move(checker_ptr));
   return_ptr->SetMaxIterations(max_iterations);
   return return_ptr;
 }

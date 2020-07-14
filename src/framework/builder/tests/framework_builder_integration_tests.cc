@@ -7,6 +7,7 @@
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
+#include "convergence/moments/multi_moment_checker_i.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/definition.h"
@@ -536,7 +537,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceChecker) {
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
   const double max_delta = 1e-4;
-  const int max_iterations = 100;
+  const int max_iterations = 73;
 
   auto convergence_ptr =
       this->test_builder_ptr_->BuildMomentConvergenceChecker(
@@ -552,6 +553,27 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
 }
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentMapConvergenceChecker) {
+  const double max_delta = 1e-4;
+  const int max_iterations = 73;
+
+  auto convergence_ptr =
+      this->test_builder_ptr_->BuildMomentMapConvergenceChecker(
+          max_delta,
+          max_iterations);
+
+  using ExpectedType =
+  convergence::FinalCheckerOrN<const system::moments::MomentsMap,
+                               convergence::moments::MultiMomentCheckerI>;
+
+  ASSERT_THAT(convergence_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
+
+}
+
+
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
   constexpr int dim = this->dim;
