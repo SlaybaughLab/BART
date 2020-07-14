@@ -156,13 +156,19 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
   system::SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
+  std::unique_ptr<MomentMapConvergenceCheckerType>
+      moment_map_convergence_checker_ptr = nullptr;
+  if (n_groups > 1)
+    moment_map_convergence_checker_ptr = BuildMomentMapConvergenceChecker(1e-6, 1000);
+
   auto iterative_group_solver_ptr = BuildGroupSolveIteration(
       BuildSingleGroupSolver(),
       BuildMomentConvergenceChecker(1e-6, 10000),
       std::move(moment_calculator_ptr),
       group_solution_ptr,
       updater_pointers,
-      convergence_reporter_ptr);
+      convergence_reporter_ptr,
+      std::move(moment_map_convergence_checker_ptr));
 
   if (need_angular_solution_storage) {
     dynamic_cast<iteration::group::GroupSolveIteration<dim>*>(
@@ -396,7 +402,8 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
     const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
-    const std::shared_ptr<ReporterType>& convergence_report_ptr)
+    const std::shared_ptr<ReporterType>& convergence_report_ptr,
+    std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
   std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
 
@@ -410,7 +417,8 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             std::move(moment_calculator_ptr),
             group_solution_ptr,
             updater_ptrs.scattering_source_updater_ptr,
-            convergence_report_ptr)
+            convergence_report_ptr,
+            std::move(moment_map_convergence_checker_ptr))
     );
   } else {
     return_ptr = std::move(
@@ -421,7 +429,8 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             group_solution_ptr,
             updater_ptrs.scattering_source_updater_ptr,
             updater_ptrs.boundary_conditions_updater_ptr,
-            convergence_report_ptr)
+            convergence_report_ptr,
+            std::move(moment_map_convergence_checker_ptr))
     );
   }
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);

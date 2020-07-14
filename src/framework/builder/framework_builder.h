@@ -128,7 +128,8 @@ class FrameworkBuilder {
       std::unique_ptr<MomentCalculatorType>,
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
-      const std::shared_ptr<ReporterType>&);
+      const std::shared_ptr<ReporterType>&,
+      std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);

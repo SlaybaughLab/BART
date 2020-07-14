@@ -352,7 +352,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
       updater_ptrs,
-      this->convergence_reporter_sptr_);
+      this->convergence_reporter_sptr_,
+      nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
@@ -371,7 +372,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdat
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
       updater_ptrs,
-      this->convergence_reporter_sptr_);
+      this->convergence_reporter_sptr_,
+      nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
