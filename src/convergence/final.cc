@@ -30,6 +30,7 @@ Final<CompareType>& Final<CompareType>::SetIteration(
 
 template class Final<system::moments::MomentVector>;
 template class Final<system::moments::MomentsMap>;
+template class Final<const system::moments::MomentsMap>;
 template class Final<double>;
 
 
