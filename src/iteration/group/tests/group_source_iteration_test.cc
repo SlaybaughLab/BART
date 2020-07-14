@@ -56,10 +56,6 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::unique_ptr<TestGroupIterator> test_iterator_ptr_;
 
   // Mock dependency objects
-  std::unique_ptr<GroupSolver> single_group_solver_ptr_;
-  std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_;
-  std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
-  std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr_;
   std::shared_ptr<GroupSolution> group_solution_ptr_;
   std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_;
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
@@ -74,7 +70,6 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   ConvergenceChecker* convergence_checker_obs_ptr_ = nullptr;
   MomentCalculator* moment_calculator_obs_ptr_ = nullptr;
   MomentMapConvergenceChecker* moment_map_convergence_checker_obs_ptr_ = nullptr;
-  SourceUpdater* source_updater_obs_ptr_ = nullptr;
   Moments* moments_obs_ptr_ = nullptr;
 
   void SetUp() override;
@@ -84,19 +79,19 @@ TYPED_TEST_CASE(IterationGroupSourceIterationTest, bart::testing::AllDimensions)
 
 template <typename DimensionWrapper>
 void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
-  single_group_solver_ptr_ = std::make_unique<GroupSolver>();
+  auto single_group_solver_ptr_ = std::make_unique<GroupSolver>();
   single_group_obs_ptr_ = single_group_solver_ptr_.get();
-  convergence_checker_ptr_ = std::make_unique<ConvergenceChecker>();
+  auto convergence_checker_ptr_ = std::make_unique<ConvergenceChecker>();
   convergence_checker_obs_ptr_ = convergence_checker_ptr_.get();
-  moment_calculator_ptr_ = std::make_unique<MomentCalculator>();
+  auto moment_calculator_ptr_ = std::make_unique<MomentCalculator>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr_.get();
-  moment_map_convergence_checker_ptr_ =
+  auto moment_map_convergence_checker_ptr_ =
       std::make_unique<MomentMapConvergenceChecker>();
   moment_map_convergence_checker_obs_ptr_ = moment_map_convergence_checker_ptr_.get();
+
   group_solution_ptr_ = std::make_shared<GroupSolution>();
   boundary_conditions_updater_ptr_ = std::make_shared<BoundaryConditionsUpdater>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
-  source_updater_obs_ptr_ = source_updater_ptr_.get();
   reporter_ptr_ = std::make_shared<Reporter>();
 
   test_system.current_moments = std::make_unique<Moments>();
@@ -366,7 +361,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
         .Times(AtLeast(1))
         .WillRepeatedly(Solve(this));
     for (int angle = 0; angle < this->total_angles; ++angle) {
-      EXPECT_CALL(*this->source_updater_obs_ptr_, UpdateScatteringSource(
+      EXPECT_CALL(*this->source_updater_ptr_, UpdateScatteringSource(
           Ref(this->test_system),
           bart::system::EnergyGroup(group),
           quadrature::QuadraturePointIndex(angle)))
