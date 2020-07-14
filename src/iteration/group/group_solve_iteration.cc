@@ -50,7 +50,6 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
     for (int l = 0; l <= max_harmonic_l; ++l) {
       for (int m = -l; m <= l; ++m) {
         previous_moments[{group, l, m}] = current_moments[{group, l, m}];
-        previous_moments_map[{group, l, m}] = previous_moments[{group, l, m}];
       }
     }
   }
@@ -60,6 +59,15 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
   convergence::Status all_group_convergence_status;
 
   do {
+    for (int group = 0; group < total_groups; ++group) {
+      auto& current_moments = *system.current_moments;
+      const int max_harmonic_l = current_moments.max_harmonic_l();
+      for (int l = 0; l <= max_harmonic_l; ++l) {
+        for (int m = -l; m <= l; ++m) {
+          previous_moments_map[{group, l, m}] = current_moments[{group, l, m}];
+        }
+      }
+    }
     for (int group = 0; group < total_groups; ++group) {
       PerformPerGroup(system, group);
 
@@ -98,7 +106,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
           moment_map_convergence_checker_ptr_->CheckFinalConvergence(
               system.current_moments->moments(), previous_moments_map);
       if (reporter_ptr_ != nullptr) {
-        reporter_ptr_->Report("....Checking all group convergence\n");
+        reporter_ptr_->Report("....All group convergence: ");
         reporter_ptr_->Report(all_group_convergence_status);
       }
     } else {
