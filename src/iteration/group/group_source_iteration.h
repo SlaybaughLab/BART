@@ -17,6 +17,7 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
   using typename GroupSolveIteration<dim>::GroupSolver;
   using typename GroupSolveIteration<dim>::ConvergenceChecker;
   using typename GroupSolveIteration<dim>::MomentCalculator;
+  using typename GroupSolveIteration<dim>::MomentMapConvergenceChecker;
   using typename GroupSolveIteration<dim>::GroupSolution;
   using typename GroupSolveIteration<dim>::Reporter;
 
@@ -29,7 +30,9 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
       const std::shared_ptr<SourceUpdater> &source_updater_ptr,
-      const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
+      const std::shared_ptr<Reporter> &reporter_ptr = nullptr,
+      std::unique_ptr<MomentMapConvergenceChecker>
+          moment_map_convergence_checker_ptr = nullptr);
   GroupSourceIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
@@ -37,7 +40,9 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
       const std::shared_ptr<SourceUpdater> &source_updater_ptr,
       const std::shared_ptr<BoundaryConditionsUpdater>& boundary_condition_updater_ptr,
-      const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
+      const std::shared_ptr<Reporter> &reporter_ptr = nullptr,
+      std::unique_ptr<MomentMapConvergenceChecker>
+      moment_map_convergence_checker_ptr = nullptr);
   virtual ~GroupSourceIteration() = default;
 
   BoundaryConditionsUpdater* boundary_conditions_updater_ptr() const {

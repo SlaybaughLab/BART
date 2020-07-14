@@ -23,6 +23,7 @@ class GroupSolveIteration : public GroupSolveIterationI {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
+  using MomentMapConvergenceChecker = convergence::FinalI<system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using Reporter = convergence::reporter::MpiI;
@@ -33,7 +34,8 @@ class GroupSolveIteration : public GroupSolveIterationI {
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
-      const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
+      const std::shared_ptr<Reporter> &reporter_ptr = nullptr,
+      std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr = nullptr);
 
   GroupSolveIteration& UpdateThisAngularSolutionMap(
       EnergyGroupToAngularSolutionPtrMap& to_update) {
@@ -66,6 +68,10 @@ class GroupSolveIteration : public GroupSolveIterationI {
     return moment_calculator_ptr_.get();
   }
 
+  MomentMapConvergenceChecker* moment_map_convergence_checker_ptr() const {
+    return moment_map_convergence_checker_ptr_.get();
+  }
+
   std::shared_ptr<GroupSolution> group_solution_ptr() const {
     return group_solution_ptr_;
   }
@@ -92,6 +98,8 @@ class GroupSolveIteration : public GroupSolveIterationI {
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
   std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
+  std::unique_ptr<MomentMapConvergenceChecker>
+      moment_map_convergence_checker_ptr_ = nullptr;
   bool is_storing_angular_solution_ = false;
   EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map_;
 };

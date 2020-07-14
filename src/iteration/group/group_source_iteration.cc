@@ -13,12 +13,14 @@ GroupSourceIteration<dim>::GroupSourceIteration(
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolution> &group_solution_ptr,
     const std::shared_ptr<SourceUpdater> &source_updater_ptr,
-    const std::shared_ptr<Reporter> &reporter_ptr)
+    const std::shared_ptr<Reporter> &reporter_ptr,
+    std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
     : GroupSolveIteration<dim>(std::move(group_solver_ptr),
         std::move(convergence_checker_ptr),
         std::move(moment_calculator_ptr),
         group_solution_ptr,
-        reporter_ptr) {
+        reporter_ptr,
+        std::move(moment_map_convergence_checker_ptr)) {
   source_updater_ptr_ = source_updater_ptr;
   AssertThrow(source_updater_ptr_ != nullptr,
               dealii::ExcMessage("Source updater pointer passed to "
@@ -35,14 +37,16 @@ GroupSourceIteration<dim>::GroupSourceIteration(
     const std::shared_ptr<GroupSolution> &group_solution_ptr,
     const std::shared_ptr<SourceUpdater> &source_updater_ptr,
     const std::shared_ptr<BoundaryConditionsUpdater> &boundary_condition_updater_ptr,
-    const std::shared_ptr<Reporter> &reporter_ptr)
+    const std::shared_ptr<Reporter> &reporter_ptr,
+    std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
     : GroupSourceIteration<dim>::GroupSourceIteration(
         std::move(group_solver_ptr),
         std::move(convergence_checker_ptr),
         std::move(moment_calculator_ptr),
         group_solution_ptr,
         source_updater_ptr,
-        reporter_ptr) {
+        reporter_ptr,
+        std::move(moment_map_convergence_checker_ptr)) {
   boundary_condition_updater_ptr_ = boundary_condition_updater_ptr;
   AssertThrow(boundary_condition_updater_ptr_ != nullptr,
       dealii::ExcMessage("Boundary conditions updater pointer passed to "

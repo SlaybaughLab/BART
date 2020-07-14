@@ -42,6 +42,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
+  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
@@ -58,6 +59,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::unique_ptr<GroupSolver> single_group_solver_ptr_;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_;
+  std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr_;
   std::shared_ptr<GroupSolution> group_solution_ptr_;
   std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_;
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
@@ -71,6 +73,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   GroupSolver* single_group_obs_ptr_ = nullptr;
   ConvergenceChecker* convergence_checker_obs_ptr_ = nullptr;
   MomentCalculator* moment_calculator_obs_ptr_ = nullptr;
+  MomentMapConvergenceChecker* moment_map_convergence_checker_obs_ptr_ = nullptr;
   SourceUpdater* source_updater_obs_ptr_ = nullptr;
   Moments* moments_obs_ptr_ = nullptr;
 
@@ -87,6 +90,9 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   convergence_checker_obs_ptr_ = convergence_checker_ptr_.get();
   moment_calculator_ptr_ = std::make_unique<MomentCalculator>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr_.get();
+  moment_map_convergence_checker_ptr_ =
+      std::make_unique<MomentMapConvergenceChecker>();
+  moment_map_convergence_checker_obs_ptr_ = moment_map_convergence_checker_ptr_.get();
   group_solution_ptr_ = std::make_shared<GroupSolution>();
   boundary_conditions_updater_ptr_ = std::make_shared<BoundaryConditionsUpdater>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
@@ -103,13 +109,15 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       group_solution_ptr_,
       source_updater_ptr_,
       boundary_conditions_updater_ptr_,
-      reporter_ptr_);
+      reporter_ptr_,
+      std::move(moment_map_convergence_checker_ptr_));
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
+  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<bart::system::moments::MomentsMap>;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
 
@@ -119,6 +127,8 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
       this->test_iterator_ptr_->convergence_checker_ptr());
   auto moment_calculator_test_ptr = dynamic_cast<MomentCalculator*>(
       this->test_iterator_ptr_->moment_calculator_ptr());
+  auto moment_map_test_ptr = dynamic_cast<MomentMapConvergenceChecker*>(
+      this->test_iterator_ptr_->moment_map_convergence_checker_ptr());
   auto source_updater_test_ptr = dynamic_cast<SourceUpdater*>(
       this->test_iterator_ptr_->source_updater_ptr());
   auto boundary_conditions_test_ptr = dynamic_cast<BoundaryConditionsUpdater*>(
@@ -127,6 +137,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_NE(nullptr, single_group_test_ptr);
   EXPECT_NE(nullptr, convergence_checker_test_ptr);
   EXPECT_NE(nullptr, moment_calculator_test_ptr);
+  EXPECT_NE(nullptr, moment_map_test_ptr);
   EXPECT_EQ(2, this->group_solution_ptr_.use_count());
   EXPECT_EQ(this->group_solution_ptr_.get(),
             this->test_iterator_ptr_->group_solution_ptr().get());
