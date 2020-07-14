@@ -18,6 +18,7 @@ class FrameworkI {
   virtual void OutputMasterFile(std::ostream& output_stream,
                                 const std::vector<std::string>& filenames,
                                 const int process_id) = 0;
+  virtual void OutputIterationError(std::ostream& output_stream) = 0;
 };
 
 } // namespace framework

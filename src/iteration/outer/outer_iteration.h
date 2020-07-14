@@ -41,6 +41,10 @@ class OuterIteration : public OuterIterationI {
     return reporter_ptr_.get();
   }
 
+  std::vector<double> iteration_error() const override {
+    return iteration_error_;
+  }
+
  protected:
   virtual void InnerIterationToConvergence(system::System &system);
   virtual convergence::Status CheckConvergence(system::System &system) = 0;
@@ -50,6 +54,7 @@ class OuterIteration : public OuterIterationI {
   std::unique_ptr<GroupIterator> group_iterator_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
+  std::vector<double> iteration_error_{};
 };
 
 } // namespace outer

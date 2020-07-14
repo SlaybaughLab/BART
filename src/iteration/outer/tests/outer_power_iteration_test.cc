@@ -119,6 +119,7 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   // K_Effective updater return values
   std::array<double, this->iterations_ + 1> k_effective_by_iteration;
   Sequence k_effective_calls;
+  std::vector<double> expected_errors;
 
   for (int i = 0; i < this->iterations_; ++i) {
     k_effective_by_iteration.at(i + 1) = i * 1.5;
@@ -130,6 +131,15 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
 
     convergence::Status convergence_status;
     convergence_status.is_complete = (i == (this->iterations_ - 1));
+    if (i > 0) {
+      double expected_error =
+          (k_effective_by_iteration.at(i + 1) - k_effective_by_iteration.at(i))
+              / (k_effective_by_iteration.at(i + 1));
+      expected_errors.push_back(expected_error);
+      convergence_status.delta = expected_error;
+    } else {
+      convergence_status.delta = std::nullopt;
+    }
 
     EXPECT_CALL(*this->convergence_checker_obs_ptr_,
                 CheckFinalConvergence(k_effective_by_iteration.at(i + 1),
@@ -146,6 +156,10 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
       .Times(AtLeast(this->iterations_));
 
   this->test_iterator->IterateToConvergence(this->test_system);
+
+  auto iteration_errors = this->test_iterator->iteration_error();
+  ASSERT_EQ(iteration_errors.size(), iterations_ - 1);
+  EXPECT_THAT(iteration_errors, ::testing::ContainerEq(expected_errors));
 }
 
 

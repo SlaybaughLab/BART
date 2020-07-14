@@ -6,6 +6,7 @@
 #include <deal.II/numerics/data_out.h>
 
 #include "domain/tests/definition_mock.h"
+#include "results/tests/output_test.h"
 #include "system/system.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -19,7 +20,7 @@ using ::testing::Return, ::testing::ReturnRef;
 
 template<typename DimensionWrapper>
 class ResultsOutputDealiiVtuTest
-    : public ::testing::Test,
+    : public bart::results::testing::OutputTest,
       public ::bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
@@ -80,6 +81,11 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, Constructor) {
 
   ASSERT_NE(domain_ptr, nullptr);
   EXPECT_NE(nullptr, dynamic_cast<domain::DefinitionMock<dim> *>(domain_ptr));
+}
+
+TYPED_TEST(ResultsOutputDealiiVtuTest, BaseClassTests) {
+  this->TestWriteVector(this->test_output_.get());
+  this->TestWriteVectorWithHeaders(this->test_output_.get());
 }
 
 TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
