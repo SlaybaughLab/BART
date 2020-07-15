@@ -354,6 +354,10 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
         EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(current_moments.at(index)));
+        const auto& const_mock_current_moments = *this->moments_obs_ptr_;
+        EXPECT_CALL(const_mock_current_moments, BracketOp(index))
+            .Times(AtLeast(1))
+            .WillRepeatedly(ReturnRef(current_moments.at(index)));
         EXPECT_CALL(*this->previous_moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(previous_moments.at(index)));
