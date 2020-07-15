@@ -13,7 +13,7 @@ namespace group {
 
 class GroupSolveIterationMock : public GroupSolveIterationI {
  public:
-  MOCK_METHOD1(Iterate, void(system::System &system));
+  MOCK_METHOD(void, Iterate, (system::System &system), (override));
 };
 
 } // namespace group

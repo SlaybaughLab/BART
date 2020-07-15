@@ -74,6 +74,7 @@ class FrameworkBuilder {
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
+  using MomentMapConvergenceCheckerType = convergence::FinalI<const system::moments::MomentsMap>;
   using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
@@ -127,7 +128,8 @@ class FrameworkBuilder {
       std::unique_ptr<MomentCalculatorType>,
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
-      const std::shared_ptr<ReporterType>&);
+      const std::shared_ptr<ReporterType>&,
+      std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
@@ -142,6 +144,8 @@ class FrameworkBuilder {
       std::shared_ptr<QuadratureSetType>,
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly);
   std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
+      double max_delta, int max_iterations);
+  std::unique_ptr<MomentMapConvergenceCheckerType> BuildMomentMapConvergenceChecker(
       double max_delta, int max_iterations);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,

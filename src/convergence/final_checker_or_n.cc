@@ -55,6 +55,8 @@ template class FinalCheckerOrN<system::moments::MomentVector,
                                moments::SingleMomentCheckerI>;
 template class FinalCheckerOrN<system::moments::MomentsMap,
                                moments::MultiMomentCheckerI>;
+template class FinalCheckerOrN<const system::moments::MomentsMap,
+                               moments::MultiMomentCheckerI>;
 template class FinalCheckerOrN<double, parameters::SingleParameterChecker>;
 
 
