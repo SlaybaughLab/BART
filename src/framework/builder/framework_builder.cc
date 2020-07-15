@@ -156,11 +156,6 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
   system::SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
-  std::unique_ptr<MomentMapConvergenceCheckerType>
-      moment_map_convergence_checker_ptr = nullptr;
-  if (n_groups > 1)
-    moment_map_convergence_checker_ptr = BuildMomentMapConvergenceChecker(1e-6, 1000);
-
   auto iterative_group_solver_ptr = BuildGroupSolveIteration(
       BuildSingleGroupSolver(),
       BuildMomentConvergenceChecker(1e-6, 10000),
@@ -168,7 +163,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       group_solution_ptr,
       updater_pointers,
       convergence_reporter_ptr,
-      std::move(moment_map_convergence_checker_ptr));
+      BuildMomentMapConvergenceChecker(1e-6, 1000));
 
   if (need_angular_solution_storage) {
     dynamic_cast<iteration::group::GroupSolveIteration<dim>*>(
