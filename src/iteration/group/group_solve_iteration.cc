@@ -57,10 +57,10 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
   if (reporter_ptr_ != nullptr)
     reporter_ptr_->Report("..Inner group iteration\n");
   convergence::Status all_group_convergence_status;
-
+  all_group_convergence_status.is_complete = true;
   do {
     for (int group = 0; group < total_groups; ++group) {
-      auto& current_moments = *system.current_moments;
+      const auto& current_moments = *system.current_moments;
       const int max_harmonic_l = current_moments.max_harmonic_l();
       for (int l = 0; l <= max_harmonic_l; ++l) {
         for (int m = -l; m <= l; ++m) {
@@ -109,8 +109,6 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
         reporter_ptr_->Report("....All group convergence: ");
         reporter_ptr_->Report(all_group_convergence_status);
       }
-    } else {
-      all_group_convergence_status.is_complete = true;
     }
   } while(!all_group_convergence_status.is_complete);
 }
