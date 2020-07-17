@@ -41,6 +41,8 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
   dealii::DoFHandler<2> dof_handler_;
   dealii::FE_Q<2> fe_;
 
+  const int fissile_material_id_ = 0, non_fissile_material_id_ = 1;
+
   void SetUp() override;
   void SetUpDealii();
 };
@@ -83,16 +85,21 @@ void FormulationCFEMDiffusionTest::SetUp() {
     }
   }
 
-  // Cross-section data for fake two-group, with one material (id = 0)
+  // Cross-section data for fake two-group
   std::array<double, 4> sigma_s_values{0.25, 0.5, 0.75, 1.0};
   dealii::FullMatrix<double> sigma_s_matrix{2,2, sigma_s_values.begin()};
-  std::unordered_map<int, dealii::FullMatrix<double>> sigma_s{{0, sigma_s_matrix}};
+  std::unordered_map<int, dealii::FullMatrix<double>> sigma_s{
+    {this->fissile_material_id_, sigma_s_matrix}};
 
-  std::unordered_map<int, std::vector<double>> sigma_t{{0, {1.0, 2.0}}}; // i + 1
+  std::unordered_map<int, std::vector<double>> sigma_t{
+    {this->fissile_material_id_, {1.0, 2.0}}}; // i + 1
 
-  std::unordered_map<int, std::vector<double>> q{{0, {1.0, 2.0}}};
+  std::unordered_map<int, std::vector<double>> q{
+    {this->non_fissile_material_id_, {1.0, 2.0}}};
 
-  std::unordered_map<int, bool> fissile_id{{0, true}};
+  std::unordered_map<int, bool> fissile_id{
+    {this->fissile_material_id_, true},
+    {this->non_fissile_material_id_, false}};
 
   ON_CALL(mock_material, GetSigT())
       .WillByDefault(Return(sigma_t));
@@ -120,7 +127,7 @@ void FormulationCFEMDiffusionTest::SetUpDealii() {
        ++cell) {
     if (cell->is_locally_owned()) {
       cell_ptr_ = cell;
-      cell_ptr_->set_material_id(0);
+      cell_ptr_->set_material_id(this->fissile_material_id_);
     }
   }
 }
@@ -334,14 +341,14 @@ TEST_F(FormulationCFEMDiffusionTest, FillBoundaryTermTestVacuum) {
 
 }
 
-TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
+TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSourceNonFissile) {
 
   dealii::Vector<double> expected_vector{6, 15};
   dealii::Vector<double> test_vector(2);
 
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,
                                                    cross_sections_ptr);
-
+  cell_ptr_->set_material_id(this->non_fissile_material_id_);
   EXPECT_CALL(*fe_mock_ptr, SetCell(_))
       .Times(1);
   EXPECT_CALL(*fe_mock_ptr, Jacobian(_))
@@ -351,7 +358,20 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSource) {
       .Times(4)
       .WillRepeatedly(DoDefault());
 
-  test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0);
+  EXPECT_NO_THROW(test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0));
+
+  EXPECT_TRUE(CompareVector(expected_vector, test_vector));
+}
+
+TEST_F(FormulationCFEMDiffusionTest, FillCellFixedSourceFissile) {
+
+  dealii::Vector<double> expected_vector{0, 0};
+  dealii::Vector<double> test_vector(2);
+
+  formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,
+                                                   cross_sections_ptr);
+
+  EXPECT_NO_THROW(test_diffusion.FillCellFixedSource(test_vector, cell_ptr_, 0));
 
   EXPECT_TRUE(CompareVector(expected_vector, test_vector));
 }
