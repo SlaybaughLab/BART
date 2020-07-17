@@ -9,8 +9,9 @@
 namespace  {
 
 using namespace bart;
+using ::testing::A, ::testing::Ref;
 
-class IterationOuterDummyIterationTest : public ::testing::Test {
+class IterationOuterFixedSourceIterationTest : public ::testing::Test {
  public:
   using TestIterationType = iteration::outer::OuterFixedSourceIteration;
   // Dependency types
@@ -28,10 +29,13 @@ class IterationOuterDummyIterationTest : public ::testing::Test {
   GroupIteratorType* group_iterator_mock_obs_ptr_;
   ConvergenceCheckerType* convergence_checker_mock_obs_ptr_;
 
+  // Test parameters and objects
+  bart::system::System test_system;
+
   void SetUp() override;
 };
 
-void IterationOuterDummyIterationTest::SetUp() {
+void IterationOuterFixedSourceIterationTest::SetUp() {
   reporter_mock_ptr_ = std::make_shared<ReporterType>();
   auto group_iterator_ptr = std::make_unique<GroupIteratorType>();
   group_iterator_mock_obs_ptr_ = group_iterator_ptr.get();
@@ -44,7 +48,7 @@ void IterationOuterDummyIterationTest::SetUp() {
       reporter_mock_ptr_);
 }
 
-TEST_F(IterationOuterDummyIterationTest, Constructor) {
+TEST_F(IterationOuterFixedSourceIterationTest, Constructor) {
   EXPECT_NO_THROW({
     TestIterationType test_iterator(
         std::make_unique<GroupIteratorType>(),
@@ -52,6 +56,19 @@ TEST_F(IterationOuterDummyIterationTest, Constructor) {
         reporter_mock_ptr_
         );
   });
+}
+
+TEST_F(IterationOuterFixedSourceIterationTest, Iterate) {
+  EXPECT_CALL(*group_iterator_mock_obs_ptr_, Iterate(Ref(test_system)))
+      .Times(1);
+  EXPECT_CALL(*reporter_mock_ptr_, Report(A<const convergence::Status&>()))
+      .Times(1);
+  EXPECT_CALL(*this->reporter_mock_ptr_, Report(A<const std::string&>()))
+      .Times(1);
+
+  test_iterator->IterateToConvergence(test_system);
+  auto iteration_errors = test_iterator->iteration_error();
+  ASSERT_EQ(iteration_errors.size(), 0);
 }
 
 } // namespace

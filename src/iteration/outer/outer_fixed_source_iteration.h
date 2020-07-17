@@ -20,14 +20,10 @@ class OuterFixedSourceIteration : public OuterIteration<double> {
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       const std::shared_ptr<Reporter>& reporter_ptr);
   virtual ~OuterFixedSourceIteration() = default;
-  convergence::Status CheckConvergence(system::System &system) override {
-    return convergence::Status();
-  }
-  void UpdateSystem(system::System &system,
-                    const int group,
-                    const int angle) override {
-
-  }
+  convergence::Status CheckConvergence(system::System &system) override;
+  void UpdateSystem(system::System &/*system*/,
+                    const int /*group*/,
+                    const int /*angle*/) override {}
 };
 
 } // namespace outer

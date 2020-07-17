@@ -14,6 +14,13 @@ OuterFixedSourceIteration::OuterFixedSourceIteration(
                              std::move(convergence_checker_ptr),
                              reporter_ptr) {}
 
+convergence::Status OuterFixedSourceIteration::CheckConvergence(system::System &system) {
+  convergence::Status return_status;
+  return_status.is_complete = true;
+  return_status.delta = std::nullopt;
+  return return_status;
+}
+
 } // namespace out
 
 } // namespace iteration
