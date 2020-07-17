@@ -18,6 +18,7 @@
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
 #include "iteration/outer/outer_power_iteration.h"
+#include "iteration/outer/outer_fixed_source_iteration.h"
 #include "quadrature/calculators/scalar_moment.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/quadrature_set.h"
@@ -455,6 +456,18 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
   ASSERT_THAT(power_iteration_ptr.get(),
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
+  auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
+      std::move(this->group_solve_iteration_uptr_),
+      std::move(this->parameter_convergence_checker_uptr_),
+      this->convergence_reporter_sptr_);
+  using ExpectedType = iteration::outer::OuterFixedSourceIteration;
+  ASSERT_THAT(power_iteration_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSet) {
   constexpr int dim = this->dim;
