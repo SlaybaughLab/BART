@@ -67,9 +67,9 @@ class FormulationAngularSelfAdjointAngularFluxTest :
   const std::unordered_map<int, std::vector<double>> sigma_t_{
       {material_id_, {1.0, 2.0}}};
   const std::unordered_map<int, std::vector<double>> inv_sigma_t_{
-    {material_id_, {1.0, 0.5}}};
+    {material_id_, {1.0, 0.5}}, {non_fissile_material_id_, {1.0, 0.5}}};
   const std::unordered_map<int, std::vector<double>> q_per_ster_{
-      {material_id_, {1.0, 2.0}}};
+      {non_fissile_material_id_, {1.0, 2.0}}};
   const std::unordered_map<int, formulation::FullMatrix> sigma_s_per_ster_{
       {material_id_,
        {2, 2, std::array<double, 4>{0.25, 0.5, 0.75, 1.0}.begin()}}};
@@ -990,6 +990,38 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 }
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellFixedSourceTermFissileMaterial) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2), expected_results(2);
+  expected_results = 0;
+  test_saaf.Initialize(this->cell_ptr_);
+
+  for (int group = 0; group < 2; ++group) {
+    for (int angle = 0; angle < 2; ++angle) {
+      auto angle_it = this->quadrature_set_.begin();
+      if (angle == 1)
+        ++angle_it;
+      auto angle_ptr = *angle_it;
+      cell_vector = 0;
+
+      EXPECT_NO_THROW({
+        test_saaf.FillCellFixedSourceTerm(cell_vector, this->cell_ptr_,
+                                          angle_ptr,
+                                          system::EnergyGroup(group));
+                      });
+      std::pair<int, int> result_index{group, angle};
+      EXPECT_EQ(expected_results, cell_vector) << "Failed: group: " << group << " angle: " << angle;
+    }
+  }
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFixedSourceTerm) {
   constexpr int dim = this->dim;
 
@@ -1000,9 +1032,9 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
   formulation::Vector cell_vector(2);
   test_saaf.Initialize(this->cell_ptr_);
+  this->cell_ptr_->set_material_id(this->non_fissile_material_id_);
 
   double d = this->dim;
-
   std::map<std::pair<int, int>, formulation::Vector> expected_results;
 
   formulation::Vector expected_result_g0_a0(2), expected_result_g0_a1(2),
@@ -1039,11 +1071,11 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
       cell_vector = 0;
 
-      EXPECT_NO_THROW({
+      //EXPECT_NO_THROW({
         test_saaf.FillCellFixedSourceTerm(cell_vector, this->cell_ptr_,
                                           angle_ptr,
                                           system::EnergyGroup(group));
-                      });
+//                      });
       std::pair<int, int> result_index{group, angle};
       EXPECT_EQ(expected_results.at(result_index), cell_vector)
                 << "Failed: group: " << group << " angle: " << angle;
