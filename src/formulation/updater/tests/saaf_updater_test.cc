@@ -264,6 +264,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
 
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(this->index))
       .WillOnce(DoDefault());
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetFixedTermPtr(this->index))
+      .WillOnce(DoDefault());
   EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
       .WillOnce(Return(quadrature_point_ptr_));
 
@@ -273,6 +275,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
                                       cell,
                                       quadrature_point_ptr_,
                                       group_number));
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+        FillCellFixedSourceTerm(_, cell, quadrature_point_ptr_, group_number));
     EXPECT_CALL(*this->formulation_obs_ptr_,
                 FillCellCollisionTerm(_, cell, group_number));
     int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
@@ -297,10 +301,16 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
       StampBoundaryMatrix(Ref(*this->matrix_to_stamp),_))
       .WillOnce(DoDefault());
 
+  EXPECT_CALL(*this->stamper_obs_ptr_,
+      StampVector(Ref(*this->vector_to_stamp),_))
+      .WillOnce(DoDefault());
+
   this->test_updater_ptr->UpdateFixedTerms(this->test_system_, group_number,
                                            quad_index);
   EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
                                                *this->matrix_to_stamp));
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
