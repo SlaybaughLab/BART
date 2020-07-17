@@ -12,7 +12,10 @@ OuterFixedSourceIteration::OuterFixedSourceIteration(
     const std::shared_ptr<Reporter>& reporter_ptr)
     : OuterIteration<double>(std::move(group_iterator_ptr),
                              std::move(convergence_checker_ptr),
-                             reporter_ptr) {}
+                             reporter_ptr) {
+  this->set_description("outer fixed source iteration",
+                        utility::DefaultImplementation(true));
+}
 
 convergence::Status OuterFixedSourceIteration::CheckConvergence(system::System &system) {
   convergence::Status return_status;
