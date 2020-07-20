@@ -19,6 +19,9 @@ class QuadratureSet : public QuadratureSetI<dim> {
   bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>);
   void SetReflection(std::shared_ptr<QuadraturePointI<dim>>,
                      std::shared_ptr<QuadraturePointI<dim>>);
+  std::shared_ptr<QuadraturePointI<dim>> GetBoundaryReflection(
+      const std::shared_ptr<QuadraturePointI<dim>>& quadrature_point_to_reflect,
+      problem::Boundary boundary) const override;
   std::shared_ptr<QuadraturePointI<dim>> GetReflection(
       std::shared_ptr<QuadraturePointI<dim>>) const override;
   std::optional<int> GetReflectionIndex(

@@ -32,6 +32,42 @@ bool QuadratureSet<dim>::AddPoint(
 }
 
 template<int dim>
+std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetBoundaryReflection(
+    const std::shared_ptr<QuadraturePointI<dim>> &quadrature_point_to_reflect,
+    problem::Boundary boundary) const {
+  using Boundary = problem::Boundary;
+  auto position = quadrature_point_to_reflect->cartesian_position();
+
+  switch (boundary) {
+    case Boundary::kXMax: case Boundary::kXMin: {
+      position.at(0) *= -1;
+      break;
+    }
+    case Boundary::kYMin: case Boundary::kYMax: {
+      position.at(1) *= -1;
+      break;
+    }
+    case Boundary::kZMin: case Boundary::kZMax: {
+      position.at(2) *= -1;
+      break;
+    }
+  }
+
+  std::shared_ptr<QuadraturePointI<dim>> return_ptr = nullptr;
+  for (const auto& quadrature_point : this->quadrature_point_ptrs_) {
+    if (quadrature_point->cartesian_position() == position) {
+      return_ptr = quadrature_point;
+      break;
+    }
+  }
+
+  AssertThrow(return_ptr != nullptr,
+      dealii::ExcMessage("GetBoundaryReflection returned null reflection"))
+
+  return return_ptr;
+}
+
+template<int dim>
 void QuadratureSet<dim>::SetReflection(
     std::shared_ptr<QuadraturePointI<dim>> first_point,
     std::shared_ptr<QuadraturePointI<dim>> second_point) {
@@ -97,6 +133,7 @@ int QuadratureSet<dim>::GetQuadraturePointIndex(
     std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
   return quadrature_point_to_index_map_.at(quadrature_point);
 }
+
 
 template class QuadratureSet<1>;
 template class QuadratureSet<2>;
