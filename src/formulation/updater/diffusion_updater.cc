@@ -38,6 +38,8 @@ void DiffusionUpdater<dim>::UpdateFixedTerms(
   int group = energy_group.get();
   auto fixed_matrix_ptr =
      to_update.left_hand_side_ptr_->GetFixedTermPtr({group, 0});
+  auto fixed_vector_ptr =
+      to_update.right_hand_side_ptr_->GetFixedTermPtr({group, 0});
   auto streaming_term_function = [&](formulation::FullMatrix& cell_matrix,
                                      const CellPtr& cell_ptr) -> void {
         formulation_ptr_->FillCellStreamingTerm(cell_matrix, cell_ptr, group);
@@ -46,6 +48,10 @@ void DiffusionUpdater<dim>::UpdateFixedTerms(
                                      const CellPtr& cell_ptr) -> void {
         formulation_ptr_->FillCellCollisionTerm(cell_matrix, cell_ptr, group);
       };
+  auto fixed_term_function = [&](formulation::Vector& cell_vector,
+                                 const CellPtr& cell_ptr) -> void {
+    formulation_ptr_->FillCellFixedSource(cell_vector, cell_ptr, group);
+  };
   auto boundary_function = [&](formulation::FullMatrix& cell_matrix,
                                const domain::FaceIndex face_index,
                                const CellPtr& cell_ptr) -> void {
@@ -60,9 +66,11 @@ void DiffusionUpdater<dim>::UpdateFixedTerms(
                                        face_index.get(), boundary_type);
   };
   *fixed_matrix_ptr = 0;
+  *fixed_vector_ptr = 0;
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, streaming_term_function);
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
   stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr, boundary_function);
+  stamper_ptr_->StampVector(*fixed_vector_ptr, fixed_term_function);
 }
 template<int dim>
 void DiffusionUpdater<dim>::UpdateScatteringSource(

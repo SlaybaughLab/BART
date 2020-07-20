@@ -224,10 +224,14 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     const system::EnergyGroup group_number) {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
-
+  double q_per_ster = 0;
   const int material_id = cell_ptr->material_id();
-  const double q_per_ster =
-      cross_sections_ptr_->q_per_ster.at(material_id).at(group_number.get());
+  try {
+    q_per_ster =
+        cross_sections_ptr_->q_per_ster.at(material_id).at(group_number.get());
+  } catch (std::out_of_range&) {
+    return;
+  }
 
   std::vector<double> fixed_source(cell_degrees_of_freedom_);
   std::fill(fixed_source.begin(), fixed_source.end(), q_per_ster);

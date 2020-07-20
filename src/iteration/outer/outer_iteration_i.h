@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "utility/has_description.h"
+
 namespace bart {
 
 namespace system {
@@ -12,7 +14,7 @@ namespace iteration {
 
 namespace outer {
 
-class OuterIterationI {
+class OuterIterationI : public utility::HasDescription {
  public:
   virtual ~OuterIterationI() = default;
   virtual void IterateToConvergence(system::System &system) = 0;

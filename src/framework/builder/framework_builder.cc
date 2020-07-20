@@ -46,6 +46,7 @@
 #include "iteration/group/group_solve_iteration.h"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.h"
+#include "iteration/outer/outer_fixed_source_iteration.h"
 
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"
@@ -172,16 +173,22 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
     validator_.AddPart(FrameworkPart::AngularSolutionStorage);
   };
 
-  auto k_effective_updater = BuildKEffectiveUpdater(finite_element_ptr,
-                                                    cross_sections_ptr,
-                                                    domain_ptr);
+  std::unique_ptr<OuterIterationType> outer_iteration_ptr;
 
-  auto outer_iteration_ptr = BuildOuterIteration(
-      std::move(iterative_group_solver_ptr),
-      BuildParameterConvergenceChecker(1e-6, 10000),
-      std::move(k_effective_updater),
-      updater_pointers.fission_source_updater_ptr,
-      convergence_reporter_ptr);
+  if (prm.IsEigenvalueProblem()) {
+    outer_iteration_ptr = BuildOuterIteration(
+        std::move(iterative_group_solver_ptr),
+        BuildParameterConvergenceChecker(1e-6, 10000),
+        BuildKEffectiveUpdater(finite_element_ptr, cross_sections_ptr, domain_ptr),
+        updater_pointers.fission_source_updater_ptr,
+        convergence_reporter_ptr);
+  } else {
+    outer_iteration_ptr = BuildOuterIteration(
+        std::move(iterative_group_solver_ptr),
+        BuildParameterConvergenceChecker(1e-6, 10000),
+        convergence_reporter_ptr);
+  };
+
 
   auto system_ptr = BuildSystem(n_groups, n_angles, *domain_ptr,
                                 group_solution_ptr->solutions().at(0).size(),
@@ -564,6 +571,25 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
   return_ptr->SetMaxIterations(max_iterations);
   return return_ptr;
 }
+template <int dim>
+auto FrameworkBuilder<dim>::BuildOuterIteration(
+    std::unique_ptr<GroupSolveIterationType> group_iteration_ptr,
+    std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr,
+    const std::shared_ptr<ReporterType>& reporter_ptr)
+    -> std::unique_ptr<OuterIterationType> {
+  ReportBuildingComponant("Outer iteration");
+  std::unique_ptr<OuterIterationType> return_ptr = nullptr;
+  using ReturnType = iteration::outer::OuterFixedSourceIteration;
+
+  return_ptr = std::move(std::make_unique<ReturnType>(
+      std::move(group_iteration_ptr),
+      std::move(convergence_checker_ptr),
+      reporter_ptr));
+
+  ReportBuildSuccess(return_ptr->description());
+
+  return return_ptr;
+}
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
@@ -587,7 +613,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           convergence_reporter_ptr));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
-
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 

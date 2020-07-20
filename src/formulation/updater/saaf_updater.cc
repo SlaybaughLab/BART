@@ -89,6 +89,8 @@ void SAAFUpdater<dim>::UpdateFixedTerms(
     quadrature::QuadraturePointIndex index) {
   auto fixed_matrix_ptr =
       to_update.left_hand_side_ptr_->GetFixedTermPtr({group.get(), index.get()});
+  auto fixed_vector_ptr =
+      to_update.right_hand_side_ptr_->GetFixedTermPtr({group.get(), index.get()});
   auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(index);
   auto streaming_term_function =
       [&](formulation::FullMatrix& cell_matrix,
@@ -107,11 +109,18 @@ void SAAFUpdater<dim>::UpdateFixedTerms(
           const domain::CellPtr<dim>& cell_ptr) -> void {
     formulation_ptr_->FillBoundaryBilinearTerm(cell_matrix, cell_ptr, face_index, quadrature_point_ptr, group);
   };
+  auto fixed_source_term_function =
+      [&](formulation::Vector& cell_vector,
+          const domain::CellPtr<dim>& cell_ptr) -> void {
+        formulation_ptr_->FillCellFixedSourceTerm(cell_vector, cell_ptr, quadrature_point_ptr, group);
+  };
+  *fixed_vector_ptr = 0;
   *fixed_matrix_ptr = 0;
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, streaming_term_function);
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
   stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr,
                                     boundary_bilinear_term_function);
+  stamper_ptr_->StampVector(*fixed_vector_ptr, fixed_source_term_function);
 }
 
 template<int dim>

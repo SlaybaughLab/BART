@@ -150,6 +150,10 @@ class FrameworkBuilder {
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,
       std::unique_ptr<ParameterConvergenceCheckerType>,
+      const std::shared_ptr<ReporterType>&);
+  std::unique_ptr<OuterIterationType> BuildOuterIteration(
+      std::unique_ptr<GroupSolveIterationType>,
+      std::unique_ptr<ParameterConvergenceCheckerType>,
       std::unique_ptr<KEffectiveUpdaterType>,
       const std::shared_ptr<FissionSourceUpdaterType>&,
       const std::shared_ptr<ReporterType>&);
