@@ -36,33 +36,52 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetBoundaryReflection
     const std::shared_ptr<QuadraturePointI<dim>> &quadrature_point_to_reflect,
     problem::Boundary boundary) const {
   using Boundary = problem::Boundary;
-  auto position = quadrature_point_to_reflect->cartesian_position();
-
-  switch (boundary) {
-    case Boundary::kXMax: case Boundary::kXMin: {
-      position.at(0) *= -1;
-      break;
-    }
-    case Boundary::kYMin: case Boundary::kYMax: {
-      position.at(1) *= -1;
-      break;
-    }
-    case Boundary::kZMin: case Boundary::kZMax: {
-      position.at(2) *= -1;
-      break;
-    }
-  }
 
   std::shared_ptr<QuadraturePointI<dim>> return_ptr = nullptr;
-  for (const auto& quadrature_point : this->quadrature_point_ptrs_) {
-    if (quadrature_point->cartesian_position() == position) {
-      return_ptr = quadrature_point;
-      break;
+
+  if (auto boundary_mapping = boundary_reflections_.find(boundary);
+      boundary_mapping != boundary_reflections_.end()) {
+    if (auto reflection_pair = boundary_mapping->second.find(quadrature_point_to_reflect);
+        reflection_pair != boundary_mapping->second.end()) {
+      return_ptr = reflection_pair->second;
     }
+  } else {
+    boundary_reflections_.insert({boundary, {}});
   }
 
-  AssertThrow(return_ptr != nullptr,
-      dealii::ExcMessage("GetBoundaryReflection returned null reflection"))
+  if (return_ptr == nullptr) {
+    auto position = quadrature_point_to_reflect->cartesian_position();
+
+    switch (boundary) {
+      case Boundary::kXMax: case Boundary::kXMin: {
+        position.at(0) *= -1;
+        break;
+      }
+      case Boundary::kYMin: case Boundary::kYMax: {
+        position.at(1) *= -1;
+        break;
+      }
+      case Boundary::kZMin: case Boundary::kZMax: {
+        position.at(2) *= -1;
+        break;
+      }
+    }
+
+    for (const auto& quadrature_point : this->quadrature_point_ptrs_) {
+      if (quadrature_point->cartesian_position() == position) {
+        return_ptr = quadrature_point;
+        break;
+      }
+    }
+
+    boundary_reflections_.at(boundary).insert({quadrature_point_to_reflect,
+                                               return_ptr});
+    boundary_reflections_.at(boundary).insert({return_ptr,
+                                               quadrature_point_to_reflect});
+
+    AssertThrow(return_ptr != nullptr,
+                dealii::ExcMessage("GetBoundaryReflection returned null reflection"))
+  }
 
   return return_ptr;
 }

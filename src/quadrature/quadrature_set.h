@@ -57,6 +57,10 @@ class QuadratureSet : public QuadratureSetI<dim> {
   //! Mapping of indices to quadrature point
   std::map<std::shared_ptr<QuadraturePointI<dim>>, int>
       quadrature_point_to_index_map_ = {};
+  //! Internal mapping of boundary reflections
+  mutable std::map<problem::Boundary, std::map<std::shared_ptr<QuadraturePointI<dim>>,
+                                               std::shared_ptr<QuadraturePointI<dim>>>>
+           boundary_reflections_;
 };
 
 } // namespace quadrature
