@@ -185,18 +185,40 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
   EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
       .WillOnce(Return(quadrature_point_ptr_));
   // -- Get the quadrature point's reflection for angular flux
-  EXPECT_CALL(*this->quadrature_set_ptr_,
-              GetReflectionIndex(quadrature_point_ptr_))
-      .WillOnce(Return(std::optional<int>{this->reflected_angle_index}));
   auto angular_flux_vector_ptr = this->angular_solution_ptr_map_.at(
       system::SolutionIndex(this->group_number, this->reflected_angle_index));
   // -- For each cell that is on a reflective boundary, we expect a call to the
   // formulation.
   int faces_per_cell = dealii::GeometryInfo<dim>::faces_per_cell;
+
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetBoundaryReflection(quadrature_point_ptr_, problem::Boundary::kXMin))
+      .Times(::testing::AtLeast(1))
+      .WillRepeatedly(Return(reflected_point_ptr_));
+  if (dim > 1) {
+    EXPECT_CALL(*this->quadrature_set_ptr_,
+                GetBoundaryReflection(quadrature_point_ptr_, problem::Boundary::kYMax))
+        .Times(::testing::AtLeast(1))
+        .WillRepeatedly(Return(reflected_point_ptr_));
+  }
+  if (dim > 2) {
+    EXPECT_CALL(*this->quadrature_set_ptr_,
+                GetBoundaryReflection(quadrature_point_ptr_, problem::Boundary::kZMin))
+        .Times(::testing::AtLeast(1))
+        .WillRepeatedly(Return(reflected_point_ptr_));
+  }
+
+  EXPECT_CALL(*this->quadrature_set_ptr_,
+              GetQuadraturePointIndex(reflected_point_ptr_))
+      .Times(::testing::AtLeast(1))
+      .WillRepeatedly(Return(this->reflected_angle_index));
+
+  // Gather information about the cells, to set expectations
   for (auto& cell : this->cells_) {
     if (cell->at_boundary()) {
       for (int face = 0; face < faces_per_cell; ++face) {
-        if (this->IsAReflectiveFace(cell->face(face)->boundary_id())) {
+        if (const auto boundary_id = cell->face(face)->boundary_id();
+            this->IsAReflectiveFace(boundary_id)) {
           EXPECT_CALL(*this->formulation_obs_ptr_,
               FillReflectiveBoundaryLinearTerm(_,
                                                cell,
@@ -216,40 +238,6 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
                                                    group_number, quad_index);
   EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
                                               *this->vector_to_stamp));
-}
-
-TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsNoReflectionTest) {
-  constexpr int dim = this->dim;
-  using QuadraturePointType = quadrature::QuadraturePointI<dim>;
-  using VariableLinearTerms = system::terms::VariableLinearTerms;
-  using MockSolutionType = system::solution::MPIGroupAngularSolutionMock;
-
-  system::EnergyGroup group_number(this->group_number);
-
-  // Quadrature point and reflection
-  quadrature::QuadraturePointIndex quad_index(this->angle_index),
-      reflected_index(this->reflected_angle_index);
-  std::shared_ptr<QuadraturePointType> quadrature_point_ptr_,
-      reflected_point_ptr_;
-
-  // Mock expectation layout
-  // -- Retrieve the correct variable term to update, returns vector_to_stamp
-  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetVariableTermPtr(
-      this->index, VariableLinearTerms::kReflectiveBoundaryCondition))
-      .WillOnce(DoDefault());
-  // -- Get the quadrature point identified by the passed index
-  EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(quad_index))
-      .WillOnce(Return(quadrature_point_ptr_));
-  // -- Get the quadrature point's reflection for angular flux
-  EXPECT_CALL(*this->quadrature_set_ptr_,
-              GetReflectionIndex(quadrature_point_ptr_))
-      .WillOnce(Return(std::nullopt));
-  EXPECT_ANY_THROW({
-    this->test_updater_ptr->UpdateBoundaryConditions(this->test_system_,
-                                                     group_number,
-                                                     quad_index);
-                   }
-  );
 }
 
 // ===== Update Fixed Terms Tests ==============================================
