@@ -41,6 +41,7 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetBoundaryReflection
     case Boundary::kXMin: boundary = Boundary::kXMax; break;
     case Boundary::kYMin: boundary = Boundary::kYMax; break;
     case Boundary::kZMin: boundary = Boundary::kZMax; break;
+    default: break;
   }
 
   std::shared_ptr<QuadraturePointI<dim>> return_ptr = nullptr;
