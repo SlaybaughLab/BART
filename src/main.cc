@@ -76,12 +76,12 @@ int main(int argc, char* argv[]) {
       }
       case 2: {
         bart::framework::builder::FrameworkBuilder<2> builder(reporter_ptr);
-        auto framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr = builder.BuildFramework("main", prm);
         break;
       }
       case 3: {
         bart::framework::builder::FrameworkBuilder<3> builder(reporter_ptr);
-        auto framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr = builder.BuildFramework("main", prm);
         break;
       }
     }
