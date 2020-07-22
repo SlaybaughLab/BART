@@ -11,7 +11,7 @@ namespace  {
 using namespace bart;
 
 using ::testing::NiceMock;
-
+using ::testing::Return;
 /* Tests operation of the default implementation of the quadrature set. This is
  * accomplished using mock quadrature points. Test is performed in all three
  * dimensions.
@@ -105,6 +105,67 @@ TYPED_TEST(QuadratureSetTest, AddPointIndices) {
   test_set.AddPoint(this->quadrature_point_);
   EXPECT_THAT(test_set.quadrature_point_indices(),
               ::testing::ContainerEq(expected_indices));
+}
+
+TYPED_TEST(QuadratureSetTest, GetBoundaryReflectionBadReflection) {
+  using Boundary = problem::Boundary;
+  EXPECT_ANY_THROW({
+    this->test_set_.GetBoundaryReflection(this->quadrature_point_, Boundary::kXMin);
+  });
+}
+
+TYPED_TEST(QuadratureSetTest, GetBoundaryReflection) {
+  constexpr int dim = this->dim;
+  using MockQuadraturePointType =  NiceMock<quadrature::QuadraturePointMock<dim>>;
+  using Boundary = problem::Boundary;
+  // Create reflected quadrature points and add them
+  auto mock_x_reflection = std::make_shared<MockQuadraturePointType>();
+
+  std::array<double, dim> x_reflected_position;
+  x_reflected_position.fill(1);
+  x_reflected_position.at(0) = -1;
+  ON_CALL(*mock_x_reflection, cartesian_position())
+      .WillByDefault(Return(x_reflected_position));
+  this->test_set_.AddPoint(mock_x_reflection);
+  EXPECT_EQ(this->test_set_.GetBoundaryReflection(this->quadrature_point_,
+                                                  Boundary::kXMax),
+            mock_x_reflection);
+  EXPECT_EQ(this->test_set_.GetBoundaryReflection(mock_x_reflection,
+                                                  Boundary::kXMin),
+            this->quadrature_point_);
+
+  if (dim > 1) {
+    std::array<double, dim> y_reflected_position;
+    y_reflected_position.fill(1);
+    y_reflected_position.at(1) = -1;
+    auto mock_y_reflection = std::make_shared<MockQuadraturePointType>();
+    ON_CALL(*mock_y_reflection, cartesian_position())
+        .WillByDefault(Return(y_reflected_position));
+    this->test_set_.AddPoint(mock_y_reflection);
+    EXPECT_EQ(this->test_set_.GetBoundaryReflection(this->quadrature_point_,
+                                                    Boundary::kYMax),
+              mock_y_reflection);
+    EXPECT_EQ(this->test_set_.GetBoundaryReflection(mock_y_reflection,
+                                                    Boundary::kYMin),
+              this->quadrature_point_);
+  }
+
+  if (dim > 2) {
+    std::array<double, dim> z_reflected_position;
+    z_reflected_position.fill(1);
+    z_reflected_position.at(2) = -1;
+    auto mock_z_reflection = std::make_shared<MockQuadraturePointType>();
+    ON_CALL(*mock_z_reflection, cartesian_position())
+        .WillByDefault(Return(z_reflected_position));
+    this->test_set_.AddPoint(mock_z_reflection);
+    EXPECT_EQ(this->test_set_.GetBoundaryReflection(this->quadrature_point_,
+                                                    Boundary::kZMax),
+              mock_z_reflection);
+    EXPECT_EQ(this->test_set_.GetBoundaryReflection(mock_z_reflection,
+                                                    Boundary::kZMin),
+              this->quadrature_point_);
+  }
+
 }
 
 // Getters for quadrature point and index should retrieve the correct values

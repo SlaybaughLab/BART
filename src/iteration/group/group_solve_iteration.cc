@@ -56,6 +56,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
 
   if (reporter_ptr_ != nullptr)
     reporter_ptr_->Report("..Inner group iteration\n");
+  moment_map_convergence_checker_ptr_->Reset();
   convergence::Status all_group_convergence_status;
   all_group_convergence_status.is_complete = true;
   do {

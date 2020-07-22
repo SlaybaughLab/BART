@@ -396,6 +396,8 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_,
               CheckFinalConvergence(Ref(current_moments), _))
               .WillOnce(Return(moment_map_status));
+  EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_, Reset())
+      .Times(AtLeast(1));
 
   EXPECT_CALL(*mock_group_solution_ptr, GetSolution(_))
       .Times(this->total_groups * this->total_angles)
