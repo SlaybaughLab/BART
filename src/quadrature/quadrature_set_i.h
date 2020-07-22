@@ -34,7 +34,9 @@ class QuadratureSetI {
    */
   virtual bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>) = 0;
 
-  /// \brief Returns the quadrature point from a reflection against a boundary
+  /*! \brief Returns the quadrature point from a reflection against a boundary
+   * This only supports square meshes.
+   */
   virtual std::shared_ptr<QuadraturePointI<dim>> GetBoundaryReflection(
       const std::shared_ptr<QuadraturePointI<dim>>&,
       const problem::Boundary) const = 0;
