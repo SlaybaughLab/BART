@@ -16,6 +16,10 @@ class OutputMock : public OutputI {
   MOCK_METHOD(void, WriteData, (std::ostream&), (override, const));
   MOCK_METHOD(void, WriteMasterFile, (std::ostream &output_stream,
       std::vector<std::string> filenames), (override, const));
+  MOCK_METHOD(void, WriteVector, (std::ostream &, const std::vector<double>),
+              (const, override));
+  MOCK_METHOD(void, WriteVector, (std::ostream &, const std::vector<double>,
+      const std::vector<std::string>), (override, const));
 };
 
 } // namespace results

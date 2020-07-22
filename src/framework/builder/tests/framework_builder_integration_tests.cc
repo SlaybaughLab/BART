@@ -7,6 +7,7 @@
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
+#include "convergence/moments/multi_moment_checker_i.h"
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/definition.h"
@@ -17,6 +18,7 @@
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
 #include "iteration/outer/outer_power_iteration.h"
+#include "iteration/outer/outer_fixed_source_iteration.h"
 #include "quadrature/calculators/scalar_moment.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/quadrature_set.h"
@@ -26,6 +28,8 @@
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
 #include "system/system_types.h"
+#include "system/solution/solution_types.h"
+#include "system/system_functions.h"
 
 // Mock objects
 #include "convergence/reporter/tests/mpi_mock.h"
@@ -36,6 +40,7 @@
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
+#include "formulation/updater/tests/boundary_conditions_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
@@ -73,6 +78,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using Material = NiceMock<btest::MockMaterial>;
 
   // Mock object types
+  using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
   using ConvergenceReporterType = convergence::reporter::MpiMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
@@ -100,6 +106,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<ReporterType> mock_reporter_ptr_;
 
   // Various mock objects to be used
+  std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
   std::shared_ptr<ConvergenceReporterType> convergence_reporter_sptr_;
   std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
@@ -123,13 +130,17 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::vector<double> spatial_max;
   std::vector<int> n_cells;
   const int n_energy_groups = 3;
+  const int n_angles = 2;
   std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
+  std::map<problem::Boundary, bool> reflective_bcs_;
 
   void SetUp() override;
 };
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
+  boundary_conditions_updater_sptr_ =
+      std::make_shared<BoundaryConditionsUpdaterType>();
   convergence_reporter_sptr_ = std::make_shared<ConvergenceReporterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ =
@@ -161,7 +172,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
     n_cells.push_back(2);
   }
 
-  std::map<problem::Boundary, bool> reflective_bcs{
+  reflective_bcs_ = {
       {problem::Boundary::kXMin, true},
       {problem::Boundary::kXMax, true},
       {problem::Boundary::kYMin, false},
@@ -181,7 +192,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   ON_CALL(parameters, TransportModel())
       .WillByDefault(Return(problem::EquationType::kDiffusion));
   ON_CALL(parameters, ReflectiveBoundary())
-      .WillByDefault(Return(reflective_bcs));
+      .WillByDefault(Return(reflective_bcs_));
   ON_CALL(*mock_reporter_ptr_, Instream(A<const std::string&>()))
       .WillByDefault(ReturnRef(*mock_reporter_ptr_));
   ON_CALL(*mock_reporter_ptr_, Instream(A<utility::reporter::Color>()))
@@ -227,15 +238,48 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointers) {
   constexpr int dim = this->dim;
   using ExpectedType = formulation::updater::DiffusionUpdater<dim>;
+  std::map<problem::Boundary, bool> reflective_bcs{
+      {problem::Boundary::kXMin, false},
+      {problem::Boundary::kXMax, false},
+      {problem::Boundary::kYMin, false},
+      {problem::Boundary::kYMax, false},
+      {problem::Boundary::kZMin, false},
+      {problem::Boundary::kZMax, false},
+  };
   auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
       std::move(this->diffusion_formulation_uptr_),
-      std::move(this->stamper_uptr_));
+      std::move(this->stamper_uptr_),
+      reflective_bcs);
   EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointersRefl) {
+  constexpr int dim = this->dim;
+  using ExpectedType = formulation::updater::DiffusionUpdater<dim>;
+
+  auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
+      std::move(this->diffusion_formulation_uptr_),
+      std::move(this->stamper_uptr_),
+      this->reflective_bcs_);
+  ASSERT_THAT(updater_struct.fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+
+  auto dynamic_ptr =
+      dynamic_cast<ExpectedType*>(updater_struct.fixed_updater_ptr.get());
+  for (auto& [boundary, is_reflective] : this->reflective_bcs_ ) {
+    if (is_reflective) {
+      EXPECT_EQ(dynamic_ptr->reflective_boundaries().count(boundary), 1);
+    }
+  }
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
@@ -250,6 +294,30 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFUpdaterPointers) {
   EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest,
+    BuildSAAFUpdaterPointersWithReflectiveBCs) {
+  using ExpectedType = formulation::updater::SAAFUpdater<this->dim>;
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_flux_storage;
+
+  system::SetUpEnergyGroupToAngularSolutionPtrMap(
+      angular_flux_storage, this->n_energy_groups, this->n_angles);
+
+  auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
+      std::move(this->saaf_formulation_uptr_),
+      std::move(this->stamper_uptr_),
+      this->quadrature_set_sptr_,
+      this->reflective_bcs_,
+      angular_flux_storage);
+  EXPECT_THAT(updater_struct.fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(updater_struct.boundary_conditions_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
@@ -274,14 +342,39 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
   using ExpectedType = iteration::group::GroupSourceIteration<this->dim>;
+  using UpdaterPointersStruct = typename framework::builder::FrameworkBuilder<this->dim>::UpdaterPointers;
+
+  UpdaterPointersStruct updater_ptrs;
+  updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
 
   auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
       std::move(this->single_group_solver_uptr_),
       std::move(this->moment_convergence_checker_uptr_),
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
-      this->scattering_source_updater_sptr_,
-      this->convergence_reporter_sptr_);
+      updater_ptrs,
+      this->convergence_reporter_sptr_,
+      nullptr);
+  EXPECT_THAT(source_iteration_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdateTest) {
+  using ExpectedType = iteration::group::GroupSourceIteration<this->dim>;
+  using UpdaterPointersStruct = typename framework::builder::FrameworkBuilder<this->dim>::UpdaterPointers;
+
+  UpdaterPointersStruct updater_ptrs;
+  updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
+  updater_ptrs.boundary_conditions_updater_ptr = this->boundary_conditions_updater_sptr_;
+
+  auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
+      std::move(this->single_group_solver_uptr_),
+      std::move(this->moment_convergence_checker_uptr_),
+      std::move(this->moment_calculator_uptr_),
+      this->group_solution_sptr_,
+      updater_ptrs,
+      this->convergence_reporter_sptr_,
+      nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
@@ -364,6 +457,39 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
+  auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
+      std::move(this->group_solve_iteration_uptr_),
+      std::move(this->parameter_convergence_checker_uptr_),
+      this->convergence_reporter_sptr_);
+  using ExpectedType = iteration::outer::OuterFixedSourceIteration;
+  ASSERT_THAT(power_iteration_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSet) {
+  constexpr int dim = this->dim;
+  const int order = 4;
+  EXPECT_CALL(this->parameters, AngularQuad())
+      .WillOnce(Return(problem::AngularQuadType::kGaussLegendre));
+  EXPECT_CALL(this->parameters, AngularQuadOrder())
+      .WillOnce(Return(order));
+
+  if (dim == 1) {
+    using ExpectedType = quadrature::QuadratureSet<dim>;
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+    ASSERT_NE(nullptr, quadrature_set);
+    ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
+    EXPECT_EQ(quadrature_set->size(), 2*order);
+  } else {
+    EXPECT_ANY_THROW({
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+                     });
+  }
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
   constexpr int dim = this->dim;
   const int order = 4;
@@ -426,7 +552,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceChecker) {
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
   const double max_delta = 1e-4;
-  const int max_iterations = 100;
+  const int max_iterations = 73;
 
   auto convergence_ptr =
       this->test_builder_ptr_->BuildMomentConvergenceChecker(
@@ -442,6 +568,27 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
 }
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentMapConvergenceChecker) {
+  const double max_delta = 1e-4;
+  const int max_iterations = 73;
+
+  auto convergence_ptr =
+      this->test_builder_ptr_->BuildMomentMapConvergenceChecker(
+          max_delta,
+          max_iterations);
+
+  using ExpectedType =
+  convergence::FinalCheckerOrN<const system::moments::MomentsMap,
+                               convergence::moments::MultiMomentCheckerI>;
+
+  ASSERT_THAT(convergence_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
+
+}
+
+
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
   constexpr int dim = this->dim;
@@ -475,6 +622,47 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
   auto stamper_ptr = this->test_builder_ptr_->BuildStamper(domain_ptr);
 
   EXPECT_THAT(stamper_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSystem) {
+  constexpr int dim = this->dim;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+
+  domain::DefinitionMock<dim> mock_domain;
+  const int total_groups = 2, total_angles = 3;
+  const std::size_t solution_size = 10;
+  const bool is_eigenvalue_problem = true, need_rhs_boundary_condition = false;
+
+  EXPECT_CALL(mock_domain, MakeSystemMatrix())
+      .Times(total_angles * total_groups)
+      .WillRepeatedly(Return(std::make_shared<system::MPISparseMatrix>()));
+  EXPECT_CALL(mock_domain, MakeSystemVector())
+      .Times(3*total_angles * total_groups)
+      .WillRepeatedly(Return(std::make_shared<system::MPIVector>()));
+
+  auto system_ptr = this->test_builder_ptr_->BuildSystem(
+      total_groups, total_angles, mock_domain, solution_size,
+      is_eigenvalue_problem, need_rhs_boundary_condition);
+
+  auto& system = *system_ptr;
+
+  EXPECT_EQ(system.total_groups, total_groups);
+  EXPECT_EQ(system.total_angles, total_angles);
+  EXPECT_EQ(system.k_effective.value(), 1.0);
+  ASSERT_NE(nullptr, system.right_hand_side_ptr_);
+  EXPECT_THAT(system.right_hand_side_ptr_->GetVariableTerms(),
+            ::testing::UnorderedElementsAre(VariableLinearTerms::kFissionSource,
+                                            VariableLinearTerms::kScatteringSource));
+  ASSERT_NE(nullptr, system.left_hand_side_ptr_);
+
+  for (const auto& moments : {system.current_moments.get(),
+                              system.previous_moments.get()}) {
+    ASSERT_NE(nullptr, moments);
+    EXPECT_EQ(moments->total_groups(), total_groups);
+    EXPECT_EQ(moments->max_harmonic_l(), 0);
+    for (const auto& moment : *moments)
+      EXPECT_EQ(moment.second.size(), solution_size);
+  }
 }
 
 /* ===== Non-dimensional tests =================================================

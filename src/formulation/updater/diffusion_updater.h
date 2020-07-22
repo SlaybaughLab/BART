@@ -12,6 +12,7 @@
 #include "formulation/updater/fission_source_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -22,15 +23,14 @@ namespace updater {
 template <int dim>
 class DiffusionUpdater
     : public FixedUpdaterI, public ScatteringSourceUpdaterI,
-      public FissionSourceUpdaterI, public FixedSourceUpdaterI {
+      public FissionSourceUpdaterI, public FixedSourceUpdaterI,
+      public utility::HasDescription {
  public:
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using StamperType = formulation::StamperI<dim>;
   DiffusionUpdater(std::unique_ptr<DiffusionFormulationType>,
-                   std::unique_ptr<StamperType>);
-  DiffusionUpdater(std::unique_ptr<DiffusionFormulationType>,
                    std::unique_ptr<StamperType>,
-                   std::unordered_set<problem::Boundary>);
+                   std::unordered_set<problem::Boundary> reflective_boundaries = {});
   virtual ~DiffusionUpdater() = default;
 
   void UpdateFixedTerms(

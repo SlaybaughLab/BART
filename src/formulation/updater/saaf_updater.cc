@@ -23,7 +23,66 @@ SAAFUpdater<dim>::SAAFUpdater(
   AssertThrow(quadrature_set_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of SAAFUpdater, "
                                  "quadrature set pointer passed is null"))
+  this->set_description("Self-adjoint angular flux updater",
+                        utility::DefaultImplementation(true));
 }
+
+template<int dim>
+SAAFUpdater<dim>::SAAFUpdater(
+    std::unique_ptr<SAAFFormulationType> formulation_ptr,
+    std::unique_ptr<StamperType> stamper_ptr,
+    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    const EnergyGroupToAngularSolutionPtrMap& angular_solution_ptr_map,
+    const std::unordered_set<Boundary> reflective_boundaries)
+    : SAAFUpdater(std::move(formulation_ptr), std::move(stamper_ptr),
+                  quadrature_set_ptr) {
+  reflective_boundaries_ = reflective_boundaries;
+  angular_solution_ptr_map_ = angular_solution_ptr_map;
+  this->set_description("Self-adjoint angular flux updater with reflective "
+                        "boundaries",
+                        utility::DefaultImplementation(true));
+}
+
+template<int dim>
+void SAAFUpdater<dim>::UpdateBoundaryConditions(
+    system::System &to_update,
+    system::EnergyGroup group,
+    quadrature::QuadraturePointIndex index) {
+  using system::terms::VariableLinearTerms;
+  auto boundary_vector_ptr = to_update.right_hand_side_ptr_->GetVariableTermPtr(
+          {group.get(), index.get()},
+          VariableLinearTerms::kReflectiveBoundaryCondition);
+  const auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(index);
+
+  auto reflective_boundary_term_function =
+      [&](formulation::Vector &cell_vector,
+          const domain::FaceIndex face_index,
+          const domain::CellPtr <dim> &cell_ptr) -> void {
+        if (IsOnReflectiveBoundary(cell_ptr, face_index)) {
+          const auto boundary = static_cast<problem::Boundary>(
+              cell_ptr->face(face_index.get())->boundary_id());
+          const auto reflected_quadrature_point_index =
+              quadrature_set_ptr_->GetQuadraturePointIndex(
+                  quadrature_set_ptr_->GetBoundaryReflection(
+                      quadrature_point_ptr,
+                      boundary));
+          const auto incoming_flux = angular_solution_ptr_map_.at(
+              system::SolutionIndex(group, reflected_quadrature_point_index));
+          if (incoming_flux->size() > 0) {
+            formulation_ptr_->FillReflectiveBoundaryLinearTerm(
+                cell_vector,
+                cell_ptr,
+                face_index,
+                quadrature_point_ptr,
+                *incoming_flux);
+          }
+        }
+      };
+  *boundary_vector_ptr = 0;
+  stamper_ptr_->StampBoundaryVector(*boundary_vector_ptr,
+                                    reflective_boundary_term_function);
+}
+
 template<int dim>
 void SAAFUpdater<dim>::UpdateFixedTerms(
     system::System &to_update,
@@ -31,6 +90,8 @@ void SAAFUpdater<dim>::UpdateFixedTerms(
     quadrature::QuadraturePointIndex index) {
   auto fixed_matrix_ptr =
       to_update.left_hand_side_ptr_->GetFixedTermPtr({group.get(), index.get()});
+  auto fixed_vector_ptr =
+      to_update.right_hand_side_ptr_->GetFixedTermPtr({group.get(), index.get()});
   auto quadrature_point_ptr = quadrature_set_ptr_->GetQuadraturePoint(index);
   auto streaming_term_function =
       [&](formulation::FullMatrix& cell_matrix,
@@ -49,11 +110,18 @@ void SAAFUpdater<dim>::UpdateFixedTerms(
           const domain::CellPtr<dim>& cell_ptr) -> void {
     formulation_ptr_->FillBoundaryBilinearTerm(cell_matrix, cell_ptr, face_index, quadrature_point_ptr, group);
   };
+  auto fixed_source_term_function =
+      [&](formulation::Vector& cell_vector,
+          const domain::CellPtr<dim>& cell_ptr) -> void {
+        formulation_ptr_->FillCellFixedSourceTerm(cell_vector, cell_ptr, quadrature_point_ptr, group);
+  };
+  *fixed_vector_ptr = 0;
   *fixed_matrix_ptr = 0;
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, streaming_term_function);
   stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
   stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr,
                                     boundary_bilinear_term_function);
+  stamper_ptr_->StampVector(*fixed_vector_ptr, fixed_source_term_function);
 }
 
 template<int dim>

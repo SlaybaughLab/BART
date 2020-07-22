@@ -1,5 +1,6 @@
 #include "quadrature/factory/quadrature_factories.h"
 
+#include "quadrature/angular/gauss_legendre.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
 #include "quadrature/ordinate.h"
 #include "quadrature/quadrature_point.h"
@@ -97,6 +98,34 @@ TYPED_TEST(QuadratureFactoriesIntegrationTest,
     });
   }
 }
+
+/* Call to MakeAngularQuadratureGeneratorPtr specifying a GaussLegendre
+ * should return the correct type. If dim !=1, should throw an error */
+TYPED_TEST(QuadratureFactoriesIntegrationTest,
+           MakeAngularQuadratureGenTestGaussLegendre) {
+  constexpr int dim = this->dim;
+  const int order_value = 4;
+  if (dim == 1) {
+    auto quadrature_generator_ptr =
+        quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+            quadrature::Order(order_value),
+            quadrature::AngularQuadratureSetType::kGaussLegendre);
+
+    ASSERT_NE(nullptr, quadrature_generator_ptr);
+    using ExpectedType = quadrature::angular::GaussLegendre;
+    EXPECT_NE(nullptr,
+              dynamic_cast<ExpectedType*>(quadrature_generator_ptr.get()));
+    EXPECT_EQ(quadrature_generator_ptr->order(), order_value);
+  } else {
+    EXPECT_ANY_THROW({
+                       quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+                           quadrature::Order(order_value),
+                           quadrature::AngularQuadratureSetType::kGaussLegendre);
+                     });
+  }
+}
+
+
 
 /* Call to MakeQuadratureSet specifying default implementation should return
  * the correct type. */

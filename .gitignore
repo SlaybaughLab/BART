@@ -34,3 +34,4 @@ html/
 latex/
 build/
 test_data/
+*.csv

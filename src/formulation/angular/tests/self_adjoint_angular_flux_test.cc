@@ -12,6 +12,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_assertions.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace  {
 
@@ -21,6 +22,7 @@ using ::testing::AssertionResult, ::testing::AssertionSuccess, ::testing::Assert
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return;
 using ::testing::ByRef;
 using ::testing::_;
+using ::testing::A;
 
 /* Tests for CFEM Self Adjoint Angular Flux formulation class. This class is
  * responsible for filling cell matrices for the SAAF angular formulation.
@@ -57,7 +59,7 @@ class FormulationAngularSelfAdjointAngularFluxTest :
   std::set<int> quadrature_point_indices_ = {};
 
   // Test parameters
-  const int material_id_ = 1;
+  const int material_id_ = 1, non_fissile_material_id_ = 0;
   const double k_effective_ = 1.107;
   // This factor is used to get fission transfer matrices from sigma_s_per_ster_
   const double fission_test_factor_ = 2.3465;
@@ -65,9 +67,9 @@ class FormulationAngularSelfAdjointAngularFluxTest :
   const std::unordered_map<int, std::vector<double>> sigma_t_{
       {material_id_, {1.0, 2.0}}};
   const std::unordered_map<int, std::vector<double>> inv_sigma_t_{
-    {material_id_, {1.0, 0.5}}};
+    {material_id_, {1.0, 0.5}}, {non_fissile_material_id_, {1.0, 0.5}}};
   const std::unordered_map<int, std::vector<double>> q_per_ster_{
-      {material_id_, {1.0, 2.0}}};
+      {non_fissile_material_id_, {1.0, 2.0}}};
   const std::unordered_map<int, formulation::FullMatrix> sigma_s_per_ster_{
       {material_id_,
        {2, 2, std::array<double, 4>{0.25, 0.5, 0.75, 1.0}.begin()}}};
@@ -77,7 +79,7 @@ class FormulationAngularSelfAdjointAngularFluxTest :
                                    0.75*fission_test_factor_,
                                    0.5*fission_test_factor_,
                                    fission_test_factor_}.begin()}}};
-  system::moments::MomentVector group_0_moment_{2}, group_1_moment_{2};
+  system::moments::MomentVector group_0_moment_, group_1_moment_;
   system::moments::MomentsMap out_group_moments_;
   const std::vector<double> group_0_moment_values_{0.75, 0.75};
   const std::vector<double> group_1_moment_values_{1.0, 1.0};
@@ -95,6 +97,9 @@ class FormulationAngularSelfAdjointAngularFluxTest :
 template <typename DimensionWrapper>
 void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
+
+  group_0_moment_.reinit(2);
+  group_1_moment_.reinit(2);
 
   // Make mocks and set up
   mock_finite_element_ptr_ = std::make_shared<NiceMock<FiniteElementType>>();
@@ -168,6 +173,10 @@ void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(sigma_s_per_ster_));
   ON_CALL(mock_material_, GetChiNuSigFPerSter())
       .WillByDefault(Return(fission_xfer_per_ster_));
+  ON_CALL(mock_material_, GetFissileIDMap())
+      .WillByDefault(Return(std::unordered_map<int, bool>{
+        {material_id_, true},
+        {non_fissile_material_id_, false}}));
 
   // Set up moment values
   for (int i = 0; i < 2; ++i) {
@@ -184,6 +193,8 @@ void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
   ON_CALL(*mock_finite_element_ptr_,
       ValueAtQuadrature(group_1_moment_))
       .WillByDefault(Return(group_1_moment_values_));
+  ON_CALL(*mock_finite_element_ptr_, ValueAtFaceQuadrature(_))
+      .WillByDefault(Return(group_0_moment_values_));
 
 
   // Instantiate cross-section object
@@ -582,6 +593,139 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                    });
 }
 
+// FillReflectiveBoundaryLinearTerm ======================================================
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+    FillReflectiveBoundaryLinearTermTestBadCellPtr) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  domain::CellPtr<dim> invalid_cell_ptr;
+  auto angle_ptr = *this->quadrature_set_.begin();
+  test_saaf.Initialize(this->cell_ptr_);
+
+  EXPECT_ANY_THROW({
+    test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+        invalid_cell_ptr,
+        domain::FaceIndex(0),
+        angle_ptr,
+        dealii::Vector<double>{});
+                   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillReflectiveBoundaryLinearTermTestBadVectorSize) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(3);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  test_saaf.Initialize(this->cell_ptr_);
+
+  EXPECT_ANY_THROW({
+                     test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+                                                      this->cell_ptr_,
+                                                      domain::FaceIndex(0),
+                                                      angle_ptr,
+                                                      dealii::Vector<double>{});
+                   });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+    FillReflectiveBoundaryLinearTermTestGreaterThanZero) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector expected_results(2);
+  formulation::Vector cell_vector(2);
+  cell_vector[0] = test_helpers::RandomDouble(1, 1000);
+  cell_vector[1] = test_helpers::RandomDouble(1, 1000);
+  expected_results = cell_vector;
+
+  test_saaf.Initialize(this->cell_ptr_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  int face_index = 0;
+
+  dealii::Tensor<1, dim> normal;
+
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
+      .WillOnce(Return(normal));
+
+  EXPECT_NO_THROW({
+                    test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+                                                     this->cell_ptr_,
+                                                     domain::FaceIndex(0),
+                                                     angle_ptr,
+                                                     dealii::Vector<double>{});
+                  });
+
+  EXPECT_EQ(expected_results, cell_vector);
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillReflectiveBoundaryLinearTermTest) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector expected_results(2);
+  expected_results[0] = 78.75 * dim;
+  expected_results[1] = 146.25 * dim;
+  formulation::Vector cell_vector(2);
+
+  test_saaf.Initialize(this->cell_ptr_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  int face_index = 0;
+
+  dealii::Tensor<1, dim> normal;
+  for (int i = 0; i < dim; ++i)
+    normal[i] = -1;
+  EXPECT_CALL(*this->mock_finite_element_ptr_, SetFace(this->cell_ptr_,
+                                                       domain::FaceIndex(face_index)));
+  EXPECT_CALL(*this->mock_finite_element_ptr_, FaceNormal())
+      .WillOnce(Return(normal));
+
+  for (const auto f_q : {0, 1}) {
+    EXPECT_CALL(*this->mock_finite_element_ptr_, FaceJacobian(f_q))
+        .WillOnce(DoDefault());
+    for (const auto dof : {0, 1}) {
+      EXPECT_CALL(*this->mock_finite_element_ptr_, FaceShapeValue(dof, f_q))
+          .WillOnce(DoDefault());
+    }
+  }
+
+
+  EXPECT_CALL(*this->mock_finite_element_ptr_, ValueAtFaceQuadrature(_))
+      .WillOnce(DoDefault());
+
+  EXPECT_NO_THROW({
+                    test_saaf.FillReflectiveBoundaryLinearTerm(cell_vector,
+                                                     this->cell_ptr_,
+                                                     domain::FaceIndex(0),
+                                                     angle_ptr,
+                                                     dealii::Vector<double>{});
+                  });
+
+  EXPECT_EQ(expected_results, cell_vector);
+}
 
 // FillStreamingTerm ===========================================================
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
@@ -846,6 +990,38 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 }
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellFixedSourceTermFissileMaterial) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2), expected_results(2);
+  expected_results = 0;
+  test_saaf.Initialize(this->cell_ptr_);
+
+  for (int group = 0; group < 2; ++group) {
+    for (int angle = 0; angle < 2; ++angle) {
+      auto angle_it = this->quadrature_set_.begin();
+      if (angle == 1)
+        ++angle_it;
+      auto angle_ptr = *angle_it;
+      cell_vector = 0;
+
+      EXPECT_NO_THROW({
+        test_saaf.FillCellFixedSourceTerm(cell_vector, this->cell_ptr_,
+                                          angle_ptr,
+                                          system::EnergyGroup(group));
+                      });
+      std::pair<int, int> result_index{group, angle};
+      EXPECT_EQ(expected_results, cell_vector) << "Failed: group: " << group << " angle: " << angle;
+    }
+  }
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
            FillCellFixedSourceTerm) {
   constexpr int dim = this->dim;
 
@@ -856,9 +1032,9 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
   formulation::Vector cell_vector(2);
   test_saaf.Initialize(this->cell_ptr_);
+  this->cell_ptr_->set_material_id(this->non_fissile_material_id_);
 
   double d = this->dim;
-
   std::map<std::pair<int, int>, formulation::Vector> expected_results;
 
   formulation::Vector expected_result_g0_a0(2), expected_result_g0_a1(2),
@@ -895,11 +1071,11 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
 
       cell_vector = 0;
 
-      EXPECT_NO_THROW({
+      //EXPECT_NO_THROW({
         test_saaf.FillCellFixedSourceTerm(cell_vector, this->cell_ptr_,
                                           angle_ptr,
                                           system::EnergyGroup(group));
-                      });
+//                      });
       std::pair<int, int> result_index{group, angle};
       EXPECT_EQ(expected_results.at(result_index), cell_vector)
                 << "Failed: group: " << group << " angle: " << angle;
@@ -1121,6 +1297,34 @@ TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
                                         this->group_0_moment_,
                                         this->out_group_moments_);
                    });
+}
+
+TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,
+           FillCellFissionSourceTermNonFissileMaterial) {
+  constexpr int dim = this->dim;
+
+  formulation::angular::SelfAdjointAngularFlux<dim> test_saaf(
+      this->mock_finite_element_ptr_,
+      this->cross_section_ptr_,
+      this->mock_quadrature_set_ptr_);
+
+  formulation::Vector cell_vector(2);
+  test_saaf.Initialize(this->cell_ptr_);
+  this->cell_ptr_->set_material_id(this->non_fissile_material_id_);
+  auto angle_ptr = *this->quadrature_set_.begin();
+  const int group = 0;
+  system::moments::MomentVector& in_group_moment = this->group_0_moment_;
+  auto out_group_moments_map = this->out_group_moments_;
+
+  EXPECT_NO_THROW({
+        test_saaf.FillCellFissionSourceTerm(cell_vector, this->cell_ptr_,
+                                            angle_ptr,
+                                            system::EnergyGroup(group),
+                                            this->k_effective_,
+                                            in_group_moment,
+                                            out_group_moments_map);
+                      });
+  EXPECT_TRUE(cell_vector.l2_norm() < 1e-10);
 }
 
 TYPED_TEST(FormulationAngularSelfAdjointAngularFluxTest,

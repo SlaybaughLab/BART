@@ -25,6 +25,8 @@ OuterPowerIteration::OuterPowerIteration(
   AssertThrow(source_updater_ptr_ != nullptr,
               dealii::ExcMessage("Source updater pointer passed to OuterIteration "
                                  "constructor is null"));
+  this->set_description("outer power iteration",
+                        utility::DefaultImplementation(true));
 }
 
 convergence::Status OuterPowerIteration::CheckConvergence(system::System &system) {

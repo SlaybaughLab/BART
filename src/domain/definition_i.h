@@ -47,11 +47,20 @@ class DefinitionI : public utility::HasDescription {
   /*! Set up the DOF handler, to access sparsity patterns, etc */
   virtual DefinitionI<dim>& SetUpDOF() = 0;
 
-/*! Fills triangulation with mesh defined in MeshI object
+  /*! \brief Fills triangulation with mesh defined in MeshI object
    * Creates mesh shape, sets up boundary ids and material ids. Requires that
    * the mesh has a material mapping setup.
    */
   virtual DefinitionI<dim>& SetUpMesh() = 0;
+
+  /*! \brief Fills triangulation with mesh defined in MeshI object.
+   *
+   * Creates mesh shape, sets up boundary ids and material ids. Requires that
+   * the mesh has a material mapping setup. Also performs global refinements.
+   *
+   * @param global_refinements number of global refinements to perform
+   */
+  virtual DefinitionI<dim>& SetUpMesh(const int global_refinements) = 0;
 
   /*! Get a matrix suitible for a cell matrix.
    *

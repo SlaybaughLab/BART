@@ -108,6 +108,39 @@ void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
 }
 
 template<int dim>
+void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
+    Vector& to_fill,
+    const domain::CellPtr<dim>& cell_ptr,
+    domain::FaceIndex face_number,
+    const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+    const dealii::Vector<double>& incoming_flux) {
+  VerifyInitialized(__FUNCTION__);
+  ValidateVectorSize(to_fill, __FUNCTION__);
+  AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
+              dealii::ExcMessage("Bad cell given to FillReflectiveBoundaryLinearTerm"))
+  finite_element_ptr_->SetFace(cell_ptr, face_number);
+
+  auto normal_vector = finite_element_ptr_->FaceNormal();
+  auto omega = quadrature_point->cartesian_position_tensor();
+
+  const double normal_dot_omega = normal_vector * omega;
+
+  if (normal_dot_omega < 0) {
+    const auto incoming_angular_flux = finite_element_ptr_->ValueAtFaceQuadrature(
+        incoming_flux);
+    for (int f_q = 0; f_q < face_quadrature_points_; ++f_q) {
+      const double jacobian = finite_element_ptr_->FaceJacobian(f_q);
+      for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+        to_fill(i) -= normal_dot_omega
+            * finite_element_ptr_->FaceShapeValue(i, f_q)
+            * incoming_angular_flux.at(f_q)
+            * jacobian;
+      }
+    }
+  }
+}
+
+template<int dim>
 void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
     FullMatrix &to_fill,
     const domain::CellPtr<dim> &cell_ptr,
@@ -145,38 +178,42 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
   const int material_id = cell_ptr->material_id();
   const int group = group_number.get();
 
-  /* The scattering source is determined as the common values in both of the
-   * scattering source terms in SAAF, specifically scalar flux times the
-   * scattering cross-section per steradian */
+  if (cross_sections_ptr_->is_material_fissile.at(material_id)) {
 
-  std::vector<double> fission_source(cell_quadrature_points_);
+    /* The scattering source is determined as the common values in both of the
+     * scattering source terms in SAAF, specifically scalar flux times the
+     * scattering cross-section per steradian */
 
-  // Get the contribution from each group
-  for (const auto& moment_pair : group_moments) {
-    auto &[index, moment] = moment_pair;
-    const auto &[group_in, harmonic_l, harmonic_m] = index;
+    std::vector<double> fission_source(cell_quadrature_points_);
 
-    if ((harmonic_l == 0) && (harmonic_m == 0)) {
-      std::vector<double> scalar_flux(cell_quadrature_points_);
+    // Get the contribution from each group
+    for (const auto &moment_pair : group_moments) {
+      auto &[index, moment] = moment_pair;
+      const auto &[group_in, harmonic_l, harmonic_m] = index;
 
-      if (group_in == group) {
-        scalar_flux = finite_element_ptr_->ValueAtQuadrature(in_group_moment);
-      } else {
-        scalar_flux = finite_element_ptr_->ValueAtQuadrature(moment);
-      }
+      if ((harmonic_l == 0) && (harmonic_m == 0)) {
+        std::vector<double> scalar_flux(cell_quadrature_points_);
 
-      const auto fission_xfer_per_ster =
-          cross_sections_ptr_->fiss_transfer_per_ster.at(material_id)(group_in,
-                                                                      group);
+        if (group_in == group) {
+          scalar_flux = finite_element_ptr_->ValueAtQuadrature(in_group_moment);
+        } else {
+          scalar_flux = finite_element_ptr_->ValueAtQuadrature(moment);
+        }
 
-      for (int q = 0; q < cell_quadrature_points_; ++q){
-        fission_source.at(q) += fission_xfer_per_ster * scalar_flux.at(q) / k_eff;
+        const auto fission_xfer_per_ster =
+            cross_sections_ptr_->fiss_transfer_per_ster.at(material_id)(group_in,
+                                                                        group);
+
+        for (int q = 0; q < cell_quadrature_points_; ++q) {
+          fission_source.at(q) +=
+              fission_xfer_per_ster * scalar_flux.at(q) / k_eff;
+        }
       }
     }
-  }
 
-  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
-                     fission_source);
+    FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                       fission_source);
+  }
 }
 
 template<int dim>
@@ -187,10 +224,14 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
     const system::EnergyGroup group_number) {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
-
+  double q_per_ster = 0;
   const int material_id = cell_ptr->material_id();
-  const double q_per_ster =
-      cross_sections_ptr_->q_per_ster.at(material_id).at(group_number.get());
+  try {
+    q_per_ster =
+        cross_sections_ptr_->q_per_ster.at(material_id).at(group_number.get());
+  } catch (std::out_of_range&) {
+    return;
+  }
 
   std::vector<double> fixed_source(cell_degrees_of_freedom_);
   std::fill(fixed_source.begin(), fixed_source.end(), q_per_ster);

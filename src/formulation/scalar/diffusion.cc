@@ -118,8 +118,12 @@ void Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
 
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
-
-  const double q{cross_sections_->q.at(material_id)[group]};
+  double q = 0;
+  try {
+    q = cross_sections_->q.at(material_id).at(group);
+  } catch (std::exception&) {
+    return;
+  }
   std::vector<double> cell_fixed_source(cell_quadrature_points_, q);
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {

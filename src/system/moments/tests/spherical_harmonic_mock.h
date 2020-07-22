@@ -13,18 +13,18 @@ namespace moments {
 
 class SphericalHarmonicMock : public SphericalHarmonicI {
  public:
-  MOCK_CONST_METHOD0(total_groups, int());
-  MOCK_CONST_METHOD0(max_harmonic_l, int());
-  MOCK_CONST_METHOD0(moments, const MomentsMap&());
-  MOCK_CONST_METHOD1(GetMoment, const MomentVector&(const MomentIndex));
-  MOCK_CONST_METHOD1(BracketOp, const MomentVector&(const MomentIndex));
-  MOCK_METHOD1(BracketOp, MomentVector&(const MomentIndex));
+  MOCK_METHOD(int, total_groups, (), (const, override));
+  MOCK_METHOD(int, max_harmonic_l, (), (const, override));
+  MOCK_METHOD(const MomentsMap&, moments, (), (const, override));
+  MOCK_METHOD(const MomentVector&, GetMoment, (const MomentIndex), (const, override));
   MOCK_METHOD(MomentsMap::const_iterator, cbegin, (), (const, override));
   MOCK_METHOD(MomentsMap::iterator, begin, (), (override));
   MOCK_METHOD(MomentsMap::const_iterator, cend, (), (const, override));
   MOCK_METHOD(MomentsMap::iterator, end, (), (override));
 
-
+  MOCK_METHOD(const MomentVector&, BracketOp, (const MomentIndex), (const));
+  MOCK_METHOD(MomentVector&, BracketOp, (const MomentIndex));
+  
   const MomentVector& operator[](const MomentIndex index) const override {
     return BracketOp(index);
   };

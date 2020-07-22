@@ -3,6 +3,7 @@
 
 #include "quadrature/quadrature_point_i.h"
 #include "quadrature/quadrature_types.h"
+#include "problem/parameter_types.h"
 
 #include <memory>
 #include <optional>
@@ -32,6 +33,13 @@ class QuadratureSetI {
       * @return bool indicating if an insertion was made.
    */
   virtual bool AddPoint(std::shared_ptr<QuadraturePointI<dim>>) = 0;
+
+  /*! \brief Returns the quadrature point from a reflection against a boundary
+   * This only supports square meshes.
+   */
+  virtual std::shared_ptr<QuadraturePointI<dim>> GetBoundaryReflection(
+      const std::shared_ptr<QuadraturePointI<dim>>&,
+      const problem::Boundary) const = 0;
 
   /// \brief Sets two points as reflections of each other.
   virtual void SetReflection(std::shared_ptr<QuadraturePointI<dim>>,

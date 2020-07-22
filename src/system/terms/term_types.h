@@ -14,6 +14,7 @@ enum class VariableLinearTerms {
   kOther = 0,            //!< Other source
   kScatteringSource = 1, //!< Scattering source
   kFissionSource = 2,    //!< Fission source
+  kReflectiveBoundaryCondition = 3, //!< Reflective boundary conditions
 };
 
 //! Bilinear Terms that may vary iteration-to-iteration

@@ -118,12 +118,16 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
 
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(scalar_index))
       .WillOnce(DoDefault());
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetFixedTermPtr(scalar_index))
+      .WillOnce(DoDefault());
 
   for (auto& cell : this->cells_) {
     EXPECT_CALL(*this->formulation_obs_ptr_,
                 FillCellStreamingTerm(_, cell, this->group_number));
     EXPECT_CALL(*this->formulation_obs_ptr_,
                 FillCellCollisionTerm(_, cell, this->group_number));
+    EXPECT_CALL(*this->formulation_obs_ptr_,
+                FillCellFixedSource(_, cell, this->group_number));
     if (cell->at_boundary()) {
       int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
       for (int face = 0; face < faces_per_cell; ++face) {
@@ -150,10 +154,15 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
   EXPECT_CALL(*this->stamper_obs_ptr_,
       StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _))
       .WillOnce(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_,
+      StampVector(Ref(*this->vector_to_stamp), _))
+      .WillOnce(DoDefault());
 
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
   EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
                                                *this->matrix_to_stamp));
+  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
+                                              *this->vector_to_stamp));
 }
 
 // ====== UpdateScatteringSource TESTS =========================================

@@ -1,19 +1,20 @@
-set problem dimension                        = 3
+set problem dimension                        = 1
 set transport model                          = saaf
 set number of groups                         = 2
-set angular quadrature name                  = level_symmetric_gaussian
+set angular quadrature name                  = gauss_legendre
 set angular quadrature order                 = 2
 set do eigenvalue calculations               = true
 set have reflective boundary                 = true
-set reflective boundary names                = xmin, xmax, ymax, ymin
+set reflective boundary names                = xmin, xmax
 
-set x, y, z max values of boundary locations = 10.0, 10.0, 10.0
-set number of cells for x, y, z directions   = 10, 10, 10
+set x, y, z max values of boundary locations = 100.0
+set number of cells for x, y, z directions   = 10
+set uniform refinements                      = 1
 set number of materials                      = 1
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = pu_2_0_in
+set output file name base                    = pu_2_0_in_saaf
 
 subsection material ID map
 set material id file name map                = 1: pu_2_0_in_pu_239.material

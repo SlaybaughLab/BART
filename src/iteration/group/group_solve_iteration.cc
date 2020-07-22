@@ -12,12 +12,14 @@ GroupSolveIteration<dim>::GroupSolveIteration(
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolution> &group_solution_ptr,
-    const std::shared_ptr<Reporter> &reporter_ptr)
+    const std::shared_ptr<Reporter> &reporter_ptr,
+    std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
     : group_solver_ptr_(std::move(group_solver_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)),
       moment_calculator_ptr_(std::move(moment_calculator_ptr)),
       group_solution_ptr_(group_solution_ptr),
-      reporter_ptr_(reporter_ptr) {
+      reporter_ptr_(reporter_ptr),
+      moment_map_convergence_checker_ptr_(std::move(moment_map_convergence_checker_ptr)){
 
   AssertThrow(group_solver_ptr_ != nullptr,
               dealii::ExcMessage("Group solver pointer passed to "
@@ -39,47 +41,77 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
   const int total_groups = system.total_groups;
   const int total_angles = system.total_angles;
   system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
+  system::moments::MomentsMap previous_moments_map;
+
+  for (int group = 0; group < total_groups; ++group) {
+    auto& current_moments = *system.current_moments;
+    auto& previous_moments = *system.previous_moments;
+    const int max_harmonic_l = current_moments.max_harmonic_l();
+    for (int l = 0; l <= max_harmonic_l; ++l) {
+      for (int m = -l; m <= l; ++m) {
+        previous_moments[{group, l, m}] = current_moments[{group, l, m}];
+      }
+    }
+  }
 
   if (reporter_ptr_ != nullptr)
     reporter_ptr_->Report("..Inner group iteration\n");
-
-  for (int group = 0; group < total_groups; ++group) {
-    if (reporter_ptr_ != nullptr) {
-      std::string report{"....Group: "};
-      report += std::to_string(group);
-      report += "\n";
-      reporter_ptr_->Report(report);
+  moment_map_convergence_checker_ptr_->Reset();
+  convergence::Status all_group_convergence_status;
+  all_group_convergence_status.is_complete = true;
+  do {
+    for (int group = 0; group < total_groups; ++group) {
+      const auto& current_moments = *system.current_moments;
+      const int max_harmonic_l = current_moments.max_harmonic_l();
+      for (int l = 0; l <= max_harmonic_l; ++l) {
+        for (int m = -l; m <= l; ++m) {
+          previous_moments_map[{group, l, m}] = current_moments[{group, l, m}];
+        }
+      }
     }
+    for (int group = 0; group < total_groups; ++group) {
+      PerformPerGroup(system, group);
 
-    convergence::Status convergence_status;
-    convergence_checker_ptr_->Reset();
-    do {
+      convergence::Status convergence_status;
+      convergence_checker_ptr_->Reset();
+      do {
+        if (!convergence_status.is_complete) {
+          for (int angle = 0; angle < total_angles; ++angle)
+            UpdateSystem(system, group, angle);
+        }
 
-      if (!convergence_status.is_complete) {
-        for (int angle = 0; angle < total_angles; ++angle)
-          UpdateSystem(system, group, angle);
-      }
-
-      previous_scalar_flux = current_scalar_flux;
-
-      SolveGroup(group, system);
-
-      current_scalar_flux = GetScalarFlux(group, system);
-
-      if (convergence_status.iteration_number == 0) {
         previous_scalar_flux = current_scalar_flux;
-        previous_scalar_flux = 0;
+
+        SolveGroup(group, system);
+
+        current_scalar_flux = GetScalarFlux(group, system);
+
+        if (convergence_status.iteration_number == 0) {
+          previous_scalar_flux = current_scalar_flux;
+          previous_scalar_flux = 0;
+        }
+
+        convergence_status = CheckConvergence(current_scalar_flux,
+                                              previous_scalar_flux);
+
+        if (reporter_ptr_ != nullptr)
+          reporter_ptr_->Report(convergence_status);
+        UpdateCurrentMoments(system, group);
+      } while (!convergence_status.is_complete);
+
+      if (is_storing_angular_solution_)
+        StoreAngularSolution(system, group);
+    }
+    if (moment_map_convergence_checker_ptr_ != nullptr) {
+      all_group_convergence_status =
+          moment_map_convergence_checker_ptr_->CheckFinalConvergence(
+              system.current_moments->moments(), previous_moments_map);
+      if (reporter_ptr_ != nullptr) {
+        reporter_ptr_->Report("....All group convergence: ");
+        reporter_ptr_->Report(all_group_convergence_status);
       }
-
-      convergence_status = CheckConvergence(current_scalar_flux,
-                                            previous_scalar_flux);
-
-      if (reporter_ptr_ != nullptr)
-        reporter_ptr_->Report(convergence_status);
-
-    } while (!convergence_status.is_complete);
-    UpdateCurrentMoments(system, group);
-  }
+    }
+  } while(!all_group_convergence_status.is_complete);
 }
 
 template <int dim>
@@ -114,6 +146,27 @@ void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
       current_moments[{group, l, m}] = moment_calculator_ptr_->CalculateMoment(
           group_solution_ptr_.get(), group, l, m);
     }
+  }
+}
+
+template<int dim>
+void GroupSolveIteration<dim>::PerformPerGroup(system::System &/*system*/,
+                                               const int group) {
+  if (reporter_ptr_ != nullptr) {
+    std::string report{"....Group: "};
+    report += std::to_string(group);
+    report += "\n";
+    reporter_ptr_->Report(report);
+  }
+}
+template<int dim>
+void GroupSolveIteration<dim>::StoreAngularSolution(system::System& system,
+                                                    const int group) {
+  for (int angle = 0; angle < system.total_angles; ++angle) {
+    auto& stored_solution = angular_solution_ptr_map_.at(
+        system::SolutionIndex(group, angle));
+    auto& current_solution = group_solution_ptr_->GetSolution(angle);
+    *stored_solution = current_solution;
   }
 }
 

@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <deal.II/base/mpi.h>
-#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_vector.h>
 
 #include "system/system_types.h"
 #include "system/moments/spherical_harmonic_types.h"

@@ -10,8 +10,10 @@
 
 #include "utility/has_description.h"
 
+#include "framework/builder/framework_validator.h"
 // Problem parameters
 #include "problem/parameters_i.h"
+#include "system/solution/solution_types.h"
 
 // Interface classes built by this factory
 #include "convergence/reporter/mpi_i.h"
@@ -26,6 +28,7 @@
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
+#include "formulation/updater/boundary_conditions_updater_i.h"
 #include "framework/framework_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
@@ -55,6 +58,9 @@ class FrameworkBuilder {
   using Color = utility::reporter::Color;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
+  using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
+
+  using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterI;
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
@@ -68,6 +74,7 @@ class FrameworkBuilder {
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
+  using MomentMapConvergenceCheckerType = convergence::FinalI<const system::moments::MomentsMap>;
   using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
@@ -79,6 +86,7 @@ class FrameworkBuilder {
   using SystemType = system::System;
 
   struct UpdaterPointers {
+    std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
     std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
     std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
     std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
@@ -102,18 +110,26 @@ class FrameworkBuilder {
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
   UpdaterPointers BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulationType>,
-      std::unique_ptr<StamperType>);
+      std::unique_ptr<StamperType>,
+      const std::map<problem::Boundary, bool>& reflective_boundaries);
   UpdaterPointers BuildUpdaterPointers(
       std::unique_ptr<SAAFFormulationType>,
       std::unique_ptr<StamperType>,
       const std::shared_ptr<QuadratureSetType>&);
+  UpdaterPointers BuildUpdaterPointers(
+      std::unique_ptr<SAAFFormulationType>,
+      std::unique_ptr<StamperType>,
+      const std::shared_ptr<QuadratureSetType>&,
+      const std::map<problem::Boundary, bool>& reflective_boundaries,
+      const AngularFluxStorage&);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
       std::unique_ptr<SingleGroupSolverType>,
       std::unique_ptr<MomentConvergenceCheckerType>,
       std::unique_ptr<MomentCalculatorType>,
       const std::shared_ptr<GroupSolutionType>&,
-      const std::shared_ptr<ScatteringSourceUpdaterType>&,
-      const std::shared_ptr<ReporterType>&);
+      const UpdaterPointers& updater_ptrs,
+      const std::shared_ptr<ReporterType>&,
+      std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
@@ -129,6 +145,12 @@ class FrameworkBuilder {
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly);
   std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
       double max_delta, int max_iterations);
+  std::unique_ptr<MomentMapConvergenceCheckerType> BuildMomentMapConvergenceChecker(
+      double max_delta, int max_iterations);
+  std::unique_ptr<OuterIterationType> BuildOuterIteration(
+      std::unique_ptr<GroupSolveIterationType>,
+      std::unique_ptr<ParameterConvergenceCheckerType>,
+      const std::shared_ptr<ReporterType>&);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,
       std::unique_ptr<ParameterConvergenceCheckerType>,
@@ -150,7 +172,8 @@ class FrameworkBuilder {
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
                                           const DomainType& domain,
                                           const std::size_t solution_size,
-                                          bool is_eigenvalue_problem = true);
+                                          bool is_eigenvalue_problem = true,
+                                          bool need_rhs_boundary_condition = false);
 
   FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
 
@@ -185,12 +208,11 @@ class FrameworkBuilder {
 
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
-    return std::move(to_convert_ptr);
+    return to_convert_ptr;
   }
   std::string ReadMappingFile(std::string filename);
 
-  bool has_scattering_source_update_ = false;
-  bool has_fission_source_update_ = false;
+  FrameworkValidator validator_;
   bool build_report_closed_ = true;
 };
 

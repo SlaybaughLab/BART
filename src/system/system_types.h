@@ -5,8 +5,9 @@
 #include <utility>
 
 #include <deal.II/lac/vector.h>
-#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
-#include <deal.II/lac/petsc_parallel_vector.h>
+#include <deal.II/lac/petsc_sparse_matrix.h>
+#include <deal.II/lac/petsc_vector.h>
+
 
 #include "utility/named_type.h"
 
@@ -18,11 +19,13 @@ namespace system {
 using GroupNumber = int;
 
 using EnergyGroup = bart::utility::NamedType<int, struct EnergyGroupParameter>;
+using AngleIdx = bart::utility::NamedType<int, struct AngleIdxParameter>;
 
 //! Angle index for rhs and lhs
 using AngleIndex = int;
 //! Index used to store and access rhs vectors and lhs matrices
 using Index = std::pair<GroupNumber, AngleIndex>;
+using SolutionIndex = std::pair<EnergyGroup, AngleIdx>;
 
 //! Sparse MPI vector for use in various system terms.
 using MPIVector = dealii::PETScWrappers::MPI::Vector;

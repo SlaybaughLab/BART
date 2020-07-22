@@ -5,6 +5,7 @@
 
 #include "test_helpers/test_assertions.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/dealii_test_domain.h"
 
 namespace bart {
 
@@ -27,6 +28,7 @@ class FiniteElementBaseClassTest : public ::testing::Test {
   void TestSetCell(domain::finite_element::FiniteElement<dim>* test_fe);
   void TestSetCellAndFace(domain::finite_element::FiniteElement<dim>* test_fe);
   void TestValueAtQuadrature(domain::finite_element::FiniteElement<dim>* test_fe);
+  void TestValueAtFaceQuadrature(domain::finite_element::FiniteElement<dim>* test_fe);
   void SetUp() override {
     dealii::GridGenerator::hyper_cube(triangulation_, -1, 1);
     triangulation_.refine_global(2);
@@ -105,12 +107,32 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
   std::vector<double> moment_values(n_dofs, 0.5);
   system::moments::MomentVector test_moment(moment_values.begin(), moment_values.end());
 
-  std::vector<double> expected_vector(test_fe->dofs_per_cell(), 0.5);
+  std::vector<double> expected_vector(test_fe->n_cell_quad_pts(), 0.5);
 
   auto result_vector = test_fe->ValueAtQuadrature(test_moment);
 
   EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
 }
+
+template <int dim>
+void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(
+    FiniteElement<dim> *test_fe) {
+
+  dof_handler_.distribute_dofs(*test_fe->finite_element());
+
+  auto cell = dof_handler_.begin_active();
+
+  EXPECT_NO_THROW(test_fe->SetFace(cell, domain::FaceIndex(0)));
+
+  dealii::Vector<double> values_at_dofs(dof_handler_.n_dofs());
+  values_at_dofs = 0.5;
+  std::vector<double> expected_vector(test_fe->n_face_quad_pts(), 0.5);
+
+  auto result_vector = test_fe->ValueAtFaceQuadrature(values_at_dofs);
+
+  EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
+}
+
 
 } // namespace testing
 

@@ -11,7 +11,7 @@
 #include <deal.II/grid/grid_tools.h>
 #include <deal.II/grid/tria.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
-#include <deal.II/lac/petsc_parallel_sparse_matrix.h>
+#include <deal.II/lac/petsc_sparse_matrix.h>
 
 #include <gtest/gtest.h>
 
@@ -100,7 +100,7 @@ template <int dim>
                     double value = 1);
 
    using Cell = typename dealii::DoFHandler<dim>::active_cell_iterator;
-   dealii::ConstraintMatrix constraint_matrix_;
+   dealii::AffineConstraints<double> constraint_matrix_;
    typename TriangulationType<dim>::type triangulation_;
    dealii::DoFHandler<dim> dof_handler_;
    dealii::FE_Q<dim> fe_;

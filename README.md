@@ -36,8 +36,8 @@ BART uses MPI for parallelism and is designed for computation on distributed mem
 ### Formulations & Methods
 
 BART supports the following formulations: 
-- the diffusion equation in 1/2/3D.
-- the Self-Adjoint Angular Flux formulation in 1/2/3D (Only 3D is currently usable because only a 3D angular quadrature set has been implemented).
+- the diffusion equation in 1/2/3D
+- the Self-Adjoint Angular Flux formulation in 1D & 3D (2D pending implementation of a 2D quadrature)
 
 One of the major design goals of BART is to provide a framework for testing acceleration methods. There are no methods implemented in the current version, but multiple methods are planned to be implemented, including:
 

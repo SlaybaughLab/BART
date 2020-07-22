@@ -15,24 +15,26 @@ class QuadratureSetMock : public QuadratureSetI<dim> {
   using typename QuadratureSetI<dim>::Iterator;
   using typename QuadratureSetI<dim>::ConstIterator;
 
-  MOCK_METHOD1_T(AddPoint, bool(std::shared_ptr<QuadraturePointI<dim>>));
-  MOCK_METHOD2_T(SetReflection, void(std::shared_ptr<QuadraturePointI<dim>>,
-      std::shared_ptr<QuadraturePointI<dim>>));
-  MOCK_CONST_METHOD1_T(GetReflection, std::shared_ptr<QuadraturePointI<dim>>(
-      std::shared_ptr<QuadraturePointI<dim>>));
-  MOCK_CONST_METHOD1_T(GetReflectionIndex, std::optional<int> (
-      std::shared_ptr<QuadraturePointI<dim>>));
-  MOCK_CONST_METHOD1_T(GetQuadraturePoint,
-      std::shared_ptr<QuadraturePointI<dim>>(QuadraturePointIndex));
-  MOCK_CONST_METHOD1_T(GetQuadraturePointIndex, int(
-      std::shared_ptr<QuadraturePointI<dim>>));
-  MOCK_CONST_METHOD0_T(quadrature_point_indices, std::set<int>());
-  MOCK_METHOD0_T(begin, Iterator());
-  MOCK_METHOD0_T(end, Iterator());
-  MOCK_CONST_METHOD0_T(cbegin, ConstIterator());
-  MOCK_CONST_METHOD0_T(cend, ConstIterator());
-
-  MOCK_CONST_METHOD0_T(size, std::size_t());
+  MOCK_METHOD(bool, AddPoint, (std::shared_ptr<QuadraturePointI<dim>>), (override));
+  MOCK_METHOD(void, SetReflection, (std::shared_ptr<QuadraturePointI<dim>>,
+      std::shared_ptr<QuadraturePointI<dim>>), (override));
+  MOCK_METHOD(std::shared_ptr<QuadraturePointI<dim>>, GetBoundaryReflection,
+      (const std::shared_ptr<QuadraturePointI<dim>>&, const problem::Boundary),
+      (override,const));
+  MOCK_METHOD(std::shared_ptr<QuadraturePointI<dim>>, GetReflection,
+              (std::shared_ptr<QuadraturePointI<dim>>), (override, const));
+  MOCK_METHOD(std::optional<int>, GetReflectionIndex,
+              (std::shared_ptr<QuadraturePointI<dim>>), (override, const));
+  MOCK_METHOD(std::shared_ptr<QuadraturePointI<dim>>, GetQuadraturePoint,
+              (QuadraturePointIndex), (override, const));
+  MOCK_METHOD(int, GetQuadraturePointIndex,
+              (std::shared_ptr<QuadraturePointI<dim>>), (override, const));
+  MOCK_METHOD(std::set<int>, quadrature_point_indices, (), (override, const));
+  MOCK_METHOD(Iterator, begin, (), (override));
+  MOCK_METHOD(Iterator, end, (), (override));
+  MOCK_METHOD(ConstIterator, cbegin, (), (override, const));
+  MOCK_METHOD(ConstIterator, cend, (), (override, const));
+  MOCK_METHOD(std::size_t, size, (), (override, const));
 
 
 };
