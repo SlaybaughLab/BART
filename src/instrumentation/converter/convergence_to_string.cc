@@ -10,13 +10,23 @@ namespace converter {
 
 std::string ConvergenceToString::Convert(const convergence::Status &to_convert) const {
   auto return_string = output_format_;
-  std::ostringstream delta_stream;
-  delta_stream << to_convert.delta.value();
+
+  std::string delta_string{null_character_}, index_string{null_character_};
+  if (to_convert.delta.has_value()) {
+    std::ostringstream delta_stream;
+    delta_stream << to_convert.delta.value();
+    delta_string = delta_stream.str();
+  }
+  if (to_convert.failed_index.has_value()) {
+    index_string = std::to_string(to_convert.failed_index.value());
+  }
+
+
   std::map<OutputTerm, std::string> output_term_string_map{
       {OutputTerm::kIterationNum, std::to_string(to_convert.iteration_number)},
       {OutputTerm::kIterationMax, std::to_string(to_convert.max_iterations)},
-      {OutputTerm::kIndex, std::to_string(to_convert.failed_index.value_or(0))},
-      {OutputTerm::kDelta, delta_stream.str()}
+      {OutputTerm::kIndex, index_string},
+      {OutputTerm::kDelta, delta_string}
   };
 
   for (const auto& [term, value] : output_term_string_map) {
