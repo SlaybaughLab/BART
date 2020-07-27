@@ -11,10 +11,19 @@ namespace instrumentation {
 
 namespace output {
 
-template <typename DataType>
-class ToConditionalOstream : public OutputI<DataType> {
+class ToConditionalOstream : public OutputI<std::string> {
  public:
-  void Output(const DataType& to_output) override {};
+  using ConditionalOstreamType = dealii::ConditionalOStream;
+  using ConditionalOstreamPtrType = std::unique_ptr<ConditionalOstreamType>;
+  ToConditionalOstream(ConditionalOstreamPtrType conditional_ostream_ptr)
+      : conditional_ostream_ptr_(std::move(conditional_ostream_ptr)) {}
+  void Output(const std::string& to_output) override {};
+
+  ConditionalOstreamType* conditional_ostream_ptr() const {
+    return conditional_ostream_ptr_.get(); }
+ private:
+  ConditionalOstreamPtrType conditional_ostream_ptr_ = nullptr;
+
 };
 
 } // namespace output
