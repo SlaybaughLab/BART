@@ -7,10 +7,13 @@
 #include "instrumentation/output/tests/output_mock.h"
 #include "convergence/status.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace  {
 
 using namespace bart;
+
+using ::testing::Return, ::testing::ReturnRef;
 
 template <typename TypePair>
 class InstrumentationInstrumentTest : public ::testing::Test {
@@ -25,6 +28,10 @@ class InstrumentationInstrumentTest : public ::testing::Test {
 
   ConverterType* converter_obs_ptr_= nullptr;
   OutputterType* outputter_obs_ptr_ = nullptr;
+
+  InputType GetInput() const;
+  OutputType GetOutput() const;
+
   void SetUp() override;
 };
 
@@ -37,6 +44,22 @@ void InstrumentationInstrumentTest<TypePair>::SetUp() {
 
   test_instrument = std::make_unique<InstrumentType>(std::move(converter_ptr),
                                                      std::move(outputter_ptr));
+}
+
+template <>
+convergence::Status InstrumentationInstrumentTest<std::pair<convergence::Status, std::string>>::GetInput() const {
+  convergence::Status test_status;
+  test_status.is_complete = false;
+  test_status.delta = test_helpers::RandomDouble(1e-10, 1e-6);
+  test_status.failed_index = test_helpers::RandomDouble(0, 10);
+  test_status.iteration_number = test_helpers::RandomDouble(0, 1000);
+  test_status.max_iterations = test_helpers::RandomDouble(1000, 10000);
+  return test_status;
+}
+
+template <>
+std::string InstrumentationInstrumentTest<std::pair<convergence::Status, std::string>>::GetOutput() const {
+  return std::string{"test_string"};
 }
 
 using PairTypes = ::testing::Types<
@@ -63,6 +86,18 @@ TYPED_TEST(InstrumentationInstrumentTest, NullDepdendencies) {
   EXPECT_ANY_THROW({
     InstrumentType test_instrument(nullptr, std::make_unique<OutputterType>());
   });
+}
+
+TYPED_TEST(InstrumentationInstrumentTest, ReadTest) {
+  const auto input = this->GetInput();
+  const auto output = this->GetOutput();
+
+  EXPECT_CALL(*this->converter_obs_ptr_, Convert(input))
+      .WillOnce(Return(output));
+  EXPECT_CALL(*this->outputter_obs_ptr_, Output(output))
+      .WillOnce(ReturnRef(*this->outputter_obs_ptr_));
+
+  this->test_instrument->Read(input);
 }
 
 } // namespace

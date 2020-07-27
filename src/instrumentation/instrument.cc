@@ -23,6 +23,11 @@ Instrument<InputType, OutputType>::Instrument(
                                  "outputter_ptr passed is null"))
 }
 
+template<typename InputType, typename OutputType>
+void Instrument<InputType, OutputType>::Read(const InputType &input) {
+  outputter_ptr_->Output(converter_ptr_->Convert(input));
+}
+
 template class Instrument<convergence::Status, std::string>;
 
 } // namespace instrumentation

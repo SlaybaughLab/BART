@@ -19,7 +19,7 @@ class Instrument : public InstrumentI<InputType> {
   using OutputterType = output::OutputI<OutputType>;
 
   Instrument(std::unique_ptr<ConverterType>, std::unique_ptr<OutputterType>);
-  void Read(const InputType &input) override {}
+  void Read(const InputType &input) override;
 
   ConverterType* converter_ptr() { return converter_ptr_.get(); }
   OutputterType* outputter_ptr() { return outputter_ptr_.get(); }
