@@ -11,7 +11,7 @@ namespace instrumentation {
 namespace output {
 
 template <typename DataType>
-class OutputMock : OutputI<DataType> {
+class OutputMock : public OutputI<DataType> {
  public:
   MOCK_METHOD(OutputMock&, Output, (const DataType&), (override));
 };

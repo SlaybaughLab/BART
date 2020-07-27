@@ -11,7 +11,7 @@ namespace instrumentation {
 namespace converter {
 
 template <typename InputType, typename OutputType>
-class ConverterMock : ConverterI<InputType, OutputType> {
+class ConverterMock : public ConverterI<InputType, OutputType> {
  public:
   MOCK_METHOD(OutputType, Convert, (const InputType&), (const, override));
 };
