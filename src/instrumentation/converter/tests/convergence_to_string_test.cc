@@ -33,6 +33,7 @@ std::string InstrumentationConverterConvergenceToStringTest::GetExpectedOutput(
     std::string overload_format = "") const {
   using OutputTerm = ConverterType::OutputTerm;
   const auto output_term_to_string_map = converter.output_term_to_string_map();
+  const auto null_character = converter.null_character();
   std::string output = overload_format;
   if (overload_format == "") {
     output = converter.output_format();
@@ -56,7 +57,11 @@ std::string InstrumentationConverterConvergenceToStringTest::GetExpectedOutput(
   }
   // Delta
   std::ostringstream delta_stream;
-  delta_stream << status.delta.value();
+  if (status.delta.has_value()) {
+    delta_stream << status.delta.value();
+  } else {
+    delta_stream << null_character;
+  }
   std::string delta_string = output_term_to_string_map.at(OutputTerm::kDelta);
   auto delta_index = output.find(delta_string);
   if (delta_index != std::string::npos) {
@@ -67,10 +72,16 @@ std::string InstrumentationConverterConvergenceToStringTest::GetExpectedOutput(
   // Index
   std::string index_string = output_term_to_string_map.at(OutputTerm::kIndex);
   auto index_index = output.find(index_string);
+  std::string index_value;
+  if (status.failed_index.has_value()) {
+    index_value = std::to_string(status.failed_index.value());
+  } else {
+    index_value = null_character;
+  }
   if (index_index != std::string::npos) {
     output.replace(index_index,
                    index_string.size(),
-                   std::to_string(status.failed_index.value()));
+                   index_value);
   }
 
   return output;
@@ -85,6 +96,28 @@ TEST_F(InstrumentationConverterConvergenceToStringTest, Constructor) {
 
 TEST_F(InstrumentationConverterConvergenceToStringTest, DefaultString) {
   ConverterType test_converter;
+  EXPECT_EQ(test_converter.Convert(test_status),
+            GetExpectedOutput(test_status, test_converter));
+}
+
+TEST_F(InstrumentationConverterConvergenceToStringTest, NoDelta) {
+  ConverterType test_converter;
+  test_status.delta = std::nullopt;
+  EXPECT_EQ(test_converter.Convert(test_status),
+            GetExpectedOutput(test_status, test_converter));
+}
+
+TEST_F(InstrumentationConverterConvergenceToStringTest, NoIndex) {
+  ConverterType test_converter;
+  test_status.failed_index = std::nullopt;
+  EXPECT_EQ(test_converter.Convert(test_status),
+            GetExpectedOutput(test_status, test_converter));
+}
+
+TEST_F(InstrumentationConverterConvergenceToStringTest, NoDeltaOrIndex) {
+  ConverterType test_converter;
+  test_status.delta = std::nullopt;
+  test_status.failed_index = std::nullopt;
   EXPECT_EQ(test_converter.Convert(test_status),
             GetExpectedOutput(test_status, test_converter));
 }
