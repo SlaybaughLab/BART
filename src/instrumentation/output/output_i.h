@@ -11,7 +11,7 @@ template <typename DataType>
 class OutputI {
  public:
   ~OutputI() = default;
-  virtual void Output(const DataType& to_output) = 0;
+  virtual OutputI& Output(const DataType& to_output) = 0;
 };
 
 } // namespace output

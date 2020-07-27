@@ -5,6 +5,8 @@
 
 #include <deal.II/base/conditional_ostream.h>
 
+#include "utility/named_type.h"
+
 namespace bart {
 
 namespace instrumentation {
@@ -17,8 +19,9 @@ class ToConditionalOstream : public OutputI<std::string> {
   using ConditionalOstreamPtrType = std::unique_ptr<ConditionalOstreamType>;
   ToConditionalOstream(ConditionalOstreamPtrType conditional_ostream_ptr)
       : conditional_ostream_ptr_(std::move(conditional_ostream_ptr)) {}
-  void Output(const std::string& to_output) override {
+  ToConditionalOstream& Output(const std::string& to_output) override {
     *conditional_ostream_ptr_ << to_output;
+    return *this;
   };
 
   ConditionalOstreamType* conditional_ostream_ptr() const {
