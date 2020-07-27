@@ -21,9 +21,7 @@ class ConvergenceToString : public ConverterI<convergence::Status, std::string> 
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
   virtual ~ConvergenceToString() = default;
-  std::string Convert(const convergence::Status& to_convert) const override {
-    return std::string{};
-  };
+  std::string Convert(const convergence::Status& to_convert) const override;
 
   std::string output_format() const { return output_format_; }
   OutputTermToStringMap output_term_to_string_map() const {
