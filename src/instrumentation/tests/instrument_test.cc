@@ -50,4 +50,19 @@ TYPED_TEST(InstrumentationInstrumentTest, DepdendencyGetters) {
   EXPECT_NE(nullptr, this->test_instrument->outputter_ptr());
 }
 
+TYPED_TEST(InstrumentationInstrumentTest, NullDepdendencies) {
+  using InputType = typename TypeParam::first_type;
+  using OutputType = typename TypeParam::second_type;
+  using ConverterType = typename instrumentation::converter::ConverterMock<InputType, OutputType>;
+  using OutputterType = typename instrumentation::output::OutputMock<OutputType>;
+  using InstrumentType = typename instrumentation::Instrument<InputType, OutputType>;
+
+  EXPECT_ANY_THROW({
+    InstrumentType test_instrument(std::make_unique<ConverterType>(), nullptr);
+  });
+  EXPECT_ANY_THROW({
+    InstrumentType test_instrument(nullptr, std::make_unique<OutputterType>());
+  });
+}
+
 } // namespace
