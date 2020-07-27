@@ -47,7 +47,8 @@ std::string ConvergenceToString::SetOutputFormat(
       new_format_stream << std::get<std::string>(output_part);
     }
   }
-  return new_format_stream.str();
+  output_format_ = new_format_stream.str();
+  return output_format_;
 }
 
 } // namespace converter
