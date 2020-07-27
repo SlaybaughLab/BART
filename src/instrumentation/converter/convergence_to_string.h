@@ -15,10 +15,10 @@ namespace converter {
 
 class ConvergenceToString : public ConverterI<convergence::Status, std::string> {
  public:
-  enum OutputTerms {
+  enum OutputTerm {
     kIterationNum, kIterationMax, kDelta, kIndex
   };
-  using OutputTermToStringMap = std::map<OutputTerms, std::string>;
+  using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
   virtual ~ConvergenceToString() = default;
   std::string Convert(const convergence::Status& to_convert) const override {

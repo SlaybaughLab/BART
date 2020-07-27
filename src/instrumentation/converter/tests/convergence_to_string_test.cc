@@ -29,7 +29,7 @@ void InstrumentationConverterConvergenceToStringTest::SetUp() {
 
 std::string InstrumentationConverterConvergenceToStringTest::GetExpectedOutput(
     convergence::Status& status, ConverterType& converter) const {
-  using OutputTerm = ConverterType::OutputTerms;
+  using OutputTerm = ConverterType::OutputTerm;
   const auto output_term_to_string_map = converter.output_term_to_string_map();
   auto output = converter.output_format();
   // Iteration number
