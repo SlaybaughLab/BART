@@ -27,11 +27,14 @@ class ConvergenceToString : public ConverterI<convergence::Status, std::string> 
 
   std::string SetOutputFormat(
       const std::vector<std::variant<OutputTerm, std::string>>);
+
+  std::string null_character() const { return null_character_; };
   std::string output_format() const { return output_format_; }
   OutputTermToStringMap output_term_to_string_map() const {
     return output_term_to_string_map_; }
 
  private:
+  std::string null_character_{"∅"};
   std::string output_format_{"Iteration: ITERATION_NUM/ITERATION_MAX, delta: DELTA, index: INDEX"};
   OutputTermToStringMap output_term_to_string_map_{
       {kIterationNum, "ITERATION_NUM"},
