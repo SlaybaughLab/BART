@@ -3,6 +3,8 @@
 
 #include <map>
 #include <string>
+#include <variant>
+#include <vector>
 
 #include "instrumentation/converter/converter_i.h"
 #include "convergence/status.h"
@@ -23,10 +25,11 @@ class ConvergenceToString : public ConverterI<convergence::Status, std::string> 
   virtual ~ConvergenceToString() = default;
   std::string Convert(const convergence::Status& to_convert) const override;
 
+  std::string SetOutputFormat(
+      const std::vector<std::variant<OutputTerm, std::string>>);
   std::string output_format() const { return output_format_; }
   OutputTermToStringMap output_term_to_string_map() const {
     return output_term_to_string_map_; }
-
 
  private:
   std::string output_format_{"Iteration: ITERATION_NUM/ITERATION_MAX, delta: DELTA, index: INDEX"};
@@ -37,6 +40,8 @@ class ConvergenceToString : public ConverterI<convergence::Status, std::string> 
       {kIndex, "INDEX"}
   };
 };
+
+
 
 } // namespace converter
 
