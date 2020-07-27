@@ -10,7 +10,7 @@ namespace output {
 template <typename DataType>
 class OutputI {
  public:
-  ~OutputI() = default;
+  virtual ~OutputI() = default;
   virtual OutputI& Output(const DataType& to_output) = 0;
 };
 

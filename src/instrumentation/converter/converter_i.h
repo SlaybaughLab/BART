@@ -18,7 +18,7 @@ namespace converter {
 template <typename InputType, typename OutputType>
 class ConverterI {
  public:
-  ~ConverterI() = default;
+  virtual ~ConverterI() = default;
   virtual OutputType Convert(const InputType& input) const = 0;
 };
 
