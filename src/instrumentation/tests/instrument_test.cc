@@ -34,6 +34,9 @@ void InstrumentationInstrumentTest<TypePair>::SetUp() {
   converter_obs_ptr_ = converter_ptr.get();
   auto outputter_ptr = std::make_unique<OutputterType>();
   outputter_obs_ptr_ = outputter_ptr.get();
+
+  test_instrument = std::make_unique<InstrumentType>(std::move(converter_ptr),
+                                                     std::move(outputter_ptr));
 }
 
 using PairTypes = ::testing::Types<
@@ -42,8 +45,9 @@ using PairTypes = ::testing::Types<
 
 TYPED_TEST_SUITE(InstrumentationInstrumentTest, PairTypes);
 
-TYPED_TEST(InstrumentationInstrumentTest, Dummy) {
-  EXPECT_TRUE(false);
+TYPED_TEST(InstrumentationInstrumentTest, DepdendencyGetters) {
+  EXPECT_NE(nullptr, this->test_instrument->converter_ptr());
+  EXPECT_NE(nullptr, this->test_instrument->outputter_ptr());
 }
 
 } // namespace
