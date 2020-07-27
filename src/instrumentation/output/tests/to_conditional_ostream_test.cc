@@ -36,4 +36,10 @@ TEST_F(InstrumentationOutputToConditionalOstreamTest, StreamGetter) {
   EXPECT_NE(nullptr, test_outputter->conditional_ostream_ptr());
 }
 
+TEST_F(InstrumentationOutputToConditionalOstreamTest, OutputString) {
+  std::string test_string{"this is a test string\n"};
+  test_outputter->Output(test_string);
+  EXPECT_EQ(test_string, output_stream.str());
+}
+
 } // namespace

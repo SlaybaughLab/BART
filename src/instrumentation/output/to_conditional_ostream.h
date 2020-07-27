@@ -17,7 +17,9 @@ class ToConditionalOstream : public OutputI<std::string> {
   using ConditionalOstreamPtrType = std::unique_ptr<ConditionalOstreamType>;
   ToConditionalOstream(ConditionalOstreamPtrType conditional_ostream_ptr)
       : conditional_ostream_ptr_(std::move(conditional_ostream_ptr)) {}
-  void Output(const std::string& to_output) override {};
+  void Output(const std::string& to_output) override {
+    *conditional_ostream_ptr_ << to_output;
+  };
 
   ConditionalOstreamType* conditional_ostream_ptr() const {
     return conditional_ostream_ptr_.get(); }
