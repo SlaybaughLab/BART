@@ -2,6 +2,7 @@
 #define BART_SRC_INSTRUMENTATION_BASIC_INSTRUMENT_H_
 
 #include <memory>
+#include <string>
 
 #include "instrument_i.h"
 #include "instrumentation/output/output_i.h"
@@ -14,7 +15,7 @@ namespace instrumentation {
 
 /* \brief A basic instrument has the same data type for both reading
  * and outputting and no converter. */
-template <typename InputType>
+template <typename InputType = std::string>
 class BasicInstrument : public InstrumentI<InputType>,
                         public utility::HasDependencies,
                         public utility::HasDescription {
@@ -22,10 +23,10 @@ class BasicInstrument : public InstrumentI<InputType>,
   using OutputterType = typename output::OutputI<InputType>;
   explicit BasicInstrument(std::unique_ptr<OutputterType> outputter_ptr)
       : outputter_ptr_(std::move(outputter_ptr)) {
-    AssertPointerNotNull(outputter_ptr_.get(), __func__ , "outputter");
+    AssertPointerNotNull(outputter_ptr_.get(), "outputter_ptr", __func__);
     set_description("Basic instrument", utility::DefaultImplementation(true));
   }
-  void Read(const InputType &input) override {}
+  void Read(const InputType &input) override { outputter_ptr_->Output(input); }
   virtual OutputterType* outputter_ptr() { return outputter_ptr_.get(); }
  protected:
   std::unique_ptr<OutputterType> outputter_ptr_ = nullptr;
