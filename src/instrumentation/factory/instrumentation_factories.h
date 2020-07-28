@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "instrumentation/output/output_i.h"
+#include "instrumentation/outstream/outstream_i.h"
 
 namespace bart {
 
@@ -12,7 +12,7 @@ namespace instrumentation {
 namespace factory {
 
 template <typename OutputType, typename ... DependencyTypes>
-std::unique_ptr<instrumentation::output::OutputI<OutputType>> MakeOutputter(
+std::unique_ptr<instrumentation::outstream::OutstreamI<OutputType>> MakeOutstream(
     DependencyTypes ... dependencies);
 
 } // namespace factory

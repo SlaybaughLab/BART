@@ -1,7 +1,7 @@
-#ifndef BART_SRC_INSTRUMENTATION_OUTPUT_TO_CONDITIONAL_OSTREAM_H_
-#define BART_SRC_INSTRUMENTATION_OUTPUT_TO_CONDITIONAL_OSTREAM_H_
+#ifndef BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_CONDITIONAL_OSTREAM_H_
+#define BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_CONDITIONAL_OSTREAM_H_
 
-#include "instrumentation/output/output_i.h"
+#include "instrumentation/outstream/outstream_i.h"
 
 #include <deal.II/base/conditional_ostream.h>
 
@@ -11,9 +11,9 @@ namespace bart {
 
 namespace instrumentation {
 
-namespace output {
+namespace outstream {
 
-class ToConditionalOstream : public OutputI<std::string> {
+class ToConditionalOstream : public OutstreamI<std::string> {
  public:
   using ConditionalOstreamType = dealii::ConditionalOStream;
   using ConditionalOstreamPtrType = std::unique_ptr<ConditionalOstreamType>;
@@ -31,10 +31,10 @@ class ToConditionalOstream : public OutputI<std::string> {
 
 };
 
-} // namespace output
+} // namespace outstream
 
 } // namespace instrumentation
 
 } // namespace bart
 
-#endif //BART_SRC_INSTRUMENTATION_OUTPUT_TO_CONDITIONAL_OSTREAM_H_
+#endif //BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_CONDITIONAL_OSTREAM_H_

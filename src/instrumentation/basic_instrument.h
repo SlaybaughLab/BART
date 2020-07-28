@@ -5,7 +5,7 @@
 #include <string>
 
 #include "instrument_i.h"
-#include "instrumentation/output/output_i.h"
+#include "instrumentation/outstream/outstream_i.h"
 #include "utility/has_dependencies.h"
 #include "utility/has_description.h"
 
@@ -20,16 +20,16 @@ class BasicInstrument : public InstrumentI<InputType>,
                         public utility::HasDependencies,
                         public utility::HasDescription {
  public:
-  using OutputterType = typename output::OutputI<InputType>;
-  explicit BasicInstrument(std::unique_ptr<OutputterType> outputter_ptr)
-      : outputter_ptr_(std::move(outputter_ptr)) {
-    AssertPointerNotNull(outputter_ptr_.get(), "outputter_ptr", __func__);
+  using OutstreamType = typename outstream::OutstreamI<InputType>;
+  explicit BasicInstrument(std::unique_ptr<OutstreamType> outstream_ptr)
+      : outstream_ptr_(std::move(outstream_ptr)) {
+    AssertPointerNotNull(outstream_ptr_.get(), "outstream_ptr", __func__);
     set_description("Basic instrument", utility::DefaultImplementation(true));
   }
-  void Read(const InputType &input) override { outputter_ptr_->Output(input); }
-  virtual OutputterType* outputter_ptr() { return outputter_ptr_.get(); }
+  void Read(const InputType &input) override { outstream_ptr_->Output(input); }
+  virtual OutstreamType* outstream_ptr() { return outstream_ptr_.get(); }
  protected:
-  std::unique_ptr<OutputterType> outputter_ptr_ = nullptr;
+  std::unique_ptr<OutstreamType> outstream_ptr_ = nullptr;
 };
 
 } // namespace instrumentation

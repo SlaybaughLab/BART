@@ -2,7 +2,7 @@
 
 #include <deal.II/base/conditional_ostream.h>
 
-#include "instrumentation/output/to_conditional_ostream.h"
+#include "instrumentation/outstream/to_conditional_ostream.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -14,11 +14,11 @@ class InstrumentationFactoriesIntegrationTests : public ::testing::Test {
 };
 
 TEST_F(InstrumentationFactoriesIntegrationTests, ConditionalOstream) {
-  auto outputter_ptr = instrumentation::factory::MakeOutputter<std::string>(
+  auto outstream_ptr = instrumentation::factory::MakeOutstream<std::string>(
       std::make_unique<dealii::ConditionalOStream>(std::cout, false));
-  ASSERT_NE(outputter_ptr, nullptr);
-  using ExpectedType = instrumentation::output::ToConditionalOstream;
-  ASSERT_NE(dynamic_cast<ExpectedType*>(outputter_ptr.get()), nullptr);
+  ASSERT_NE(outstream_ptr, nullptr);
+  using ExpectedType = instrumentation::outstream::ToConditionalOstream;
+  ASSERT_NE(dynamic_cast<ExpectedType*>(outstream_ptr.get()), nullptr);
 }
 
 } // namespace

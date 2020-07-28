@@ -1,6 +1,6 @@
 #include "instrumentation/basic_instrument.h"
 
-#include "instrumentation/output/tests/output_mock.h"
+#include "instrumentation/outstream/tests/outstream_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
@@ -13,9 +13,9 @@ template <typename DataType>
 class InstrumentationBasicInstrumentTest : public ::testing::Test {
  public:
   using InstrumentType = instrumentation::BasicInstrument<DataType>;
-  using OutputterType = instrumentation::output::OutputMock<DataType>;
+  using OutstreamType = instrumentation::outstream::OutstreamMock<DataType>;
   std::unique_ptr<InstrumentType> test_instrument = nullptr;
-  OutputterType* outputter_obs_ptr_ = nullptr;
+  OutstreamType* outstream_obs_ptr_ = nullptr;
   DataType GetTestValue();
   void SetUp() override;
 };
@@ -23,9 +23,9 @@ class InstrumentationBasicInstrumentTest : public ::testing::Test {
 template <typename DataType>
 void InstrumentationBasicInstrumentTest<DataType>::SetUp() {
   test_instrument = std::make_unique<InstrumentType>(
-      std::make_unique<OutputterType>());
-  outputter_obs_ptr_ = dynamic_cast<OutputterType*>(
-      test_instrument->outputter_ptr());
+      std::make_unique<OutstreamType>());
+  outstream_obs_ptr_ = dynamic_cast<OutstreamType*>(
+      test_instrument->outstream_ptr());
 }
 
 template <>
@@ -50,13 +50,13 @@ TYPED_TEST(InstrumentationBasicInstrumentTest, ConstrutorThrow) {
 }
 
 TYPED_TEST(InstrumentationBasicInstrumentTest, Getter) {
-  EXPECT_NE(nullptr, this->test_instrument->outputter_ptr());
+  EXPECT_NE(nullptr, this->test_instrument->outstream_ptr());
 }
 
 TYPED_TEST(InstrumentationBasicInstrumentTest, Read) {
   auto input = this->GetTestValue();
-  EXPECT_CALL(*this->outputter_obs_ptr_, Output(input))
-      .WillOnce(ReturnRef(*this->outputter_obs_ptr_));
+  EXPECT_CALL(*this->outstream_obs_ptr_, Output(input))
+      .WillOnce(ReturnRef(*this->outstream_obs_ptr_));
   this->test_instrument->Read(input);
 }
 
