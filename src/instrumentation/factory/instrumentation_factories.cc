@@ -11,11 +11,11 @@ namespace instrumentation {
 namespace factory {
 
 template <>
-std::unique_ptr<instrumentation::outstream::OutstreamI<std::string>>
+std::unique_ptr<OutStreamType<std::string>>
 MakeOutstream<std::string, std::unique_ptr<dealii::ConditionalOStream>>(
     std::unique_ptr<dealii::ConditionalOStream> conditional_ostream_ptr) {
-  return std::make_unique<instrumentation::outstream::ToConditionalOstream>(
-      std::move(conditional_ostream_ptr));
+  using ReturnType = instrumentation::outstream::ToConditionalOstream;
+  return std::make_unique<ReturnType>(std::move(conditional_ostream_ptr));
 }
 
 } // namespace factory

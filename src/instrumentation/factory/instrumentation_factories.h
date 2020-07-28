@@ -11,8 +11,11 @@ namespace instrumentation {
 
 namespace factory {
 
+template <typename OutputType>
+using OutStreamType = instrumentation::outstream::OutstreamI<OutputType>;
+
 template <typename OutputType, typename ... DependencyTypes>
-std::unique_ptr<instrumentation::outstream::OutstreamI<OutputType>> MakeOutstream(
+std::unique_ptr<OutStreamType<OutputType>> MakeOutstream(
     DependencyTypes ... dependencies);
 
 } // namespace factory
