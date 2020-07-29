@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "instrumentation/instrument.h"
 #include "instrumentation/converter/converter_i.h"
 #include "instrumentation/outstream/outstream_i.h"
 
@@ -11,20 +12,26 @@ namespace bart {
 namespace instrumentation {
 
 namespace factory {
-
+template <typename InputType, typename OutputType>
+using ConverterType = instrumentation::converter::ConverterI<InputType, OutputType>;
+template <typename InputType>
+using InstrumentType = instrumentation::InstrumentI<InputType>;
 template <typename OutputType>
 using OutstreamType = instrumentation::outstream::OutstreamI<OutputType>;
 
+template <typename InputType, typename OutputType, typename ... DependencyTypes>
+std::unique_ptr<ConverterType<InputType, OutputType>> MakeConverter(
+    DependencyTypes ... dependencies);
+
 template <typename InputType, typename OutputType>
-using ConverterType = instrumentation::converter::ConverterI<InputType, OutputType>;
+std::unique_ptr<InstrumentType<InputType>> MakeInstrument(
+    std::unique_ptr<ConverterType<InputType, OutputType>> converter_ptr_,
+    std::unique_ptr<OutstreamType<OutputType>> outstream_ptr_);
 
 template <typename OutputType, typename ... DependencyTypes>
 std::unique_ptr<OutstreamType<OutputType>> MakeOutstream(
     DependencyTypes ... dependencies);
 
-template <typename InputType, typename OutputType, typename ... DependencyTypes>
-std::unique_ptr<ConverterType<InputType, OutputType>> MakeConverter(
-    DependencyTypes ... dependencies);
 
 } // namespace factory
 

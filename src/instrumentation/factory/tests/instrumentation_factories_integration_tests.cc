@@ -3,7 +3,10 @@
 #include <deal.II/base/conditional_ostream.h>
 
 #include "instrumentation/converter/convergence_to_string.h"
+#include "instrumentation/converter/tests/converter_mock.h"
+#include "instrumentation/instrument.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
+#include "instrumentation/outstream/tests/outstream_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -28,6 +31,20 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   ASSERT_NE(converter_ptr, nullptr);
   using ExpectedType = instrumentation::converter::ConvergenceToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationFactoriesIntegrationTests, MakeInstrument) {
+  using InputType = convergence::Status;
+  using OutputType = std::string;
+  using ConverterType = instrumentation::converter::ConverterMock<InputType, OutputType>;
+  using OutstreamType = instrumentation::outstream::OutstreamMock<OutputType>;
+
+  auto instrument_ptr =
+      instrumentation::factory::MakeInstrument<InputType, OutputType>(
+          std::make_unique<ConverterType>(), std::make_unique<OutstreamType>());
+  using ExpectedType = instrumentation::Instrument<InputType, OutputType>;
+  ASSERT_NE(instrument_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(instrument_ptr.get()), nullptr);
 }
 
 } // namespace
