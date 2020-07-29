@@ -452,6 +452,10 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             std::move(moment_map_convergence_checker_ptr))
     );
   }
+
+  using ConvergenceDataPort = iteration::group::data_ports::ConvergenceStatusPort;
+  dynamic_cast<ConvergenceDataPort*>(return_ptr.get())
+      ->AddInstrument(Shared(BuildConvergenceInstrument()));
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;

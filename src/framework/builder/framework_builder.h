@@ -34,6 +34,7 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.h"
+#include "instrumentation/port.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -213,6 +214,7 @@ class FrameworkBuilder {
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return to_convert_ptr;
   }
+
   std::string ReadMappingFile(std::string filename);
 
   FrameworkValidator validator_;
