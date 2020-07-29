@@ -10,7 +10,7 @@ namespace outstream {
 template <typename DataType>
 class OutstreamI {
  public:
-  ~OutstreamI() = default;
+  virtual ~OutstreamI() = default;
   virtual OutstreamI& Output(const DataType& to_output) = 0;
 };
 
