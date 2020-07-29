@@ -13,6 +13,7 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "convergence/reporter/tests/mpi_mock.h"
+#include "instrumentation/tests/instrument_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
@@ -50,6 +51,8 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using Moments = system::moments::SphericalHarmonicMock;
   using Reporter = convergence::reporter::MpiMock;
 
+  using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
+
   virtual ~IterationGroupSourceIterationTest() = default;
 
   // Test object
@@ -64,6 +67,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   // Supporting objects
   system::System test_system;
   EnergyGroupToAngularSolutionPtrMap energy_group_angular_solution_ptr_map_;
+  std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
@@ -94,12 +98,12 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   boundary_conditions_updater_ptr_ = std::make_shared<BoundaryConditionsUpdater>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
   reporter_ptr_ = std::make_shared<Reporter>();
+  convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
   test_system.previous_moments = std::make_unique<Moments>();
   previous_moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.previous_moments.get());
-
 
   test_iterator_ptr_ = std::make_unique<TestGroupIterator>(
       std::move(single_group_solver_ptr_),
@@ -110,6 +114,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       boundary_conditions_updater_ptr_,
       reporter_ptr_,
       std::move(moment_map_convergence_checker_ptr_));
+  test_iterator_ptr_->AddInstrument(convergence_instrument_ptr_);
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
@@ -411,7 +416,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       .Times(AtLeast(1))
       .WillRepeatedly(ReturnConvergence(this));
 
-  EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
+  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(A<const convergence::Status&>()))
       .Times(AtLeast(1));
   EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
       .Times(AtLeast(1));

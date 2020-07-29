@@ -94,8 +94,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
         convergence_status = CheckConvergence(current_scalar_flux,
                                               previous_scalar_flux);
 
-        if (reporter_ptr_ != nullptr)
-          reporter_ptr_->Report(convergence_status);
+        Expose(convergence_status);
         UpdateCurrentMoments(system, group);
       } while (!convergence_status.is_complete);
 
@@ -108,8 +107,8 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
               system.current_moments->moments(), previous_moments_map);
       if (reporter_ptr_ != nullptr) {
         reporter_ptr_->Report("....All group convergence: ");
-        reporter_ptr_->Report(all_group_convergence_status);
       }
+      Expose(all_group_convergence_status);
     }
   } while(!all_group_convergence_status.is_complete);
 }

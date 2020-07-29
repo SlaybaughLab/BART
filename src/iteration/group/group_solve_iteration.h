@@ -3,6 +3,7 @@
 
 #include "convergence/final_i.h"
 #include "convergence/reporter/mpi_i.h"
+#include "instrumentation/port.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
@@ -18,8 +19,15 @@ namespace iteration {
 
 namespace group {
 
+namespace data_ports {
+struct GroupConvergenceStatus;
+using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+}
+
 template <int dim>
-class GroupSolveIteration : public GroupSolveIterationI {
+class GroupSolveIteration
+    : public GroupSolveIterationI,
+      public data_ports::ConvergenceStatusPort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
@@ -28,6 +36,9 @@ class GroupSolveIteration : public GroupSolveIterationI {
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using Reporter = convergence::reporter::MpiI;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
+
+  // Data ports
+  using data_ports::ConvergenceStatusPort::Expose, data_ports::ConvergenceStatusPort::AddInstrument;
 
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
