@@ -117,7 +117,8 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       boundary_conditions_updater_ptr_,
       reporter_ptr_,
       std::move(moment_map_convergence_checker_ptr_));
-  test_iterator_ptr_->AddInstrument(convergence_instrument_ptr_);
+  using ConvergenceStatusPort = iteration::group::data_ports::ConvergenceStatusPort;
+  test_iterator_ptr_->ConvergenceStatusPort::AddInstrument(convergence_instrument_ptr_);
   test_iterator_ptr_->AddInstrument(status_instrument_ptr_);
 }
 
