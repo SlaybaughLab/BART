@@ -46,4 +46,26 @@ TYPED_TEST(InstrumentationPortTest, AddInstrument) {
   EXPECT_NE(port.instrument_ptr(), nullptr);
 }
 
+TYPED_TEST(InstrumentationPortTest, Expose) {
+  using InstrumentType = instrumentation::InstrumentMock<TypeParam>;
+  auto instrument_ptr = std::make_shared<InstrumentType>();
+
+  struct TestName;
+
+  instrumentation::Port<TypeParam, TestName> port;
+  port.AddInstrument(instrument_ptr);
+  auto test_value = this->GetTestValue();
+  EXPECT_CALL(*instrument_ptr, Read(test_value));
+  port.Expose(test_value);
+}
+
+TYPED_TEST(InstrumentationPortTest, ExposeNoInstrument) {
+  struct TestName;
+  instrumentation::Port<TypeParam, TestName> port;
+  auto test_value = this->GetTestValue();
+  EXPECT_NO_THROW({
+                    port.Expose(test_value);
+                  });
+}
+
 } // namespace

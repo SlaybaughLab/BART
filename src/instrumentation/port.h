@@ -16,7 +16,11 @@ class Port {
   virtual ~Port() = default;
   void AddInstrument(std::shared_ptr<InstrumentType> instrument_ptr) {
     instrument_ptr_ = instrument_ptr; }
-
+  void Expose(const DataType& data_to_expose) {
+    if (instrument_ptr_ != nullptr) {
+      instrument_ptr_->Read(data_to_expose);
+    }
+  }
   InstrumentType* instrument_ptr() { return instrument_ptr_.get(); }
  protected:
   std::shared_ptr<InstrumentType> instrument_ptr_ = nullptr;
