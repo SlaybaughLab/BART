@@ -5,6 +5,7 @@
 #include "instrumentation/converter/convergence_to_string.h"
 #include "instrumentation/converter/tests/converter_mock.h"
 #include "instrumentation/instrument.h"
+#include "instrumentation/basic_instrument.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 #include "instrumentation/outstream/tests/outstream_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -31,6 +32,17 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   ASSERT_NE(converter_ptr, nullptr);
   using ExpectedType = instrumentation::converter::ConvergenceToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationFactoriesIntegrationTests, MakeBasicInstrument) {
+  using InputType = std::string;
+  using OutstreamType = instrumentation::outstream::OutstreamMock<InputType>;
+
+  auto instrument_ptr = instrumentation::factory::MakeBasicInstrument<InputType>(
+      std::make_unique<OutstreamType>());
+  using ExpectedType = instrumentation::BasicInstrument<InputType>;
+  ASSERT_NE(instrument_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(instrument_ptr.get()), nullptr);
 }
 
 TEST_F(InstrumentationFactoriesIntegrationTests, MakeInstrument) {

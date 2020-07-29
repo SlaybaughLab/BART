@@ -3,6 +3,7 @@
 #include <deal.II/base/conditional_ostream.h>
 
 #include "convergence/status.h"
+#include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/converter/convergence_to_string.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
@@ -12,6 +13,13 @@ namespace bart {
 namespace instrumentation {
 
 namespace factory {
+
+template<typename InputType>
+std::unique_ptr<InstrumentType<InputType>> MakeBasicInstrument(std::unique_ptr<
+    OutstreamType<InputType>> outstream_ptr_) {
+  using ReturnType = instrumentation::BasicInstrument<InputType>;
+  return std::make_unique<ReturnType>(std::move(outstream_ptr_));
+}
 
 template <>
 std::unique_ptr<ConverterType<convergence::Status, std::string>>
@@ -38,6 +46,7 @@ MakeOutstream<std::string, std::unique_ptr<dealii::ConditionalOStream>>(
 }
 
 template std::unique_ptr<InstrumentType<convergence::Status>> MakeInstrument(std::unique_ptr<ConverterType<convergence::Status, std::string>>, std::unique_ptr<OutstreamType<std::string>>);
+template std::unique_ptr<InstrumentType<std::string>> MakeBasicInstrument(std::unique_ptr<OutstreamType<std::string>>);
 
 } // namespace factory
 

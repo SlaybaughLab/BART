@@ -19,6 +19,10 @@ using InstrumentType = instrumentation::InstrumentI<InputType>;
 template <typename OutputType>
 using OutstreamType = instrumentation::outstream::OutstreamI<OutputType>;
 
+template <typename InputType>
+std::unique_ptr<InstrumentType<InputType>> MakeBasicInstrument(
+    std::unique_ptr<OutstreamType<InputType>> outstream_ptr_);
+
 template <typename InputType, typename OutputType, typename ... DependencyTypes>
 std::unique_ptr<ConverterType<InputType, OutputType>> MakeConverter(
     DependencyTypes ... dependencies);
