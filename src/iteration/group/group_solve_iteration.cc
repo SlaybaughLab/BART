@@ -53,9 +53,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
       }
     }
   }
-
-  if (reporter_ptr_ != nullptr)
-    reporter_ptr_->Report("..Inner group iteration\n");
+  data_ports::StatusPort::Expose("..Inner group iteration\n");
   moment_map_convergence_checker_ptr_->Reset();
   convergence::Status all_group_convergence_status;
   all_group_convergence_status.is_complete = true;
@@ -94,7 +92,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
         convergence_status = CheckConvergence(current_scalar_flux,
                                               previous_scalar_flux);
 
-        Expose(convergence_status);
+        data_ports::ConvergenceStatusPort::Expose(convergence_status);
         UpdateCurrentMoments(system, group);
       } while (!convergence_status.is_complete);
 
@@ -105,10 +103,8 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
       all_group_convergence_status =
           moment_map_convergence_checker_ptr_->CheckFinalConvergence(
               system.current_moments->moments(), previous_moments_map);
-      if (reporter_ptr_ != nullptr) {
-        reporter_ptr_->Report("....All group convergence: ");
-      }
-      Expose(all_group_convergence_status);
+      data_ports::StatusPort::Expose("....All group convergence: ");
+      data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
     }
   } while(!all_group_convergence_status.is_complete);
 }
@@ -151,12 +147,10 @@ void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
 template<int dim>
 void GroupSolveIteration<dim>::PerformPerGroup(system::System &/*system*/,
                                                const int group) {
-  if (reporter_ptr_ != nullptr) {
-    std::string report{"....Group: "};
-    report += std::to_string(group);
-    report += "\n";
-    reporter_ptr_->Report(report);
-  }
+  std::string report{"....Group: "};
+  report += std::to_string(group);
+  report += "\n";
+  data_ports::StatusPort::Expose(report);
 }
 template<int dim>
 void GroupSolveIteration<dim>::StoreAngularSolution(system::System& system,

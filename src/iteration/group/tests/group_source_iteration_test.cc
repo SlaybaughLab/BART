@@ -52,6 +52,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using Reporter = convergence::reporter::MpiMock;
 
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
+  using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
 
   virtual ~IterationGroupSourceIterationTest() = default;
 
@@ -68,6 +69,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   system::System test_system;
   EnergyGroupToAngularSolutionPtrMap energy_group_angular_solution_ptr_map_;
   std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
+  std::shared_ptr<StatusInstrumentType> status_instrument_ptr_;
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
@@ -99,6 +101,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
   reporter_ptr_ = std::make_shared<Reporter>();
   convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
+  status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
@@ -115,6 +118,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       reporter_ptr_,
       std::move(moment_map_convergence_checker_ptr_));
   test_iterator_ptr_->AddInstrument(convergence_instrument_ptr_);
+  test_iterator_ptr_->AddInstrument(status_instrument_ptr_);
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
@@ -418,7 +422,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
 
   EXPECT_CALL(*this->convergence_instrument_ptr_, Read(A<const convergence::Status&>()))
       .Times(AtLeast(1));
-  EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
+  EXPECT_CALL(*this->status_instrument_ptr_, Read(_))
       .Times(AtLeast(1));
 
   this->test_system.total_groups = this->total_groups;

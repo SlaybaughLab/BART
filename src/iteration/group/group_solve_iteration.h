@@ -21,13 +21,16 @@ namespace group {
 
 namespace data_ports {
 struct GroupConvergenceStatus;
+struct Status;
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+using StatusPort = instrumentation::Port<std::string, Status>;
 }
 
 template <int dim>
 class GroupSolveIteration
     : public GroupSolveIterationI,
-      public data_ports::ConvergenceStatusPort {
+      public data_ports::ConvergenceStatusPort,
+      public data_ports::StatusPort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
@@ -39,6 +42,7 @@ class GroupSolveIteration
 
   // Data ports
   using data_ports::ConvergenceStatusPort::Expose, data_ports::ConvergenceStatusPort::AddInstrument;
+  using data_ports::StatusPort::Expose, data_ports::StatusPort::AddInstrument;
 
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
