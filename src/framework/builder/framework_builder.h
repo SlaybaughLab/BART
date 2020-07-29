@@ -30,6 +30,7 @@
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "framework/framework_i.h"
+#include "instrumentation/instrument_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.h"
@@ -61,6 +62,7 @@ class FrameworkBuilder {
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterI;
+  using ConvergenceInstrumentType = instrumentation::InstrumentI<convergence::Status>;
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
@@ -99,6 +101,7 @@ class FrameworkBuilder {
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
 
   std::unique_ptr<ReporterType> BuildConvergenceReporter();
+  std::unique_ptr<ConvergenceInstrumentType> BuildConvergenceInstrument();
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElementType>&,

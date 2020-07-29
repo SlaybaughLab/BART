@@ -17,6 +17,7 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
+#include "instrumentation/instrument.h"
 #include "iteration/outer/outer_power_iteration.h"
 #include "iteration/outer/outer_fixed_source_iteration.h"
 #include "quadrature/calculators/scalar_moment.h"
@@ -212,6 +213,13 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
   using ExpectedType = convergence::reporter::MpiNoisy;
   auto convergence_reporter_ptr = this->test_builder_ptr_->BuildConvergenceReporter();
   EXPECT_THAT(convergence_reporter_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceInstrumentType) {
+  using ExpectedType = instrumentation::Instrument<convergence::Status, std::string>;
+  auto convergence_instrument_ptr = this->test_builder_ptr_->BuildConvergenceInstrument();
+  EXPECT_THAT(convergence_instrument_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 

@@ -41,6 +41,9 @@
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
 
+// Instrumentation classes
+#include "instrumentation/factory/instrumentation_factories.h"
+
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_solve_iteration.h"
@@ -205,6 +208,20 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(initializer_ptr),
       std::move(outer_iteration_ptr),
       std::move(results_output_ptr));
+}
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
+-> std::unique_ptr<ConvergenceInstrumentType> {
+  namespace factory = instrumentation::factory;
+  ReportBuildingComponant("Convergence instrument");
+  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  return factory::MakeInstrument(
+      factory::MakeConverter<convergence::Status, std::string>(),
+          factory::MakeOutstream<std::string>(
+              std::make_unique<dealii::ConditionalOStream>(
+                  std::cout, this_process == 0))
+      );
 }
 
 template<int dim>
