@@ -26,6 +26,13 @@ class Port {
   std::shared_ptr<InstrumentType> instrument_ptr_ = nullptr;
 };
 
+template <typename PortType, typename T>
+PortType& GetPort(T& to_expose) {
+  return dynamic_cast<PortType&>(to_expose);
+}
+
+
+
 } // namespace instrumentation
 
 } // namespace bart

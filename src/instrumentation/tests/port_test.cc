@@ -68,4 +68,19 @@ TYPED_TEST(InstrumentationPortTest, ExposeNoInstrument) {
                   });
 }
 
+TYPED_TEST(InstrumentationPortTest, GetPortHelperFunction) {
+  struct PortName;
+  using TestPort = instrumentation::Port<TypeParam, TestTypes>;
+  using InstrumentType = instrumentation::InstrumentMock<TypeParam>;
+  auto instrument_ptr = std::make_shared<InstrumentType>();
+
+  class InstrumentedClass : public TestPort {};
+  InstrumentedClass test_class;
+
+  instrumentation::GetPort<TestPort>(test_class).AddInstrument(instrument_ptr);
+  auto test_value = this->GetTestValue();
+  EXPECT_CALL(*instrument_ptr, Read(test_value));
+  instrumentation::GetPort<TestPort>(test_class).Expose(test_value);
+}
+
 } // namespace

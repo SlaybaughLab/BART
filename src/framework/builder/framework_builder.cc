@@ -454,17 +454,17 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
   }
 
   using ConvergenceDataPort = iteration::group::data_ports::ConvergenceStatusPort;
-  dynamic_cast<ConvergenceDataPort*>(return_ptr.get())
-      ->AddInstrument(Shared(BuildConvergenceInstrument()));
-  using StatusPort = iteration::group::data_ports::StatusPort;
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr).AddInstrument(
+      Shared(BuildConvergenceInstrument()));
 
-  dynamic_cast<StatusPort*>(return_ptr.get())
-  ->AddInstrument(Shared(instrumentation::factory::MakeBasicInstrument(
-      instrumentation::factory::MakeOutstream<std::string>(
-          std::make_unique<dealii::ConditionalOStream>(
-              std::cout,
-              dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
-      ))));
+  using StatusPort = iteration::group::data_ports::StatusPort;
+  instrumentation::GetPort<StatusPort>(*return_ptr).AddInstrument(
+      Shared(instrumentation::factory::MakeBasicInstrument(
+          instrumentation::factory::MakeOutstream<std::string>(
+              std::make_unique<dealii::ConditionalOStream>(
+                  std::cout,
+                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
+          ))));
 
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
