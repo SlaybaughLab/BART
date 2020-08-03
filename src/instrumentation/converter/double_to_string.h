@@ -6,7 +6,7 @@
 #include <vector>
 #include <variant>
 
-#include "instrumentation/converter/converter_i.h"
+#include "instrumentation/converter/to_string_converter.h"
 
 namespace bart {
 
@@ -14,7 +14,7 @@ namespace instrumentation {
 
 namespace converter {
 
-class DoubleToString : public ConverterI<double, std::string> {
+class DoubleToString : public ToStringConverter<double> {
  public:
   enum OutputTerm {kValue, };
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
