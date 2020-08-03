@@ -15,11 +15,13 @@ namespace instrumentation {
 
 namespace converter {
 
+enum ConvergenceToStringOutputTerm {
+  kIterationNum, kIterationMax, kDelta, kIndex
+};
+
 class ConvergenceToString : public ToStringConverter<convergence::Status> {
  public:
-  enum OutputTerm {
-    kIterationNum, kIterationMax, kDelta, kIndex
-  };
+  using OutputTerm = ConvergenceToStringOutputTerm;
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
   virtual ~ConvergenceToString() = default;

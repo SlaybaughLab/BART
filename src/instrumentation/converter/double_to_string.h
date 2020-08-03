@@ -14,9 +14,11 @@ namespace instrumentation {
 
 namespace converter {
 
+enum DoubleToStringOutputTerm { kValue, };
+
 class DoubleToString : public ToStringConverter<double> {
  public:
-  enum OutputTerm {kValue, };
+  using OutputTerm = DoubleToStringOutputTerm;
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
   virtual ~DoubleToString() = default;
