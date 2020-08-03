@@ -3,6 +3,8 @@
 
 #include <map>
 #include <string>
+#include <vector>
+#include <variant>
 
 #include "instrumentation/converter/converter_i.h"
 
@@ -21,13 +23,16 @@ class DoubleToString : public ConverterI<double, std::string> {
 
   std::string Convert(const double &input) const override;
 
+  std::string SetOutputFormat(
+      const std::vector<std::variant<OutputTerm, std::string>>);
+
   std::string output_format() const { return output_format_; }
   int precision() const { return precision_; }
   OutputTermToStringMap output_term_to_string_map() const {
     return output_term_to_string_map_; }
  private:
   int precision_ = 2;
-  std::string output_format_{"${VALUE}"};
+  std::string output_format_{"${VALUE}\n"};
   OutputTermToStringMap output_term_to_string_map_{
       {kValue, "${VALUE}"}
   };
