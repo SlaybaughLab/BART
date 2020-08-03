@@ -26,6 +26,9 @@ class DoubleToString : public ConverterI<double, std::string> {
   std::string SetOutputFormat(
       const std::vector<std::variant<OutputTerm, std::string>>);
 
+  DoubleToString& set_precision(const int to_set) {
+    precision_ = to_set;
+    return *this; }
   std::string output_format() const { return output_format_; }
   int precision() const { return precision_; }
   OutputTermToStringMap output_term_to_string_map() const {
