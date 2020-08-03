@@ -8,6 +8,14 @@ namespace instrumentation {
 
 namespace converter {
 
+ConvergenceToString::ConvergenceToString()
+    : ToStringConverter<convergence::Status, ConvergenceToStringOutputTerm>(
+    "Iteration: ${ITERATION_NUM}/${ITERATION_MAX}, delta: ${DELTA}, index: ${INDEX}\n",
+    {{kIterationNum, "${ITERATION_NUM}"},
+     {kIterationMax, "${ITERATION_MAX}"},
+     {kDelta, "${DELTA}"},
+     {kIndex, "${INDEX}"}}) {}
+
 std::string ConvergenceToString::Convert(const convergence::Status &to_convert) const {
   auto return_string = output_format_;
 

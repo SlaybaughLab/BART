@@ -22,9 +22,7 @@ class DoubleToString :
   using OutputTerm = DoubleToStringOutputTerm;
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
-  DoubleToString()
-      : ToStringConverter<double, DoubleToStringOutputTerm>(
-      "${VALUE}\n", {{kValue, "${VALUE}"}}) {}
+  DoubleToString();
   virtual ~DoubleToString() = default;
 
   std::string Convert(const double &input) const override;

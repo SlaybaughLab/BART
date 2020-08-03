@@ -9,6 +9,10 @@ namespace instrumentation {
 
 namespace converter {
 
+DoubleToString::DoubleToString()
+    : ToStringConverter<double, DoubleToStringOutputTerm>(
+    "${VALUE}\n", {{kValue, "${VALUE}"}}) {}
+
 std::string DoubleToString::Convert(const double &input) const {
   std::string return_string{output_format_};
   std::string value_string{output_term_to_string_map_.at(OutputTerm::kValue)};

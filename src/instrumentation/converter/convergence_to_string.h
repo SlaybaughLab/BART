@@ -25,13 +25,7 @@ class ConvergenceToString :
   using OutputTerm = ConvergenceToStringOutputTerm;
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
-  ConvergenceToString()
-      : ToStringConverter<convergence::Status, ConvergenceToStringOutputTerm>(
-      "Iteration: ${ITERATION_NUM}/${ITERATION_MAX}, delta: ${DELTA}, index: ${INDEX}\n",
-      {{kIterationNum, "${ITERATION_NUM}"},
-       {kIterationMax, "${ITERATION_MAX}"},
-       {kDelta, "${DELTA}"},
-       {kIndex, "${INDEX}"}}) {}
+  ConvergenceToString();
   virtual ~ConvergenceToString() = default;
   std::string Convert(const convergence::Status& to_convert) const override;
 
