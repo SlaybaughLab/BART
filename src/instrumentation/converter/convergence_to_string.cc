@@ -48,21 +48,6 @@ std::string ConvergenceToString::Convert(const convergence::Status &to_convert) 
   return return_string;
 }
 
-std::string ConvergenceToString::SetOutputFormat(
-    const std::vector<std::variant<OutputTerm, std::string>> output_format_parts) {
-  std::ostringstream new_format_stream;
-  for (const auto output_part : output_format_parts) {
-    try {
-      new_format_stream << output_term_to_string_map_.at(
-          std::get<OutputTerm>(output_part));
-    } catch (const std::bad_variant_access&) {
-      new_format_stream << std::get<std::string>(output_part);
-    }
-  }
-  output_format_ = new_format_stream.str();
-  return output_format_;
-}
-
 } // namespace converter
 
 } // namespace instrumentation

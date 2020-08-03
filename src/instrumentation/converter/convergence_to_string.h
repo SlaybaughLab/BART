@@ -29,9 +29,6 @@ class ConvergenceToString :
   virtual ~ConvergenceToString() = default;
   std::string Convert(const convergence::Status& to_convert) const override;
 
-  std::string SetOutputFormat(
-      const std::vector<std::variant<OutputTerm, std::string>>);
-
   std::string null_character() const { return null_character_; };
 
  private:

@@ -27,9 +27,6 @@ class DoubleToString :
 
   std::string Convert(const double &input) const override;
 
-  std::string SetOutputFormat(
-      const std::vector<std::variant<OutputTerm, std::string>>);
-
   DoubleToString& set_precision(const int to_set) {
     precision_ = to_set;
     return *this; }
