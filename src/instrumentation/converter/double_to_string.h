@@ -16,11 +16,15 @@ namespace converter {
 
 enum DoubleToStringOutputTerm { kValue, };
 
-class DoubleToString : public ToStringConverter<double> {
+class DoubleToString :
+    public ToStringConverter<double, DoubleToStringOutputTerm> {
  public:
   using OutputTerm = DoubleToStringOutputTerm;
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 
+  DoubleToString()
+      : ToStringConverter<double, DoubleToStringOutputTerm>(
+      "${VALUE}\n", {{kValue, "${VALUE}"}}) {}
   virtual ~DoubleToString() = default;
 
   std::string Convert(const double &input) const override;
@@ -31,16 +35,11 @@ class DoubleToString : public ToStringConverter<double> {
   DoubleToString& set_precision(const int to_set) {
     precision_ = to_set;
     return *this; }
-  std::string output_format() const { return output_format_; }
+
   int precision() const { return precision_; }
-  OutputTermToStringMap output_term_to_string_map() const {
-    return output_term_to_string_map_; }
+
  private:
   int precision_ = 2;
-  std::string output_format_{"${VALUE}\n"};
-  OutputTermToStringMap output_term_to_string_map_{
-      {kValue, "${VALUE}"}
-  };
 };
 
 } // namespace converter
