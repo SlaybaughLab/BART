@@ -8,13 +8,20 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace  {
+
+std::string default_output_format{"Iteration: ${ITERATION_NUM}/${ITERATION_MAX}, delta: ${DELTA}, index: ${INDEX}\n"};
+std::map<ConvergenceToStringOutputTerm, std::string>
+    default_output_term_to_string_map{{kIterationNum, "${ITERATION_NUM}"},
+                                      {kIterationMax, "${ITERATION_MAX}"},
+                                      {kDelta, "${DELTA}"},
+                                      {kIndex, "${INDEX}"}};
+
+} // namespace
+
 ConvergenceToString::ConvergenceToString()
     : ToStringConverter<convergence::Status, ConvergenceToStringOutputTerm>(
-    "Iteration: ${ITERATION_NUM}/${ITERATION_MAX}, delta: ${DELTA}, index: ${INDEX}\n",
-    {{kIterationNum, "${ITERATION_NUM}"},
-     {kIterationMax, "${ITERATION_MAX}"},
-     {kDelta, "${DELTA}"},
-     {kIndex, "${INDEX}"}}) {}
+    default_output_format, default_output_term_to_string_map) {}
 
 std::string ConvergenceToString::Convert(const convergence::Status &to_convert) const {
   auto return_string = output_format_;
