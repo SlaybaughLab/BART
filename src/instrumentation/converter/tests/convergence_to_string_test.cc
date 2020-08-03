@@ -98,6 +98,13 @@ TEST_F(InstrumentationConverterConvergenceToStringTest, DefaultString) {
   ConverterType test_converter;
   EXPECT_EQ(test_converter.Convert(test_status),
             GetExpectedOutput(test_status, test_converter));
+  auto output_term_to_string_map = test_converter.output_term_to_string_map();
+  auto output = test_converter.output_format();
+  // Verify that all terms are in the default output
+  for (auto term_pair : output_term_to_string_map) {
+    int index = output.find(term_pair.second);
+    ASSERT_NE(index, std::string::npos);
+  }
 }
 
 TEST_F(InstrumentationConverterConvergenceToStringTest, NoDelta) {

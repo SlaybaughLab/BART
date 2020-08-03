@@ -35,12 +35,12 @@ class ConvergenceToString : public ConverterI<convergence::Status, std::string> 
 
  private:
   std::string null_character_{"∅"};
-  std::string output_format_{"Iteration: ITERATION_NUM/ITERATION_MAX, delta: DELTA, index: INDEX\n"};
+  std::string output_format_{"Iteration: ${ITERATION_NUM}/${ITERATION_MAX}, delta: ${DELTA}, index: ${INDEX}\n"};
   OutputTermToStringMap output_term_to_string_map_{
-      {kIterationNum, "ITERATION_NUM"},
-      {kIterationMax, "ITERATION_MAX"},
-      {kDelta, "DELTA"},
-      {kIndex, "INDEX"}
+      {kIterationNum, "${ITERATION_NUM}"},
+      {kIterationMax, "${ITERATION_MAX}"},
+      {kDelta, "${DELTA}"},
+      {kIndex, "${INDEX}"}
   };
 };
 
