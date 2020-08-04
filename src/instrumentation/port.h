@@ -28,10 +28,12 @@ class Port {
 
 template <typename PortType, typename T>
 PortType& GetPort(T& to_expose) {
+  static_assert(std::is_polymorphic_v<T>,
+      "Error in GetPort, passed object must be a reference to a polymorphic "
+      "class that can be cast to a Port. Pointers cannot be passed, you "
+      "must dereference to the underlying object using *");
   return dynamic_cast<PortType&>(to_expose);
 }
-
-
 
 } // namespace instrumentation
 
