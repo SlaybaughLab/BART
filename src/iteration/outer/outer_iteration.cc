@@ -50,9 +50,7 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
     if (convergence_status.delta.has_value())
       iteration_error_.push_back(convergence_status.delta.value());
 
-    if (reporter_ptr_ != nullptr) {
-      reporter_ptr_
-    }
+    data_names::StatusPort::Expose("Outer iteration Status: ");
     data_names::ConvergenceStatusPort::Expose(convergence_status);
 
   } while (!convergence_status.is_complete);

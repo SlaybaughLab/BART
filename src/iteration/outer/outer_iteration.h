@@ -26,7 +26,8 @@ using StatusPort = instrumentation::Port<std::string, Status>;
 
 template <typename ConvergenceType>
 class OuterIteration : public OuterIterationI,
-                       public data_names::ConvergenceStatusPort {
+                       public data_names::ConvergenceStatusPort,
+                       public data_names::StatusPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
