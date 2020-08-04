@@ -22,8 +22,11 @@ class Port {
     }
   }
   InstrumentType* instrument_ptr() { return instrument_ptr_.get(); }
+  struct Use_dot_after_GetPort_not_arrow {};
  protected:
   std::shared_ptr<InstrumentType> instrument_ptr_ = nullptr;
+ private:
+  Use_dot_after_GetPort_not_arrow* operator->() { return nullptr; }
 };
 
 template <typename PortType, typename T>
