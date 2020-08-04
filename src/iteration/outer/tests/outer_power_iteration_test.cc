@@ -158,9 +158,7 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system)))
       .Times(this->iterations_);
 
-//  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(_))
-//      .Times(this->iterations_);
-  EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
+  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(_))
       .Times(this->iterations_);
   EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
       .Times(AtLeast(this->iterations_));
