@@ -5,6 +5,7 @@
 
 #include "convergence/final_i.h"
 #include "convergence/reporter/mpi_i.h"
+#include "instrumentation/port.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.h"
 #include "system/system.h"
@@ -15,8 +16,17 @@ namespace iteration {
 
 namespace outer {
 
+namespace data_names {
+struct GroupConvergenceStatus;
+struct Status;
+using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+using StatusPort = instrumentation::Port<std::string, Status>;
+} // namespace data_names
+
+
 template <typename ConvergenceType>
-class OuterIteration : public OuterIterationI {
+class OuterIteration : public OuterIterationI,
+                       public data_names::ConvergenceStatusPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;

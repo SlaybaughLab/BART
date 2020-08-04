@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "convergence/reporter/tests/mpi_mock.h"
@@ -21,6 +22,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
  protected:
   using GroupIterator = iteration::group::GroupSolveIterationMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<double>;
+  using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
@@ -31,6 +33,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   // Dependencies
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
   std::shared_ptr<Reporter> reporter_ptr_;
+  std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
 
   // Supporting objects
   system::System test_system;
@@ -58,6 +61,7 @@ void IterationOuterPowerIterationTest::SetUp() {
   auto k_effective_updater_ptr = std::make_unique<K_EffectiveUpdater>();
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
   reporter_ptr_ = std::make_shared<Reporter>();
+  convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
 
   // Set up system
   test_system.total_angles = total_angles;
@@ -69,8 +73,11 @@ void IterationOuterPowerIterationTest::SetUp() {
       std::move(convergenge_checker_ptr),
       std::move(k_effective_updater_ptr),
       source_updater_ptr_,
-      reporter_ptr_
-      );
+      reporter_ptr_);
+
+  using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
+  instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator).AddInstrument(
+      convergence_instrument_ptr_);
 }
 
 TEST_F(IterationOuterPowerIterationTest, Constructor) {
@@ -117,7 +124,8 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   }
 
   // K_Effective updater return values
-  std::array<double, this->iterations_ + 1> k_effective_by_iteration;
+  std::array<double, iterations_ + 1> k_effective_by_iteration;
+  k_effective_by_iteration.fill(0);
   Sequence k_effective_calls;
   std::vector<double> expected_errors;
 
@@ -150,6 +158,8 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system)))
       .Times(this->iterations_);
 
+//  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(_))
+//      .Times(this->iterations_);
   EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
       .Times(this->iterations_);
   EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
