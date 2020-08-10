@@ -16,7 +16,6 @@
 #include "system/solution/solution_types.h"
 
 // Interface classes built by this factory
-#include "convergence/reporter/mpi_i.h"
 #include "convergence/final_i.h"
 #include "data/cross_sections.h"
 #include "domain/definition_i.h"

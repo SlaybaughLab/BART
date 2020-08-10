@@ -3,7 +3,6 @@
 #include "framework/builder/framework_builder.h"
 
 // Instantiated concerete classes
-#include "convergence/reporter/mpi_noisy.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
