@@ -2,6 +2,7 @@
 
 #include "test_helpers/gmock_wrapper.h"
 
+#include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "convergence/reporter/tests/mpi_mock.h"
@@ -9,7 +10,7 @@
 namespace  {
 
 using namespace bart;
-using ::testing::A, ::testing::Ref;
+using ::testing::A, ::testing::Ref, ::testing::_;
 
 class IterationOuterFixedSourceIterationTest : public ::testing::Test {
  public:
@@ -18,12 +19,18 @@ class IterationOuterFixedSourceIterationTest : public ::testing::Test {
   using GroupIteratorType = iteration::group::GroupSolveIterationMock;
   using ConvergenceCheckerType = typename convergence::FinalCheckerMock<double>;
   using ReporterType = convergence::reporter::MpiMock;
+  using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
+  using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
 
   // Test object
   std::unique_ptr<TestIterationType> test_iterator = nullptr;
 
   // Dependencies
   std::shared_ptr<ReporterType> reporter_mock_ptr_;
+
+  // Mock instruments
+  std::shared_ptr<ConvergenceInstrumentType> convergence_status_instrument_ptr_;
+  std::shared_ptr<StatusInstrumentType> status_instrument_ptr_;
 
   // Observation pointers
   GroupIteratorType* group_iterator_mock_obs_ptr_;
@@ -41,11 +48,23 @@ void IterationOuterFixedSourceIterationTest::SetUp() {
   group_iterator_mock_obs_ptr_ = group_iterator_ptr.get();
   auto convergence_checker_ptr = std::make_unique<ConvergenceCheckerType>();
   convergence_checker_mock_obs_ptr_ = convergence_checker_ptr.get();
+  convergence_status_instrument_ptr_ =
+      std::make_shared<ConvergenceInstrumentType>();
+  status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
 
   test_iterator = std::make_unique<TestIterationType>(
       std::move(group_iterator_ptr),
       std::move(convergence_checker_ptr),
       reporter_mock_ptr_);
+
+  // Data ports
+  using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
+  using StatusPort = iteration::outer::data_names::StatusPort;
+
+  instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator)
+      .AddInstrument(convergence_status_instrument_ptr_);
+  instrumentation::GetPort<StatusPort>(*test_iterator)
+      .AddInstrument(status_instrument_ptr_);
 }
 
 TEST_F(IterationOuterFixedSourceIterationTest, Constructor) {
@@ -61,10 +80,9 @@ TEST_F(IterationOuterFixedSourceIterationTest, Constructor) {
 TEST_F(IterationOuterFixedSourceIterationTest, Iterate) {
   EXPECT_CALL(*group_iterator_mock_obs_ptr_, Iterate(Ref(test_system)))
       .Times(1);
-  EXPECT_CALL(*reporter_mock_ptr_, Report(A<const convergence::Status&>()))
-      .Times(1);
-  EXPECT_CALL(*this->reporter_mock_ptr_, Report(A<const std::string&>()))
-      .Times(1);
+  EXPECT_CALL(*convergence_status_instrument_ptr_, Read(_));
+  EXPECT_CALL(*status_instrument_ptr_, Read(_));
+
 
   test_iterator->IterateToConvergence(test_system);
   auto iteration_errors = test_iterator->iteration_error();
