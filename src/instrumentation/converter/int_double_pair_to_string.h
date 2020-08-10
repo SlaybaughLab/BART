@@ -22,6 +22,9 @@ class IntDoublePairToString
 
   std::string Convert(const std::pair<int, double> &input) const override;
 
+  IntDoublePairToString& set_precision(const int to_set) {
+    precision_ = to_set;
+    return *this; }
   int precision() const {return precision_;}
  protected:
   int precision_ = 2;
