@@ -9,8 +9,22 @@ namespace instrumentation {
 
 namespace converter {
 
-class IntDoublePairToString {
+enum IntDoublePairToStringOutputTerm {kIndex, kValue};
+
+class IntDoublePairToString
+    : public ToStringConverter<std::pair<int, double>,
+                               IntDoublePairToStringOutputTerm> {
  public:
+  using OutputTerm = IntDoublePairToStringOutputTerm;
+
+  IntDoublePairToString();
+  virtual ~IntDoublePairToString() = default;
+
+  std::string Convert(const std::pair<int, double> &input) const override;
+
+  int precision() const {return precision_;}
+ protected:
+  int precision_ = 2;
 };
 
 } // namespace converter
