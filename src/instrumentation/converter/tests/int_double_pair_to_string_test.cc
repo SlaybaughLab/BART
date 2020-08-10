@@ -75,7 +75,7 @@ TEST_F(InstrumentationConverterIntDoublePairToStringTest, SetPrecision) {
 }
 
 TEST_F(InstrumentationConverterIntDoublePairToStringTest,
-       DefaultStringAndPrecision) {
+       ConvertDefaults) {
   ConverterType test_converter;
   EXPECT_EQ(test_converter.Convert({test_int_, test_double_}),
             GetExpectedOutput({test_int_, test_double_},
@@ -83,5 +83,36 @@ TEST_F(InstrumentationConverterIntDoublePairToStringTest,
                               default_output_,
                               default_precision_));
 }
+
+TEST_F(InstrumentationConverterIntDoublePairToStringTest,
+       ConvertNewPrecision) {
+  ConverterType test_converter;
+  const int new_precision{static_cast<int>(test_helpers::RandomDouble(3, 10))};
+  EXPECT_EQ(test_converter
+                .set_precision(new_precision)
+                .Convert({test_int_, test_double_}),
+            GetExpectedOutput({test_int_, test_double_},
+                              test_converter,
+                              default_output_,
+                              new_precision));
+}
+
+TEST_F(InstrumentationConverterIntDoublePairToStringTest,
+       ConvertNewOutputFormat) {
+  using OutputTerm = ConverterType::OutputTerm;
+  ConverterType test_converter;
+  auto new_format = test_converter.SetOutputFormat(
+      {"New format: index: ", OutputTerm::kIndex, " value: ", OutputTerm::kValue});
+  EXPECT_EQ(test_converter
+                .Convert({test_int_, test_double_}),
+            GetExpectedOutput({test_int_, test_double_},
+                              test_converter,
+                              new_format,
+                              default_precision_));
+}
+
+
+
+
 
 } // namespace
