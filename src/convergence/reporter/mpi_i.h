@@ -17,7 +17,8 @@ namespace reporter {
  * using multiple processors.
  *
  */
-class MpiI {
+class [[deprecated("Convergence reporters have been replaced by new "
+                   "convergence status instrumentation")]] MpiI {
  public:
   virtual ~MpiI() = default;
   /*! \brief Report status of convergence.
