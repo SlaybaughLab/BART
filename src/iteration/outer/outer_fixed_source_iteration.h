@@ -13,12 +13,10 @@ class OuterFixedSourceIteration : public OuterIteration<double> {
  public:
   using typename OuterIteration<double>::GroupIterator;
   using typename OuterIteration<double>::ConvergenceChecker;
-  using typename OuterIteration<double>::Reporter;
 
   OuterFixedSourceIteration(
       std::unique_ptr<GroupIterator> group_iterator_ptr,
-      std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
-      const std::shared_ptr<Reporter>& reporter_ptr);
+      std::unique_ptr<ConvergenceChecker> convergence_checker_ptr);
   virtual ~OuterFixedSourceIteration() = default;
   convergence::Status CheckConvergence(system::System &system) override;
   void UpdateSystem(system::System &/*system*/,

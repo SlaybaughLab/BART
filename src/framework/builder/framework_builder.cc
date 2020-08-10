@@ -183,13 +183,11 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
         std::move(iterative_group_solver_ptr),
         BuildParameterConvergenceChecker(1e-6, 10000),
         BuildKEffectiveUpdater(finite_element_ptr, cross_sections_ptr, domain_ptr),
-        updater_pointers.fission_source_updater_ptr,
-        convergence_reporter_ptr);
+        updater_pointers.fission_source_updater_ptr);
   } else {
     outer_iteration_ptr = BuildOuterIteration(
         std::move(iterative_group_solver_ptr),
-        BuildParameterConvergenceChecker(1e-6, 10000),
-        convergence_reporter_ptr);
+        BuildParameterConvergenceChecker(1e-6, 10000));
   };
 
 
@@ -605,8 +603,7 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIterationType> group_iteration_ptr,
-    std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr,
-    const std::shared_ptr<ReporterType>& reporter_ptr)
+    std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr)
     -> std::unique_ptr<OuterIterationType> {
   ReportBuildingComponant("Outer iteration");
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;
@@ -614,8 +611,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 
   return_ptr = std::move(std::make_unique<ReturnType>(
       std::move(group_iteration_ptr),
-      std::move(convergence_checker_ptr),
-      reporter_ptr));
+      std::move(convergence_checker_ptr)));
 
   ReportBuildSuccess(return_ptr->description());
 
@@ -627,8 +623,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIterationType> group_solve_iteration_ptr,
     std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
-    const std::shared_ptr<FissionSourceUpdaterType>& fission_source_updater_ptr,
-    const std::shared_ptr<ReporterType>& convergence_reporter_ptr)
+    const std::shared_ptr<FissionSourceUpdaterType>& fission_source_updater_ptr)
 -> std::unique_ptr<OuterIterationType> {
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;
   ReportBuildingComponant("Outer Iteration");
@@ -640,8 +635,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           std::move(group_solve_iteration_ptr),
           std::move(parameter_convergence_checker_ptr),
           std::move(k_effective_updater_ptr),
-          fission_source_updater_ptr,
-          convergence_reporter_ptr));
+          fission_source_updater_ptr));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());

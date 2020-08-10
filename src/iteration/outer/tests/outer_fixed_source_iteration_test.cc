@@ -5,7 +5,6 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "convergence/tests/final_checker_mock.h"
-#include "convergence/reporter/tests/mpi_mock.h"
 
 namespace  {
 
@@ -18,15 +17,11 @@ class IterationOuterFixedSourceIterationTest : public ::testing::Test {
   // Dependency types
   using GroupIteratorType = iteration::group::GroupSolveIterationMock;
   using ConvergenceCheckerType = typename convergence::FinalCheckerMock<double>;
-  using ReporterType = convergence::reporter::MpiMock;
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
 
   // Test object
   std::unique_ptr<TestIterationType> test_iterator = nullptr;
-
-  // Dependencies
-  std::shared_ptr<ReporterType> reporter_mock_ptr_;
 
   // Mock instruments
   std::shared_ptr<ConvergenceInstrumentType> convergence_status_instrument_ptr_;
@@ -43,7 +38,6 @@ class IterationOuterFixedSourceIterationTest : public ::testing::Test {
 };
 
 void IterationOuterFixedSourceIterationTest::SetUp() {
-  reporter_mock_ptr_ = std::make_shared<ReporterType>();
   auto group_iterator_ptr = std::make_unique<GroupIteratorType>();
   group_iterator_mock_obs_ptr_ = group_iterator_ptr.get();
   auto convergence_checker_ptr = std::make_unique<ConvergenceCheckerType>();
@@ -54,8 +48,7 @@ void IterationOuterFixedSourceIterationTest::SetUp() {
 
   test_iterator = std::make_unique<TestIterationType>(
       std::move(group_iterator_ptr),
-      std::move(convergence_checker_ptr),
-      reporter_mock_ptr_);
+      std::move(convergence_checker_ptr));
 
   // Data ports
   using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
@@ -71,9 +64,7 @@ TEST_F(IterationOuterFixedSourceIterationTest, Constructor) {
   EXPECT_NO_THROW({
     TestIterationType test_iterator(
         std::make_unique<GroupIteratorType>(),
-        std::make_unique<ConvergenceCheckerType>(),
-        reporter_mock_ptr_
-        );
+        std::make_unique<ConvergenceCheckerType>());
   });
 }
 

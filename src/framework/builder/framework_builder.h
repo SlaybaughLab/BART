@@ -153,14 +153,12 @@ class FrameworkBuilder {
       double max_delta, int max_iterations);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,
-      std::unique_ptr<ParameterConvergenceCheckerType>,
-      const std::shared_ptr<ReporterType>&);
+      std::unique_ptr<ParameterConvergenceCheckerType>);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,
       std::unique_ptr<ParameterConvergenceCheckerType>,
       std::unique_ptr<KEffectiveUpdaterType>,
-      const std::shared_ptr<FissionSourceUpdaterType>&,
-      const std::shared_ptr<ReporterType>&);
+      const std::shared_ptr<FissionSourceUpdaterType>&);
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
       double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);

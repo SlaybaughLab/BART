@@ -10,12 +10,10 @@ OuterPowerIteration::OuterPowerIteration(
     std::unique_ptr<GroupIterator> group_iterator_ptr,
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
     std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr,
-    const std::shared_ptr<SourceUpdaterType> &source_updater_ptr,
-    const std::shared_ptr<Reporter> &reporter_ptr)
+    const std::shared_ptr<SourceUpdaterType> &source_updater_ptr)
     : OuterIteration(
         std::move(group_iterator_ptr),
-        std::move(convergence_checker_ptr),
-        reporter_ptr),
+        std::move(convergence_checker_ptr)),
       source_updater_ptr_(source_updater_ptr),
       k_effective_updater_ptr_(std::move(k_effective_updater_ptr)) {
 

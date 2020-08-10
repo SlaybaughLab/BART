@@ -458,8 +458,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
       std::move(this->group_solve_iteration_uptr_),
       std::move(this->parameter_convergence_checker_uptr_),
       std::move(this->k_effective_updater_uptr_),
-      this->fission_source_updater_sptr_,
-      this->convergence_reporter_sptr_);
+      this->fission_source_updater_sptr_);
   using ExpectedType = iteration::outer::OuterPowerIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
@@ -468,8 +467,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
-      std::move(this->parameter_convergence_checker_uptr_),
-      this->convergence_reporter_sptr_);
+      std::move(this->parameter_convergence_checker_uptr_));
   using ExpectedType = iteration::outer::OuterFixedSourceIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));

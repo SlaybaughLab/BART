@@ -5,7 +5,6 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
-#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -27,13 +26,11 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
-  using Reporter = convergence::reporter::MpiMock;
 
   std::unique_ptr<OuterPowerIteration> test_iterator;
 
   // Dependencies
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
-  std::shared_ptr<Reporter> reporter_ptr_;
   std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
   std::shared_ptr<StatusInstrumentType> status_instrument_ptr_;
 
@@ -62,7 +59,6 @@ void IterationOuterPowerIterationTest::SetUp() {
   convergence_checker_obs_ptr_ = convergenge_checker_ptr.get();
   auto k_effective_updater_ptr = std::make_unique<K_EffectiveUpdater>();
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
-  reporter_ptr_ = std::make_shared<Reporter>();
   convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
   status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
 
@@ -75,8 +71,7 @@ void IterationOuterPowerIterationTest::SetUp() {
       std::move(group_iterator_ptr),
       std::move(convergenge_checker_ptr),
       std::move(k_effective_updater_ptr),
-      source_updater_ptr_,
-      reporter_ptr_);
+      source_updater_ptr_);
 
   using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
   instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator).AddInstrument(
@@ -92,7 +87,6 @@ TEST_F(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator->source_updater_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->convergence_checker_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->k_effective_updater_ptr(), nullptr);
-  EXPECT_NE(this->test_iterator->reporter_ptr(), nullptr);
   EXPECT_EQ(this->source_updater_ptr_.use_count(), 2);
 }
 
