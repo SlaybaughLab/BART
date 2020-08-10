@@ -81,7 +81,6 @@ class FrameworkBuilder {
   using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
-  using ReporterType = convergence::reporter::MpiI;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterI;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
@@ -101,7 +100,6 @@ class FrameworkBuilder {
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
 
-  std::unique_ptr<ReporterType> BuildConvergenceReporter();
   std::unique_ptr<ConvergenceInstrumentType> BuildConvergenceInstrument();
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
@@ -132,7 +130,6 @@ class FrameworkBuilder {
       std::unique_ptr<MomentCalculatorType>,
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
-      const std::shared_ptr<ReporterType>&,
       std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,

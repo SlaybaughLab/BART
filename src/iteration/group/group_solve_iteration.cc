@@ -12,13 +12,11 @@ GroupSolveIteration<dim>::GroupSolveIteration(
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolution> &group_solution_ptr,
-    const std::shared_ptr<Reporter> &reporter_ptr,
     std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
     : group_solver_ptr_(std::move(group_solver_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)),
       moment_calculator_ptr_(std::move(moment_calculator_ptr)),
       group_solution_ptr_(group_solution_ptr),
-      reporter_ptr_(reporter_ptr),
       moment_map_convergence_checker_ptr_(std::move(moment_map_convergence_checker_ptr)){
 
   AssertThrow(group_solver_ptr_ != nullptr,

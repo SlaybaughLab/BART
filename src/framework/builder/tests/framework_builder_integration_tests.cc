@@ -33,7 +33,6 @@
 #include "system/system_functions.h"
 
 // Mock objects
-#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
@@ -80,7 +79,6 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   // Mock object types
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
-  using ConvergenceReporterType = convergence::reporter::MpiMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
@@ -108,7 +106,6 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   // Various mock objects to be used
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
-  std::shared_ptr<ConvergenceReporterType> convergence_reporter_sptr_;
   std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::shared_ptr<DomainType> domain_sptr_;
@@ -142,7 +139,6 @@ template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   boundary_conditions_updater_sptr_ =
       std::make_shared<BoundaryConditionsUpdaterType>();
-  convergence_reporter_sptr_ = std::make_shared<ConvergenceReporterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ =
       std::move(std::make_unique<DiffusionFormulationType>());
@@ -207,13 +203,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
   auto reporter_ptr = this->test_builder_ptr_->reporter_ptr();
   EXPECT_THAT(reporter_ptr,
               WhenDynamicCastTo<utility::reporter::BasicReporterMock*>(NotNull()));
-}
-
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
-  using ExpectedType = convergence::reporter::MpiNoisy;
-  auto convergence_reporter_ptr = this->test_builder_ptr_->BuildConvergenceReporter();
-  EXPECT_THAT(convergence_reporter_ptr.get(),
-              WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceInstrumentType) {
@@ -361,7 +350,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
       updater_ptrs,
-      this->convergence_reporter_sptr_,
       nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
@@ -381,7 +369,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdat
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
       updater_ptrs,
-      this->convergence_reporter_sptr_,
       nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));

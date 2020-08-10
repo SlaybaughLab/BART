@@ -12,7 +12,6 @@
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/moments/multi_moment_checker_max.h"
 #include "convergence/parameters/single_parameter_checker.h"
-#include "convergence/reporter/mpi.h"
 
 // Domain classes
 #include "domain/definition.h"
@@ -156,7 +155,6 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   auto initializer_ptr = BuildInitializer(
       updater_pointers.fixed_updater_ptr, n_groups, n_angles);
-  auto convergence_reporter_ptr = Shared(BuildConvergenceReporter());
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
   system::SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
@@ -166,7 +164,6 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(moment_calculator_ptr),
       group_solution_ptr,
       updater_pointers,
-      convergence_reporter_ptr,
       BuildMomentMapConvergenceChecker(1e-6, 1000));
 
   if (need_angular_solution_storage) {
@@ -220,20 +217,6 @@ auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
               std::make_unique<dealii::ConditionalOStream>(
                   std::cout, this_process == 0))
       );
-}
-
-template<int dim>
-auto FrameworkBuilder<dim>::BuildConvergenceReporter()
--> std::unique_ptr<ReporterType> {
-  ReportBuildingComponant("ConvergenceReporter");
-  using Reporter = bart::convergence::reporter::MpiNoisy;
-
-  std::unique_ptr<ReporterType> return_ptr = nullptr;
-
-  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
-  return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
-  return return_ptr;
 }
 
 template<int dim>
@@ -419,7 +402,6 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
     const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
-    const std::shared_ptr<ReporterType>& convergence_report_ptr,
     std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
   std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
@@ -434,7 +416,6 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             std::move(moment_calculator_ptr),
             group_solution_ptr,
             updater_ptrs.scattering_source_updater_ptr,
-            convergence_report_ptr,
             std::move(moment_map_convergence_checker_ptr))
     );
   } else {
@@ -446,7 +427,6 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             group_solution_ptr,
             updater_ptrs.scattering_source_updater_ptr,
             updater_ptrs.boundary_conditions_updater_ptr,
-            convergence_report_ptr,
             std::move(moment_map_convergence_checker_ptr))
     );
   }

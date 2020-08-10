@@ -2,7 +2,6 @@
 #define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_H_
 
 #include "convergence/final_i.h"
-#include "convergence/reporter/mpi_i.h"
 #include "instrumentation/port.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
@@ -37,7 +36,6 @@ class GroupSolveIteration
   using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
-  using Reporter = convergence::reporter::MpiI;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
   // Data ports
@@ -49,7 +47,6 @@ class GroupSolveIteration
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
-      const std::shared_ptr<Reporter> &reporter_ptr = nullptr,
       std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr = nullptr);
 
   GroupSolveIteration& UpdateThisAngularSolutionMap(
@@ -91,10 +88,6 @@ class GroupSolveIteration
     return group_solution_ptr_;
   }
 
-  Reporter* reporter_ptr() const {
-    return reporter_ptr_.get();
-  }
-
  protected:
   virtual void PerformPerGroup(system::System& system, const int group);
   virtual void SolveGroup(const int group, system::System &system);
@@ -112,7 +105,6 @@ class GroupSolveIteration
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
-  std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
   std::unique_ptr<MomentMapConvergenceChecker>
       moment_map_convergence_checker_ptr_ = nullptr;
   bool is_storing_angular_solution_ = false;

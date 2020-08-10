@@ -12,7 +12,6 @@
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
-#include "convergence/reporter/tests/mpi_mock.h"
 #include "instrumentation/tests/instrument_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
@@ -49,7 +48,6 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
-  using Reporter = convergence::reporter::MpiMock;
 
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
@@ -63,7 +61,6 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::shared_ptr<GroupSolution> group_solution_ptr_;
   std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_;
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
-  std::shared_ptr<Reporter> reporter_ptr_;
 
   // Supporting objects
   system::System test_system;
@@ -99,7 +96,6 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   group_solution_ptr_ = std::make_shared<GroupSolution>();
   boundary_conditions_updater_ptr_ = std::make_shared<BoundaryConditionsUpdater>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
-  reporter_ptr_ = std::make_shared<Reporter>();
   convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
   status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
 
@@ -115,7 +111,6 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       group_solution_ptr_,
       source_updater_ptr_,
       boundary_conditions_updater_ptr_,
-      reporter_ptr_,
       std::move(moment_map_convergence_checker_ptr_));
   using ConvergenceStatusPort = iteration::group::data_ports::ConvergenceStatusPort;
   test_iterator_ptr_->ConvergenceStatusPort::AddInstrument(convergence_instrument_ptr_);
@@ -151,7 +146,6 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_EQ(this->group_solution_ptr_.get(),
             this->test_iterator_ptr_->group_solution_ptr().get());
   EXPECT_NE(nullptr, source_updater_test_ptr);
-  EXPECT_NE(nullptr, this->test_iterator_ptr_->reporter_ptr());
   EXPECT_NE(nullptr, boundary_conditions_test_ptr);
 }
 
