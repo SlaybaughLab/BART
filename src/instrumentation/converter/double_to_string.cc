@@ -10,10 +10,10 @@ namespace instrumentation {
 namespace converter {
 
 namespace  {
-
+using OutputTerm = DoubleToStringOutputTerm;
 std::string default_output_format{"${VALUE}\n"};
 std::map<DoubleToStringOutputTerm, std::string>
-    default_output_term_to_string_map{{kValue, "${VALUE}"}};
+    default_output_term_to_string_map{{OutputTerm::kValue, "${VALUE}"}};
 } // namespace
 
 DoubleToString::DoubleToString()

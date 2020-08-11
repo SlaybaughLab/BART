@@ -15,8 +15,8 @@ namespace instrumentation {
 
 namespace converter {
 
-enum ConvergenceToStringOutputTerm {
-  kIterationNum, kIterationMax, kDelta, kIndex
+enum class ConvergenceToStringOutputTerm {
+  kIterationNum = 0, kIterationMax = 1, kDelta = 2, kIndex = 3
 };
 
 class ConvergenceToString :

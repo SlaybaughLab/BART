@@ -9,7 +9,7 @@ namespace instrumentation {
 
 namespace converter {
 
-enum IntDoublePairToStringOutputTerm {kIndex, kValue};
+enum class IntDoublePairToStringOutputTerm {kIndex = 0, kValue = 1};
 
 class IntDoublePairToString
     : public ToStringConverter<std::pair<int, double>,

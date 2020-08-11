@@ -9,12 +9,12 @@ namespace instrumentation {
 namespace converter {
 
 namespace  {
-
+using OutputTerm = IntDoublePairToStringOutputTerm;
 std::string default_output_format{"${INDEX}, ${VALUE}\n"};
 std::map<IntDoublePairToStringOutputTerm, std::string>
     default_output_term_to_string_map{
-    {kValue, "${VALUE}"},
-    {kIndex, "${INDEX}"}};
+    {OutputTerm::kValue, "${VALUE}"},
+    {OutputTerm::kIndex, "${INDEX}"}};
 }
 
 IntDoublePairToString::IntDoublePairToString()

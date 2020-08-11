@@ -10,12 +10,14 @@ namespace converter {
 
 namespace  {
 
+using OutputTerm = ConvergenceToStringOutputTerm;
+
 std::string default_output_format{"Iteration: ${ITERATION_NUM}/${ITERATION_MAX}, delta: ${DELTA}, index: ${INDEX}\n"};
 std::map<ConvergenceToStringOutputTerm, std::string>
-    default_output_term_to_string_map{{kIterationNum, "${ITERATION_NUM}"},
-                                      {kIterationMax, "${ITERATION_MAX}"},
-                                      {kDelta, "${DELTA}"},
-                                      {kIndex, "${INDEX}"}};
+    default_output_term_to_string_map{{OutputTerm::kIterationNum, "${ITERATION_NUM}"},
+                                      {OutputTerm::kIterationMax, "${ITERATION_MAX}"},
+                                      {OutputTerm::kDelta, "${DELTA}"},
+                                      {OutputTerm::kIndex, "${INDEX}"}};
 
 } // namespace
 

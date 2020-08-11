@@ -14,7 +14,7 @@ namespace instrumentation {
 
 namespace converter {
 
-enum DoubleToStringOutputTerm { kValue, };
+enum class DoubleToStringOutputTerm { kValue = 0, };
 
 class DoubleToString :
     public ToStringConverter<double, DoubleToStringOutputTerm> {
