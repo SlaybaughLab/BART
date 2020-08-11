@@ -37,7 +37,7 @@ std::string IntDoublePairToString::Convert(
   if (auto value_index = return_string.find(value_string);
       value_index != std::string::npos) {
     std::ostringstream value_stream;
-    value_stream << std::fixed << std::setprecision(precision_) << value;
+    value_stream << std::scientific << std::setprecision(precision_) << value;
     return_string.replace(value_index, value_string.size(), value_stream.str());
   }
 

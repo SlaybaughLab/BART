@@ -50,7 +50,7 @@ InstrumentationConverterIntDoublePairToStringTest::GetExpectedOutput(
   if (std::size_t index = output.find(value_string);
       index != std::string::npos) {
     std::ostringstream string_stream;
-    string_stream << std::fixed << std::setprecision(precision)
+    string_stream << std::scientific << std::setprecision(precision)
                   << to_convert.second;
     output.replace(index, value_string.size(), string_stream.str());
   }
