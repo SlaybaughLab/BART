@@ -8,6 +8,7 @@
 #include "instrumentation/converter/convergence_to_string.h"
 #include "instrumentation/converter/int_double_pair_to_string.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
+#include "instrumentation/outstream/to_ostream.h"
 
 namespace bart {
 
@@ -51,6 +52,14 @@ MakeOutstream<std::string, std::unique_ptr<dealii::ConditionalOStream>>(
     std::unique_ptr<dealii::ConditionalOStream> conditional_ostream_ptr) {
   using ReturnType = instrumentation::outstream::ToConditionalOstream;
   return std::make_unique<ReturnType>(std::move(conditional_ostream_ptr));
+}
+
+template <>
+std::unique_ptr<OutstreamType<std::string>>
+MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
+    std::unique_ptr<std::ostream> ostream_ptr) {
+  using ReturnType = instrumentation::outstream::ToOstream;
+  return std::make_unique<ReturnType>(std::move(ostream_ptr));
 }
 
 template std::unique_ptr<InstrumentType<convergence::Status>> MakeInstrument(std::unique_ptr<ConverterType<convergence::Status, std::string>>, std::unique_ptr<OutstreamType<std::string>>);

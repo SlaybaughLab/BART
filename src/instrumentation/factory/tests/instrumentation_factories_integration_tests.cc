@@ -7,6 +7,7 @@
 #include "instrumentation/converter/tests/converter_mock.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
+#include "instrumentation/outstream/to_ostream.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 #include "instrumentation/outstream/tests/outstream_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -27,6 +28,17 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConditionalOstream) {
   using ExpectedType = instrumentation::outstream::ToConditionalOstream;
   ASSERT_NE(dynamic_cast<ExpectedType*>(outstream_ptr.get()), nullptr);
 }
+
+TEST_F(InstrumentationFactoriesIntegrationTests, ToOStreamOutStream) {
+  using namespace instrumentation::factory;
+  auto outstream_ptr = MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
+      std::make_unique<std::ostringstream>());
+  ASSERT_NE(outstream_ptr, nullptr);
+  using ExpectedType = instrumentation::outstream::ToOstream;
+  ASSERT_NE(dynamic_cast<ExpectedType*>(outstream_ptr.get()), nullptr);
+}
+
+
 
 TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<convergence::Status, std::string>();
