@@ -54,6 +54,7 @@ MakeOutstream<std::string, std::unique_ptr<dealii::ConditionalOStream>>(
 }
 
 template std::unique_ptr<InstrumentType<convergence::Status>> MakeInstrument(std::unique_ptr<ConverterType<convergence::Status, std::string>>, std::unique_ptr<OutstreamType<std::string>>);
+template std::unique_ptr<InstrumentType<std::pair<int, double>>> MakeInstrument(std::unique_ptr<ConverterType<std::pair<int, double>, std::string>>, std::unique_ptr<OutstreamType<std::string>>);
 template std::unique_ptr<InstrumentType<std::string>> MakeBasicInstrument(std::unique_ptr<OutstreamType<std::string>>);
 
 } // namespace factory

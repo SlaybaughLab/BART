@@ -35,6 +35,7 @@ void Instrument<InputType, OutputType>::AssertNotNull(T* ptr,
 }
 
 template class Instrument<convergence::Status, std::string>;
+template class Instrument<std::pair<int, double>, std::string>;
 
 } // namespace instrumentation
 
