@@ -62,7 +62,6 @@ class FrameworkBuilder {
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterI;
-  using ConvergenceInstrumentType = instrumentation::InstrumentI<convergence::Status>;
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
@@ -86,6 +85,10 @@ class FrameworkBuilder {
   using StamperType = formulation::StamperI<dim>;
   using SystemType = system::System;
 
+  // Instrument types
+  using ConvergenceInstrumentType = instrumentation::InstrumentI<convergence::Status>;
+  using StatusInstrumentType = instrumentation::InstrumentI<std::string>;
+
   struct UpdaterPointers {
     std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
     std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
@@ -99,7 +102,11 @@ class FrameworkBuilder {
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
 
+  // Instrument factory functions
   std::unique_ptr<ConvergenceInstrumentType> BuildConvergenceInstrument();
+  std::unique_ptr<StatusInstrumentType> BuildStatusInstrument();
+
+
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElementType>&,

@@ -205,6 +205,10 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(results_output_ptr));
 }
 
+// =============================================================================
+// INSTRUMENT FACTORY FUNCTIONS
+// =============================================================================
+
 template <int dim>
 auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
 -> std::unique_ptr<ConvergenceInstrumentType> {
@@ -218,6 +222,20 @@ auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
                   std::cout, this_process == 0))
       );
 }
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildStatusInstrument()
+-> std::unique_ptr<StatusInstrumentType> {
+  namespace factory = instrumentation::factory;
+  ReportBuildingComponant("Basic reporting instrument");
+  return factory::MakeBasicInstrument(
+      factory::MakeOutstream<std::string>(
+          std::make_unique<dealii::ConditionalOStream>(
+              std::cout,
+              dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)));
+}
+
+// =============================================================================
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildCrossSections(
@@ -432,17 +450,12 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
   }
 
   using ConvergenceDataPort = iteration::group::data_ports::ConvergenceStatusPort;
-  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr).AddInstrument(
-      Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(Shared(BuildConvergenceInstrument()));
 
   using StatusPort = iteration::group::data_ports::StatusPort;
-  instrumentation::GetPort<StatusPort>(*return_ptr).AddInstrument(
-      Shared(instrumentation::factory::MakeBasicInstrument(
-          instrumentation::factory::MakeOutstream<std::string>(
-              std::make_unique<dealii::ConditionalOStream>(
-                  std::cout,
-                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
-          ))));
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(Shared(BuildStatusInstrument()));
 
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
@@ -593,6 +606,14 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
       std::move(group_iteration_ptr),
       std::move(convergence_checker_ptr)));
 
+  using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
+  using StatusPort =  iteration::outer::data_names::StatusPort;
+
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(Shared(BuildStatusInstrument()));
+
   ReportBuildSuccess(return_ptr->description());
 
   return return_ptr;
@@ -616,6 +637,14 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           std::move(parameter_convergence_checker_ptr),
           std::move(k_effective_updater_ptr),
           fission_source_updater_ptr));
+
+  using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
+  using StatusPort =  iteration::outer::data_names::StatusPort;
+
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(Shared(BuildStatusInstrument()));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());

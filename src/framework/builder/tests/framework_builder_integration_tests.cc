@@ -17,6 +17,7 @@
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
 #include "instrumentation/instrument.h"
+#include "instrumentation/basic_instrument.h"
 #include "iteration/outer/outer_power_iteration.h"
 #include "iteration/outer/outer_fixed_source_iteration.h"
 #include "quadrature/calculators/scalar_moment.h"
@@ -210,6 +211,16 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceInstrumentType) {
   EXPECT_THAT(convergence_instrument_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStatusInstrument) {
+  using ExpectedType = instrumentation::BasicInstrument<std::string>;
+  auto status_instrument_ptr =
+      this->test_builder_ptr_->BuildStatusInstrument();
+  EXPECT_THAT(status_instrument_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   constexpr int dim = this->dim;
