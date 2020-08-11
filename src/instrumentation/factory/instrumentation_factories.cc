@@ -6,6 +6,7 @@
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/converter/convergence_to_string.h"
+#include "instrumentation/converter/int_double_pair_to_string.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 
 namespace bart {
@@ -25,6 +26,13 @@ template <>
 std::unique_ptr<ConverterType<convergence::Status, std::string>>
 MakeConverter<convergence::Status, std::string>() {
   using ReturnType = instrumentation::converter::ConvergenceToString;
+  return std::make_unique<ReturnType>();
+}
+
+template <>
+std::unique_ptr<ConverterType<std::pair<int, double>, std::string>>
+MakeConverter<std::pair<int, double>, std::string>() {
+  using ReturnType = instrumentation::converter::IntDoublePairToString;
   return std::make_unique<ReturnType>();
 }
 

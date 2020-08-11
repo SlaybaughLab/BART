@@ -3,6 +3,7 @@
 #include <deal.II/base/conditional_ostream.h>
 
 #include "instrumentation/converter/convergence_to_string.h"
+#include "instrumentation/converter/int_double_pair_to_string.h"
 #include "instrumentation/converter/tests/converter_mock.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
@@ -31,6 +32,13 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<convergence::Status, std::string>();
   ASSERT_NE(converter_ptr, nullptr);
   using ExpectedType = instrumentation::converter::ConvergenceToString;
+  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
+  auto converter_ptr = instrumentation::factory::MakeConverter<std::pair<int, double>, std::string>();
+  ASSERT_NE(converter_ptr, nullptr);
+  using ExpectedType = instrumentation::converter::IntDoublePairToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
 
