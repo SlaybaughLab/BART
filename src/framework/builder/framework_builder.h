@@ -87,6 +87,7 @@ class FrameworkBuilder {
 
   // Instrument types
   using ConvergenceInstrumentType = instrumentation::InstrumentI<convergence::Status>;
+  using IterationErrorInstrumentType = instrumentation::InstrumentI<std::pair<int, double>>;
   using StatusInstrumentType = instrumentation::InstrumentI<std::string>;
 
   struct UpdaterPointers {
@@ -104,6 +105,8 @@ class FrameworkBuilder {
 
   // Instrument factory functions
   std::unique_ptr<ConvergenceInstrumentType> BuildConvergenceInstrument();
+  std::unique_ptr<IterationErrorInstrumentType> BuildIterationErrorInstrument(
+      const std::string& filename);
   std::unique_ptr<StatusInstrumentType> BuildStatusInstrument();
 
 
@@ -220,6 +223,7 @@ class FrameworkBuilder {
 
   FrameworkValidator validator_;
   bool build_report_closed_ = true;
+  std::string filename_{""};
 };
 
 } // namespace builder

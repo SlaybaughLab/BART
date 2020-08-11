@@ -3,6 +3,7 @@
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/mpi.h>
 #include <sstream>
+#include <fstream>
 
 #include "utility/reporter/mpi.h"
 #include "utility/reporter/colors.h"
@@ -86,6 +87,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       reflective_boundaries.begin(),
       reflective_boundaries.end(),
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
+  filename_ = prm.OutputFilenameBase();
 
   *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
                  Color::Reset << "\n";
@@ -224,10 +226,23 @@ auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
 }
 
 template <int dim>
+auto FrameworkBuilder<dim>::BuildIterationErrorInstrument(const std::string& filename)
+-> std::unique_ptr<IterationErrorInstrumentType> {
+  namespace factory = instrumentation::factory;
+  auto file_stream = std::make_unique<std::ofstream>(filename);
+  ReportBuildingComponant("Building file output component to file");
+  auto return_ptr = factory::MakeInstrument(
+      factory::MakeConverter<std::pair<int, double>, std::string>(9),
+          factory::MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
+              std::move(file_stream)));
+  ReportBuildSuccess("Filename: " + filename);
+  return return_ptr;
+}
+
+template <int dim>
 auto FrameworkBuilder<dim>::BuildStatusInstrument()
 -> std::unique_ptr<StatusInstrumentType> {
-  namespace factory = instrumentation::factory;
-  ReportBuildingComponant("Basic reporting instrument");
+  namespace factory = instrumentation::factory;  ReportBuildingComponant("Basic reporting instrument");
   return factory::MakeBasicInstrument(
       factory::MakeOutstream<std::string>(
           std::make_unique<dealii::ConditionalOStream>(
@@ -640,11 +655,15 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 
   using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
   using StatusPort =  iteration::outer::data_names::StatusPort;
+  using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
 
   instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
       .AddInstrument(Shared(BuildConvergenceInstrument()));
   instrumentation::GetPort<StatusPort>(*return_ptr)
       .AddInstrument(Shared(BuildStatusInstrument()));
+  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
+      .AddInstrument(Shared(BuildIterationErrorInstrument(
+          filename_ + "_iteration_error.csv")));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
