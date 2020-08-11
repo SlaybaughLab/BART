@@ -32,9 +32,11 @@ MakeConverter<convergence::Status, std::string>() {
 
 template <>
 std::unique_ptr<ConverterType<std::pair<int, double>, std::string>>
-MakeConverter<std::pair<int, double>, std::string>() {
+MakeConverter<std::pair<int, double>, std::string, int>(const int precision) {
   using ReturnType = instrumentation::converter::IntDoublePairToString;
-  return std::make_unique<ReturnType>();
+  auto return_ptr = std::make_unique<ReturnType>();
+  return_ptr->set_precision(precision);
+  return return_ptr;
 }
 
 template <typename InputType, typename OutputType>

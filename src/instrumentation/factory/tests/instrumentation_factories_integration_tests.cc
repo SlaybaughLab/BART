@@ -48,10 +48,13 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
 }
 
 TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
-  auto converter_ptr = instrumentation::factory::MakeConverter<std::pair<int, double>, std::string>();
+  const int precision = 5;
+  auto converter_ptr = instrumentation::factory::MakeConverter<std::pair<int, double>, std::string>(precision);
   ASSERT_NE(converter_ptr, nullptr);
   using ExpectedType = instrumentation::converter::IntDoublePairToString;
-  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(converter_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_EQ(dynamic_ptr->precision(), precision);
 }
 
 TEST_F(InstrumentationFactoriesIntegrationTests, MakeBasicInstrument) {
