@@ -18,15 +18,18 @@ namespace outer {
 namespace data_names {
 struct GroupConvergenceStatus;
 struct Status;
+struct IterationError;
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
 using StatusPort = instrumentation::Port<std::string, Status>;
+using IterationErrorPort = instrumentation::Port<std::pair<int, double>, IterationError>;
 } // namespace data_names
 
 
 template <typename ConvergenceType>
 class OuterIteration : public OuterIterationI,
                        public data_names::ConvergenceStatusPort,
-                       public data_names::StatusPort {
+                       public data_names::StatusPort,
+                       public data_names::IterationErrorPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;

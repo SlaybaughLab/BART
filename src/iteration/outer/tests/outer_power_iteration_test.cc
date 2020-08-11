@@ -22,6 +22,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using GroupIterator = iteration::group::GroupSolveIterationMock;
   using ConvergenceChecker = convergence::FinalCheckerMock<double>;
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
+  using ErrorInstrumentType = instrumentation::InstrumentMock<std::pair<int, double>>;
   using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
@@ -32,6 +33,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   // Dependencies
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
   std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
+  std::shared_ptr<ErrorInstrumentType> error_instrument_ptr_;
   std::shared_ptr<StatusInstrumentType> status_instrument_ptr_;
 
   // Supporting objects
@@ -61,6 +63,7 @@ void IterationOuterPowerIterationTest::SetUp() {
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
   convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
   status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
+  error_instrument_ptr_ = std::make_shared<ErrorInstrumentType>();
 
   // Set up system
   test_system.total_angles = total_angles;
@@ -79,6 +82,9 @@ void IterationOuterPowerIterationTest::SetUp() {
   using StatusPort = iteration::outer::data_names::StatusPort;
   instrumentation::GetPort<StatusPort>(*test_iterator).AddInstrument(
       status_instrument_ptr_);
+  using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
+  instrumentation::GetPort<IterationErrorPort>(*test_iterator)
+      .AddInstrument(error_instrument_ptr_);
 }
 
 TEST_F(IterationOuterPowerIterationTest, Constructor) {
@@ -162,7 +168,8 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
       .Times(this->iterations_);
   EXPECT_CALL(*this->status_instrument_ptr_, Read(_))
       .Times(AtLeast(this->iterations_));
-
+  EXPECT_CALL(*this->error_instrument_ptr_, Read(_))
+      .Times(this->iterations_ - 1);
 
   this->test_iterator->IterateToConvergence(this->test_system);
 
