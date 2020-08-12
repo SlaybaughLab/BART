@@ -1,3 +1,7 @@
+
+#include <stdio.h>
+#include <filesystem>
+
 #include <deal.II/fe/fe_q.h>
 
 #include "framework/builder/framework_builder.h"
@@ -131,9 +135,23 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   const int n_angles = 2;
   std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
   std::map<problem::Boundary, bool> reflective_bcs_;
+  static int files_in_working_directory_;
 
+  static void SetUpTestSuite() {
+    for (const auto & entry : std::filesystem::directory_iterator(".")) {
+      std::ignore = entry;
+      ++files_in_working_directory_;
+    }
+  }
+  static void TearDownTestSuite() {
+    files_in_working_directory_ = 0;
+  }
   void SetUp() override;
+  void TearDown() override;
 };
+
+template <typename DimensionWrapper>
+int FrameworkBuilderIntegrationTest<DimensionWrapper>::files_in_working_directory_ = 0;
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
@@ -196,6 +214,20 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
       .WillByDefault(ReturnRef(*mock_reporter_ptr_));
 }
 
+template <typename DimensionWrapper>
+void FrameworkBuilderIntegrationTest<DimensionWrapper>::TearDown() {
+  int files_in_working_directory_after{0};
+  for (const auto & entry : std::filesystem::directory_iterator(".")) {
+    std::ignore = entry;
+    ++files_in_working_directory_after;
+  }
+  EXPECT_EQ(files_in_working_directory_after,
+            files_in_working_directory_)
+            << "Test changed number of files in working directory from "
+            << files_in_working_directory_ << " to "
+            << files_in_working_directory_after << std::endl;
+}
+
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
                 bart::testing::AllDimensions);
 
@@ -220,7 +252,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStatusInstrument) {
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
-
+// =============================================================================
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   constexpr int dim = this->dim;
@@ -459,6 +491,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
   using ExpectedType = iteration::outer::OuterPowerIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(remove("_iteration_error.csv"), 0);
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
@@ -694,10 +727,6 @@ TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
   ASSERT_NE(dynamic_ptr, nullptr);
   EXPECT_EQ(dynamic_ptr->total_angles(), total_angles);
   EXPECT_EQ(dynamic_ptr->total_groups(), total_groups);
-}
-
-TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildSystemDefaut) {
-
 }
 
 } // namespace
