@@ -7,8 +7,10 @@
 #include "instrumentation/instrument.h"
 #include "instrumentation/converter/convergence_to_string.h"
 #include "instrumentation/converter/int_double_pair_to_string.h"
+#include "instrumentation/converter/string_color_pair_to_string.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 #include "instrumentation/outstream/to_ostream.h"
+#include "utility/colors.h"
 
 namespace bart {
 
@@ -36,6 +38,14 @@ MakeConverter<std::pair<int, double>, std::string, int>(const int precision) {
   using ReturnType = instrumentation::converter::IntDoublePairToString;
   auto return_ptr = std::make_unique<ReturnType>();
   return_ptr->set_precision(precision);
+  return return_ptr;
+}
+
+template <>
+std::unique_ptr<ConverterType<std::pair<std::string, utility::Color>, std::string>>
+MakeConverter<std::pair<std::string, utility::Color>, std::string>() {
+  using ReturnType = instrumentation::converter::StringColorPairToString;
+  auto return_ptr = std::make_unique<ReturnType>();
   return return_ptr;
 }
 

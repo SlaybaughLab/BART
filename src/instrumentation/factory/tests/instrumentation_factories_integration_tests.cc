@@ -4,6 +4,7 @@
 
 #include "instrumentation/converter/convergence_to_string.h"
 #include "instrumentation/converter/int_double_pair_to_string.h"
+#include "instrumentation/converter/string_color_pair_to_string.h"
 #include "instrumentation/converter/tests/converter_mock.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
@@ -11,11 +12,13 @@
 #include "instrumentation/outstream/to_conditional_ostream.h"
 #include "instrumentation/outstream/tests/outstream_mock.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "utility/colors.h"
 
 namespace  {
 
 namespace instrumentation = bart::instrumentation;
 namespace convergence = bart::convergence;
+namespace utility = bart::utility;
 
 class InstrumentationFactoriesIntegrationTests : public ::testing::Test {
  public:
@@ -56,6 +59,16 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
   ASSERT_NE(dynamic_ptr, nullptr);
   EXPECT_EQ(dynamic_ptr->precision(), precision);
 }
+
+TEST_F(InstrumentationFactoriesIntegrationTests, StringColorPairToString) {
+  using StringColorPair = std::pair<std::string, utility::Color>;
+  auto converter_ptr =  instrumentation::factory::MakeConverter<StringColorPair,
+                                                                std::string>();
+  ASSERT_NE(converter_ptr, nullptr);
+  using ExpectedType = instrumentation::converter::StringColorPairToString;
+  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
 
 TEST_F(InstrumentationFactoriesIntegrationTests, MakeBasicInstrument) {
   using InputType = std::string;
