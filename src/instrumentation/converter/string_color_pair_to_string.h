@@ -19,11 +19,11 @@ class StringColorPairToString :
                           StringColorPairToStringOutputTerm> {
  public:
   using OutputTerm = StringColorPairToStringOutputTerm;
+  using Color = utility::Color;
 
   StringColorPairToString();
   virtual ~StringColorPairToString() = default;
-  std::string Convert(const std::pair<std::string,
-                                      utility::Color> &input) const override;
+  std::string Convert(const std::pair<std::string, Color> &) const override;
 };
 
 } // namespace converter
