@@ -3,10 +3,12 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
+#include "utility/colors.h"
 
 namespace  {
 
 namespace instrumentation = bart::instrumentation;
+namespace utility = bart::utility;
 
 template <typename DataType>
 class InstrumentationPortTest : public ::testing::Test {
@@ -32,7 +34,21 @@ int InstrumentationPortTest<int>::GetTestValue() {
   return bart::test_helpers::RandomDouble(0, 100);
 }
 
-using TestTypes = ::testing::Types<std::string, double, int>;
+template <>
+std::pair<int, double> InstrumentationPortTest<std::pair<int, double>>::GetTestValue() {
+  return std::pair(static_cast<int>(bart::test_helpers::RandomDouble(0, 10)),
+                   bart::test_helpers::RandomDouble(11, 100));
+}
+
+template <>
+std::pair<std::string, utility::Color>
+InstrumentationPortTest<std::pair<std::string, utility::Color>>::GetTestValue() {
+  return std::pair("test string", utility::Color::kRed);
+}
+
+using TestTypes = ::testing::Types<
+    std::string, double, int, std::pair<int, double>,
+    std::pair<std::string, utility::Color>>;
 TYPED_TEST_SUITE(InstrumentationPortTest, TestTypes);
 
 TYPED_TEST(InstrumentationPortTest, AddInstrument) {

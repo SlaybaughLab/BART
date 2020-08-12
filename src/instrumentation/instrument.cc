@@ -4,6 +4,7 @@
 #include <string>
 
 #include "convergence/status.h"
+#include "utility/colors.h"
 
 namespace bart {
 
@@ -36,6 +37,7 @@ void Instrument<InputType, OutputType>::AssertNotNull(T* ptr,
 
 template class Instrument<convergence::Status, std::string>;
 template class Instrument<std::pair<int, double>, std::string>;
+template class Instrument<std::pair<std::string, utility::Color>, std::string>;
 
 } // namespace instrumentation
 
