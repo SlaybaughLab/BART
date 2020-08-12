@@ -237,11 +237,25 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
               WhenDynamicCastTo<utility::reporter::BasicReporterMock*>(NotNull()));
 }
 
+// BuildInstrument Tests =======================================================
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceInstrumentType) {
   using ExpectedType = instrumentation::Instrument<convergence::Status, std::string>;
   auto convergence_instrument_ptr = this->test_builder_ptr_->BuildConvergenceInstrument();
   EXPECT_THAT(convergence_instrument_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildIterationErrorInstrumentTest) {
+  const std::string filename{"error_per_iteration.test"};
+  using ExpectedType = instrumentation::Instrument<std::pair<int, double>, std::string>;
+  auto iteration_error_ptr =
+      this->test_builder_ptr_->BuildIterationErrorInstrument(filename);
+  ASSERT_THAT(iteration_error_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(remove(filename.c_str()), 0) << "Expected test file was not created"
+                                            " (could not find to remove)";
+
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStatusInstrument) {
