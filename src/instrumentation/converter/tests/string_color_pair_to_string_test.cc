@@ -16,17 +16,9 @@ class InstrumentationConverterStringColorPairToStringTest
 
 
   std::string default_output{"${COLOR_CODE}${STRING}${COLOR_RESET_CODE}"};
-  std::string GetExpectedOutput(const PairType, const ConverterType&) const;
   std::string GetExpectedOutput(const PairType, const ConverterType&,
                                 const std::string) const;
 };
-
-std::string
-InstrumentationConverterStringColorPairToStringTest::GetExpectedOutput(
-    const PairType to_convert,
-    const ConverterType &converter) const {
-  return GetExpectedOutput(to_convert, converter, converter.output_format());
-}
 
 std::string
 InstrumentationConverterStringColorPairToStringTest::GetExpectedOutput(
