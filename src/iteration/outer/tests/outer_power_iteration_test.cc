@@ -172,10 +172,6 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
       .Times(this->iterations_ - 1);
 
   this->test_iterator->IterateToConvergence(this->test_system);
-
-  auto iteration_errors = this->test_iterator->iteration_error();
-  ASSERT_EQ(iteration_errors.size(), iterations_ - 1);
-  EXPECT_THAT(iteration_errors, ::testing::ContainerEq(expected_errors));
 }
 
 

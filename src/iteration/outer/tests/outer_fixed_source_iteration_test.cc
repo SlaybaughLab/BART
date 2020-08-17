@@ -73,11 +73,7 @@ TEST_F(IterationOuterFixedSourceIterationTest, Iterate) {
       .Times(1);
   EXPECT_CALL(*convergence_status_instrument_ptr_, Read(_));
   EXPECT_CALL(*status_instrument_ptr_, Read(_));
-
-
-  test_iterator->IterateToConvergence(test_system);
-  auto iteration_errors = test_iterator->iteration_error();
-  ASSERT_EQ(iteration_errors.size(), 0);
+  test_iterator->IterateToConvergence(this->test_system);
 }
 
 } // namespace

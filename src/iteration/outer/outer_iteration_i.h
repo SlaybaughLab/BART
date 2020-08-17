@@ -18,7 +18,6 @@ class OuterIterationI : public utility::HasDescription {
  public:
   virtual ~OuterIterationI() = default;
   virtual void IterateToConvergence(system::System &system) = 0;
-  virtual std::vector<double> iteration_error() const = 0;
 };
 
 } // namespace outer

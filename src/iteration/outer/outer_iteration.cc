@@ -46,7 +46,6 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
 
     convergence_status = CheckConvergence(system);
     if (convergence_status.delta.has_value()) {
-      iteration_error_.push_back(convergence_status.delta.value());
       data_names::IterationErrorPort::Expose({convergence_status.iteration_number,
                                               convergence_status.delta.value()});
     }

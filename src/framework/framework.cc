@@ -50,12 +50,6 @@ void Framework::OutputMasterFile(std::ostream &output_stream,
   }
 }
 
-void Framework::OutputIterationError(std::ostream &output_stream) {
-  results_output_ptr_->WriteVector(output_stream,
-                                   outer_iterator_ptr_->iteration_error(),
-                                   std::vector<std::string>{"iteration", "error"});
-}
-
 } // namespace framework
 
 } // namespace bart
