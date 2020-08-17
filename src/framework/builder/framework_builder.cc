@@ -5,9 +5,6 @@
 #include <sstream>
 #include <fstream>
 
-#include "utility/reporter/mpi.h"
-#include "utility/reporter/colors.h"
-
 // Convergence classes
 #include "convergence/final_checker_or_n.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
@@ -89,15 +86,26 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
   filename_ = prm.OutputFilenameBase();
 
-  *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
-                 Color::Reset << "\n";
+  auto status_instrument_ptr = Shared(
+      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
+          instrumentation::factory::MakeConverter<std::pair<std::string, utility::Color>, std::string>(),
+          instrumentation::factory::MakeOutstream<std::string>(
+              std::make_unique<dealii::ConditionalOStream>(
+                  std::cout,
+                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))));
+  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
+  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
+      .AddInstrument(status_instrument_ptr);
+
+  Report("Building framework: " + name + "\n", utility::Color::kGreen);
+
 
   auto finite_element_ptr = Shared(BuildFiniteElement(prm));
   auto cross_sections_ptr = Shared(BuildCrossSections(prm));
 
   auto domain_ptr = Shared(BuildDomain(prm, finite_element_ptr,
                                        ReadMappingFile(prm.MaterialMapFilename())));
-  *reporter_ptr_ << "\tSetting up domain\n";
+  Report("Setting up domain...\n", utility::Color::kReset);
   domain_ptr->SetUpMesh(prm.UniformRefinements()).SetUpDOF();
 
   // Various objects to be initialized
@@ -230,12 +238,12 @@ auto FrameworkBuilder<dim>::BuildIterationErrorInstrument(const std::string& fil
 -> std::unique_ptr<IterationErrorInstrumentType> {
   namespace factory = instrumentation::factory;
   auto file_stream = std::make_unique<std::ofstream>(filename);
-  ReportBuildingComponant("Building file output component to file");
+  ReportBuildingComponant("iteration error file output");
   auto return_ptr = factory::MakeInstrument(
       factory::MakeConverter<std::pair<int, double>, std::string>(9),
           factory::MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
               std::move(file_stream)));
-  ReportBuildSuccess("Filename: " + filename);
+  ReportBuildSuccess("using filename " + filename);
   return return_ptr;
 }
 
@@ -743,7 +751,7 @@ auto FrameworkBuilder<dim>::BuildSAAFFormulation(
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
     const formulation::SAAFFormulationImpl implementation)
 -> std::unique_ptr<SAAFFormulationType> {
-  reporter_ptr_->Report("\tBuilding SAAF Formulation\n");
+  ReportBuildingComponant("Building SAAF Formulation");
   std::unique_ptr<SAAFFormulationType> return_ptr;
 
   if (implementation == formulation::SAAFFormulationImpl::kDefault) {
@@ -815,17 +823,17 @@ auto FrameworkBuilder<dim>::BuildStamper(
 }
 template<int dim>
 std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
-  reporter_ptr_->Report("\tReading mapping file: ");
+  ReportBuildingComponant("Reading mapping file: ");
 
   std::ifstream mapping_file(filename);
   if (mapping_file.is_open()) {
-    reporter_ptr_->Report(filename + '\n', Color::Green);
+    ReportBuildSuccess(filename);
 
     return std::string(
         (std::istreambuf_iterator<char>(mapping_file)),
         std::istreambuf_iterator<char>());
   } else {
-    reporter_ptr_->Report("Error reading " + filename + "\n", Color::Red);
+    ReportBuildError("Error reading " + filename);
     AssertThrow(false,
                 dealii::ExcMessage("Failed to open material mapping file"))
   }
@@ -833,7 +841,7 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
 
 template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
-  validator_.ReportValidation(*reporter_ptr_);
+  validator_.ReportValidation();
 }
 
 template class FrameworkBuilder<1>;

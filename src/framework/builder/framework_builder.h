@@ -42,7 +42,8 @@
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
-#include "utility/reporter/basic_reporter_i.h"
+#include "utility/colors.h"
+#include "instrumentation/port.h"
 
 
 namespace bart {
@@ -51,12 +52,16 @@ namespace framework {
 
 namespace builder {
 
+namespace data_port {
+struct BuilderStatus;
+using StatusDataPort = instrumentation::Port<std::pair<std::string, utility::Color>, BuilderStatus>;
+}
+
 template <int dim>
-class FrameworkBuilder {
+class FrameworkBuilder : public data_port::StatusDataPort {
  public:
-  using FrameworkReporterType = utility::reporter::BasicReporterI;
   using ParametersType = const problem::ParametersI&;
-  using Color = utility::reporter::Color;
+  using Color = utility::Color;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
@@ -97,8 +102,7 @@ class FrameworkBuilder {
     std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
   };
 
-  FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr)
-  : reporter_ptr_(reporter_ptr) {}
+  FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
@@ -183,36 +187,33 @@ class FrameworkBuilder {
                                           bool is_eigenvalue_problem = true,
                                           bool need_rhs_boundary_condition = false);
 
-  FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
-
  private:
   void ReportBuildingComponant(std::string componant) {
     if (!build_report_closed_) {
-      *reporter_ptr_ << "\n" << Color::Reset;
+      data_port::StatusDataPort::Expose({"\n", utility::Color::kReset});
     }
-    *reporter_ptr_ << "\tBuilding " << componant << ": ";
+    data_port::StatusDataPort::Expose(
+        {"Building " + componant + ": ", utility::Color::kReset});
     build_report_closed_ = false;
   }
 
-  void Report(const std::string to_report, const Color color = Color::Reset) const {
-    *reporter_ptr_ << color << to_report << Color::Reset;
-  }
-
   void ReportBuildSuccess(std::string description = "") {
-    *reporter_ptr_ << Color::Green << "Built " << description << Color::Reset
-                   << "\n";
+    data_port::StatusDataPort::Expose(
+        {"Built " + description + "\n", utility::Color::kGreen});
     build_report_closed_ = true;
   }
 
+  void Report(std::string to_report, utility::Color color) {
+    data_port::StatusDataPort::Expose({to_report, color});
+  }
+
   void ReportBuildError(std::string description = "") {
-    *reporter_ptr_ << Color::Red << "Error: " << description << Color::Reset
-                   << "\n";
+    data_port::StatusDataPort::Expose(
+        {"Error: " + description + "\n", utility::Color::kRed});
     build_report_closed_ = true;
   }
 
   void Validate() const;
-
-  std::shared_ptr<FrameworkReporterType> reporter_ptr_;
 
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
@@ -221,7 +222,7 @@ class FrameworkBuilder {
 
   std::string ReadMappingFile(std::string filename);
 
-  FrameworkValidator validator_;
+  mutable FrameworkValidator validator_;
   bool build_report_closed_ = true;
   std::string filename_{""};
 };

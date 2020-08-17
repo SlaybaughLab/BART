@@ -56,7 +56,6 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
-#include "utility/reporter/tests/basic_reporter_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -98,7 +97,6 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
   using SingleGroupSolverType = solver::group::SingleGroupSolverMock;
   using StamperType = formulation::StamperMock<dim>;
-  using ReporterType = NiceMock<utility::reporter::BasicReporterMock>;
 
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
@@ -106,7 +104,6 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::unique_ptr<FrameworkBuilder> test_builder_ptr_;
   ProblemParameters parameters;
   Material mock_material;
-  std::shared_ptr<ReporterType> mock_reporter_ptr_;
 
   // Various mock objects to be used
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
@@ -177,10 +174,9 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
-  mock_reporter_ptr_ = std::make_shared<ReporterType>();
   single_group_solver_uptr_ = std::move(std::make_unique<SingleGroupSolverType>());
 
-  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(mock_reporter_ptr_));
+  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>());
 
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(10);
@@ -208,10 +204,6 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(problem::EquationType::kDiffusion));
   ON_CALL(parameters, ReflectiveBoundary())
       .WillByDefault(Return(reflective_bcs_));
-  ON_CALL(*mock_reporter_ptr_, Instream(A<const std::string&>()))
-      .WillByDefault(ReturnRef(*mock_reporter_ptr_));
-  ON_CALL(*mock_reporter_ptr_, Instream(A<utility::reporter::Color>()))
-      .WillByDefault(ReturnRef(*mock_reporter_ptr_));
 }
 
 template <typename DimensionWrapper>
@@ -230,12 +222,6 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::TearDown() {
 
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
                 bart::testing::AllDimensions);
-
-TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
-  auto reporter_ptr = this->test_builder_ptr_->reporter_ptr();
-  EXPECT_THAT(reporter_ptr,
-              WhenDynamicCastTo<utility::reporter::BasicReporterMock*>(NotNull()));
-}
 
 // BuildInstrument Tests =======================================================
 
