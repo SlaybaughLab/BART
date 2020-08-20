@@ -1,6 +1,9 @@
 #ifndef BART_SRC_UTILITY_COLORS_H_
 #define BART_SRC_UTILITY_COLORS_H_
 
+#include <map>
+#include <string>
+
 namespace bart {
 
 namespace utility {
