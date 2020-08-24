@@ -136,17 +136,4 @@ TEST_F(FrameworkTest, OutputMasterFileMPI) {
   test_framework_->OutputMasterFile(output_stream, filenames, process_id);
 }
 
-TEST_F(FrameworkTest, OutputErrorIteration) {
-  std::ostringstream output_stream;
-  std::vector<double> error = bart::test_helpers::RandomVector(4, -100, 100);
-  std::vector<std::string> headers{"iteration", "error"};
-  auto& results_output_mock = *results_output_obs_ptr_;
-  auto& outer_iteration_mock = *outer_iterator_obs_ptr_;
-
-  EXPECT_CALL(outer_iteration_mock, iteration_error()).WillOnce(Return(error));
-  EXPECT_CALL(results_output_mock, WriteVector(Ref(output_stream), error, headers));
-
-  test_framework_->OutputIterationError(output_stream);
-}
-
 } // namespace

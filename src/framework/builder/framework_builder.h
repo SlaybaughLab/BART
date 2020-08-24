@@ -16,7 +16,6 @@
 #include "system/solution/solution_types.h"
 
 // Interface classes built by this factory
-#include "convergence/reporter/mpi_i.h"
 #include "convergence/final_i.h"
 #include "data/cross_sections.h"
 #include "domain/definition_i.h"
@@ -30,9 +29,11 @@
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "framework/framework_i.h"
+#include "instrumentation/instrument_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.h"
+#include "instrumentation/port.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -41,7 +42,8 @@
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
-#include "utility/reporter/basic_reporter_i.h"
+#include "utility/colors.h"
+#include "instrumentation/port.h"
 
 
 namespace bart {
@@ -50,12 +52,16 @@ namespace framework {
 
 namespace builder {
 
+namespace data_port {
+struct BuilderStatus;
+using StatusDataPort = instrumentation::Port<std::pair<std::string, utility::Color>, BuilderStatus>;
+}
+
 template <int dim>
-class FrameworkBuilder {
+class FrameworkBuilder : public data_port::StatusDataPort {
  public:
-  using FrameworkReporterType = utility::reporter::BasicReporterI;
   using ParametersType = const problem::ParametersI&;
-  using Color = utility::reporter::Color;
+  using Color = utility::Color;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
@@ -78,12 +84,16 @@ class FrameworkBuilder {
   using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
-  using ReporterType = convergence::reporter::MpiI;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterI;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
   using SystemType = system::System;
+
+  // Instrument types
+  using ConvergenceInstrumentType = instrumentation::InstrumentI<convergence::Status>;
+  using IterationErrorInstrumentType = instrumentation::InstrumentI<std::pair<int, double>>;
+  using StatusInstrumentType = instrumentation::InstrumentI<std::string>;
 
   struct UpdaterPointers {
     std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
@@ -92,13 +102,18 @@ class FrameworkBuilder {
     std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
   };
 
-  FrameworkBuilder(std::shared_ptr<FrameworkReporterType> reporter_ptr)
-  : reporter_ptr_(reporter_ptr) {}
+  FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
 
-  std::unique_ptr<ReporterType> BuildConvergenceReporter();
+  // Instrument factory functions
+  std::unique_ptr<ConvergenceInstrumentType> BuildConvergenceInstrument();
+  std::unique_ptr<IterationErrorInstrumentType> BuildIterationErrorInstrument(
+      const std::string& filename);
+  std::unique_ptr<StatusInstrumentType> BuildStatusInstrument();
+
+
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElementType>&,
@@ -128,7 +143,6 @@ class FrameworkBuilder {
       std::unique_ptr<MomentCalculatorType>,
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
-      const std::shared_ptr<ReporterType>&,
       std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
   std::unique_ptr<InitializerType> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
@@ -149,14 +163,12 @@ class FrameworkBuilder {
       double max_delta, int max_iterations);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,
-      std::unique_ptr<ParameterConvergenceCheckerType>,
-      const std::shared_ptr<ReporterType>&);
+      std::unique_ptr<ParameterConvergenceCheckerType>);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIterationType>,
       std::unique_ptr<ParameterConvergenceCheckerType>,
       std::unique_ptr<KEffectiveUpdaterType>,
-      const std::shared_ptr<FissionSourceUpdaterType>&,
-      const std::shared_ptr<ReporterType>&);
+      const std::shared_ptr<FissionSourceUpdaterType>&);
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
       double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
@@ -175,45 +187,44 @@ class FrameworkBuilder {
                                           bool is_eigenvalue_problem = true,
                                           bool need_rhs_boundary_condition = false);
 
-  FrameworkReporterType* reporter_ptr() { return reporter_ptr_.get(); }
-
  private:
   void ReportBuildingComponant(std::string componant) {
     if (!build_report_closed_) {
-      *reporter_ptr_ << "\n" << Color::Reset;
+      data_port::StatusDataPort::Expose({"\n", utility::Color::kReset});
     }
-    *reporter_ptr_ << "\tBuilding " << componant << ": ";
+    data_port::StatusDataPort::Expose(
+        {"Building " + componant + ": ", utility::Color::kReset});
     build_report_closed_ = false;
   }
 
-  void Report(const std::string to_report, const Color color = Color::Reset) const {
-    *reporter_ptr_ << color << to_report << Color::Reset;
-  }
-
   void ReportBuildSuccess(std::string description = "") {
-    *reporter_ptr_ << Color::Green << "Built " << description << Color::Reset
-                   << "\n";
+    data_port::StatusDataPort::Expose(
+        {"Built " + description + "\n", utility::Color::kGreen});
     build_report_closed_ = true;
   }
 
+  void Report(std::string to_report, utility::Color color) {
+    data_port::StatusDataPort::Expose({to_report, color});
+  }
+
   void ReportBuildError(std::string description = "") {
-    *reporter_ptr_ << Color::Red << "Error: " << description << Color::Reset
-                   << "\n";
+    data_port::StatusDataPort::Expose(
+        {"Error: " + description + "\n", utility::Color::kRed});
     build_report_closed_ = true;
   }
 
   void Validate() const;
 
-  std::shared_ptr<FrameworkReporterType> reporter_ptr_;
-
   template <typename T>
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return to_convert_ptr;
   }
+
   std::string ReadMappingFile(std::string filename);
 
-  FrameworkValidator validator_;
+  mutable FrameworkValidator validator_;
   bool build_report_closed_ = true;
+  std::string filename_{""};
 };
 
 } // namespace builder

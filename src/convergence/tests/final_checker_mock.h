@@ -14,15 +14,17 @@ template <typename CompareType>
 class FinalCheckerMock : public FinalI<CompareType> {
  public:
   using typename FinalI<CompareType>::IterationNumber;
-  MOCK_METHOD2_T(CheckFinalConvergence, Status(CompareType& current_iteration,
-                                               CompareType& previous_iteration));
-  MOCK_CONST_METHOD0_T(convergence_status, Status());
-  MOCK_CONST_METHOD0_T(convergence_is_complete, bool());
-  MOCK_CONST_METHOD0_T(max_iterations, IterationNumber());
-  MOCK_CONST_METHOD0_T(iteration, IterationNumber());
-  MOCK_METHOD1_T(SetMaxIterations, FinalCheckerMock&(IterationNumber to_set));
-  MOCK_METHOD1_T(SetIteration, FinalCheckerMock&(IterationNumber to_set));
-  MOCK_METHOD0_T(Reset, void());
+  MOCK_METHOD(Status, CheckFinalConvergence, (CompareType& current_iteration,
+      CompareType& previous_iteration), (override));
+  MOCK_METHOD(Status, convergence_status, (), (override, const));
+  MOCK_METHOD(bool, convergence_is_complete, (), (override, const));
+  MOCK_METHOD(IterationNumber, max_iterations, (), (override, const));
+  MOCK_METHOD(IterationNumber, iteration, (), (override, const));
+  MOCK_METHOD(FinalCheckerMock&, SetMaxIterations, (IterationNumber to_set),
+              (override));
+  MOCK_METHOD(FinalCheckerMock&, SetIteration, (IterationNumber to_set),
+              (override));
+  MOCK_METHOD(void, Reset, (), (override));
 };
 
 } // namespace convergence

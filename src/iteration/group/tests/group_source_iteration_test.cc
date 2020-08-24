@@ -12,7 +12,7 @@
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/final_checker_mock.h"
-#include "convergence/reporter/tests/mpi_mock.h"
+#include "instrumentation/tests/instrument_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
@@ -48,7 +48,9 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
-  using Reporter = convergence::reporter::MpiMock;
+
+  using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
+  using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
 
   virtual ~IterationGroupSourceIterationTest() = default;
 
@@ -59,11 +61,12 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::shared_ptr<GroupSolution> group_solution_ptr_;
   std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_;
   std::shared_ptr<SourceUpdater> source_updater_ptr_;
-  std::shared_ptr<Reporter> reporter_ptr_;
 
   // Supporting objects
   system::System test_system;
   EnergyGroupToAngularSolutionPtrMap energy_group_angular_solution_ptr_map_;
+  std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
+  std::shared_ptr<StatusInstrumentType> status_instrument_ptr_;
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
@@ -93,13 +96,13 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   group_solution_ptr_ = std::make_shared<GroupSolution>();
   boundary_conditions_updater_ptr_ = std::make_shared<BoundaryConditionsUpdater>();
   source_updater_ptr_ = std::make_shared<SourceUpdater>();
-  reporter_ptr_ = std::make_shared<Reporter>();
+  convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
+  status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
   test_system.previous_moments = std::make_unique<Moments>();
   previous_moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.previous_moments.get());
-
 
   test_iterator_ptr_ = std::make_unique<TestGroupIterator>(
       std::move(single_group_solver_ptr_),
@@ -108,8 +111,10 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
       group_solution_ptr_,
       source_updater_ptr_,
       boundary_conditions_updater_ptr_,
-      reporter_ptr_,
       std::move(moment_map_convergence_checker_ptr_));
+  using ConvergenceStatusPort = iteration::group::data_ports::ConvergenceStatusPort;
+  test_iterator_ptr_->ConvergenceStatusPort::AddInstrument(convergence_instrument_ptr_);
+  test_iterator_ptr_->AddInstrument(status_instrument_ptr_);
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
@@ -141,7 +146,6 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   EXPECT_EQ(this->group_solution_ptr_.get(),
             this->test_iterator_ptr_->group_solution_ptr().get());
   EXPECT_NE(nullptr, source_updater_test_ptr);
-  EXPECT_NE(nullptr, this->test_iterator_ptr_->reporter_ptr());
   EXPECT_NE(nullptr, boundary_conditions_test_ptr);
 }
 
@@ -411,9 +415,9 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       .Times(AtLeast(1))
       .WillRepeatedly(ReturnConvergence(this));
 
-  EXPECT_CALL(*this->reporter_ptr_, Report(A<const convergence::Status&>()))
+  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(A<const convergence::Status&>()))
       .Times(AtLeast(1));
-  EXPECT_CALL(*this->reporter_ptr_, Report(A<const std::string&>()))
+  EXPECT_CALL(*this->status_instrument_ptr_, Read(_))
       .Times(AtLeast(1));
 
   this->test_system.total_groups = this->total_groups;

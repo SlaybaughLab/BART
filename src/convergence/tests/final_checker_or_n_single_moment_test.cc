@@ -6,7 +6,6 @@
 #include <gtest/gtest.h>
 
 #include "convergence/status.h"
-#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/moments/tests/single_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
 #include "system/moments/spherical_harmonic_types.h"
@@ -29,16 +28,13 @@ class ConvergenceFinalCheckerOrNSingleMomentTest :
  protected:
   using FinalSingleMomentChecker =
       FinalCheckerOrN<MomentVector, moments::SingleMomentCheckerI>;
-  using Reporter = reporter::MpiMock;
   std::unique_ptr<NiceMock<moments::SingleMomentCheckerMock>> checker_ptr;
-  std::shared_ptr<Reporter> reporter_ptr;
   bart::system::moments::MomentVector moment_one, moment_two;
   void SetUp() override;
 };
 
 void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
   checker_ptr = std::make_unique<NiceMock<moments::SingleMomentCheckerMock>>();
-  reporter_ptr = std::make_shared<Reporter>();
   ON_CALL(*checker_ptr, CheckIfConverged(_,_))
       .WillByDefault(Return(true));
   ON_CALL(*checker_ptr, delta())
@@ -64,10 +60,8 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, Constructor) {
 // -- CONVERGENCE TESTS --
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergence) {
-  FinalSingleMomentChecker test_checker(std::move(checker_ptr), reporter_ptr);
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
   Status good_convergence = {1, 100, true, std::nullopt, std::nullopt};
-  EXPECT_CALL(*reporter_ptr, Report(A<const Status&>()))
-      .Times(1);
   auto result = test_checker.CheckFinalConvergence(moment_one, moment_two);
   EXPECT_TRUE(CompareStatus(result, good_convergence));
 }
@@ -79,10 +73,8 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
   EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
       .After(bad_convergence)
       .WillOnce(Return(true));
-  EXPECT_CALL(*reporter_ptr, Report(A<const Status&>()))
-      .Times(6);
 
-  FinalSingleMomentChecker test_checker(std::move(checker_ptr), reporter_ptr);
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
   Status result, good_convergence = {6, 100, true, std::nullopt, std::nullopt};
 
   for (int i = 0; i < 6; ++i)
@@ -107,10 +99,8 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BadConvergenceAfterGood) {
   EXPECT_CALL(*checker_ptr, delta())
       .After(bad_convergence)
       .WillOnce(Return(delta));
-  EXPECT_CALL(*reporter_ptr, Report(A<const Status&>()))
-      .Times(6);
 
-  FinalSingleMomentChecker test_checker(std::move(checker_ptr), reporter_ptr);
+  FinalSingleMomentChecker test_checker(std::move(checker_ptr));
   Status result, expected = {6, 100, false, std::nullopt, delta};
 
   for (int i = 0; i < 6; ++i)

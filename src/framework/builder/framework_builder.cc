@@ -3,16 +3,13 @@
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/mpi.h>
 #include <sstream>
-
-#include "utility/reporter/mpi.h"
-#include "utility/reporter/colors.h"
+#include <fstream>
 
 // Convergence classes
 #include "convergence/final_checker_or_n.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/moments/multi_moment_checker_max.h"
 #include "convergence/parameters/single_parameter_checker.h"
-#include "convergence/reporter/mpi.h"
 
 // Domain classes
 #include "domain/definition.h"
@@ -40,6 +37,9 @@
 // Solver classes
 #include "solver/group/single_group_solver.h"
 #include "solver/gmres.h"
+
+// Instrumentation classes
+#include "instrumentation/factory/instrumentation_factories.h"
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
@@ -84,16 +84,28 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       reflective_boundaries.begin(),
       reflective_boundaries.end(),
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
+  filename_ = prm.OutputFilenameBase();
 
-  *reporter_ptr_ << "Building Framework: " << Color::Green << name <<
-                 Color::Reset << "\n";
+  auto status_instrument_ptr = Shared(
+      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
+          instrumentation::factory::MakeConverter<std::pair<std::string, utility::Color>, std::string>(),
+          instrumentation::factory::MakeOutstream<std::string>(
+              std::make_unique<dealii::ConditionalOStream>(
+                  std::cout,
+                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))));
+  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
+  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
+      .AddInstrument(status_instrument_ptr);
+
+  Report("Building framework: " + name + "\n", utility::Color::kGreen);
+
 
   auto finite_element_ptr = Shared(BuildFiniteElement(prm));
   auto cross_sections_ptr = Shared(BuildCrossSections(prm));
 
   auto domain_ptr = Shared(BuildDomain(prm, finite_element_ptr,
                                        ReadMappingFile(prm.MaterialMapFilename())));
-  *reporter_ptr_ << "\tSetting up domain\n";
+  Report("Setting up domain...\n", utility::Color::kReset);
   domain_ptr->SetUpMesh(prm.UniformRefinements()).SetUpDOF();
 
   // Various objects to be initialized
@@ -153,7 +165,6 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
 
   auto initializer_ptr = BuildInitializer(
       updater_pointers.fixed_updater_ptr, n_groups, n_angles);
-  auto convergence_reporter_ptr = Shared(BuildConvergenceReporter());
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
   system::SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
@@ -163,7 +174,6 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(moment_calculator_ptr),
       group_solution_ptr,
       updater_pointers,
-      convergence_reporter_ptr,
       BuildMomentMapConvergenceChecker(1e-6, 1000));
 
   if (need_angular_solution_storage) {
@@ -180,13 +190,11 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
         std::move(iterative_group_solver_ptr),
         BuildParameterConvergenceChecker(1e-6, 10000),
         BuildKEffectiveUpdater(finite_element_ptr, cross_sections_ptr, domain_ptr),
-        updater_pointers.fission_source_updater_ptr,
-        convergence_reporter_ptr);
+        updater_pointers.fission_source_updater_ptr);
   } else {
     outer_iteration_ptr = BuildOuterIteration(
         std::move(iterative_group_solver_ptr),
-        BuildParameterConvergenceChecker(1e-6, 10000),
-        convergence_reporter_ptr);
+        BuildParameterConvergenceChecker(1e-6, 10000));
   };
 
 
@@ -207,19 +215,50 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(results_output_ptr));
 }
 
-template<int dim>
-auto FrameworkBuilder<dim>::BuildConvergenceReporter()
--> std::unique_ptr<ReporterType> {
-  ReportBuildingComponant("ConvergenceReporter");
-  using Reporter = bart::convergence::reporter::MpiNoisy;
+// =============================================================================
+// INSTRUMENT FACTORY FUNCTIONS
+// =============================================================================
 
-  std::unique_ptr<ReporterType> return_ptr = nullptr;
-
+template <int dim>
+auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
+-> std::unique_ptr<ConvergenceInstrumentType> {
+  namespace factory = instrumentation::factory;
+  ReportBuildingComponant("Convergence instrument");
   int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  auto pout_ptr = std::make_unique<dealii::ConditionalOStream>(std::cout, this_process == 0);
-  return_ptr = std::make_unique<Reporter>(std::move(pout_ptr));
+  return factory::MakeInstrument(
+      factory::MakeConverter<convergence::Status, std::string>(),
+          factory::MakeOutstream<std::string>(
+              std::make_unique<dealii::ConditionalOStream>(
+                  std::cout, this_process == 0))
+      );
+}
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildIterationErrorInstrument(const std::string& filename)
+-> std::unique_ptr<IterationErrorInstrumentType> {
+  namespace factory = instrumentation::factory;
+  auto file_stream = std::make_unique<std::ofstream>(filename);
+  ReportBuildingComponant("iteration error file output");
+  auto return_ptr = factory::MakeInstrument(
+      factory::MakeConverter<std::pair<int, double>, std::string>(9),
+          factory::MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
+              std::move(file_stream)));
+  ReportBuildSuccess("using filename " + filename);
   return return_ptr;
 }
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildStatusInstrument()
+-> std::unique_ptr<StatusInstrumentType> {
+  namespace factory = instrumentation::factory;  ReportBuildingComponant("Basic reporting instrument");
+  return factory::MakeBasicInstrument(
+      factory::MakeOutstream<std::string>(
+          std::make_unique<dealii::ConditionalOStream>(
+              std::cout,
+              dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)));
+}
+
+// =============================================================================
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildCrossSections(
@@ -404,7 +443,6 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
     const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
-    const std::shared_ptr<ReporterType>& convergence_report_ptr,
     std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
   std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
@@ -419,7 +457,6 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             std::move(moment_calculator_ptr),
             group_solution_ptr,
             updater_ptrs.scattering_source_updater_ptr,
-            convergence_report_ptr,
             std::move(moment_map_convergence_checker_ptr))
     );
   } else {
@@ -431,10 +468,18 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
             group_solution_ptr,
             updater_ptrs.scattering_source_updater_ptr,
             updater_ptrs.boundary_conditions_updater_ptr,
-            convergence_report_ptr,
             std::move(moment_map_convergence_checker_ptr))
     );
   }
+
+  using ConvergenceDataPort = iteration::group::data_ports::ConvergenceStatusPort;
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(Shared(BuildConvergenceInstrument()));
+
+  using StatusPort = iteration::group::data_ports::StatusPort;
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(Shared(BuildStatusInstrument()));
+
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
@@ -574,8 +619,7 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIterationType> group_iteration_ptr,
-    std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr,
-    const std::shared_ptr<ReporterType>& reporter_ptr)
+    std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr)
     -> std::unique_ptr<OuterIterationType> {
   ReportBuildingComponant("Outer iteration");
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;
@@ -583,8 +627,15 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 
   return_ptr = std::move(std::make_unique<ReturnType>(
       std::move(group_iteration_ptr),
-      std::move(convergence_checker_ptr),
-      reporter_ptr));
+      std::move(convergence_checker_ptr)));
+
+  using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
+  using StatusPort =  iteration::outer::data_names::StatusPort;
+
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(Shared(BuildStatusInstrument()));
 
   ReportBuildSuccess(return_ptr->description());
 
@@ -596,8 +647,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIterationType> group_solve_iteration_ptr,
     std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
-    const std::shared_ptr<FissionSourceUpdaterType>& fission_source_updater_ptr,
-    const std::shared_ptr<ReporterType>& convergence_reporter_ptr)
+    const std::shared_ptr<FissionSourceUpdaterType>& fission_source_updater_ptr)
 -> std::unique_ptr<OuterIterationType> {
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;
   ReportBuildingComponant("Outer Iteration");
@@ -609,8 +659,19 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           std::move(group_solve_iteration_ptr),
           std::move(parameter_convergence_checker_ptr),
           std::move(k_effective_updater_ptr),
-          fission_source_updater_ptr,
-          convergence_reporter_ptr));
+          fission_source_updater_ptr));
+
+  using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
+  using StatusPort =  iteration::outer::data_names::StatusPort;
+  using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
+
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(Shared(BuildStatusInstrument()));
+  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
+      .AddInstrument(Shared(BuildIterationErrorInstrument(
+          filename_ + "_iteration_error.csv")));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
@@ -690,7 +751,7 @@ auto FrameworkBuilder<dim>::BuildSAAFFormulation(
     const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
     const formulation::SAAFFormulationImpl implementation)
 -> std::unique_ptr<SAAFFormulationType> {
-  reporter_ptr_->Report("\tBuilding SAAF Formulation\n");
+  ReportBuildingComponant("Building SAAF Formulation");
   std::unique_ptr<SAAFFormulationType> return_ptr;
 
   if (implementation == formulation::SAAFFormulationImpl::kDefault) {
@@ -762,17 +823,17 @@ auto FrameworkBuilder<dim>::BuildStamper(
 }
 template<int dim>
 std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
-  reporter_ptr_->Report("\tReading mapping file: ");
+  ReportBuildingComponant("Reading mapping file: ");
 
   std::ifstream mapping_file(filename);
   if (mapping_file.is_open()) {
-    reporter_ptr_->Report(filename + '\n', Color::Green);
+    ReportBuildSuccess(filename);
 
     return std::string(
         (std::istreambuf_iterator<char>(mapping_file)),
         std::istreambuf_iterator<char>());
   } else {
-    reporter_ptr_->Report("Error reading " + filename + "\n", Color::Red);
+    ReportBuildError("Error reading " + filename);
     AssertThrow(false,
                 dealii::ExcMessage("Failed to open material mapping file"))
   }
@@ -780,7 +841,7 @@ std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
 
 template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
-  validator_.ReportValidation(*reporter_ptr_);
+  validator_.ReportValidation();
 }
 
 template class FrameworkBuilder<1>;

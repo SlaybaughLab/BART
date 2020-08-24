@@ -19,6 +19,28 @@ class TestHelperFunctionTest : public ::testing::Test {
  protected:
 };
 
+TEST_F(TestHelperFunctionTest, RandomIntTest) {
+  const std::vector<std::pair<int, int>> test_pairs = {
+      {0, 100}, {-50, 50}, {-50, 0}, {-50, 100}, {0, 1},
+      {1, 2}
+  };
+
+  for (auto p : test_pairs) {
+    EXPECT_THAT(test_helpers::RandomInt(p.first,p.second),
+                ::testing::AllOf(::testing::Ge(p.first),
+                                 ::testing::Lt(p.second)));
+  }
+  const std::vector<std::pair<double, double>> bad_pairs = {
+      {100, 0}, {50, -50}, {0, -50}, {100, 100}, {0,0}, {-100, -100}};
+
+  for (auto p : bad_pairs) {
+
+    EXPECT_THROW(test_helpers::RandomInt(p.first,p.second),
+                 std::runtime_error) << "Values: min = " << p.first << ", max = "
+                                     << p.second;
+  }
+}
+
 TEST_F(TestHelperFunctionTest, RandomDoubleTest) {
   const std::vector<std::pair<double, double>> test_pairs = {
       {0, 100}, {-50, 50}, {-50, 0}, {0, 20.4}, {-102.4, 293}};

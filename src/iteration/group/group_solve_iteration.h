@@ -2,7 +2,7 @@
 #define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_H_
 
 #include "convergence/final_i.h"
-#include "convergence/reporter/mpi_i.h"
+#include "instrumentation/port.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
@@ -18,23 +18,35 @@ namespace iteration {
 
 namespace group {
 
+namespace data_ports {
+struct GroupConvergenceStatus;
+struct Status;
+using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+using StatusPort = instrumentation::Port<std::string, Status>;
+}
+
 template <int dim>
-class GroupSolveIteration : public GroupSolveIterationI {
+class GroupSolveIteration
+    : public GroupSolveIterationI,
+      public data_ports::ConvergenceStatusPort,
+      public data_ports::StatusPort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
-  using Reporter = convergence::reporter::MpiI;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
+
+  // Data ports
+  using data_ports::ConvergenceStatusPort::Expose, data_ports::ConvergenceStatusPort::AddInstrument;
+  using data_ports::StatusPort::Expose, data_ports::StatusPort::AddInstrument;
 
   GroupSolveIteration(
       std::unique_ptr<GroupSolver> group_solver_ptr,
       std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
       std::unique_ptr<MomentCalculator> moment_calculator_ptr,
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
-      const std::shared_ptr<Reporter> &reporter_ptr = nullptr,
       std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr = nullptr);
 
   GroupSolveIteration& UpdateThisAngularSolutionMap(
@@ -76,10 +88,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
     return group_solution_ptr_;
   }
 
-  Reporter* reporter_ptr() const {
-    return reporter_ptr_.get();
-  }
-
  protected:
   virtual void PerformPerGroup(system::System& system, const int group);
   virtual void SolveGroup(const int group, system::System &system);
@@ -97,7 +105,6 @@ class GroupSolveIteration : public GroupSolveIterationI {
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_ = nullptr;
   std::shared_ptr<GroupSolution> group_solution_ptr_ = nullptr;
-  std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
   std::unique_ptr<MomentMapConvergenceChecker>
       moment_map_convergence_checker_ptr_ = nullptr;
   bool is_storing_angular_solution_ = false;

@@ -6,6 +6,14 @@ namespace bart {
 
 namespace test_helpers {
 
+int RandomInt(int min, int max) {
+  if (min >= max)
+    throw std::runtime_error("Min must be less than max");
+  double random_zero_one =
+      static_cast<double>(std::rand())/static_cast<double>(RAND_MAX);
+  return (random_zero_one * (max - min)) + min;
+}
+
 double RandomDouble(double min, double max) {
   if (min >= max)
     throw std::runtime_error("Min must be less than max");

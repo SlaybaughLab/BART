@@ -35,8 +35,6 @@ class Framework : public FrameworkI {
                         const std::vector<std::string>& filenames,
                         const int process_id);
 
-  void OutputIterationError(std::ostream &output_stream) override;
-
   Initializer* initializer_ptr() const {
     return initializer_ptr_.get();
   }

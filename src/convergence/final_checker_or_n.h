@@ -5,7 +5,6 @@
 
 #include "convergence/final.h"
 #include "convergence/status.h"
-#include "convergence/reporter/mpi_i.h"
 
 namespace bart {
 
@@ -27,11 +26,7 @@ class FinalCheckerOrN : public Final<CompareType>{
    * will take ownership of.
    */
   explicit FinalCheckerOrN(std::unique_ptr<CheckerType> checker_ptr)
-      : FinalCheckerOrN(std::move(checker_ptr), nullptr) {}
-  FinalCheckerOrN(std::unique_ptr<CheckerType> checker_ptr,
-      std::shared_ptr<reporter::MpiI> reporter_ptr)
-      : checker_ptr_(std::move(checker_ptr)),
-        reporter_ptr_(reporter_ptr) {}
+      : checker_ptr_(std::move(checker_ptr)) {}
   ~FinalCheckerOrN() = default;
 
   Status CheckFinalConvergence(CompareType& current_iteration,
@@ -52,7 +47,6 @@ class FinalCheckerOrN : public Final<CompareType>{
 
   using Final<CompareType>::convergence_status_;
   std::unique_ptr<CheckerType> checker_ptr_;
-  std::shared_ptr<reporter::MpiI> reporter_ptr_ = nullptr;
 };
 
 } // namespace convergence

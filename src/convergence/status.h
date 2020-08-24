@@ -15,7 +15,10 @@ struct Status {
   std::optional<int> failed_index = std::nullopt;
   std::optional<double> delta = std::nullopt;
 
-  bool operator==(const Status rhs) const {
+  Status() = default;
+  Status(const Status& rhs) = default;
+
+  bool operator==(const Status& rhs) const {
     if (iteration_number != rhs.iteration_number) {
       return false;
     } else if (max_iterations != rhs.max_iterations) {
@@ -28,6 +31,19 @@ struct Status {
       return false;
     }
     return true;
+  }
+
+  bool operator!=(const Status& rhs) const {
+    return !(*this == rhs);
+  }
+
+  Status& operator=(const Status& other) {
+    iteration_number = other.iteration_number;
+    max_iterations = other.max_iterations;
+    is_complete = other.is_complete;
+    failed_index = other.failed_index;
+    delta = other.delta;
+    return *this;
   }
 };
 

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "convergence/final_i.h"
-#include "convergence/reporter/mpi_i.h"
+#include "instrumentation/port.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.h"
 #include "system/system.h"
@@ -15,17 +15,28 @@ namespace iteration {
 
 namespace outer {
 
+namespace data_names {
+struct GroupConvergenceStatus;
+struct Status;
+struct IterationError;
+using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+using StatusPort = instrumentation::Port<std::string, Status>;
+using IterationErrorPort = instrumentation::Port<std::pair<int, double>, IterationError>;
+} // namespace data_names
+
+
 template <typename ConvergenceType>
-class OuterIteration : public OuterIterationI {
+class OuterIteration : public OuterIterationI,
+                       public data_names::ConvergenceStatusPort,
+                       public data_names::StatusPort,
+                       public data_names::IterationErrorPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
-  using Reporter = convergence::reporter::MpiI;
 
   OuterIteration(
       std::unique_ptr<GroupIterator> group_iterator_ptr,
-      std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
-      const std::shared_ptr<Reporter> &reporter_ptr = nullptr);
+      std::unique_ptr<ConvergenceChecker> convergence_checker_ptr);
   virtual ~OuterIteration() = default;
   virtual void IterateToConvergence(system::System &system);
 
@@ -37,14 +48,6 @@ class OuterIteration : public OuterIterationI {
     return convergence_checker_ptr_.get();
   }
 
-  Reporter* reporter_ptr() const {
-    return reporter_ptr_.get();
-  }
-
-  std::vector<double> iteration_error() const override {
-    return iteration_error_;
-  }
-
  protected:
   virtual void InnerIterationToConvergence(system::System &system);
   virtual convergence::Status CheckConvergence(system::System &system) = 0;
@@ -53,8 +56,6 @@ class OuterIteration : public OuterIterationI {
 
   std::unique_ptr<GroupIterator> group_iterator_ptr_ = nullptr;
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
-  std::shared_ptr<Reporter> reporter_ptr_ = nullptr;
-  std::vector<double> iteration_error_{};
 };
 
 } // namespace outer

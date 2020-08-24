@@ -1,9 +1,12 @@
+
+#include <stdio.h>
+#include <filesystem>
+
 #include <deal.II/fe/fe_q.h>
 
 #include "framework/builder/framework_builder.h"
 
 // Instantiated concerete classes
-#include "convergence/reporter/mpi_noisy.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
@@ -17,6 +20,8 @@
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.h"
 #include "formulation/stamper.h"
+#include "instrumentation/instrument.h"
+#include "instrumentation/basic_instrument.h"
 #include "iteration/outer/outer_power_iteration.h"
 #include "iteration/outer/outer_fixed_source_iteration.h"
 #include "quadrature/calculators/scalar_moment.h"
@@ -32,7 +37,6 @@
 #include "system/system_functions.h"
 
 // Mock objects
-#include "convergence/reporter/tests/mpi_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
@@ -52,7 +56,6 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
-#include "utility/reporter/tests/basic_reporter_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -79,7 +82,6 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   // Mock object types
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
-  using ConvergenceReporterType = convergence::reporter::MpiMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
@@ -95,7 +97,6 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
   using SingleGroupSolverType = solver::group::SingleGroupSolverMock;
   using StamperType = formulation::StamperMock<dim>;
-  using ReporterType = NiceMock<utility::reporter::BasicReporterMock>;
 
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
@@ -103,11 +104,9 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::unique_ptr<FrameworkBuilder> test_builder_ptr_;
   ProblemParameters parameters;
   Material mock_material;
-  std::shared_ptr<ReporterType> mock_reporter_ptr_;
 
   // Various mock objects to be used
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
-  std::shared_ptr<ConvergenceReporterType> convergence_reporter_sptr_;
   std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::shared_ptr<DomainType> domain_sptr_;
@@ -133,15 +132,28 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   const int n_angles = 2;
   std::array<int, 4> dofs_per_cell_by_dim_{1, 3, 9, 27};
   std::map<problem::Boundary, bool> reflective_bcs_;
+  static int files_in_working_directory_;
 
+  static void SetUpTestSuite() {
+    for (const auto & entry : std::filesystem::directory_iterator(".")) {
+      std::ignore = entry;
+      ++files_in_working_directory_;
+    }
+  }
+  static void TearDownTestSuite() {
+    files_in_working_directory_ = 0;
+  }
   void SetUp() override;
+  void TearDown() override;
 };
+
+template <typename DimensionWrapper>
+int FrameworkBuilderIntegrationTest<DimensionWrapper>::files_in_working_directory_ = 0;
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   boundary_conditions_updater_sptr_ =
       std::make_shared<BoundaryConditionsUpdaterType>();
-  convergence_reporter_sptr_ = std::make_shared<ConvergenceReporterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ =
       std::move(std::make_unique<DiffusionFormulationType>());
@@ -162,10 +174,9 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
-  mock_reporter_ptr_ = std::make_shared<ReporterType>();
   single_group_solver_uptr_ = std::move(std::make_unique<SingleGroupSolverType>());
 
-  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(mock_reporter_ptr_));
+  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>());
 
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(10);
@@ -193,27 +204,55 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
       .WillByDefault(Return(problem::EquationType::kDiffusion));
   ON_CALL(parameters, ReflectiveBoundary())
       .WillByDefault(Return(reflective_bcs_));
-  ON_CALL(*mock_reporter_ptr_, Instream(A<const std::string&>()))
-      .WillByDefault(ReturnRef(*mock_reporter_ptr_));
-  ON_CALL(*mock_reporter_ptr_, Instream(A<utility::reporter::Color>()))
-      .WillByDefault(ReturnRef(*mock_reporter_ptr_));
+}
+
+template <typename DimensionWrapper>
+void FrameworkBuilderIntegrationTest<DimensionWrapper>::TearDown() {
+  int files_in_working_directory_after{0};
+  for (const auto & entry : std::filesystem::directory_iterator(".")) {
+    std::ignore = entry;
+    ++files_in_working_directory_after;
+  }
+  EXPECT_EQ(files_in_working_directory_after,
+            files_in_working_directory_)
+            << "Test changed number of files in working directory from "
+            << files_in_working_directory_ << " to "
+            << files_in_working_directory_after << std::endl;
 }
 
 TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
                 bart::testing::AllDimensions);
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, Getters) {
-  auto reporter_ptr = this->test_builder_ptr_->reporter_ptr();
-  EXPECT_THAT(reporter_ptr,
-              WhenDynamicCastTo<utility::reporter::BasicReporterMock*>(NotNull()));
-}
+// BuildInstrument Tests =======================================================
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceReporterTest) {
-  using ExpectedType = convergence::reporter::MpiNoisy;
-  auto convergence_reporter_ptr = this->test_builder_ptr_->BuildConvergenceReporter();
-  EXPECT_THAT(convergence_reporter_ptr.get(),
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceInstrumentType) {
+  using ExpectedType = instrumentation::Instrument<convergence::Status, std::string>;
+  auto convergence_instrument_ptr = this->test_builder_ptr_->BuildConvergenceInstrument();
+  EXPECT_THAT(convergence_instrument_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildIterationErrorInstrumentTest) {
+  const std::string filename{"error_per_iteration.test"};
+  using ExpectedType = instrumentation::Instrument<std::pair<int, double>, std::string>;
+  auto iteration_error_ptr =
+      this->test_builder_ptr_->BuildIterationErrorInstrument(filename);
+  ASSERT_THAT(iteration_error_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(remove(filename.c_str()), 0) << "Expected test file was not created"
+                                            " (could not find to remove)";
+
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStatusInstrument) {
+  using ExpectedType = instrumentation::BasicInstrument<std::string>;
+  auto status_instrument_ptr =
+      this->test_builder_ptr_->BuildStatusInstrument();
+  EXPECT_THAT(status_instrument_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+// =============================================================================
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   constexpr int dim = this->dim;
@@ -353,7 +392,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
       updater_ptrs,
-      this->convergence_reporter_sptr_,
       nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
@@ -373,7 +411,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdat
       std::move(this->moment_calculator_uptr_),
       this->group_solution_sptr_,
       updater_ptrs,
-      this->convergence_reporter_sptr_,
       nullptr);
   EXPECT_THAT(source_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
@@ -450,18 +487,17 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
       std::move(this->group_solve_iteration_uptr_),
       std::move(this->parameter_convergence_checker_uptr_),
       std::move(this->k_effective_updater_uptr_),
-      this->fission_source_updater_sptr_,
-      this->convergence_reporter_sptr_);
+      this->fission_source_updater_sptr_);
   using ExpectedType = iteration::outer::OuterPowerIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(remove("_iteration_error.csv"), 0);
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
-      std::move(this->parameter_convergence_checker_uptr_),
-      this->convergence_reporter_sptr_);
+      std::move(this->parameter_convergence_checker_uptr_));
   using ExpectedType = iteration::outer::OuterFixedSourceIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
@@ -691,10 +727,6 @@ TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
   ASSERT_NE(dynamic_ptr, nullptr);
   EXPECT_EQ(dynamic_ptr->total_angles(), total_angles);
   EXPECT_EQ(dynamic_ptr->total_groups(), total_groups);
-}
-
-TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildSystemDefaut) {
-
 }
 
 } // namespace
