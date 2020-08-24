@@ -11,21 +11,21 @@
 #include "utility/runtime/runtime_helper.h"
 
 int main(int argc, char* argv[]) {
+  bart::utility::runtime::RuntimeHelper runtime_helper("0.2.2");
+  std::cout << runtime_helper.ProgramHeader() << std::endl;
+
   try {
-    if (argc != 2) {
-      std::cerr
-          << "Call the program as mpirun -np num_proc bart input_file_name"
-          << std::endl;
-      return 1;
-    }
+    runtime_helper.ParseArguments(argc, argv);
+  } catch (std::runtime_error& exc) {
+    std::cerr << "Error parsing arguments: " << exc.what() << std::endl;
+    return EXIT_FAILURE;
+  }
 
-    const std::string version{"0.2.1"};
-    bart::utility::runtime::RuntimeHelper runtime_helper(version);
-    std::cout << runtime_helper.ProgramHeader() << std::endl;
+  const std::string filename{runtime_helper.filename()};
 
+  try {
     bart::problem::ParametersDealiiHandler prm;
     dealii::ParameterHandler d2_prm;
-    const std::string filename{argv[1]};
 
     prm.SetUp(d2_prm);
     d2_prm.parse_input(filename, "");
@@ -80,8 +80,11 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    std::cout << "Press <Enter> to begin solve...";
-    std::cin.ignore();
+    // Pause if needed before solve
+    if (runtime_helper.do_pause()) {
+      std::cout << "Press <Enter> to begin solve...";
+      std::cin.ignore();
+    }
 
     framework_ptr->SolveSystem();
     framework_ptr->OutputResults(output_stream);

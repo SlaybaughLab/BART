@@ -41,7 +41,7 @@ void RuntimeHelper::ParseArguments(int argc, char **argv) {
 
 std::string RuntimeHelper::ProgramHeader() const {
   return std::string{"    __               __ \n"
-                     "   / /_  ____ ______/ /_\n"
+                     "   / /_  ____  _____/ /_\n"
                      "  / __ \\/ __ `/ ___/ __/\n"
                      " / /_/ / /_/ / /  / /_  \n"
                      "/_.___/\\__,_/_/   \\__/  \n"
