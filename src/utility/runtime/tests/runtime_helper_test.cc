@@ -75,6 +75,8 @@ TEST_F(UtilityRuntimeHelperTest, NoFileName) {
 TEST_F(UtilityRuntimeHelperTest, MPIProcesses) {
   EXPECT_EQ(test_helper.n_mpi_processes(),
             dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
+  EXPECT_EQ(test_helper.this_mpi_process(),
+            dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD));
 }
 
 

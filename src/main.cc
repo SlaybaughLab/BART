@@ -11,19 +11,16 @@
 #include "utility/runtime/runtime_helper.h"
 
 int main(int argc, char* argv[]) {
-  bart::utility::runtime::RuntimeHelper runtime_helper("0.2.2");
-  std::cout << runtime_helper.ProgramHeader() << std::endl;
-
   try {
+    dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+
+    bart::utility::runtime::RuntimeHelper runtime_helper("0.2.2");
+    std::cout << runtime_helper.ProgramHeader() << std::endl;
     runtime_helper.ParseArguments(argc, argv);
-  } catch (std::runtime_error& exc) {
-    std::cerr << "Error parsing arguments: " << exc.what() << std::endl;
-    return EXIT_FAILURE;
-  }
+    const std::string filename{runtime_helper.filename()};
+    const int n_processes = runtime_helper.n_mpi_processes();
+    const int process_id =  runtime_helper.this_mpi_process();
 
-  const std::string filename{runtime_helper.filename()};
-
-  try {
     bart::problem::ParametersDealiiHandler prm;
     dealii::ParameterHandler d2_prm;
 
@@ -31,12 +28,7 @@ int main(int argc, char* argv[]) {
     d2_prm.parse_input(filename, "");
     prm.Parse(d2_prm);
 
-    dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-
     double k_eff_final;
-
-    const int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-    const int process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
     // Open file for output, if there are multiple processes they will end with
     // a number indicating the process number.

@@ -12,8 +12,13 @@ namespace utility {
 
 namespace runtime {
 
+namespace {
+namespace MPI = dealii::Utilities::MPI;
+}
+
 RuntimeHelper::RuntimeHelper(std::string version)
-    : n_mpi_processes_(dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)),
+    : n_mpi_processes_(MPI::n_mpi_processes(MPI_COMM_WORLD)),
+      this_mpi_process_(MPI::this_mpi_process(MPI_COMM_WORLD)),
       version_(version) {}
 
 void RuntimeHelper::ParseArguments(int argc, char **argv) {

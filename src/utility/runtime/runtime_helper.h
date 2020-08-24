@@ -31,10 +31,14 @@ class RuntimeHelper {
 
   /// \brief Returns number of MPI processes
   int n_mpi_processes() const { return n_mpi_processes_; }
+
+  /// \brief Returns current MPI process
+  int this_mpi_process() const { return this_mpi_process_; }
  private:
   bool do_pause_{false};
   std::string filename_{};
   const int n_mpi_processes_;
+  const int this_mpi_process_;
   const std::string version_;
 };
 
