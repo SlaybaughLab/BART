@@ -8,6 +8,7 @@
 
 #include "framework/builder/framework_builder.h"
 #include "problem/parameters_dealii_handler.h"
+#include "utility/runtime/runtime_helper.h"
 
 int main(int argc, char* argv[]) {
   try {
@@ -18,9 +19,9 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    std::cout << "BAY AREA RADIATION TRANSPORT\n"
-              << "Developed at the University of California, Berkeley"
-              << std::endl;
+    const std::string version{"0.2.1"};
+    bart::utility::runtime::RuntimeHelper runtime_helper(version);
+    std::cout << runtime_helper.ProgramHeader() << std::endl;
 
     bart::problem::ParametersDealiiHandler prm;
     dealii::ParameterHandler d2_prm;
