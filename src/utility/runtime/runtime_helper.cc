@@ -1,15 +1,20 @@
 #include "utility/runtime/runtime_helper.h"
 
 #include <getopt.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
+
+#include <deal.II/base/mpi.h>
 
 namespace bart {
 
 namespace utility {
 
 namespace runtime {
+
+RuntimeHelper::RuntimeHelper(std::string version)
+    : n_mpi_processes_(dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)),
+      version_(version) {}
 
 void RuntimeHelper::ParseArguments(int argc, char **argv) {
   //int option_index = 0, c = 0;

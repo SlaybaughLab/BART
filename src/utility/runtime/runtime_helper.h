@@ -3,6 +3,7 @@
 
 #include <string>
 
+
 namespace bart {
 
 namespace utility {
@@ -11,8 +12,7 @@ namespace runtime {
 
 class RuntimeHelper {
  public:
-  RuntimeHelper(std::string version)
-      : version_(version) {};
+  RuntimeHelper(std::string version);
 
   /// \brief Parses program arguments
   void ParseArguments(int argc, char** argv);
@@ -28,9 +28,13 @@ class RuntimeHelper {
 
   /// \brief Returns a string containing the filename passed to bart
   std::string filename() const { return filename_; };
+
+  /// \brief Returns number of MPI processes
+  int n_mpi_processes() const { return n_mpi_processes_; }
  private:
   bool do_pause_{false};
   std::string filename_{};
+  const int n_mpi_processes_;
   const std::string version_;
 };
 

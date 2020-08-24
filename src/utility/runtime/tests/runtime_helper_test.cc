@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 
+#include <deal.II/base/mpi.h>
+
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
@@ -68,6 +70,11 @@ TEST_F(UtilityRuntimeHelperTest, NoFileName) {
   EXPECT_ANY_THROW({
                      test_helper.ParseArguments(argc_, argv_);
                    });
+}
+
+TEST_F(UtilityRuntimeHelperTest, MPIProcesses) {
+  EXPECT_EQ(test_helper.n_mpi_processes(),
+            dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
 }
 
 
