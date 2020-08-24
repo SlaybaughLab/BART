@@ -30,6 +30,12 @@ void RuntimeHelper::ParseArguments(int argc, char **argv) {
         break;
     }
   }
+
+  if (optind >= argc) {
+    throw(std::runtime_error("No filename provided."));
+  } else {
+    filename_ = argv[optind];
+  }
 }
 
 

@@ -25,8 +25,12 @@ class RuntimeHelper {
 
   /// \brief Returns bool indicating if a pause is required before running
   bool do_pause() const {return do_pause_; };
+
+  /// \brief Returns a string containing the filename passed to bart
+  std::string filename() const { return filename_; };
  private:
-  bool do_pause_ = false;
+  bool do_pause_{false};
+  std::string filename_{};
   const std::string version_;
 };
 

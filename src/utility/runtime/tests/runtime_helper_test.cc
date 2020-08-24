@@ -12,7 +12,7 @@ using ::testing::HasSubstr;
 
 class UtilityRuntimeHelperTest : public ::testing::Test {
  public:
-  const std::string version_{"7.6.9"};
+  const std::string version_{"7.6.9"}, filename{"testfile.input"};
   utility::runtime::RuntimeHelper test_helper{version_};
 
   void MakeArgv(std::string to_convert);
@@ -47,18 +47,30 @@ TEST_F(UtilityRuntimeHelperTest, ProgramHeader) {
 }
 
 TEST_F(UtilityRuntimeHelperTest, PauseProgram) {
-  MakeArgv("bart -p");
+  MakeArgv("bart -p " + filename);
   EXPECT_FALSE(test_helper.do_pause());
   test_helper.ParseArguments(argc_, argv_);
   EXPECT_TRUE(test_helper.do_pause());
+  EXPECT_EQ(test_helper.filename(), filename);
 }
 
 TEST_F(UtilityRuntimeHelperTest, PauseProgramLong) {
-  MakeArgv("bart --pause");
+  MakeArgv("bart --pause " + filename);
   EXPECT_FALSE(test_helper.do_pause());
   test_helper.ParseArguments(argc_, argv_);
   EXPECT_TRUE(test_helper.do_pause());
+  EXPECT_EQ(test_helper.filename(), filename);
 }
+
+TEST_F(UtilityRuntimeHelperTest, NoFileName) {
+  MakeArgv("bart --pause");
+  EXPECT_FALSE(test_helper.do_pause());
+  EXPECT_ANY_THROW({
+                     test_helper.ParseArguments(argc_, argv_);
+                   });
+}
+
+
 
 
 
