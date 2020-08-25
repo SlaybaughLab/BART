@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   try {
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
-    bart::utility::runtime::RuntimeHelper runtime_helper("0.2.2");
+    bart::utility::runtime::RuntimeHelper runtime_helper("0.2.0");
     std::cout << runtime_helper.ProgramHeader() << std::endl;
     runtime_helper.ParseArguments(argc, argv);
     const std::string filename{runtime_helper.filename()};
