@@ -12,14 +12,23 @@
 
 int main(int argc, char* argv[]) {
   try {
-    dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-
     bart::utility::runtime::RuntimeHelper runtime_helper("0.2.0");
-    std::cout << runtime_helper.ProgramHeader() << std::endl;
     runtime_helper.ParseArguments(argc, argv);
+
+    if (runtime_helper.show_help()) {
+      std::cout << runtime_helper.HelpMessage() << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    std::cout << runtime_helper.ProgramHeader() << std::endl;
+    std::cout << "\nInitializing MPI\n";
+    dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+    std::cout << "\nMPI Initialized\n";
+
+    namespace MPI = dealii::Utilities::MPI;
     const std::string filename{runtime_helper.filename()};
-    const int n_processes = runtime_helper.n_mpi_processes();
-    const int process_id =  runtime_helper.this_mpi_process();
+    const int n_processes = MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const int process_id =  MPI::this_mpi_process(MPI_COMM_WORLD);
 
     bart::problem::ParametersDealiiHandler prm;
     dealii::ParameterHandler d2_prm;

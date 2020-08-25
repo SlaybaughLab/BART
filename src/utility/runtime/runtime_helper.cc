@@ -17,36 +17,42 @@ namespace MPI = dealii::Utilities::MPI;
 }
 
 RuntimeHelper::RuntimeHelper(std::string version)
-    : n_mpi_processes_(MPI::n_mpi_processes(MPI_COMM_WORLD)),
-      this_mpi_process_(MPI::this_mpi_process(MPI_COMM_WORLD)),
-      version_(version) {}
+    : version_(version) {}
 
 void RuntimeHelper::ParseArguments(int argc, char **argv) {
   //int option_index = 0, c = 0;
   int c = 0;
   optind = 0;
   const struct option longopts[] = {
+      {"help",      no_argument,       NULL, 'h'},
       {"pause",     no_argument,       NULL, 'p'},
       {NULL,        0,                 NULL,   0}
   };
 
-  while ((c = getopt_long(argc, argv, "p", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "hp", longopts, NULL)) != -1) {
     switch(c) {
       case 'p': {
         do_pause_ = true;
         break;
       }
-    default:
+      case '?': {
+        std::cerr << "Unknown argument: " + std::to_string(optopt) + "\n\n";
+        [[fallthrough]];
+      }
+      case 'h':
+      default:
+        show_help_ = true;
         break;
     }
   }
 
-  if (optind >= argc) {
-    throw(std::runtime_error("No filename provided."));
-  } else {
+  if (optind >= argc && !show_help_) {
+    throw(std::runtime_error("No filename provided. See bart --help for usage."));
+  } else if(!show_help_) {
     filename_ = argv[optind];
   }
 }
+
 
 
 std::string RuntimeHelper::ProgramHeader() const {
@@ -58,6 +64,12 @@ std::string RuntimeHelper::ProgramHeader() const {
                      "BAY AREA RADIATION TRANSPORT\n"
                      "Developed at the University of California, Berkeley\n"
                      "version: " + version_ + "\n"};
+}
+std::string RuntimeHelper::HelpMessage() const {
+  return std::string{"usage: bart [OPTION] <filename>\n"
+                     "  -h, --help\t\tDisplays this help text.\n"
+                     "  -p, --pause\t\tPauses after building frameworks and "
+                     "before commencing solve."};
 }
 
 } // namespace runtime

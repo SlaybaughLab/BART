@@ -17,11 +17,17 @@ class RuntimeHelper {
   /// \brief Parses program arguments
   void ParseArguments(int argc, char** argv);
 
+  /// \brief Returns the help message for the BART program
+  std::string HelpMessage() const;
+
   /// \brief Returns the header for the BART program including version number
   std::string ProgramHeader() const;
 
   /// \brief Returns a string containing the version number
   std::string version() const { return version_; }
+
+  /// \brief Returns bool indicating if the program should immediately terminate
+  bool show_help() const { return show_help_; }
 
   /// \brief Returns bool indicating if a pause is required before running
   bool do_pause() const {return do_pause_; };
@@ -29,16 +35,10 @@ class RuntimeHelper {
   /// \brief Returns a string containing the filename passed to bart
   std::string filename() const { return filename_; };
 
-  /// \brief Returns number of MPI processes
-  int n_mpi_processes() const { return n_mpi_processes_; }
-
-  /// \brief Returns current MPI process
-  int this_mpi_process() const { return this_mpi_process_; }
  private:
+  bool show_help_{false};
   bool do_pause_{false};
   std::string filename_{};
-  const int n_mpi_processes_;
-  const int this_mpi_process_;
   const std::string version_;
 };
 

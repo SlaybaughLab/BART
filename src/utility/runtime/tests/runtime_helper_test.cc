@@ -48,37 +48,67 @@ TEST_F(UtilityRuntimeHelperTest, ProgramHeader) {
   EXPECT_THAT(header, HasSubstr(version_));
 }
 
+TEST_F(UtilityRuntimeHelperTest, HelpMessage) {
+  auto help_message = test_helper.HelpMessage();
+  EXPECT_NE(help_message, "");
+}
+
 TEST_F(UtilityRuntimeHelperTest, PauseProgram) {
   MakeArgv("bart -p " + filename);
   EXPECT_FALSE(test_helper.do_pause());
+  EXPECT_FALSE(test_helper.show_help());
   test_helper.ParseArguments(argc_, argv_);
   EXPECT_TRUE(test_helper.do_pause());
+  EXPECT_FALSE(test_helper.show_help());
   EXPECT_EQ(test_helper.filename(), filename);
 }
 
 TEST_F(UtilityRuntimeHelperTest, PauseProgramLong) {
   MakeArgv("bart --pause " + filename);
   EXPECT_FALSE(test_helper.do_pause());
+  EXPECT_FALSE(test_helper.show_help());
   test_helper.ParseArguments(argc_, argv_);
   EXPECT_TRUE(test_helper.do_pause());
+  EXPECT_FALSE(test_helper.show_help());
   EXPECT_EQ(test_helper.filename(), filename);
 }
 
 TEST_F(UtilityRuntimeHelperTest, NoFileName) {
   MakeArgv("bart --pause");
   EXPECT_FALSE(test_helper.do_pause());
+  EXPECT_FALSE(test_helper.show_help());
   EXPECT_ANY_THROW({
                      test_helper.ParseArguments(argc_, argv_);
                    });
 }
 
-TEST_F(UtilityRuntimeHelperTest, MPIProcesses) {
-  EXPECT_EQ(test_helper.n_mpi_processes(),
-            dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
-  EXPECT_EQ(test_helper.this_mpi_process(),
-            dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD));
+TEST_F(UtilityRuntimeHelperTest, HelpLong) {
+  MakeArgv("bart --help");
+  EXPECT_FALSE(test_helper.show_help());
+  test_helper.ParseArguments(argc_, argv_);
+  EXPECT_TRUE(test_helper.show_help());
 }
 
+TEST_F(UtilityRuntimeHelperTest, Help) {
+  MakeArgv("bart -h");
+  EXPECT_FALSE(test_helper.show_help());
+  test_helper.ParseArguments(argc_, argv_);
+  EXPECT_TRUE(test_helper.show_help());
+}
+
+TEST_F(UtilityRuntimeHelperTest, UnknownOption) {
+  MakeArgv("bart -k " + filename);
+  EXPECT_FALSE(test_helper.show_help());
+  test_helper.ParseArguments(argc_, argv_);
+  EXPECT_TRUE(test_helper.show_help());
+}
+
+TEST_F(UtilityRuntimeHelperTest, UnknownLongOption) {
+  MakeArgv("bart --kill " + filename);
+  EXPECT_FALSE(test_helper.show_help());
+  test_helper.ParseArguments(argc_, argv_);
+  EXPECT_TRUE(test_helper.show_help());
+}
 
 
 
