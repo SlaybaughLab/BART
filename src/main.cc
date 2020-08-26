@@ -8,34 +8,36 @@
 
 #include "framework/builder/framework_builder.h"
 #include "problem/parameters_dealii_handler.h"
+#include "utility/runtime/runtime_helper.h"
 
 int main(int argc, char* argv[]) {
   try {
-    if (argc != 2) {
-      std::cerr
-          << "Call the program as mpirun -np num_proc bart input_file_name"
-          << std::endl;
-      return 1;
+    bart::utility::runtime::RuntimeHelper runtime_helper("0.2.0");
+    runtime_helper.ParseArguments(argc, argv);
+
+    if (runtime_helper.show_help()) {
+      std::cout << runtime_helper.HelpMessage() << std::endl;
+      return EXIT_FAILURE;
     }
 
-    std::cout << "BAY AREA RADIATION TRANSPORT\n"
-              << "Developed at the University of California, Berkeley"
-              << std::endl;
+    std::cout << runtime_helper.ProgramHeader() << std::endl;
+    std::cout << "\nInitializing MPI\n";
+    dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+    std::cout << "\nMPI Initialized\n";
+
+    namespace MPI = dealii::Utilities::MPI;
+    const std::string filename{runtime_helper.filename()};
+    const int n_processes = MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const int process_id =  MPI::this_mpi_process(MPI_COMM_WORLD);
 
     bart::problem::ParametersDealiiHandler prm;
     dealii::ParameterHandler d2_prm;
-    const std::string filename{argv[1]};
 
     prm.SetUp(d2_prm);
     d2_prm.parse_input(filename, "");
     prm.Parse(d2_prm);
 
-    dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-
     double k_eff_final;
-
-    const int n_processes = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-    const int process_id = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
     // Open file for output, if there are multiple processes they will end with
     // a number indicating the process number.
@@ -79,8 +81,11 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    std::cout << "Press <Enter> to begin solve...";
-    std::cin.ignore();
+    // Pause if needed before solve
+    if (runtime_helper.do_pause()) {
+      std::cout << "Press <Enter> to begin solve...";
+      std::cin.ignore();
+    }
 
     framework_ptr->SolveSystem();
     framework_ptr->OutputResults(output_stream);
