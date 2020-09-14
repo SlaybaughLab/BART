@@ -22,6 +22,9 @@ class FourierTransformI {
   virtual std::vector<std::complex<double>> CalculateDFT(
       const std::vector<std::complex<double>>& input,
       Normalized) = 0;
+  virtual std::vector<std::complex<double>> CalculateDFT(
+      const dealii::Vector<double>& input,
+      Normalized) = 0;
 };
 
 } // namespace fourier

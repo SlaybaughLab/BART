@@ -26,6 +26,9 @@ class FourierTransformFFTW : public FourierTransformI {
   std::vector<std::complex<double>> CalculateDFT(
       const std::vector<std::complex<double>>& input,
       Normalized normalized = Normalized(false)) override;
+  std::vector<std::complex<double>> CalculateDFT(
+      const dealii::Vector<double> &input,
+      Normalized normalized = Normalized(false)) override;
 
   int n_samples() const { return n_samples_; }
  private:

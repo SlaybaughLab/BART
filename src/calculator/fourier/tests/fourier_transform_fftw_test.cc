@@ -55,10 +55,8 @@ TEST_F(CalculatorFourierTransformFFTWTest, Getters) {
 }
 
 TEST_F(CalculatorFourierTransformFFTWTest, CosineStdVector) {
-
   auto calculated_fourier_transform =
       test_transformer_ptr_->CalculateDFT(function_);
-
   EXPECT_THAT(calculated_fourier_transform,
               ContainerEq(expected_fourier_transform_));
 }
@@ -68,6 +66,30 @@ TEST_F(CalculatorFourierTransformFFTWTest, CosineStdVectorNormalized) {
 
   auto calculated_fourier_transform =
       test_transformer_ptr_->CalculateDFT(function_, Normalized(true));
+
+  EXPECT_THAT(calculated_fourier_transform,
+              ContainerEq(normalized_expected_fourier_transform_));
+}
+
+TEST_F(CalculatorFourierTransformFFTWTest, CosineDealiiVector) {
+  dealii::Vector<double> function_vector(n_points);
+  for (int i = 0; i < n_points; ++i)
+    function_vector[i] = function_.at(i).real();
+
+  auto calculated_fourier_transform =
+      test_transformer_ptr_->CalculateDFT(function_vector);
+  EXPECT_THAT(calculated_fourier_transform,
+              ContainerEq(expected_fourier_transform_));
+}
+
+TEST_F(CalculatorFourierTransformFFTWTest, CosineDealiiVectorNormalized) {
+  using bart::calculator::fourier::Normalized;
+  dealii::Vector<double> function_vector(n_points);
+  for (int i = 0; i < n_points; ++i)
+    function_vector[i] = function_.at(i).real();
+
+  auto calculated_fourier_transform =
+      test_transformer_ptr_->CalculateDFT(function_vector, Normalized(true));
 
   EXPECT_THAT(calculated_fourier_transform,
               ContainerEq(normalized_expected_fourier_transform_));

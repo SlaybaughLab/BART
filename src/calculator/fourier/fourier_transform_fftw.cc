@@ -31,6 +31,15 @@ std::vector<std::complex<double>> FourierTransformFFTW::CalculateDFT(
   }
   return output_;
 }
+std::vector<std::complex<double>> FourierTransformFFTW::CalculateDFT(
+    const dealii::Vector<double>& input,
+    Normalized normalized) {
+  std::vector<std::complex<double>> input_copy(n_samples_);
+  for (int i = 0; i < n_samples_; ++i) {
+    input_copy.at(i).real(input[i]);
+  }
+  return CalculateDFT(input_copy, normalized);
+}
 
 } // namespace fourier
 
