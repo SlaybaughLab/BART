@@ -1,6 +1,11 @@
 #ifndef BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_I_H_
 #define BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_I_H_
 
+#include <complex>
+#include <vector>
+
+#include <deal.II/lac/vector.h>
+
 namespace bart {
 
 namespace calculator {
@@ -9,7 +14,9 @@ namespace fourier {
 
 class FourierTransformI {
  public:
+  using ComplexType = std::complex<double>;
   virtual ~FourierTransformI() = default;
+  //virtual std::vector<ComplexType> CalculateDFT(dealii::Vector<double> input) = 0;
 };
 
 } // namespace fourier

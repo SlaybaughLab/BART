@@ -17,15 +17,21 @@ class CalculatorFourierTransformFFTWTest : public ::testing::Test {
   using FourierTransformType = calculator::fourier::FourierTransformFFTW;
   void SetUp() override;
   static constexpr int n_points{1000};
+  std::unique_ptr<FourierTransformType> test_transformer_ptr_;
 };
 
 void CalculatorFourierTransformFFTWTest::SetUp() {
+  test_transformer_ptr_ = std::make_unique<FourierTransformType>(n_points);
 }
 
 TEST_F(CalculatorFourierTransformFFTWTest, Constructor) {
   EXPECT_NO_THROW({
-    FourierTransformType test_transformer;
+    FourierTransformType test_transformer(n_points);
                   });
+}
+
+TEST_F(CalculatorFourierTransformFFTWTest, Getters) {
+  EXPECT_EQ(test_transformer_ptr_->n_samples(), n_points);
 }
 
 TEST_F(CalculatorFourierTransformFFTWTest, Cosine) {
