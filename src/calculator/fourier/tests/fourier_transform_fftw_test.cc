@@ -6,11 +6,8 @@
 
 namespace  {
 
-namespace fftw {
-#include <fftw3.h>
-}
-
 using namespace bart;
+namespace fftw = bart::calculator::fourier::fftw;
 
 class CalculatorFourierTransformFFTWTest : public ::testing::Test {
  public:
