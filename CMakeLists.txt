@@ -101,7 +101,7 @@ target_compile_definitions(bart_test PUBLIC -DTEST)
 
 target_link_libraries(bart ${Protobuf_LIBRARIES})
 target_link_libraries(bart_test ${GTEST_BOTH_LIBRARIES}
-  ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES})
+  ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES} -lfftw3)
 
 DEAL_II_SETUP_TARGET(bart)
 DEAL_II_SETUP_TARGET(bart_test)
