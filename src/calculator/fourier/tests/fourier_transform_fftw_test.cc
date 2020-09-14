@@ -7,6 +7,7 @@
 namespace  {
 
 using namespace bart;
+using ::testing::ContainerEq;
 namespace fftw = bart::calculator::fourier::fftw;
 
 class CalculatorFourierTransformFFTWTest : public ::testing::Test {
@@ -14,11 +15,27 @@ class CalculatorFourierTransformFFTWTest : public ::testing::Test {
   using FourierTransformType = calculator::fourier::FourierTransformFFTW;
   void SetUp() override;
   static constexpr int n_points{1000};
+  std::vector<std::complex<double>> function_;
+  std::vector<std::complex<double>> expected_fourier_transform_;
   std::unique_ptr<FourierTransformType> test_transformer_ptr_;
 };
 
 void CalculatorFourierTransformFFTWTest::SetUp() {
   test_transformer_ptr_ = std::make_unique<FourierTransformType>(n_points);
+  function_.resize(n_points);
+  expected_fourier_transform_.resize(n_points);
+  auto forward_input = reinterpret_cast<fftw::fftw_complex*>(function_.data());
+  auto forward_output = reinterpret_cast<fftw::fftw_complex*>(expected_fourier_transform_.data());
+  auto forwards_plan = fftw::fftw_plan_dft_1d(n_points, forward_input,
+                                              forward_output, FFTW_FORWARD,
+                                              FFTW_ESTIMATE);
+  for (int i = 0; i < n_points; ++i) {
+    const double pi = M_PI;
+    const double x = 2*pi*static_cast<double>(i)/n_points;
+    function_.at(i) = std::sin(x) * std::cos(2*pi*x);
+  }
+  fftw::fftw_execute(forwards_plan);
+  fftw::fftw_destroy_plan(forwards_plan);
 }
 
 TEST_F(CalculatorFourierTransformFFTWTest, Constructor) {
@@ -32,32 +49,12 @@ TEST_F(CalculatorFourierTransformFFTWTest, Getters) {
 }
 
 TEST_F(CalculatorFourierTransformFFTWTest, CosineStdVector) {
-  const double pi = M_PI;
-  const int n = this->n_points;
-  const double n_dob = n;
-  std::vector<std::complex<double>> function(n);
-  std::vector<std::complex<double>> expected_fourier_transform(n);
 
-  fftw::fftw_complex* forward_input = reinterpret_cast<fftw::fftw_complex*>(function.data());
-  fftw::fftw_complex* forward_output = reinterpret_cast<fftw::fftw_complex*>(expected_fourier_transform.data());
+  auto calculated_fourier_transform =
+      test_transformer_ptr_->CalculateDFT(function_);
 
-  auto forwards_plan = fftw::fftw_plan_dft_1d(n, forward_input, forward_output, FFTW_FORWARD, FFTW_ESTIMATE);
-
-  for (int i = 0; i < n; ++i) {
-    const double x = 2*pi*static_cast<double>(i)/n_dob;
-    function.at(i) = std::sin(x) * std::cos(2*pi*x);
-  }
-
-  //expected_fourier_transform = test_transformer_ptr_->CalculateDFT(function);
-  auto calculated_fourier_transform = test_transformer_ptr_->CalculateDFT(function);
-  fftw::fftw_execute(forwards_plan);
-  fftw::fftw_destroy_plan(forwards_plan);
-
-  for (int i = 0; i < n; ++i) {
-    EXPECT_EQ(calculated_fourier_transform.at(i),
-              expected_fourier_transform.at(i));
-  }
-
+  EXPECT_THAT(calculated_fourier_transform,
+              ContainerEq(expected_fourier_transform_));
 }
 
 } // namespace
