@@ -18,7 +18,13 @@ namespace fftw {
 
 class FourierTransformFFTW : public FourierTransformI {
  public:
+
   FourierTransformFFTW(const int n_samples);
+  ~FourierTransformFFTW();
+
+  std::vector<std::complex<double>> CalculateDFT(
+      const std::vector<std::complex<double>>& input) override;
+
   int n_samples() const { return n_samples_; }
  private:
   const int n_samples_;

@@ -14,9 +14,9 @@ namespace fourier {
 
 class FourierTransformI {
  public:
-  using ComplexType = std::complex<double>;
   virtual ~FourierTransformI() = default;
-  //virtual std::vector<ComplexType> CalculateDFT(dealii::Vector<double> input) = 0;
+  virtual std::vector<std::complex<double>> CalculateDFT(
+      const std::vector<std::complex<double>>& input) = 0;
 };
 
 } // namespace fourier
