@@ -11,11 +11,10 @@ namespace fourier {
 
 class FourierTransformFFTW : public FourierTransformI {
  public:
-  FourierTransformFFTW(const int n_samples)
-  : n_samples_(n_samples) {};
+  FourierTransformFFTW(const int n_samples);
   int n_samples() const { return n_samples_; }
  private:
-  const int n_samples_{0};
+  const int n_samples_;
 };
 
 } // namespace fourier
