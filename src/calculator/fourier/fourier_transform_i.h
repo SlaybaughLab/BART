@@ -6,17 +6,22 @@
 
 #include <deal.II/lac/vector.h>
 
+#include "utility/named_type.h"
+
 namespace bart {
 
 namespace calculator {
 
 namespace fourier {
 
+using Normalized = utility::NamedType<bool, struct NormalizedStruct>;
+
 class FourierTransformI {
  public:
   virtual ~FourierTransformI() = default;
   virtual std::vector<std::complex<double>> CalculateDFT(
-      const std::vector<std::complex<double>>& input) = 0;
+      const std::vector<std::complex<double>>& input,
+      Normalized) = 0;
 };
 
 } // namespace fourier

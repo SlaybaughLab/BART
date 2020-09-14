@@ -15,8 +15,8 @@ class CalculatorFourierTransformFFTWTest : public ::testing::Test {
   using FourierTransformType = calculator::fourier::FourierTransformFFTW;
   void SetUp() override;
   static constexpr int n_points{1000};
-  std::vector<std::complex<double>> function_;
-  std::vector<std::complex<double>> expected_fourier_transform_;
+  std::vector<std::complex<double>> function_, expected_fourier_transform_,
+      normalized_expected_fourier_transform_;
   std::unique_ptr<FourierTransformType> test_transformer_ptr_;
 };
 
@@ -24,6 +24,8 @@ void CalculatorFourierTransformFFTWTest::SetUp() {
   test_transformer_ptr_ = std::make_unique<FourierTransformType>(n_points);
   function_.resize(n_points);
   expected_fourier_transform_.resize(n_points);
+  normalized_expected_fourier_transform_.resize(n_points);
+
   auto forward_input = reinterpret_cast<fftw::fftw_complex*>(function_.data());
   auto forward_output = reinterpret_cast<fftw::fftw_complex*>(expected_fourier_transform_.data());
   auto forwards_plan = fftw::fftw_plan_dft_1d(n_points, forward_input,
@@ -36,6 +38,10 @@ void CalculatorFourierTransformFFTWTest::SetUp() {
   }
   fftw::fftw_execute(forwards_plan);
   fftw::fftw_destroy_plan(forwards_plan);
+
+  normalized_expected_fourier_transform_ = expected_fourier_transform_;
+  for (auto& value : normalized_expected_fourier_transform_)
+    value /= n_points;
 }
 
 TEST_F(CalculatorFourierTransformFFTWTest, Constructor) {
@@ -56,5 +62,17 @@ TEST_F(CalculatorFourierTransformFFTWTest, CosineStdVector) {
   EXPECT_THAT(calculated_fourier_transform,
               ContainerEq(expected_fourier_transform_));
 }
+
+TEST_F(CalculatorFourierTransformFFTWTest, CosineStdVectorNormalized) {
+  using bart::calculator::fourier::Normalized;
+
+  auto calculated_fourier_transform =
+      test_transformer_ptr_->CalculateDFT(function_, Normalized(true));
+
+  EXPECT_THAT(calculated_fourier_transform,
+              ContainerEq(normalized_expected_fourier_transform_));
+}
+
+
 
 } // namespace

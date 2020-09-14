@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "calculator/fourier/fourier_transform_i.h"
+#include "utility/named_type.h"
 
 namespace bart {
 
@@ -19,11 +20,12 @@ namespace fftw {
 class FourierTransformFFTW : public FourierTransformI {
  public:
 
-  FourierTransformFFTW(const int n_samples);
+  explicit FourierTransformFFTW(const int n_samples);
   ~FourierTransformFFTW();
 
   std::vector<std::complex<double>> CalculateDFT(
-      const std::vector<std::complex<double>>& input) override;
+      const std::vector<std::complex<double>>& input,
+      Normalized normalized = Normalized(false)) override;
 
   int n_samples() const { return n_samples_; }
  private:

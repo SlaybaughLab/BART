@@ -21,9 +21,14 @@ FourierTransformFFTW::~FourierTransformFFTW() {
 }
 
 std::vector<std::complex<double>> FourierTransformFFTW::CalculateDFT(
-    const std::vector<std::complex<double>>& input) {
+    const std::vector<std::complex<double>>& input,
+    Normalized normalized) {
   input_ = input;
   fftw::fftw_execute(plan_);
+  if (normalized) {
+    for (auto& value : output_)
+      value /= n_samples_;
+  }
   return output_;
 }
 
