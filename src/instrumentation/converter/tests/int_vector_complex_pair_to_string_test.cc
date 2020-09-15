@@ -24,6 +24,15 @@ TEST_F(InstrumentationConverterIntVectorComplexPairToStringTest, Constructor) {
     test_converter_ptr = std::make_unique<ConverterType>();
   });
   EXPECT_EQ(test_converter_ptr->output_format(), default_output_);
+  EXPECT_EQ(test_converter_ptr->precision(), default_precision_);
+}
+
+TEST_F(InstrumentationConverterIntVectorComplexPairToStringTest, SetPrecision) {
+  ConverterType test_converter;
+  EXPECT_EQ(test_converter.precision(), default_precision_);
+  const int new_precision(test_helpers::RandomInt(3,5));
+  test_converter.set_precision(new_precision);
+  EXPECT_EQ(test_converter.precision(), new_precision);
 }
 
 } // namespace

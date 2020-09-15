@@ -26,6 +26,13 @@ class IntVectorComplexPairToString
   IntVectorComplexPairToString();
   std::string Convert(const std::pair<int,
                                       std::vector<std::complex<double>>> &input) const override;
+
+  IntVectorComplexPairToString& set_precision(const int to_set) {
+    precision_ = to_set;
+    return *this; }
+  int precision() const { return precision_; }
+ private:
+  int precision_ = 2;
 };
 
 } // namespace converter
