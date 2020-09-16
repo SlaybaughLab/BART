@@ -6,6 +6,7 @@
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/converter/convergence_to_string.h"
+#include "instrumentation/converter/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/int_double_pair_to_string.h"
 #include "instrumentation/converter/string_color_pair_to_string.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
@@ -24,6 +25,8 @@ std::unique_ptr<InstrumentType<InputType>> MakeBasicInstrument(std::unique_ptr<
   using ReturnType = instrumentation::BasicInstrument<InputType>;
   return std::make_unique<ReturnType>(std::move(outstream_ptr_));
 }
+
+// MAKE CONVERTER ==============================================================
 
 template <>
 std::unique_ptr<ConverterType<convergence::Status, std::string>>
@@ -49,6 +52,8 @@ MakeConverter<std::pair<std::string, utility::Color>, std::string>() {
   return return_ptr;
 }
 
+// MAKE INSTRUMENT =============================================================
+
 template <typename InputType, typename OutputType>
 std::unique_ptr<InstrumentType<InputType>> MakeInstrument(
     std::unique_ptr<ConverterType<InputType, OutputType>> converter_ptr_,
@@ -57,6 +62,8 @@ std::unique_ptr<InstrumentType<InputType>> MakeInstrument(
   return std::make_unique<ReturnType>(std::move(converter_ptr_),
                                       std::move(outstream_ptr_));
 }
+
+// MAKE OUTSTREAM ==============================================================
 
 template <>
 std::unique_ptr<OutstreamType<std::string>>
