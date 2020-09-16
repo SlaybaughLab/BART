@@ -157,7 +157,7 @@ TEST_F(InstrumentationConverterIntVectorComplexPairToStringTest,
   ConverterType test_converter;
   std::string new_format{"Vector: ${VECTOR} is paired with int ${INT}\n"};
   test_converter.SetOutputFormat(
-      {"Vector: ", OutputTerm::kVector, " is paired with in ", OutputTerm::kInt,
+      {"Vector: ", OutputTerm::kVector, " is paired with int ", OutputTerm::kInt,
        "\n"});
 
   EXPECT_EQ(test_converter.Convert(test_input),
@@ -174,7 +174,7 @@ TEST_F(InstrumentationConverterIntVectorComplexPairToStringTest,
   ConverterType test_converter;
   std::string new_format{"[Entry ${INDEX}: Real: ${REAL}, Imag: ${IMAG}]"};
   test_converter.SetVectorOutputFormat({
-    "[Entry ", VectorTerm::kIndex, ", Real: ", VectorTerm::kReal,
+    "[Entry ", VectorTerm::kIndex, ": Real: ", VectorTerm::kReal,
     ", Imag: ", VectorTerm::kImag, "]"});
 
   EXPECT_EQ(test_converter.Convert(test_input),

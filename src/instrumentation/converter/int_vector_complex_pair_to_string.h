@@ -45,6 +45,8 @@ class IntVectorComplexPairToString
   int precision() const { return precision_; }
   std::string vector_delimiter() const { return vector_delimiter_; }
   std::string vector_output_format() const { return vector_output_format_; }
+  std::map<VectorTerm, std::string> vector_term_to_string_map() const {
+    return vector_term_to_string_map_; }
  private:
   int precision_{2};
   std::string vector_delimiter_{", "};
