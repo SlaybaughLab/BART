@@ -22,6 +22,7 @@ namespace instrumentation {
 
 namespace factory {
 
+
 template<typename InputType>
 std::unique_ptr<InstrumentType<InputType>> MakeBasicInstrument(std::unique_ptr<
     OutstreamType<InputType>> outstream_ptr_) {
@@ -31,6 +32,16 @@ std::unique_ptr<InstrumentType<InputType>> MakeBasicInstrument(std::unique_ptr<
 
 // MAKE CONVERTER ==============================================================
 
+namespace  {
+  // types used by converters
+using IntComplexVectorPair = std::pair<int, std::vector<std::complex<double>>>;
+using IntDoublePair = std::pair<int, double>;
+using StringColorPair = std::pair<std::string, utility::Color>;
+
+template <typename InputType>
+using ConvertThisToStringPtr = std::unique_ptr<ConverterType<InputType, std::string>>;
+} // namespace
+
 template <>
 std::unique_ptr<ConverterType<convergence::Status, std::string>>
 MakeConverter<convergence::Status, std::string>() {
@@ -39,8 +50,8 @@ MakeConverter<convergence::Status, std::string>() {
 }
 
 template <>
-auto MakeConverter<std::pair<int, std::vector<std::complex<double>>>, std::string, int> (const int precision)
--> std::unique_ptr<ConverterType<std::pair<int, std::vector<std::complex<double>>>, std::string>>{
+auto MakeConverter<IntComplexVectorPair, std::string, int> (const int precision)
+-> ConvertThisToStringPtr<IntComplexVectorPair> {
     using ReturnType = instrumentation::converter::IntVectorComplexPairToString;
     auto return_ptr = std::make_unique<ReturnType>();
     return_ptr->set_precision(precision);
@@ -48,8 +59,8 @@ auto MakeConverter<std::pair<int, std::vector<std::complex<double>>>, std::strin
 }
 
 template <>
-std::unique_ptr<ConverterType<std::pair<int, double>, std::string>>
-MakeConverter<std::pair<int, double>, std::string, int>(const int precision) {
+ConvertThisToStringPtr<IntDoublePair>
+MakeConverter<IntDoublePair, std::string, int>(const int precision) {
   using ReturnType = instrumentation::converter::IntDoublePairToString;
   auto return_ptr = std::make_unique<ReturnType>();
   return_ptr->set_precision(precision);
@@ -57,8 +68,8 @@ MakeConverter<std::pair<int, double>, std::string, int>(const int precision) {
 }
 
 template <>
-std::unique_ptr<ConverterType<std::pair<std::string, utility::Color>, std::string>>
-MakeConverter<std::pair<std::string, utility::Color>, std::string>() {
+ConvertThisToStringPtr<StringColorPair>
+MakeConverter<StringColorPair, std::string>() {
   using ReturnType = instrumentation::converter::StringColorPairToString;
   auto return_ptr = std::make_unique<ReturnType>();
   return return_ptr;
