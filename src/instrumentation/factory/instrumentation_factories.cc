@@ -1,5 +1,8 @@
 #include "instrumentation_factories.h"
 
+#include <complex>
+#include <vector>
+
 #include <deal.II/base/conditional_ostream.h>
 
 #include "convergence/status.h"
@@ -33,6 +36,15 @@ std::unique_ptr<ConverterType<convergence::Status, std::string>>
 MakeConverter<convergence::Status, std::string>() {
   using ReturnType = instrumentation::converter::ConvergenceToString;
   return std::make_unique<ReturnType>();
+}
+
+template <>
+auto MakeConverter<std::pair<int, std::vector<std::complex<double>>>, std::string, int> (const int precision)
+-> std::unique_ptr<ConverterType<std::pair<int, std::vector<std::complex<double>>>, std::string>>{
+    using ReturnType = instrumentation::converter::IntVectorComplexPairToString;
+    auto return_ptr = std::make_unique<ReturnType>();
+    return_ptr->set_precision(precision);
+    return return_ptr;
 }
 
 template <>

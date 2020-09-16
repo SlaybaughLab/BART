@@ -3,6 +3,7 @@
 #include <deal.II/base/conditional_ostream.h>
 
 #include "instrumentation/converter/convergence_to_string.h"
+#include "instrumentation/converter/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/int_double_pair_to_string.h"
 #include "instrumentation/converter/string_color_pair_to_string.h"
 #include "instrumentation/converter/tests/converter_mock.h"
@@ -48,6 +49,18 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   ASSERT_NE(converter_ptr, nullptr);
   using ExpectedType = instrumentation::converter::ConvergenceToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationFactoriesIntegrationTests,
+    ConverterIntComplexVectorPairToString) {
+  const int precision = 5;
+  using InputType = std::pair<int, std::vector<std::complex<double>>>;
+  using OutputType = std::string;
+  using ExpectedReturnType = instrumentation::converter::IntVectorComplexPairToString;
+  auto converter_ptr = instrumentation::factory::MakeConverter<InputType, OutputType>(precision);
+  auto dynamic_ptr = dynamic_cast<ExpectedReturnType*>(converter_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_EQ(dynamic_ptr->precision(), 5);
 }
 
 TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
