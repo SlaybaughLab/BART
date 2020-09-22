@@ -31,6 +31,9 @@ class FourierTransform : public ConverterI<ComplexVector, ComplexVector>,
 
   FourierCalculator* fourier_calculator_ptr() {
     return fourier_calculator_ptr_.get(); }
+  FourierTransform& returns_normalized(bool to_set) {
+    returns_normalized_ = to_set;
+    return *this;}
   bool returns_normalized() const { return returns_normalized_; }
  private:
   std::unique_ptr<FourierCalculator> fourier_calculator_ptr_{nullptr};

@@ -54,6 +54,12 @@ TEST_P(InstrumentationConverterFourierTransform, Getters) {
   EXPECT_EQ(test_fourier_converter_->returns_normalized(), returns_normalized);
 }
 
+TEST_P(InstrumentationConverterFourierTransform, ReturnsNormalizedSetter) {
+  EXPECT_EQ(test_fourier_converter_->returns_normalized(), returns_normalized);
+  test_fourier_converter_->returns_normalized(!returns_normalized);
+  EXPECT_EQ(test_fourier_converter_->returns_normalized(), !returns_normalized);
+}
+
 TEST_P(InstrumentationConverterFourierTransform, Convert) {
   const int vector_size{test_helpers::RandomInt(3, 5)};
   using ComplexVector = std::vector<std::complex<double>>;
