@@ -23,14 +23,18 @@ class FourierTransform : public ConverterI<ComplexVector, ComplexVector>,
                          public utility::HasDependencies {
  public:
   using FourierCalculator = calculator::fourier::FourierTransformI;
+  using Normalized = calculator::fourier::Normalized;
 
   explicit FourierTransform(std::unique_ptr<FourierCalculator>);
+  FourierTransform(std::unique_ptr<FourierCalculator>, Normalized);
   ComplexVector Convert(const ComplexVector &input) const override;
 
   FourierCalculator* fourier_calculator_ptr() {
     return fourier_calculator_ptr_.get(); }
+  bool returns_normalized() const { return returns_normalized_; }
  private:
   std::unique_ptr<FourierCalculator> fourier_calculator_ptr_{nullptr};
+  bool returns_normalized_{true};
 };
 
 } // namespace fourier
