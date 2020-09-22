@@ -17,7 +17,8 @@ FourierTransform::FourierTransform(
 }
 
 ComplexVector FourierTransform::Convert(const ComplexVector &input) const {
-  return bart::instrumentation::converter::fourier::ComplexVector();
+  using calculator::fourier::Normalized;
+  return fourier_calculator_ptr_->CalculateDFT(input, Normalized(true));
 }
 
 } // namespace fourier
