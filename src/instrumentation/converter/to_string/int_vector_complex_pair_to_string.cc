@@ -8,6 +8,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 namespace  {
 using OutputTerm = IntVectorComplexPairToStringOutputTerm;
 std::string default_output_format{"${INT}, ${VECTOR}\n"};
@@ -99,6 +101,8 @@ std::string IntVectorComplexPairToString::SetVectorOutputFormat(
   vector_output_format_ = new_format_stream.str();
   return vector_output_format_;
 }
+
+} // namespace to_string
 
 } // namespace converter
 

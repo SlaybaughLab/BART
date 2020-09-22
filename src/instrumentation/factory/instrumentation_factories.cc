@@ -45,14 +45,14 @@ using ConvertThisToStringPtr = std::unique_ptr<ConverterType<InputType, std::str
 template <>
 std::unique_ptr<ConverterType<convergence::Status, std::string>>
 MakeConverter<convergence::Status, std::string>() {
-  using ReturnType = instrumentation::converter::ConvergenceToString;
+  using ReturnType = instrumentation::converter::to_string::ConvergenceToString;
   return std::make_unique<ReturnType>();
 }
 
 template <>
 auto MakeConverter<IntComplexVectorPair, std::string, int> (const int precision)
 -> ConvertThisToStringPtr<IntComplexVectorPair> {
-    using ReturnType = instrumentation::converter::IntVectorComplexPairToString;
+    using ReturnType = instrumentation::converter::to_string::IntVectorComplexPairToString;
     auto return_ptr = std::make_unique<ReturnType>();
     return_ptr->set_precision(precision);
     return return_ptr;
@@ -61,7 +61,7 @@ auto MakeConverter<IntComplexVectorPair, std::string, int> (const int precision)
 template <>
 ConvertThisToStringPtr<IntDoublePair>
 MakeConverter<IntDoublePair, std::string, int>(const int precision) {
-  using ReturnType = instrumentation::converter::IntDoublePairToString;
+  using ReturnType = instrumentation::converter::to_string::IntDoublePairToString;
   auto return_ptr = std::make_unique<ReturnType>();
   return_ptr->set_precision(precision);
   return return_ptr;
@@ -70,7 +70,7 @@ MakeConverter<IntDoublePair, std::string, int>(const int precision) {
 template <>
 ConvertThisToStringPtr<StringColorPair>
 MakeConverter<StringColorPair, std::string>() {
-  using ReturnType = instrumentation::converter::StringColorPairToString;
+  using ReturnType = instrumentation::converter::to_string::StringColorPairToString;
   auto return_ptr = std::make_unique<ReturnType>();
   return return_ptr;
 }

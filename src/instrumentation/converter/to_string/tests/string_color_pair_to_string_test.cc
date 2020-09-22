@@ -10,7 +10,7 @@ using namespace bart;
 class InstrumentationConverterStringColorPairToStringTest
  : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::StringColorPairToString;
+  using ConverterType = instrumentation::converter::to_string::StringColorPairToString;
   using Color = utility::Color;
   using PairType = std::pair<std::string, Color>;
 

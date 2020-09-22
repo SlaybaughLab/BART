@@ -9,6 +9,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 enum class IntDoublePairToStringOutputTerm {kIndex = 0, kValue = 1};
 
 class IntDoublePairToString
@@ -29,6 +31,8 @@ class IntDoublePairToString
  protected:
   int precision_ = 2;
 };
+
+} // namespace to_string
 
 } // namespace converter
 

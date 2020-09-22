@@ -9,6 +9,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 namespace  {
 using OutputTerm = DoubleToStringOutputTerm;
 std::string default_output_format{"${VALUE}\n"};
@@ -32,6 +34,8 @@ std::string DoubleToString::Convert(const double &input) const {
   }
   return return_string;
 }
+
+} // namespace to_string
 
 } // namespace converter
 

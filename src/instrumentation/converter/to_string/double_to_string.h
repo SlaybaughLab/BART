@@ -14,6 +14,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 enum class DoubleToStringOutputTerm { kValue = 0, };
 
 class DoubleToString :
@@ -36,6 +38,8 @@ class DoubleToString :
  private:
   int precision_ = 2;
 };
+
+} // namespace to_string
 
 } // namespace converter
 

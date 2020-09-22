@@ -6,6 +6,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 namespace  {
 using OutputTerm = StringColorPairToStringOutputTerm;
 std::string default_output_format{"${COLOR_CODE}${STRING}${COLOR_RESET_CODE}"};
@@ -42,6 +44,8 @@ std::string StringColorPairToString::Convert(
   }
   return output;
 }
+
+} // namespace to_string
 
 } // namespace converter
 

@@ -12,6 +12,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 enum class IntVectorComplexPairToStringOutputTerm {
   kInt = 0, kVector = 1
 };
@@ -53,6 +55,8 @@ class IntVectorComplexPairToString
   std::string vector_output_format_{""};
   std::map<VectorTerm, std::string> vector_term_to_string_map_;
 };
+
+} // namespace to_string
 
 } // namespace converter
 

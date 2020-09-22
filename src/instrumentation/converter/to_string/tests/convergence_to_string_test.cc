@@ -13,7 +13,7 @@ using namespace bart;
 
 class InstrumentationConverterConvergenceToStringTest : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::ConvergenceToString;
+  using ConverterType = instrumentation::converter::to_string::ConvergenceToString;
   convergence::Status test_status;
   std::string GetExpectedOutput(convergence::Status&, ConverterType&,
                                 std::string) const;
@@ -88,7 +88,7 @@ std::string InstrumentationConverterConvergenceToStringTest::GetExpectedOutput(
 }
 
 TEST_F(InstrumentationConverterConvergenceToStringTest, Constructor) {
-  using ConverterType = instrumentation::converter::ConvergenceToString;
+  using ConverterType = instrumentation::converter::to_string::ConvergenceToString;
   EXPECT_NO_THROW({
     ConverterType test_converter;
   });

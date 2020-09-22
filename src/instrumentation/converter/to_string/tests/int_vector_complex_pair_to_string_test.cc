@@ -12,7 +12,7 @@ using namespace bart;
 class InstrumentationConverterIntVectorComplexPairToStringTest
  : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::IntVectorComplexPairToString;
+  using ConverterType = instrumentation::converter::to_string::IntVectorComplexPairToString;
   using InputType = ConverterType::InputType;
   using OutputTerm = ConverterType::OutputTerm;
   using VectorTerm = ConverterType::VectorTerm;

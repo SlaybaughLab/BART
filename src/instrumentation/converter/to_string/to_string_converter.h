@@ -15,6 +15,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 template <typename InputType, typename OutputTerm>
 class ToStringConverter : public ConverterI<InputType, std::string> {
  public:
@@ -48,6 +50,8 @@ class ToStringConverter : public ConverterI<InputType, std::string> {
   std::string output_format_;
   OutputTermToStringMap output_term_to_string_map_;
 };
+
+} // namespace to_string
 
 } // namespace converter
 

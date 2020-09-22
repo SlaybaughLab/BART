@@ -47,7 +47,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ToOStreamOutStream) {
 TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<convergence::Status, std::string>();
   ASSERT_NE(converter_ptr, nullptr);
-  using ExpectedType = instrumentation::converter::ConvergenceToString;
+  using ExpectedType = instrumentation::converter::to_string::ConvergenceToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
 
@@ -56,7 +56,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests,
   const int precision = 5;
   using InputType = std::pair<int, std::vector<std::complex<double>>>;
   using OutputType = std::string;
-  using ExpectedReturnType = instrumentation::converter::IntVectorComplexPairToString;
+  using ExpectedReturnType = instrumentation::converter::to_string::IntVectorComplexPairToString;
   auto converter_ptr = instrumentation::factory::MakeConverter<InputType, OutputType>(precision);
   auto dynamic_ptr = dynamic_cast<ExpectedReturnType*>(converter_ptr.get());
   ASSERT_NE(dynamic_ptr, nullptr);
@@ -67,7 +67,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
   const int precision = 5;
   auto converter_ptr = instrumentation::factory::MakeConverter<std::pair<int, double>, std::string>(precision);
   ASSERT_NE(converter_ptr, nullptr);
-  using ExpectedType = instrumentation::converter::IntDoublePairToString;
+  using ExpectedType = instrumentation::converter::to_string::IntDoublePairToString;
   auto dynamic_ptr = dynamic_cast<ExpectedType*>(converter_ptr.get());
   ASSERT_NE(dynamic_ptr, nullptr);
   EXPECT_EQ(dynamic_ptr->precision(), precision);
@@ -78,7 +78,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, StringColorPairToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<StringColorPair,
                                                                 std::string>();
   ASSERT_NE(converter_ptr, nullptr);
-  using ExpectedType = instrumentation::converter::StringColorPairToString;
+  using ExpectedType = instrumentation::converter::to_string::StringColorPairToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
 

@@ -8,6 +8,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 namespace  {
 
 using OutputTerm = ConvergenceToStringOutputTerm;
@@ -56,6 +58,8 @@ std::string ConvergenceToString::Convert(const convergence::Status &to_convert) 
 
   return return_string;
 }
+
+} // namespace to_string
 
 } // namespace converter
 

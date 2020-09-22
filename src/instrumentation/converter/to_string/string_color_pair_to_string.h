@@ -10,6 +10,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 enum class StringColorPairToStringOutputTerm {
   kColorCode = 0, kString = 1, kColorReset = 2
 };
@@ -25,6 +27,8 @@ class StringColorPairToString :
   virtual ~StringColorPairToString() = default;
   std::string Convert(const std::pair<std::string, Color> &) const override;
 };
+
+} // namespace to_string
 
 } // namespace converter
 

@@ -8,6 +8,8 @@ namespace instrumentation {
 
 namespace converter {
 
+namespace to_string {
+
 namespace  {
 using OutputTerm = IntDoublePairToStringOutputTerm;
 std::string default_output_format{"${INDEX}, ${VALUE}\n"};
@@ -43,6 +45,8 @@ std::string IntDoublePairToString::Convert(
 
   return return_string;
 }
+
+} // namespace to_string
 
 } // namespace converter
 

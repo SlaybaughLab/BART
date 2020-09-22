@@ -12,7 +12,7 @@ using namespace bart;
 
 class InstrumentationConverterDoubleToStringTest : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::DoubleToString;
+  using ConverterType = instrumentation::converter::to_string::DoubleToString;
   const double test_value_{test_helpers::RandomDouble(0, 100)};
   std::string GetExpectedOutput(const double, ConverterType&, std::string,
                                 const int) const;
