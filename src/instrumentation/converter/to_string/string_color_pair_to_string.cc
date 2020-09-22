@@ -1,4 +1,4 @@
-#include "instrumentation/converter/string_color_pair_to_string.h"
+#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
 
 namespace bart {
 

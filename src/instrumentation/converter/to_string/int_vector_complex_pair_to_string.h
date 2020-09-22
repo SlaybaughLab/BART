@@ -1,7 +1,7 @@
 #ifndef BART_SRC_INSTRUMENTATION_CONVERTER_INT_VECTOR_COMPLEX_PAIR_TO_STRING_H_
 #define BART_SRC_INSTRUMENTATION_CONVERTER_INT_VECTOR_COMPLEX_PAIR_TO_STRING_H_
 
-#include "instrumentation/converter/to_string_converter.h"
+#include "instrumentation/converter/to_string/to_string_converter.h"
 
 #include <complex>
 #include <vector>

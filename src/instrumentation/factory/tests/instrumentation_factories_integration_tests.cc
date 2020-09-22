@@ -2,10 +2,10 @@
 
 #include <deal.II/base/conditional_ostream.h>
 
-#include "instrumentation/converter/convergence_to_string.h"
-#include "instrumentation/converter/int_vector_complex_pair_to_string.h"
-#include "instrumentation/converter/int_double_pair_to_string.h"
-#include "instrumentation/converter/string_color_pair_to_string.h"
+#include "instrumentation/converter/to_string/convergence_to_string.h"
+#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/to_string/int_double_pair_to_string.h"
+#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
 #include "instrumentation/converter/tests/converter_mock.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"

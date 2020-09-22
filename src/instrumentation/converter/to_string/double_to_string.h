@@ -6,7 +6,7 @@
 #include <vector>
 #include <variant>
 
-#include "instrumentation/converter/to_string_converter.h"
+#include "instrumentation/converter/to_string/to_string_converter.h"
 
 namespace bart {
 

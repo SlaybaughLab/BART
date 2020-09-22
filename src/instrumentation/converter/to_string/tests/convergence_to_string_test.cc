@@ -1,4 +1,4 @@
-#include "instrumentation/converter/convergence_to_string.h"
+#include "instrumentation/converter/to_string/convergence_to_string.h"
 
 #include <iomanip>
 #include <sstream>
