@@ -57,6 +57,26 @@ TEST_P(InstrumentationConverterCalculatorVectorSubtractorTest, Getters) {
   EXPECT_EQ(test_subtractor_ptr_->minuend(), minuend_);
 }
 
+TEST_P(InstrumentationConverterCalculatorVectorSubtractorTest, ConvertBadSizes) {
+
+  for (const int bad_size : {vector_length_ - 1, vector_length_ + 1}) {
+    DealiiVector bad_subtrahend(bad_size);
+    for (int i = 0; i < bad_subtrahend.size(); ++i)
+      bad_subtrahend[i] = test_helpers::RandomDouble(-100, 100);
+    EXPECT_ANY_THROW(test_subtractor_ptr_->Convert(bad_subtrahend))
+              << "Failed to throw of bad vector size: " << bad_size;
+  }
+}
+
+TEST_P(InstrumentationConverterCalculatorVectorSubtractorTest, Convert) {
+  auto result = test_subtractor_ptr_->Convert(subtrahend_);
+  ASSERT_EQ(result.size(), difference_.size());
+  EXPECT_EQ(result, difference_);
+}
+
+
+
+
 
 
 } // namespace bart

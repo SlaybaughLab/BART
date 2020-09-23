@@ -31,7 +31,17 @@ class VectorSubtractor : public ConverterI<dealii::Vector<double>,
       : minuend_(minuend),
         calculate_absolute_value_(calculate_absolute_value) {}
   DealiiVector Convert(const DealiiVector &input) const override {
-    return DealiiVector();
+    AssertThrow(input.size() == minuend_.size(),
+        dealii::ExcMessage("Error in VectorSubtractor::Convert, provided vector"
+                           " is the incorrect size."))
+
+    DealiiVector return_vector(minuend_.size());
+    for (int i = 0; i < minuend_.size(); ++i) {
+      return_vector[i] = minuend_[i] - input[i];
+      if (calculate_absolute_value_)
+        return_vector[i] = std::abs(return_vector[i]);
+    }
+    return return_vector;
   }
 
   DealiiVector minuend() const { return minuend_; }
