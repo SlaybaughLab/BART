@@ -3,11 +3,13 @@
 #include <complex>
 #include <vector>
 
+#include <deal.II/lac/vector.h>
 #include <deal.II/base/conditional_ostream.h>
 
 #include "convergence/status.h"
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
+#include "instrumentation/converter/dealii_to_complex_vector.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
@@ -34,6 +36,8 @@ std::unique_ptr<InstrumentType<InputType>> MakeBasicInstrument(std::unique_ptr<
 
 namespace  {
   // types used by converters
+using ComplexVector = std::vector<std::complex<double>>;
+using DealiiVector = dealii::Vector<double>;
 using IntComplexVectorPair = std::pair<int, std::vector<std::complex<double>>>;
 using IntDoublePair = std::pair<int, double>;
 using StringColorPair = std::pair<std::string, utility::Color>;
@@ -41,6 +45,15 @@ using StringColorPair = std::pair<std::string, utility::Color>;
 template <typename InputType>
 using ConvertThisToStringPtr = std::unique_ptr<ConverterType<InputType, std::string>>;
 } // namespace
+
+template <>
+std::unique_ptr<ConverterType<DealiiVector, ComplexVector>>
+MakeConverter<DealiiVector, ComplexVector>() {
+  using ReturnType = instrumentation::converter::DealiiToComplexVector;
+  return std::make_unique<ReturnType>();
+}
+
+// ToStringConverters ==========================================================
 
 template <>
 std::unique_ptr<ConverterType<convergence::Status, std::string>>

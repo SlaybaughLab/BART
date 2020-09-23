@@ -1,7 +1,12 @@
 #include "instrumentation/factory/instrumentation_factories.h"
 
+#include <complex>
+#include <vector>
+
+#include <deal.II/lac/vector.h>
 #include <deal.II/base/conditional_ostream.h>
 
+#include "instrumentation/converter/dealii_to_complex_vector.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
@@ -20,6 +25,7 @@ namespace  {
 namespace instrumentation = bart::instrumentation;
 namespace convergence = bart::convergence;
 namespace utility = bart::utility;
+using ::testing::WhenDynamicCastTo, ::testing::NotNull;
 
 class InstrumentationFactoriesIntegrationTests : public ::testing::Test {
  public:
@@ -42,7 +48,19 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ToOStreamOutStream) {
   ASSERT_NE(dynamic_cast<ExpectedType*>(outstream_ptr.get()), nullptr);
 }
 
+// CONVERTER TESTS =============================================================
 
+TEST_F(InstrumentationFactoriesIntegrationTests, ConverterDealiiVectorToComplexVector) {
+  using ComplexVector = std::vector<std::complex<double>>;
+  using DealiiVector = dealii::Vector<double>;
+  using ExpectedType = instrumentation::converter::DealiiToComplexVector;
+
+  auto converter_ptr = instrumentation::factory::MakeConverter<DealiiVector, ComplexVector>();
+  ASSERT_NE(converter_ptr, nullptr);
+  EXPECT_THAT(converter_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+// TO_STRING CONVERTERS
 
 TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<convergence::Status, std::string>();
