@@ -21,7 +21,13 @@ class DealiiToComplexVector :
   using DealiiVector = dealii::Vector<double>;
   using ComplexVector = std::vector<std::complex<double>>;
   ComplexVector Convert(const DealiiVector &input) const override {
-    return ComplexVector{};
+    const int vector_size = input.size();
+    ComplexVector return_vector(vector_size);
+    for (int i = 0; i < vector_size; ++i) {
+      return_vector.at(i).real(input[i]);
+      return_vector.at(i).imag(0);
+    }
+    return return_vector;
   };
 };
 
