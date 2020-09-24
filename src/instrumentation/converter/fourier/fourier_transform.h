@@ -22,8 +22,8 @@ using ComplexVector = std::vector<std::complex<double>>;
 class FourierTransform : public ConverterI<ComplexVector, ComplexVector>,
                          public utility::HasDependencies {
  public:
-  using FourierCalculator = calculator::fourier::FourierTransformI;
-  using Normalized = calculator::fourier::Normalized;
+  using FourierCalculator = bart::calculator::fourier::FourierTransformI;
+  using Normalized = bart::calculator::fourier::Normalized;
 
   explicit FourierTransform(std::unique_ptr<FourierCalculator>);
   FourierTransform(std::unique_ptr<FourierCalculator>, Normalized);
