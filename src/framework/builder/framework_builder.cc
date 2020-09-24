@@ -39,7 +39,7 @@
 #include "solver/linear/gmres.h"
 
 // Instrumentation classes
-#include "instrumentation/factory/instrumentation_factories.h"
+#include "instrumentation/factory/component_factories.h"
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"

@@ -1,4 +1,4 @@
-#include "instrumentation/factory/instrumentation_factories.h"
+#include "instrumentation/factory/component_factories.h"
 
 #include <complex>
 #include <vector>
@@ -29,11 +29,11 @@ namespace convergence = bart::convergence;
 namespace utility = bart::utility;
 using ::testing::WhenDynamicCastTo, ::testing::NotNull;
 
-class InstrumentationFactoriesIntegrationTests : public ::testing::Test {
+class ComponentFactoriesIntegrationTests : public ::testing::Test {
  public:
 };
 
-TEST_F(InstrumentationFactoriesIntegrationTests, ConditionalOstream) {
+TEST_F(ComponentFactoriesIntegrationTests, ConditionalOstream) {
   auto outstream_ptr = instrumentation::factory::MakeOutstream<std::string>(
       std::make_unique<dealii::ConditionalOStream>(std::cout, false));
   ASSERT_NE(outstream_ptr, nullptr);
@@ -41,7 +41,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConditionalOstream) {
   ASSERT_NE(dynamic_cast<ExpectedType*>(outstream_ptr.get()), nullptr);
 }
 
-TEST_F(InstrumentationFactoriesIntegrationTests, ToOStreamOutStream) {
+TEST_F(ComponentFactoriesIntegrationTests, ToOStreamOutStream) {
   using namespace instrumentation::factory;
   auto outstream_ptr = MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
       std::make_unique<std::ostringstream>());
@@ -52,7 +52,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ToOStreamOutStream) {
 
 // CONVERTER TESTS =============================================================
 
-TEST_F(InstrumentationFactoriesIntegrationTests, ConverterDealiiVectorToComplexVector) {
+TEST_F(ComponentFactoriesIntegrationTests, ConverterDealiiVectorToComplexVector) {
   using ComplexVector = std::vector<std::complex<double>>;
   using DealiiVector = dealii::Vector<double>;
   using ExpectedType = instrumentation::converter::DealiiToComplexVector;
@@ -64,7 +64,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterDealiiVectorToComplexV
 
 // FOURIER CONVERTERS ==========================================================
 
-TEST_F(InstrumentationFactoriesIntegrationTests, ConverterFourier) {
+TEST_F(ComponentFactoriesIntegrationTests, ConverterFourier) {
   using ComplexVector = std::vector<std::complex<double>>;
   using FourierCalculator = bart::calculator::fourier::FourierTransformMock;
   using FourierCalculatorI = bart::calculator::fourier::FourierTransformI;
@@ -81,14 +81,14 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterFourier) {
 
 // TO_STRING CONVERTERS ========================================================
 
-TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
+TEST_F(ComponentFactoriesIntegrationTests, ConverterConvergenceToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<convergence::Status, std::string>();
   ASSERT_NE(converter_ptr, nullptr);
   using ExpectedType = instrumentation::converter::to_string::ConvergenceToString;
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
 
-TEST_F(InstrumentationFactoriesIntegrationTests,
+TEST_F(ComponentFactoriesIntegrationTests,
     ConverterIntComplexVectorPairToString) {
   const int precision = 5;
   using InputType = std::pair<int, std::vector<std::complex<double>>>;
@@ -100,7 +100,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests,
   EXPECT_EQ(dynamic_ptr->precision(), 5);
 }
 
-TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
+TEST_F(ComponentFactoriesIntegrationTests, ConverterIntDoubleToString) {
   const int precision = 5;
   auto converter_ptr = instrumentation::factory::MakeConverter<std::pair<int, double>, std::string>(precision);
   ASSERT_NE(converter_ptr, nullptr);
@@ -110,7 +110,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterIntDoubleToString) {
   EXPECT_EQ(dynamic_ptr->precision(), precision);
 }
 
-TEST_F(InstrumentationFactoriesIntegrationTests, StringColorPairToString) {
+TEST_F(ComponentFactoriesIntegrationTests, StringColorPairToString) {
   using StringColorPair = std::pair<std::string, utility::Color>;
   auto converter_ptr =  instrumentation::factory::MakeConverter<StringColorPair,
                                                                 std::string>();
@@ -120,7 +120,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, StringColorPairToString) {
 }
 
 
-TEST_F(InstrumentationFactoriesIntegrationTests, MakeBasicInstrument) {
+TEST_F(ComponentFactoriesIntegrationTests, MakeBasicInstrument) {
   using InputType = std::string;
   using OutstreamType = instrumentation::outstream::OutstreamMock<InputType>;
 
@@ -131,7 +131,7 @@ TEST_F(InstrumentationFactoriesIntegrationTests, MakeBasicInstrument) {
   ASSERT_NE(dynamic_cast<ExpectedType*>(instrument_ptr.get()), nullptr);
 }
 
-TEST_F(InstrumentationFactoriesIntegrationTests, MakeInstrument) {
+TEST_F(ComponentFactoriesIntegrationTests, MakeInstrument) {
   using InputType = convergence::Status;
   using OutputType = std::string;
   using ConverterType = instrumentation::converter::ConverterMock<InputType, OutputType>;

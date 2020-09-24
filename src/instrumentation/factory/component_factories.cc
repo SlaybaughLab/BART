@@ -1,4 +1,4 @@
-#include "instrumentation_factories.h"
+#include "instrumentation/factory/component_factories.h"
 
 #include <complex>
 #include <vector>
