@@ -6,10 +6,12 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/conditional_ostream.h>
 
+#include "calculator/fourier/fourier_transform_i.h"
 #include "convergence/status.h"
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
+#include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
@@ -44,6 +46,9 @@ using StringColorPair = std::pair<std::string, utility::Color>;
 
 template <typename InputType>
 using ConvertThisToStringPtr = std::unique_ptr<ConverterType<InputType, std::string>>;
+
+// Dependencies
+using FourierCalculatorPtr = std::unique_ptr<calculator::fourier::FourierTransformI>;
 } // namespace
 
 template <>
@@ -51,6 +56,16 @@ std::unique_ptr<ConverterType<DealiiVector, ComplexVector>>
 MakeConverter<DealiiVector, ComplexVector>() {
   using ReturnType = instrumentation::converter::DealiiToComplexVector;
   return std::make_unique<ReturnType>();
+}
+
+// FourierConverters ===========================================================
+
+template <>
+std::unique_ptr<ConverterType<ComplexVector, ComplexVector>>
+MakeConverter<ComplexVector, ComplexVector, FourierCalculatorPtr>(
+    FourierCalculatorPtr fourier_calculator_ptr) {
+using ReturnType = instrumentation::converter::fourier::FourierTransform;
+  return std::make_unique<ReturnType>(std::move(fourier_calculator_ptr));
 }
 
 // ToStringConverters ==========================================================

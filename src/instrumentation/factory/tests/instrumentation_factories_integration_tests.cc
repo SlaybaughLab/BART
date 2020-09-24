@@ -6,7 +6,9 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/conditional_ostream.h>
 
+#include "calculator/fourier/tests/fourier_transform_mock.h"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
+#include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
@@ -60,7 +62,24 @@ TEST_F(InstrumentationFactoriesIntegrationTests, ConverterDealiiVectorToComplexV
   EXPECT_THAT(converter_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
-// TO_STRING CONVERTERS
+// FOURIER CONVERTERS ==========================================================
+
+TEST_F(InstrumentationFactoriesIntegrationTests, ConverterFourier) {
+  using ComplexVector = std::vector<std::complex<double>>;
+  using FourierCalculator = bart::calculator::fourier::FourierTransformMock;
+  using FourierCalculatorI = bart::calculator::fourier::FourierTransformI;
+  using ExpectedType = instrumentation::converter::fourier::FourierTransform;
+  std::unique_ptr<FourierCalculatorI> fourier_calculator_ptr =
+      std::make_unique<FourierCalculator>();
+
+  auto converter_ptr =
+      instrumentation::factory::MakeConverter<ComplexVector, ComplexVector>(
+          std::move(fourier_calculator_ptr));
+  ASSERT_NE(converter_ptr, nullptr);
+  EXPECT_THAT(converter_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+// TO_STRING CONVERTERS ========================================================
 
 TEST_F(InstrumentationFactoriesIntegrationTests, ConverterConvergenceToString) {
   auto converter_ptr =  instrumentation::factory::MakeConverter<convergence::Status, std::string>();
