@@ -16,7 +16,7 @@ using DealiiVector = dealii::Vector<double>;
 using FourierInstrumentType = instrumentation::InstrumentI<DealiiVector>;
 
 std::unique_ptr<FourierInstrumentType> MakeErrorFourierTransformInstrument(
-    DealiiVector solution);
+    DealiiVector solution, std::unique_ptr<std::ostream> output_stream);
 
 } // namespace factory
 

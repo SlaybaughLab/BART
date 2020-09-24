@@ -2,6 +2,7 @@
 
 #include <deal.II/base/exceptions.h>
 #include <string>
+#include <deal.II/lac/vector.h>
 
 #include "convergence/status.h"
 #include "utility/colors.h"
@@ -38,6 +39,7 @@ void Instrument<InputType, OutputType>::AssertNotNull(T* ptr,
 template class Instrument<convergence::Status, std::string>;
 template class Instrument<std::pair<int, double>, std::string>;
 template class Instrument<std::pair<std::string, utility::Color>, std::string>;
+template class Instrument<dealii::Vector<double>, std::string>;
 
 } // namespace instrumentation
 
