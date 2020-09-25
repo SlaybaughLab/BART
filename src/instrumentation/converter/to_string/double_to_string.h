@@ -6,6 +6,7 @@
 #include <vector>
 #include <variant>
 
+#include "instrumentation/factory/converter_types.h"
 #include "instrumentation/converter/to_string/to_string_converter.h"
 
 namespace bart {
@@ -21,6 +22,8 @@ enum class DoubleToStringOutputTerm { kValue = 0, };
 class DoubleToString :
     public ToStringConverter<double, DoubleToStringOutputTerm> {
  public:
+  using InputType = double;
+  using OutputType = std::string;
   using OutputTerm = DoubleToStringOutputTerm;
   using OutputTermToStringMap = std::map<OutputTerm, std::string>;
 

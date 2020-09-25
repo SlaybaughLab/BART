@@ -7,6 +7,12 @@ namespace bart {
 
 namespace instrumentation {
 
+factory::registrations::ConverterFactoryRegistration<converter::to_string::DoubleToString>
+    _double_to_string (factory::ConverterName::kDoubleToString,
+                       []() { std::unique_ptr<converter::ConverterI<double, std::string>> return_ptr;
+                         return_ptr = std::make_unique<converter::to_string::DoubleToString>();
+                         return return_ptr; });
+
 namespace converter {
 
 namespace to_string {

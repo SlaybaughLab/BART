@@ -2,6 +2,7 @@
 #define BART_SRC_INSTRUMENTATION_CONVERTER_CONVERTER_I_H_
 
 #include "utility/has_description.h"
+#include "instrumentation/factory/converter_factory_registration.h"
 
 namespace bart {
 
