@@ -36,7 +36,7 @@
 
 // Solver classes
 #include "solver/group/single_group_solver.h"
-#include "solver/gmres.h"
+#include "solver/linear/gmres.h"
 
 // Instrumentation classes
 #include "instrumentation/factory/instrumentation_factories.h"

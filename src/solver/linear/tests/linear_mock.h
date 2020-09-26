@@ -1,7 +1,7 @@
 #ifndef BART_SRC_SOLVER_TESTS_LINEAR_MOCK_H_
 #define BART_SRC_SOLVER_TESTS_LINEAR_MOCK_H_
 
-#include "solver/linear_i.h"
+#include "solver/linear/linear_i.h"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {

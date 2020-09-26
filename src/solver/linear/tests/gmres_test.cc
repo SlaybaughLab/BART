@@ -1,4 +1,4 @@
-#include "solver/gmres.h"
+#include "solver/linear/gmres.h"
 
 #include <deal.II/lac/petsc_full_matrix.h>
 

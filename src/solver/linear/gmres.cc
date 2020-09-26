@@ -1,4 +1,4 @@
-#include "solver/gmres.h"
+#include "gmres.h"
 
 #include <deal.II/lac/petsc_solver.h>
 

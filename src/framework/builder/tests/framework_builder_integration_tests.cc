@@ -27,7 +27,7 @@
 #include "quadrature/calculators/scalar_moment.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/quadrature_set.h"
-#include "solver/gmres.h"
+#include "solver/linear/gmres.h"
 #include "solver/group/single_group_solver.h"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
