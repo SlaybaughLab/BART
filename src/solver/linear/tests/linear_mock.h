@@ -10,11 +10,11 @@ namespace solver {
 
 class LinearMock : public LinearI {
  public:
-  MOCK_METHOD4(Solve, void(
-      dealii::PETScWrappers::MatrixBase *A,
-      dealii::PETScWrappers::VectorBase *x,
-      dealii::PETScWrappers::VectorBase *b,
-      dealii::PETScWrappers::PreconditionerBase *preconditioner));
+  MOCK_METHOD(void, Solve, (dealii::PETScWrappers::MatrixBase *,
+      dealii::PETScWrappers::VectorBase *,
+      dealii::PETScWrappers::VectorBase *,
+      dealii::PETScWrappers::PreconditionerBase *),
+              (override));
 };
 
 } // namespace solver

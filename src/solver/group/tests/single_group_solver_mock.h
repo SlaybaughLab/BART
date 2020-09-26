@@ -13,9 +13,11 @@ namespace group {
 
 class SingleGroupSolverMock : public SingleGroupSolverI {
  public:
-  MOCK_METHOD3(SolveGroup, void(const int group,
-      const system::System& system,
-      system::solution::MPIGroupAngularSolutionI& group_solution));
+  MOCK_METHOD(void, SolveGroup,
+              (const int group,
+                  const system::System& system,
+                  system::solution::MPIGroupAngularSolutionI& group_solution),
+              (override));
 };
 
 } // namespace group
