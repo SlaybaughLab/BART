@@ -4,6 +4,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "utility/factory/auto_registering_factory.h"
 #include "solver/solver_names.h"
 
 namespace bart {
@@ -20,30 +21,10 @@ template <typename ...T>
 using LinearSolverConstructor = std::unique_ptr<LinearI>(*)(T...);
 
 template <typename ...T>
-class SolverFactory {
- public:
-
-  static SolverFactory& get() {
-    static SolverFactory instance;
-    return instance;
-  }
-  bool RegisterConstructor(
-      const LinearSolverName name,
-      const LinearSolverConstructor<T...>& constructor) {
-    return linear_solver_constructors_.insert(
-        std::make_pair(name, constructor)).second;
-  }
-  LinearSolverConstructor<T...> GetConstructor(
-      const LinearSolverName name) {
-    return linear_solver_constructors_.at(name); }
-
- private:
-  SolverFactory() = default;
-  SolverFactory(const SolverFactory&);
-  ~SolverFactory() = default;
-  std::unordered_map<LinearSolverName, LinearSolverConstructor<T...>>
-      linear_solver_constructors_;
-};
+class SolverFactory
+    : public utility::factory::AutoRegisteringFactory<
+        LinearSolverName,
+        LinearSolverConstructor<T...>> {};
 
 } // namespace factory
 
