@@ -17,9 +17,6 @@ class LinearI;
 
 namespace factory {
 
-template <typename ...T>
-using LinearSolverConstructor = std::unique_ptr<LinearI>(*)(T...);
-
 BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
 
 } // namespace factory
