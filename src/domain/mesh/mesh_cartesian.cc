@@ -9,6 +9,7 @@
 #include <deal.II/base/tensor.h>
 #include <deal.II/base/utilities.h>
 
+#include "domain/mesh/factory.h"
 #include "problem/parameter_types.h"
 
 namespace bart {
@@ -24,7 +25,6 @@ MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
     : MeshCartesian(spatial_max, n_cells) {
   ParseMaterialMap(material_mapping);
 }
-
 
 template <int dim>
 MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
@@ -197,6 +197,19 @@ int MeshCartesian<dim>::GetMaterialID(std::array<double, dim> location) {
   
   return material_mapping_[relative_location];
 }
+
+template <int dim>
+bool MeshCartesian<dim>::is_registered_ =
+    MeshIFactory<dim, const std::vector<double>, const std::vector<int>, const std::string>::get()
+    .RegisterConstructor(
+        MeshName::kCartesian,
+        [] (const std::vector<double> spatial_max,
+            const std::vector<int> n_cells,
+            const std::string material_mapping) {
+          std::unique_ptr<MeshI<dim>> return_ptr =
+              std::make_unique<MeshCartesian<dim>>(spatial_max, n_cells, material_mapping);
+          return return_ptr; }
+    );
 
 template class MeshCartesian<1>;
 template class MeshCartesian<2>;
