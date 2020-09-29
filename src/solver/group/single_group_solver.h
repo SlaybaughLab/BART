@@ -29,7 +29,7 @@ class SingleGroupSolver : public SingleGroupSolverI {
   }
  protected:
   std::unique_ptr<LinearSolver> linear_solver_ptr_ = nullptr;
-
+  static bool is_registered_;
 };
 
 } // namespace group
