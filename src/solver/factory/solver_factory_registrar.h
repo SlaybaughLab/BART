@@ -10,14 +10,7 @@ namespace solver {
 
 namespace factory {
 
-template <typename T, typename ...U>
-class SolverFactoryRegistrar {
- public:
-  SolverFactoryRegistrar(const LinearSolverName name,
-                         const LinearSolverConstructor<U...>& constructor) {
-    SolverFactory<U...>::get().RegisterConstructor(name, constructor);
-  }
-};
+BART_INTERFACE_FACTORY_REGISTRAR(LinearI, LinearSolverName)
 
 } // namespace factory
 

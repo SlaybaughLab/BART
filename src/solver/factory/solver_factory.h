@@ -20,11 +20,7 @@ namespace factory {
 template <typename ...T>
 using LinearSolverConstructor = std::unique_ptr<LinearI>(*)(T...);
 
-template <typename ...T>
-class SolverFactory
-    : public utility::factory::AutoRegisteringFactory<
-        LinearSolverName,
-        LinearSolverConstructor<T...>> {};
+BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
 
 } // namespace factory
 

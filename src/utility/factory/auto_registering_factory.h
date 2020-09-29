@@ -35,6 +35,25 @@ class AutoRegisteringFactory {
   std::unordered_map<ClassName, Constructor> constructors_{};
 };
 
+#define BART_INTERFACE_FACTORY(interface, names) \
+template <typename ...T> \
+class interface##Factory : public utility::factory::AutoRegisteringFactory<names, \
+std::unique_ptr<interface>(*)(T...)> {};
+
+#define BART_INTERFACE_FACTORY_REGISTRAR(interface, names) \
+template <typename T, typename ...U> \
+class interface##FactoryRegistrar { \
+public: \
+using interface##Constructor = std::unique_ptr<interface>(*)(U...); \
+interface##FactoryRegistrar(const names name, \
+                           const interface##Constructor& constructor) { \
+    interface##Factory<U...>::get().RegisterConstructor(name, constructor); \
+} \
+};
+
+//#define BART_REGISTER_CONSTRUCTOR(interface, class_name, )
+
+
 } // namespace factory
 
 } // namespace utility

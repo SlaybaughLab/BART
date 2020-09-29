@@ -8,7 +8,7 @@ namespace bart {
 
 namespace solver {
 
-factory::SolverFactoryRegistrar<GMRES, int, double> _gmres_registration(
+factory::LinearIFactoryRegistrar<GMRES, int, double> _gmres_registration(
     LinearSolverName::kGMRES,
     [] (int max_iterations, double convergence_tolerance) {
       std::unique_ptr<LinearI> return_ptr;
