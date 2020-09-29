@@ -30,6 +30,7 @@ class GMRES : public LinearI {
 
  private:
   dealii::SolverControl solver_control_;
+  static bool is_registered_;
 };
 
 } // namespace solver
