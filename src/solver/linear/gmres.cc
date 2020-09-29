@@ -1,6 +1,7 @@
-#include "gmres.h"
+#include "solver/linear/gmres.h"
+#include "solver/linear/factory.h"
 
-#include "solver/factory/solver_factory.h"
+
 #include <deal.II/lac/petsc_solver.h>
 
 namespace bart {
@@ -18,7 +19,7 @@ void GMRES::Solve(dealii::PETScWrappers::MatrixBase *A,
   solver.solve(*A, *x, *b, *preconditioner);
 }
 
-bool GMRES::is_registered_ = factory::LinearIFactory<int, double>::get()
+bool GMRES::is_registered_ = LinearIFactory<int, double>::get()
     .RegisterConstructor(LinearSolverName::kGMRES,
                          [] (int max_iterations, double convergence_tolerance) {
                            std::unique_ptr<LinearI> return_ptr;

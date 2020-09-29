@@ -1,6 +1,5 @@
-#include "solver/factory/solver_factory.h"
+#include "solver/linear/factory.h"
 
-#include "solver/solver_names.h"
 #include "solver/linear/gmres.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -15,7 +14,7 @@ TEST(SolverFactoryTest, GMRES) {
   using SolverName = solver::LinearSolverName;
   const int max_iterations{test_helpers::RandomInt(200, 1000)};
   const double tolerance{test_helpers::RandomDouble(1e-16, 1e-10)};
-  auto gmres_ptr = solver::factory::LinearIFactory<int, double>::get()
+  auto gmres_ptr = solver::LinearIFactory<int, double>::get()
       .GetConstructor(SolverName::kGMRES)(max_iterations, tolerance);
   ASSERT_NE(gmres_ptr, nullptr);
   auto dynamic_ptr = dynamic_cast<ExpectedType*>(gmres_ptr.get());
