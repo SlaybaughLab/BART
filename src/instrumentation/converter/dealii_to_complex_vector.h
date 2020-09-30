@@ -6,6 +6,7 @@
 
 #include <deal.II/lac/vector.h>
 
+#include "instrumentation/converter/factory.h"
 #include "instrumentation/converter/converter_i.h"
 
 namespace bart {
@@ -29,6 +30,15 @@ class DealiiToComplexVector :
     }
     return return_vector;
   };
+ private:
+  static inline bool is_registered_ =
+      ConverterIFactory<DealiiVector, ComplexVector>::get()
+      .RegisterConstructor(ConverterName::kDealiiToComplexVector,
+          []() {
+            std::unique_ptr<ConverterI<DealiiVector, ComplexVector>> return_ptr =
+                std::make_unique<DealiiToComplexVector>();
+            return return_ptr;
+      });
 };
 
 } // namespace converter

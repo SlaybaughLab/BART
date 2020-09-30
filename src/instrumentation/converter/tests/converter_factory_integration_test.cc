@@ -10,6 +10,7 @@
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/to_string/string_color_pair_to_string.h"
 #include "instrumentation/converter/pair_incrementer.h"
+#include "instrumentation/converter/dealii_to_complex_vector.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -105,6 +106,16 @@ TEST_F(InstrumentationConverterIFactoryTest,
 
   auto converter_ptr = converter::ConverterIFactory<std::string, std::pair<int, std::string>>::get()
       .GetConstructor(converter::ConverterName::kPairIncrementer)();
+  ASSERT_NE(converter_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationConverterIFactoryTest,
+    DealiiToComplexVectorInstantiation) {
+  using ExpectedType = converter::DealiiToComplexVector;
+
+  auto converter_ptr = converter::ConverterIFactory<DealiiVector, ComplexVector>::get()
+      .GetConstructor(converter::ConverterName::kDealiiToComplexVector)();
   ASSERT_NE(converter_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }

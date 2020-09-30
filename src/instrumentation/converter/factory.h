@@ -19,7 +19,8 @@ enum class ConverterName {
   kIntDoublePairToString, // to_string/int_double_pair_to_string.h
   kIntVectorComplexPairToString, // to_string/int_vector_complex_pair_to_string.h
   kStringColorPairToString, // to_string/string_color_pair_to_string.h
-  kPairIncrementer
+  kPairIncrementer,
+  kDealiiToComplexVector
 };
 
 template <typename InputType, typename OutputType, typename ...T>
