@@ -40,6 +40,7 @@ class DoubleToString :
 
  private:
   int precision_ = 2;
+  static bool is_registered_;
 };
 
 } // namespace to_string

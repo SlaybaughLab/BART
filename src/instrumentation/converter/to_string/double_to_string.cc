@@ -1,5 +1,7 @@
 #include "instrumentation/converter/to_string/double_to_string.h"
 
+#include "instrumentation/converter/factory.h"
+
 #include <iomanip>
 #include <sstream>
 
@@ -40,6 +42,15 @@ std::string DoubleToString::Convert(const double &input) const {
   }
   return return_string;
 }
+
+bool DoubleToString::is_registered_ =
+    converter::ConverterIFactory<double, std::string>::get()
+    .RegisterConstructor(converter::ConverterName::kDoubleToString,
+        [](){
+      std::unique_ptr<ConverterI<double, std::string>> return_ptr =
+          std::make_unique<DoubleToString>();
+          return return_ptr;
+        });
 
 } // namespace to_string
 

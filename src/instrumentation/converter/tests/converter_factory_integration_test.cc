@@ -5,6 +5,7 @@
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
+#include "instrumentation/converter/to_string/double_to_string.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -57,5 +58,12 @@ TEST_F(InstrumentationConverterIFactoryTest, ConvergenceToStringInstantiation) {
             nullptr);
 }
 
+TEST_F(InstrumentationConverterIFactoryTest, DoubletoStringInstantiation) {
+  using ExpectedType = converter::to_string::DoubleToString;
+  auto double_to_string_ptr = converter::ConverterIFactory<double, std::string>::get()
+      .GetConstructor(converter::ConverterName::kDoubleToString)();
+  ASSERT_NE(double_to_string_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(double_to_string_ptr.get()), nullptr);
+}
 
 } // namespace
