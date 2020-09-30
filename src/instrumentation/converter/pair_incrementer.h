@@ -2,6 +2,7 @@
 #define BART_SRC_INSTRUMENTATION_CONVERTER_PAIR_INCREMENTER_H_
 
 #include "instrumentation/converter/converter_i.h"
+#include "instrumentation/converter/factory.h"
 
 namespace bart {
 
@@ -12,11 +13,10 @@ namespace converter {
 template <typename InputType>
 class PairIncrementer : public ConverterI<InputType, std::pair<int, InputType>> {
  public:
-  std::pair<int, InputType> Convert(const InputType &input) const override {
-    return std::pair<int, InputType>{++increment_, input};
-  }
+  std::pair<int, InputType> Convert(const InputType &input) const override;
  private:
   mutable int increment_{-1};
+  static bool is_registered_;
 };
 
 } // namespace converter

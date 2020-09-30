@@ -9,6 +9,7 @@
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/to_string/string_color_pair_to_string.h"
+#include "instrumentation/converter/pair_incrementer.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -94,6 +95,16 @@ TEST_F(InstrumentationConverterIFactoryTest,
   using ColorStringPair = std::pair<std::string, Color>;
   auto converter_ptr = converter::ConverterIFactory<ColorStringPair, std::string>::get()
       .GetConstructor(converter::ConverterName::kStringColorPairToString)();
+  ASSERT_NE(converter_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationConverterIFactoryTest,
+       PairIncrementerInstantiation) {
+  using ExpectedType = converter::PairIncrementer<std::string>;
+
+  auto converter_ptr = converter::ConverterIFactory<std::string, std::pair<int, std::string>>::get()
+      .GetConstructor(converter::ConverterName::kPairIncrementer)();
   ASSERT_NE(converter_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
