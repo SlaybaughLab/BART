@@ -38,6 +38,7 @@ class FourierTransform : public ConverterI<ComplexVector, ComplexVector>,
  private:
   std::unique_ptr<FourierCalculator> fourier_calculator_ptr_{nullptr};
   bool returns_normalized_{true};
+  static bool is_registered_;
 };
 
 } // namespace fourier

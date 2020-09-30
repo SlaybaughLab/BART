@@ -1,4 +1,5 @@
 #include "instrumentation/converter/fourier/fourier_transform.h"
+#include "instrumentation/converter/factory.h"
 
 namespace bart {
 
@@ -26,6 +27,20 @@ ComplexVector FourierTransform::Convert(const ComplexVector &input) const {
   return fourier_calculator_ptr_->CalculateDFT(input,
                                                Normalized(returns_normalized_));
 }
+
+bool FourierTransform::is_registered_ =
+    ConverterIFactory<ComplexVector, ComplexVector, std::unique_ptr<FourierCalculator>, Normalized>::get()
+    .RegisterConstructor(
+        ConverterName::kFourierTransform,
+        [](std::unique_ptr<FourierCalculator> fourier_calculator_ptr,
+           Normalized return_normalized) {
+          std::unique_ptr<ConverterI<ComplexVector, ComplexVector>> return_ptr =
+              std::make_unique<FourierTransform>(std::move(fourier_calculator_ptr),
+                                                 return_normalized);
+          return return_ptr;
+        }
+    );
+
 
 } // namespace fourier
 

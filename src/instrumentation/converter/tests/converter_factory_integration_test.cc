@@ -1,25 +1,48 @@
 #include "instrumentation/converter/factory.h"
 
+#include "calculator/fourier/tests/fourier_transform_mock.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
+#include "instrumentation/converter/fourier/fourier_transform.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
 
+namespace calculator = bart::calculator;
 namespace converter = bart::instrumentation::converter;
 
-TEST(InstrumentationConverterIFactoryTest, VectorSubtractorInstantiation) {
-  using ExpectedType = converter::calculator::VectorSubtractor;
-  using DealiiVector = dealii::Vector<double>;
+class InstrumentationConverterIFactoryTest : public ::testing::Test {
+ public:
   using AbsoluteValue = converter::calculator::AbsoluteValue;
+  using ComplexVector = std::vector<std::complex<double>>;
+  using DealiiVector = dealii::Vector<double>;
+  using FourierCalculator = calculator::fourier::FourierTransformI;
+  using FourierCalculatorMock = calculator::fourier::FourierTransformMock;
+  using Normalized = calculator::fourier::Normalized;
+};
+
+TEST_F(InstrumentationConverterIFactoryTest, VectorSubtractorInstantiation) {
+  using ExpectedType = converter::calculator::VectorSubtractor;
 
   DealiiVector test_vector(10);
-
   auto vector_subtractor_ptr = converter::ConverterIFactory<DealiiVector, DealiiVector, DealiiVector, AbsoluteValue>::get()
       .GetConstructor(converter::ConverterName::kCalculatorVectorSubtractor)
           (test_vector, AbsoluteValue(true));
   ASSERT_NE(vector_subtractor_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ExpectedType*>(vector_subtractor_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationConverterIFactoryTest, FourierTransformInstantiation) {
+  using ExpectedType = converter::fourier::FourierTransform;
+
+  auto fourier_transform_ptr = converter::ConverterIFactory<ComplexVector, ComplexVector, std::unique_ptr<FourierCalculator>, Normalized>::get()
+      .GetConstructor(converter::ConverterName::kFourierTransform)
+          (std::make_unique<FourierCalculatorMock>(), Normalized(true));
+  ASSERT_NE(fourier_transform_ptr, nullptr);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(fourier_transform_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_TRUE(dynamic_ptr->returns_normalized());
+  EXPECT_NE(dynamic_ptr->fourier_calculator_ptr(), nullptr);
 }
 
 } // namespace
