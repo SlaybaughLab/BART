@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "instrumentation/converter/factory.h"
+
 namespace bart {
 
 namespace instrumentation {
@@ -59,6 +61,14 @@ std::string ConvergenceToString::Convert(const convergence::Status &to_convert) 
   return return_string;
 }
 
+bool ConvergenceToString::is_registered_ =
+    ConverterIFactory<convergence::Status, std::string>::get()
+    .RegisterConstructor(converter::ConverterName::kConvergenceToString,
+        [](){
+          std::unique_ptr<ConverterI<convergence::Status, std::string>>
+              return_ptr = std::make_unique<ConvergenceToString>();
+          return return_ptr;
+        });
 } // namespace to_string
 
 } // namespace converter

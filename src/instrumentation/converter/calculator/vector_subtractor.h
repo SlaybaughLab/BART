@@ -36,7 +36,7 @@ class VectorSubtractor : public ConverterI<dealii::Vector<double>,
                            " is the incorrect size."))
 
     DealiiVector return_vector(minuend_.size());
-    for (int i = 0; i < minuend_.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(minuend_.size()); ++i) {
       return_vector[i] = minuend_[i] - input[i];
       if (calculate_absolute_value_)
         return_vector[i] = std::abs(return_vector[i]);

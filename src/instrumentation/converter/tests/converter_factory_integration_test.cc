@@ -1,14 +1,17 @@
 #include "instrumentation/converter/factory.h"
 
+#include "convergence/status.h"
 #include "calculator/fourier/tests/fourier_transform_mock.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"
+#include "instrumentation/converter/to_string/convergence_to_string.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
 
 namespace calculator = bart::calculator;
+namespace convergence = bart::convergence;
 namespace converter = bart::instrumentation::converter;
 
 class InstrumentationConverterIFactoryTest : public ::testing::Test {
@@ -44,5 +47,15 @@ TEST_F(InstrumentationConverterIFactoryTest, FourierTransformInstantiation) {
   EXPECT_TRUE(dynamic_ptr->returns_normalized());
   EXPECT_NE(dynamic_ptr->fourier_calculator_ptr(), nullptr);
 }
+
+TEST_F(InstrumentationConverterIFactoryTest, ConvergenceToStringInstantiation) {
+  using ExpectedType = converter::to_string::ConvergenceToString;
+  auto convergence_to_string_ptr = converter::ConverterIFactory<convergence::Status, std::string>::get()
+      .GetConstructor(converter::ConverterName::kConvergenceToString)();
+  ASSERT_NE(convergence_to_string_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(convergence_to_string_ptr.get()),
+            nullptr);
+}
+
 
 } // namespace

@@ -35,6 +35,7 @@ class ConvergenceToString :
 
  private:
   std::string null_character_{"∅"};
+  static bool is_registered_;
 };
 
 
