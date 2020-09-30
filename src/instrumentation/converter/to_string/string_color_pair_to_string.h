@@ -26,6 +26,8 @@ class StringColorPairToString :
   StringColorPairToString();
   virtual ~StringColorPairToString() = default;
   std::string Convert(const std::pair<std::string, Color> &) const override;
+ private:
+  static bool is_registered_;
 };
 
 } // namespace to_string

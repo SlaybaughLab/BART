@@ -8,6 +8,7 @@
 #include "instrumentation/converter/to_string/double_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -20,12 +21,13 @@ namespace converter = bart::instrumentation::converter;
 class InstrumentationConverterIFactoryTest : public ::testing::Test {
  public:
   using AbsoluteValue = converter::calculator::AbsoluteValue;
+  using Color = bart::utility::Color;
   using ComplexVector = std::vector<std::complex<double>>;
   using DealiiVector = dealii::Vector<double>;
   using FourierCalculator = calculator::fourier::FourierTransformI;
   using FourierCalculatorMock = calculator::fourier::FourierTransformMock;
-  using Normalized = calculator::fourier::Normalized;
   using IntComplexVectorPair = std::pair<int, ComplexVector>;
+  using Normalized = calculator::fourier::Normalized;
 };
 
 TEST_F(InstrumentationConverterIFactoryTest, VectorSubtractorInstantiation) {
@@ -82,6 +84,16 @@ TEST_F(InstrumentationConverterIFactoryTest,
   using ExpectedType = converter::to_string::IntVectorComplexPairToString;
   auto converter_ptr = converter::ConverterIFactory<IntComplexVectorPair, std::string>::get()
       .GetConstructor(converter::ConverterName::kIntVectorComplexPairToString)();
+  ASSERT_NE(converter_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationConverterIFactoryTest,
+       StringColorPairToStringInstantiation) {
+  using ExpectedType = converter::to_string::StringColorPairToString;
+  using ColorStringPair = std::pair<std::string, Color>;
+  auto converter_ptr = converter::ConverterIFactory<ColorStringPair, std::string>::get()
+      .GetConstructor(converter::ConverterName::kStringColorPairToString)();
   ASSERT_NE(converter_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
