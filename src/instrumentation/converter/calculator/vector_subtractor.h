@@ -50,6 +50,7 @@ class VectorSubtractor : public ConverterI<dealii::Vector<double>,
  private:
   DealiiVector minuend_;
   bool calculate_absolute_value_{false};
+  static bool is_registered_;
 };
 
 } // namespace calculator
