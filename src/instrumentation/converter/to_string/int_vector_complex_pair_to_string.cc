@@ -1,5 +1,7 @@
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 
+#include "instrumentation/converter/factory.h"
+
 #include <iomanip>
 
 namespace bart {
@@ -101,6 +103,16 @@ std::string IntVectorComplexPairToString::SetVectorOutputFormat(
   vector_output_format_ = new_format_stream.str();
   return vector_output_format_;
 }
+
+bool IntVectorComplexPairToString::is_registered_ = ConverterIFactory<InputType, std::string>::get()
+    .RegisterConstructor(
+        converter::ConverterName::kIntVectorComplexPairToString,
+        []() {
+          std::unique_ptr<ConverterI<InputType, std::string>> return_ptr =
+              std::make_unique<IntVectorComplexPairToString>();
+          return return_ptr;
+        });
+
 
 } // namespace to_string
 

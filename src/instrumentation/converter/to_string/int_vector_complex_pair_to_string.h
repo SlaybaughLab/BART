@@ -54,6 +54,7 @@ class IntVectorComplexPairToString
   std::string vector_delimiter_{", "};
   std::string vector_output_format_{""};
   std::map<VectorTerm, std::string> vector_term_to_string_map_;
+  static bool is_registered_;
 };
 
 } // namespace to_string

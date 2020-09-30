@@ -7,6 +7,7 @@
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/double_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
+#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -24,6 +25,7 @@ class InstrumentationConverterIFactoryTest : public ::testing::Test {
   using FourierCalculator = calculator::fourier::FourierTransformI;
   using FourierCalculatorMock = calculator::fourier::FourierTransformMock;
   using Normalized = calculator::fourier::Normalized;
+  using IntComplexVectorPair = std::pair<int, ComplexVector>;
 };
 
 TEST_F(InstrumentationConverterIFactoryTest, VectorSubtractorInstantiation) {
@@ -71,6 +73,15 @@ TEST_F(InstrumentationConverterIFactoryTest, IntDoublePairToStringInstantiation)
   using ExpectedType = converter::to_string::IntDoublePairToString;
   auto converter_ptr = converter::ConverterIFactory<std::pair<int, double>, std::string>::get()
       .GetConstructor(converter::ConverterName::kIntDoublePairToString)();
+  ASSERT_NE(converter_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
+}
+
+TEST_F(InstrumentationConverterIFactoryTest,
+       IntVectorComplexPairToStringInstantiation) {
+  using ExpectedType = converter::to_string::IntVectorComplexPairToString;
+  auto converter_ptr = converter::ConverterIFactory<IntComplexVectorPair, std::string>::get()
+      .GetConstructor(converter::ConverterName::kIntVectorComplexPairToString)();
   ASSERT_NE(converter_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ExpectedType*>(converter_ptr.get()), nullptr);
 }
