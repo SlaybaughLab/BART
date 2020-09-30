@@ -1,5 +1,7 @@
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
 
+#include "instrumentation/converter/factory.h"
+
 #include <iomanip>
 
 namespace bart {
@@ -45,6 +47,16 @@ std::string IntDoublePairToString::Convert(
 
   return return_string;
 }
+
+bool IntDoublePairToString::is_registered_ =
+    ConverterIFactory<std::pair<int, double>, std::string>::get()
+    .RegisterConstructor(
+        converter::ConverterName::kIntDoublePairToString,
+        [](){
+          std::unique_ptr<ConverterI<std::pair<int, double>, std::string>>
+              return_ptr = std::make_unique<IntDoublePairToString>();
+          return return_ptr;
+        });
 
 } // namespace to_string
 

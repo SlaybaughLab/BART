@@ -30,6 +30,7 @@ class IntDoublePairToString
   int precision() const {return precision_;}
  protected:
   int precision_ = 2;
+  static bool is_registered_;
 };
 
 } // namespace to_string
