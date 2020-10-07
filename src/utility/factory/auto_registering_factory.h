@@ -21,18 +21,26 @@ class AutoRegisteringFactory {
     return instance;
   }
 
-  bool RegisterConstructor(const ClassName name, const Constructor& constructor) {
-    return constructors_.insert(std::make_pair(name, constructor)).second;
+  static bool RegisterConstructor(const ClassName name, const Constructor& constructor) {
+    return constructors().insert(std::make_pair(name, constructor)).second;
   }
 
-  Constructor GetConstructor(const ClassName name) {
-    return constructors_.at(name);
+  static Constructor GetConstructor(const ClassName name) {
+    try {
+      return constructors().at(name);
+    } catch (std::out_of_range&) {
+      throw(std::out_of_range("Error retrieving constructor"));
+    }
+  }
+
+  static std::unordered_map<ClassName, Constructor>& constructors() {
+    static std::unordered_map<ClassName, Constructor> constructors_;
+    return constructors_;
   }
 
  private:
   AutoRegisteringFactory() = default;
   AutoRegisteringFactory(const AutoRegisteringFactory&) = default;
-  std::unordered_map<ClassName, Constructor> constructors_{};
 };
 
 #define BART_INTERFACE_FACTORY(interface, names) \
