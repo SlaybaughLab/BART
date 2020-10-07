@@ -29,7 +29,6 @@
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "framework/framework_i.h"
-#include "instrumentation/instrument_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.h"
@@ -90,11 +89,6 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   using StamperType = formulation::StamperI<dim>;
   using SystemType = system::System;
 
-  // Instrument types
-  using ConvergenceInstrumentType = instrumentation::InstrumentI<convergence::Status>;
-  using IterationErrorInstrumentType = instrumentation::InstrumentI<std::pair<int, double>>;
-  using StatusInstrumentType = instrumentation::InstrumentI<std::string>;
-
   struct UpdaterPointers {
     std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
     std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
@@ -106,13 +100,6 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   ~FrameworkBuilder() = default;
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
-
-  // Instrument factory functions
-  std::unique_ptr<ConvergenceInstrumentType> BuildConvergenceInstrument();
-  std::unique_ptr<IterationErrorInstrumentType> BuildIterationErrorInstrument(
-      const std::string& filename);
-  std::unique_ptr<StatusInstrumentType> BuildStatusInstrument();
-
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(

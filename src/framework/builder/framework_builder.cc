@@ -38,9 +38,6 @@
 #include "solver/group/single_group_solver.h"
 #include "solver/linear/gmres.h"
 
-// Instrumentation classes
-#include "instrumentation/factory/component_factories.h"
-
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_solve_iteration.h"
@@ -68,6 +65,12 @@ namespace framework {
 
 namespace builder {
 
+namespace  {
+
+using StringColorPair = std::pair<std::string, utility::Color>;
+
+} // namespace
+
 template<int dim>
 auto FrameworkBuilder<dim>::BuildFramework(std::string name,
                                            ParametersType& prm)
@@ -86,16 +89,20 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
   filename_ = prm.OutputFilenameBase();
 
-  auto status_instrument_ptr = Shared(
-      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
-          instrumentation::factory::MakeConverter<std::pair<std::string, utility::Color>, std::string>(),
-          instrumentation::factory::MakeOutstream<std::string>(
-              std::make_unique<dealii::ConditionalOStream>(
-                  std::cout,
-                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))));
   data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
   instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
       .AddInstrument(status_instrument_ptr);
+
+//  auto status_instrument_ptr = Shared(
+//      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
+//          instrumentation::factory::MakeConverter<std::pair<std::string, utility::Color>, std::string>(),
+//          instrumentation::factory::MakeOutstream<std::string>(
+//              std::make_unique<dealii::ConditionalOStream>(
+//                  std::cout,
+//                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))));
+//  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
+//  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
+//      .AddInstrument(status_instrument_ptr);
 
   Report("Building framework: " + name + "\n", utility::Color::kGreen);
 
@@ -213,49 +220,6 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       std::move(initializer_ptr),
       std::move(outer_iteration_ptr),
       std::move(results_output_ptr));
-}
-
-// =============================================================================
-// INSTRUMENT FACTORY FUNCTIONS
-// =============================================================================
-
-template <int dim>
-auto FrameworkBuilder<dim>::BuildConvergenceInstrument()
--> std::unique_ptr<ConvergenceInstrumentType> {
-  namespace factory = instrumentation::factory;
-  ReportBuildingComponant("Convergence instrument");
-  int this_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  return factory::MakeInstrument(
-      factory::MakeConverter<convergence::Status, std::string>(),
-          factory::MakeOutstream<std::string>(
-              std::make_unique<dealii::ConditionalOStream>(
-                  std::cout, this_process == 0))
-      );
-}
-
-template <int dim>
-auto FrameworkBuilder<dim>::BuildIterationErrorInstrument(const std::string& filename)
--> std::unique_ptr<IterationErrorInstrumentType> {
-  namespace factory = instrumentation::factory;
-  auto file_stream = std::make_unique<std::ofstream>(filename);
-  ReportBuildingComponant("iteration error file output");
-  auto return_ptr = factory::MakeInstrument(
-      factory::MakeConverter<std::pair<int, double>, std::string>(9),
-          factory::MakeOutstream<std::string, std::unique_ptr<std::ostream>>(
-              std::move(file_stream)));
-  ReportBuildSuccess("using filename " + filename);
-  return return_ptr;
-}
-
-template <int dim>
-auto FrameworkBuilder<dim>::BuildStatusInstrument()
--> std::unique_ptr<StatusInstrumentType> {
-  namespace factory = instrumentation::factory;  ReportBuildingComponant("Basic reporting instrument");
-  return factory::MakeBasicInstrument(
-      factory::MakeOutstream<std::string>(
-          std::make_unique<dealii::ConditionalOStream>(
-              std::cout,
-              dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)));
 }
 
 // =============================================================================
@@ -472,14 +436,6 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     );
   }
 
-  using ConvergenceDataPort = iteration::group::data_ports::ConvergenceStatusPort;
-  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
-      .AddInstrument(Shared(BuildConvergenceInstrument()));
-
-  using StatusPort = iteration::group::data_ports::StatusPort;
-  instrumentation::GetPort<StatusPort>(*return_ptr)
-      .AddInstrument(Shared(BuildStatusInstrument()));
-
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
@@ -632,10 +588,10 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
   using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
   using StatusPort =  iteration::outer::data_names::StatusPort;
 
-  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
-      .AddInstrument(Shared(BuildConvergenceInstrument()));
-  instrumentation::GetPort<StatusPort>(*return_ptr)
-      .AddInstrument(Shared(BuildStatusInstrument()));
+//  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+//      .AddInstrument(Shared(BuildConvergenceInstrument()));
+//  instrumentation::GetPort<StatusPort>(*return_ptr)
+//      .AddInstrument(Shared(BuildStatusInstrument()));
 
   ReportBuildSuccess(return_ptr->description());
 
@@ -665,13 +621,13 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
   using StatusPort =  iteration::outer::data_names::StatusPort;
   using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
 
-  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
-      .AddInstrument(Shared(BuildConvergenceInstrument()));
-  instrumentation::GetPort<StatusPort>(*return_ptr)
-      .AddInstrument(Shared(BuildStatusInstrument()));
-  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
-      .AddInstrument(Shared(BuildIterationErrorInstrument(
-          filename_ + "_iteration_error.csv")));
+//  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+//      .AddInstrument(Shared(BuildConvergenceInstrument()));
+//  instrumentation::GetPort<StatusPort>(*return_ptr)
+//      .AddInstrument(Shared(BuildStatusInstrument()));
+//  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
+//      .AddInstrument(Shared(BuildIterationErrorInstrument(
+//          filename_ + "_iteration_error.csv")));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
