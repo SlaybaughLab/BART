@@ -89,9 +89,9 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
   filename_ = prm.OutputFilenameBase();
 
-  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
-  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
-      .AddInstrument(status_instrument_ptr);
+//  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
+//  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
+//      .AddInstrument(status_instrument_ptr);
 
 //  auto status_instrument_ptr = Shared(
 //      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
