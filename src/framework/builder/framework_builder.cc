@@ -59,6 +59,9 @@
 #include "system/system_functions.h"
 #include "system/solution/solution_types.h"
 
+// Instrumentation
+#include "instrumentation/builder/instrument_builder.h"
+
 namespace bart {
 
 namespace framework {
@@ -89,9 +92,16 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
   filename_ = prm.OutputFilenameBase();
 
-//  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
-//  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
-//      .AddInstrument(status_instrument_ptr);
+  instrumentation::builder::InstrumentBuilder instrument_builder;
+  using InstrumentName = instrumentation::builder::InstrumentName;
+
+  auto status_instrument_ptr = Shared(
+      instrument_builder.BuildInstrument<std::pair<std::string, utility::Color>>(
+          InstrumentName::kColorStatusToConditionalOstream));
+
+  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
+  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
+      .AddInstrument(status_instrument_ptr);
 
 //  auto status_instrument_ptr = Shared(
 //      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
