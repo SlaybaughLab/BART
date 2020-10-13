@@ -1,4 +1,4 @@
-#include "instrumentation/builder/instrument_builder.h"
+#include "instrumentation/builder/instrument_builder.hpp"
 
 #include <deal.II/base/mpi.h>
 #include <deal.II/base/conditional_ostream.h>

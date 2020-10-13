@@ -60,7 +60,7 @@
 #include "system/solution/solution_types.h"
 
 // Instrumentation
-#include "instrumentation/builder/instrument_builder.h"
+#include "instrumentation/builder/instrument_builder.hpp"
 
 namespace bart {
 
@@ -590,7 +590,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 //  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
 //      .AddInstrument(Shared(BuildConvergenceInstrument()));
 //  instrumentation::GetPort<StatusPort>(*return_ptr)
-//      .AddInstrument(Shared(BuildStatusInstrument()));
+//      .AddInstrument(status_instrument_ptr_);
 
   ReportBuildSuccess(return_ptr->description());
 

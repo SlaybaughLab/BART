@@ -1,5 +1,5 @@
-#ifndef BART_SRC_INSTRUMENTATION_BUILDER_INSTRUMENT_BUILDER_H_
-#define BART_SRC_INSTRUMENTATION_BUILDER_INSTRUMENT_BUILDER_H_
+#ifndef BART_SRC_INSTRUMENTATION_BUILDER_INSTRUMENT_BUILDER_HPP_
+#define BART_SRC_INSTRUMENTATION_BUILDER_INSTRUMENT_BUILDER_HPP_
 
 #include <memory>
 
@@ -9,6 +9,7 @@ namespace bart::instrumentation::builder {
 
 enum class InstrumentName {
   kColorStatusToConditionalOstream = 0,
+  kStringToConditionalOstream = 1,
 };
 
 class InstrumentBuilder {
@@ -20,4 +21,4 @@ class InstrumentBuilder {
 
 } // namespace bart::instrumentation::builder
 
-#endif //BART_SRC_INSTRUMENTATION_BUILDER_INSTRUMENT_BUILDER_H_
+#endif //BART_SRC_INSTRUMENTATION_BUILDER_INSTRUMENT_BUILDER_HPP_

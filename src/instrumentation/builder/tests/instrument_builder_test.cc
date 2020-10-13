@@ -1,4 +1,4 @@
-#include "instrumentation/builder/instrument_builder.h"
+#include "instrumentation/builder/instrument_builder.hpp"
 
 #include <string>
 #include <utility>
