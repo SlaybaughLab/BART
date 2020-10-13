@@ -16,16 +16,16 @@ class AutoRegisteringFactory {
   //! Virtual d'tor, we expect this class to be inherited from.
   ~AutoRegisteringFactory() = default;
 
-  static AutoRegisteringFactory& get() {
+  static auto get() -> AutoRegisteringFactory& {
     static AutoRegisteringFactory instance;
     return instance;
   }
 
-  static bool RegisterConstructor(const ClassName name, const Constructor& constructor) {
+  static auto RegisterConstructor(const ClassName name, const Constructor& constructor) -> bool {
     return constructors().insert(std::make_pair(name, constructor)).second;
   }
 
-  static Constructor GetConstructor(const ClassName name) {
+  static auto GetConstructor(const ClassName name) -> Constructor {
     try {
       return constructors().at(name);
     } catch (std::out_of_range&) {
@@ -33,7 +33,7 @@ class AutoRegisteringFactory {
     }
   }
 
-  static std::unordered_map<ClassName, Constructor>& constructors() {
+  static auto constructors() -> std::unordered_map<ClassName, Constructor>& {
     static std::unordered_map<ClassName, Constructor> constructors_;
     return constructors_;
   }
