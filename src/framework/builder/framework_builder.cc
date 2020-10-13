@@ -95,24 +95,13 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   instrumentation::builder::InstrumentBuilder instrument_builder;
   using InstrumentName = instrumentation::builder::InstrumentName;
 
-  auto status_instrument_ptr = Shared(
-      instrument_builder.BuildInstrument<std::pair<std::string, utility::Color>>(
+  status_instrument_ptr_ = Shared(
+      instrument_builder.BuildInstrument<ColorStatusPair>(
           InstrumentName::kColorStatusToConditionalOstream));
 
-  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
+  data_port::StatusDataPort::AddInstrument(status_instrument_ptr_);
   instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
-      .AddInstrument(status_instrument_ptr);
-
-//  auto status_instrument_ptr = Shared(
-//      instrumentation::factory::MakeInstrument<std::pair<std::string, utility::Color>>(
-//          instrumentation::factory::MakeConverter<std::pair<std::string, utility::Color>, std::string>(),
-//          instrumentation::factory::MakeOutstream<std::string>(
-//              std::make_unique<dealii::ConditionalOStream>(
-//                  std::cout,
-//                  dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0))));
-//  data_port::StatusDataPort::AddInstrument(status_instrument_ptr);
-//  instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
-//      .AddInstrument(status_instrument_ptr);
+      .AddInstrument(status_instrument_ptr_);
 
   Report("Building framework: " + name + "\n", utility::Color::kGreen);
 

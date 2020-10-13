@@ -33,6 +33,7 @@
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.h"
 #include "instrumentation/port.h"
+#include "instrumentation/instrument_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
@@ -88,6 +89,9 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
   using SystemType = system::System;
+
+  using ColorStatusPair = std::pair<std::string, utility::Color>;
+  using StatusInstrument = instrumentation::InstrumentI<ColorStatusPair>;
 
   struct UpdaterPointers {
     std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
@@ -208,7 +212,7 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   }
 
   std::string ReadMappingFile(std::string filename);
-
+  std::shared_ptr<StatusInstrument> status_instrument_ptr_{nullptr};
   mutable FrameworkValidator validator_;
   bool build_report_closed_ = true;
   std::string filename_{""};
