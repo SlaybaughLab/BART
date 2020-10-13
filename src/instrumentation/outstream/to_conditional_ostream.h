@@ -29,14 +29,7 @@ class ToConditionalOstream : public OutstreamI<std::string> {
     return conditional_ostream_ptr_.get(); }
  private:
   ConditionalOstreamPtrType conditional_ostream_ptr_ = nullptr;
-  inline static bool is_registered_ =
-      OutstreamIFactory<std::string, ConditionalOstreamPtrType>::get()
-      .RegisterConstructor(OutstreamName::kToConditionalOstream,
-          [](ConditionalOstreamPtrType conditional_ostream_ptr)
-              -> std::unique_ptr<OutstreamI<std::string>> {
-            return std::make_unique<ToConditionalOstream>(
-                std::move(conditional_ostream_ptr));
-      });
+  static bool is_registered_;
 };
 
 } // namespace outstream
