@@ -95,13 +95,16 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
   using InstrumentName = instrumentation::builder::InstrumentName;
 
-  status_instrument_ptr_ = Shared(
+  color_status_instrument_ptr_ = Shared(
       InstrumentBuilder::BuildInstrument<ColorStatusPair>(
           InstrumentName::kColorStatusToConditionalOstream));
+  status_instrument_ptr_ = Shared(
+      InstrumentBuilder::BuildInstrument<std::string>(
+          InstrumentName::kStringToConditionalOstream));
 
-  data_port::StatusDataPort::AddInstrument(status_instrument_ptr_);
+  data_port::StatusDataPort::AddInstrument(color_status_instrument_ptr_);
   instrumentation::GetPort<data_port::ValidatorStatusPort>(validator_)
-      .AddInstrument(status_instrument_ptr_);
+      .AddInstrument(color_status_instrument_ptr_);
 
   Report("Building framework: " + name + "\n", utility::Color::kGreen);
 
@@ -589,8 +592,9 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 
 //  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
 //      .AddInstrument(Shared(BuildConvergenceInstrument()));
-//  instrumentation::GetPort<StatusPort>(*return_ptr)
-//      .AddInstrument(status_instrument_ptr_);
+
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(status_instrument_ptr_);
 
   ReportBuildSuccess(return_ptr->description());
 
@@ -622,8 +626,8 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 
 //  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
 //      .AddInstrument(Shared(BuildConvergenceInstrument()));
-//  instrumentation::GetPort<StatusPort>(*return_ptr)
-//      .AddInstrument(Shared(BuildStatusInstrument()));
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(status_instrument_ptr_);
 //  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
 //      .AddInstrument(Shared(BuildIterationErrorInstrument(
 //          filename_ + "_iteration_error.csv")));
