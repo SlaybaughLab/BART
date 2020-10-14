@@ -15,8 +15,8 @@ enum class InstrumentName {
 class InstrumentBuilder {
  public:
   template <typename InputType>
-  [[nodiscard]] std::unique_ptr<InstrumentI<InputType>> BuildInstrument(
-      InstrumentName name) const;
+  [[nodiscard]] static auto BuildInstrument(
+      InstrumentName name) -> std::unique_ptr<InstrumentI<InputType>>;
 };
 
 } // namespace bart::instrumentation::builder
