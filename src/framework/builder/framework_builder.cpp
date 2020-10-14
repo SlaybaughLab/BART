@@ -442,6 +442,14 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     );
   }
 
+  using ConvergenceStatusPort = iteration::group::data_ports::ConvergenceStatusPort;
+  using StatusPort = iteration::group::data_ports::StatusPort;
+
+  instrumentation::GetPort<ConvergenceStatusPort>(*return_ptr)
+      .AddInstrument(convergence_status_instrument_ptr_);
+  instrumentation::GetPort<StatusPort>(*return_ptr)
+      .AddInstrument(status_instrument_ptr_);
+
   validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
