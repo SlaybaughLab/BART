@@ -594,8 +594,8 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
   using ConvergenceDataPort = iteration::outer::data_names::ConvergenceStatusPort;
   using StatusPort =  iteration::outer::data_names::StatusPort;
 
-//  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
-//      .AddInstrument(Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(convergence_status_instrument_ptr_);
 
   instrumentation::GetPort<StatusPort>(*return_ptr)
       .AddInstrument(status_instrument_ptr_);
@@ -628,8 +628,8 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
   using StatusPort =  iteration::outer::data_names::StatusPort;
   using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
 
-//  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
-//      .AddInstrument(Shared(BuildConvergenceInstrument()));
+  instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
+      .AddInstrument(convergence_status_instrument_ptr_);
   instrumentation::GetPort<StatusPort>(*return_ptr)
       .AddInstrument(status_instrument_ptr_);
 //  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
