@@ -636,13 +636,15 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
   using StatusPort =  iteration::outer::data_names::StatusPort;
   using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
 
+  using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
   instrumentation::GetPort<ConvergenceDataPort>(*return_ptr)
       .AddInstrument(convergence_status_instrument_ptr_);
   instrumentation::GetPort<StatusPort>(*return_ptr)
       .AddInstrument(status_instrument_ptr_);
-//  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
-//      .AddInstrument(Shared(BuildIterationErrorInstrument(
-//          filename_ + "_iteration_error.csv")));
+  instrumentation::GetPort<IterationErrorPort>(*return_ptr)
+      .AddInstrument(Shared(InstrumentBuilder::BuildInstrument<std::pair<int,double>>(
+          instrumentation::builder::InstrumentName::kIntDoublePairToFile,
+          filename_ + "_iteration_error.csv")));
 
   validator_.AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
