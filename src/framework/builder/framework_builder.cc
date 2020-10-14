@@ -92,11 +92,11 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
       [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
   filename_ = prm.OutputFilenameBase();
 
-  instrumentation::builder::InstrumentBuilder instrument_builder;
+  using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
   using InstrumentName = instrumentation::builder::InstrumentName;
 
   status_instrument_ptr_ = Shared(
-      instrument_builder.BuildInstrument<ColorStatusPair>(
+      InstrumentBuilder::BuildInstrument<ColorStatusPair>(
           InstrumentName::kColorStatusToConditionalOstream));
 
   data_port::StatusDataPort::AddInstrument(status_instrument_ptr_);
