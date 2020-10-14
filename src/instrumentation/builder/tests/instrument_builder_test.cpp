@@ -6,7 +6,9 @@
 #include "convergence/status.h"
 #include "instrumentation/converter/to_string/string_color_pair_to_string.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
+#include "instrumentation/converter/to_string/int_double_pair_to_string.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
+#include "instrumentation/outstream/to_ostream.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -20,6 +22,7 @@ class InstrumentationBuilderInstrumentBuilderTest : public ::testing::Test {
  public:
   using Builder = instrumentation::builder::InstrumentBuilder;
   using InstrumentName = instrumentation::builder::InstrumentName;
+  using IntDoublePair = std::pair<int, double>;
   using ConvergenceStatus = bart::convergence::Status;
   using StringColorPair = std::pair<std::string, bart::utility::Color>;
 };
@@ -53,6 +56,23 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
 }
 
 TEST_F(InstrumentationBuilderInstrumentBuilderTest,
+       IntDoublePairToFile) {
+  const std::string filename{ "filename.csv" };
+  using InstrumentType = instrumentation::Instrument<IntDoublePair, std::string>;
+  using ConverterType = instrumentation::converter::to_string::IntDoublePairToString;
+  using OutstreamType = instrumentation::outstream::ToOstream;
+  auto instrument_ptr = Builder::BuildInstrument<IntDoublePair>(
+      InstrumentName::kIntDoublePairToFile,
+      filename);
+  ASSERT_NE(instrument_ptr, nullptr);
+  auto dynamic_ptr = dynamic_cast<InstrumentType*>(instrument_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ConverterType*>(dynamic_ptr->converter_ptr()), nullptr);
+  ASSERT_NE(dynamic_cast<OutstreamType*>(dynamic_ptr->outstream_ptr()), nullptr);
+  EXPECT_EQ(remove(filename.c_str()), 0);
+}
+
+TEST_F(InstrumentationBuilderInstrumentBuilderTest,
        StringToConditionalOstream) {
   using InstrumentType = instrumentation::BasicInstrument<std::string>;
   using OutstreamType = instrumentation::outstream::ToConditionalOstream;
@@ -76,6 +96,11 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
     EXPECT_ANY_THROW(Builder::BuildInstrument<ConvergenceStatus>(bad_name));
   }
 
+  for (auto bad_name : {InstrumentName::kColorStatusToConditionalOstream,
+                        InstrumentName::kStringToConditionalOstream,
+                        InstrumentName::kConvergenceStatusToConditionalOstream}) {
+    EXPECT_ANY_THROW(Builder::BuildInstrument<IntDoublePair>(bad_name, std::string{}));
+  }
 }
 
 

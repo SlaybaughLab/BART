@@ -23,12 +23,14 @@ using ConditionalOstreamPtr = std::unique_ptr<ConditionalOstream>;
 using ConvergenceStatus = convergence::Status;
 using ConvergenceInstrument = InstrumentI<convergence::Status>;
 using ConverterName = instrumentation::converter::ConverterName;
+using IntDoublePair = std::pair<int, double>;
+using OutstreamName = outstream::OutstreamName;
 using StringInstrument = InstrumentI<std::string>;
 using StringColorPair = std::pair<std::string, utility::Color>;
 
 auto GetConditionalOstream = []() {
   return outstream::OutstreamIFactory<std::string, ConditionalOstreamPtr>::get()
-    .GetConstructor(outstream::OutstreamName::kToConditionalOstream)(
+    .GetConstructor(OutstreamName::kToConditionalOstream)(
         std::make_unique<ConditionalOstream>(
             std::cout,
             dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0));
@@ -36,7 +38,7 @@ auto GetConditionalOstream = []() {
 
 } // namespace
 
-// Convergence Status
+// Convergence Status ==========================================================
 
 template <>
 auto InstrumentBuilder::BuildInstrument<ConvergenceStatus>(
@@ -47,6 +49,26 @@ auto InstrumentBuilder::BuildInstrument<ConvergenceStatus>(
           converter::ConverterIFactory<ConvergenceStatus, std::string>::get()
               .GetConstructor(ConverterName::kConvergenceToString)(),
           GetConditionalOstream());
+    }
+    default:
+    AssertThrow(false,
+                dealii::ExcMessage("Bad instrument name passed to builder"))
+  }
+}
+
+// INT-DOUBLE-PAIR =============================================================
+template <>
+auto InstrumentBuilder::BuildInstrument<IntDoublePair>(
+    const InstrumentName name, const std::string filename)
+-> std::unique_ptr<InstrumentI<IntDoublePair> > {
+  switch (name) {
+    case InstrumentName::kIntDoublePairToFile: {
+      return std::make_unique<Instrument<IntDoublePair, std::string>>(
+          converter::ConverterIFactory<IntDoublePair, std::string>::get()
+              .GetConstructor(ConverterName::kIntDoublePairToString)(),
+          outstream::OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
+              .GetConstructor(OutstreamName::kToOstream)(
+                  std::make_unique<std::ofstream>(filename)));
     }
     default:
     AssertThrow(false,
