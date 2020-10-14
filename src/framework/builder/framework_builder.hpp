@@ -91,7 +91,9 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   using SystemType = system::System;
 
   using ColorStatusPair = std::pair<std::string, utility::Color>;
+  // Instrumentation
   using ColorStatusInstrument = instrumentation::InstrumentI<ColorStatusPair>;
+  using ConvergenceInstrument = instrumentation::InstrumentI<convergence::Status>;
   using StatusInstrument = instrumentation::InstrumentI<std::string>;
 
   struct UpdaterPointers {
@@ -215,6 +217,7 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   std::string ReadMappingFile(std::string filename);
   std::shared_ptr<StatusInstrument> status_instrument_ptr_{nullptr};
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{nullptr};
+  std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };
   mutable FrameworkValidator validator_;
   bool build_report_closed_ = true;
   std::string filename_{""};

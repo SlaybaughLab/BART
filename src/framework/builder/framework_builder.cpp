@@ -95,9 +95,13 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
   using InstrumentName = instrumentation::builder::InstrumentName;
 
+  // Set up shared instrument
   color_status_instrument_ptr_ = Shared(
       InstrumentBuilder::BuildInstrument<ColorStatusPair>(
           InstrumentName::kColorStatusToConditionalOstream));
+  convergence_status_instrument_ptr_ = Shared(
+      InstrumentBuilder::BuildInstrument<convergence::Status>(
+          InstrumentName::kConvergenceStatusToConditionalOstream));
   status_instrument_ptr_ = Shared(
       InstrumentBuilder::BuildInstrument<std::string>(
           InstrumentName::kStringToConditionalOstream));
