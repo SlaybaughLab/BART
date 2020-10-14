@@ -9,14 +9,15 @@ namespace bart::instrumentation::builder {
 
 enum class InstrumentName {
   kColorStatusToConditionalOstream = 0,
-  kStringToConditionalOstream = 1,
+  kConvergenceStatusToConditionalOstream = 1,
+  kStringToConditionalOstream = 2,
 };
 
 class InstrumentBuilder {
  public:
   template <typename InputType>
   [[nodiscard]] static auto BuildInstrument(
-      InstrumentName name) -> std::unique_ptr<InstrumentI<InputType>>;
+      const InstrumentName name) -> std::unique_ptr<InstrumentI<InputType>>;
 };
 
 } // namespace bart::instrumentation::builder
