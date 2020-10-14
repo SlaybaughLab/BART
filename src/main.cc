@@ -6,7 +6,7 @@
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
 
-#include "framework/builder/framework_builder.h"
+#include "framework/builder/framework_builder.hpp"
 #include "problem/parameters_dealii_handler.h"
 #include "utility/runtime/runtime_helper.h"
 

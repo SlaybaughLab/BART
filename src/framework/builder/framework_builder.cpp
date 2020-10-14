@@ -1,4 +1,4 @@
-#include "framework/builder/framework_builder.h"
+#include "framework/builder/framework_builder.hpp"
 
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/mpi.h>

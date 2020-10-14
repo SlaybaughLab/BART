@@ -3,7 +3,7 @@
 
 #include <deal.II/fe/fe_q.h>
 
-#include "framework/builder/framework_builder.h"
+#include "framework/builder/framework_builder.hpp"
 
 // Instantiated concerete classes
 #include "convergence/final_checker_or_n.h"
