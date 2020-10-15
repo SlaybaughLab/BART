@@ -10,8 +10,9 @@ namespace bart::instrumentation::builder {
 enum class InstrumentName {
   kColorStatusToConditionalOstream = 0,
   kConvergenceStatusToConditionalOstream = 1,
-  kIntDoublePairToFile = 2,
-  kStringToConditionalOstream = 3,
+  kFourierOfErrorToFile = 2,
+  kIntDoublePairToFile = 3,
+  kStringToConditionalOstream = 4,
 };
 
 class InstrumentBuilder {

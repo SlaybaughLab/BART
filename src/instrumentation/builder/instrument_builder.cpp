@@ -1,11 +1,14 @@
 #include "instrumentation/builder/instrument_builder.hpp"
 
+#include <deal.II/lac/vector.h>
 #include <deal.II/base/mpi.h>
 #include <deal.II/base/conditional_ostream.h>
 
+#include "calculator/fourier/fourier_transform_fftw.h"
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
-
+#include "instrumentation/converter/calculator/vector_subtractor.h"
+#include "instrumentation/converter/multi_converter.h"
 #include "instrumentation/converter/factory.h"
 #include "instrumentation/outstream/factory.h"
 #include "utility/colors.h"
@@ -23,6 +26,7 @@ using ConditionalOstreamPtr = std::unique_ptr<ConditionalOstream>;
 using ConvergenceStatus = convergence::Status;
 using ConvergenceInstrument = InstrumentI<convergence::Status>;
 using ConverterName = instrumentation::converter::ConverterName;
+using DealiiVector = dealii::Vector<double>;
 using IntDoublePair = std::pair<int, double>;
 using OutstreamName = outstream::OutstreamName;
 using StringInstrument = InstrumentI<std::string>;
@@ -49,6 +53,58 @@ auto InstrumentBuilder::BuildInstrument<ConvergenceStatus>(
           converter::ConverterIFactory<ConvergenceStatus, std::string>::get()
               .GetConstructor(ConverterName::kConvergenceToString)(),
           GetConditionalOstream());
+    }
+    default:
+    AssertThrow(false,
+                dealii::ExcMessage("Bad instrument name passed to builder"))
+  }
+}
+
+// DEALII VECTOR ===============================================================
+
+template <>
+auto InstrumentBuilder::BuildInstrument<DealiiVector>(
+    const InstrumentName name,
+    const DealiiVector error,
+    const std::string filename)
+-> std::unique_ptr<InstrumentI<DealiiVector>> {
+  switch (name) {
+    case InstrumentName::kFourierOfErrorToFile: {
+      using ComplexVector = std::vector<std::complex<double>>;
+      using IntComplexVectorPair = std::pair<int, ComplexVector>;
+      using AbsoluteValue = instrumentation::converter::calculator::AbsoluteValue;
+      using FourierCalculator = calculator::fourier::FourierTransformI;
+      using FourierCalculatorFFTW = calculator::fourier::FourierTransformFFTW;
+      using Normalized = calculator::fourier::Normalized;
+      using FirstStageConverter = instrumentation::converter::MultiConverter<DealiiVector, DealiiVector, ComplexVector>;
+      auto fourier_transform_calculator = std::make_unique<FourierCalculatorFFTW>(error.size());
+      auto first_stage_converter = std::make_unique<FirstStageConverter>(
+          converter::ConverterIFactory<DealiiVector, DealiiVector, DealiiVector, AbsoluteValue>::get()
+              .GetConstructor(ConverterName::kCalculatorVectorSubtractor)
+                  (error, AbsoluteValue(false)),
+          converter::ConverterIFactory<DealiiVector, ComplexVector>::get()
+              .GetConstructor(ConverterName::kDealiiToComplexVector)());
+      using SecondStageConverter = instrumentation::converter::MultiConverter<DealiiVector, ComplexVector, ComplexVector>;
+      auto second_stage_converter = std::make_unique<SecondStageConverter>(
+          std::move(first_stage_converter),
+          converter::ConverterIFactory<ComplexVector, ComplexVector, std::unique_ptr<FourierCalculator>, Normalized>::get()
+              .GetConstructor(ConverterName::kFourierTransform)
+                  (std::move(fourier_transform_calculator), Normalized(true)));
+      using ThirdStageConverter = instrumentation::converter::MultiConverter<DealiiVector, ComplexVector, IntComplexVectorPair>;
+      auto third_stage_converter = std::make_unique<ThirdStageConverter>(
+          std::move(second_stage_converter),
+          converter::ConverterIFactory<ComplexVector, std::pair<int, ComplexVector>>::get()
+              .GetConstructor(converter::ConverterName::kPairIncrementer)());
+      using FourthStageConverter = instrumentation::converter::MultiConverter<DealiiVector, IntComplexVectorPair, std::string>;
+      auto fourth_stage_converter = std::make_unique<FourthStageConverter>(
+          std::move(third_stage_converter),
+          converter::ConverterIFactory<IntComplexVectorPair, std::string>::get()
+              .GetConstructor(converter::ConverterName::kIntVectorComplexPairToString)());
+      return std::make_unique<Instrument<DealiiVector, std::string>>(
+          std::move(fourth_stage_converter),
+          outstream::OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
+              .GetConstructor(OutstreamName::kToOstream)(
+                  std::make_unique<std::ofstream>(filename)));
     }
     default:
     AssertThrow(false,

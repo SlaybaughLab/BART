@@ -3,24 +3,35 @@
 #include <string>
 #include <utility>
 
+#include <deal.II/lac/vector.h>
+
 #include "convergence/status.h"
+#include "instrumentation/converter/dealii_to_complex_vector.h"
+#include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/to_string/string_color_pair_to_string.h"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
+#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/multi_converter.h"
+#include "instrumentation/converter/pair_incrementer.h"
+#include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 #include "instrumentation/outstream/to_ostream.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 #include "utility/colors.h"
 
 namespace  {
 
 namespace instrumentation = bart::instrumentation;
+namespace test_helpers = bart::test_helpers;
 
 class InstrumentationBuilderInstrumentBuilderTest : public ::testing::Test {
  public:
   using Builder = instrumentation::builder::InstrumentBuilder;
+  using DealiiVector = dealii::Vector<double>;
   using InstrumentName = instrumentation::builder::InstrumentName;
   using IntDoublePair = std::pair<int, double>;
   using ConvergenceStatus = bart::convergence::Status;
@@ -39,6 +50,62 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
   ASSERT_NE(dynamic_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ConverterType*>(dynamic_ptr->converter_ptr()), nullptr);
   ASSERT_NE(dynamic_cast<OutstreamType*>(dynamic_ptr->outstream_ptr()), nullptr);
+}
+
+TEST_F(InstrumentationBuilderInstrumentBuilderTest, FourierInstrument) {
+  using InstrumentType = instrumentation::Instrument<DealiiVector, std::string>;
+  using OutStreamType = instrumentation::outstream::ToOstream;
+  const std::string filename{ "filename.csv" };
+  dealii::Vector<double> error_vector(test_helpers::RandomInt(5, 10));
+  for (auto& entry : error_vector)
+    entry = test_helpers::RandomDouble(0, 1000);
+
+  auto instrument_ptr = Builder::BuildInstrument<DealiiVector>(
+      InstrumentName::kFourierOfErrorToFile, error_vector, filename);
+  ASSERT_NE(instrument_ptr, nullptr);
+  auto dynamic_ptr = dynamic_cast<InstrumentType*>(instrument_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+
+  // This is a nested instrument with many levels; we'll check each converter
+  using ComplexVector = std::vector<std::complex<double>>;
+  using IntComplexVectorPair = std::pair<int, ComplexVector>;
+  using MultiConverterOne = instrumentation::converter::MultiConverter<DealiiVector, IntComplexVectorPair, std::string>;
+  // First multi-converter
+  auto multi_converter_one_ptr =
+      dynamic_cast<MultiConverterOne*>(dynamic_ptr->converter_ptr());
+  ASSERT_NE(multi_converter_one_ptr, nullptr);
+  ASSERT_NE(
+      dynamic_cast<instrumentation::converter::to_string::IntVectorComplexPairToString*>(
+          multi_converter_one_ptr->second_stage_converter_ptr()), nullptr);
+  // Second multi-converter
+  using MultiConverterTwo = instrumentation::converter::MultiConverter<DealiiVector, ComplexVector, IntComplexVectorPair>;
+  auto multi_converter_two_ptr = dynamic_cast<MultiConverterTwo*>(
+      multi_converter_one_ptr->first_stage_converter_ptr());
+  ASSERT_NE(multi_converter_two_ptr, nullptr);
+  ASSERT_NE(
+      dynamic_cast<instrumentation::converter::PairIncrementer<ComplexVector>*>(
+          multi_converter_two_ptr->second_stage_converter_ptr()), nullptr);
+  // Third multi-converter
+  using MultiConverterThree = instrumentation::converter::MultiConverter<DealiiVector, ComplexVector, ComplexVector>;
+  auto multi_converter_three_ptr = dynamic_cast<MultiConverterThree*>(
+      multi_converter_two_ptr->first_stage_converter_ptr());
+  ASSERT_NE(multi_converter_three_ptr, nullptr);
+  ASSERT_NE(
+      dynamic_cast<instrumentation::converter::fourier::FourierTransform*>(
+          multi_converter_three_ptr->second_stage_converter_ptr()), nullptr);
+  // Fourth multi-converter
+  using MultiConverterFour = instrumentation::converter::MultiConverter<DealiiVector , DealiiVector , ComplexVector >;
+  auto multi_converter_four_ptr = dynamic_cast<MultiConverterFour*>(
+      multi_converter_three_ptr->first_stage_converter_ptr());
+  ASSERT_NE(multi_converter_four_ptr, nullptr);
+  auto vector_subtractor_ptr = dynamic_cast<instrumentation::converter::calculator::VectorSubtractor*>(
+      multi_converter_four_ptr->first_stage_converter_ptr());
+  ASSERT_NE(vector_subtractor_ptr, nullptr);
+  EXPECT_EQ(vector_subtractor_ptr->minuend(), error_vector);
+  ASSERT_NE(dynamic_cast<instrumentation::converter::DealiiToComplexVector*>(
+      multi_converter_four_ptr->second_stage_converter_ptr()), nullptr);
+  ASSERT_NE(dynamic_cast<OutStreamType*>(dynamic_ptr->outstream_ptr()), nullptr);
+  EXPECT_EQ(remove(filename.c_str()), 0);
 }
 
 TEST_F(InstrumentationBuilderInstrumentBuilderTest,
@@ -100,6 +167,15 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
                         InstrumentName::kStringToConditionalOstream,
                         InstrumentName::kConvergenceStatusToConditionalOstream}) {
     EXPECT_ANY_THROW(Builder::BuildInstrument<IntDoublePair>(bad_name, std::string{}));
+  }
+
+  for (auto bad_name : {InstrumentName::kColorStatusToConditionalOstream,
+                        InstrumentName::kStringToConditionalOstream,
+                        InstrumentName::kConvergenceStatusToConditionalOstream,
+                        InstrumentName::kIntDoublePairToFile}) {
+    EXPECT_ANY_THROW(Builder::BuildInstrument<DealiiVector>(bad_name,
+                                                            DealiiVector{},
+                                                            std::string{}));
   }
 }
 
