@@ -42,7 +42,14 @@ class MultiConverter
   SecondStageConverterPtr second_stage_converter_ptr_;
 };
 
-} // namespace converter
+template <typename InputType, typename IntermediateType, typename OutputType>
+inline std::unique_ptr<MultiConverter<InputType, IntermediateType, OutputType>>
+operator+(
+    std::unique_ptr<ConverterI<InputType, IntermediateType>> lhs,
+    std::unique_ptr<ConverterI<IntermediateType, OutputType>> rhs) {
+  return std::make_unique<MultiConverter<InputType, IntermediateType, OutputType>>(
+      std::move(lhs), std::move(rhs));
+}
 
 
 } // namespace bart::instrumentation::converter

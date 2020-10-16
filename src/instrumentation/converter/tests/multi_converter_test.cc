@@ -79,6 +79,18 @@ TEST_F(InstrumentationConverterMultiConverterTest, Convert) {
   EXPECT_EQ(test_output, output);
 }
 
+TEST_F(InstrumentationConverterMultiConverterTest, OperatorPlus) {
+  using FirstStageInterface = instrumentation::converter::ConverterI<InputType, IntermediateType>;
+  using SecondStageInterface = instrumentation::converter::ConverterI<IntermediateType, OutputType>;
+  using FirstStageConverter = instrumentation::converter::ConverterMock<InputType, IntermediateType>;
+  using SecondStageConverter = instrumentation::converter::ConverterMock<IntermediateType, OutputType>;
+  std::unique_ptr<FirstStageInterface> converter_lhs =
+      std::make_unique<FirstStageConverter>();
+  std::unique_ptr<SecondStageInterface> converter_rhs =
+      std::make_unique<SecondStageConverter>();
+  auto multi_converter = std::move(converter_lhs) + std::move(converter_rhs);
+  ASSERT_NE(multi_converter, nullptr);
+}
 
 
 
