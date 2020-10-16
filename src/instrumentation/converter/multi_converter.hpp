@@ -43,7 +43,7 @@ class MultiConverter
 };
 
 template <typename InputType, typename IntermediateType, typename OutputType>
-inline std::unique_ptr<MultiConverter<InputType, IntermediateType, OutputType>>
+inline std::unique_ptr<ConverterI<InputType, OutputType>>
 operator+(
     std::unique_ptr<ConverterI<InputType, IntermediateType>> lhs,
     std::unique_ptr<ConverterI<IntermediateType, OutputType>> rhs) {
