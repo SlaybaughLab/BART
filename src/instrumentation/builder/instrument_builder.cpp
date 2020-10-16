@@ -103,11 +103,12 @@ auto InstrumentBuilder::BuildInstrument<DealiiVector>(
           std::move(pair_incrementer_ptr) +
           std::move(pair_to_string_ptr);
 
+      std::unique_ptr<std::ostream> file_stream = std::make_unique<std::ofstream>(filename);
       return std::make_unique<Instrument<DealiiVector, std::string>>(
           std::move(full_converter),
           outstream::OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
-              .GetConstructor(OutstreamName::kToOstream)(
-                  std::make_unique<std::ofstream>(filename)));
+              .GetConstructor(OutstreamName::kToOstream)
+                  (std::move(file_stream)));
     }
     default:
     AssertThrow(false,
@@ -122,12 +123,13 @@ auto InstrumentBuilder::BuildInstrument<IntDoublePair>(
 -> std::unique_ptr<InstrumentI<IntDoublePair> > {
   switch (name) {
     case InstrumentName::kIntDoublePairToFile: {
+      std::unique_ptr<std::ostream> file_stream = std::make_unique<std::ofstream>(filename);
       return std::make_unique<Instrument<IntDoublePair, std::string>>(
           converter::ConverterIFactory<IntDoublePair, std::string>::get()
               .GetConstructor(ConverterName::kIntDoublePairToString)(),
           outstream::OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
               .GetConstructor(OutstreamName::kToOstream)(
-                  std::make_unique<std::ofstream>(filename)));
+                  std::move(file_stream)));
     }
     default:
     AssertThrow(false,
