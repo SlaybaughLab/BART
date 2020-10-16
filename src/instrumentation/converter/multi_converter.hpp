@@ -1,16 +1,12 @@
-#ifndef BART_SRC_INSTRUMENTATION_CONVERTER_MULTI_CONVERTER_H_
-#define BART_SRC_INSTRUMENTATION_CONVERTER_MULTI_CONVERTER_H_
+#ifndef BART_SRC_INSTRUMENTATION_CONVERTER_MULTI_CONVERTER_HPP_
+#define BART_SRC_INSTRUMENTATION_CONVERTER_MULTI_CONVERTER_HPP_
 
 #include <memory>
 
 #include "instrumentation/converter/converter_i.h"
 #include "utility/has_dependencies.h"
 
-namespace bart {
-
-namespace instrumentation {
-
-namespace converter {
+namespace bart::instrumentation::converter {
 
 template <typename InputType, typename IntermediateType, typename OutputType>
 class MultiConverter
@@ -48,8 +44,7 @@ class MultiConverter
 
 } // namespace converter
 
-} // namespace instrumentation
 
-} // namespace bart
+} // namespace bart::instrumentation::converter
 
-#endif //BART_SRC_INSTRUMENTATION_CONVERTER_MULTI_CONVERTER_H_
+#endif //BART_SRC_INSTRUMENTATION_CONVERTER_MULTI_CONVERTER_HPP_

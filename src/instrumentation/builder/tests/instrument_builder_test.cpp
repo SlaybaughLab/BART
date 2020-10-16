@@ -12,7 +12,7 @@
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
-#include "instrumentation/converter/multi_converter.h"
+#include "instrumentation/converter/multi_converter.hpp"
 #include "instrumentation/converter/pair_incrementer.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/outstream/to_conditional_ostream.h"
