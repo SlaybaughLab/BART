@@ -4,6 +4,8 @@
 #include <deal.II/base/mpi.h>
 #include <deal.II/base/conditional_ostream.h>
 
+#include <fstream>
+
 #include "calculator/fourier/fourier_transform_fftw.h"
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
