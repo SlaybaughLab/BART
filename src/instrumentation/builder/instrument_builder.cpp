@@ -73,7 +73,7 @@ auto InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
     const std::string filename)
 -> std::unique_ptr<InstrumentI<system::moments::SphericalHarmonicI>> {
   switch (name) {
-    case InstrumentName::kFourierOfScalarFluxErrorToFile: {
+    case InstrumentName::kFourierTransformOfSingleGroupScalarFluxErrorToFile: {
       using ComplexVector = std::vector<std::complex<double>>;
       using IntComplexVectorPair = std::pair<int, ComplexVector>;
       using AbsoluteValue = instrumentation::converter::calculator::AbsoluteValue;

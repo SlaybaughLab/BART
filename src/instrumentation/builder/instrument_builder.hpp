@@ -10,7 +10,7 @@ namespace bart::instrumentation::builder {
 enum class InstrumentName {
   kColorStatusToConditionalOstream = 0,
   kConvergenceStatusToConditionalOstream = 1,
-  kFourierOfScalarFluxErrorToFile = 2,
+  kFourierTransformOfSingleGroupScalarFluxErrorToFile = 2,
   kIntDoublePairToFile = 3,
   kStringToConditionalOstream = 4,
 };

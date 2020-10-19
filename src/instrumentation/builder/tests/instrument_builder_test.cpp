@@ -66,7 +66,7 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest, FourierInstrument) {
     entry = test_helpers::RandomDouble(0, 1000);
 
   auto instrument_ptr = Builder::BuildInstrument<SphericalHarmonics>(
-      InstrumentName::kFourierOfScalarFluxErrorToFile, group, error_vector, filename);
+      InstrumentName::kFourierTransformOfSingleGroupScalarFluxErrorToFile, group, error_vector, filename);
   ASSERT_NE(instrument_ptr, nullptr);
   auto dynamic_ptr = dynamic_cast<InstrumentType*>(instrument_ptr.get());
   ASSERT_NE(dynamic_ptr, nullptr);
