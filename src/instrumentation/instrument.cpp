@@ -6,10 +6,9 @@
 
 #include "convergence/status.h"
 #include "utility/colors.h"
+#include "system/moments/spherical_harmonic_i.h"
 
-namespace bart {
-
-namespace instrumentation {
+namespace bart::instrumentation {
 
 template <typename InputType, typename OutputType>
 Instrument<InputType, OutputType>::Instrument(
@@ -40,7 +39,6 @@ template class Instrument<convergence::Status, std::string>;
 template class Instrument<std::pair<int, double>, std::string>;
 template class Instrument<std::pair<std::string, utility::Color>, std::string>;
 template class Instrument<dealii::Vector<double>, std::string>;
+template class Instrument<system::moments::SphericalHarmonicI, std::string>;
 
-} // namespace instrumentation
-
-} // namespace bart
+} // namespace bart::instrumentation
