@@ -14,7 +14,14 @@ class MomentExtractor :
     public ConverterI<moments::SphericalHarmonicI,
                       moments::MomentVector> {
  public:
-  moments::MomentVector Convert(const moments::SphericalHarmonicI &input) const override;
+  explicit MomentExtractor(const int group_to_extract)
+      : group_to_extract_(group_to_extract) {};
+  moments::MomentVector Convert(
+      const moments::SphericalHarmonicI &input) const override;
+
+  constexpr int group_to_extract() const noexcept { return group_to_extract_; };
+ private:
+  const int group_to_extract_{0};
 };
 
 } // namespace bart::instrumentation::converter::system
