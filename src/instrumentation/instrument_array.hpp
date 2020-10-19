@@ -1,6 +1,9 @@
 #ifndef BART_SRC_INSTRUMENTATION_INSTRUMENT_ARRAY_HPP_
 #define BART_SRC_INSTRUMENTATION_INSTRUMENT_ARRAY_HPP_
 
+#include <memory>
+#include <vector>
+
 #include "instrumentation/instrument_i.h"
 #include "utility/uncopyable.h"
 
@@ -19,7 +22,14 @@ template <typename InputType>
 class InstrumentArray : public InstrumentI<InputType>,
                         public utility::Uncopyable {
  public:
+  using InstrumentType = InstrumentI<InputType>;
+
+  InstrumentArray& AddInstrument(std::unique_ptr<InstrumentType>);
   void Read(const InputType &input) override;
+
+  constexpr std::size_t size() const noexcept { return instruments_.size(); }
+ private:
+  std::vector<std::unique_ptr<InstrumentType>> instruments_{};
 };
 
 
