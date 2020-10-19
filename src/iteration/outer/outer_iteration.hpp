@@ -1,35 +1,36 @@
-#ifndef BART_SRC_ITERATION_OUTER_OUTER_ITERATION_H_
-#define BART_SRC_ITERATION_OUTER_OUTER_ITERATION_H_
+#ifndef BART_SRC_ITERATION_OUTER_OUTER_ITERATION_HPP_
+#define BART_SRC_ITERATION_OUTER_OUTER_ITERATION_HPP_
 
 #include <memory>
 
 #include "convergence/final_i.h"
 #include "instrumentation/port.h"
 #include "iteration/group/group_solve_iteration_i.h"
-#include "iteration/outer/outer_iteration_i.h"
+#include "iteration/outer/outer_iteration_i.hpp"
 #include "system/system.h"
+#include "utility/uncopyable.h"
 
-namespace bart {
-
-namespace iteration {
-
-namespace outer {
+namespace bart::iteration::outer {
 
 namespace data_names {
 struct GroupConvergenceStatus;
 struct Status;
 struct IterationError;
+struct ScalarFlux;
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
 using StatusPort = instrumentation::Port<std::string, Status>;
 using IterationErrorPort = instrumentation::Port<std::pair<int, double>, IterationError>;
+using ScalarFluxPort = instrumentation::Port<dealii::Vector<double>, ScalarFlux>;
 } // namespace data_names
 
 
 template <typename ConvergenceType>
 class OuterIteration : public OuterIterationI,
+                       public utility::Uncopyable,
                        public data_names::ConvergenceStatusPort,
                        public data_names::StatusPort,
-                       public data_names::IterationErrorPort {
+                       public data_names::IterationErrorPort,
+                       public data_names::ScalarFluxPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
@@ -58,10 +59,6 @@ class OuterIteration : public OuterIterationI,
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
 };
 
-} // namespace outer
+} // namespace bart::iteration::outer
 
-} // namespace iteration
-
-} // namespace bart
-
-#endif //BART_SRC_ITERATION_OUTER_OUTER_ITERATION_H_
+#endif //BART_SRC_ITERATION_OUTER_OUTER_ITERATION_HPP_
