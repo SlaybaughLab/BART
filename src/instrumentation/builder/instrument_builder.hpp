@@ -11,8 +11,9 @@ enum class InstrumentName {
   kColorStatusToConditionalOstream = 0,
   kConvergenceStatusToConditionalOstream = 1,
   kFourierTransformOfSingleGroupScalarFluxErrorToFile = 2,
-  kIntDoublePairToFile = 3,
-  kStringToConditionalOstream = 4,
+  kFourierTransformOfAllGroupScalarFluxErrorToFile = 3,
+  kIntDoublePairToFile = 4,
+  kStringToConditionalOstream = 5,
 };
 
 class InstrumentBuilder {
