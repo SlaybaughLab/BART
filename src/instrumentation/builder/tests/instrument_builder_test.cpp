@@ -18,17 +18,21 @@
 #include "instrumentation/converter/system/group_scalar_flux_extractor.hpp"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 #include "instrumentation/outstream/to_ostream.h"
+#include "instrumentation/instrument_array.hpp"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "system/moments/spherical_harmonic_i.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 #include "utility/colors.h"
 
 namespace  {
 
 namespace instrumentation = bart::instrumentation;
 namespace test_helpers = bart::test_helpers;
+
+using ::testing::Return, ::testing::ReturnRef, ::testing::DoDefault;
 
 class InstrumentationBuilderInstrumentBuilderTest : public ::testing::Test {
  public:
@@ -53,6 +57,59 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
   ASSERT_NE(dynamic_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ConverterType*>(dynamic_ptr->converter_ptr()), nullptr);
   ASSERT_NE(dynamic_cast<OutstreamType*>(dynamic_ptr->outstream_ptr()), nullptr);
+}
+
+TEST_F(InstrumentationBuilderInstrumentBuilderTest, AllGroupsFourierInstrument) {
+  using InstrumentType = instrumentation::Instrument<SphericalHarmonics, std::string>;
+  using SphericalHarmonicMock = bart::system::moments::SphericalHarmonicMock;
+  std::unique_ptr<SphericalHarmonics> mock_spherical_harmonics =
+      std::make_unique<SphericalHarmonicMock>();
+  SphericalHarmonicMock* mock_spherical_harmonic_obs_ptr =
+      dynamic_cast<SphericalHarmonicMock*>(mock_spherical_harmonics.get());
+  const int total_groups{ test_helpers::RandomInt(5, 10) };
+  const int flux_size { test_helpers::RandomInt(10, 20) };
+  const std::string filename_base { "filename_base" };
+  std::vector<dealii::Vector<double>> group_scalar_fluxes(total_groups);
+
+  for (int i = 0; i < total_groups; ++i) {
+    dealii::Vector<double> group_flux(flux_size);
+    for (dealii::Vector<double>::size_type i = 0; i < group_flux.size(); ++i) {
+      group_flux[i] = test_helpers::RandomDouble(-100, 100);
+    }
+    group_scalar_fluxes.emplace_back(group_flux);
+  }
+
+  EXPECT_CALL(*mock_spherical_harmonic_obs_ptr, total_groups())
+      .WillOnce(Return(total_groups));
+  for (int i = 0; i < total_groups; ++i) {
+    EXPECT_CALL(*mock_spherical_harmonic_obs_ptr,
+                GetMoment(std::array{i, 0, 0}))
+        .WillOnce(ReturnRef(group_scalar_fluxes.at(i)));
+  }
+
+  auto instrument_ptr = Builder::BuildInstrument<SphericalHarmonics>(
+      InstrumentName::kFourierTransformOfAllGroupScalarFluxErrorToFile,
+      mock_spherical_harmonics.get(),
+      filename_base);
+
+  using InstrumentArrayType = instrumentation::InstrumentArray<SphericalHarmonics>;
+  using InstrumentType = instrumentation::Instrument<SphericalHarmonics, std::string>;
+  using OutStreamType = instrumentation::outstream::ToOstream;
+
+  auto array_dynamic_ptr = dynamic_cast<InstrumentArrayType*>(instrument_ptr.get());
+  ASSERT_NE(array_dynamic_ptr, nullptr);
+  EXPECT_EQ(array_dynamic_ptr->size(), total_groups);
+  for (const auto& instrument : *array_dynamic_ptr) {
+    auto dynamic_ptr = dynamic_cast<InstrumentType*>(instrument.get());
+    ASSERT_NE(dynamic_ptr, nullptr);
+    ASSERT_NE(dynamic_cast<OutStreamType*>(dynamic_ptr->outstream_ptr()), nullptr);
+  }
+
+  for (int i = 0; i < total_groups; ++i) {
+    std::string filename = filename_base + '_' + std::to_string(i) + ".csv";
+    EXPECT_EQ(remove(filename.c_str()), 0);
+  }
+
 }
 
 TEST_F(InstrumentationBuilderInstrumentBuilderTest, FourierInstrument) {
@@ -191,11 +248,24 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
   for (auto bad_name : {InstrumentName::kColorStatusToConditionalOstream,
                         InstrumentName::kStringToConditionalOstream,
                         InstrumentName::kConvergenceStatusToConditionalOstream,
-                        InstrumentName::kIntDoublePairToFile}) {
+                        InstrumentName::kIntDoublePairToFile,
+                        InstrumentName::kFourierTransformOfAllGroupScalarFluxErrorToFile}) {
     EXPECT_ANY_THROW(Builder::BuildInstrument<SphericalHarmonics>(bad_name,
                                                             int{},
                                                             DealiiVector{},
                                                             std::string{}));
+  }
+  for (auto bad_name : {InstrumentName::kColorStatusToConditionalOstream,
+                        InstrumentName::kStringToConditionalOstream,
+                        InstrumentName::kConvergenceStatusToConditionalOstream,
+                        InstrumentName::kIntDoublePairToFile,
+                        InstrumentName::kFourierTransformOfSingleGroupScalarFluxErrorToFile}) {
+    std::unique_ptr<SphericalHarmonics> spherical_harmonics
+        = std::make_unique<bart::system::moments::SphericalHarmonicMock>();
+    EXPECT_ANY_THROW(Builder::BuildInstrument<SphericalHarmonics>(
+        bad_name,
+        spherical_harmonics.get(),
+        std::string{}));
   }
 }
 

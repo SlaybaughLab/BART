@@ -13,6 +13,7 @@
 #include "instrumentation/converter/multi_converter.hpp"
 #include "instrumentation/converter/factory.hpp"
 #include "instrumentation/outstream/factory.h"
+#include "instrumentation/instrument_array.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 #include "utility/colors.h"
 
@@ -63,7 +64,7 @@ auto InstrumentBuilder::BuildInstrument<ConvergenceStatus>(
   }
 }
 
-// DEALII VECTOR ===============================================================
+//  SphericalHarmonicI =========================================================
 
 template <>
 auto InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
@@ -122,6 +123,34 @@ auto InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
               .GetConstructor(OutstreamName::kToOstream)
                   (std::move(file_stream)));
     }
+    default:
+    AssertThrow(false,
+                dealii::ExcMessage("Bad instrument name passed to builder"))
+  }
+}
+
+template <>
+auto InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
+    const InstrumentName name,
+    system::moments::SphericalHarmonicI* previous_iteration,
+    const std::string filename_base)
+-> std::unique_ptr<InstrumentI<system::moments::SphericalHarmonicI>> {
+  switch (name) {
+    case InstrumentName::kFourierTransformOfAllGroupScalarFluxErrorToFile: {
+      using ReturnType = instrumentation::InstrumentArray<system::moments::SphericalHarmonicI>;
+      auto return_ptr = std::make_unique<ReturnType>();
+      const int total_groups = previous_iteration->total_groups();
+
+      for (int group = 0; group < total_groups; ++group) {
+        auto group_instrument = InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
+            InstrumentName::kFourierTransformOfSingleGroupScalarFluxErrorToFile,
+            group, previous_iteration->GetMoment({group, 0, 0}),
+            filename_base + "_" + std::to_string(group) + ".csv");
+        return_ptr->AddInstrument(std::move(group_instrument));
+      }
+
+      return return_ptr;
+    };
     default:
     AssertThrow(false,
                 dealii::ExcMessage("Bad instrument name passed to builder"))
