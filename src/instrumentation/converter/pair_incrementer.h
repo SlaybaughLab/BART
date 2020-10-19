@@ -2,7 +2,7 @@
 #define BART_SRC_INSTRUMENTATION_CONVERTER_PAIR_INCREMENTER_H_
 
 #include "instrumentation/converter/converter_i.h"
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 namespace bart {
 

@@ -1,4 +1,4 @@
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 #include "convergence/status.h"
 #include "calculator/fourier/tests/fourier_transform_mock.h"

@@ -1,5 +1,5 @@
 #include "instrumentation/converter/calculator/vector_subtractor.h"
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 namespace bart {
 

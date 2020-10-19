@@ -1,5 +1,5 @@
 #include "instrumentation/converter/fourier/fourier_transform.h"
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 namespace bart {
 

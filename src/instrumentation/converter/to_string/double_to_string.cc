@@ -1,6 +1,6 @@
 #include "instrumentation/converter/to_string/double_to_string.h"
 
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 #include <iomanip>
 #include <sstream>

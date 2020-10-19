@@ -3,7 +3,7 @@
 #include <complex>
 #include <vector>
 
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 namespace bart {
 

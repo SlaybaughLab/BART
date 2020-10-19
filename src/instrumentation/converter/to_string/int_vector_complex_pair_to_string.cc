@@ -1,6 +1,6 @@
 #include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
 
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 
 #include <iomanip>
 

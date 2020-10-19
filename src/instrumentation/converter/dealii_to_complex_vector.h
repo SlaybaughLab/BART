@@ -6,7 +6,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "instrumentation/converter/factory.h"
+#include "instrumentation/converter/factory.hpp"
 #include "instrumentation/converter/converter_i.h"
 
 namespace bart {
