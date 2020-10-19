@@ -4,6 +4,7 @@
 #include "calculator/fourier/tests/fourier_transform_mock.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"
+#include "instrumentation/converter/system/group_scalar_flux_extractor.hpp"
 #include "instrumentation/converter/to_string/convergence_to_string.h"
 #include "instrumentation/converter/to_string/double_to_string.h"
 #include "instrumentation/converter/to_string/int_double_pair_to_string.h"
@@ -13,12 +14,15 @@
 #include "instrumentation/converter/dealii_to_complex_vector.h"
 
 #include "test_helpers/gmock_wrapper.h"
+#include "test_helpers/test_helper_functions.h"
 
 namespace  {
 
 namespace calculator = bart::calculator;
 namespace convergence = bart::convergence;
 namespace converter = bart::instrumentation::converter;
+namespace moment = bart::system::moments;
+namespace test_helpers = bart::test_helpers;
 
 class InstrumentationConverterIFactoryTest : public ::testing::Test {
  public:
@@ -30,6 +34,8 @@ class InstrumentationConverterIFactoryTest : public ::testing::Test {
   using FourierCalculatorMock = calculator::fourier::FourierTransformMock;
   using IntComplexVectorPair = std::pair<int, ComplexVector>;
   using Normalized = calculator::fourier::Normalized;
+  using SphericalHarmonics = moment::SphericalHarmonicI;
+  using Moment = moment::MomentVector;
 };
 
 TEST_F(InstrumentationConverterIFactoryTest, VectorSubtractorInstantiation) {
@@ -54,6 +60,20 @@ TEST_F(InstrumentationConverterIFactoryTest, FourierTransformInstantiation) {
   ASSERT_NE(dynamic_ptr, nullptr);
   EXPECT_TRUE(dynamic_ptr->returns_normalized());
   EXPECT_NE(dynamic_ptr->fourier_calculator_ptr(), nullptr);
+}
+
+TEST_F(InstrumentationConverterIFactoryTest, GroupScalarFluxExtractor) {
+  using ExpectedType = converter::system::GroupScalarFluxExtractor;
+  using Factory = converter::ConverterIFactory<SphericalHarmonics, Moment, const int>;
+
+  const int group_to_extract{ test_helpers::RandomInt(0, 10) };
+  auto converter_ptr = Factory::get()
+      .GetConstructor(converter::ConverterName::kGroupScalarFluxExtractor)
+          (group_to_extract);
+  ASSERT_NE(converter_ptr, nullptr);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(converter_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_EQ(dynamic_ptr->group_to_extract(), group_to_extract);
 }
 
 TEST_F(InstrumentationConverterIFactoryTest, ConvergenceToStringInstantiation) {

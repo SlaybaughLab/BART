@@ -22,6 +22,7 @@ class GroupScalarFluxExtractor :
   constexpr int group_to_extract() const noexcept { return group_to_extract_; };
  private:
   const int group_to_extract_{0};
+  static bool is_registered_;
 };
 
 } // namespace bart::instrumentation::converter::system
