@@ -1,4 +1,4 @@
-#include "instrumentation/converter/system/moment_extractor.hpp"
+#include "instrumentation/converter/system/group_scalar_flux_extractor.hpp"
 
 #include <array>
 
@@ -14,10 +14,10 @@ namespace test_helpers = bart::test_helpers;
 
 using ::testing::DoDefault, ::testing::Return, ::testing::ReturnRef;
 
-class InstrumentationConverterMomentExtractorTest : public ::testing::Test {
+class InstrumentationConverterGroupScalarFluxExtractorTest : public ::testing::Test {
  public:
   using DealiiVector = dealii::Vector<double>;
-  using TestConverter = instrumentation::converter::system::MomentExtractor;
+  using TestConverter = instrumentation::converter::system::GroupScalarFluxExtractor;
   using SphericalHarmonic = moments::SphericalHarmonicMock;
 
   std::unique_ptr<moments::SphericalHarmonicI> test_spherical_harmonics_;
@@ -30,7 +30,7 @@ class InstrumentationConverterMomentExtractorTest : public ::testing::Test {
   void SetUp() override;
 };
 
-void InstrumentationConverterMomentExtractorTest::SetUp() {
+void InstrumentationConverterGroupScalarFluxExtractorTest::SetUp() {
   const int solution_size { test_helpers::RandomInt(5, 10) };
   test_spherical_harmonics_ = std::make_unique<SphericalHarmonic>();
   spherical_harmonics_obs_ptr_ =
@@ -54,14 +54,14 @@ void InstrumentationConverterMomentExtractorTest::SetUp() {
   }
 }
 
-TEST_F(InstrumentationConverterMomentExtractorTest,
+TEST_F(InstrumentationConverterGroupScalarFluxExtractorTest,
        ConstructorAndGroupToExtractGetter) {
   const int group_to_extract{ test_helpers::RandomInt(0, 20) };
   TestConverter test_converter(group_to_extract);
   EXPECT_EQ(test_converter.group_to_extract(), group_to_extract);
 }
 
-TEST_F(InstrumentationConverterMomentExtractorTest, Convert) {
+TEST_F(InstrumentationConverterGroupScalarFluxExtractorTest, Convert) {
   const int group_to_extract{ test_helpers::RandomInt(0, total_groups_) };
   TestConverter test_converter(group_to_extract);
   EXPECT_CALL(*spherical_harmonics_obs_ptr_,

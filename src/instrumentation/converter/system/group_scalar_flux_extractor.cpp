@@ -1,8 +1,8 @@
-#include "instrumentation/converter/system/moment_extractor.hpp"
+#include "instrumentation/converter/system/group_scalar_flux_extractor.hpp"
 
 namespace bart::instrumentation::converter::system {
 
-moments::MomentVector MomentExtractor::Convert(
+moments::MomentVector GroupScalarFluxExtractor::Convert(
     const moments::SphericalHarmonicI &input) const {
   return input.GetMoment({group_to_extract_, 0, 0});
 }

@@ -1,5 +1,5 @@
-#ifndef BART_SRC_INSTRUMENTATION_CONVERTER_SYSTEM_MOMENT_EXTRACTOR_HPP_
-#define BART_SRC_INSTRUMENTATION_CONVERTER_SYSTEM_MOMENT_EXTRACTOR_HPP_
+#ifndef BART_SRC_INSTRUMENTATION_CONVERTER_SYSTEM_GROUP_SCALAR_FLUX_EXTRACTOR_HPP_
+#define BART_SRC_INSTRUMENTATION_CONVERTER_SYSTEM_GROUP_SCALAR_FLUX_EXTRACTOR_HPP_
 
 #include "instrumentation/converter/converter_i.h"
 
@@ -10,11 +10,11 @@ namespace bart::instrumentation::converter::system {
 namespace moments = bart::system::moments;
 
 /*! \brief Extracts a moment vector from a collection. */
-class MomentExtractor :
+class GroupScalarFluxExtractor :
     public ConverterI<moments::SphericalHarmonicI,
                       moments::MomentVector> {
  public:
-  explicit MomentExtractor(const int group_to_extract)
+  explicit GroupScalarFluxExtractor(const int group_to_extract)
       : group_to_extract_(group_to_extract) {};
   moments::MomentVector Convert(
       const moments::SphericalHarmonicI &input) const override;
@@ -26,4 +26,4 @@ class MomentExtractor :
 
 } // namespace bart::instrumentation::converter::system
 
-#endif //BART_SRC_INSTRUMENTATION_CONVERTER_SYSTEM_MOMENT_EXTRACTOR_HPP_
+#endif //BART_SRC_INSTRUMENTATION_CONVERTER_SYSTEM_GROUP_SCALAR_FLUX_EXTRACTOR_HPP_
