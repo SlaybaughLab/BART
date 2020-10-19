@@ -27,6 +27,8 @@ class InstrumentArray : public InstrumentI<InputType>,
   InstrumentArray& AddInstrument(std::unique_ptr<InstrumentType>);
   void Read(const InputType &input) override;
 
+  constexpr auto begin() noexcept { return instruments_.begin(); }
+  constexpr auto end() noexcept { return instruments_.end(); }
   constexpr std::size_t size() const noexcept { return instruments_.size(); }
  private:
   std::vector<std::unique_ptr<InstrumentType>> instruments_{};
