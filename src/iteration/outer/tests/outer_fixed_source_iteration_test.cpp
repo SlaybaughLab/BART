@@ -1,4 +1,4 @@
-#include "iteration/outer/outer_fixed_source_iteration.h"
+#include "iteration/outer/outer_fixed_source_iteration.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 

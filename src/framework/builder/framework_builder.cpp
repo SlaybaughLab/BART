@@ -24,7 +24,7 @@
 #include "formulation/updater/diffusion_updater.h"
 
 // Framework class
-#include "framework/framework.h"
+#include "framework/framework.hpp"
 
 // KEffective Updater Classes
 #include "calculator/cell/total_aggregated_fission_source.h"
@@ -42,8 +42,8 @@
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_solve_iteration.h"
 #include "iteration/group/group_source_iteration.h"
-#include "iteration/outer/outer_power_iteration.h"
-#include "iteration/outer/outer_fixed_source_iteration.h"
+#include "iteration/outer/outer_power_iteration.hpp"
+#include "iteration/outer/outer_fixed_source_iteration.hpp"
 
 // Quadrature classes & factories
 #include "quadrature/quadrature_generator_i.h"

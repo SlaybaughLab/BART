@@ -1,10 +1,10 @@
-#ifndef BART_SRC_FRAMEWORK_FRAMEWORK_H_
-#define BART_SRC_FRAMEWORK_FRAMEWORK_H_
+#ifndef BART_SRC_FRAMEWORK_FRAMEWORK_HPP_
+#define BART_SRC_FRAMEWORK_FRAMEWORK_HPP_
 
 #include <memory>
 #include <ostream>
 
-#include "iteration/outer/outer_iteration_i.h"
+#include "iteration/outer/outer_iteration_i.hpp"
 #include "iteration/initializer/initializer_i.h"
 #include "results/output_i.h"
 #include "system/system.h"
@@ -62,4 +62,4 @@ class Framework : public FrameworkI {
 
 } // namespace bart
 
-#endif //BART_SRC_FRAMEWORK_FRAMEWORK_H_
+#endif //BART_SRC_FRAMEWORK_FRAMEWORK_HPP_

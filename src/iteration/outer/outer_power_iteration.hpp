@@ -1,9 +1,9 @@
-#ifndef BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_H_
-#define BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_H_
+#ifndef BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
+#define BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 
 #include "formulation/updater/fission_source_updater_i.h"
 #include "eigenvalue/k_effective/k_effective_updater_i.h"
-#include "iteration/outer/outer_iteration.h"
+#include "iteration/outer/outer_iteration.hpp"
 
 namespace bart {
 
@@ -46,4 +46,4 @@ class OuterPowerIteration : public OuterIteration<double> {
 
 } // namespace bart
 
-#endif //BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_H_
+#endif //BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_

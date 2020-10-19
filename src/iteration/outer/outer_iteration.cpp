@@ -1,4 +1,4 @@
-#include "iteration/outer/outer_iteration.h"
+#include "iteration/outer/outer_iteration.hpp"
 
 #include "convergence/status.h"
 

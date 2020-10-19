@@ -1,7 +1,7 @@
-#ifndef BART_SRC_ITERATION_OUTER_TESTS_OUTER_ITERATION_MOCK_H_
-#define BART_SRC_ITERATION_OUTER_TESTS_OUTER_ITERATION_MOCK_H_
+#ifndef BART_SRC_ITERATION_OUTER_TESTS_OUTER_ITERATION_MOCK_HPP_
+#define BART_SRC_ITERATION_OUTER_TESTS_OUTER_ITERATION_MOCK_HPP_
 
-#include "iteration/outer/outer_iteration_i.h"
+#include "iteration/outer/outer_iteration_i.hpp"
 
 #include "system/system.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -24,4 +24,4 @@ class OuterIterationMock : public OuterIterationI {
 
 } // namespace bart
 
-#endif //BART_SRC_ITERATION_OUTER_TESTS_OUTER_ITERATION_MOCK_H_
+#endif //BART_SRC_ITERATION_OUTER_TESTS_OUTER_ITERATION_MOCK_HPP_

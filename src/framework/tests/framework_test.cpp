@@ -1,10 +1,10 @@
-#include "framework/framework.h"
+#include "framework/framework.hpp"
 
 #include <iostream>
 
 #include <deal.II/base/mpi.h>
 
-#include "iteration/outer/tests/outer_iteration_mock.h"
+#include "iteration/outer/tests/outer_iteration_mock.hpp"
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "results/tests/output_mock.h"
 #include "test_helpers/gmock_wrapper.h"

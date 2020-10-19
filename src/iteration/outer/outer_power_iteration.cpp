@@ -1,4 +1,4 @@
-#include "iteration/outer/outer_power_iteration.h"
+#include "iteration/outer/outer_power_iteration.hpp"
 
 namespace bart {
 

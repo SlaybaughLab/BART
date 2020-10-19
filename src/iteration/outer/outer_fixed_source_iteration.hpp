@@ -1,7 +1,7 @@
-#ifndef BART_SRC_ITERATION_OUTER_OUTER_FIXED_SOURCE_ITERATION_H_
-#define BART_SRC_ITERATION_OUTER_OUTER_FIXED_SOURCE_ITERATION_H_
+#ifndef BART_SRC_ITERATION_OUTER_OUTER_FIXED_SOURCE_ITERATION_HPP_
+#define BART_SRC_ITERATION_OUTER_OUTER_FIXED_SOURCE_ITERATION_HPP_
 
-#include "iteration/outer/outer_iteration.h"
+#include "iteration/outer/outer_iteration.hpp"
 
 namespace bart {
 
@@ -30,4 +30,4 @@ class OuterFixedSourceIteration : public OuterIteration<double> {
 
 } // namespace bart
 
-#endif //BART_SRC_ITERATION_OUTER_OUTER_FIXED_SOURCE_ITERATION_H_
+#endif //BART_SRC_ITERATION_OUTER_OUTER_FIXED_SOURCE_ITERATION_HPP_

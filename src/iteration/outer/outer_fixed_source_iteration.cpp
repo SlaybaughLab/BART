@@ -1,4 +1,4 @@
-#include "iteration/outer/outer_fixed_source_iteration.h"
+#include "iteration/outer/outer_fixed_source_iteration.hpp"
 
 namespace bart {
 
@@ -15,7 +15,7 @@ OuterFixedSourceIteration::OuterFixedSourceIteration(
                         utility::DefaultImplementation(true));
 }
 
-convergence::Status OuterFixedSourceIteration::CheckConvergence(system::System &system) {
+convergence::Status OuterFixedSourceIteration::CheckConvergence(system::System &) {
   convergence::Status return_status;
   return_status.is_complete = true;
   return_status.delta = std::nullopt;
