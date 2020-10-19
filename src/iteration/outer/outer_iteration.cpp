@@ -2,11 +2,7 @@
 
 #include "convergence/status.h"
 
-namespace bart {
-
-namespace iteration {
-
-namespace outer {
+namespace bart::iteration::outer {
 
 template <typename ConvergenceType>
 OuterIteration<ConvergenceType>::OuterIteration(
@@ -64,8 +60,4 @@ void OuterIteration<ConvergenceType>::InnerIterationToConvergence(
 
 template class OuterIteration<double>;
 
-} // namespace outer
-
-} // namespace iteration
-
-} // namespace bart
+} // namespace bart::iteration::outer
