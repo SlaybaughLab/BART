@@ -13,6 +13,7 @@
 #include "instrumentation/converter/multi_converter.hpp"
 #include "instrumentation/converter/factory.hpp"
 #include "instrumentation/outstream/factory.h"
+#include "system/moments/spherical_harmonic_i.h"
 #include "utility/colors.h"
 
 namespace bart::convergence {
@@ -65,13 +66,14 @@ auto InstrumentBuilder::BuildInstrument<ConvergenceStatus>(
 // DEALII VECTOR ===============================================================
 
 template <>
-auto InstrumentBuilder::BuildInstrument<DealiiVector>(
+auto InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
     const InstrumentName name,
+    const int group_number,
     const DealiiVector error,
     const std::string filename)
--> std::unique_ptr<InstrumentI<DealiiVector>> {
+-> std::unique_ptr<InstrumentI<system::moments::SphericalHarmonicI>> {
   switch (name) {
-    case InstrumentName::kFourierOfErrorToFile: {
+    case InstrumentName::kFourierOfScalarFluxErrorToFile: {
       using ComplexVector = std::vector<std::complex<double>>;
       using IntComplexVectorPair = std::pair<int, ComplexVector>;
       using AbsoluteValue = instrumentation::converter::calculator::AbsoluteValue;
@@ -79,6 +81,13 @@ auto InstrumentBuilder::BuildInstrument<DealiiVector>(
       using FourierCalculatorFFTW = calculator::fourier::FourierTransformFFTW;
       using Normalized = calculator::fourier::Normalized;
       using FirstStageConverter = instrumentation::converter::MultiConverter<DealiiVector, DealiiVector, ComplexVector>;
+      using SphericalHarmonics = system::moments::SphericalHarmonicI;
+
+      auto group_scalar_flux_extractor_ptr =
+          converter::ConverterIFactory<system::moments::SphericalHarmonicI,
+                                       system::moments::MomentVector, const int>::get()
+              .GetConstructor(ConverterName::kGroupScalarFluxExtractor)
+              (group_number);
 
       auto vector_subtractor_ptr =
           converter::ConverterIFactory<DealiiVector, DealiiVector, DealiiVector, AbsoluteValue>::get()
@@ -99,14 +108,15 @@ auto InstrumentBuilder::BuildInstrument<DealiiVector>(
           converter::ConverterIFactory<IntComplexVectorPair, std::string>::get()
               .GetConstructor(converter::ConverterName::kIntVectorComplexPairToString)();
 
-      auto full_converter = std::move(vector_subtractor_ptr) +
+      auto full_converter = std::move(group_scalar_flux_extractor_ptr) +
+          std::move(vector_subtractor_ptr) +
           std::move(dealii_to_complex_vector_converter_ptr) +
           std::move(fourier_calculator_ptr) +
           std::move(pair_incrementer_ptr) +
           std::move(pair_to_string_ptr);
 
       std::unique_ptr<std::ostream> file_stream = std::make_unique<std::ofstream>(filename);
-      return std::make_unique<Instrument<DealiiVector, std::string>>(
+      return std::make_unique<Instrument<system::moments::SphericalHarmonicI, std::string>>(
           std::move(full_converter),
           outstream::OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
               .GetConstructor(OutstreamName::kToOstream)
