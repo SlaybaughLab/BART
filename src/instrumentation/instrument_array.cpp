@@ -5,7 +5,10 @@
 namespace bart::instrumentation {
 
 template<typename InputType>
-void InstrumentArray<InputType>::Read(const InputType &/*input*/) {}
+void InstrumentArray<InputType>::Read(const InputType &input) {
+  for (auto& instrument : instruments_)
+    instrument->Read(input);
+}
 
 
 template<typename InputType>
