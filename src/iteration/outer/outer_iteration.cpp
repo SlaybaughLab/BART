@@ -48,6 +48,7 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
 
     data_names::StatusPort::Expose("Outer iteration Status: ");
     data_names::ConvergenceStatusPort::Expose(convergence_status);
+    data_names::SolutionMomentsPort::Expose(*system.current_moments);
 
   } while (!convergence_status.is_complete);
 }

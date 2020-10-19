@@ -8,6 +8,7 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "system/system.h"
+#include "system/moments/spherical_harmonic_i.h"
 #include "utility/uncopyable.h"
 
 namespace bart::iteration::outer {
@@ -16,11 +17,11 @@ namespace data_names {
 struct GroupConvergenceStatus;
 struct Status;
 struct IterationError;
-struct ScalarFlux;
+struct SolutionMoments;
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
 using StatusPort = instrumentation::Port<std::string, Status>;
 using IterationErrorPort = instrumentation::Port<std::pair<int, double>, IterationError>;
-using ScalarFluxPort = instrumentation::Port<dealii::Vector<double>, ScalarFlux>;
+using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, SolutionMoments>;
 } // namespace data_names
 
 
@@ -30,7 +31,7 @@ class OuterIteration : public OuterIterationI,
                        public data_names::ConvergenceStatusPort,
                        public data_names::StatusPort,
                        public data_names::IterationErrorPort,
-                       public data_names::ScalarFluxPort {
+                       public data_names::SolutionMomentsPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
