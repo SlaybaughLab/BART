@@ -3,7 +3,7 @@
 #include <memory>
 #include <sstream>
 
-#include "instrumentation/outstream/to_ostream.h"
+#include "instrumentation/outstream/to_ostream.hpp"
 #include "instrumentation/outstream/to_conditional_ostream.h"
 
 #include "test_helpers/gmock_wrapper.h"

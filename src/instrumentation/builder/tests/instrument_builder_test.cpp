@@ -17,7 +17,7 @@
 #include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/converter/system/group_scalar_flux_extractor.hpp"
 #include "instrumentation/outstream/to_conditional_ostream.h"
-#include "instrumentation/outstream/to_ostream.h"
+#include "instrumentation/outstream/to_ostream.hpp"
 #include "instrumentation/instrument_array.hpp"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"

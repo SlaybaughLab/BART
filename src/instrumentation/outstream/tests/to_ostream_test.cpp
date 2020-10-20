@@ -1,4 +1,4 @@
-#include "instrumentation/outstream/to_ostream.h"
+#include "instrumentation/outstream/to_ostream.hpp"
 
 #include <memory>
 #include <sstream>

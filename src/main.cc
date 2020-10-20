@@ -88,10 +88,34 @@ int main(int argc, char* argv[]) {
     }
 
     framework_ptr->SolveSystem();
-    framework_ptr->OutputResults(output_stream);
+    std::unique_ptr<bart::framework::FrameworkI> fourier_framework_ptr;
+    switch(prm.SpatialDimension()) {
+      case 1: {
+        bart::framework::builder::FrameworkBuilder<1> builder;
+        fourier_framework_ptr = builder.BuildFramework("fourier", prm,
+                                                       framework_ptr->system()->current_moments.get());
+        break;
+      }
+      case 2: {
+        bart::framework::builder::FrameworkBuilder<2> builder;
+        fourier_framework_ptr = builder.BuildFramework("fourier", prm,
+                                                       framework_ptr->system()->current_moments.get());
+        break;
+      }
+      case 3: {
+        bart::framework::builder::FrameworkBuilder<3> builder;
+        fourier_framework_ptr = builder.BuildFramework("fourier", prm,
+                                                       framework_ptr->system()->current_moments.get());
+        break;
+      }
+    }
+    framework_ptr.release();
+
+    fourier_framework_ptr->SolveSystem();
+    fourier_framework_ptr->OutputResults(output_stream);
     if (n_processes > 1)
-      framework_ptr->OutputMasterFile(master_output_stream, filenames, process_id);
-    k_eff_final = framework_ptr->system()->k_effective.value_or(0);
+      fourier_framework_ptr->OutputMasterFile(master_output_stream, filenames, process_id);
+    k_eff_final = fourier_framework_ptr->system()->k_effective.value_or(0);
 
     std::cout << "Final k_effective: " << k_eff_final << std::endl;
 

@@ -62,17 +62,37 @@
 // Instrumentation
 #include "instrumentation/builder/instrument_builder.hpp"
 
-namespace bart {
-
-namespace framework {
-
-namespace builder {
+namespace bart::framework::builder {
 
 namespace  {
 
+using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
+using InstrumentName = instrumentation::builder::InstrumentName;
 using StringColorPair = std::pair<std::string, utility::Color>;
 
 } // namespace
+
+template <int dim>
+auto FrameworkBuilder<dim>::BuildFramework(
+    std::string name,
+    ParametersType& prm,
+    system::moments::SphericalHarmonicI* previous_solution)
+-> std::unique_ptr<FrameworkType> {
+  auto framework_ptr = BuildFramework(name, prm);
+  auto dynamic_framework_ptr = dynamic_cast<framework::Framework*>(
+      framework_ptr.get());
+  auto outer_iteration_ptr = dynamic_framework_ptr->outer_iterator_ptr();
+
+  auto fourier_instrument = Shared(
+      InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
+          InstrumentName::kFourierTransformOfAllGroupScalarFluxErrorToFile,
+          previous_solution,
+          prm.OutputFilenameBase() + "_fourier_of_error_group"));
+  using FourierDataPort = iteration::outer::data_names::SolutionMomentsPort;
+  instrumentation::GetPort<FourierDataPort>(*outer_iteration_ptr)
+      .AddInstrument(fourier_instrument);
+  return framework_ptr;
+}
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildFramework(std::string name,
@@ -821,8 +841,4 @@ template class FrameworkBuilder<1>;
 template class FrameworkBuilder<2>;
 template class FrameworkBuilder<3>;
 
-} // namespace builder
-
-} // namespace framework
-
-} // namespace bart
+} // namespace bart::framework::builder

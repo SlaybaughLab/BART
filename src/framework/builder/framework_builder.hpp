@@ -39,6 +39,7 @@
 #include "solver/group/single_group_solver_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
 #include "system/system.h"
+#include "system/moments/spherical_harmonic_i.h"
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
@@ -107,6 +108,8 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   ~FrameworkBuilder() = default;
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
+  std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
+                                                system::moments::SphericalHarmonicI*);
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
