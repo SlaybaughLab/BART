@@ -14,14 +14,10 @@
 namespace bart::iteration::outer {
 
 namespace data_names {
-struct GroupConvergenceStatus;
-struct Status;
-struct IterationError;
-struct SolutionMoments;
-using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
-using StatusPort = instrumentation::Port<std::string, Status>;
-using IterationErrorPort = instrumentation::Port<std::pair<int, double>, IterationError>;
-using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, SolutionMoments>;
+using ConvergenceStatusPort = instrumentation::Port<convergence::Status, struct GroupConvergenceStatus>;
+using StatusPort = instrumentation::Port<std::string, struct Status>;
+using IterationErrorPort = instrumentation::Port<std::pair<int, double>, struct IterationError>;
+using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, struct SolutionMoments>;
 } // namespace data_names
 
 
