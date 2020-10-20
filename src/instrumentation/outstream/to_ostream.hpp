@@ -1,5 +1,5 @@
-#ifndef BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_H_
-#define BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_H_
+#ifndef BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_HPP_
+#define BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_HPP_
 
 #include "instrumentation/outstream/outstream_i.h"
 #include "instrumentation/outstream/factory.h"
@@ -26,14 +26,7 @@ class ToOstream : public OutstreamI<std::string> {
 
  private:
   std::unique_ptr<std::ostream> ostream_ptr_;
-  inline static bool is_registered_ =
-      OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
-      .RegisterConstructor(OutstreamName::kToOstream,
-          [](std::unique_ptr<std::ostream> ostream_ptr) {
-        std::unique_ptr<OutstreamI<std::string>> return_ptr =
-            std::make_unique<ToOstream>(std::move(ostream_ptr));
-        return return_ptr;
-          });
+  static bool is_registered_;
 };
 
 } // namespace outstream
@@ -42,4 +35,4 @@ class ToOstream : public OutstreamI<std::string> {
 
 } // namespace bart
 
-#endif //BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_H_
+#endif //BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_HPP_
