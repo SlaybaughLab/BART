@@ -8,7 +8,7 @@
 #include "iteration/initializer/initializer_i.h"
 #include "results/output_i.h"
 #include "system/system.h"
-#include "framework/framework_i.h"
+#include "framework/framework_i.hpp"
 
 namespace bart {
 

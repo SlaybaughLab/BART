@@ -28,7 +28,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
-#include "framework/framework_i.h"
+#include "framework/framework_i.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"

@@ -1,13 +1,11 @@
-#ifndef BART_SRC_FRAMEWORK_FRAMEWORK_I_H_
-#define BART_SRC_FRAMEWORK_FRAMEWORK_I_H_
+#ifndef BART_SRC_FRAMEWORK_FRAMEWORK_I_HPP_
+#define BART_SRC_FRAMEWORK_FRAMEWORK_I_HPP_
 
 #include <ostream>
 
 #include "system/system.h"
 
-namespace bart {
-
-namespace framework {
+namespace bart::framework {
 
 class FrameworkI {
  public:
@@ -20,8 +18,6 @@ class FrameworkI {
                                 const int process_id) = 0;
 };
 
-} // namespace framework
+} // namespace bart::framework
 
-} // namespace bart
-
-#endif //BART_SRC_FRAMEWORK_FRAMEWORK_I_H_
+#endif //BART_SRC_FRAMEWORK_FRAMEWORK_I_HPP_
