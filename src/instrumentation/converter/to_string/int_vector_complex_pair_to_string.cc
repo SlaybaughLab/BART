@@ -14,13 +14,13 @@ namespace to_string {
 
 namespace  {
 using OutputTerm = IntVectorComplexPairToStringOutputTerm;
-std::string default_output_format{"${INT}, ${VECTOR}\n"};
+std::string default_output_format{"${VECTOR}\n"};
 std::map<OutputTerm, std::string> default_output_term_to_string_map{
     {OutputTerm::kInt,     "${INT}"},
     {OutputTerm::kVector, "${VECTOR}"},
 };
 using VectorTerm = IntVectorComplexPairToStringVectorOutputTerm;
-std::string default_vector_entry_output_format{"(${REAL}, ${IMAG})"};
+std::string default_vector_entry_output_format{"(${REAL}+${IMAG}j)"};
 std::map<VectorTerm, std::string> default_vector_entry_output_to_string_map{
     {VectorTerm::kIndex, "${INDEX}"},
     {VectorTerm::kReal, "${REAL}"},

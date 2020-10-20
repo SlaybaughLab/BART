@@ -25,8 +25,8 @@ class InstrumentationConverterIntVectorComplexPairToStringTest
                                 const int precision) const;
 
   const int default_precision_{2};
-  const std::string default_output_{"${INT}, ${VECTOR}\n"};
-  const std::string default_vector_entry_output_format{"(${REAL}, ${IMAG})"};
+  const std::string default_output_{"${VECTOR}\n"};
+  const std::string default_vector_entry_output_format{"(${REAL}+${IMAG}j)"};
   const std::string default_delimiter_{", "};
   InputType test_input;
   void SetUp() override;
