@@ -29,6 +29,10 @@ class ParametersDealiiHandler : public ParametersI {
      * These are the strings that the ParameterHandler will look for in provided
      * input files.
      */
+
+    // Fourier analysis
+    const std::string kDoDFTOfError_ = "do dft of error";
+
     const std::string kDiscretization_ = "ho spatial discretization";
     const std::string kEigenvalueProblem_ = "do eigenvalue calculations";
     const std::string kFEPolynomialDegree_ = "finite element polynomial degree";
@@ -95,6 +99,10 @@ class ParametersDealiiHandler : public ParametersI {
 
 
   // Functions to get problem parameters
+  // Fourier analysis ==========================================================
+  bool DoDiscreteFourierTransformOfError() const noexcept override {
+    return do_dft_of_error_; }
+
   // Basic Parameters ==========================================================
   DiscretizationType Discretization() const override { return discretization_; }
 
@@ -187,6 +195,9 @@ class ParametersDealiiHandler : public ParametersI {
   KeyWords GetKeyWords() const { return key_words_; }
   
  private:
+  // Fourier analysis
+  bool                                 do_dft_of_error_{ false };
+
   // Basic parameters
   DiscretizationType                   discretization_;
   bool                                 is_eigenvalue_problem_;
