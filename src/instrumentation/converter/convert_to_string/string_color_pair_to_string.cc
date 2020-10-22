@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
 
 #include "instrumentation/converter/factory.hpp"
 
@@ -8,7 +8,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 namespace  {
 using OutputTerm = StringColorPairToStringOutputTerm;
@@ -57,7 +57,7 @@ bool StringColorPairToString::is_registered_ =
           return return_ptr;
         });
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

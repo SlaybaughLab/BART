@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_vector_complex_pair_to_string.h"
 
 #include <sstream>
 
@@ -12,7 +12,7 @@ using namespace bart;
 class InstrumentationConverterIntVectorComplexPairToStringTest
  : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::to_string::IntVectorComplexPairToString;
+  using ConverterType = instrumentation::converter::convert_to_string::IntVectorComplexPairToString;
   using InputType = ConverterType::InputType;
   using OutputTerm = ConverterType::OutputTerm;
   using VectorTerm = ConverterType::VectorTerm;

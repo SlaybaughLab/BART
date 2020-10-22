@@ -8,10 +8,10 @@
 #include "convergence/status.h"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
-#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
-#include "instrumentation/converter/to_string/convergence_to_string.h"
-#include "instrumentation/converter/to_string/int_double_pair_to_string.h"
-#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/convergence_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_double_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_vector_complex_pair_to_string.h"
 #include "instrumentation/converter/multi_converter.hpp"
 #include "instrumentation/converter/pair_incrementer.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"
@@ -48,7 +48,7 @@ class InstrumentationBuilderInstrumentBuilderTest : public ::testing::Test {
 TEST_F(InstrumentationBuilderInstrumentBuilderTest,
        ColorStringToConditionalOstream) {
   using InstrumentType = instrumentation::Instrument<StringColorPair, std::string>;
-  using ConverterType = instrumentation::converter::to_string::StringColorPairToString;
+  using ConverterType = instrumentation::converter::convert_to_string::StringColorPairToString;
   using OutstreamType = instrumentation::outstream::ToConditionalOstream;
   auto instrument_ptr = Builder::BuildInstrument<StringColorPair>(
       instrumentation::builder::InstrumentName::kColorStatusToConditionalOstream);
@@ -137,7 +137,7 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest, FourierInstrument) {
       dynamic_cast<MultiConverterOne*>(dynamic_ptr->converter_ptr());
   ASSERT_NE(multi_converter_one_ptr, nullptr);
   ASSERT_NE(
-      dynamic_cast<instrumentation::converter::to_string::IntVectorComplexPairToString*>(
+      dynamic_cast<instrumentation::converter::convert_to_string::IntVectorComplexPairToString*>(
           multi_converter_one_ptr->second_stage_converter_ptr()), nullptr);
   // Next multi-converter
   using MultiConverterTwo = instrumentation::converter::MultiConverter<SphericalHarmonics, ComplexVector, IntComplexVectorPair>;
@@ -187,7 +187,7 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest, FourierInstrument) {
 TEST_F(InstrumentationBuilderInstrumentBuilderTest,
        ConvergenceStatusToConditionalOstream) {
   using InstrumentType = instrumentation::Instrument<ConvergenceStatus, std::string>;
-  using ConverterType = instrumentation::converter::to_string::ConvergenceToString;
+  using ConverterType = instrumentation::converter::convert_to_string::ConvergenceToString;
   using OutstreamType = instrumentation::outstream::ToConditionalOstream;
   auto instrument_ptr = Builder::BuildInstrument<ConvergenceStatus>(
       InstrumentName::kConvergenceStatusToConditionalOstream);
@@ -202,7 +202,7 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
        IntDoublePairToFile) {
   const std::string filename{ "filename.csv" };
   using InstrumentType = instrumentation::Instrument<IntDoublePair, std::string>;
-  using ConverterType = instrumentation::converter::to_string::IntDoublePairToString;
+  using ConverterType = instrumentation::converter::convert_to_string::IntDoublePairToString;
   using OutstreamType = instrumentation::outstream::ToOstream;
   auto instrument_ptr = Builder::BuildInstrument<IntDoublePair>(
       InstrumentName::kIntDoublePairToFile,

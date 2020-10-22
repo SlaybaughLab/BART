@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/convergence_to_string.h"
+#include "instrumentation/converter/convert_to_string/convergence_to_string.h"
 
 #include <sstream>
 
@@ -10,7 +10,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 namespace  {
 
@@ -69,7 +69,7 @@ bool ConvergenceToString::is_registered_ =
               return_ptr = std::make_unique<ConvergenceToString>();
           return return_ptr;
         });
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

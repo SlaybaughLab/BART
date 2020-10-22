@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "utility/colors.h"
@@ -10,7 +10,7 @@ using namespace bart;
 class InstrumentationConverterStringColorPairToStringTest
  : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::to_string::StringColorPairToString;
+  using ConverterType = instrumentation::converter::convert_to_string::StringColorPairToString;
   using Color = utility::Color;
   using PairType = std::pair<std::string, Color>;
 

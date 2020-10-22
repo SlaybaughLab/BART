@@ -1,7 +1,7 @@
 #ifndef BART_SRC_INSTRUMENTATION_CONVERTER_INT_DOUBLE_PAIR_TO_STRING_H_
 #define BART_SRC_INSTRUMENTATION_CONVERTER_INT_DOUBLE_PAIR_TO_STRING_H_
 
-#include "instrumentation/converter/to_string/to_string_converter.h"
+#include "instrumentation/converter/convert_to_string/to_string_converter.h"
 
 namespace bart {
 
@@ -9,7 +9,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 enum class IntDoublePairToStringOutputTerm {kIndex = 0, kValue = 1};
 
@@ -33,7 +33,7 @@ class IntDoublePairToString
   static bool is_registered_;
 };
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

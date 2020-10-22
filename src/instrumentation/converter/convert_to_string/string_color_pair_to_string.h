@@ -1,7 +1,7 @@
 #ifndef BART_SRC_INSTRUMENTATION_CONVERTER_STRING_COLOR_PAIR_TO_STRING_H_
 #define BART_SRC_INSTRUMENTATION_CONVERTER_STRING_COLOR_PAIR_TO_STRING_H_
 
-#include "instrumentation/converter/to_string/to_string_converter.h"
+#include "instrumentation/converter/convert_to_string/to_string_converter.h"
 #include "utility/colors.h"
 
 namespace bart {
@@ -10,7 +10,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 enum class StringColorPairToStringOutputTerm {
   kColorCode = 0, kString = 1, kColorReset = 2
@@ -30,7 +30,7 @@ class StringColorPairToString :
   static bool is_registered_;
 };
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

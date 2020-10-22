@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_vector_complex_pair_to_string.h"
 
 #include "instrumentation/converter/factory.hpp"
 
@@ -10,7 +10,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 namespace  {
 using OutputTerm = IntVectorComplexPairToStringOutputTerm;
@@ -114,7 +114,7 @@ bool IntVectorComplexPairToString::is_registered_ = ConverterIFactory<InputType,
         });
 
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

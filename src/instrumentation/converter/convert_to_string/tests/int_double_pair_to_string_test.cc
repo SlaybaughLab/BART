@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/int_double_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_double_pair_to_string.h"
 
 #include <optional>
 #include <sstream>
@@ -13,7 +13,7 @@ using namespace bart;
 class InstrumentationConverterIntDoublePairToStringTest
     : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::to_string::IntDoublePairToString;
+  using ConverterType = instrumentation::converter::convert_to_string::IntDoublePairToString;
   const double test_double_{test_helpers::RandomDouble(20, 100)};
   const int test_int_{static_cast<int>(test_helpers::RandomDouble(0, 10))};
   std::string GetExpectedOutput(const std::pair<int, double>, const ConverterType&) const;
