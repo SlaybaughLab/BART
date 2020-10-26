@@ -44,6 +44,8 @@ One of the major design goals of BART is to provide a framework for testing acce
 - Nonlinear diffusion acceleration (NDA)
 - Two-grid acceleration (TG)
 
+Calculation of discrete Fourier transforms is provided via the [FFTW subroutine library](http://www.fftw.org/).
+
 ### Benchmarks
 
 Benchmarks from Sood (1999) are provided in the `benchmarks` folder for validation of the code.

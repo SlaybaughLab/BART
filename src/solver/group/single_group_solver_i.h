@@ -13,7 +13,10 @@ namespace group {
 /*! \brief Interface for solver that solves a single groups.
  *
  * The purpose of these classes is to solve a system for a specific group, using
- * a provided system of equations and given a solution vector to update.
+ * a provided system of equations and given a solution vector to update. This is
+ * essentially a wrapper for the linear solver that gets the appropriate
+ * left-hand-side and right-hand-side matrix and vector to send to a linear
+ * solver.
  *
  */
 class SingleGroupSolverI {

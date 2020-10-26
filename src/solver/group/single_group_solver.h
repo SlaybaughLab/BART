@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "solver/group/single_group_solver_i.h"
-#include "solver/linear_i.h"
+#include "solver/linear/linear_i.h"
 
 namespace bart {
 
@@ -29,7 +29,7 @@ class SingleGroupSolver : public SingleGroupSolverI {
   }
  protected:
   std::unique_ptr<LinearSolver> linear_solver_ptr_ = nullptr;
-
+  static bool is_registered_;
 };
 
 } // namespace group

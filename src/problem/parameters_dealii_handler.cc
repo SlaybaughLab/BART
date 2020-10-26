@@ -19,6 +19,10 @@ ParametersDealiiHandler::ParametersDealiiHandler(const std::string filename) {
 void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
 
   // Parse parameters
+
+  // Fourier analysis
+  do_dft_of_error_ = handler.get_bool(key_words_.kDoDFTOfError_);
+
   // Basic Parameters
   discretization_ = kDiscretizationTypeMap_.at(
       handler.get(key_words_.kDiscretization_));
@@ -116,6 +120,9 @@ void ParametersDealiiHandler::SetUp(dealii::ParameterHandler &handler) {
 void ParametersDealiiHandler::SetUpBasicParameters(
     dealii::ParameterHandler &handler) {
   namespace Pattern = dealii::Patterns;
+
+  handler.declare_entry(key_words_.kDoDFTOfError_, "false",
+                        Pattern::Bool(), "should the DFT of the error be calculated");
 
   handler.declare_entry(key_words_.kDiscretization_, "cfem",
                         Pattern::Selection(

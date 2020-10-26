@@ -1,9 +1,10 @@
 #ifndef BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_CONDITIONAL_OSTREAM_H_
 #define BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_CONDITIONAL_OSTREAM_H_
 
-#include "instrumentation/outstream/outstream_i.h"
-
 #include <deal.II/base/conditional_ostream.h>
+
+#include "instrumentation/outstream/outstream_i.h"
+#include "instrumentation/outstream/factory.h"
 
 #include "utility/named_type.h"
 
@@ -28,7 +29,7 @@ class ToConditionalOstream : public OutstreamI<std::string> {
     return conditional_ostream_ptr_.get(); }
  private:
   ConditionalOstreamPtrType conditional_ostream_ptr_ = nullptr;
-
+  static bool is_registered_;
 };
 
 } // namespace outstream
