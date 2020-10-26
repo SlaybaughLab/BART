@@ -200,10 +200,7 @@ inline void DealiiTestDomain<dim>::SetUpDofs() {
   dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp_,
                                           constraint_matrix_, false);
 
-  dealii::SparsityTools::distribute_sparsity_pattern(
-      dsp_,
-      dof_handler_.n_locally_owned_dofs_per_processor(),
-      MPI_COMM_WORLD, locally_relevant_dofs);
+  dealii::SparsityTools::distribute_sparsity_pattern(dsp_, locally_owned_dofs_, MPI_COMM_WORLD, locally_relevant_dofs);
 
   constraint_matrix_.condense(dsp_);
 }

@@ -105,10 +105,8 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
                                             constraint_matrix_, false);
   }
 
-  dealii::SparsityTools::distribute_sparsity_pattern(
-      dynamic_sparsity_pattern_,
-      dof_handler_.n_locally_owned_dofs_per_processor(),
-      MPI_COMM_WORLD, locally_relevant_dofs_);
+  dealii::SparsityTools::distribute_sparsity_pattern(dynamic_sparsity_pattern_, locally_owned_dofs_,
+                                                     MPI_COMM_WORLD, locally_relevant_dofs_);
 
   constraint_matrix_.condense(dynamic_sparsity_pattern_);
 
