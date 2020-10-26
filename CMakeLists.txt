@@ -66,6 +66,9 @@ get_filename_component(PROTO_INC_DIR ${PROTO_HDRS} DIRECTORY)
 SET(DEAL_II_CXX_FLAGS_DEBUG "${DEAL_II_CXX_FLAGS_DEBUG} -g -O0 --coverage")
 SET(DEAL_II_LINKER_FLAGS_DEBUG "${DEAL_II_LINKER_FLAGS_DEBUG} --coverage")
 
+### OTHER DEPENDENCIES ###############################################
+find_package(fmt)
+
 ######################################################################
 
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
@@ -98,10 +101,11 @@ ADD_EXECUTABLE(bart_test ${testing_sources})
 # Add testing definition and library to bart_test
 target_compile_definitions(bart_test PUBLIC -DTEST)
 
-
-target_link_libraries(bart ${Protobuf_LIBRARIES} -lfftw3)
+target_link_libraries(bart ${Protobuf_LIBRARIES} -lfftw3 fmt::fmt)
 target_link_libraries(bart_test ${GTEST_BOTH_LIBRARIES}
-  ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES} -lfftw3)
+  ${GMOCK_BOTH_LIBRARIES} ${Protobuf_LIBRARIES} -lfftw3 fmt::fmt)
+
+
 
 DEAL_II_SETUP_TARGET(bart)
 DEAL_II_SETUP_TARGET(bart_test)
