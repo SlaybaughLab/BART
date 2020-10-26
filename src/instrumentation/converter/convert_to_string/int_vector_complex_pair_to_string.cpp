@@ -30,10 +30,9 @@ std::map<VectorTerm, std::string> default_vector_entry_output_to_string_map{
 } // namespace
 
 IntVectorComplexPairToString::IntVectorComplexPairToString()
-    : vector_output_format_(default_vector_entry_output_format),
-      vector_term_to_string_map_(default_vector_entry_output_to_string_map),
-      ToStringConverter<InputType, OutputTerm>(
-          default_output_format, default_output_term_to_string_map) {}
+    : ToStringConverter<InputType, OutputTerm>(default_output_format, default_output_term_to_string_map),
+      vector_output_format_(default_vector_entry_output_format),
+      vector_term_to_string_map_(default_vector_entry_output_to_string_map) {}
 
 std::string IntVectorComplexPairToString::Convert(
     const std::pair<int,std::vector<std::complex<double>>> &input) const {
