@@ -15,9 +15,6 @@ struct Status {
   std::optional<int> failed_index = std::nullopt;
   std::optional<double> delta = std::nullopt;
 
-  Status() = default;
-  Status(const Status& rhs) = default;
-
   bool operator==(const Status& rhs) const {
     if (iteration_number != rhs.iteration_number) {
       return false;
