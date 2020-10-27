@@ -5,7 +5,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"

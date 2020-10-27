@@ -1,6 +1,6 @@
 #include "iteration/outer/outer_iteration.hpp"
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 
 namespace bart::iteration::outer {
 

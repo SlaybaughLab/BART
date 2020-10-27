@@ -2,7 +2,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "instrumentation/tests/instrument_mock.h"
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"

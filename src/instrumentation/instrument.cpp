@@ -4,7 +4,7 @@
 #include <string>
 #include <deal.II/lac/vector.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "utility/colors.h"
 #include "system/moments/spherical_harmonic_i.h"
 

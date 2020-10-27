@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "instrumentation/converter/convert_to_string/to_string_converter.h"
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 
 namespace bart {
 

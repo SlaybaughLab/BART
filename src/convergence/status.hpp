@@ -1,11 +1,9 @@
-#ifndef BART_SRC_CONVERGENCE_STATUS_H_
-#define BART_SRC_CONVERGENCE_STATUS_H_
+#ifndef BART_SRC_CONVERGENCE_STATUS_HPP_
+#define BART_SRC_CONVERGENCE_STATUS_HPP_
 
 #include <optional>
 
-namespace bart {
-
-namespace convergence {
+namespace bart::convergence {
 
 /*! Contains the status of a convergence check */
 struct Status {
@@ -44,11 +42,6 @@ struct Status {
   }
 };
 
+} // namespace bart::convergence
 
-
-
-} // namespace convergence
-
-} // namespace bart
-
-#endif // BART_SRC_CONVERGENCE_STATUS_H_    
+#endif // BART_SRC_CONVERGENCE_STATUS_HPP_
