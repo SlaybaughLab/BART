@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/double_to_string.h"
+#include "instrumentation/converter/convert_to_string/double_to_string.h"
 
 #include <iomanip>
 #include <sstream>
@@ -12,7 +12,7 @@ using namespace bart;
 
 class InstrumentationConverterDoubleToStringTest : public ::testing::Test {
  public:
-  using ConverterType = instrumentation::converter::to_string::DoubleToString;
+  using ConverterType = instrumentation::converter::convert_to_string::DoubleToString;
   const double test_value_{test_helpers::RandomDouble(0, 100)};
   std::string GetExpectedOutput(const double, ConverterType&, std::string,
                                 const int) const;

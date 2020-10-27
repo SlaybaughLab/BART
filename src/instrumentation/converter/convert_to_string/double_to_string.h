@@ -6,7 +6,7 @@
 #include <vector>
 #include <variant>
 
-#include "instrumentation/converter/to_string/to_string_converter.h"
+#include "instrumentation/converter/convert_to_string/to_string_converter.h"
 
 namespace bart {
 
@@ -14,7 +14,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 enum class DoubleToStringOutputTerm { kValue = 0, };
 
@@ -42,7 +42,7 @@ class DoubleToString :
   static bool is_registered_;
 };
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

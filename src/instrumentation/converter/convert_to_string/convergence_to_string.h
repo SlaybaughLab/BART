@@ -6,7 +6,7 @@
 #include <variant>
 #include <vector>
 
-#include "instrumentation/converter/to_string/to_string_converter.h"
+#include "instrumentation/converter/convert_to_string/to_string_converter.h"
 #include "convergence/status.h"
 
 namespace bart {
@@ -15,7 +15,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 enum class ConvergenceToStringOutputTerm {
   kIterationNum = 0, kIterationMax = 1, kDelta = 2, kIndex = 3
@@ -40,7 +40,7 @@ class ConvergenceToString :
 
 
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

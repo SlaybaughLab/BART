@@ -1,7 +1,7 @@
 #ifndef BART_SRC_INSTRUMENTATION_CONVERTER_INT_VECTOR_COMPLEX_PAIR_TO_STRING_H_
 #define BART_SRC_INSTRUMENTATION_CONVERTER_INT_VECTOR_COMPLEX_PAIR_TO_STRING_H_
 
-#include "instrumentation/converter/to_string/to_string_converter.h"
+#include "instrumentation/converter/convert_to_string/to_string_converter.h"
 
 #include <complex>
 #include <vector>
@@ -12,7 +12,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 enum class IntVectorComplexPairToStringOutputTerm {
   kInt = 0, kVector = 1
@@ -57,7 +57,7 @@ class IntVectorComplexPairToString
   static bool is_registered_;
 };
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 

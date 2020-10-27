@@ -5,11 +5,11 @@
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"
 #include "instrumentation/converter/system/group_scalar_flux_extractor.hpp"
-#include "instrumentation/converter/to_string/convergence_to_string.h"
-#include "instrumentation/converter/to_string/double_to_string.h"
-#include "instrumentation/converter/to_string/int_double_pair_to_string.h"
-#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
-#include "instrumentation/converter/to_string/string_color_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/convergence_to_string.h"
+#include "instrumentation/converter/convert_to_string/double_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_double_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
 #include "instrumentation/converter/pair_incrementer.h"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
 
@@ -77,7 +77,7 @@ TEST_F(InstrumentationConverterIFactoryTest, GroupScalarFluxExtractor) {
 }
 
 TEST_F(InstrumentationConverterIFactoryTest, ConvergenceToStringInstantiation) {
-  using ExpectedType = converter::to_string::ConvergenceToString;
+  using ExpectedType = converter::convert_to_string::ConvergenceToString;
   auto convergence_to_string_ptr = converter::ConverterIFactory<convergence::Status, std::string>::get()
       .GetConstructor(converter::ConverterName::kConvergenceToString)();
   ASSERT_NE(convergence_to_string_ptr, nullptr);
@@ -86,7 +86,7 @@ TEST_F(InstrumentationConverterIFactoryTest, ConvergenceToStringInstantiation) {
 }
 
 TEST_F(InstrumentationConverterIFactoryTest, DoubletoStringInstantiation) {
-  using ExpectedType = converter::to_string::DoubleToString;
+  using ExpectedType = converter::convert_to_string::DoubleToString;
   auto double_to_string_ptr = converter::ConverterIFactory<double, std::string>::get()
       .GetConstructor(converter::ConverterName::kDoubleToString)();
   ASSERT_NE(double_to_string_ptr, nullptr);
@@ -94,7 +94,7 @@ TEST_F(InstrumentationConverterIFactoryTest, DoubletoStringInstantiation) {
 }
 
 TEST_F(InstrumentationConverterIFactoryTest, IntDoublePairToStringInstantiation) {
-  using ExpectedType = converter::to_string::IntDoublePairToString;
+  using ExpectedType = converter::convert_to_string::IntDoublePairToString;
   auto converter_ptr = converter::ConverterIFactory<std::pair<int, double>, std::string>::get()
       .GetConstructor(converter::ConverterName::kIntDoublePairToString)();
   ASSERT_NE(converter_ptr, nullptr);
@@ -103,7 +103,7 @@ TEST_F(InstrumentationConverterIFactoryTest, IntDoublePairToStringInstantiation)
 
 TEST_F(InstrumentationConverterIFactoryTest,
        IntVectorComplexPairToStringInstantiation) {
-  using ExpectedType = converter::to_string::IntVectorComplexPairToString;
+  using ExpectedType = converter::convert_to_string::IntVectorComplexPairToString;
   auto converter_ptr = converter::ConverterIFactory<IntComplexVectorPair, std::string>::get()
       .GetConstructor(converter::ConverterName::kIntVectorComplexPairToString)();
   ASSERT_NE(converter_ptr, nullptr);
@@ -112,7 +112,7 @@ TEST_F(InstrumentationConverterIFactoryTest,
 
 TEST_F(InstrumentationConverterIFactoryTest,
        StringColorPairToStringInstantiation) {
-  using ExpectedType = converter::to_string::StringColorPairToString;
+  using ExpectedType = converter::convert_to_string::StringColorPairToString;
   using ColorStringPair = std::pair<std::string, Color>;
   auto converter_ptr = converter::ConverterIFactory<ColorStringPair, std::string>::get()
       .GetConstructor(converter::ConverterName::kStringColorPairToString)();

@@ -1,4 +1,4 @@
-#include "instrumentation/converter/to_string/int_vector_complex_pair_to_string.h"
+#include "instrumentation/converter/convert_to_string/int_vector_complex_pair_to_string.h"
 
 #include "instrumentation/converter/factory.hpp"
 
@@ -10,7 +10,7 @@ namespace instrumentation {
 
 namespace converter {
 
-namespace to_string {
+namespace convert_to_string {
 
 namespace  {
 using OutputTerm = IntVectorComplexPairToStringOutputTerm;
@@ -30,10 +30,9 @@ std::map<VectorTerm, std::string> default_vector_entry_output_to_string_map{
 } // namespace
 
 IntVectorComplexPairToString::IntVectorComplexPairToString()
-    : vector_output_format_(default_vector_entry_output_format),
-      vector_term_to_string_map_(default_vector_entry_output_to_string_map),
-      ToStringConverter<InputType, OutputTerm>(
-          default_output_format, default_output_term_to_string_map) {}
+    : ToStringConverter<InputType, OutputTerm>(default_output_format, default_output_term_to_string_map),
+      vector_output_format_(default_vector_entry_output_format),
+      vector_term_to_string_map_(default_vector_entry_output_to_string_map) {}
 
 std::string IntVectorComplexPairToString::Convert(
     const std::pair<int,std::vector<std::complex<double>>> &input) const {
@@ -114,7 +113,7 @@ bool IntVectorComplexPairToString::is_registered_ = ConverterIFactory<InputType,
         });
 
 
-} // namespace to_string
+} // namespace convert_to_string
 
 } // namespace converter
 
