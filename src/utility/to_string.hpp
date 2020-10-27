@@ -6,7 +6,7 @@
 namespace bart::utility {
 
 template <typename T>
-auto to_string(T to_convert) {
+inline auto to_string(T to_convert) {
   if constexpr (requires { std::to_string(to_convert); }) {
     return std::to_string(to_convert);
   } else if constexpr (requires { to_string(to_convert); }) {
