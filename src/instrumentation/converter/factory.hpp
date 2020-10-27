@@ -25,7 +25,7 @@ class ConverterIFactory : public utility::factory::AutoRegisteringFactory<
     ConverterName,
     std::unique_ptr<ConverterI<InputType, OutputType>>(*)(T...)> {};
 
-[[nodiscard]] auto to_string(ConverterName to_convert) -> std::string {
+[[nodiscard]] inline auto to_string(ConverterName to_convert) -> std::string {
   switch (to_convert) {
     case (ConverterName::kCalculatorVectorSubtractor):
       return std::string{"ConverterName::kCalculatorVectorSubtractor"};
