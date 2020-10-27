@@ -48,6 +48,7 @@ class ConverterIFactory : public utility::factory::AutoRegisteringFactory<
     case (ConverterName::kGroupScalarFluxExtractor):
       return std::string{"ConverterName::kGroupScalarFluxExtractor"};
   }
+  return std::string{"Unknown ConverterName conversion to string requested"};
 }
 
 } // namespace bart::instrumentation::converter
