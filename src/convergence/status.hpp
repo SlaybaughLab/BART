@@ -31,15 +31,6 @@ struct Status {
   bool operator!=(const Status& rhs) const {
     return !(*this == rhs);
   }
-
-  Status& operator=(const Status& other) {
-    iteration_number = other.iteration_number;
-    max_iterations = other.max_iterations;
-    is_complete = other.is_complete;
-    failed_index = other.failed_index;
-    delta = other.delta;
-    return *this;
-  }
 };
 
 } // namespace bart::convergence
