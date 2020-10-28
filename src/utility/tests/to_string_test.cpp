@@ -1,5 +1,6 @@
 #include "utility/to_string.hpp"
 
+#include "domain/mesh/factory.hpp"
 #include "instrumentation/converter/factory.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -10,6 +11,7 @@ namespace utility = bart::utility;
 namespace converter = bart::instrumentation::converter;
 namespace test_helpers = bart::test_helpers;
 
+using MeshName = bart::domain::mesh::MeshName;
 using ConverterName = converter::ConverterName;
 
 template <typename T>
@@ -33,9 +35,12 @@ auto UtilityToStringTest<ConverterName>::GetValue() const -> ConverterName {
   return static_cast<ConverterName>(test_helpers::RandomInt(0, 10));
 }
 
+template <>
+auto UtilityToStringTest<MeshName>::GetValue() const -> MeshName {
+  return MeshName::kCartesian;
+}
 
-
-using TestTypes = ::testing::Types<int, double, ConverterName>;
+using TestTypes = ::testing::Types<int, double, ConverterName, MeshName>;
 TYPED_TEST_SUITE(UtilityToStringTest, TestTypes);
 
 TYPED_TEST(UtilityToStringTest, ToStringReturnsSomething) {
