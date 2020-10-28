@@ -1,4 +1,4 @@
-#include "domain/mesh/factory.h"
+#include "domain/mesh/factory.hpp"
 #include "domain/mesh/mesh_cartesian.h"
 
 #include "test_helpers/gmock_wrapper.h"
