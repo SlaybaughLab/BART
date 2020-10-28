@@ -1,5 +1,5 @@
 #include "solver/linear/gmres.h"
-#include "solver/linear/factory.h"
+#include "solver/linear/factory.hpp"
 
 
 #include <deal.II/lac/petsc_solver.h>

@@ -1,5 +1,5 @@
-#ifndef BART_SRC_SOLVER_LINEAR_FACTORY_H_
-#define BART_SRC_SOLVER_LINEAR_FACTORY_H_
+#ifndef BART_SRC_SOLVER_LINEAR_FACTORY_HPP_
+#define BART_SRC_SOLVER_LINEAR_FACTORY_HPP_
 
 #include "utility/factory/auto_registering_factory.h"
 
@@ -19,4 +19,4 @@ BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
 
 } // namespace bart
 
-#endif //BART_SRC_SOLVER_LINEAR_FACTORY_H_
+#endif //BART_SRC_SOLVER_LINEAR_FACTORY_HPP_

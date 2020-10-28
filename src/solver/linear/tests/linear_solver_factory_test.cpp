@@ -1,4 +1,4 @@
-#include "solver/linear/factory.h"
+#include "solver/linear/factory.hpp"
 
 #include "solver/linear/gmres.h"
 #include "test_helpers/gmock_wrapper.h"
