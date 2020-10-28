@@ -4,7 +4,7 @@
 #include <deal.II/base/conditional_ostream.h>
 
 #include "instrumentation/outstream/outstream_i.h"
-#include "instrumentation/outstream/factory.h"
+#include "instrumentation/outstream/factory.hpp"
 
 #include "utility/named_type.h"
 

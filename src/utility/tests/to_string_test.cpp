@@ -2,6 +2,7 @@
 
 #include "domain/mesh/factory.hpp"
 #include "instrumentation/converter/factory.hpp"
+#include "instrumentation/outstream/factory.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
@@ -13,6 +14,7 @@ namespace test_helpers = bart::test_helpers;
 
 using MeshName = bart::domain::mesh::MeshName;
 using ConverterName = converter::ConverterName;
+using OutstreamName = bart::instrumentation::outstream::OutstreamName;
 
 template <typename T>
 class UtilityToStringTest : public ::testing::Test {
@@ -40,7 +42,12 @@ auto UtilityToStringTest<MeshName>::GetValue() const -> MeshName {
   return MeshName::kCartesian;
 }
 
-using TestTypes = ::testing::Types<int, double, ConverterName, MeshName>;
+template <>
+auto UtilityToStringTest<OutstreamName>::GetValue() const -> OutstreamName {
+  return OutstreamName::kToConditionalOstream;
+}
+
+using TestTypes = ::testing::Types<int, double, ConverterName, MeshName, OutstreamName>;
 TYPED_TEST_SUITE(UtilityToStringTest, TestTypes);
 
 TYPED_TEST(UtilityToStringTest, ToStringReturnsSomething) {

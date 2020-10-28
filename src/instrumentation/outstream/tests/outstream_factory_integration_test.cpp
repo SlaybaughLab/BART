@@ -1,4 +1,4 @@
-#include "instrumentation/outstream/factory.h"
+#include "instrumentation/outstream/factory.hpp"
 
 #include <memory>
 #include <sstream>

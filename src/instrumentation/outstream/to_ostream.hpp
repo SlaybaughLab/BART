@@ -2,7 +2,7 @@
 #define BART_SRC_INSTRUMENTATION_OUTSTREAM_TO_OSTREAM_HPP_
 
 #include "instrumentation/outstream/outstream_i.h"
-#include "instrumentation/outstream/factory.h"
+#include "instrumentation/outstream/factory.hpp"
 
 #include <memory>
 #include <ostream>

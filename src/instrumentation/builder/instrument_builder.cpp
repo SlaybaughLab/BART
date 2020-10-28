@@ -12,7 +12,7 @@
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/multi_converter.hpp"
 #include "instrumentation/converter/factory.hpp"
-#include "instrumentation/outstream/factory.h"
+#include "instrumentation/outstream/factory.hpp"
 #include "instrumentation/instrument_array.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 #include "utility/colors.h"
