@@ -13,6 +13,15 @@ enum class GroupSolverName {
 
 BART_INTERFACE_FACTORY(SingleGroupSolverI, GroupSolverName)
 
+[[nodiscard]] inline auto to_string(GroupSolverName to_convert) -> std::string {
+  switch (to_convert) {
+    case GroupSolverName::kDefaultImplementation:
+      return std::string{"GroupSolverName::kDefaultImplementation"};
+  }
+  return std::string{"Unknown GroupSolverName to string conversion requested."};
+}
+
+
 } // namespace bart::solver::group
 
 #endif //BART_SRC_SOLVER_GROUP_FACTORY_HPP_
