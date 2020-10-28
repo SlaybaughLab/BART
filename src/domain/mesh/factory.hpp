@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_MESH_FACTORY_HPP_
 #define BART_SRC_DOMAIN_MESH_FACTORY_HPP_
 
-#include "utility/factory/auto_registering_factory.h"
+#include "utility/factory/auto_registering_factory.hpp"
 
 namespace bart::domain::mesh {
 
