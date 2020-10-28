@@ -1,4 +1,4 @@
-#include "solver/group/factory.h"
+#include "solver/group/factory.hpp"
 
 #include "solver/group/single_group_solver.h"
 #include "solver/linear/tests/linear_mock.h"

@@ -1,13 +1,9 @@
-#ifndef BART_SRC_SOLVER_GROUP_FACTORY_H_
-#define BART_SRC_SOLVER_GROUP_FACTORY_H_
+#ifndef BART_SRC_SOLVER_GROUP_FACTORY_HPP_
+#define BART_SRC_SOLVER_GROUP_FACTORY_HPP_
 
 #include "utility/factory/auto_registering_factory.h"
 
-namespace bart {
-
-namespace solver {
-
-namespace group {
+namespace bart::solver::group {
 
 class SingleGroupSolverI;
 
@@ -17,10 +13,6 @@ enum class GroupSolverName {
 
 BART_INTERFACE_FACTORY(SingleGroupSolverI, GroupSolverName)
 
-} // namespace group
+} // namespace bart::solver::group
 
-} // namespace solver
-
-} // namespace bart
-
-#endif //BART_SRC_SOLVER_GROUP_FACTORY_H_
+#endif //BART_SRC_SOLVER_GROUP_FACTORY_HPP_
