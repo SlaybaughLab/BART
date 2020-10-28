@@ -4,6 +4,7 @@
 #include "instrumentation/converter/factory.hpp"
 #include "instrumentation/outstream/factory.hpp"
 #include "solver/group/factory.hpp"
+#include "solver/linear/factory.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
@@ -17,12 +18,16 @@ using MeshName = bart::domain::mesh::MeshName;
 using ConverterName = converter::ConverterName;
 using OutstreamName = bart::instrumentation::outstream::OutstreamName;
 using GroupSolverName = bart::solver::group::GroupSolverName;
+using LinearSolverName = bart::solver::LinearSolverName;
 
 template <typename T>
 class UtilityToStringTest : public ::testing::Test {
  public:
   [[nodiscard]] auto GetValue() const -> T;
 };
+
+using TestTypes = ::testing::Types<int, double, ConverterName, MeshName, OutstreamName, GroupSolverName, LinearSolverName>;
+TYPED_TEST_SUITE(UtilityToStringTest, TestTypes);
 
 template <>
 auto UtilityToStringTest<int>::GetValue() const -> int { return test_helpers::RandomInt(-100, 100); }
@@ -44,8 +49,9 @@ template <>
 auto UtilityToStringTest<GroupSolverName>::GetValue() const -> GroupSolverName {
   return GroupSolverName::kDefaultImplementation; }
 
-using TestTypes = ::testing::Types<int, double, ConverterName, MeshName, OutstreamName, GroupSolverName>;
-TYPED_TEST_SUITE(UtilityToStringTest, TestTypes);
+template <>
+auto UtilityToStringTest<LinearSolverName>::GetValue() const -> LinearSolverName {
+  return LinearSolverName::kGMRES; }
 
 TYPED_TEST(UtilityToStringTest, ToStringReturnsSomething) {
   EXPECT_NE(utility::to_string(this->GetValue()).size(), 0);

@@ -3,9 +3,7 @@
 
 #include "utility/factory/auto_registering_factory.h"
 
-namespace bart {
-
-namespace solver {
+namespace bart::solver {
 
 class LinearI;
 
@@ -15,8 +13,14 @@ enum class LinearSolverName {
 
 BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
 
-} // namespace solver
+[[nodiscard]] inline auto to_string(LinearSolverName to_convert) -> std::string {
+  switch (to_convert) {
+    case LinearSolverName::kGMRES:
+      return std::string{"LinearSolverName::kGMRES"};
+  }
+  return std::string{"Unknown LinearSolverName requested for conversion."};
+}
 
-} // namespace bart
+} // namespace bart::solver
 
 #endif //BART_SRC_SOLVER_LINEAR_FACTORY_HPP_
