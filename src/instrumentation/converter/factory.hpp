@@ -25,6 +25,7 @@ class ConverterIFactory : public utility::factory::AutoRegisteringFactory<
     ConverterName,
     std::unique_ptr<ConverterI<InputType, OutputType>>(*)(T...)> {};
 
+// LCOV_EXCL_START
 [[nodiscard]] inline auto to_string(ConverterName to_convert) -> std::string {
   switch (to_convert) {
     case (ConverterName::kCalculatorVectorSubtractor):
@@ -50,6 +51,7 @@ class ConverterIFactory : public utility::factory::AutoRegisteringFactory<
   }
   return std::string{"Unknown ConverterName conversion to string requested"};
 }
+// LCOV_EXCL_STOP
 
 } // namespace bart::instrumentation::converter
 
