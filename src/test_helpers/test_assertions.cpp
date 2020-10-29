@@ -9,11 +9,14 @@ namespace test_helpers {
 namespace {
 using ::testing::AssertionFailure;
 using ::testing::AssertionSuccess;
+
+using DealiiVector = dealii::Vector<double>;
+using FullMatrix = dealii::FullMatrix<double>;
 }
 
-AssertionResult AreEqual(const dealii::Vector<double>& expected,
-                         const dealii::Vector<double>& result,
-                         const double tol) {
+template <>
+auto AreEqual<dealii::Vector<double>>(const DealiiVector& expected, const DealiiVector& result,
+                                      const double tol) -> AssertionResult {
   unsigned int size = expected.size();
 
   if (result.size() != size)
@@ -30,12 +33,39 @@ AssertionResult AreEqual(const dealii::Vector<double>& expected,
   return AssertionSuccess();
 }
 
-AssertionResult AreEqual(const std::vector<double> expected,
-                         const std::vector<double> result,
-                         const double tol) {
-  dealii::Vector<double> expected_vec(expected.begin(), expected.end());
-  dealii::Vector<double> result_vec(result.begin(), result.end());
+template <>
+auto AreEqual<std::vector<double>>(const std::vector<double>& expected, const std::vector<double>& result,
+                                   const double tol) -> AssertionResult{
+  DealiiVector expected_vec(expected.begin(), expected.end());
+  DealiiVector result_vec(result.begin(), result.end());
   return AreEqual(expected_vec, result_vec, tol);
+}
+
+template <>
+auto AreEqual<FullMatrix>(const FullMatrix &expected, const FullMatrix &result,
+                          const double tol) -> AssertionResult {
+  using size_type = FullMatrix::size_type;
+  const size_type rows{expected.m()}, cols{expected.n()};
+
+  if (const size_type result_rows = result.m(); rows != result_rows) {
+    return AssertionFailure() << "Expected matrix has n_rows = " << rows << ", while result matrix has n_rows = "
+                              << result_rows;
+  } else if (const size_type result_cols = result.n(); cols != result_cols) {
+    return AssertionFailure() << "Expected matrix has n_cols = " << cols << ", while result matrix has n_cols = "
+                              << result_cols;
+  }
+
+  for (size_type i = 0; i < rows; ++i) {
+    for (size_type j = 0; j < cols; ++j) {
+      if (abs(expected(i, j) - result(i,j)) > tol) {
+        return AssertionFailure() << "Expected matrix has value " << expected(i,j) << " at (" << i << ", " << j
+                                  << ") while result matrix has " << result(i, j);
+      }
+    }
+  }
+
+
+  return AssertionSuccess();
 }
 
 AssertionResult AreEqual(
@@ -99,31 +129,6 @@ AssertionResult AreEqual(
   } else {
     return AssertionSuccess();
   }
-}
-auto AreEqual(const dealii::FullMatrix<double> &expected, const dealii::FullMatrix<double> &result,
-           const double tol) -> AssertionResult {
-  using size_type = dealii::FullMatrix<double>::size_type;
-  const size_type rows{expected.m()}, cols{expected.n()};
-
-  if (const size_type result_rows = result.m(); rows != result_rows) {
-    return AssertionFailure() << "Expected matrix has n_rows = " << rows << ", while result matrix has n_rows = "
-                              << result_rows;
-  } else if (const size_type result_cols = result.n(); cols != result_cols) {
-    return AssertionFailure() << "Expected matrix has n_cols = " << cols << ", while result matrix has n_cols = "
-                              << result_cols;
-  }
-
-  for (size_type i = 0; i < rows; ++i) {
-    for (size_type j = 0; j < cols; ++j) {
-      if (abs(expected(i, j) - result(i,j)) > tol) {
-        return AssertionFailure() << "Expected matrix has value " << expected(i,j) << " at (" << i << ", " << j
-                                  << ") while result matrix has " << result(i, j);
-      }
-    }
-  }
-
-
-  return AssertionSuccess();
 }
 
 } // namespace test_helpers
