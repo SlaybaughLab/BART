@@ -18,7 +18,6 @@
 
 namespace  {
 
-using namespace bart;
 namespace test_helpers = bart::test_helpers;
 
 using ::testing::AssertionResult, ::testing::AssertionFailure, ::testing::AssertionSuccess;
@@ -32,12 +31,12 @@ class TestAssertionsTest : public ::testing::Test {
 
 void TestAssertionsTest::SetUp() {
   const auto vector_size = test_helpers::RandomInt(5, 10);
-  vector_1 = test_helpers::RandomVector(5, 0, 1.0);
-  vector_2 = test_helpers::RandomVector(5, 1.0, 2.0);
-  dealii_vector_1.reinit(5);
-  dealii_vector_2.reinit(5);
+  vector_1 = test_helpers::RandomVector(vector_size, 0, 1.0);
+  vector_2 = test_helpers::RandomVector(vector_size, 1.0, 2.0);
+  dealii_vector_1.reinit(vector_size);
+  dealii_vector_2.reinit(vector_size);
 
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < vector_size; ++i) {
     dealii_vector_1[i] = vector_1[i];
     dealii_vector_2[i] = vector_2[i];
   }
@@ -61,6 +60,54 @@ TEST_F(TestAssertionsTest, BadComparisonDealiiVector) {
   EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareVector(dealii_vector_1, dealii_vector_2));
   EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareVector(dealii_vector_2, dealii_vector_1));
 }
+
+class TestAssertionsMatrixTests : public ::testing::Test {
+ public:
+  dealii::FullMatrix<double> matrix_1, matrix_2, matrix_transposed;
+  void SetUp() override;
+};
+
+void TestAssertionsMatrixTests::SetUp() {
+  const auto matrix_rows{ test_helpers::RandomInt(5, 10) }, matrix_cols{ test_helpers::RandomInt(5, 10) };
+  matrix_1.reinit(matrix_rows, matrix_cols);
+  matrix_2.reinit(matrix_rows, matrix_cols);
+  matrix_transposed.reinit(matrix_cols, matrix_rows);
+
+  for (int i = 0; i < matrix_rows; ++i) {
+    for (int j = 0; j < matrix_cols; ++j) {
+      matrix_1.set(i, j, test_helpers::RandomDouble(-100, 100));
+      matrix_2.set(i, j, test_helpers::RandomDouble(-100, 100));
+      matrix_transposed.set(j, i, test_helpers::RandomDouble(-100, 100));
+    }
+  }
+}
+
+TEST_F(TestAssertionsMatrixTests, GoodComparison) {
+  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_1, matrix_1));
+  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_2, matrix_2));
+  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_transposed, matrix_transposed));
+}
+
+TEST_F(TestAssertionsMatrixTests, BadComparison) {
+  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_1, matrix_2));
+  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_2, matrix_1));
+}
+
+TEST_F(TestAssertionsMatrixTests, BadSizeComparison) {
+  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_1, matrix_transposed));
+  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_2, matrix_transposed));
+}
+
+TEST_F(TestAssertionsMatrixTests, GoodComparisonWithinTolerance) {
+  auto matrix_3 = matrix_1;
+  for (auto entry : matrix_3) {
+    entry += test_helpers::RandomDouble(1e-6, 1e-5);
+  }
+  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_1, matrix_3));
+  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_1, matrix_3, 1e-4));
+}
+
+
 
 class TestAssertionsMPIMatricesTests : public ::testing::Test, public bart::testing::DealiiTestDomain<2> {
  protected:
