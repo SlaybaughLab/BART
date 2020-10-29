@@ -6,6 +6,11 @@ namespace bart {
 
 namespace test_helpers {
 
+namespace {
+using ::testing::AssertionFailure;
+using ::testing::AssertionSuccess;
+}
+
 AssertionResult CompareVector(const dealii::Vector<double>& expected,
                                      const dealii::Vector<double>& result,
                                      const double tol) {
@@ -94,6 +99,11 @@ AssertionResult CompareMPIVectors(
   } else {
     return AssertionSuccess();
   }
+}
+auto CompareFullMatrices(const dealii::FullMatrix<double> &expected,
+                         const dealii::FullMatrix<double> &result,
+                         const double tol) -> AssertionResult {
+  return AssertionSuccess();
 }
 
 } // namespace test_helpers
