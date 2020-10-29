@@ -8,7 +8,7 @@
 #include <deal.II/lac/petsc_matrix_base.h>
 #include <deal.II/lac/petsc_vector_base.h>
 
-#include "linear_i.h"
+#include "linear_i.hpp"
 
 namespace bart {
 

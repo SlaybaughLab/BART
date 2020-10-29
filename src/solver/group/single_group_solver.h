@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "solver/group/single_group_solver_i.h"
-#include "solver/linear/linear_i.h"
+#include "solver/linear/linear_i.hpp"
 
 namespace bart {
 
