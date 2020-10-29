@@ -10,7 +10,7 @@
 #include <gtest/gtest.h>
 
 #include "problem/parameter_types.h"
-#include "finite_element_test.h"
+#include "finite_element_test.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace {
