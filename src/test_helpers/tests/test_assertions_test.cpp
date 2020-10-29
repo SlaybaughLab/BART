@@ -43,12 +43,12 @@ void TestAssertionsTest::SetUp() {
 }
 
 TEST_F(TestAssertionsTest, GoodComparisonStdVector) {
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareVector(vector_1, vector_1));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(vector_1, vector_1));
 }
 
 TEST_F(TestAssertionsTest, BadComparisonStdVector) {
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareVector(vector_1, vector_2));
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareVector(vector_2, vector_1));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(vector_1, vector_2));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(vector_2, vector_1));
 }
 
 TEST_F(TestAssertionsTest, GoodComparisonDealiiVector) {
