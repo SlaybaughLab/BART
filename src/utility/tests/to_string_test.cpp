@@ -18,7 +18,7 @@ using MeshName = bart::domain::mesh::MeshName;
 using ConverterName = converter::ConverterName;
 using OutstreamName = bart::instrumentation::outstream::OutstreamName;
 using GroupSolverName = bart::solver::group::GroupSolverName;
-using LinearSolverName = bart::solver::LinearSolverName;
+using LinearSolverName = bart::solver::linear::LinearSolverName;
 
 template <typename T>
 class UtilityToStringTest : public ::testing::Test {

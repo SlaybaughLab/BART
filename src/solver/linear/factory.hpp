@@ -2,8 +2,9 @@
 #define BART_SRC_SOLVER_LINEAR_FACTORY_HPP_
 
 #include "utility/factory/auto_registering_factory.hpp"
+#include "solver/linear/linear_i.hpp"
 
-namespace bart::solver {
+namespace bart::solver::linear {
 
 class LinearI;
 
@@ -20,6 +21,6 @@ BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
   }
 }
 
-} // namespace bart::solver
+} // namespace bart::solver::linear
 
 #endif //BART_SRC_SOLVER_LINEAR_FACTORY_HPP_

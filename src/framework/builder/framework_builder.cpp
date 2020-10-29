@@ -766,8 +766,8 @@ auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
   ReportBuildingComponant("Single group solver");
   std::unique_ptr<SingleGroupSolverType> return_ptr = nullptr;
 
-  auto linear_solver_ptr = std::make_unique<solver::GMRES>(max_iterations,
-                                                           convergence_tolerance);
+  auto linear_solver_ptr = std::make_unique<solver::linear::GMRES>(max_iterations,
+                                                                   convergence_tolerance);
   ReportBuildSuccess("GMRES: tol = " + std::to_string(convergence_tolerance)
                             + "iter_max = " + std::to_string(max_iterations));
   return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(

@@ -11,12 +11,12 @@ namespace solver = bart::solver;
 TEST(SolverGroupFactoryTests, SingleGroupSolverDefaultImplementation) {
   using SolverName = solver::group::GroupSolverName;
   using ExpectedType = solver::group::SingleGroupSolver;
-  using LinearSolver = solver::LinearI;
+  using LinearSolver = solver::linear::LinearI;
 
   auto group_solver_ptr =
       solver::group::SingleGroupSolverIFactory<std::unique_ptr<LinearSolver>>::get()
           .GetConstructor(SolverName::kDefaultImplementation)(
-              std::make_unique<solver::LinearMock>());
+              std::make_unique<solver::linear::LinearMock>());
   ASSERT_NE(group_solver_ptr, nullptr);
   ASSERT_NE(dynamic_cast<ExpectedType*>(group_solver_ptr.get()), nullptr);
 }

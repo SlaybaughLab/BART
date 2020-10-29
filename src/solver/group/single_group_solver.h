@@ -15,7 +15,7 @@ namespace group {
 class SingleGroupSolver : public SingleGroupSolverI {
  public:
 
-  using LinearSolver = solver::LinearI;
+  using LinearSolver = bart::solver::linear::LinearI;
 
   SingleGroupSolver(std::unique_ptr<LinearSolver> linear_solver_ptr);
   virtual ~SingleGroupSolver() = default;

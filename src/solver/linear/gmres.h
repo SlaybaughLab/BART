@@ -10,11 +10,9 @@
 
 #include "linear_i.hpp"
 
-namespace bart {
+namespace bart::solver::linear {
 
-namespace solver {
-
-class GMRES : public LinearI {
+class GMRES : public bart::solver::linear::LinearI {
  public:
   GMRES(int max_iterations = 100, double convergence_tolerance = 1e-10);
   ~GMRES() = default;
@@ -33,8 +31,6 @@ class GMRES : public LinearI {
   static bool is_registered_;
 };
 
-} // namespace solver
-
-} // namespace bart
+} // namespace bart::solver::linear
 
 #endif // BART_SRC_SOLVER_GMRES_H_

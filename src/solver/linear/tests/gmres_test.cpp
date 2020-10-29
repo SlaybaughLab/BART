@@ -17,7 +17,7 @@ class SolverGMRESTest : public ::testing::Test {
 };
 
 TEST_F(SolverGMRESTest, Constructor) {
-  bart::solver::GMRES solver;
+  bart::solver::linear::GMRES solver;
   EXPECT_EQ(solver.max_iterations(), 100);
   EXPECT_EQ(solver.convergence_tolerance(), 1e-10);
 
@@ -25,7 +25,7 @@ TEST_F(SolverGMRESTest, Constructor) {
   EXPECT_EQ(solver.solver_control().tolerance(), 1e-10);
 
 
-  bart::solver::GMRES solver_2(210, 1e-6);
+  bart::solver::linear::GMRES solver_2(210, 1e-6);
   EXPECT_EQ(solver_2.solver_control().max_steps(), 210);
   EXPECT_EQ(solver_2.solver_control().tolerance(), 1e-6);
 }
@@ -59,7 +59,7 @@ TEST_F(SolverGMRESTest, SolveTestNoPrecon) {
 
   dealii::PETScWrappers::PreconditionNone no_conditioner(petsc_A);
 
-  bart::solver::GMRES solver(100, 1e-6);
+  bart::solver::linear::GMRES solver(100, 1e-6);
   solver.Solve(&petsc_A, &petsc_x, &petsc_b, &no_conditioner);
 
   for (int i = 0; i < 3; ++i) {
