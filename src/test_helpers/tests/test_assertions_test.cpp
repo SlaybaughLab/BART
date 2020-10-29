@@ -135,9 +135,9 @@ void TestAssertionsMPIMatricesTests::SetUp() {
 }
 
 TEST_F(TestAssertionsMPIMatricesTests, CompareMPIMatrices) {
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareMPIMatrices(matrix_2, matrix_2));
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareMPIMatrices(matrix_1, matrix_3));
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareMPIMatrices(matrix_1, matrix_2));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(matrix_2, matrix_2));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(matrix_1, matrix_3));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(matrix_1, matrix_2));
 
   const int random_cell = test_helpers::RandomInt(0, cells_.size());
   std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
@@ -149,7 +149,7 @@ TEST_F(TestAssertionsMPIMatricesTests, CompareMPIMatrices) {
     }
   }
   matrix_3.compress(dealii::VectorOperation::add);
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareMPIMatrices(matrix_1, matrix_3));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(matrix_1, matrix_3));
 }
 
 class TestAssertionsMPIVectorTests : public ::testing::Test, public bart::testing::DealiiTestDomain<2> {

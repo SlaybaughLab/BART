@@ -24,8 +24,7 @@ using ::testing::AssertionResult;
 [[nodiscard]] auto AreEqual(const FullMatrix& expected, const FullMatrix& result,
                             const double tol = 1e-6) -> AssertionResult;
 
-[[nodiscard]] auto CompareMPIMatrices(const MPISparseMatrix& expected,
-                                      const MPISparseMatrix& result) -> AssertionResult;
+[[nodiscard]] auto AreEqual(const MPISparseMatrix& expected, const MPISparseMatrix& result) -> AssertionResult;
 
 [[nodiscard]] auto CompareMPIVectors(const MPIVector& expected, const MPIVector& result) -> AssertionResult;
 

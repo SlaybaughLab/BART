@@ -159,8 +159,8 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
       .WillOnce(DoDefault());
 
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
-  EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
-                                               *this->matrix_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_result,
+                                     *this->matrix_to_stamp));
   EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
                                               *this->vector_to_stamp));
 }

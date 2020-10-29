@@ -38,7 +38,7 @@ TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationOnlyFixedMPI) {
   test_bilinear_term.SetFixedTermPtr({0, 0}, fixed_term_ptr);
 
   auto term_matrix_ptr = test_bilinear_term.GetFullTermPtr({0,0});
-  EXPECT_TRUE(bart::test_helpers::CompareMPIMatrices(matrix_3, *term_matrix_ptr));
+  EXPECT_TRUE(bart::test_helpers::AreEqual(matrix_3, *term_matrix_ptr));
 }
 
 TEST_F(SystemTermsFullTermTest, LinearFullTermOperationOnlyFixedMPI) {
@@ -80,7 +80,7 @@ TEST_F(SystemTermsFullTermTest, BilinearFullTermOperationMPI) {
   test_bilinear_term.SetVariableTermPtr({0, 0}, other_source, variable_term_ptr);
 
   auto term_matrix_ptr = test_bilinear_term.GetFullTermPtr({0,0});
-  EXPECT_TRUE(bart::test_helpers::CompareMPIMatrices(matrix_3, *term_matrix_ptr));
+  EXPECT_TRUE(bart::test_helpers::AreEqual(matrix_3, *term_matrix_ptr));
 }
 
 TEST_F(SystemTermsFullTermTest, LinearFullTermOperationMPI) {
