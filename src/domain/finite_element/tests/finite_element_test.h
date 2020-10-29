@@ -3,7 +3,7 @@
 
 #include "domain/finite_element/finite_element.h"
 
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 

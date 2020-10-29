@@ -19,7 +19,7 @@
 #include "system/system.h"
 #include "system/solution/solution_types.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 
 namespace  {
 

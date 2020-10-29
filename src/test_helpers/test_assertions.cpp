@@ -1,4 +1,4 @@
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 
 #include <deal.II/base/mpi.h>
 

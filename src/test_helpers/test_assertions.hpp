@@ -1,5 +1,5 @@
-#ifndef BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_H_
-#define BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_H_
+#ifndef BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_HPP_
+#define BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_HPP_
 
 #include <deal.II/lac/vector.h>
 #include <deal.II/lac/petsc_sparse_matrix.h>
@@ -34,4 +34,4 @@ AssertionResult CompareMPIVectors(
 
 } // namespace bart
 
-#endif // BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_H_
+#endif // BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_HPP_
