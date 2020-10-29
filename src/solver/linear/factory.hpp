@@ -18,7 +18,6 @@ BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
     case LinearSolverName::kGMRES:
       return std::string{"LinearSolverName::kGMRES"};
   }
-  return std::string{"Unknown LinearSolverName requested for conversion."};
 }
 
 } // namespace bart::solver
