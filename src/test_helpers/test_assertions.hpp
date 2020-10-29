@@ -1,6 +1,8 @@
 #ifndef BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_HPP_
 #define BART_SRC_TEST_HELPERS_TEST_ASSERTIONS_HPP_
 
+#include <deal.II/lac/full_matrix.h>
+#include <deal.II/lac/petsc_sparse_matrix.h>
 #include <deal.II/lac/vector.h>
 
 #include "test_helpers/gmock_wrapper.h"
@@ -19,9 +21,9 @@ using ::testing::AssertionResult;
 [[nodiscard]] auto CompareVector(const std::vector<double> expected, const std::vector<double> result,
                                             const double tol = 1e-6) -> AssertionResult;
 
-AssertionResult CompareMPIMatrices(
-    const dealii::PETScWrappers::MPI::SparseMatrix& expected,
-    const dealii::PETScWrappers::MPI::SparseMatrix& result);
+[[nodiscard]] auto CompareFullMatrices(const dealii::FullMatrix<double>& expected,
+                                                  const dealii::FullMatrix<double>& result,
+                                                  const double tol = 1e-6) -> AssertionResult;
 
 [[nodiscard]] auto CompareMPIMatrices(const MPISparseMatrix& expected,
                                       const MPISparseMatrix& result) -> AssertionResult;
