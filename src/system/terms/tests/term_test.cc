@@ -58,7 +58,7 @@ TEST_F(SystemTermsFullTermTest, LinearFullTermOperationOnlyFixedMPI) {
   test_linear_term.SetFixedTermPtr({0,0}, fixed_term_ptr);
 
   auto term_vector_ptr = test_linear_term.GetFullTermPtr({0,0});
-  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(vector_1, *term_vector_ptr));
+  EXPECT_TRUE(bart::test_helpers::AreEqual(vector_1, *term_vector_ptr));
 
 }
 
@@ -112,7 +112,7 @@ TEST_F(SystemTermsFullTermTest, LinearFullTermOperationMPI) {
                                       other_term_ptr);
 
   auto term_vector_ptr = test_linear_term.GetFullTermPtr({0,0});
-  EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(vector_1, *term_vector_ptr));
+  EXPECT_TRUE(bart::test_helpers::AreEqual(vector_1, *term_vector_ptr));
 }
 
 } // namespace

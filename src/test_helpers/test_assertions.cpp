@@ -72,7 +72,7 @@ AssertionResult AreEqual(
   }
 }
 
-AssertionResult CompareMPIVectors(
+AssertionResult AreEqual(
     const dealii::PETScWrappers::MPI::Vector& expected,
     const dealii::PETScWrappers::MPI::Vector& result) {
 

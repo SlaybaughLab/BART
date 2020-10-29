@@ -176,9 +176,9 @@ void TestAssertionsMPIVectorTests::SetUp() {
 }
 
 TEST_F(TestAssertionsMPIVectorTests, CompareMPIVectors) {
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareMPIVectors(vector_1, vector_1));
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareMPIVectors(vector_1, vector_3));
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareMPIVectors(vector_1, vector_2));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(vector_1, vector_1));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(vector_1, vector_3));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(vector_1, vector_2));
 
   const int random_cell = test_helpers::RandomInt(0, cells_.size());
   std::vector<dealii::types::global_dof_index> local_dof_indices(fe_.dofs_per_cell);
@@ -188,7 +188,7 @@ TEST_F(TestAssertionsMPIVectorTests, CompareMPIVectors) {
     vector_3(index_i) += 1;
   }
 
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareMPIVectors(vector_1, vector_3));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(vector_1, vector_3));
 }
 
 } // namespace

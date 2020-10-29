@@ -236,8 +236,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateBoundaryConditionsTest) {
 
   this->test_updater_ptr->UpdateBoundaryConditions(this->test_system_,
                                                    group_number, quad_index);
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 // ===== Update Fixed Terms Tests ==============================================
@@ -297,8 +297,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
                                            quad_index);
   EXPECT_TRUE(test_helpers::AreEqual(this->expected_result,
                                      *this->matrix_to_stamp));
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
@@ -328,8 +328,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
 
   this->test_updater_ptr->UpdateScatteringSource(this->test_system_,
                                                  group_number, quad_index);
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
@@ -362,8 +362,8 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
 
   this->test_updater_ptr->UpdateFissionSource(this->test_system_,
                                               group_number, quad_index);
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 } // namespace

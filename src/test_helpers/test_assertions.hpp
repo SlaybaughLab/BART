@@ -26,7 +26,7 @@ using ::testing::AssertionResult;
 
 [[nodiscard]] auto AreEqual(const MPISparseMatrix& expected, const MPISparseMatrix& result) -> AssertionResult;
 
-[[nodiscard]] auto CompareMPIVectors(const MPIVector& expected, const MPIVector& result) -> AssertionResult;
+[[nodiscard]] auto AreEqual(const MPIVector& expected, const MPIVector& result) -> AssertionResult;
 
 } // namespace bart::test_helpers
 

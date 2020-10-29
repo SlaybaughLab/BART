@@ -188,8 +188,8 @@ TYPED_TEST(FormulationStamperTestDealiiDomain, StampVectorMPI) {
     this->test_stamper_ptr_->StampVector(this->system_vector,
                                          this->vector_stamp_function);
                   });
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->system_vector,
-                                              this->expected_vector));
+  EXPECT_TRUE(test_helpers::AreEqual(this->system_vector,
+                                     this->expected_vector));
 }
 
 TYPED_TEST(FormulationStamperTestDealiiDomain, StampMatrixBoundaryMPI) {
@@ -210,8 +210,8 @@ TYPED_TEST(FormulationStamperTestDealiiDomain, StampVectorBoundaryMPI) {
     this->test_stamper_ptr_->StampBoundaryVector(this->system_vector,
                                                  this->vector_boundary_stamp_function);
                   });
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->system_vector,
-                                              this->boundary_expected_vector));
+  EXPECT_TRUE(test_helpers::AreEqual(this->system_vector,
+                                     this->boundary_expected_vector));
 }
 
 } // namespace
