@@ -100,20 +100,21 @@ AssertionResult CompareMPIVectors(
     return AssertionSuccess();
   }
 }
-auto CompareFullMatrices(const dealii::FullMatrix<double> &expected, const dealii::FullMatrix<double> &result,
-                         const double tol) -> AssertionResult {
-  const int rows{expected.m()}, cols{expected.n()};
+auto AreEqual(const dealii::FullMatrix<double> &expected, const dealii::FullMatrix<double> &result,
+           const double tol) -> AssertionResult {
+  using size_type = dealii::FullMatrix<double>::size_type;
+  const size_type rows{expected.m()}, cols{expected.n()};
 
-  if (const int result_rows = result.m(); rows != result_rows) {
+  if (const size_type result_rows = result.m(); rows != result_rows) {
     return AssertionFailure() << "Expected matrix has n_rows = " << rows << ", while result matrix has n_rows = "
                               << result_rows;
-  } else if (const int result_cols = result.n(); cols != result_cols) {
+  } else if (const size_type result_cols = result.n(); cols != result_cols) {
     return AssertionFailure() << "Expected matrix has n_cols = " << cols << ", while result matrix has n_cols = "
                               << result_cols;
   }
 
-  for (int i = 0; i < rows; ++i) {
-    for (int j = 0; j < cols; ++j) {
+  for (size_type i = 0; i < rows; ++i) {
+    for (size_type j = 0; j < cols; ++j) {
       if (abs(expected(i, j) - result(i,j)) > tol) {
         return AssertionFailure() << "Expected matrix has value " << expected(i,j) << " at (" << i << ", " << j
                                   << ") while result matrix has " << result(i, j);

@@ -83,19 +83,19 @@ void TestAssertionsMatrixTests::SetUp() {
 }
 
 TEST_F(TestAssertionsMatrixTests, GoodComparison) {
-  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_1, matrix_1));
-  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_2, matrix_2));
-  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_transposed, matrix_transposed));
+  EXPECT_TRUE(test_helpers::AreEqual(matrix_1, matrix_1));
+  EXPECT_TRUE(test_helpers::AreEqual(matrix_2, matrix_2));
+  EXPECT_TRUE(test_helpers::AreEqual(matrix_transposed, matrix_transposed));
 }
 
 TEST_F(TestAssertionsMatrixTests, BadComparison) {
-  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_1, matrix_2));
-  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_2, matrix_1));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_1, matrix_2));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_2, matrix_1));
 }
 
 TEST_F(TestAssertionsMatrixTests, BadSizeComparison) {
-  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_1, matrix_transposed));
-  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_2, matrix_transposed));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_1, matrix_transposed));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_2, matrix_transposed));
 }
 
 TEST_F(TestAssertionsMatrixTests, GoodComparisonWithinTolerance) {
@@ -103,8 +103,8 @@ TEST_F(TestAssertionsMatrixTests, GoodComparisonWithinTolerance) {
   for (auto entry : matrix_3) {
     entry += test_helpers::RandomDouble(1e-6, 1e-5);
   }
-  EXPECT_FALSE(test_helpers::CompareFullMatrices(matrix_1, matrix_3));
-  EXPECT_TRUE(test_helpers::CompareFullMatrices(matrix_1, matrix_3, 1e-4));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_1, matrix_3));
+  EXPECT_TRUE(test_helpers::AreEqual(matrix_1, matrix_3, 1e-4));
 }
 
 

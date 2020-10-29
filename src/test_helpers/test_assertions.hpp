@@ -16,14 +16,14 @@ using MPIVector = dealii::PETScWrappers::MPI::Vector;
 using ::testing::AssertionResult;
 
 [[nodiscard]] auto CompareVector(const dealii::Vector<double>& expected,
-                                            const dealii::Vector<double>& result,
-                                            const double tol = 1e-6) -> AssertionResult;
+                                 const dealii::Vector<double>& result,
+                                 const double tol = 1e-6) -> AssertionResult;
 
 [[nodiscard]] auto CompareVector(const std::vector<double> expected, const std::vector<double> result,
                                             const double tol = 1e-6) -> AssertionResult;
 
-[[nodiscard]] auto CompareFullMatrices(const FullMatrix& expected, const FullMatrix& result,
-                                       const double tol = 1e-6) -> AssertionResult;
+[[nodiscard]] auto AreEqual(const FullMatrix& expected, const FullMatrix& result,
+                            const double tol = 1e-6) -> AssertionResult;
 
 [[nodiscard]] auto CompareMPIMatrices(const MPISparseMatrix& expected,
                                       const MPISparseMatrix& result) -> AssertionResult;
