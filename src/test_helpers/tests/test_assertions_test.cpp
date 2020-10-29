@@ -52,13 +52,13 @@ TEST_F(TestAssertionsTest, BadComparisonStdVector) {
 }
 
 TEST_F(TestAssertionsTest, GoodComparisonDealiiVector) {
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareVector(dealii_vector_1, dealii_vector_1));
-  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::CompareVector(dealii_vector_2, dealii_vector_2));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(dealii_vector_1, dealii_vector_1));
+  EXPECT_EQ(AssertionSuccess(), bart::test_helpers::AreEqual(dealii_vector_2, dealii_vector_2));
 }
 
 TEST_F(TestAssertionsTest, BadComparisonDealiiVector) {
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareVector(dealii_vector_1, dealii_vector_2));
-  EXPECT_EQ(AssertionFailure(), bart::test_helpers::CompareVector(dealii_vector_2, dealii_vector_1));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(dealii_vector_1, dealii_vector_2));
+  EXPECT_EQ(AssertionFailure(), bart::test_helpers::AreEqual(dealii_vector_2, dealii_vector_1));
 }
 
 class TestAssertionsMatrixTests : public ::testing::Test {

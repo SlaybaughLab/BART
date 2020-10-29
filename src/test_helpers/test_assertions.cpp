@@ -11,9 +11,9 @@ using ::testing::AssertionFailure;
 using ::testing::AssertionSuccess;
 }
 
-AssertionResult CompareVector(const dealii::Vector<double>& expected,
-                                     const dealii::Vector<double>& result,
-                                     const double tol) {
+AssertionResult AreEqual(const dealii::Vector<double>& expected,
+                         const dealii::Vector<double>& result,
+                         const double tol) {
   unsigned int size = expected.size();
 
   if (result.size() != size)
@@ -35,7 +35,7 @@ AssertionResult CompareVector(const std::vector<double> expected,
                                      const double tol) {
   dealii::Vector<double> expected_vec(expected.begin(), expected.end());
   dealii::Vector<double> result_vec(result.begin(), result.end());
-  return CompareVector(expected_vec, result_vec, tol);
+  return AreEqual(expected_vec, result_vec, tol);
 }
 
 AssertionResult CompareMPIMatrices(
