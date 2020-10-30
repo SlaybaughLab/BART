@@ -5,7 +5,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "convergence/status.hpp"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 
 namespace bart::instrumentation {

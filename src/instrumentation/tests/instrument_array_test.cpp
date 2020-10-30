@@ -8,7 +8,7 @@
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace  {
 

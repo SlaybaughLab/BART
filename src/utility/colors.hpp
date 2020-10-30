@@ -1,5 +1,5 @@
-#ifndef BART_SRC_UTILITY_COLORS_H_
-#define BART_SRC_UTILITY_COLORS_H_
+#ifndef BART_SRC_UTILITY_COLORS_HPP_
+#define BART_SRC_UTILITY_COLORS_HPP_
 
 #include <map>
 #include <string>
@@ -35,4 +35,4 @@ inline std::string to_string(Color to_convert) {
 
 } // namespace bart
 
-#endif //BART_SRC_UTILITY_COLORS_H_
+#endif //BART_SRC_UTILITY_COLORS_HPP_

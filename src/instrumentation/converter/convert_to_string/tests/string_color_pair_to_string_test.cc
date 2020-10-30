@@ -1,7 +1,7 @@
 #include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
 
 #include "test_helpers/gmock_wrapper.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace  {
 

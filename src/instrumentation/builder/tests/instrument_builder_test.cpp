@@ -25,7 +25,7 @@
 #include "test_helpers/test_helper_functions.h"
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace  {
 
