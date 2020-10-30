@@ -2,7 +2,8 @@
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_H_
 
 #include "problem/parameters_i.h"
-#include "utility/reporter/basic_reporter_i.h"
+#include "instrumentation/port.h"
+#include "utility/colors.hpp"
 
 #include <set>
 
@@ -18,7 +19,12 @@ enum class FrameworkPart {
   AngularSolutionStorage = 2
 };
 
-class FrameworkValidator {
+namespace data_port {
+struct ValidatorStatus;
+using ValidatorStatusPort = instrumentation::Port<std::pair<std::string, utility::Color>, ValidatorStatus>;
+} // namespace data_port
+
+class FrameworkValidator : public data_port::ValidatorStatusPort {
  public:
   FrameworkValidator& AddPart(const FrameworkPart to_add);
 
@@ -32,7 +38,7 @@ class FrameworkValidator {
   void Parse(const problem::ParametersI& to_parse);
   std::set<FrameworkPart> Parts() const {
     return parts_; }
-  void ReportValidation(utility::reporter::BasicReporterI&) const;
+  void ReportValidation();
   std::set<FrameworkPart> UnneededParts() const;
  private:
 

@@ -33,6 +33,8 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   
   test_parameters.Parse(test_parameter_handler);
 
+  ASSERT_FALSE(test_parameters.DoDiscreteFourierTransformOfError())
+                << "Default do discrete fourier transform.";
   ASSERT_EQ(test_parameters.Discretization(),
             bart::problem::DiscretizationType::kContinuousFEM)
       << "Default discretization";
@@ -156,6 +158,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
         };
 
   // Set testing Parameters
+  test_parameter_handler.set(key_words.kDoDFTOfError_, "true");
   test_parameter_handler.set(key_words.kDiscretization_, "dfem");
   test_parameter_handler.set(key_words.kEigenvalueProblem_, "true");
   test_parameter_handler.set(key_words.kHaveReflectiveBC_, "true");
@@ -171,7 +174,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   
   test_parameters.Parse(test_parameter_handler);
 
-
+  ASSERT_TRUE(test_parameters.DoDiscreteFourierTransformOfError());
   ASSERT_EQ(test_parameters.Discretization(),
             bart::problem::DiscretizationType::kDiscontinuousFEM)
       << "Parsed discretization";

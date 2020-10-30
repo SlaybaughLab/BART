@@ -51,6 +51,7 @@ class MeshCartesian : public MeshI<dim> {
   std::array<int, dim>    n_material_cells_;
   std::array<int, dim>    n_cells_;
   std::map<std::array<int, dim>, int> material_mapping_;
+  static bool is_registered_;
 };
 
 } // namespace mesh

@@ -94,7 +94,9 @@ template <int dim>
  class DealiiTestDomain {
   public:
    static constexpr int dimension = dim;
-   DealiiTestDomain();
+   DealiiTestDomain(const double domain_size = 1.0, const int refinements = 2);
+   DealiiTestDomain(const double domain_min, const double domain_max,
+                    const int refinements);
    void SetUpDealii();
    void StampMatrix(dealii::PETScWrappers::MPI::SparseMatrix& to_stamp,
                     double value = 1);
@@ -114,33 +116,55 @@ template <int dim>
 
   private:
    void SetUpDofs();
+   const double domain_min_;
+   const double domain_max_;
+   const int refinements_;
 };
 
 template <int dim>
-inline DealiiTestDomain<dim>::DealiiTestDomain()
+inline DealiiTestDomain<dim>::DealiiTestDomain(
+    const double domain_min,
+    const double domain_max,
+    const int refinements)
     : triangulation_(MPI_COMM_WORLD,
                      typename dealii::Triangulation<dim>::MeshSmoothing(
                          dealii::Triangulation<dim>::smoothing_on_refinement |
                              dealii::Triangulation<dim>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
-      fe_(1) {}
+      fe_(1),
+      domain_min_(domain_min),
+      domain_max_(domain_max),
+      refinements_(refinements) {}
+
+template <int dim>
+inline DealiiTestDomain<dim>::DealiiTestDomain(const double domain_size,
+                                               const int refinements)
+    : DealiiTestDomain(0, domain_size, refinements) {}
 
 template <>
-inline DealiiTestDomain<1>::DealiiTestDomain()
+inline DealiiTestDomain<1>::DealiiTestDomain(const double domain_min,
+                                             const double domain_max,
+                                             const int refinements)
     : triangulation_(typename dealii::Triangulation<1>::MeshSmoothing(
     dealii::Triangulation<1>::smoothing_on_refinement |
         dealii::Triangulation<1>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
-      fe_(1) {}
+      fe_(1),
+      domain_min_(domain_min),
+      domain_max_(domain_max),
+      refinements_(refinements) {}
+
+template <>
+inline DealiiTestDomain<1>::DealiiTestDomain(const double domain_size,
+                                             const int refinements)
+    : DealiiTestDomain(0, domain_size, refinements) {}
 
 template <int dim>
 inline void DealiiTestDomain<dim>::SetUpDealii() {
-  dealii::GridGenerator::hyper_cube(triangulation_, 0, 1);
+  dealii::GridGenerator::hyper_cube(triangulation_, this->domain_min_,
+                                    this->domain_max_);
 
-  if (dim == 1)
-    triangulation_.refine_global(4);
-  else
-    triangulation_.refine_global(2);
+  triangulation_.refine_global(refinements_);
 
   SetUpDofs();
 
@@ -176,10 +200,7 @@ inline void DealiiTestDomain<dim>::SetUpDofs() {
   dealii::DoFTools::make_sparsity_pattern(dof_handler_, dsp_,
                                           constraint_matrix_, false);
 
-  dealii::SparsityTools::distribute_sparsity_pattern(
-      dsp_,
-      dof_handler_.n_locally_owned_dofs_per_processor(),
-      MPI_COMM_WORLD, locally_relevant_dofs);
+  dealii::SparsityTools::distribute_sparsity_pattern(dsp_, locally_owned_dofs_, MPI_COMM_WORLD, locally_relevant_dofs);
 
   constraint_matrix_.condense(dsp_);
 }

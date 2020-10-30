@@ -31,6 +31,9 @@ class NamedType
   bool operator<(const NamedType& rhs) const {
     return rhs.get() < value_;
   }
+  template <typename U = T,
+      std::enable_if_t<std::is_same_v<U, bool>, nullptr_t> = nullptr>
+  operator bool() const { return value_; }
  private:
   T value_;
 };

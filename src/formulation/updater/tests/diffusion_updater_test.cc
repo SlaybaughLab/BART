@@ -4,7 +4,7 @@
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 
 namespace {
 
@@ -159,10 +159,10 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermTest) {
       .WillOnce(DoDefault());
 
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
-  EXPECT_TRUE(test_helpers::CompareMPIMatrices(this->expected_result,
-                                               *this->matrix_to_stamp));
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_result,
+                                     *this->matrix_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 // ====== UpdateScatteringSource TESTS =========================================
@@ -186,8 +186,8 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateScatteringSourceTest) {
   }
 
   this->test_updater_ptr_->UpdateScatteringSource(this->test_system_, group_number, angle_index);
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 // ===== UpdateFissionSource TEST ==============================================
@@ -215,8 +215,8 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFissionSourceTest) {
   }
 
   this->test_updater_ptr_->UpdateFissionSource(this->test_system_, group_number, angle_index);
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 // ===== UpdateFixedSource TEST ================================================
@@ -237,8 +237,8 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedSourceTest) {
   }
 
   this->test_updater_ptr_->UpdateFixedSource(this->test_system_, group_number, angle_index);
-  EXPECT_TRUE(test_helpers::CompareMPIVectors(this->expected_vector_result,
-                                              *this->vector_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
+                                     *this->vector_to_stamp));
 }
 
 } // namespace

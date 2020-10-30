@@ -7,7 +7,7 @@ language: cpp
 
 env:
  global:
-  - DOCKER_TAG=v9.1.1
+  - DOCKER_TAG=v9.2.0-1
 
 services:
  - docker
@@ -25,7 +25,7 @@ install:
  - sudo docker run $ci_env -it -u="root" -d -w="/home/bart/BART" --name bart jsrehak/bart:$DOCKER_TAG
 
 script:
- - docker exec bart cmake .
+ - docker exec bart cmake -DCMAKE_BUILD_TYPE=Debug .
  - docker exec bart make -j4
  - docker exec bart bash -c "./bart_test"
  - docker exec bart bash -c "mpirun -np 2 --allow-run-as-root --oversubscribe ./bart_test --mpi -l 0"

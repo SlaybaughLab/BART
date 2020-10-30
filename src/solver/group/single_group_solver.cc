@@ -1,5 +1,6 @@
 #include "solver/group/single_group_solver.h"
 
+#include "solver/group/factory.hpp"
 #include "system/system.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
 
@@ -12,6 +13,14 @@ namespace group {
 SingleGroupSolver::SingleGroupSolver(
     std::unique_ptr<LinearSolver> linear_solver_ptr)
     : linear_solver_ptr_(std::move(linear_solver_ptr)) {}
+
+bool SingleGroupSolver::is_registered_ =
+    SingleGroupSolverIFactory<std::unique_ptr<LinearSolver>>::get()
+    .RegisterConstructor(GroupSolverName::kDefaultImplementation,
+        [](std::unique_ptr<LinearSolver> linear_solver_ptr) {
+          std::unique_ptr<SingleGroupSolverI> return_ptr =
+              std::make_unique<SingleGroupSolver>(std::move(linear_solver_ptr));
+          return return_ptr; });
 
 void SingleGroupSolver::SolveGroup(const int group,
                                    const system::System &system,

@@ -12,6 +12,9 @@ namespace bart {
 
 namespace test_helpers {
 
+//! Generates a random int on the interval [min, max)
+int RandomInt(int min, int max);
+
 //! Generates a random double between min and max
 double RandomDouble(double min, double max);
 

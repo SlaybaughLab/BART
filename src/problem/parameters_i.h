@@ -26,6 +26,9 @@ class ParametersI {
   
   virtual ~ParametersI() = default;
 
+  // Fourier analysis
+  virtual bool DoDiscreteFourierTransformOfError() const = 0;
+
   // Basic Problem Parameters
   /*! \brief Gets the type of spatial discretization of the transport equation */
   virtual DiscretizationType         Discretization()                 const = 0;

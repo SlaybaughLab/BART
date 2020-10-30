@@ -11,6 +11,8 @@ namespace problem {
 
 class ParametersMock : public ParametersI {
  public:
+  MOCK_METHOD(bool, DoDiscreteFourierTransformOfError, (), (const, override));
+
   MOCK_CONST_METHOD0(Discretization, DiscretizationType());
 
   MOCK_CONST_METHOD0(IsEigenvalueProblem, bool());

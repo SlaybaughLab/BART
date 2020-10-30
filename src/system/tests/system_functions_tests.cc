@@ -6,7 +6,7 @@
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 #include "test_helpers/test_helper_functions.h"
 
 #include "system/terms/term.h"
@@ -94,7 +94,7 @@ TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, SetUpDefaultValue) {
   for (const auto& solution : this->solution_map_) {
     auto& mpi_vector = solution.second;
     ASSERT_GT(mpi_vector.size(), 0);
-    EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(expected_vector, mpi_vector));
+    EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, mpi_vector));
   }
 }
 
@@ -118,7 +118,7 @@ TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, ProvidedValues) {
   for (const auto& solution : this->solution_map_) {
     auto& mpi_vector = solution.second;
     ASSERT_GT(mpi_vector.size(), 0);
-    EXPECT_TRUE(bart::test_helpers::CompareMPIVectors(expected_vector, mpi_vector));
+    EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, mpi_vector));
   }
 }
 

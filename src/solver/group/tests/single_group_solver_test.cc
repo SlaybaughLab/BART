@@ -6,7 +6,7 @@
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/terms/tests/bilinear_term_mock.h"
-#include "solver/tests/linear_mock.h"
+#include "solver/linear/tests/linear_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -23,7 +23,7 @@ class SolverGroupSingleGroupSolverTest :
     public bart::testing::DealiiTestDomain<2> {
  protected:
 
-  using LinearSolver = solver::LinearMock;
+  using LinearSolver = solver::linear::LinearMock;
   using LeftHandSide = system::terms::BilinearTermMock;
   using RightHandSide = system::terms::LinearTermMock;
   using GroupSolution = NiceMock<system::solution::MPIGroupAngularSolutionMock>;

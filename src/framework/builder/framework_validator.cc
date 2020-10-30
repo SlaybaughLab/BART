@@ -40,20 +40,19 @@ std::set<FrameworkPart> FrameworkValidator::UnneededParts() const {
   }
   return return_set; }
 
-void FrameworkValidator::ReportValidation(
-    utility::reporter::BasicReporterI& to_report) const {
-  using Color = utility::reporter::Color;
+void FrameworkValidator::ReportValidation() {
+  using Color = utility::Color;
   bool issue = false;
-  to_report << "Validating framework components:\n";
-
+  data_port::ValidatorStatusPort::Expose({"Validating framework components:\n",
+                                          Color::kReset});
   for (const auto part : parts_) {
     std::string description = framework_part_descriptions_.at(part);
     description[0] = std::toupper(description[0]);
-    to_report << "\t";
+    Expose({"\t", Color::kReset});
     if (needed_parts_.count(part) > 0) {
-      to_report << Color::Green << description << "\n" << Color::Reset;
+      Expose({description + "\n", Color::kGreen});
     } else {
-      to_report << Color::Yellow << description << " (Unneeded)\n" << Color::Reset;
+      Expose({description + " (Unneeded)\n", Color::kYellow});
       issue = true;
     }
   }
@@ -62,14 +61,14 @@ void FrameworkValidator::ReportValidation(
     if (parts_.count(part) == 0) {
       std::string description = framework_part_descriptions_.at(part);
       description[0] = std::toupper(description[0]);
-      to_report << "\t" << Color::Red << description << " (Missing)\n" << Color::Reset;
+      Expose({"\t" + description + "(Missing)\n", Color::kRed});
       issue = true;
     }
   }
 
   if (issue) {
-    to_report.Report("Warning: one or more issues identified during "
-                     "framework validation\n", Color::Yellow);
+    Expose({"Warning: one or more issues identified during "
+            "framework validation\n", Color::kYellow});
   }
 }
 
