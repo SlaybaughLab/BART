@@ -63,21 +63,33 @@ TEST_F(TestAssertionsTest, BadComparisonDealiiVector) {
 
 class TestAssertionsMatrixTests : public ::testing::Test {
  public:
-  dealii::FullMatrix<double> matrix_1, matrix_2, matrix_transposed;
+  dealii::FullMatrix<double> matrix_1, matrix_2, matrix_bad_columns, matrix_bad_rows;
   void SetUp() override;
 };
 
 void TestAssertionsMatrixTests::SetUp() {
-  const auto matrix_rows{ test_helpers::RandomInt(5, 10) }, matrix_cols{ test_helpers::RandomInt(5, 10) };
+  const auto matrix_rows{ test_helpers::RandomInt(5, 10) }, matrix_cols{ matrix_rows + 1 };
   matrix_1.reinit(matrix_rows, matrix_cols);
   matrix_2.reinit(matrix_rows, matrix_cols);
-  matrix_transposed.reinit(matrix_cols, matrix_rows);
+  matrix_bad_columns.reinit(matrix_rows, matrix_rows);
+  matrix_bad_rows.reinit(matrix_cols, matrix_cols);
 
   for (int i = 0; i < matrix_rows; ++i) {
     for (int j = 0; j < matrix_cols; ++j) {
       matrix_1.set(i, j, test_helpers::RandomDouble(-100, 100));
       matrix_2.set(i, j, test_helpers::RandomDouble(-100, 100));
-      matrix_transposed.set(j, i, test_helpers::RandomDouble(-100, 100));
+    }
+  }
+
+  for (int i = 0; i < matrix_rows; ++i) {
+    for (int j = 0; j < matrix_rows; ++j) {
+      matrix_bad_columns.set(i, j, test_helpers::RandomDouble(-100, 100));
+    }
+  }
+
+  for (int i = 0; i < matrix_cols; ++i) {
+    for (int j = 0; j < matrix_cols; ++j) {
+      matrix_bad_rows.set(i, j, test_helpers::RandomDouble(-100, 100));
     }
   }
 }
@@ -85,7 +97,8 @@ void TestAssertionsMatrixTests::SetUp() {
 TEST_F(TestAssertionsMatrixTests, GoodComparison) {
   EXPECT_TRUE(test_helpers::AreEqual(matrix_1, matrix_1));
   EXPECT_TRUE(test_helpers::AreEqual(matrix_2, matrix_2));
-  EXPECT_TRUE(test_helpers::AreEqual(matrix_transposed, matrix_transposed));
+  EXPECT_TRUE(test_helpers::AreEqual(matrix_bad_columns, matrix_bad_columns));
+  EXPECT_TRUE(test_helpers::AreEqual(matrix_bad_rows, matrix_bad_rows));
 }
 
 TEST_F(TestAssertionsMatrixTests, BadComparison) {
@@ -94,8 +107,11 @@ TEST_F(TestAssertionsMatrixTests, BadComparison) {
 }
 
 TEST_F(TestAssertionsMatrixTests, BadSizeComparison) {
-  EXPECT_FALSE(test_helpers::AreEqual(matrix_1, matrix_transposed));
-  EXPECT_FALSE(test_helpers::AreEqual(matrix_2, matrix_transposed));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_1, matrix_bad_columns));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_2, matrix_bad_columns));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_1, matrix_bad_rows));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_2, matrix_bad_rows));
+  EXPECT_FALSE(test_helpers::AreEqual(matrix_bad_rows, matrix_bad_columns));
 }
 
 TEST_F(TestAssertionsMatrixTests, GoodComparisonWithinTolerance) {
