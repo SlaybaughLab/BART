@@ -5,6 +5,9 @@
 #include <sstream>
 #include <fstream>
 
+// Builders & factories
+#include "solver/builder/solver_builder.hpp"
+
 // Convergence classes
 #include "convergence/final_checker_or_n.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
@@ -33,10 +36,6 @@
 
 // Material classes
 #include "material/material_protobuf.h"
-
-// Solver classes
-#include "solver/group/single_group_solver.h"
-#include "solver/linear/gmres.h"
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
@@ -759,19 +758,18 @@ auto FrameworkBuilder<dim>::BuildSAAFFormulation(
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildSingleGroupSolver(
-    const int max_iterations,
-    const double convergence_tolerance)
+auto FrameworkBuilder<dim>::BuildSingleGroupSolver(const int max_iterations, const double convergence_tolerance)
 -> std::unique_ptr<SingleGroupSolverType> {
+  using SolverName = solver::builder::SolverName;
+  using SolverBuilder = solver::builder::SolverBuilder;
+
   ReportBuildingComponant("Single group solver");
   std::unique_ptr<SingleGroupSolverType> return_ptr = nullptr;
 
-  auto linear_solver_ptr = std::make_unique<solver::linear::GMRES>(max_iterations,
-                                                                   convergence_tolerance);
-  ReportBuildSuccess("GMRES: tol = " + std::to_string(convergence_tolerance)
-                            + "iter_max = " + std::to_string(max_iterations));
-  return_ptr = std::move(std::make_unique<solver::group::SingleGroupSolver>(
-          std::move(linear_solver_ptr)));
+  return_ptr = std::move(SolverBuilder::BuildSolver(SolverName::kDefaultGMRESGroupSolver, max_iterations,
+                                                    convergence_tolerance));
+
+  ReportBuildSuccess("Default implementation with GMRES");
 
   return return_ptr;
 }
