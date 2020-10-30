@@ -32,7 +32,7 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 #include "instrumentation/instrument_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
@@ -44,7 +44,7 @@
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
 #include "utility/colors.hpp"
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 
 
 namespace bart {

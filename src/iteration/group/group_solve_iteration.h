@@ -2,7 +2,7 @@
 #define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_H_
 
 #include "convergence/final_i.h"
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"

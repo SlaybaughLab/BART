@@ -1,4 +1,4 @@
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 
 #include "instrumentation/tests/instrument_mock.h"
 #include "test_helpers/gmock_wrapper.h"
