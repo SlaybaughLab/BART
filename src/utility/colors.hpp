@@ -4,9 +4,7 @@
 #include <map>
 #include <string>
 
-namespace bart {
-
-namespace utility {
+namespace bart::utility {
 
 enum class Color {
   kReset = 0,
@@ -31,8 +29,6 @@ inline std::string to_string(Color to_convert) {
 
 // LCOV_EXCL_STOP
 
-} // namespace utility
-
-} // namespace bart
+} // namespace bart::utility
 
 #endif //BART_SRC_UTILITY_COLORS_HPP_
