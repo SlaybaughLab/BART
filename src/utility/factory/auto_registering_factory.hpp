@@ -8,6 +8,8 @@
 
 namespace bart::utility::factory {
 
+// LCOV_EXCL_START
+
 template <typename ClassName, typename Constructor>
 class AutoRegisteringFactory {
  public:
@@ -45,6 +47,8 @@ class AutoRegisteringFactory {
 template <typename ...T> \
 class interface##Factory : public utility::factory::AutoRegisteringFactory<names, \
 std::unique_ptr<interface>(*)(T...)> {};
+
+// LCOV_EXCL_STOP
 
 } // namespace bart::utility::factory
 

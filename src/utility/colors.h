@@ -16,6 +16,8 @@ enum class Color {
   kYellow = 4,
 };
 
+// LCOV_EXCL_START
+
 inline std::string to_string(Color to_convert) {
   std::map<Color, std::string> color_string{
       {Color::kReset, "\033[0m"},
@@ -26,6 +28,8 @@ inline std::string to_string(Color to_convert) {
   };
   return color_string.at(to_convert);
 }
+
+// LCOV_EXCL_STOP
 
 } // namespace utility
 
