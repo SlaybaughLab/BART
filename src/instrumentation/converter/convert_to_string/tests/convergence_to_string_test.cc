@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
 

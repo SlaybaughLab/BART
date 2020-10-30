@@ -1,14 +1,14 @@
-#ifndef BART_SRC_UTILITY_FACTORY_AUTO_REGISTERING_FACTORY_H_
-#define BART_SRC_UTILITY_FACTORY_AUTO_REGISTERING_FACTORY_H_
+#ifndef BART_SRC_UTILITY_FACTORY_AUTO_REGISTERING_FACTORY_HPP_
+#define BART_SRC_UTILITY_FACTORY_AUTO_REGISTERING_FACTORY_HPP_
+
+#include "utility/to_string.hpp"
 
 #include <memory>
 #include <unordered_map>
 
-namespace bart {
+namespace bart::utility::factory {
 
-namespace utility {
-
-namespace factory {
+// LCOV_EXCL_START
 
 template <typename ClassName, typename Constructor>
 class AutoRegisteringFactory {
@@ -29,7 +29,7 @@ class AutoRegisteringFactory {
     try {
       return constructors().at(name);
     } catch (std::out_of_range&) {
-      throw(std::out_of_range("Error retrieving constructor"));
+      throw(std::out_of_range("Error retrieving constructor for " + utility::to_string(name)));
     }
   }
 
@@ -48,10 +48,8 @@ template <typename ...T> \
 class interface##Factory : public utility::factory::AutoRegisteringFactory<names, \
 std::unique_ptr<interface>(*)(T...)> {};
 
-} // namespace factory
+// LCOV_EXCL_STOP
 
-} // namespace utility
+} // namespace bart::utility::factory
 
-} // namespace bart
-
-#endif //BART_SRC_UTILITY_FACTORY_AUTO_REGISTERING_FACTORY_H_
+#endif //BART_SRC_UTILITY_FACTORY_AUTO_REGISTERING_FACTORY_HPP_

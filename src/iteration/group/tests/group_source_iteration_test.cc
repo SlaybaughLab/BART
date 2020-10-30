@@ -19,7 +19,7 @@
 #include "system/system.h"
 #include "system/solution/solution_types.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 
 namespace  {
 
@@ -438,7 +438,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   for (const auto& [index, solution_ptr] : this->energy_group_angular_solution_ptr_map_) {
     dealii::Vector<double> expected_solution;
     expected_solution = this->expected_stored_solution_;
-    EXPECT_TRUE(test_helpers::CompareVector(expected_solution, *solution_ptr));
+    EXPECT_TRUE(test_helpers::AreEqual(expected_solution, *solution_ptr));
   }
 }
 } // namespace

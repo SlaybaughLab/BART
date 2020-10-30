@@ -1,6 +1,6 @@
 #include "instrumentation/converter/factory.hpp"
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "calculator/fourier/tests/fourier_transform_mock.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/fourier/fourier_transform.h"

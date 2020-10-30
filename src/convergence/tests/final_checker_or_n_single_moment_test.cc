@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "convergence/moments/tests/single_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
 #include "system/moments/spherical_harmonic_types.h"

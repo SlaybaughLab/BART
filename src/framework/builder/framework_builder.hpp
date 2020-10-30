@@ -43,7 +43,7 @@
 
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 #include "instrumentation/port.h"
 
 

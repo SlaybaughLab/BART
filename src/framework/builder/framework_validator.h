@@ -3,7 +3,7 @@
 
 #include "problem/parameters_i.h"
 #include "instrumentation/port.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 #include <set>
 

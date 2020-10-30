@@ -2,7 +2,7 @@
 #define BART_SRC_INSTRUMENTATION_CONVERTER_STRING_COLOR_PAIR_TO_STRING_H_
 
 #include "instrumentation/converter/convert_to_string/to_string_converter.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace bart {
 

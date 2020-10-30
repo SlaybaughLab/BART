@@ -23,7 +23,7 @@ class SolverGroupSingleGroupSolverTest :
     public bart::testing::DealiiTestDomain<2> {
  protected:
 
-  using LinearSolver = solver::LinearMock;
+  using LinearSolver = solver::linear::LinearMock;
   using LeftHandSide = system::terms::BilinearTermMock;
   using RightHandSide = system::terms::LinearTermMock;
   using GroupSolution = NiceMock<system::solution::MPIGroupAngularSolutionMock>;

@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "convergence/moments/tests/multi_moment_checker_mock.h"
 #include "convergence/tests/final_test.h"
 #include "system/moments/spherical_harmonic_types.h"
@@ -61,7 +61,8 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, Constructor) {
 
 TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergence) {
   FinalMultiMomentChecker test_checker(std::move(checker_ptr));
-  Status good_convergence = {1, 100, true, std::nullopt, std::nullopt};
+  Status good_convergence{.iteration_number = 1, .max_iterations = 100, .is_complete = true,
+                          .failed_index = std::nullopt, .delta = std::nullopt};
 
   auto result = test_checker.CheckFinalConvergence(moment_map_one, moment_map_two);
   EXPECT_TRUE(CompareStatus(result, good_convergence));
@@ -79,7 +80,8 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergenceAfterBad) {
       .WillOnce(Return(true));
 
   FinalMultiMomentChecker test_checker(std::move(checker_ptr));
-  Status result, good_convergence = {6, 100, true, std::nullopt, std::nullopt};
+  Status result, good_convergence{.iteration_number{6}, .max_iterations{100}, .is_complete{true},
+                                  .failed_index{std::nullopt}, .delta{std::nullopt}};
 
   for (int i = 0; i < 6; ++i)
     result = test_checker.CheckFinalConvergence(moment_map_one, moment_map_two);

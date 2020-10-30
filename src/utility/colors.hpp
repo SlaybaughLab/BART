@@ -1,12 +1,10 @@
-#ifndef BART_SRC_UTILITY_COLORS_H_
-#define BART_SRC_UTILITY_COLORS_H_
+#ifndef BART_SRC_UTILITY_COLORS_HPP_
+#define BART_SRC_UTILITY_COLORS_HPP_
 
 #include <map>
 #include <string>
 
-namespace bart {
-
-namespace utility {
+namespace bart::utility {
 
 enum class Color {
   kReset = 0,
@@ -15,6 +13,8 @@ enum class Color {
   kBlue = 3,
   kYellow = 4,
 };
+
+// LCOV_EXCL_START
 
 inline std::string to_string(Color to_convert) {
   std::map<Color, std::string> color_string{
@@ -27,8 +27,8 @@ inline std::string to_string(Color to_convert) {
   return color_string.at(to_convert);
 }
 
-} // namespace utility
+// LCOV_EXCL_STOP
 
-} // namespace bart
+} // namespace bart::utility
 
-#endif //BART_SRC_UTILITY_COLORS_H_
+#endif //BART_SRC_UTILITY_COLORS_HPP_

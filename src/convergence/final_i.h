@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 
 namespace bart {
 

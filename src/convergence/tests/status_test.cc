@@ -1,4 +1,4 @@
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"

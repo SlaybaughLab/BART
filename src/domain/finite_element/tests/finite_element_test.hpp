@@ -3,7 +3,7 @@
 
 #include "domain/finite_element/finite_element.h"
 
-#include "test_helpers/test_assertions.h"
+#include "test_helpers/test_assertions.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 
@@ -111,7 +111,7 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
 
   auto result_vector = test_fe->ValueAtQuadrature(test_moment);
 
-  EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
+  EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, result_vector));
 }
 
 template <int dim>
@@ -130,7 +130,7 @@ void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(
 
   auto result_vector = test_fe->ValueAtFaceQuadrature(values_at_dofs);
 
-  EXPECT_TRUE(bart::test_helpers::CompareVector(expected_vector, result_vector));
+  EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, result_vector));
 }
 
 

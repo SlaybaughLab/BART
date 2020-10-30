@@ -4,7 +4,7 @@
 #include <optional>
 
 #include "convergence/final_i.h"
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 
 namespace bart {
 

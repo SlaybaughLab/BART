@@ -9,7 +9,7 @@
 #include <deal.II/base/tensor.h>
 #include <deal.II/base/utilities.h>
 
-#include "domain/mesh/factory.h"
+#include "domain/mesh/factory.hpp"
 #include "problem/parameter_types.h"
 
 namespace bart {

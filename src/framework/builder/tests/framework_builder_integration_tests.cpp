@@ -527,7 +527,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSingleGroupSolver) {
   auto dynamic_ptr = dynamic_cast<ExpectedType*>(solver_ptr.get());
   ASSERT_NE(nullptr, dynamic_ptr);
 
-  using ExpectedLinearSolverType = solver::GMRES;
+  using ExpectedLinearSolverType = solver::linear::GMRES;
 
   auto linear_solver_ptr = dynamic_cast<ExpectedLinearSolverType*>(
       dynamic_ptr->linear_solver_ptr());

@@ -2,7 +2,7 @@
 #define BART_SRC_CONVERGENCE_TESTS_FINAL_CHECKER_MOCK_H_
 
 #include "convergence/final_i.h"
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 

@@ -2,13 +2,13 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "instrumentation/tests/instrument_mock.h"
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace  {
 

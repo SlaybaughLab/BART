@@ -1,11 +1,9 @@
-#ifndef BART_SRC_CONVERGENCE_STATUS_H_
-#define BART_SRC_CONVERGENCE_STATUS_H_
+#ifndef BART_SRC_CONVERGENCE_STATUS_HPP_
+#define BART_SRC_CONVERGENCE_STATUS_HPP_
 
 #include <optional>
 
-namespace bart {
-
-namespace convergence {
+namespace bart::convergence {
 
 /*! Contains the status of a convergence check */
 struct Status {
@@ -14,9 +12,6 @@ struct Status {
   bool is_complete = false;
   std::optional<int> failed_index = std::nullopt;
   std::optional<double> delta = std::nullopt;
-
-  Status() = default;
-  Status(const Status& rhs) = default;
 
   bool operator==(const Status& rhs) const {
     if (iteration_number != rhs.iteration_number) {
@@ -36,22 +31,8 @@ struct Status {
   bool operator!=(const Status& rhs) const {
     return !(*this == rhs);
   }
-
-  Status& operator=(const Status& other) {
-    iteration_number = other.iteration_number;
-    max_iterations = other.max_iterations;
-    is_complete = other.is_complete;
-    failed_index = other.failed_index;
-    delta = other.delta;
-    return *this;
-  }
 };
 
+} // namespace bart::convergence
 
-
-
-} // namespace convergence
-
-} // namespace bart
-
-#endif // BART_SRC_CONVERGENCE_STATUS_H_    
+#endif // BART_SRC_CONVERGENCE_STATUS_HPP_

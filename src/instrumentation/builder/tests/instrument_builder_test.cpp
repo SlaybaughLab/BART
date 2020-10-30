@@ -5,7 +5,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "convergence/status.h"
+#include "convergence/status.hpp"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
 #include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
@@ -25,7 +25,7 @@
 #include "test_helpers/test_helper_functions.h"
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace  {
 

@@ -3,7 +3,7 @@
 #include "problem/tests/parameters_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "instrumentation/tests/instrument_mock.h"
-#include "utility/colors.h"
+#include "utility/colors.hpp"
 
 namespace  {
 
