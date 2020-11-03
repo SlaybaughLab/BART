@@ -13,6 +13,10 @@ FrameworkValidator &FrameworkValidator::AddPart(FrameworkPart to_add) {
   return *this;
 }
 
+auto FrameworkValidator::Parse(framework::FrameworkParameters) -> void {
+
+}
+
 void FrameworkValidator::Parse(const problem::ParametersI& to_parse) {
   needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
   if (to_parse.IsEigenvalueProblem())

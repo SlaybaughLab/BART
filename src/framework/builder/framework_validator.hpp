@@ -3,15 +3,15 @@
 
 #include "problem/parameters_i.h"
 #include "instrumentation/port.hpp"
+#include "framework/framework_parameters.hpp"
+#include "instrumentation/port.h"
+#include "problem/parameters_i.h"
 #include "utility/colors.hpp"
+#include "utility/uncopyable.h"
 
 #include <set>
 
-namespace bart {
-
-namespace framework {
-
-namespace builder {
+namespace bart::framework::builder {
 
 enum class FrameworkPart {
   ScatteringSourceUpdate = 0,
@@ -24,24 +24,19 @@ struct ValidatorStatus;
 using ValidatorStatusPort = instrumentation::Port<std::pair<std::string, utility::Color>, ValidatorStatus>;
 } // namespace data_port
 
-class FrameworkValidator : public data_port::ValidatorStatusPort {
+class FrameworkValidator : public data_port::ValidatorStatusPort, public utility::Uncopyable {
  public:
-  FrameworkValidator& AddPart(const FrameworkPart to_add);
+  auto AddPart(const FrameworkPart to_add) -> FrameworkValidator&;
+  auto Parse(const framework::FrameworkParameters) -> void;
+  auto Parse(const problem::ParametersI& to_parse) -> void;
+  auto ReportValidation() -> void;
 
-  bool HasNeededParts() const {
-    return needed_parts_.size() > 0; }
-
-  bool HasUnneededParts() const {
-    return parts_.size() > needed_parts_.size(); }
-  std::set<FrameworkPart> NeededParts() const {
-    return needed_parts_; }
-  void Parse(const problem::ParametersI& to_parse);
-  std::set<FrameworkPart> Parts() const {
-    return parts_; }
-  void ReportValidation();
-  std::set<FrameworkPart> UnneededParts() const;
+  [[nodiscard]] auto HasNeededParts() const -> bool { return needed_parts_.size() > 0; }
+  [[nodiscard]] auto HasUnneededParts() const -> bool { return parts_.size() > needed_parts_.size(); }
+  [[nodiscard]] auto NeededParts() const -> std::set<FrameworkPart> { return needed_parts_; }
+  [[nodiscard]] auto Parts() const -> std::set<FrameworkPart> { return parts_; }
+  [[nodiscard]] auto UnneededParts() const -> std::set<FrameworkPart>;
  private:
-
   std::set<FrameworkPart> needed_parts_{};
   std::set<FrameworkPart> parts_{};
 
@@ -50,13 +45,8 @@ class FrameworkValidator : public data_port::ValidatorStatusPort {
       {FrameworkPart::FissionSourceUpdate, "fission source updater"},
       {FrameworkPart::AngularSolutionStorage, "angular solution storage"}
   };
-
 };
 
-} // namespace builder
-
-} // namespace framework
-
-} // namespace bart
+} // namespace bart::framework::builder
 
 #endif //BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_HPP_
