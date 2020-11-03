@@ -1,20 +1,22 @@
 #include "framework/builder/framework_validator.hpp"
 
 #include <algorithm>
+#include <deal.II/base/cuda.h>
 
-namespace bart {
+namespace bart::framework::builder {
 
-namespace framework {
-
-namespace builder {
+namespace  {
+std::string error_start{"Error in FrameworkValidator::"};
+} // namespace
 
 FrameworkValidator &FrameworkValidator::AddPart(FrameworkPart to_add) {
   parts_.insert(to_add);
   return *this;
 }
 
-auto FrameworkValidator::Parse(framework::FrameworkParameters) -> void {
-
+auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) -> void {
+  std::string error{error_start + "Parse: "};
+  AssertThrow(parameters.neutron_energy_groups > 0, dealii::ExcMessage(error + "bad parameter energy group number"));
 }
 
 void FrameworkValidator::Parse(const problem::ParametersI& to_parse) {
@@ -76,8 +78,4 @@ void FrameworkValidator::ReportValidation() {
   }
 }
 
-} // namespace builder
-
-} // namespace framework
-
-} // namespace bart
+} // namespace bart::framework::builder
