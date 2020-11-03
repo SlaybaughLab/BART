@@ -17,6 +17,13 @@ FrameworkValidator &FrameworkValidator::AddPart(FrameworkPart to_add) {
 auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) -> void {
   std::string error{error_start + "Parse: "};
   AssertThrow(parameters.neutron_energy_groups > 0, dealii::ExcMessage(error + "bad parameter energy group number"));
+
+  needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
+
+  // Check for required angular solution storage
+  if (parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
+    needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
+  }
 }
 
 void FrameworkValidator::Parse(const problem::ParametersI& to_parse) {

@@ -3,11 +3,13 @@
 #include "framework/framework_parameters.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
+#include "problem/parameter_types.h"
 
 namespace  {
 
 namespace builder = bart::framework::builder;
 namespace helper = bart::test_helpers;
+namespace problem = bart::problem;
 
 class FrameworkBuilderFrameworkValidatorParametersTest : public ::testing::Test {
  public:
@@ -24,6 +26,12 @@ auto FrameworkBuilderFrameworkValidatorParametersTest::SetUp() -> void {
   framework_parameters_ = {.neutron_energy_groups = 2};
 }
 
+TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, DefaultFramework) {
+  test_validator_.Parse(framework_parameters_);
+  EXPECT_TRUE(test_validator_.HasNeededParts());
+  EXPECT_TRUE(test_validator_.NeededParts().contains(Part::ScatteringSourceUpdate));
+}
+
 TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, BadEnergyGroups) {
   FrameworkParameters bad_parameters{framework_parameters_};
 
@@ -35,6 +43,14 @@ TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, BadEnergyGroups) {
     EXPECT_ANY_THROW(test_validator_.Parse(bad_parameters))
               << "No throw for neutron_energy_groups = " + std::to_string(bad_group);
   }
+}
+
+TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, SAAFRequiresAngularSolutionStorage) {
+  FrameworkParameters saaf_parameters{framework_parameters_};
+  saaf_parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
+  EXPECT_NO_THROW(test_validator_.Parse(saaf_parameters));
+  EXPECT_TRUE(test_validator_.HasNeededParts());
+  EXPECT_TRUE(test_validator_.NeededParts().contains(Part::AngularSolutionStorage));
 }
 
 
