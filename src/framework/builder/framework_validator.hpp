@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_H_
-#define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_H_
+#ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_HPP_
+#define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_HPP_
 
 #include "problem/parameters_i.h"
 #include "instrumentation/port.hpp"
@@ -59,4 +59,4 @@ class FrameworkValidator : public data_port::ValidatorStatusPort {
 
 } // namespace bart
 
-#endif //BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_H_
+#endif //BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_HPP_

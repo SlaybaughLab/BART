@@ -11,7 +11,7 @@
 #include "utility/has_description.h"
 #include "system/system_helper.hpp"
 
-#include "framework/builder/framework_validator.h"
+#include "framework/builder/framework_validator.hpp"
 // Problem parameters
 #include "problem/parameters_i.h"
 #include "system/solution/solution_types.h"

@@ -1,4 +1,4 @@
-#include "framework/builder/framework_validator.h"
+#include "framework/builder/framework_validator.hpp"
 
 #include "problem/tests/parameters_mock.h"
 #include "test_helpers/gmock_wrapper.h"
