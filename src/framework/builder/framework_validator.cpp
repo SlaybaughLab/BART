@@ -21,7 +21,8 @@ auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) 
   needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
 
   // Check for required angular solution storage
-  if (parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
+  if (!parameters.reflective_boundaries.empty() &&
+      parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
     needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
   }
 }

@@ -3,11 +3,14 @@
 
 #include "problem/parameter_types.h"
 
+#include <set>
+
 namespace bart::framework {
 
 struct FrameworkParameters {
-  int neutron_energy_groups{1};
-  problem::EquationType equation_type{problem::EquationType::kDiffusion};
+  int                         neutron_energy_groups{1};
+  problem::EquationType       equation_type{problem::EquationType::kDiffusion};
+  std::set<problem::Boundary> reflective_boundaries{};
 };
 
 } // namespace bart::framework

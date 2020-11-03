@@ -49,7 +49,10 @@ TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, SAAFRequiresAngularSolu
   FrameworkParameters saaf_parameters{framework_parameters_};
   saaf_parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
   EXPECT_NO_THROW(test_validator_.Parse(saaf_parameters));
-  EXPECT_TRUE(test_validator_.HasNeededParts());
+  EXPECT_FALSE(test_validator_.NeededParts().contains(Part::AngularSolutionStorage));
+
+  saaf_parameters.reflective_boundaries = {problem::Boundary::kXMin};
+  EXPECT_NO_THROW(test_validator_.Parse(saaf_parameters));
   EXPECT_TRUE(test_validator_.NeededParts().contains(Part::AngularSolutionStorage));
 }
 
