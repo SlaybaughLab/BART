@@ -1,7 +1,8 @@
 #include "framework/builder/framework_validator.hpp"
 
 #include <algorithm>
-#include <deal.II/base/cuda.h>
+
+#include <deal.II/base/exceptions.h>
 
 namespace bart::framework::builder {
 
@@ -19,6 +20,16 @@ auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) 
   AssertThrow(parameters.neutron_energy_groups > 0, dealii::ExcMessage(error + "bad parameter energy group number"));
 
   needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
+
+  // Check if this is an eigensolve
+  if (parameters.eigen_solver_type.has_value()) {
+    if (parameters.eigen_solver_type.value() != problem::EigenSolverType::kNone) {
+      needed_parts_.insert(FrameworkPart::FissionSourceUpdate);
+    } else {
+      Expose({"Warning, eigen_solver_type has been set to a value of kNone. This is not a valid EigenSolverType, "
+              "check that this was not done inadvertantly.", utility::Color::kYellow});
+    }
+  }
 
   // Check for required angular solution storage
   if (!parameters.reflective_boundaries.empty() &&
