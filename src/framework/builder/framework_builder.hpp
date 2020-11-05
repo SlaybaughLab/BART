@@ -11,6 +11,7 @@
 #include "utility/has_description.h"
 #include "system/system_helper.hpp"
 
+#include "framework/framework_parameters.hpp"
 #include "framework/builder/framework_validator.hpp"
 // Problem parameters
 #include "problem/parameters_i.h"
@@ -47,12 +48,7 @@
 #include "utility/colors.hpp"
 #include "instrumentation/port.hpp"
 
-
-namespace bart {
-
-namespace framework {
-
-namespace builder {
+namespace bart::framework::builder {
 
 namespace data_port {
 struct BuilderStatus;
@@ -107,6 +103,9 @@ class FrameworkBuilder : public data_port::StatusDataPort {
 
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
+
+  [[nodiscard]] auto BuildFramework(const std::string& name,
+                                    const FrameworkParameters&) -> std::unique_ptr<FrameworkType>;
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
@@ -228,10 +227,6 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   std::string filename_{""};
 };
 
-} // namespace builder
-
-} // namespace framework
-
-} // namespace bart
+} // namespace bart::framework::builder
 
 #endif //BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_HPP_

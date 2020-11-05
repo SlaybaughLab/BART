@@ -16,6 +16,9 @@ struct FrameworkParameters {
   // Solver structure
   std::optional<problem::EigenSolverType> eigen_solver_type{std::nullopt};
   problem::InGroupSolverType              group_solver_type{problem::InGroupSolverType::kSourceIteration};
+
+  // Solver domain
+  problem::DiscretizationType discretization_type{problem::DiscretizationType::kContinuousFEM};
 };
 
 } // namespace bart::framework
