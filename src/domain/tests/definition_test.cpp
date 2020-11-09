@@ -43,21 +43,29 @@ void DomainDefinitionTest<DimensionWrapper>::SetUp() {
 }
 
 TYPED_TEST(DomainDefinitionTest, Constructor) {
-
   using Discretization = problem::DiscretizationType;
-  std::array<Discretization, 2> discretizations{
-    Discretization::kContinuousFEM, Discretization::kDiscontinuousFEM};
-
+  std::array<Discretization, 2> discretizations{Discretization::kContinuousFEM, Discretization::kDiscontinuousFEM};
   for (const auto discretization : discretizations) {
-    bart::domain::Definition<this->dim> test_domain(std::move(this->mesh_ptr),
-                                                    this->fe_ptr,
-                                                    discretization);
+    auto mesh_ptr = std::make_unique<bart::domain::mesh::MeshMock<this->dim>>();
+    bart::domain::Definition<this->dim> test_domain(std::move(mesh_ptr), this->fe_ptr, discretization);
     // Verify ownership has been taken by constructor
-    EXPECT_EQ(this->mesh_ptr, nullptr);
+    EXPECT_EQ(mesh_ptr, nullptr);
     EXPECT_EQ(this->fe_ptr.use_count(), 2);
     EXPECT_EQ(test_domain.discretization_type(), discretization);
   }
 }
+
+TYPED_TEST(DomainDefinitionTest, BadDependencyPointers) {
+  constexpr int dim = this->dim;
+  const auto discretization{ problem::DiscretizationType::kContinuousFEM };
+  EXPECT_ANY_THROW({
+    bart::domain::Definition<dim> test_domain(std::move(this->mesh_ptr), nullptr, discretization);
+  });
+  EXPECT_ANY_THROW({
+    bart::domain::Definition<dim> test_domain(nullptr, this->fe_ptr, discretization);
+  });
+}
+
 
 TYPED_TEST(DomainDefinitionTest, SetUpMesh) {
   EXPECT_CALL(*this->mesh_ptr, FillTriangulation(_));
