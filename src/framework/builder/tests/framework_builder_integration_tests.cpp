@@ -351,6 +351,66 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainParametersTest) {
+  constexpr int dim = this->dim;
+  using Parameters = framework::FrameworkParameters;
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+
+  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
+                                                              Parameters::NumberOfCells(this->n_cells),
+                                                              finite_element_ptr,
+                                                              "1 1 2 2");
+
+  using ExpectedType = domain::Definition<this->dim>;
+
+  ASSERT_THAT(test_domain_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainNullFiniteElementPtr) {
+  constexpr int dim = this->dim;
+  using Parameters = framework::FrameworkParameters;
+  EXPECT_ANY_THROW({
+  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
+                                                              Parameters::NumberOfCells(this->n_cells),
+                                                              nullptr,
+                                                              "1 1 2 2");
+                   });
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainBadDomainSize) {
+  constexpr int dim = this->dim;
+  using Parameters = framework::FrameworkParameters;
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+
+  const auto bad_index{ bart::test_helpers::RandomInt(0, this->dim) };
+  auto bad_spatial_max { this->spatial_max };
+  bad_spatial_max.at(bad_index) = 0;
+
+  EXPECT_ANY_THROW({
+    auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(bad_spatial_max),
+                                                                Parameters::NumberOfCells(this->n_cells),
+                                                                finite_element_ptr,
+                                                                "1 1 2 2");
+                   });
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainBadNCells) {
+  constexpr int dim = this->dim;
+  using Parameters = framework::FrameworkParameters;
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+
+  const auto bad_index{ bart::test_helpers::RandomInt(0, this->dim) };
+  auto bad_n_cells { this->n_cells };
+  bad_n_cells.at(bad_index) = 0;
+
+  EXPECT_ANY_THROW({
+                     auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
+                                                                                 Parameters::NumberOfCells(bad_n_cells),
+                                                                                 finite_element_ptr,
+                                                                                 "1 1 2 2");
+                   });
+}
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
   using ExpectedType = iteration::group::GroupSourceIteration<this->dim>;
   using UpdaterPointersStruct = typename framework::builder::FrameworkBuilder<this->dim>::UpdaterPointers;

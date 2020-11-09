@@ -12,7 +12,10 @@
 namespace bart::framework {
 
 struct FrameworkParameters {
+  using DomainSize = utility::NamedType<std::vector<double>, struct DomainSizeStruct>;
+  using NumberOfCells = utility::NamedType<std::vector<int>, struct NumberOfCellsStruct>;
   using PolynomialDegree = utility::NamedType<int, struct PolynomialDegreeStruct>;
+  using SpatialDimension = utility::NamedType<int, struct SpatialDimensionStruct>;
 
   int                         neutron_energy_groups{1};
   problem::EquationType       equation_type{problem::EquationType::kDiffusion};
@@ -23,9 +26,14 @@ struct FrameworkParameters {
   problem::InGroupSolverType              group_solver_type{problem::InGroupSolverType::kSourceIteration};
 
   // Solver domain
+  SpatialDimension spatial_dimension{ 1 };
+  DomainSize domain_size{ {10.0} };
+  NumberOfCells number_of_cells { {10} };
+
   problem::DiscretizationType discretization_type{problem::DiscretizationType::kContinuousFEM};
   problem::CellFiniteElementType cell_finite_element_type{problem::CellFiniteElementType::kGaussian};
-  PolynomialDegree polynomial_degree{2};
+  PolynomialDegree polynomial_degree{ 2 };
+
 
   // Optional shared framework parts
   template <typename Part> using OptionalSharedPart = std::optional<std::shared_ptr<Part>>;

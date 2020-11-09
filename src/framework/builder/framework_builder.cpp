@@ -319,10 +319,32 @@ auto FrameworkBuilder<dim>::BuildDomain(
 }
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildDomain(FrameworkParameters::DomainSize domain_size,
+                                        FrameworkParameters::NumberOfCells number_of_cells,
+                                        const std::shared_ptr<FiniteElementType>& finite_element_ptr,
+                                        std::string material_mapping) -> std::unique_ptr<DomainType> {
+  std::unique_ptr<DomainType> return_ptr = nullptr;
+  try {
+    ReportBuildingComponant("Mesh");
+    auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
+        domain_size.get(), number_of_cells.get(), material_mapping);
+    ReportBuildSuccess(mesh_ptr->description());
+
+    ReportBuildingComponant("Domain");
+    return_ptr = std::move(std::make_unique<domain::Definition<dim>>(std::move(mesh_ptr), finite_element_ptr));
+    ReportBuildSuccess(return_ptr->description());
+  } catch (...) {
+    ReportBuildError();
+    throw;
+  }
+  return return_ptr;
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType finite_element_type,
                                                problem::DiscretizationType discretization_type,
                                                FrameworkParameters::PolynomialDegree polynomial_degree)
--> const std::unique_ptr<FiniteElementType> {
+-> std::unique_ptr<FiniteElementType> {
   ReportBuildingComponant("Cell finite element basis");
   std::unique_ptr<FiniteElementType> return_ptr{ nullptr };
 
