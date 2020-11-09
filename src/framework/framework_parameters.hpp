@@ -4,6 +4,7 @@
 #include "problem/parameter_types.h"
 #include "data/cross_sections.h"
 #include "utility/named_type.h"
+#include "quadrature/quadrature_set_i.h"
 
 #include <memory>
 #include <optional>
@@ -12,6 +13,7 @@
 namespace bart::framework {
 
 struct FrameworkParameters {
+  using AngularQuadratureOrder = quadrature::Order;
   using DomainSize = utility::NamedType<std::vector<double>, struct DomainSizeStruct>;
   using NumberOfCells = utility::NamedType<std::vector<int>, struct NumberOfCellsStruct>;
   using PolynomialDegree = utility::NamedType<int, struct PolynomialDegreeStruct>;
@@ -25,6 +27,10 @@ struct FrameworkParameters {
   std::optional<problem::EigenSolverType> eigen_solver_type{std::nullopt};
   problem::InGroupSolverType              group_solver_type{problem::InGroupSolverType::kSourceIteration};
 
+  // Angular quadrature parameters
+  problem::AngularQuadType angular_quadrature_type{ problem::AngularQuadType::kNone };
+  std::optional<AngularQuadratureOrder> angular_quadrature_order{ std::nullopt };
+
   // Solver domain
   SpatialDimension spatial_dimension{ 1 };
   DomainSize domain_size{ {10.0} };
@@ -37,7 +43,7 @@ struct FrameworkParameters {
 
   // Optional shared framework parts
   template <typename Part> using OptionalSharedPart = std::optional<std::shared_ptr<Part>>;
-  OptionalSharedPart<data::CrossSections> cross_sections_;
+  OptionalSharedPart<data::CrossSections> cross_sections_ { std::nullopt };
 };
 
 } // namespace bart::framework
