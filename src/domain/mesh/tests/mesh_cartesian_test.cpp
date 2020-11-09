@@ -152,25 +152,49 @@ TYPED_TEST(DomainMeshCartesianTest, FillBoundaryIDTest) {
 
 }
 
-TYPED_TEST(DomainMeshCartesianTest, BadSpatialSize) {
+TYPED_TEST(DomainMeshCartesianTest, SpatialSizeWrongDimension) {
   constexpr int dim = this->dim;
 
-  std::vector<std::vector<double>> spatial_maxes{
-      {},
-      test_helpers::RandomVector(1, 0, 100),
-      test_helpers::RandomVector(2, 0, 100),
-      test_helpers::RandomVector(3, 0, 100),
-      test_helpers::RandomVector(4, 0, 100)};
+  std::vector<std::vector<double>> spatial_maxes{ {} };
+  std::vector<std::vector<int>> n_cells{ {} };
+  for (int dimension = 1; dimension <= 3; ++dimension) {
+    spatial_maxes.emplace_back(test_helpers::RandomVector(dimension, 0, 100));
+    const auto cells_int_vector{test_helpers::RandomVector(dimension, 10, 20)};
+    n_cells.emplace_back(cells_int_vector.cbegin(), cells_int_vector.cend());
+  }
 
-  std::vector<std::vector<int>> n_cells{{}, {10}, {10, 20}, {10, 20, 30},
-                                        {10, 20, 30, 40}};
-  std::array<int, 2> i_values{-1, 1};
+  for (int i = 0; i <= 3; ++i) {
+    if (i != dim) {
+      EXPECT_ANY_THROW({domain::mesh::MeshCartesian<dim> test_mesh(spatial_maxes.at(i), n_cells.at(dim));});
+      EXPECT_ANY_THROW({domain::mesh::MeshCartesian<dim> test_mesh(spatial_maxes.at(dim), n_cells.at(i));});
+    }
+  }
+}
 
-  for (const auto& i : i_values) {
-    EXPECT_ANY_THROW({
-                       domain::mesh::MeshCartesian<dim> test_mesh(spatial_maxes.at(dim + i),
-                                                            n_cells.at(dim + i));
-                     });
+TYPED_TEST(DomainMeshCartesianTest, ZeroSpatialSize) {
+  constexpr int dim = this->dim;
+  const std::vector<double> spatial_size{ test_helpers::RandomVector(dim, 0, 100) };
+  const std::vector<double> n_cells_double_vector { test_helpers::RandomVector(dim, 10, 20) };
+  const std::vector<int> n_cells(n_cells_double_vector.cbegin(), n_cells_double_vector.cend());
+
+  std::vector<double> bad_spatial_size{ spatial_size };
+  bad_spatial_size.at(test_helpers::RandomInt(0, dim)) = 0;
+  EXPECT_ANY_THROW({domain::mesh::MeshCartesian<dim> test_mesh(bad_spatial_size, n_cells);});
+}
+
+TYPED_TEST(DomainMeshCartesianTest, NCellsNegativeOrZeroValue) {
+  constexpr int dim = this->dim;
+  const std::vector<double> spatial_size{ test_helpers::RandomVector(dim, 0, 100) };
+  const std::vector<double> n_cells_double_vector { test_helpers::RandomVector(dim, 10, 20) };
+  const std::vector<int> n_cells(n_cells_double_vector.cbegin(), n_cells_double_vector.cend());
+
+  std::vector<int> n_zero_cells{ n_cells };
+  n_zero_cells.at(test_helpers::RandomInt(0, dim)) = 0;
+  std::vector<int> n_negative_cells{ n_cells };
+  n_negative_cells.at(test_helpers::RandomInt(0, dim)) *= -1;
+
+  for (const auto& bad_cells : {n_zero_cells, n_negative_cells}) {
+    EXPECT_ANY_THROW({domain::mesh::MeshCartesian<dim> test_mesh(spatial_size, bad_cells);});
   }
 }
 

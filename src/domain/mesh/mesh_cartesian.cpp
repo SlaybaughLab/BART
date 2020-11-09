@@ -12,11 +12,7 @@
 #include "domain/mesh/factory.hpp"
 #include "problem/parameter_types.h"
 
-namespace bart {
-
-namespace domain {
-
-namespace mesh {
+namespace bart::domain::mesh {
 
 template <int dim>
 MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
@@ -27,40 +23,32 @@ MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
 }
 
 template <int dim>
-MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max,
-                                  const std::vector<int> n_cells) {
-
+MeshCartesian<dim>::MeshCartesian(const std::vector<double> spatial_max, const std::vector<int> n_cells) {
+  const std::string error_string{"MeshCartesian constructor error: "};
   // Check lengths of spatial max and n_cells
-  AssertThrow(spatial_max.size() == dim,
-              dealii::ExcMessage("MeshCartesian argument error, incorrect spatial vector size"));
-  AssertThrow(n_cells.size() == dim,
-              dealii::ExcMessage("MeshCartesian argument error, incorrect number of cells vector size"));
+  AssertThrow(spatial_max.size() == dim, dealii::ExcMessage(error_string + "incorrect spatial vector size"))
+  AssertThrow(n_cells.size() == dim, dealii::ExcMessage(error_string + "incorrect number of cells vector size"))
+  AssertThrow(std::all_of(spatial_max.cbegin(), spatial_max.cend(), [](const double val){ return val != 0; }),
+              dealii::ExcMessage(error_string + "spatial max has 0 entry."))
+  AssertThrow(std::all_of(n_cells.cbegin(), n_cells.cend(), [](const int val){ return val > 0; }),
+              dealii::ExcMessage(error_string + "n_cells values must be >= 0"))
   
   std::copy(n_cells.begin(), n_cells.end(), n_cells_.begin());
   std::copy(spatial_max.begin(), spatial_max.end(), spatial_max_.begin());
   description_ = "(Default) deal.II Cartesian Mesh, "+ std::to_string(dim) + "D, Size: {";
 
-  auto int_comma_fold = [](std::string a, int b) {
-    return std::move(a) + ", " + std::to_string(b);
-  };
-  auto double_comma_fold = [](std::string a, double b) {
-    return std::move(a) + ", " + std::to_string(b);
-  };
+  auto int_comma_fold = [](std::string a, int b) { return std::move(a) + ", " + std::to_string(b); };
+  auto double_comma_fold = [](std::string a, double b) { return std::move(a) + ", " + std::to_string(b); };
 
-  std::string size_string = std::accumulate(std::next(spatial_max.begin()),
-                                            spatial_max.end(),
-                                            std::to_string(spatial_max.at(0)),
-                                            double_comma_fold);
-  std::string n_cells_string = std::accumulate(std::next(n_cells.begin()),
-                                               n_cells.end(),
-                                               std::to_string(n_cells.at(0)),
-                                               int_comma_fold);
+  std::string size_string = std::accumulate(std::next(spatial_max.begin()), spatial_max.end(),
+                                            std::to_string(spatial_max.at(0)), double_comma_fold);
+  std::string n_cells_string = std::accumulate(std::next(n_cells.begin()), n_cells.end(),
+                                               std::to_string(n_cells.at(0)), int_comma_fold);
   description_ += size_string + "}, N_cells: {" + n_cells_string + "}";
 }
 
 template <int dim>
 void MeshCartesian<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) {
-  
   dealii::Point<dim> diagonal;
   dealii::Point<dim> origin;
 
@@ -68,8 +56,7 @@ void MeshCartesian<dim>::FillTriangulation(dealii::Triangulation<dim> &to_fill) 
     diagonal[i] = spatial_max_[i];
 
   std::vector<unsigned int> number_of_cells{n_cells_.begin(), n_cells_.end()};
-  dealii::GridGenerator::subdivided_hyper_rectangle(to_fill, number_of_cells,
-                                                    origin, diagonal);
+  dealii::GridGenerator::subdivided_hyper_rectangle(to_fill, number_of_cells, origin, diagonal);
 }
 
 template <int dim>
@@ -215,8 +202,5 @@ template class MeshCartesian<1>;
 template class MeshCartesian<2>;
 template class MeshCartesian<3>;
 
-} // namespace mesh
+} // } // namespace bart::domain::mesh
 
-} // namespace domain
-
-} // namespace bart 
