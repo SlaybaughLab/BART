@@ -737,6 +737,52 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
   return return_ptr;
 }
 
+template <int dim>
+auto FrameworkBuilder<dim>::BuildQuadratureSet(
+    const problem::AngularQuadType quadrature_type,
+    const FrameworkParameters::AngularQuadratureOrder order) -> std::shared_ptr<QuadratureSetType> {
+  ReportBuildingComponant("quadrature set");
+  using QuadratureGeneratorType = quadrature::QuadratureGeneratorI<dim>;
+
+  std::shared_ptr<QuadratureSetType> return_ptr{ nullptr };
+  std::shared_ptr<QuadratureGeneratorType> quadrature_generator_ptr{ nullptr };
+
+  try {
+
+    switch (quadrature_type) {
+      case problem::AngularQuadType::kLevelSymmetricGaussian: {
+        AssertThrow(dim == 3, dealii::ExcMessage("Error in BuildQuadratureSet LSGC only available for 3D"))
+        quadrature_generator_ptr = quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+            order, quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
+        break;
+      }
+      case problem::AngularQuadType::kGaussLegendre: {
+        AssertThrow(dim == 1, dealii::ExcMessage("Error in BuildQuadratureSet GaussLegendre only available for 1D"))
+        quadrature_generator_ptr =
+            quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
+                order, quadrature::AngularQuadratureSetType::kGaussLegendre);
+        break;
+      }
+      default: {
+        AssertThrow(false, dealii::ExcMessage("No supported quadratures for this dimension and transport model"))
+        break;
+      }
+    }
+    ReportBuildSuccess(quadrature_generator_ptr->description());
+
+    return_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
+
+    auto quadrature_points = quadrature::utility::GenerateAllPositiveX<dim>(quadrature_generator_ptr->GenerateSet());
+
+    quadrature::factory::FillQuadratureSet<dim>(return_ptr.get(), quadrature_points);
+
+    return return_ptr;
+  } catch (...) {
+    ReportBuildError();
+    throw;
+  }
+}
+
 template<int dim>
 auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters)
 -> std::shared_ptr<QuadratureSetType> {

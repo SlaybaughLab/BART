@@ -118,6 +118,9 @@ class FrameworkBuilder : public data_port::StatusDataPort {
                                  const FrameworkParameters::NumberOfCells,
                                  const std::shared_ptr<FiniteElementType>&,
                                  const std::string material_mapping) -> std::unique_ptr<DomainType>;
+  [[nodiscard]] auto BuildQuadratureSet(
+      const problem::AngularQuadType,
+      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSetType>;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 

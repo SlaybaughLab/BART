@@ -367,7 +367,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainParametersTest) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainNullFiniteElementPtr) {
-  constexpr int dim = this->dim;
   using Parameters = framework::FrameworkParameters;
   EXPECT_ANY_THROW({
   auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
@@ -609,6 +608,57 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
     EXPECT_ANY_THROW({
       auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
     });
+  }
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildQuadratureSetBadOrder) {
+  constexpr int dim = this->dim;
+  using Order = framework::FrameworkParameters::AngularQuadratureOrder;
+  auto bad_orders{ test_helpers::RandomVector(5, -10, -1) };
+  bad_orders.push_back(0);
+  for (const auto bad_order : bad_orders) {
+    for (const auto quadrature_type : {problem::AngularQuadType::kLevelSymmetricGaussian,
+                                       problem::AngularQuadType::kGaussLegendre}) {
+      EXPECT_ANY_THROW({
+        auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(quadrature_type, Order(bad_order));
+      });
+    }
+  }
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSetWithParameters) {
+  constexpr int dim = this->dim;
+  const framework::FrameworkParameters::AngularQuadratureOrder order{ 4 };
+  const auto framework_type { problem::AngularQuadType::kGaussLegendre };
+
+  if (dim == 1) {
+    using ExpectedType = quadrature::QuadratureSet<dim>;
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
+    ASSERT_NE(nullptr, quadrature_set);
+    ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
+    EXPECT_EQ(quadrature_set->size(), 2*order.get());
+  } else {
+    EXPECT_ANY_THROW({
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
+                     });
+  }
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSetWithParameters) {
+  constexpr int dim = this->dim;
+  const framework::FrameworkParameters::AngularQuadratureOrder order{ 4 };
+  const auto framework_type { problem::AngularQuadType::kLevelSymmetricGaussian };
+
+  if (dim == 3) {
+    using ExpectedType = quadrature::QuadratureSet<dim>;
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
+    ASSERT_NE(nullptr, quadrature_set);
+    ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
+    EXPECT_EQ(quadrature_set->size(), order.get() * (order.get() + 2));
+  } else {
+    EXPECT_ANY_THROW({
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
+                     });
   }
 }
 
