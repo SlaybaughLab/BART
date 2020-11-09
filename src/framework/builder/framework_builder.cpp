@@ -319,6 +319,30 @@ auto FrameworkBuilder<dim>::BuildDomain(
 }
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType finite_element_type,
+                                               problem::DiscretizationType discretization_type,
+                                               FrameworkParameters::PolynomialDegree polynomial_degree)
+-> const std::unique_ptr<FiniteElementType> {
+  ReportBuildingComponant("Cell finite element basis");
+  std::unique_ptr<FiniteElementType> return_ptr{ nullptr };
+
+  try {
+    AssertThrow(polynomial_degree.get() > 0, dealii::ExcMessage("Bad polynomial degree"))
+    switch (finite_element_type) {
+      case problem::CellFiniteElementType::kGaussian: {
+        using ReturnType = domain::finite_element::FiniteElementGaussian<dim>;
+        return_ptr = std::move(std::make_unique<ReturnType>(discretization_type, polynomial_degree.get()));
+      }
+    }
+  } catch (...) {
+    ReportBuildError();
+    throw;
+  }
+  ReportBuildSuccess(return_ptr->description());
+  return return_ptr;
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters)
 -> std::unique_ptr<FiniteElementType>{
   std::unique_ptr<FiniteElementType> return_ptr = nullptr;

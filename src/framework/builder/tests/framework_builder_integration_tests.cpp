@@ -4,6 +4,7 @@
 #include <deal.II/fe/fe_q.h>
 
 #include "framework/builder/framework_builder.hpp"
+#include "framework/framework_parameters.hpp"
 
 // Instantiated concerete classes
 #include "convergence/final_checker_or_n.h"
@@ -412,6 +413,39 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
   auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(
       finite_element_ptr->finite_element());
   EXPECT_NE(dealii_finite_element_ptr, nullptr);
+}
+
+// BuildFiniteElement should return correct object when given good parameters
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParameters) {
+  constexpr int dim = this->dim;
+  using PolynomialDegree = framework::FrameworkParameters::PolynomialDegree;
+  using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
+
+  auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(problem::CellFiniteElementType::kGaussian,
+                                                                        problem::DiscretizationType::kContinuousFEM,
+                                                                        PolynomialDegree(this->polynomial_degree));
+  ASSERT_NE(finite_element_ptr, nullptr);
+  auto gaussian_ptr = dynamic_cast<ExpectedType*>(finite_element_ptr.get());
+  ASSERT_NE(gaussian_ptr, nullptr);
+  EXPECT_EQ(finite_element_ptr->polynomial_degree(), this->polynomial_degree);
+  auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(finite_element_ptr->finite_element());
+  ASSERT_NE(dealii_finite_element_ptr, nullptr);
+}
+
+// BuildFiniteElement should throw if bad parameters are passed
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParametersBadPolynomialDegree) {
+  constexpr int dim = this->dim;
+  using PolynomialDegree = framework::FrameworkParameters::PolynomialDegree;
+  using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
+  auto bad_polynomial_degrees = bart::test_helpers::RandomVector(5, -10, -1);
+  bad_polynomial_degrees.push_back(0);
+  for (int bad_polynomial_degree : bad_polynomial_degrees) {
+    EXPECT_ANY_THROW({
+      auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(problem::CellFiniteElementType::kGaussian,
+                                                                            problem::DiscretizationType::kContinuousFEM,
+                                                                            PolynomialDegree(bad_polynomial_degree));
+    });
+  }
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {

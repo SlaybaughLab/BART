@@ -22,6 +22,8 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -
 
 TYPED_TEST_SUITE(FrameworkBuilderBuildFrameworkIntegrationTests, bart::testing::AllDimensions);
 
+// ===== BuildFramework ================================================================================================
+
 TYPED_TEST(FrameworkBuilderBuildFrameworkIntegrationTests, BuildFrameworkDefaultParameters) {
   constexpr int dim = this->dim;
   framework::FrameworkParameters parameters;

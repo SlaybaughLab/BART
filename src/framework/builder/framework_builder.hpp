@@ -110,8 +110,13 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
                                                 system::moments::SphericalHarmonicI*);
+  [[nodiscard]] auto BuildFiniteElement(const problem::CellFiniteElementType finite_element_type,
+                                        const problem::DiscretizationType discretization_type,
+                                        const FrameworkParameters::PolynomialDegree polynomial_degree)
+  -> std::unique_ptr<FiniteElementType> const;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
+
   std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<data::CrossSections>&,
