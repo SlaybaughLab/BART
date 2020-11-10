@@ -112,11 +112,11 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   [[nodiscard]] auto BuildFiniteElement(
       const problem::CellFiniteElementType finite_element_type,
       const problem::DiscretizationType discretization_type,
-      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElementType>;
+      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElementType> override;
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
                                  const std::shared_ptr<FiniteElementType>&,
-                                 const std::string material_mapping) -> std::unique_ptr<DomainType>;
+                                 const std::string material_mapping) -> std::unique_ptr<DomainType> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSetType>;
