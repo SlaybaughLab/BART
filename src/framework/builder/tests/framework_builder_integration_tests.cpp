@@ -612,7 +612,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildQuadratureSetBadOrder) {
-  constexpr int dim = this->dim;
   using Order = framework::FrameworkParameters::AngularQuadratureOrder;
   auto bad_orders{ test_helpers::RandomVector(5, -10, -1) };
   bad_orders.push_back(0);
@@ -660,6 +659,13 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSetWithParam
       auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
                      });
   }
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildkNoneTypeQuadratureSetWithParameters) {
+  const framework::FrameworkParameters::AngularQuadratureOrder order{ 4 };
+  const auto framework_type { problem::AngularQuadType::kNone };
+
+  EXPECT_ANY_THROW(this->test_builder_ptr_->BuildQuadratureSet(framework_type, order));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSingleGroupSolver) {
