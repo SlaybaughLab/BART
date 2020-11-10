@@ -20,6 +20,7 @@ struct FrameworkParameters {
   using SpatialDimension = utility::NamedType<int, struct SpatialDimensionStruct>;
 
   std::string name{""};
+  std::string output_filename_base{""};
 
   int                         neutron_energy_groups{1};
   problem::EquationType       equation_type{problem::EquationType::kDiffusion};
