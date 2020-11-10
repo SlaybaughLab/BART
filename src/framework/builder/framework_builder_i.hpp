@@ -15,6 +15,10 @@ class FrameworkBuilderI {
   using FrameworkI = framework::FrameworkI;
 };
 
+template <int dim>
+auto BuildFramework(FrameworkBuilderI<dim>&,
+                    const framework::FrameworkParameters&) -> std::unique_ptr<framework::FrameworkI>;
+
 } // namespace bart::framework::builder
 
 #endif //BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_I_HPP_

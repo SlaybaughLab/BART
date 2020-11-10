@@ -1,4 +1,4 @@
-#include "framework/builder/framework_builder.hpp"
+#include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"
 
 #include "framework/framework_parameters.hpp"
@@ -13,8 +13,10 @@ template <typename DimensionWrapper>
 class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using FrameworkBuilder = framework::builder::FrameworkBuilder<dim>;
-
+  using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
+  using FrameworkParameters = framework::FrameworkParameters;
+  FrameworkBuidler mock_builder_;
+  FrameworkParameters parameters_;
   auto SetUp() -> void override;
 };
 
@@ -26,7 +28,8 @@ TYPED_TEST_SUITE(FrameworkBuilderBuildFrameworkIntegrationTests, bart::testing::
 // ===== BuildFramework ================================================================================================
 
 TYPED_TEST(FrameworkBuilderBuildFrameworkIntegrationTests, BuildFrameworkDefaultParameters) {
-  EXPECT_TRUE(true);
+  auto framework_ptr = framework::builder::BuildFramework(this->mock_builder_, this->parameters_);
+  ASSERT_NE(framework_ptr, nullptr);
 }
 
 } // namespace
