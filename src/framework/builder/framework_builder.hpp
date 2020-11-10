@@ -1,6 +1,8 @@
 #ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_HPP_
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_HPP_
 
+#include "framework/builder/framework_builder_i.hpp"
+
 #include <fstream>
 #include <memory>
 #include <data/cross_sections.h>
@@ -56,7 +58,7 @@ using StatusDataPort = instrumentation::Port<std::pair<std::string, utility::Col
 }
 
 template <int dim>
-class FrameworkBuilder : public data_port::StatusDataPort {
+class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
   using ParametersType = const problem::ParametersI&;
   using Color = utility::Color;
@@ -105,7 +107,7 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   ~FrameworkBuilder() = default;
 
   [[nodiscard]] auto BuildFramework(const std::string& name,
-                                    const FrameworkParameters&) -> std::unique_ptr<FrameworkType>;
+                                    const FrameworkParameters&) -> std::unique_ptr<FrameworkType> override;
 
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,

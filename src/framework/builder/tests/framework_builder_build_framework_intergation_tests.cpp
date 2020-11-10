@@ -1,4 +1,5 @@
 #include "framework/builder/framework_builder.hpp"
+#include "framework/builder/tests/framework_builder_mock.hpp"
 
 #include "framework/framework_parameters.hpp"
 
