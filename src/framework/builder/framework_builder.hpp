@@ -106,9 +106,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
 
-  [[nodiscard]] auto BuildFramework(const std::string& name,
-                                    const FrameworkParameters&) -> std::unique_ptr<FrameworkType> override;
-
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
                                                 system::moments::SphericalHarmonicI*);

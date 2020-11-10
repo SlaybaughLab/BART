@@ -10,7 +10,6 @@ template <int dim>
 class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
  public:
   using typename FrameworkBuilderI<dim>::FrameworkI;
-  MOCK_METHOD(std::unique_ptr<FrameworkI>, BuildFramework, (const std::string&, const FrameworkParameters&), (override));
 };
 
 } // namespace bart::framework::builder

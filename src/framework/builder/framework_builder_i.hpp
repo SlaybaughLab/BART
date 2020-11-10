@@ -13,8 +13,6 @@ template <int dim>
 class FrameworkBuilderI {
  public:
   using FrameworkI = framework::FrameworkI;
-  virtual auto BuildFramework(const std::string& name, const FrameworkParameters&) -> std::unique_ptr<FrameworkI> = 0;
-
 };
 
 } // namespace bart::framework::builder

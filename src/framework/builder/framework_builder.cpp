@@ -70,13 +70,6 @@ using StringColorPair = std::pair<std::string, utility::Color>;
 
 } // namespace
 
-template<int dim>
-auto FrameworkBuilder<dim>::BuildFramework(
-    const std::string& /*name*/,
-    const FrameworkParameters& /*parameters*/) -> std::unique_ptr<FrameworkType> {
-  return nullptr;
-}
-
 template <int dim>
 auto FrameworkBuilder<dim>::BuildFramework(
     std::string name,
