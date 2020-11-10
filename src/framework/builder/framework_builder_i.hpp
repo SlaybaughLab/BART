@@ -4,15 +4,22 @@
 #include <memory>
 #include <string>
 
+#include "domain/finite_element/finite_element_i.h"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
+#include "problem/parameter_types.h"
 
 namespace bart::framework::builder {
 
 template <int dim>
 class FrameworkBuilderI {
  public:
+  using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
+  virtual auto BuildFiniteElement(
+      const problem::CellFiniteElementType,
+      const problem::DiscretizationType,
+      const FrameworkParameters::PolynomialDegree) -> std::unique_ptr<FiniteElement> = 0;
 };
 
 template <int dim>
