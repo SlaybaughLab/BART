@@ -19,6 +19,8 @@ struct FrameworkParameters {
   using PolynomialDegree = utility::NamedType<int, struct PolynomialDegreeStruct>;
   using SpatialDimension = utility::NamedType<int, struct SpatialDimensionStruct>;
 
+  std::string name{""};
+
   int                         neutron_energy_groups{1};
   problem::EquationType       equation_type{problem::EquationType::kDiffusion};
   std::set<problem::Boundary> reflective_boundaries{};
