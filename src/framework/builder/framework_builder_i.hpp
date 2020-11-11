@@ -8,6 +8,7 @@
 #include "domain/finite_element/finite_element_i.h"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
+#include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 
 namespace bart::framework::builder {
@@ -18,6 +19,9 @@ class FrameworkBuilderI {
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
+  using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
+
+  virtual ~FrameworkBuilderI() = default;
   virtual auto BuildFiniteElement(
       const problem::CellFiniteElementType,
       const problem::DiscretizationType,
@@ -26,6 +30,9 @@ class FrameworkBuilderI {
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,
                            const std::string material_mapping) -> std::unique_ptr<Domain> = 0;
+  virtual auto BuildQuadratureSet(
+      const problem::AngularQuadType,
+      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;
 };
 
 template <int dim>

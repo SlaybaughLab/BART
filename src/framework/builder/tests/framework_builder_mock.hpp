@@ -12,11 +12,14 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::QuadratureSet;
   MOCK_METHOD(std::unique_ptr<FiniteElement>, BuildFiniteElement, (const problem::CellFiniteElementType,
       const problem::DiscretizationType, const FrameworkParameters::PolynomialDegree), (override));
   MOCK_METHOD(std::unique_ptr<Domain>, BuildDomain, (const FrameworkParameters::DomainSize,
       const FrameworkParameters::NumberOfCells, const std::shared_ptr<FiniteElement>&,
       const std::string material_mapping), (override));
+  MOCK_METHOD(std::shared_ptr<QuadratureSet>, BuildQuadratureSet, (const problem::AngularQuadType,
+      const FrameworkParameters::AngularQuadratureOrder), (override));
 };
 
 } // namespace bart::framework::builder

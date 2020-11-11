@@ -119,7 +119,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                  const std::string material_mapping) -> std::unique_ptr<DomainType> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
-      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSetType>;
+      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSetType> override;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 
