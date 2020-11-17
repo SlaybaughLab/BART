@@ -109,17 +109,18 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
                                                 system::moments::SphericalHarmonicI*);
-  [[nodiscard]] auto BuildFiniteElement(
-      const problem::CellFiniteElementType finite_element_type,
-      const problem::DiscretizationType discretization_type,
-      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElementType> override;
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
                                  const std::shared_ptr<FiniteElementType>&,
                                  const std::string material_mapping) -> std::unique_ptr<DomainType> override;
+  [[nodiscard]] auto BuildFiniteElement(
+      const problem::CellFiniteElementType finite_element_type,
+      const problem::DiscretizationType discretization_type,
+      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElementType> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSetType> override;
+  [[nodiscard]] auto BuildStamper(const std::shared_ptr<DomainType>&) -> std::unique_ptr<StamperType> override;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 
@@ -188,7 +189,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<SingleGroupSolverType> BuildSingleGroupSolver(
       const int max_iterations = 1000,
       const double convergence_tolerance = 1e-10);
-  std::unique_ptr<StamperType> BuildStamper(const std::shared_ptr<DomainType>&);
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
                                           const DomainType& domain,
                                           const std::size_t solution_size,
