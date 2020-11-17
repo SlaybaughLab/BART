@@ -60,6 +60,14 @@ using StatusDataPort = instrumentation::Port<std::pair<std::string, utility::Col
 template <int dim>
 class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
+  // New using types from refactor
+  using typename FrameworkBuilderI<dim>::Domain;
+  using typename FrameworkBuilderI<dim>::FiniteElement;
+  using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::QuadratureSet;
+  using typename FrameworkBuilderI<dim>::Stamper;
+
+  // TODO: Remove old types as they are unneeded
   using ParametersType = const problem::ParametersI&;
   using Color = utility::Color;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
@@ -111,16 +119,16 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                                 system::moments::SphericalHarmonicI*);
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
-                                 const std::shared_ptr<FiniteElementType>&,
-                                 const std::string material_mapping) -> std::unique_ptr<DomainType> override;
+                                 const std::shared_ptr<FiniteElement>&,
+                                 const std::string material_mapping) -> std::unique_ptr<Domain> override;
   [[nodiscard]] auto BuildFiniteElement(
       const problem::CellFiniteElementType finite_element_type,
       const problem::DiscretizationType discretization_type,
-      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElementType> override;
+      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElement> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
-      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSetType> override;
-  [[nodiscard]] auto BuildStamper(const std::shared_ptr<DomainType>&) -> std::unique_ptr<StamperType> override;
+      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
+  [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 

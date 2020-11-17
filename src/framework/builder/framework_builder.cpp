@@ -314,9 +314,9 @@ auto FrameworkBuilder<dim>::BuildDomain(
 template<int dim>
 auto FrameworkBuilder<dim>::BuildDomain(FrameworkParameters::DomainSize domain_size,
                                         FrameworkParameters::NumberOfCells number_of_cells,
-                                        const std::shared_ptr<FiniteElementType>& finite_element_ptr,
-                                        std::string material_mapping) -> std::unique_ptr<DomainType> {
-  std::unique_ptr<DomainType> return_ptr = nullptr;
+                                        const std::shared_ptr<FiniteElement>& finite_element_ptr,
+                                        std::string material_mapping) -> std::unique_ptr<Domain> {
+  std::unique_ptr<Domain> return_ptr = nullptr;
   try {
     ReportBuildingComponant("Mesh");
     auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
@@ -337,7 +337,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType finite_element_type,
                                                problem::DiscretizationType discretization_type,
                                                FrameworkParameters::PolynomialDegree polynomial_degree)
--> std::unique_ptr<FiniteElementType> {
+-> std::unique_ptr<FiniteElement> {
   ReportBuildingComponant("Cell finite element basis");
   std::unique_ptr<FiniteElementType> return_ptr{ nullptr };
 
@@ -733,12 +733,12 @@ auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildQuadratureSet(
     const problem::AngularQuadType quadrature_type,
-    const FrameworkParameters::AngularQuadratureOrder order) -> std::shared_ptr<QuadratureSetType> {
+    const FrameworkParameters::AngularQuadratureOrder order) -> std::shared_ptr<QuadratureSet> {
   ReportBuildingComponant("quadrature set");
-  using QuadratureGeneratorType = quadrature::QuadratureGeneratorI<dim>;
+  using QuadratureGenerator = quadrature::QuadratureGeneratorI<dim>;
 
-  std::shared_ptr<QuadratureSetType> return_ptr{ nullptr };
-  std::shared_ptr<QuadratureGeneratorType> quadrature_generator_ptr{ nullptr };
+  std::shared_ptr<QuadratureSet> return_ptr{ nullptr };
+  std::shared_ptr<QuadratureGenerator> quadrature_generator_ptr{ nullptr };
 
   try {
 
@@ -891,14 +891,11 @@ auto FrameworkBuilder<dim>::BuildSystem(
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildStamper(
-    const std::shared_ptr<DomainType>& domain_ptr)
--> std::unique_ptr<StamperType> {
+auto FrameworkBuilder<dim>::BuildStamper(const std::shared_ptr<Domain>& domain_ptr) -> std::unique_ptr<Stamper> {
   ReportBuildingComponant("Stamper");
-  std::unique_ptr<StamperType> return_ptr = nullptr;
+  std::unique_ptr<Stamper> return_ptr = nullptr;
 
-  return_ptr = std::move(
-      std::make_unique<formulation::Stamper<dim>>(domain_ptr));
+  return_ptr = std::move(std::make_unique<formulation::Stamper<dim>>(domain_ptr));
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
