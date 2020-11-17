@@ -8,6 +8,7 @@
 #include "domain/finite_element/finite_element_i.h"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
+#include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/stamper_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
@@ -21,6 +22,7 @@ class FrameworkBuilderI {
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
+  using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using Stamper = formulation::StamperI<dim>;
 
   virtual ~FrameworkBuilderI() = default;
@@ -35,6 +37,10 @@ class FrameworkBuilderI {
   virtual auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;
+  virtual auto BuildSAAFFormulation(const std::shared_ptr<FiniteElement>&,
+                                    const std::shared_ptr<data::CrossSections>&,
+                                    const std::shared_ptr<QuadratureSet>&,
+                                    const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
   virtual auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> = 0;
 };
 

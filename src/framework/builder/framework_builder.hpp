@@ -66,6 +66,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::FrameworkI;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
+  using typename FrameworkBuilderI<dim>::SAAFFormulation;
 
   // TODO: Remove old types as they are unneeded
   using ParametersType = const problem::ParametersI&;
@@ -128,6 +129,12 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
+  [[nodiscard]] auto BuildSAAFFormulation(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<QuadratureSet>&,
+      const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault)
+  -> std::unique_ptr<SAAFFormulation> override;
   [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
@@ -189,11 +196,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
       double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
-  std::unique_ptr<SAAFFormulationType> BuildSAAFFormulation(
-      const std::shared_ptr<FiniteElementType>&,
-      const std::shared_ptr<data::CrossSections>&,
-      const std::shared_ptr<QuadratureSetType>&,
-      const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault);
   std::unique_ptr<SingleGroupSolverType> BuildSingleGroupSolver(
       const int max_iterations = 1000,
       const double convergence_tolerance = 1e-10);

@@ -828,20 +828,16 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters
 
 template <int dim>
 auto FrameworkBuilder<dim>::BuildSAAFFormulation(
-    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
+    const std::shared_ptr<FiniteElement>& finite_element_ptr,
     const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
-    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
-    const formulation::SAAFFormulationImpl implementation)
--> std::unique_ptr<SAAFFormulationType> {
+    const std::shared_ptr<QuadratureSet>& quadrature_set_ptr,
+    const formulation::SAAFFormulationImpl implementation) -> std::unique_ptr<SAAFFormulation> {
   ReportBuildingComponant("Building SAAF Formulation");
-  std::unique_ptr<SAAFFormulationType> return_ptr;
+  std::unique_ptr<SAAFFormulation> return_ptr;
 
   if (implementation == formulation::SAAFFormulationImpl::kDefault) {
     using ReturnType = formulation::angular::SelfAdjointAngularFlux<dim>;
-
-    return_ptr = std::move(std::make_unique<ReturnType>(finite_element_ptr,
-                                                        cross_sections_ptr,
-                                                        quadrature_set_ptr));
+    return_ptr = std::move(std::make_unique<ReturnType>(finite_element_ptr, cross_sections_ptr, quadrature_set_ptr));
   }
 
   return return_ptr;
