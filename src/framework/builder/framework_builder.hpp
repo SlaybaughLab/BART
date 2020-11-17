@@ -26,12 +26,7 @@
 #include "domain/finite_element/finite_element_i.h"
 #include "eigenvalue/k_effective/k_effective_updater_i.h"
 #include "formulation/stamper_i.h"
-#include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
-#include "formulation/updater/fission_source_updater_i.h"
-#include "formulation/updater/fixed_updater_i.h"
-#include "formulation/updater/scattering_source_updater_i.h"
-#include "formulation/updater/boundary_conditions_updater_i.h"
 #include "framework/framework_i.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
@@ -68,6 +63,13 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
 
+  using typename FrameworkBuilderI<dim>::UpdaterPointers;
+  using typename FrameworkBuilderI<dim>::BoundaryConditionsUpdater;
+  using typename FrameworkBuilderI<dim>::FissionSourceUpdater;
+  using typename FrameworkBuilderI<dim>::FixedTermUpdater;
+  using typename FrameworkBuilderI<dim>::ScatteringSourceUpdater;
+
+
   // TODO: Remove old types as they are unneeded
   using ParametersType = const problem::ParametersI&;
   using Color = utility::Color;
@@ -75,13 +77,11 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
-  using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterI;
+
   using CrossSectionType = data::CrossSections;
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
-  using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterI;
-  using FixedUpdaterType = formulation::updater::FixedUpdaterI;
   using FrameworkType = framework::FrameworkI;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
@@ -94,7 +94,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
-  using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterI;
   using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
   using SystemType = system::System;
@@ -104,13 +103,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using ColorStatusInstrument = instrumentation::InstrumentI<ColorStatusPair>;
   using ConvergenceInstrument = instrumentation::InstrumentI<convergence::Status>;
   using StatusInstrument = instrumentation::InstrumentI<std::string>;
-
-  struct UpdaterPointers {
-    std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
-    std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
-    std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
-    std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
-  };
 
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
@@ -136,6 +128,14 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault)
   -> std::unique_ptr<SAAFFormulation> override;
   [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
+  [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
+                                          std::unique_ptr<Stamper>,
+                                          const std::shared_ptr<QuadratureSet>&) -> UpdaterPointers;
+  [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
+                                          std::unique_ptr<Stamper>,
+                                          const std::shared_ptr<QuadratureSet>&,
+                                          const std::map<problem::Boundary, bool>& reflective_boundaries,
+                                          const AngularFluxStorage&) -> UpdaterPointers;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 
@@ -151,16 +151,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       std::unique_ptr<DiffusionFormulationType>,
       std::unique_ptr<StamperType>,
       const std::map<problem::Boundary, bool>& reflective_boundaries);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<SAAFFormulationType>,
-      std::unique_ptr<StamperType>,
-      const std::shared_ptr<QuadratureSetType>&);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<SAAFFormulationType>,
-      std::unique_ptr<StamperType>,
-      const std::shared_ptr<QuadratureSetType>&,
-      const std::map<problem::Boundary, bool>& reflective_boundaries,
-      const AngularFluxStorage&);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
       std::unique_ptr<SingleGroupSolverType>,
       std::unique_ptr<MomentConvergenceCheckerType>,
@@ -192,7 +182,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       std::unique_ptr<GroupSolveIterationType>,
       std::unique_ptr<ParameterConvergenceCheckerType>,
       std::unique_ptr<KEffectiveUpdaterType>,
-      const std::shared_ptr<FissionSourceUpdaterType>&);
+      const std::shared_ptr<FissionSourceUpdater>&);
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
       double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);

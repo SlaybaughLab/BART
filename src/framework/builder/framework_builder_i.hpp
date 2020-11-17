@@ -9,21 +9,43 @@
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
+#include "formulation/updater/boundary_conditions_updater_i.h"
+#include "formulation/updater/fission_source_updater_i.h"
+#include "formulation/updater/fixed_updater_i.h"
+#include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
+#include "system/solution/solution_types.h"
 
 namespace bart::framework::builder {
 
 template <int dim>
 class FrameworkBuilderI {
  public:
+  // Classes built by member functions
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using Stamper = formulation::StamperI<dim>;
+
+  // Other types
+  using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
+
+  // Updater Pointers
+  using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterI;
+  using FissionSourceUpdater = formulation::updater::FissionSourceUpdaterI;
+  using FixedTermUpdater = formulation::updater::FixedUpdaterI;
+  using ScatteringSourceUpdater = formulation::updater::ScatteringSourceUpdaterI;
+
+  struct UpdaterPointers {
+    std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr{ nullptr };
+    std::shared_ptr<FissionSourceUpdater> fission_source_updater_ptr{ nullptr };
+    std::shared_ptr<FixedTermUpdater> fixed_updater_ptr{ nullptr };
+    std::shared_ptr<ScatteringSourceUpdater> scattering_source_updater_ptr{ nullptr };
+  };
 
   virtual ~FrameworkBuilderI() = default;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
@@ -42,6 +64,15 @@ class FrameworkBuilderI {
                                     const std::shared_ptr<QuadratureSet>&,
                                     const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
   virtual auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> = 0;
+
+  virtual auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
+                                    std::unique_ptr<Stamper>,
+                                    const std::shared_ptr<QuadratureSet>&) -> UpdaterPointers = 0;
+  virtual auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
+                                    std::unique_ptr<Stamper>,
+                                    const std::shared_ptr<QuadratureSet>&,
+                                    const std::map<problem::Boundary, bool>& reflective_boundaries,
+                                    const AngularFluxStorage&) -> UpdaterPointers = 0;
 };
 
 template <int dim>

@@ -411,18 +411,16 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildUpdaterPointers(
-    std::unique_ptr<SAAFFormulationType> formulation_ptr,
-    std::unique_ptr<StamperType> stamper_ptr,
-    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr)
--> UpdaterPointers {
+    std::unique_ptr<SAAFFormulation> formulation_ptr,
+    std::unique_ptr<Stamper> stamper_ptr,
+    const std::shared_ptr<QuadratureSet>& quadrature_set_ptr) -> UpdaterPointers {
   ReportBuildingComponant("Building SAAF Formulation updater");
   UpdaterPointers return_struct;
 
   using ReturnType = formulation::updater::SAAFUpdater<dim>;
-  auto saaf_updater_ptr = std::make_shared<ReturnType>(
-      std::move(formulation_ptr),
-      std::move(stamper_ptr),
-      quadrature_set_ptr);
+  auto saaf_updater_ptr = std::make_shared<ReturnType>(std::move(formulation_ptr),
+                                                       std::move(stamper_ptr),
+                                                       quadrature_set_ptr);
   ReportBuildSuccess(saaf_updater_ptr->description());
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
   return_struct.scattering_source_updater_ptr = saaf_updater_ptr;
@@ -433,14 +431,12 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildUpdaterPointers(
-    std::unique_ptr<SAAFFormulationType> formulation_ptr,
-    std::unique_ptr<StamperType> stamper_ptr,
-    const std::shared_ptr<QuadratureSetType>& quadrature_set_ptr,
+    std::unique_ptr<SAAFFormulation> formulation_ptr,
+    std::unique_ptr<Stamper> stamper_ptr,
+    const std::shared_ptr<QuadratureSet>& quadrature_set_ptr,
     const std::map<problem::Boundary, bool>& reflective_boundaries,
-    const AngularFluxStorage& angular_flux_storage)
--> UpdaterPointers {
-  ReportBuildingComponant("Building SAAF Formulation updater "
-                          "(with boundary conditions update)");
+    const AngularFluxStorage& angular_flux_storage) -> UpdaterPointers {
+  ReportBuildingComponant("Building SAAF Formulation updater (with boundary conditions update)");
   UpdaterPointers return_struct;
 
   // Transform map into set
@@ -453,12 +449,11 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   }
 
   using ReturnType = formulation::updater::SAAFUpdater<dim>;
-  auto saaf_updater_ptr = std::make_shared<ReturnType>(
-      std::move(formulation_ptr),
-      std::move(stamper_ptr),
-      quadrature_set_ptr,
-      angular_flux_storage,
-      reflective_boundary_set);
+  auto saaf_updater_ptr = std::make_shared<ReturnType>(std::move(formulation_ptr),
+                                                       std::move(stamper_ptr),
+                                                       quadrature_set_ptr,
+                                                       angular_flux_storage,
+                                                       reflective_boundary_set);
   ReportBuildSuccess(saaf_updater_ptr->description());
 
   return_struct.fixed_updater_ptr = saaf_updater_ptr;
@@ -681,7 +676,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIterationType> group_solve_iteration_ptr,
     std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
-    const std::shared_ptr<FissionSourceUpdaterType>& fission_source_updater_ptr)
+    const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr)
 -> std::unique_ptr<OuterIterationType> {
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;
   ReportBuildingComponant("Outer Iteration");
