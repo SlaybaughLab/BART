@@ -522,18 +522,16 @@ auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles)
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildInitializer(
-    const std::shared_ptr<formulation::updater::FixedUpdaterI>& updater_ptr,
-    const int total_groups,
-    const int total_angles) -> std::unique_ptr<Initializer> {
+auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpdater>& updater_ptr,
+                                             const int total_groups,
+                                             const int total_angles) -> std::unique_ptr<Initializer> {
   ReportBuildingComponant("Initializer");
 
   std::unique_ptr<Initializer> return_ptr = nullptr;
 
   using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
 
-  return_ptr = std::move(std::make_unique<InitializeOnceType>(
-      updater_ptr, total_groups, total_angles));
+  return_ptr = std::move(std::make_unique<InitializeOnceType>(updater_ptr, total_groups, total_angles));
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }

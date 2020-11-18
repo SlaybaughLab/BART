@@ -122,6 +122,9 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const problem::CellFiniteElementType finite_element_type,
       const problem::DiscretizationType discretization_type,
       const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElement> override;
+  [[nodiscard]] auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
+                                      const int total_groups,
+                                      const int total_angles) -> std::unique_ptr<Initializer> override;
   [[nodiscard]] auto BuildMomentCalculator(
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment)
   -> std::unique_ptr<MomentCalculator> override;
@@ -165,9 +168,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
       std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
-  std::unique_ptr<Initializer> BuildInitializer(
-      const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
-      const int total_groups, const int total_angles);
   std::unique_ptr<GroupSolutionType> BuildGroupSolution(const int n_angles);
   std::unique_ptr<KEffectiveUpdaterType> BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElementType>&,
