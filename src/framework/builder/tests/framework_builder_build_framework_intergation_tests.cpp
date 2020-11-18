@@ -4,6 +4,7 @@
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.h"
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"
 #include "framework/framework_parameters.hpp"
@@ -25,6 +26,7 @@ template <typename DimensionWrapper>
 class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
+  using DiffusionFormulationMock = typename formulation::scalar::DiffusionMock<dim>;
   using DomainMock = typename domain::DefinitionMock<dim>;
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
@@ -43,6 +45,7 @@ class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
   FrameworkBuidler mock_builder_;
   FrameworkParameters default_parameters_;
 
+  DiffusionFormulationMock* diffusion_formulation_obs_ptr_{ nullptr };
   DomainMock* domain_obs_ptr_{ nullptr };
   FiniteElementMock* finite_element_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
@@ -58,6 +61,11 @@ class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
   auto RunTest(const FrameworkParameters& parameters) -> void;
   auto SetUp() -> void override;
 };
+
+template <typename T>
+auto ReturnByMove(T& to_return) {
+  return Return(ByMove(std::move(to_return)));
+}
 
 template <typename DimensionWrapper>
 auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -> void {
@@ -82,6 +90,8 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -
   }
 
   // Mocks and observation pointers
+  auto diffusion_formulation_ptr = std::make_unique<NiceMock<DiffusionFormulationMock>>();
+  diffusion_formulation_obs_ptr_ = diffusion_formulation_ptr.get();
   auto finite_element_ptr = std::make_unique<NiceMock<FiniteElementMock>>();
   finite_element_obs_ptr_ = finite_element_ptr.get();
   auto domain_ptr = std::make_unique<NiceMock<DomainMock>>();
@@ -99,15 +109,16 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -
   updater_pointers_.fixed_updater_ptr = std::make_shared<NiceMock<FixedTermUpdaterMock>>();
   updater_pointers_.scattering_source_updater_ptr = std::make_shared<NiceMock<ScatteringSourceUpdaterMock>>();
 
-  ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(Return(ByMove(std::move(finite_element_ptr))));
-  ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(Return(ByMove(std::move(domain_ptr))));
+  ON_CALL(mock_builder_, BuildDiffusionFormulation(_,_,_)).WillByDefault(ReturnByMove(diffusion_formulation_ptr));
+  ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(ReturnByMove(domain_ptr));
+  ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
-  ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(Return(ByMove(std::move(saaf_ptr))));
-  ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(Return(ByMove(std::move(stamper_ptr))));
+  ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
+  ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(ReturnByMove(stamper_ptr));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
-  ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(Return(ByMove(std::move(moment_calculator_ptr))));
-  ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(Return(ByMove(std::move(moment_calculator_ptr))));
+  ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
+  ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
 
   ON_CALL(*domain_obs_ptr_, SetUpMesh(_)).WillByDefault(ReturnRef(*domain_obs_ptr_));
   ON_CALL(*domain_obs_ptr_, SetUpDOF()).WillByDefault(ReturnRef(*domain_obs_ptr_));
@@ -182,6 +193,11 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
           SizeIs(parameters.neutron_energy_groups * total_quadrature_angles)))
           .WillOnce(DoDefault());
     }
+  } else if (parameters.equation_type == problem::EquationType::kDiffusion) {
+    EXPECT_CALL(mock_builder, BuildDiffusionFormulation(Pointee(Ref(*finite_element_obs_ptr_)),
+                                                        Pointee(Ref(*parameters.cross_sections_.value())),
+                                                        _)).WillOnce(DoDefault());
+    EXPECT_CALL(*diffusion_formulation_obs_ptr_, Precalculate(cells_.at(0)));
   }
 
 

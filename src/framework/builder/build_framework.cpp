@@ -94,7 +94,10 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
                                                       quadrature_set_ptr);
     }
   } else if (parameters.equation_type == problem::EquationType::kDiffusion) {
-
+    auto diffusion_formulation_ptr = builder.BuildDiffusionFormulation(finite_element_ptr,
+                                                                       parameters.cross_sections_.value(),
+                                                                       formulation::DiffusionFormulationImpl::kDefault);
+    diffusion_formulation_ptr->Precalculate(domain_ptr->Cells().at(0));
   }
 
   return nullptr;
