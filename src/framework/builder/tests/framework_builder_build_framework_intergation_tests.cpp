@@ -21,6 +21,7 @@ namespace  {
 using namespace bart;
 using ::testing::Return, ::testing::ByMove, ::testing::DoDefault, ::testing::_, ::testing::NiceMock;
 using ::testing::Ref, ::testing::Pointee, ::testing::ReturnRef, ::testing::ContainerEq, ::testing::SizeIs;
+using ::testing::A, ::testing::AllOf;
 
 template <typename DimensionWrapper>
 class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
@@ -109,13 +110,17 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -
   updater_pointers_.fixed_updater_ptr = std::make_shared<NiceMock<FixedTermUpdaterMock>>();
   updater_pointers_.scattering_source_updater_ptr = std::make_shared<NiceMock<ScatteringSourceUpdaterMock>>();
 
+  using DiffusionFormulationPtr = std::unique_ptr<typename FrameworkBuidler::DiffusionFormulation>;
+  using SAAFFormulationPtr = std::unique_ptr<typename FrameworkBuidler::SAAFFormulation>;
+
   ON_CALL(mock_builder_, BuildDiffusionFormulation(_,_,_)).WillByDefault(ReturnByMove(diffusion_formulation_ptr));
   ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(ReturnByMove(domain_ptr));
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
   ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(ReturnByMove(stamper_ptr));
-  ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_)).WillByDefault(Return(updater_pointers_));
+  ON_CALL(mock_builder_, BuildUpdaterPointers(A<SAAFFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
+  ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
@@ -162,6 +167,16 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
     EXPECT_CALL(mock_builder, BuildMomentCalculator(_)).WillOnce(DoDefault());
   }
 
+  // Build a mapping of reflective boundaries
+  std::map<problem::Boundary, bool> reflective_boundaries {
+      {problem::Boundary::kXMin, false}, {problem::Boundary::kXMax, false},
+      {problem::Boundary::kYMin, false}, {problem::Boundary::kYMax, false},
+      {problem::Boundary::kZMin, false}, {problem::Boundary::kZMax, false},
+  };
+  for (auto& boundary : parameters.reflective_boundaries) {
+    reflective_boundaries.at(boundary) = true;
+  }
+
   // SAAF Specific calls
   if (parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
 
@@ -172,19 +187,13 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
         .WillOnce(DoDefault());
     EXPECT_CALL(*saaf_formulation_obs_ptr_, Initialize(cells_.at(0)));
     if (parameters.reflective_boundaries.empty()) {
-      EXPECT_CALL(mock_builder, BuildUpdaterPointers(Pointee(Ref(*saaf_formulation_obs_ptr_)),
-                                                     Pointee(Ref(*stamper_obs_ptr_)),
-                                                     Pointee(Ref(*quadrature_set_mock_ptr_))))
+      using SAAFFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::SAAFFormulation>;
+      EXPECT_CALL(mock_builder, BuildUpdaterPointers(
+          A<SAAFFormulationPtr>(),
+          Pointee(Ref(*stamper_obs_ptr_)),
+          Pointee(Ref(*quadrature_set_mock_ptr_))))
           .WillOnce(DoDefault());
     } else {
-      std::map<problem::Boundary, bool> reflective_boundaries {
-          {problem::Boundary::kXMin, false}, {problem::Boundary::kXMax, false},
-          {problem::Boundary::kYMin, false}, {problem::Boundary::kYMax, false},
-          {problem::Boundary::kZMin, false}, {problem::Boundary::kZMax, false},
-      };
-      for (auto& boundary : parameters.reflective_boundaries) {
-        reflective_boundaries.at(boundary) = true;
-      }
       EXPECT_CALL(mock_builder, BuildUpdaterPointers(
           Pointee(Ref(*saaf_formulation_obs_ptr_)),
           Pointee(Ref(*stamper_obs_ptr_)),
@@ -198,6 +207,10 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                         Pointee(Ref(*parameters.cross_sections_.value())),
                                                         _)).WillOnce(DoDefault());
     EXPECT_CALL(*diffusion_formulation_obs_ptr_, Precalculate(cells_.at(0)));
+    using DiffusionFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::DiffusionFormulation>;
+    EXPECT_CALL(mock_builder, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),
+                                                   Pointee(Ref(*stamper_obs_ptr_)),
+                                                   ContainerEq(reflective_boundaries))).WillOnce(DoDefault());
   }
 
 

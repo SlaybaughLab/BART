@@ -66,6 +66,16 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
   if (need_angular_solution_storage)
     system::SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_, n_groups, n_angles);
 
+  //TODO: Add overload that makes this unecessary
+  std::map<problem::Boundary, bool> reflective_boundaries {
+      {problem::Boundary::kXMin, false}, {problem::Boundary::kXMax, false},
+      {problem::Boundary::kYMin, false}, {problem::Boundary::kYMax, false},
+      {problem::Boundary::kZMin, false}, {problem::Boundary::kZMax, false},
+  };
+  for (auto& boundary : parameters.reflective_boundaries) {
+    reflective_boundaries.at(boundary) = true;
+  }
+
   // Formulation specific builds
   if (parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
     auto saaf_formulation_ptr = builder.BuildSAAFFormulation(finite_element_ptr,
@@ -74,15 +84,6 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
                                                              formulation::SAAFFormulationImpl::kDefault);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
     if (has_reflective_boundaries) {
-      //TODO: Add overload that makes this unecessary
-      std::map<problem::Boundary, bool> reflective_boundaries {
-          {problem::Boundary::kXMin, false}, {problem::Boundary::kXMax, false},
-          {problem::Boundary::kYMin, false}, {problem::Boundary::kYMax, false},
-          {problem::Boundary::kZMin, false}, {problem::Boundary::kZMax, false},
-      };
-      for (auto& boundary : parameters.reflective_boundaries) {
-        reflective_boundaries.at(boundary) = true;
-      }
       updater_pointers = builder.BuildUpdaterPointers(std::move(saaf_formulation_ptr),
                                                       builder.BuildStamper(domain_ptr),
                                                       quadrature_set_ptr,
@@ -98,6 +99,9 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
                                                                        parameters.cross_sections_.value(),
                                                                        formulation::DiffusionFormulationImpl::kDefault);
     diffusion_formulation_ptr->Precalculate(domain_ptr->Cells().at(0));
+    updater_pointers = builder.BuildUpdaterPointers(std::move(diffusion_formulation_ptr),
+                                                    builder.BuildStamper(domain_ptr),
+                                                    reflective_boundaries);
   }
 
   return nullptr;
