@@ -8,6 +8,7 @@
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"
 #include "framework/framework_parameters.hpp"
+#include "iteration/initializer/tests/initializer_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "material/tests/mock_material.h"
@@ -32,6 +33,7 @@ class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
   using FrameworkParameters = framework::FrameworkParameters;
+  using InitializerMock = iteration::initializer::InitializerMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
   using StamperMock = typename formulation::StamperMock<dim>;
@@ -49,6 +51,7 @@ class FrameworkBuilderBuildFrameworkIntegrationTests : public ::testing::Test {
   DiffusionFormulationMock* diffusion_formulation_obs_ptr_{ nullptr };
   DomainMock* domain_obs_ptr_{ nullptr };
   FiniteElementMock* finite_element_obs_ptr_{ nullptr };
+  InitializerMock* initializer_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   std::shared_ptr<QuadratureSetMock> quadrature_set_mock_ptr_{ nullptr };
   SAAFFormulationMock* saaf_formulation_obs_ptr_{ nullptr };
@@ -93,10 +96,12 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -
   // Mocks and observation pointers
   auto diffusion_formulation_ptr = std::make_unique<NiceMock<DiffusionFormulationMock>>();
   diffusion_formulation_obs_ptr_ = diffusion_formulation_ptr.get();
-  auto finite_element_ptr = std::make_unique<NiceMock<FiniteElementMock>>();
-  finite_element_obs_ptr_ = finite_element_ptr.get();
   auto domain_ptr = std::make_unique<NiceMock<DomainMock>>();
   domain_obs_ptr_ = domain_ptr.get();
+  auto finite_element_ptr = std::make_unique<NiceMock<FiniteElementMock>>();
+  finite_element_obs_ptr_ = finite_element_ptr.get();
+  auto initializer_ptr = std::make_unique<NiceMock<InitializerMock>>();
+  initializer_obs_ptr_ = initializer_ptr.get();
   auto moment_calculator_ptr = std::make_unique<NiceMock<MomentCalculatorMock>>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr.get();
   quadrature_set_mock_ptr_ = std::make_shared<QuadratureSetMock>();
@@ -116,6 +121,7 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -
   ON_CALL(mock_builder_, BuildDiffusionFormulation(_,_,_)).WillByDefault(ReturnByMove(diffusion_formulation_ptr));
   ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(ReturnByMove(domain_ptr));
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
+  ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
   ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(ReturnByMove(stamper_ptr));
@@ -135,6 +141,7 @@ template<typename DimensionWrapper>
 auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
     const FrameworkParameters &parameters) -> void {
   auto& mock_builder = this->mock_builder_;
+  int n_angles{ 1 };
 
   // Mock Builder calls
   EXPECT_CALL(mock_builder, BuildFiniteElement(parameters.cell_finite_element_type,
@@ -162,6 +169,7 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
         .WillOnce(DoDefault());
     EXPECT_CALL(*quadrature_set_mock_ptr_, size()).WillOnce(DoDefault());
     EXPECT_CALL(mock_builder, BuildMomentCalculator(Pointee(Ref(*quadrature_set_mock_ptr_)),_)).WillOnce(DoDefault());
+    n_angles = this->total_quadrature_angles;
   } else {
     // Scalar types
     EXPECT_CALL(mock_builder, BuildMomentCalculator(_)).WillOnce(DoDefault());
@@ -212,6 +220,10 @@ auto FrameworkBuilderBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                    Pointee(Ref(*stamper_obs_ptr_)),
                                                    ContainerEq(reflective_boundaries))).WillOnce(DoDefault());
   }
+
+  EXPECT_CALL(mock_builder, BuildInitializer(Pointee(Ref(*updater_pointers_.fixed_updater_ptr)),
+                                             parameters.neutron_energy_groups,
+                                             n_angles)).WillOnce(DoDefault());
 
 
   auto framework_ptr = framework::builder::BuildFramework(this->mock_builder_, parameters);

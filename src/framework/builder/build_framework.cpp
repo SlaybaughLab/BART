@@ -104,6 +104,10 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
                                                     reflective_boundaries);
   }
 
+  auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
+                                                  parameters.neutron_energy_groups,
+                                                  n_angles);
+
   return nullptr;
 }
 
