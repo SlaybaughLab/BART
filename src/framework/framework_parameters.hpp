@@ -22,9 +22,13 @@ struct FrameworkParameters {
   std::string name{""};
   std::string output_filename_base{""};
 
+  // Basic properties
   int                         neutron_energy_groups{1};
   problem::EquationType       equation_type{problem::EquationType::kDiffusion};
   std::set<problem::Boundary> reflective_boundaries{};
+
+  // Material properties
+  std::string material_mapping{ "" };
 
   // Solver structure
   std::optional<problem::EigenSolverType> eigen_solver_type{std::nullopt};
@@ -38,6 +42,8 @@ struct FrameworkParameters {
   SpatialDimension spatial_dimension{ 1 };
   DomainSize domain_size{ {10.0} };
   NumberOfCells number_of_cells { {10} };
+  int uniform_refinements { 0 };
+
 
   problem::DiscretizationType discretization_type{problem::DiscretizationType::kContinuousFEM};
   problem::CellFiniteElementType cell_finite_element_type{problem::CellFiniteElementType::kGaussian};
