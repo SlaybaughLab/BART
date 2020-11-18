@@ -9,6 +9,7 @@
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
+#include "formulation/scalar/diffusion_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
@@ -25,6 +26,7 @@ template <int dim>
 class FrameworkBuilderI {
  public:
   // Classes built by member functions
+  using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;

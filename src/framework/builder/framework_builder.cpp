@@ -274,9 +274,9 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
     const std::shared_ptr<FiniteElementType>& finite_element_ptr,
     const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
     const formulation::DiffusionFormulationImpl implementation)
--> std::unique_ptr<DiffusionFormulationType> {
+-> std::unique_ptr<DiffusionFormulation> {
   ReportBuildingComponant("Diffusion formulation");
-  std::unique_ptr<DiffusionFormulationType> return_ptr = nullptr;
+  std::unique_ptr<DiffusionFormulation> return_ptr = nullptr;
 
   if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
     using ReturnType = formulation::scalar::Diffusion<dim>;
@@ -381,7 +381,7 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildUpdaterPointers(
-    std::unique_ptr<DiffusionFormulationType> formulation_ptr,
+    std::unique_ptr<DiffusionFormulation> formulation_ptr,
     std::unique_ptr<StamperType> stamper_ptr,
     const std::map<problem::Boundary, bool>& reflective_boundaries)
 -> UpdaterPointers {

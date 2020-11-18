@@ -9,6 +9,7 @@ namespace bart::framework::builder {
 template <int dim>
 class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
  public:
+  using typename FrameworkBuilderI<dim>::DiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;

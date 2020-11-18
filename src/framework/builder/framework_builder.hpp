@@ -26,7 +26,6 @@
 #include "domain/finite_element/finite_element_i.h"
 #include "eigenvalue/k_effective/k_effective_updater_i.h"
 #include "formulation/stamper_i.h"
-#include "formulation/scalar/diffusion_i.h"
 #include "framework/framework_i.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
@@ -55,6 +54,7 @@ template <int dim>
 class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
   // New using types from refactor
+  using typename FrameworkBuilderI<dim>::DiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
@@ -79,7 +79,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
 
   using CrossSectionType = data::CrossSections;
-  using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FrameworkType = framework::FrameworkI;
@@ -145,7 +144,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 
-  std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
+  std::unique_ptr<DiffusionFormulation> BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<data::CrossSections>&,
       const formulation::DiffusionFormulationImpl implementation = formulation::DiffusionFormulationImpl::kDefault);
@@ -154,7 +153,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
   UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<DiffusionFormulationType>,
+      std::unique_ptr<DiffusionFormulation>,
       std::unique_ptr<StamperType>,
       const std::map<problem::Boundary, bool>& reflective_boundaries);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
