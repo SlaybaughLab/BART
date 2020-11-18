@@ -80,7 +80,9 @@ class FrameworkBuilderI {
                                     const std::shared_ptr<QuadratureSet>&,
                                     const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
   virtual auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> = 0;
-
+  virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
+                                    std::unique_ptr<Stamper>,
+                                    const std::map<problem::Boundary, bool>&) -> UpdaterPointers = 0;
   virtual auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
                                     std::unique_ptr<Stamper>,
                                     const std::shared_ptr<QuadratureSet>&) -> UpdaterPointers = 0;

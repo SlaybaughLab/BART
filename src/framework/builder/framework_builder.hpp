@@ -140,14 +140,18 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault)
   -> std::unique_ptr<SAAFFormulation> override;
   [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
+  [[nodiscard]] auto BuildUpdaterPointers(
+      std::unique_ptr<DiffusionFormulation>,
+      std::unique_ptr<Stamper>,
+      const std::map<problem::Boundary, bool>& reflective_boundaries) -> UpdaterPointers override;
   [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
                                           std::unique_ptr<Stamper>,
-                                          const std::shared_ptr<QuadratureSet>&) -> UpdaterPointers;
+                                          const std::shared_ptr<QuadratureSet>&) -> UpdaterPointers override;
   [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
                                           std::unique_ptr<Stamper>,
                                           const std::shared_ptr<QuadratureSet>&,
                                           const std::map<problem::Boundary, bool>& reflective_boundaries,
-                                          const AngularFluxStorage&) -> UpdaterPointers;
+                                          const AngularFluxStorage&) -> UpdaterPointers override;
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 
@@ -155,10 +159,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<DiffusionFormulation>,
-      std::unique_ptr<StamperType>,
-      const std::map<problem::Boundary, bool>& reflective_boundaries);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
       std::unique_ptr<SingleGroupSolverType>,
       std::unique_ptr<MomentConvergenceCheckerType>,

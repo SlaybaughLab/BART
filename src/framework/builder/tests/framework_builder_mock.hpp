@@ -45,6 +45,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
       const std::shared_ptr<data::CrossSections>&, const std::shared_ptr<QuadratureSet>&,
       const formulation::SAAFFormulationImpl), (override));
   MOCK_METHOD(std::unique_ptr<Stamper>, BuildStamper, (const std::shared_ptr<Domain>&), (override));
+  MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<DiffusionFormulation>,
+      std::unique_ptr<Stamper>, (const std::map<problem::Boundary, bool>&)), (override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<SAAFFormulation>,
       std::unique_ptr<Stamper>, const std::shared_ptr<QuadratureSet>&), (override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<SAAFFormulation>, std::unique_ptr<Stamper>,
