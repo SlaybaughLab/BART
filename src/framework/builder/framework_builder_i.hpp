@@ -15,6 +15,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.h"
+#include "iteration/initializer/initializer_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
@@ -30,6 +31,7 @@ class FrameworkBuilderI {
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
+  using Initializer = iteration::initializer::InitializerI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;

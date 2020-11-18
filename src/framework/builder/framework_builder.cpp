@@ -525,10 +525,10 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildInitializer(
     const std::shared_ptr<formulation::updater::FixedUpdaterI>& updater_ptr,
     const int total_groups,
-    const int total_angles) -> std::unique_ptr<InitializerType> {
+    const int total_angles) -> std::unique_ptr<Initializer> {
   ReportBuildingComponant("Initializer");
 
-  std::unique_ptr<InitializerType> return_ptr = nullptr;
+  std::unique_ptr<Initializer> return_ptr = nullptr;
 
   using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
 

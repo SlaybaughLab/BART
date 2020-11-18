@@ -13,6 +13,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::Initializer;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;

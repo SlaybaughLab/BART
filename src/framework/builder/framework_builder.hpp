@@ -28,7 +28,6 @@
 #include "formulation/stamper_i.h"
 #include "framework/framework_i.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
-#include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "instrumentation/port.hpp"
 #include "instrumentation/instrument_i.h"
@@ -58,6 +57,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::Initializer;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
@@ -85,7 +85,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using FrameworkType = framework::FrameworkI;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
-  using InitializerType = iteration::initializer::InitializerI;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerType = convergence::FinalI<const system::moments::MomentsMap>;
@@ -166,7 +165,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
       std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
-  std::unique_ptr<InitializerType> BuildInitializer(
+  std::unique_ptr<Initializer> BuildInitializer(
       const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
       const int total_groups, const int total_angles);
   std::unique_ptr<GroupSolutionType> BuildGroupSolution(const int n_angles);
