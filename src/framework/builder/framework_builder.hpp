@@ -34,7 +34,6 @@
 #include "instrumentation/port.hpp"
 #include "instrumentation/instrument_i.h"
 #include "quadrature/quadrature_set_i.h"
-#include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "solver/group/single_group_solver_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
 #include "system/system.h"
@@ -59,6 +58,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
@@ -69,11 +69,11 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::FixedTermUpdater;
   using typename FrameworkBuilderI<dim>::ScatteringSourceUpdater;
 
+  using typename FrameworkBuilderI<dim>::MomentCalculatorImpl;
 
   // TODO: Remove old types as they are unneeded
   using ParametersType = const problem::ParametersI&;
   using Color = utility::Color;
-  using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
@@ -87,7 +87,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using InitializerType = iteration::initializer::InitializerI;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
-  using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerType = convergence::FinalI<const system::moments::MomentsMap>;
   using OuterIterationType = iteration::outer::OuterIterationI;
@@ -118,6 +117,13 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const problem::CellFiniteElementType finite_element_type,
       const problem::DiscretizationType discretization_type,
       const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElement> override;
+  [[nodiscard]] auto BuildMomentCalculator(
+      MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment)
+  -> std::unique_ptr<MomentCalculator> override;
+  [[nodiscard]] auto BuildMomentCalculator(
+      std::shared_ptr<QuadratureSet>,
+      MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly)
+  -> std::unique_ptr<MomentCalculator> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
@@ -154,7 +160,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
       std::unique_ptr<SingleGroupSolverType>,
       std::unique_ptr<MomentConvergenceCheckerType>,
-      std::unique_ptr<MomentCalculatorType>,
+      std::unique_ptr<MomentCalculator>,
       const std::shared_ptr<GroupSolutionType>&,
       const UpdaterPointers& updater_ptrs,
       std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
@@ -166,11 +172,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<CrossSectionType>&,
       const std::shared_ptr<DomainType>&);
-  std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
-      MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment);
-  std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
-      std::shared_ptr<QuadratureSetType>,
-      MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly);
   std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
       double max_delta, int max_iterations);
   std::unique_ptr<MomentMapConvergenceCheckerType> BuildMomentMapConvergenceChecker(

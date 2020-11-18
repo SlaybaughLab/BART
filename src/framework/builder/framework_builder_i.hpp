@@ -14,6 +14,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.h"
+#include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 #include "system/solution/solution_types.h"
@@ -27,12 +28,14 @@ class FrameworkBuilderI {
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
+  using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using Stamper = formulation::StamperI<dim>;
 
   // Other types
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
+  using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
   // Updater Pointers
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterI;
@@ -56,6 +59,9 @@ class FrameworkBuilderI {
       const problem::CellFiniteElementType,
       const problem::DiscretizationType,
       const FrameworkParameters::PolynomialDegree) -> std::unique_ptr<FiniteElement> = 0;
+  virtual auto BuildMomentCalculator(MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;
+  virtual auto BuildMomentCalculator(std::shared_ptr<QuadratureSet>,
+                                     MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;
   virtual auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;

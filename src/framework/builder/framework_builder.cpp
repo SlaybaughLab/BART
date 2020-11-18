@@ -142,7 +142,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   // Various objects to be initialized
   std::shared_ptr<QuadratureSetType> quadrature_set_ptr = nullptr;
   UpdaterPointers updater_pointers;
-  std::unique_ptr<MomentCalculatorType> moment_calculator_ptr = nullptr;
+  std::unique_ptr<MomentCalculator> moment_calculator_ptr = nullptr;
   system::solution::EnergyGroupToAngularSolutionPtrMap angular_solutions_;
 
   if (prm.TransportModel() != problem::EquationType::kDiffusion) {
@@ -468,7 +468,7 @@ template <int dim>
 auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<SingleGroupSolverType> single_group_solver_ptr,
     std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
-    std::unique_ptr<MomentCalculatorType> moment_calculator_ptr,
+    std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
     std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr)
@@ -569,23 +569,20 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildMomentCalculator(
-    MomentCalculatorImpl implementation)
--> std::unique_ptr<MomentCalculatorType> {
+auto FrameworkBuilder<dim>::BuildMomentCalculator(MomentCalculatorImpl implementation)
+-> std::unique_ptr<MomentCalculator> {
   return BuildMomentCalculator(nullptr, implementation);
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildMomentCalculator(
-    std::shared_ptr<QuadratureSetType> quadrature_set_ptr,
-    FrameworkBuilder::MomentCalculatorImpl implementation)
--> std::unique_ptr<MomentCalculatorType> {
+auto FrameworkBuilder<dim>::BuildMomentCalculator(std::shared_ptr<QuadratureSet> quadrature_set_ptr,
+                                                  FrameworkBuilder::MomentCalculatorImpl implementation)
+-> std::unique_ptr<MomentCalculator> {
   ReportBuildingComponant("Moment calculator");
-  std::unique_ptr<MomentCalculatorType> return_ptr = nullptr;
+  std::unique_ptr<MomentCalculator> return_ptr = nullptr;
 
   try {
-    return_ptr = std::move(quadrature::factory::MakeMomentCalculator<dim>(
-        implementation, quadrature_set_ptr));
+    return_ptr = std::move(quadrature::factory::MakeMomentCalculator<dim>(implementation, quadrature_set_ptr));
 
     if (implementation == MomentCalculatorImpl::kScalarMoment) {
       ReportBuildSuccess("(default) calculator for scalar solve");
@@ -593,8 +590,7 @@ auto FrameworkBuilder<dim>::BuildMomentCalculator(
       ReportBuildSuccess("(default) calculator for 0th moment only");
     } else {
       AssertThrow(false,
-                  dealii::ExcMessage("Unsupported implementation of moment "
-                                     "calculator specified in call to "
+                  dealii::ExcMessage("Unsupported implementation of moment calculator specified in call to "
                                      "BuildMomentCalculator"))
     }
   } catch (...) {

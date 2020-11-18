@@ -12,6 +12,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
   using typename FrameworkBuilderI<dim>::Stamper;
@@ -29,6 +30,9 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
       const std::string material_mapping), (override));
   MOCK_METHOD(std::unique_ptr<FiniteElement>, BuildFiniteElement, (const problem::CellFiniteElementType,
       const problem::DiscretizationType, const FrameworkParameters::PolynomialDegree), (override));
+  MOCK_METHOD(std::unique_ptr<MomentCalculator>, BuildMomentCalculator,(quadrature::MomentCalculatorImpl), (override));
+  MOCK_METHOD(std::unique_ptr<MomentCalculator>, BuildMomentCalculator, (std::shared_ptr<QuadratureSet>,
+      quadrature::MomentCalculatorImpl), (override));
   MOCK_METHOD(std::shared_ptr<QuadratureSet>, BuildQuadratureSet, (const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder), (override));
   MOCK_METHOD(std::unique_ptr<SAAFFormulation>, BuildSAAFFormulation, (const std::shared_ptr<FiniteElement>&,
