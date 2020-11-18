@@ -37,6 +37,9 @@ class FrameworkBuilderI {
 
   // Other types
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
+
+  // Implementation specifiers
+  using DiffusionFormulationImpl = formulation::DiffusionFormulationImpl;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
 
   // Updater Pointers
@@ -53,6 +56,11 @@ class FrameworkBuilderI {
   };
 
   virtual ~FrameworkBuilderI() = default;
+
+  virtual auto BuildDiffusionFormulation(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&,
+      const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,

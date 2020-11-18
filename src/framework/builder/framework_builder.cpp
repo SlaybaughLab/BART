@@ -270,18 +270,16 @@ auto FrameworkBuilder<dim>::BuildCrossSections(
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildDiffusionFormulation(
-    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
-    const formulation::DiffusionFormulationImpl implementation)
+auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<FiniteElement>& finite_element_ptr,
+                                                      const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+                                                      const DiffusionFormulationImpl implementation)
 -> std::unique_ptr<DiffusionFormulation> {
   ReportBuildingComponant("Diffusion formulation");
   std::unique_ptr<DiffusionFormulation> return_ptr = nullptr;
 
-  if (implementation == formulation::DiffusionFormulationImpl::kDefault) {
+  if (implementation == DiffusionFormulationImpl::kDefault) {
     using ReturnType = formulation::scalar::Diffusion<dim>;
-    return_ptr = std::move(std::make_unique<ReturnType>(
-        finite_element_ptr, cross_sections_ptr));
+    return_ptr = std::move(std::make_unique<ReturnType>(finite_element_ptr, cross_sections_ptr));
   }
   ReportBuildSuccess(return_ptr->description());
 

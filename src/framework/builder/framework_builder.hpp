@@ -69,6 +69,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::FixedTermUpdater;
   using typename FrameworkBuilderI<dim>::ScatteringSourceUpdater;
 
+  using typename FrameworkBuilderI<dim>::DiffusionFormulationImpl;
   using typename FrameworkBuilderI<dim>::MomentCalculatorImpl;
 
   // TODO: Remove old types as they are unneeded
@@ -108,6 +109,12 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
   std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
                                                 system::moments::SphericalHarmonicI*);
+
+  [[nodiscard]] auto BuildDiffusionFormulation(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&,
+      const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault)
+  -> std::unique_ptr<DiffusionFormulation> override;
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
                                  const std::shared_ptr<FiniteElement>&,
@@ -144,10 +151,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
 
-  std::unique_ptr<DiffusionFormulation> BuildDiffusionFormulation(
-      const std::shared_ptr<FiniteElementType>&,
-      const std::shared_ptr<data::CrossSections>&,
-      const formulation::DiffusionFormulationImpl implementation = formulation::DiffusionFormulationImpl::kDefault);
   std::unique_ptr<DomainType> BuildDomain(
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);

@@ -19,6 +19,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::Stamper;
 
   using typename FrameworkBuilderI<dim>::AngularFluxStorage;
+  using typename FrameworkBuilderI<dim>::DiffusionFormulationImpl;
 
   using typename FrameworkBuilderI<dim>::UpdaterPointers;
   using typename FrameworkBuilderI<dim>::BoundaryConditionsUpdater;
@@ -26,6 +27,10 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::FixedTermUpdater ;
   using typename FrameworkBuilderI<dim>::ScatteringSourceUpdater;
 
+
+  MOCK_METHOD(std::unique_ptr<DiffusionFormulation>, BuildDiffusionFormulation,
+      (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
+      const DiffusionFormulationImpl), (override));
   MOCK_METHOD(std::unique_ptr<Domain>, BuildDomain, (const FrameworkParameters::DomainSize,
       const FrameworkParameters::NumberOfCells, const std::shared_ptr<FiniteElement>&,
       const std::string material_mapping), (override));
