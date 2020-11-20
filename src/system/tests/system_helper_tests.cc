@@ -1,5 +1,6 @@
 #include "system/system_helper.hpp"
 #include "system/system_functions.h"
+#include "system/tests/system_helper_mock.hpp"
 
 #include "domain/tests/definition_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
