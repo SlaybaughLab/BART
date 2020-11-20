@@ -80,6 +80,7 @@ void SetUpSystemTerms(system::System& system_to_setup,
   const int total_groups = system_to_setup.total_groups;
   const int total_angles = system_to_setup.total_angles;
 
+
   for (int group = 0; group < total_groups; ++group) {
     for (int angle = 0; angle < total_angles; ++angle) {
       system::Index index{group, angle};

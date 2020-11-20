@@ -24,8 +24,11 @@ using namespace bart;
 using ::testing::DoDefault, ::testing::Return, ::testing::ReturnRef, ::testing::WhenDynamicCastTo, ::testing::NotNull;
 using ::testing::_, ::testing::NiceMock;
 
+// SetUpMPIAngularSolutionTests
+
 template <typename DimensionWrapper>
-class SystemHelperTests : public ::testing::Test, public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+class SystemHelperTestsSetUpMPIAngularSolution : public ::testing::Test,
+                                                 public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
   system::SystemHelper<dim> test_helper_;
@@ -39,7 +42,7 @@ class SystemHelperTests : public ::testing::Test, public bart::testing::DealiiTe
 };
 
 template <typename DimensionWrapper>
-auto SystemHelperTests<DimensionWrapper>::SetUp() -> void {
+auto  SystemHelperTestsSetUpMPIAngularSolution<DimensionWrapper>::SetUp() -> void {
   this->SetUpDealii();
   ON_CALL(mock_solution, total_angles()).WillByDefault(Return(total_angles_));
   for (int i = 0; i < total_angles_; ++i) {
@@ -51,18 +54,17 @@ auto SystemHelperTests<DimensionWrapper>::SetUp() -> void {
 }
 
 template <typename DimensionWrapper>
-auto SystemHelperTests<DimensionWrapper>::StampMPIVector(bart::system::MPIVector &to_fill, double value) -> void {
+auto  SystemHelperTestsSetUpMPIAngularSolution<DimensionWrapper>::StampMPIVector(
+    bart::system::MPIVector &to_fill, double value) -> void {
   auto [local_begin, local_end] = to_fill.local_range();
   for (unsigned int i = local_begin; i < local_end; ++i)
     to_fill(i) += value;
   to_fill.compress(dealii::VectorOperation::add);
 }
 
-TYPED_TEST_SUITE(SystemHelperTests, bart::testing::AllDimensions);
+TYPED_TEST_SUITE( SystemHelperTestsSetUpMPIAngularSolution, bart::testing::AllDimensions);
 
-// SetUpMPIAngularSolutionTests
-
-TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionBadNangles) {
+TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionBadNangles) {
   constexpr int dim = this->dim;
   std::array<int, 4> bad_total_angles{0, -1, 2, 4};
   for (const auto angle : bad_total_angles) {
@@ -74,7 +76,7 @@ TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionBadNangles) {
   }
 }
 
-TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionSetUpDefaultValue) {
+TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionSetUpDefaultValue) {
   constexpr int dim = this->dim;
   EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
   EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
@@ -93,7 +95,7 @@ TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionSetUpDefaultValue) {
   }
 }
 
-TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionProvidedValues) {
+TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionProvidedValues) {
   constexpr int dim = this->dim;
   const double value_to_set = test_helpers::RandomDouble(0, 20);
 
@@ -115,128 +117,100 @@ TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionProvidedValues) {
   }
 }
 
-
-// [[deprecated below this line ]] ===================================================
-
-
-void StampMPIVector(bart::system::MPIVector &to_fill, double value = 2) {
-  auto [local_begin, local_end] = to_fill.local_range();
-  for (unsigned int i = local_begin; i < local_end; ++i)
-    to_fill(i) += value;
-  to_fill.compress(dealii::VectorOperation::add);
-}
 // == InitializeSystem Tests ===================================================
 
-class SystemFunctionsInitializeSystemTest : public ::testing::Test {
+class SystemHelperTestsInitializeSystem : public ::testing::Test {
  public:
-  bart::system::System test_system;
-};
-
-TEST_F(SystemFunctionsInitializeSystemTest, DefaultCall) {
   using VariableLinearTerms = system::terms::VariableLinearTerms;
   using ExpectedRHSType = bart::system::terms::MPILinearTerm;
   using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
   using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+  system::SystemHelper<1> test_helper_;
+
+  bart::system::System test_system_;
+};
+
+
+TEST_F(SystemHelperTestsInitializeSystem, DefaultCall) {
+
+  auto& test_system = this->test_system_;
 
   const int total_groups = bart::test_helpers::RandomDouble(1, 10);
   const int total_angles = total_groups + 1;
-  std::unordered_set<VariableLinearTerms> source_terms{
-      VariableLinearTerms::kScatteringSource,
-      VariableLinearTerms::kFissionSource};
+  std::unordered_set<VariableLinearTerms> source_terms{VariableLinearTerms::kScatteringSource,
+                                                       VariableLinearTerms::kFissionSource};
 
-  system::InitializeSystem(test_system, total_groups, total_angles);
+  this->test_helper_.InitializeSystem(test_system, total_groups, total_angles);
 
   EXPECT_EQ(test_system.total_angles, total_angles);
   EXPECT_EQ(test_system.total_groups, total_groups);
   EXPECT_EQ(test_system.k_effective, 1.0);
-  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
-  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(), WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(), WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
   EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
-  ASSERT_THAT(test_system.current_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
-  ASSERT_THAT(test_system.previous_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.current_moments.get(), WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(), WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
   EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
   EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
 }
 
-TEST_F(SystemFunctionsInitializeSystemTest, NonEigenvalueProblem) {
-  using VariableLinearTerms = system::terms::VariableLinearTerms;
-  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
-  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
-  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+TEST_F(SystemHelperTestsInitializeSystem, NonEigenvalueProblem) {
+  auto& test_system = this->test_system_;
 
   const int total_groups = bart::test_helpers::RandomDouble(1, 10);
   const int total_angles = total_groups + 1;
-  std::unordered_set<VariableLinearTerms> source_terms{
-      VariableLinearTerms::kScatteringSource};
+  std::unordered_set<VariableLinearTerms> source_terms{VariableLinearTerms::kScatteringSource};
 
-  system::InitializeSystem(test_system, total_groups, total_angles, false);
+  this->test_helper_.InitializeSystem(test_system, total_groups, total_angles, false);
 
   EXPECT_EQ(test_system.total_angles, total_angles);
   EXPECT_EQ(test_system.total_groups, total_groups);
   EXPECT_EQ(test_system.k_effective, std::nullopt);
-  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
-  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(), WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(), WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
   EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
-  ASSERT_THAT(test_system.current_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
-  ASSERT_THAT(test_system.previous_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.current_moments.get(), WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(), WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
   EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
   EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
 }
 
-TEST_F(SystemFunctionsInitializeSystemTest, BoundaryConditions) {
-  using VariableLinearTerms = system::terms::VariableLinearTerms;
-  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
-  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
-  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+TEST_F(SystemHelperTestsInitializeSystem, BoundaryConditions) {
+  auto& test_system = this->test_system_;
 
   const int total_groups = bart::test_helpers::RandomDouble(1, 10);
   const int total_angles = total_groups + 1;
-  std::unordered_set<VariableLinearTerms> source_terms{
-      VariableLinearTerms::kScatteringSource,
-      VariableLinearTerms::kReflectiveBoundaryCondition};
+  std::unordered_set<VariableLinearTerms> source_terms{VariableLinearTerms::kScatteringSource,
+                                                       VariableLinearTerms::kReflectiveBoundaryCondition};
 
-  system::InitializeSystem(test_system, total_groups, total_angles, false, true);
+  this->test_helper_.InitializeSystem(test_system, total_groups, total_angles, false, true);
 
   EXPECT_EQ(test_system.total_angles, total_angles);
   EXPECT_EQ(test_system.total_groups, total_groups);
   EXPECT_EQ(test_system.k_effective, std::nullopt);
-  ASSERT_THAT(test_system.right_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
-  ASSERT_THAT(test_system.left_hand_side_ptr_.get(),
-              WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
+  ASSERT_THAT(test_system.right_hand_side_ptr_.get(), WhenDynamicCastTo<ExpectedRHSType *>(NotNull()));
+  ASSERT_THAT(test_system.left_hand_side_ptr_.get(), WhenDynamicCastTo<ExpectedLHSType *>(NotNull()));
   EXPECT_EQ(test_system.right_hand_side_ptr_->GetVariableTerms(), source_terms);
-  ASSERT_THAT(test_system.current_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
-  ASSERT_THAT(test_system.previous_moments.get(),
-              WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.current_moments.get(), WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
+  ASSERT_THAT(test_system.previous_moments.get(), WhenDynamicCastTo<ExpectedMomentsType *>(NotNull()));
   EXPECT_EQ(test_system.current_moments->moments().size(), total_groups);
   EXPECT_EQ(test_system.previous_moments->moments().size(), total_groups);
 }
 
-TEST_F(SystemFunctionsInitializeSystemTest, ErrorOnSecondCall) {
-  using VariableLinearTerms = system::terms::VariableLinearTerms;
-  using ExpectedRHSType = bart::system::terms::MPILinearTerm;
-  using ExpectedLHSType = bart::system::terms::MPIBilinearTerm;
-  using ExpectedMomentsType = bart::system::moments::SphericalHarmonic;
+TEST_F(SystemHelperTestsInitializeSystem, ErrorOnSecondCall) {
+  auto& test_system = this->test_system_;
 
   const int total_groups = bart::test_helpers::RandomDouble(1, 10);
   const int total_angles = total_groups + 1;
-  std::unordered_set<VariableLinearTerms> source_terms{
-      VariableLinearTerms::kScatteringSource,
-      VariableLinearTerms::kFissionSource};
+  std::unordered_set<VariableLinearTerms> source_terms{VariableLinearTerms::kScatteringSource,
+                                                       VariableLinearTerms::kFissionSource};
 
-  system::InitializeSystem(test_system, total_groups, total_angles);
-  EXPECT_ANY_THROW(bart::system::InitializeSystem(test_system, total_groups,
-                                                  total_angles));
+  this->test_helper_.InitializeSystem(test_system, total_groups, total_angles);
+  EXPECT_ANY_THROW(this->test_helper_.InitializeSystem(test_system, total_groups,total_angles));
 }
+
+// [[deprecated below this line ]] ===================================================
+
 
 // == SetUpSystemTerms Tests ===================================================
 
@@ -250,7 +224,7 @@ class SystemFunctionsSetUpSystemTermsTests : public ::testing::Test,
   using LhsTermType = bart::system::terms::BilinearTermMock;
   using VariableLinearTerms = bart::system::terms::VariableLinearTerms;
 
-  bart::system::System test_system;
+  bart::system::System test_system_;
   std::shared_ptr<domain::DefinitionI<dim>> definition_ptr;
   DomainType* domain_mock_obs_ptr_;
   RhsTermType* rhs_mock_obs_ptr_;
@@ -270,13 +244,13 @@ template <typename DimensionWrapper>
 void SystemFunctionsSetUpSystemTermsTests<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
 
-  test_system.total_groups = bart::test_helpers::RandomDouble(2, 4);
-  test_system.total_angles = test_system.total_groups - 1;
-  test_system.right_hand_side_ptr_ = std::make_unique<RhsTermType>();
-  test_system.left_hand_side_ptr_ = std::make_unique<LhsTermType>();
+  test_system_.total_groups = bart::test_helpers::RandomDouble(2, 4);
+  test_system_.total_angles = test_system_.total_groups - 1;
+  test_system_.right_hand_side_ptr_ = std::make_unique<RhsTermType>();
+  test_system_.left_hand_side_ptr_ = std::make_unique<LhsTermType>();
 
-  rhs_mock_obs_ptr_ = dynamic_cast<RhsTermType*>(test_system.right_hand_side_ptr_.get());
-  lhs_mock_obs_ptr_ = dynamic_cast<LhsTermType*>(test_system.left_hand_side_ptr_.get());
+  rhs_mock_obs_ptr_ = dynamic_cast<RhsTermType*>(test_system_.right_hand_side_ptr_.get());
+  lhs_mock_obs_ptr_ = dynamic_cast<LhsTermType*>(test_system_.left_hand_side_ptr_.get());
 
   ON_CALL(*rhs_mock_obs_ptr_, GetVariableTerms())
       .WillByDefault(Return(source_terms_));
@@ -298,9 +272,9 @@ void SystemFunctionsSetUpSystemTermsTests<DimensionWrapper>::SetUp() {
 TYPED_TEST_SUITE(SystemFunctionsSetUpSystemTermsTests, bart::testing::AllDimensions);
 
 TYPED_TEST(SystemFunctionsSetUpSystemTermsTests, SetUpProperly) {
-  auto& test_system = this->test_system;
-  const int total_groups = test_system.total_groups;
-  const int total_angles = test_system.total_angles;
+  auto& test_system_ = this->test_system_;
+  const int total_groups = test_system_.total_groups;
+  const int total_angles = test_system_.total_angles;
 
   EXPECT_CALL(*this->rhs_mock_obs_ptr_, GetVariableTerms())
       .WillOnce(DoDefault());
@@ -322,7 +296,7 @@ TYPED_TEST(SystemFunctionsSetUpSystemTermsTests, SetUpProperly) {
     }
   }
 
-  bart::system::SetUpSystemTerms(test_system, *this->definition_ptr);
+  bart::system::SetUpSystemTerms(test_system_, *this->definition_ptr);
 }
 
 // ===== SetUpSystemMomentsTests ===============================================
@@ -331,7 +305,7 @@ class SystemFunctionsSetUpSystemMomentsTests : public ::testing::Test {
  public:
   using MomentsType = NiceMock<bart::system::moments::SphericalHarmonicMock>;
 
-  bart::system::System test_system;
+  bart::system::System test_system_;
   MomentsType* current_moments_obs_ptr_;
   MomentsType* previous_moments_obs_ptr_;
 
@@ -345,15 +319,15 @@ class SystemFunctionsSetUpSystemMomentsTests : public ::testing::Test {
 };
 
 void SystemFunctionsSetUpSystemMomentsTests::SetUp() {
-  test_system.current_moments = std::make_unique<MomentsType>();
-  test_system.previous_moments = std::make_unique<MomentsType>();
+  test_system_.current_moments = std::make_unique<MomentsType>();
+  test_system_.previous_moments = std::make_unique<MomentsType>();
 
-  current_moments_obs_ptr_ = MockCast(test_system.current_moments.get());
-  previous_moments_obs_ptr_ = MockCast(test_system.previous_moments.get());
+  current_moments_obs_ptr_ = MockCast(test_system_.current_moments.get());
+  previous_moments_obs_ptr_ = MockCast(test_system_.previous_moments.get());
 
   const int n_groups = bart::test_helpers::RandomDouble(1, 4);
   const int max_harmonic_l = bart::test_helpers::RandomDouble(0, 3);
-  test_system.total_groups = n_groups;
+  test_system_.total_groups = n_groups;
 
   for (auto& mock_moment_ptr : {current_moments_obs_ptr_,
                                 previous_moments_obs_ptr_}) {
@@ -395,7 +369,7 @@ TEST_F(SystemFunctionsSetUpSystemMomentsTests, SetUpProperly) {
     EXPECT_CALL(*mock_obs_ptr, end()).WillOnce(DoDefault());
   }
 
-  system::SetUpSystemMoments(test_system, solution_size);
+  system::SetUpSystemMoments(test_system_, solution_size);
   dealii::Vector<double> expected(solution_size);
   expected = 1;
 
