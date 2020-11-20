@@ -14,6 +14,8 @@ class SystemHelper : public SystemHelperI<dim> {
   auto SetUpMPIAngularSolution(system::solution::MPIGroupAngularSolutionI &to_initialize,
                                const domain::DefinitionI<dim> &domain_definition,
                                const double value_to_set = 1.0) const -> void override;
+  auto SetUpSystemTerms(system::System& system_to_setup,
+                                const domain::DefinitionI<dim>& domain_definition) const -> void override;
 
 };
 

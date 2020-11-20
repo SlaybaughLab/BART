@@ -63,6 +63,29 @@ auto SystemHelper<dim>::SetUpMPIAngularSolution(solution::MPIGroupAngularSolutio
 
 }
 
+template<int dim>
+auto SystemHelper<dim>::SetUpSystemTerms(System &system_to_setup,
+                                         const domain::DefinitionI<dim> &domain_definition) const -> void {
+  const auto variable_terms = system_to_setup.right_hand_side_ptr_->GetVariableTerms();
+  const int total_groups = system_to_setup.total_groups;
+  const int total_angles = system_to_setup.total_angles;
+
+  for (int group = 0; group < total_groups; ++group) {
+    for (int angle = 0; angle < total_angles; ++angle) {
+      system::Index index{group, angle};
+      auto& lhs = system_to_setup.left_hand_side_ptr_;
+      auto& rhs = system_to_setup.right_hand_side_ptr_;
+
+      lhs->SetFixedTermPtr(index, domain_definition.MakeSystemMatrix());
+      rhs->SetFixedTermPtr(index, domain_definition.MakeSystemVector());
+
+      for (const auto variable_term : variable_terms) {
+        rhs->SetVariableTermPtr(index, variable_term, domain_definition.MakeSystemVector());
+      }
+    }
+  }
+}
+
 template class SystemHelper<1>;
 template class SystemHelper<2>;
 template class SystemHelper<3>;

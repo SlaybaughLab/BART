@@ -65,7 +65,6 @@ auto  SystemHelperTestsSetUpMPIAngularSolution<DimensionWrapper>::StampMPIVector
 TYPED_TEST_SUITE( SystemHelperTestsSetUpMPIAngularSolution, bart::testing::AllDimensions);
 
 TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionBadNangles) {
-  constexpr int dim = this->dim;
   std::array<int, 4> bad_total_angles{0, -1, 2, 4};
   for (const auto angle : bad_total_angles) {
     EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(Return(angle));
@@ -129,7 +128,6 @@ class SystemHelperTestsInitializeSystem : public ::testing::Test {
 
   bart::system::System test_system_;
 };
-
 
 TEST_F(SystemHelperTestsInitializeSystem, DefaultCall) {
 
@@ -209,14 +207,11 @@ TEST_F(SystemHelperTestsInitializeSystem, ErrorOnSecondCall) {
   EXPECT_ANY_THROW(this->test_helper_.InitializeSystem(test_system, total_groups,total_angles));
 }
 
-// [[deprecated below this line ]] ===================================================
-
-
 // == SetUpSystemTerms Tests ===================================================
 
 template <typename DimensionWrapper>
-class SystemFunctionsSetUpSystemTermsTests : public ::testing::Test,
-                                             bart::testing::DealiiTestDomain<DimensionWrapper::value> {
+class SystemHelperSetUpSystemTermsTests : public ::testing::Test,
+                                          bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
   using DomainType = domain::DefinitionMock<dim>;
@@ -229,19 +224,19 @@ class SystemFunctionsSetUpSystemTermsTests : public ::testing::Test,
   DomainType* domain_mock_obs_ptr_;
   RhsTermType* rhs_mock_obs_ptr_;
   LhsTermType* lhs_mock_obs_ptr_;
+  system::SystemHelper<dim> test_helper_;
 
   std::shared_ptr<bart::system::MPISparseMatrix> system_matrix_ptr_;
   std::shared_ptr<bart::system::MPIVector> system_vector_ptr_;
 
-  std::unordered_set<VariableLinearTerms> source_terms_{
-      VariableLinearTerms::kScatteringSource,
-      VariableLinearTerms::kFissionSource};
+  std::unordered_set<VariableLinearTerms> source_terms_{VariableLinearTerms::kScatteringSource,
+                                                        VariableLinearTerms::kFissionSource};
 
   void SetUp() override;
 };
 
 template <typename DimensionWrapper>
-void SystemFunctionsSetUpSystemTermsTests<DimensionWrapper>::SetUp() {
+void SystemHelperSetUpSystemTermsTests<DimensionWrapper>::SetUp() {
   this->SetUpDealii();
 
   test_system_.total_groups = bart::test_helpers::RandomDouble(2, 4);
@@ -252,8 +247,7 @@ void SystemFunctionsSetUpSystemTermsTests<DimensionWrapper>::SetUp() {
   rhs_mock_obs_ptr_ = dynamic_cast<RhsTermType*>(test_system_.right_hand_side_ptr_.get());
   lhs_mock_obs_ptr_ = dynamic_cast<LhsTermType*>(test_system_.left_hand_side_ptr_.get());
 
-  ON_CALL(*rhs_mock_obs_ptr_, GetVariableTerms())
-      .WillByDefault(Return(source_terms_));
+  ON_CALL(*rhs_mock_obs_ptr_, GetVariableTerms()).WillByDefault(Return(source_terms_));
 
   definition_ptr = std::make_shared<DomainType>();
   domain_mock_obs_ptr_ = dynamic_cast<DomainType*>(definition_ptr.get());
@@ -263,21 +257,18 @@ void SystemFunctionsSetUpSystemTermsTests<DimensionWrapper>::SetUp() {
   system_vector_ptr_ = std::make_shared<bart::system::MPIVector>();
   system_vector_ptr_->reinit(this->vector_1);
 
-  ON_CALL(*domain_mock_obs_ptr_, MakeSystemMatrix())
-      .WillByDefault(Return(system_matrix_ptr_));
-  ON_CALL(*domain_mock_obs_ptr_, MakeSystemVector())
-      .WillByDefault(Return(system_vector_ptr_));
+  ON_CALL(*domain_mock_obs_ptr_, MakeSystemMatrix()).WillByDefault(Return(system_matrix_ptr_));
+  ON_CALL(*domain_mock_obs_ptr_, MakeSystemVector()).WillByDefault(Return(system_vector_ptr_));
 }
 
-TYPED_TEST_SUITE(SystemFunctionsSetUpSystemTermsTests, bart::testing::AllDimensions);
+TYPED_TEST_SUITE(SystemHelperSetUpSystemTermsTests, bart::testing::AllDimensions);
 
-TYPED_TEST(SystemFunctionsSetUpSystemTermsTests, SetUpProperly) {
+TYPED_TEST(SystemHelperSetUpSystemTermsTests, SetUpProperly) {
   auto& test_system_ = this->test_system_;
   const int total_groups = test_system_.total_groups;
   const int total_angles = test_system_.total_angles;
 
-  EXPECT_CALL(*this->rhs_mock_obs_ptr_, GetVariableTerms())
-      .WillOnce(DoDefault());
+  EXPECT_CALL(*this->rhs_mock_obs_ptr_, GetVariableTerms()).WillOnce(DoDefault());
 
   EXPECT_CALL(*this->domain_mock_obs_ptr_, MakeSystemMatrix())
       .Times(total_angles * total_groups)
@@ -296,8 +287,10 @@ TYPED_TEST(SystemFunctionsSetUpSystemTermsTests, SetUpProperly) {
     }
   }
 
-  bart::system::SetUpSystemTerms(test_system_, *this->definition_ptr);
+  this->test_helper_.SetUpSystemTerms(test_system_, *this->definition_ptr);
 }
+
+// [[deprecated below this line ]] ===================================================
 
 // ===== SetUpSystemMomentsTests ===============================================
 

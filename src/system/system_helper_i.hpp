@@ -16,6 +16,8 @@ class SystemHelperI {
   virtual auto SetUpMPIAngularSolution(system::solution::MPIGroupAngularSolutionI &to_initialize,
                                        const domain::DefinitionI<dim> &domain_definition,
                                        const double value_to_set) const -> void = 0;
+  virtual auto SetUpSystemTerms(system::System& system_to_setup,
+                                const domain::DefinitionI<dim>& domain_definition) const -> void = 0;
 };
 
 } // namespace bart::system
