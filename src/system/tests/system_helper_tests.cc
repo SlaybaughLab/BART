@@ -1,3 +1,4 @@
+#include "system/system_helper.hpp"
 #include "system/system_functions.h"
 
 #include "domain/tests/definition_mock.h"
@@ -27,6 +28,7 @@ template <typename DimensionWrapper>
 class SystemHelperTests : public ::testing::Test, public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
+  system::SystemHelper<dim> test_helper_;
   bart::system::solution::MPIGroupAngularSolutionMock mock_solution;
   domain::DefinitionMock<dim> mock_definition;
 
@@ -58,9 +60,63 @@ auto SystemHelperTests<DimensionWrapper>::StampMPIVector(bart::system::MPIVector
 
 TYPED_TEST_SUITE(SystemHelperTests, bart::testing::AllDimensions);
 
-TYPED_TEST(SystemHelperTests, Dummy) {
-  EXPECT_TRUE(false);
+// SetUpMPIAngularSolutionTests
+
+TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionBadNangles) {
+  constexpr int dim = this->dim;
+  std::array<int, 4> bad_total_angles{0, -1, 2, 4};
+  for (const auto angle : bad_total_angles) {
+    EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(Return(angle));
+    EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
+    EXPECT_ANY_THROW({
+      this->test_helper_.SetUpMPIAngularSolution(this->mock_solution,this->mock_definition);
+                     });
+  }
 }
+
+TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionSetUpDefaultValue) {
+  constexpr int dim = this->dim;
+  EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
+  EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
+  EXPECT_CALL(this->mock_definition, locally_owned_dofs()).WillOnce(DoDefault());
+  EXPECT_NO_THROW({
+    this->test_helper_.SetUpMPIAngularSolution(this->mock_solution, this->mock_definition);
+                  });
+  bart::system::MPIVector expected_vector;
+  expected_vector.reinit(this->locally_owned_dofs_, MPI_COMM_WORLD);
+  this->StampMPIVector(expected_vector, 1.0);
+
+  for (const auto& solution : this->solution_map_) {
+    auto& mpi_vector = solution.second;
+    ASSERT_GT(mpi_vector.size(), 0);
+    EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, mpi_vector));
+  }
+}
+
+TYPED_TEST(SystemHelperTests, SetUpMPIAngularSolutionProvidedValues) {
+  constexpr int dim = this->dim;
+  const double value_to_set = test_helpers::RandomDouble(0, 20);
+
+  EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
+  EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
+  EXPECT_CALL(this->mock_definition, locally_owned_dofs()).WillOnce(DoDefault());
+  EXPECT_NO_THROW({
+    this->test_helper_.SetUpMPIAngularSolution(this->mock_solution,this->mock_definition,value_to_set);
+                  });
+  bart::system::MPIVector expected_vector;
+  expected_vector.reinit(this->locally_owned_dofs_, MPI_COMM_WORLD);
+  expected_vector = 0;
+  this->StampMPIVector(expected_vector, value_to_set);
+
+  for (const auto& solution : this->solution_map_) {
+    auto& mpi_vector = solution.second;
+    ASSERT_GT(mpi_vector.size(), 0);
+    EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, mpi_vector));
+  }
+}
+
+
+// [[deprecated below this line ]] ===================================================
 
 
 void StampMPIVector(bart::system::MPIVector &to_fill, double value = 2) {
@@ -69,97 +125,6 @@ void StampMPIVector(bart::system::MPIVector &to_fill, double value = 2) {
     to_fill(i) += value;
   to_fill.compress(dealii::VectorOperation::add);
 }
-
-template <typename DimensionWrapper>
-class SystemFunctionsSetUpMPIAngularSolutionTests :
-    public ::testing::Test,
-    public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
- public:
-  static constexpr int dim = DimensionWrapper::value;
-  bart::system::solution::MPIGroupAngularSolutionMock mock_solution;
-  domain::DefinitionMock<dim> mock_definition;
-
-  const int total_angles_ = 3;
-  std::map<bart::system::AngleIndex, bart::system::MPIVector> solution_map_;
-  void SetUp() override;
-};
-
-template <typename DimensionWrapper>
-void SystemFunctionsSetUpMPIAngularSolutionTests<DimensionWrapper>::SetUp() {
-  this->SetUpDealii();
-  ON_CALL(mock_solution, total_angles()).WillByDefault(Return(total_angles_));
-
-  for (int i = 0; i < total_angles_; ++i) {
-    bart::system::MPIVector mpi_vector;
-    solution_map_.insert_or_assign(i, mpi_vector);
-  }
-  ON_CALL(mock_solution, solutions()).WillByDefault(ReturnRef(solution_map_));
-  ON_CALL(mock_definition, locally_owned_dofs())
-      .WillByDefault(Return(this->locally_owned_dofs_));
-}
-
-TYPED_TEST_SUITE(SystemFunctionsSetUpMPIAngularSolutionTests,
-    bart::testing::AllDimensions);
-
-TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, BadNangles) {
-  constexpr int dim = this->dim;
-
-  std::array<int, 4> bad_total_angles{0, -1, 2, 4};
-
-  for (const auto angle : bad_total_angles) {
-    EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(Return(angle));
-    EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
-    EXPECT_ANY_THROW({
-      bart::system::SetUpMPIAngularSolution<dim>(this->mock_solution,
-                                                 this->mock_definition);
-                     });
-  }
-}
-
-TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, SetUpDefaultValue) {
-  constexpr int dim = this->dim;
-  EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
-  EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
-  EXPECT_CALL(this->mock_definition, locally_owned_dofs()).WillOnce(DoDefault());
-  EXPECT_NO_THROW({
-    bart::system::SetUpMPIAngularSolution<dim>(this->mock_solution,
-                                               this->mock_definition);
-  });
-  bart::system::MPIVector expected_vector;
-  expected_vector.reinit(this->locally_owned_dofs_, MPI_COMM_WORLD);
-  StampMPIVector(expected_vector, 1.0);
-
-  for (const auto& solution : this->solution_map_) {
-    auto& mpi_vector = solution.second;
-    ASSERT_GT(mpi_vector.size(), 0);
-    EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, mpi_vector));
-  }
-}
-
-TYPED_TEST(SystemFunctionsSetUpMPIAngularSolutionTests, ProvidedValues) {
-  constexpr int dim = this->dim;
-  const double value_to_set = test_helpers::RandomDouble(0, 20);
-
-  EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
-  EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
-  EXPECT_CALL(this->mock_definition, locally_owned_dofs()).WillOnce(DoDefault());
-  EXPECT_NO_THROW({
-    bart::system::SetUpMPIAngularSolution<dim>(this->mock_solution,
-                                               this->mock_definition,
-                                               value_to_set);
-                   });
-  bart::system::MPIVector expected_vector;
-  expected_vector.reinit(this->locally_owned_dofs_, MPI_COMM_WORLD);
-  expected_vector = 0;
-  StampMPIVector(expected_vector, value_to_set);
-
-  for (const auto& solution : this->solution_map_) {
-    auto& mpi_vector = solution.second;
-    ASSERT_GT(mpi_vector.size(), 0);
-    EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, mpi_vector));
-  }
-}
-
 // == InitializeSystem Tests ===================================================
 
 class SystemFunctionsInitializeSystemTest : public ::testing::Test {
