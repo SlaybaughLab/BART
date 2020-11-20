@@ -9,6 +9,7 @@
 #include "quadrature/quadrature_types.h"
 
 #include "utility/has_description.h"
+#include "system/system_helper.hpp"
 
 #include "framework/builder/framework_validator.h"
 // Problem parameters
@@ -222,6 +223,7 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{nullptr};
   std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };
   mutable FrameworkValidator validator_;
+  const system::SystemHelper<dim> system_helper_;
   bool build_report_closed_ = true;
   std::string filename_{""};
 };

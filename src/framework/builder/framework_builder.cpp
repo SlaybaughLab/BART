@@ -55,7 +55,6 @@
 // System classes
 #include "system/system.h"
 #include "system/solution/mpi_group_angular_solution.h"
-#include "system/system_functions.h"
 #include "system/solution/solution_types.h"
 
 // Instrumentation
@@ -152,8 +151,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   };
 
   if (need_angular_solution_storage) {
-    system::SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_,
-                                                    n_groups, n_angles);
+    system_helper_.SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_, n_groups, n_angles);
   }
 
 
@@ -198,7 +196,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   auto initializer_ptr = BuildInitializer(
       updater_pointers.fixed_updater_ptr, n_groups, n_angles);
   auto group_solution_ptr = Shared(BuildGroupSolution(n_angles));
-  system::SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
+  system_helper_.SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
   auto iterative_group_solver_ptr = BuildGroupSolveIteration(
       BuildSingleGroupSolver(),
@@ -787,10 +785,10 @@ auto FrameworkBuilder<dim>::BuildSystem(
   ReportBuildingComponant("system");
   try {
     return_ptr = std::move(std::make_unique<SystemType>());
-    system::InitializeSystem(*return_ptr, total_groups, total_angles,
+    system_helper_.InitializeSystem(*return_ptr, total_groups, total_angles,
                              is_eigenvalue_problem, need_rhs_boundary_condition);
-    system::SetUpSystemTerms(*return_ptr, domain);
-    system::SetUpSystemMoments(*return_ptr, solution_size);
+    system_helper_.SetUpSystemTerms(*return_ptr, domain);
+    system_helper_.SetUpSystemMoments(*return_ptr, solution_size);
     ReportBuildSuccess("system");
   } catch (...) {
     ReportBuildError("system initialization error.");
