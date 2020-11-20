@@ -1,9 +1,10 @@
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/framework_validator.hpp"
-#include "system/system_functions.h"
+#include "system/system_helper.hpp"
 #include "system/solution/solution_types.h"
 
 #include <fmt/color.h>
+#include <system/system_helper.hpp>
 
 namespace bart::framework::builder {
 
@@ -22,6 +23,7 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
   using QuadratureSet = typename FrameworkBuilderI<dim>::QuadratureSet;
   Validator validator;
   validator.Parse(parameters);
+  system::SystemHelper<dim> system_helper;
 
   const int n_groups{ parameters.neutron_energy_groups };
   const bool need_angular_solution_storage{ validator.NeededParts().contains(FrameworkPart::AngularSolutionStorage) };
@@ -64,7 +66,7 @@ auto BuildFramework(FrameworkBuilderI<dim>& builder,
   // Set up angular solutions if needed
   system::solution::EnergyGroupToAngularSolutionPtrMap angular_solutions_;
   if (need_angular_solution_storage)
-    system::SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_, n_groups, n_angles);
+    system_helper.SetUpEnergyGroupToAngularSolutionPtrMap(angular_solutions_, n_groups, n_angles);
 
   //TODO: Add overload that makes this unecessary
   std::map<problem::Boundary, bool> reflective_boundaries {

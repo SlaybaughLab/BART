@@ -4,7 +4,6 @@
 #include "problem/parameters_i.h"
 #include "instrumentation/port.hpp"
 #include "framework/framework_parameters.hpp"
-#include "instrumentation/port.h"
 #include "problem/parameters_i.h"
 #include "utility/colors.hpp"
 #include "utility/uncopyable.h"
