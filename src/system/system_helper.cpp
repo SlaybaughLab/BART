@@ -2,6 +2,7 @@
 
 #include "system/terms/term.h"
 #include "system/moments/spherical_harmonic.h"
+#include "system/solution/mpi_group_angular_solution.h"
 
 namespace bart::system {
 
@@ -39,6 +40,19 @@ auto SystemHelper<dim>::InitializeSystem(system::System &system_to_setup, const 
   system_to_setup.left_hand_side_ptr_ = std::move(std::make_unique<system::terms::MPIBilinearTerm>());
   system_to_setup.current_moments = std::move(std::make_unique<system::moments::SphericalHarmonic>(total_groups, 0));
   system_to_setup.previous_moments = std::move(std::make_unique<system::moments::SphericalHarmonic>(total_groups, 0));
+}
+
+template<int dim>
+auto SystemHelper<dim>::SetUpEnergyGroupToAngularSolutionPtrMap(solution::EnergyGroupToAngularSolutionPtrMap &to_setup,
+                                                                const int total_groups,
+                                                                const int total_angles) const -> void {
+  using SolutionType = system::solution::MPIGroupAngularSolution;
+
+  for (int group = 0; group < total_groups; ++group) {
+    for (int angle = 0; angle < total_angles; ++angle) {
+      to_setup.insert({system::SolutionIndex(group, angle), std::make_shared<dealii::Vector<double>>()});
+    };
+  }
 }
 
 template<int dim>

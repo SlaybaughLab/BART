@@ -3,7 +3,9 @@
 
 #include "domain/definition_i.h"
 #include "system/solution/mpi_group_angular_solution_i.h"
+#include "system/solution/solution_types.h"
 #include "system/system.h"
+
 
 namespace bart::system {
 
@@ -13,6 +15,9 @@ class SystemHelperI {
   virtual auto InitializeSystem(system::System& system_to_setup, const int total_groups,
                                 const int total_angles, const bool is_eigenvalue_problem,
                                 const bool is_rhs_boundary_term_variable) const -> void = 0;
+  virtual auto SetUpEnergyGroupToAngularSolutionPtrMap(solution::EnergyGroupToAngularSolutionPtrMap& to_setup,
+                                                       const int total_groups,
+                                                       const int total_angles) const -> void = 0;
   virtual auto SetUpMPIAngularSolution(system::solution::MPIGroupAngularSolutionI &to_initialize,
                                        const domain::DefinitionI<dim> &domain_definition,
                                        const double value_to_set) const -> void = 0;

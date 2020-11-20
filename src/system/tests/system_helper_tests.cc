@@ -64,7 +64,7 @@ auto  SystemHelperTestsSetUpMPIAngularSolution<DimensionWrapper>::StampMPIVector
 
 TYPED_TEST_SUITE( SystemHelperTestsSetUpMPIAngularSolution, bart::testing::AllDimensions);
 
-TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionBadNangles) {
+TYPED_TEST(SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionBadNangles) {
   std::array<int, 4> bad_total_angles{0, -1, 2, 4};
   for (const auto angle : bad_total_angles) {
     EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(Return(angle));
@@ -75,8 +75,7 @@ TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionBad
   }
 }
 
-TYPED_TEST( SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionSetUpDefaultValue) {
-  constexpr int dim = this->dim;
+TYPED_TEST(SystemHelperTestsSetUpMPIAngularSolution, SetUpMPIAngularSolutionSetUpDefaultValue) {
   EXPECT_CALL(this->mock_solution, total_angles()).WillOnce(DoDefault());
   EXPECT_CALL(this->mock_solution, solutions()).WillOnce(DoDefault());
   EXPECT_CALL(this->mock_definition, locally_owned_dofs()).WillOnce(DoDefault());
@@ -363,40 +362,31 @@ TEST_F(SystemHelperSetUpSystemMomentsTests, SetUpProperly) {
   }
 }
 
-// [[deprecated below this line ]] ===================================================
-
 // ===== SetUpSystemAngularSolution Tests ======================================
 
-class SystemFunctionsSetUpEnergyGroupToAngularSolutionPtrMapIntTests
-    : public ::testing::Test {
+class SystemHelperSetUpEnergyGroupToAngularSolutionPtrMapIntTests : public ::testing::Test {
  public:
   system::solution::EnergyGroupToAngularSolutionPtrMap solution_map_;
-
+  system::SystemHelper<2> test_helper_;
   const int total_groups_ = test_helpers::RandomDouble(2, 4);
   const int total_angles_{total_groups_ + 1};
 
 };
 
-TEST_F(SystemFunctionsSetUpEnergyGroupToAngularSolutionPtrMapIntTests,
-       DefaultCall) {
-  system::SetUpEnergyGroupToAngularSolutionPtrMap(solution_map_,
-                                                  total_groups_,
-                                                  total_angles_);
+TEST_F(SystemHelperSetUpEnergyGroupToAngularSolutionPtrMapIntTests, DefaultCall) {
+  test_helper_.SetUpEnergyGroupToAngularSolutionPtrMap(solution_map_, total_groups_, total_angles_);
 
   using ExpectedType = dealii::Vector<double>;
   std::vector<int> energy_groups{};
   EXPECT_EQ(solution_map_.size(), total_groups_ * total_angles_);
   for (auto& [index, solution_ptr] : solution_map_) {
     auto [energy_group, angle] = index;
-    ASSERT_THAT(solution_ptr.get(),
-                WhenDynamicCastTo<ExpectedType*>(NotNull()));
+    ASSERT_THAT(solution_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
     EXPECT_LT(energy_group.get(), total_groups_);
     EXPECT_GE(energy_group.get(), 0);
     EXPECT_LT(angle.get(), total_angles_);
     EXPECT_GE(angle.get(), 0);
   }
 }
-
-
 
 } // namespace
