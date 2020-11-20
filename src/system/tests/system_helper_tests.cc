@@ -290,11 +290,9 @@ TYPED_TEST(SystemHelperSetUpSystemTermsTests, SetUpProperly) {
   this->test_helper_.SetUpSystemTerms(test_system_, *this->definition_ptr);
 }
 
-// [[deprecated below this line ]] ===================================================
-
 // ===== SetUpSystemMomentsTests ===============================================
 
-class SystemFunctionsSetUpSystemMomentsTests : public ::testing::Test {
+class SystemHelperSetUpSystemMomentsTests : public ::testing::Test {
  public:
   using MomentsType = NiceMock<bart::system::moments::SphericalHarmonicMock>;
 
@@ -302,16 +300,17 @@ class SystemFunctionsSetUpSystemMomentsTests : public ::testing::Test {
   MomentsType* current_moments_obs_ptr_;
   MomentsType* previous_moments_obs_ptr_;
 
-  template <typename T> inline MomentsType* MockCast(T* to_cast) {
-    return dynamic_cast<MomentsType*>(to_cast); }
+  template <typename T> inline MomentsType* MockCast(T* to_cast) {return dynamic_cast<MomentsType*>(to_cast); }
 
   const int solution_size = test_helpers::RandomDouble(1, 100);
   bart::system::moments::MomentsMap current_moments_, previous_moments_;
 
+  system::SystemHelper<2> test_helper_;
+
   void SetUp() override;
 };
 
-void SystemFunctionsSetUpSystemMomentsTests::SetUp() {
+void SystemHelperSetUpSystemMomentsTests::SetUp() {
   test_system_.current_moments = std::make_unique<MomentsType>();
   test_system_.previous_moments = std::make_unique<MomentsType>();
 
@@ -322,14 +321,10 @@ void SystemFunctionsSetUpSystemMomentsTests::SetUp() {
   const int max_harmonic_l = bart::test_helpers::RandomDouble(0, 3);
   test_system_.total_groups = n_groups;
 
-  for (auto& mock_moment_ptr : {current_moments_obs_ptr_,
-                                previous_moments_obs_ptr_}) {
-    ON_CALL(*mock_moment_ptr, total_groups())
-        .WillByDefault(Return(n_groups));
-    ON_CALL(*mock_moment_ptr, max_harmonic_l())
-        .WillByDefault(Return(max_harmonic_l));
+  for (auto& mock_moment_ptr : {current_moments_obs_ptr_, previous_moments_obs_ptr_}) {
+    ON_CALL(*mock_moment_ptr, total_groups()).WillByDefault(Return(n_groups));
+    ON_CALL(*mock_moment_ptr, max_harmonic_l()).WillByDefault(Return(max_harmonic_l));
   }
-
 
   for (int group = 0; group < n_groups; ++group) {
     for (int harmonic_l = 0; harmonic_l <= max_harmonic_l; ++harmonic_l) {
@@ -341,28 +336,21 @@ void SystemFunctionsSetUpSystemMomentsTests::SetUp() {
     }
   }
 
-  ON_CALL(*current_moments_obs_ptr_, moments())
-      .WillByDefault(ReturnRef(current_moments_));
-  ON_CALL(*current_moments_obs_ptr_, begin())
-      .WillByDefault(Return(current_moments_.begin()));
-  ON_CALL(*current_moments_obs_ptr_, end())
-      .WillByDefault(Return(current_moments_.end()));
-  ON_CALL(*previous_moments_obs_ptr_, moments())
-      .WillByDefault(ReturnRef(previous_moments_));
-  ON_CALL(*previous_moments_obs_ptr_, begin())
-      .WillByDefault(Return(previous_moments_.begin()));
-  ON_CALL(*previous_moments_obs_ptr_, end())
-      .WillByDefault(Return(previous_moments_.end()));
+  ON_CALL(*current_moments_obs_ptr_, moments()).WillByDefault(ReturnRef(current_moments_));
+  ON_CALL(*current_moments_obs_ptr_, begin()).WillByDefault(Return(current_moments_.begin()));
+  ON_CALL(*current_moments_obs_ptr_, end()).WillByDefault(Return(current_moments_.end()));
+  ON_CALL(*previous_moments_obs_ptr_, moments()).WillByDefault(ReturnRef(previous_moments_));
+  ON_CALL(*previous_moments_obs_ptr_, begin()).WillByDefault(Return(previous_moments_.begin()));
+  ON_CALL(*previous_moments_obs_ptr_, end()).WillByDefault(Return(previous_moments_.end()));
 }
 
-TEST_F(SystemFunctionsSetUpSystemMomentsTests, SetUpProperly) {
-  for (auto& mock_obs_ptr : {current_moments_obs_ptr_,
-                             previous_moments_obs_ptr_}) {
+TEST_F(SystemHelperSetUpSystemMomentsTests, SetUpProperly) {
+  for (auto& mock_obs_ptr : {current_moments_obs_ptr_, previous_moments_obs_ptr_}) {
     EXPECT_CALL(*mock_obs_ptr, begin()).WillOnce(DoDefault());
     EXPECT_CALL(*mock_obs_ptr, end()).WillOnce(DoDefault());
   }
 
-  system::SetUpSystemMoments(test_system_, solution_size);
+  test_helper_.SetUpSystemMoments(test_system_, solution_size);
   dealii::Vector<double> expected(solution_size);
   expected = 1;
 
@@ -374,6 +362,8 @@ TEST_F(SystemFunctionsSetUpSystemMomentsTests, SetUpProperly) {
     }
   }
 }
+
+// [[deprecated below this line ]] ===================================================
 
 // ===== SetUpSystemAngularSolution Tests ======================================
 

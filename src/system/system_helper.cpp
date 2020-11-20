@@ -64,6 +64,19 @@ auto SystemHelper<dim>::SetUpMPIAngularSolution(solution::MPIGroupAngularSolutio
 }
 
 template<int dim>
+auto SystemHelper<dim>::SetUpSystemMoments(System &system_to_setup, std::size_t solution_size) const -> void {
+  auto initialize_moments = [=](system::moments::SphericalHarmonicI& to_initialize) {
+    for (auto& moment : to_initialize) {
+      moment.second.reinit(solution_size);
+      moment.second = 1;
+    }
+  };
+
+  initialize_moments(*system_to_setup.current_moments);
+  initialize_moments(*system_to_setup.previous_moments);
+}
+
+template<int dim>
 auto SystemHelper<dim>::SetUpSystemTerms(System &system_to_setup,
                                          const domain::DefinitionI<dim> &domain_definition) const -> void {
   const auto variable_terms = system_to_setup.right_hand_side_ptr_->GetVariableTerms();

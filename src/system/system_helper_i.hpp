@@ -18,6 +18,7 @@ class SystemHelperI {
                                        const double value_to_set) const -> void = 0;
   virtual auto SetUpSystemTerms(system::System& system_to_setup,
                                 const domain::DefinitionI<dim>& domain_definition) const -> void = 0;
+  virtual auto SetUpSystemMoments(system::System& system_to_setup, const std::size_t solution_size) const -> void = 0;
 };
 
 } // namespace bart::system

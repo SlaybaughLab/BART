@@ -16,6 +16,8 @@ class SystemHelper : public SystemHelperI<dim> {
                                const double value_to_set = 1.0) const -> void override;
   auto SetUpSystemTerms(system::System& system_to_setup,
                                 const domain::DefinitionI<dim>& domain_definition) const -> void override;
+  auto SetUpSystemMoments(system::System& system_to_setup,
+                          const std::size_t solution_size) const -> void override;
 
 };
 
