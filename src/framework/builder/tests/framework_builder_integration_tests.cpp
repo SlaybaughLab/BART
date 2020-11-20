@@ -33,7 +33,7 @@
 #include "iteration/group/group_source_iteration.h"
 #include "system/system_types.h"
 #include "system/solution/solution_types.h"
-#include "system/system_functions.h"
+#include "system/system_helper.hpp"
 
 // Mock objects
 #include "convergence/tests/final_checker_mock.h"
@@ -103,6 +103,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::unique_ptr<FrameworkBuilder> test_builder_ptr_;
   ProblemParameters parameters;
   Material mock_material;
+  system::SystemHelper<dim> system_helper_;
 
   // Various mock objects to be used
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
@@ -311,7 +312,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest,
   using ExpectedType = formulation::updater::SAAFUpdater<this->dim>;
   system::solution::EnergyGroupToAngularSolutionPtrMap angular_flux_storage;
 
-  system::SetUpEnergyGroupToAngularSolutionPtrMap(
+  this->system_helper_.SetUpEnergyGroupToAngularSolutionPtrMap(
       angular_flux_storage, this->n_energy_groups, this->n_angles);
 
   auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
