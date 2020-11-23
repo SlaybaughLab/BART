@@ -73,6 +73,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerMock = convergence::FinalCheckerMock<const system::moments::MomentsMap>;
+  using ParameterConvergenceCheckerMock = convergence::FinalCheckerMock<double>;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
   using StamperMock = typename formulation::StamperMock<dim>;
   using SAAFFormulationMock = typename formulation::angular::SelfAdjointAngularFluxMock<dim>;
@@ -99,6 +100,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   MomentConvergenceCheckerMock* moment_convergence_checker_obs_ptr_{ nullptr };
   MomentMapConvergenceCheckerMock* moment_map_convergence_checker_obs_ptr_{ nullptr };
+  ParameterConvergenceCheckerMock* parameter_convergence_checker_obs_ptr_{ nullptr };
   std::shared_ptr<QuadratureSetMock> quadrature_set_mock_ptr_{ nullptr };
   SAAFFormulationMock* saaf_formulation_obs_ptr_{ nullptr };
   SingleGroupSolverMock* single_group_solver_obs_ptr_{ nullptr };
@@ -163,6 +165,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   moment_convergence_checker_obs_ptr_ = moment_convergence_checker_ptr.get();
   auto moment_map_convergence_checker_ptr = std::make_unique<NiceMock<MomentMapConvergenceCheckerMock>>();
   moment_map_convergence_checker_obs_ptr_ = moment_map_convergence_checker_ptr.get();
+  auto parameter_convergence_checker_ptr = std::make_unique<NiceMock<ParameterConvergenceCheckerMock>>();
+  parameter_convergence_checker_obs_ptr_ = parameter_convergence_checker_ptr.get();
   quadrature_set_mock_ptr_ = std::make_shared<QuadratureSetMock>();
   auto saaf_ptr = std::make_unique<NiceMock<SAAFFormulationMock>>();
   saaf_formulation_obs_ptr_ = saaf_ptr.get();
@@ -191,6 +195,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildMomentConvergenceChecker(_,_)).WillByDefault(ReturnByMove(moment_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildMomentMapConvergenceChecker(_,_))
       .WillByDefault(ReturnByMove(moment_map_convergence_checker_ptr));
+  ON_CALL(mock_builder_, BuildParameterConvergenceChecker(_,_))
+      .WillByDefault(ReturnByMove(parameter_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
   ON_CALL(mock_builder_, BuildSingleGroupSolver(_,_)).WillByDefault(ReturnByMove(single_group_solver_ptr));
@@ -318,7 +324,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                      _,
                                                      Pointee(Ref(*moment_map_convergence_checker_obs_ptr_))))
       .WillOnce(DoDefault());
-
+  EXPECT_CALL(mock_builder, BuildParameterConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);

@@ -136,6 +136,8 @@ auto FrameworkHelper<dim>::BuildFramework(
     validator.AddPart(FrameworkPart::AngularSolutionStorage);
   }
 
+  auto parameter_convergence_checker_ptr = builder.BuildParameterConvergenceChecker(1e-6, 1000);
+
   return nullptr;
 }
 
