@@ -136,7 +136,14 @@ auto FrameworkHelper<dim>::BuildFramework(
     validator.AddPart(FrameworkPart::AngularSolutionStorage);
   }
 
-  auto parameter_convergence_checker_ptr = builder.BuildParameterConvergenceChecker(1e-6, 1000);
+  if (parameters.eigen_solver_type.has_value()){
+    auto k_effective_updater = builder.BuildKEffectiveUpdater(finite_element_ptr,
+                                                              parameters.cross_sections_.value(),
+                                                              domain_ptr);
+    auto parameter_convergence_checker_ptr = builder.BuildParameterConvergenceChecker(1e-6, 1000);
+  } else {
+    auto parameter_convergence_checker_ptr = builder.BuildParameterConvergenceChecker(1e-6, 1000);
+  }
 
   return nullptr;
 }

@@ -1,6 +1,7 @@
 #include "framework/framework_helper.hpp"
 
 #include "convergence/tests/final_checker_mock.h"
+#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
@@ -70,6 +71,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationMock = iteration::group::GroupSolveIterationMock;
   using InitializerMock = iteration::initializer::InitializerMock;
+  using KEffectiveUpdaterMock = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerMock = convergence::FinalCheckerMock<const system::moments::MomentsMap>;
@@ -97,6 +99,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   GroupSolutionMock* group_solution_obs_ptr_{ nullptr };
   GroupSolveIterationMock* group_solve_iteration_obs_ptr{ nullptr };
   InitializerMock* initializer_obs_ptr_{ nullptr };
+  KEffectiveUpdaterMock* k_effective_updater_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   MomentConvergenceCheckerMock* moment_convergence_checker_obs_ptr_{ nullptr };
   MomentMapConvergenceCheckerMock* moment_map_convergence_checker_obs_ptr_{ nullptr };
@@ -159,6 +162,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   group_solve_iteration_obs_ptr = group_solve_iteration_ptr.get();
   auto initializer_ptr = std::make_unique<NiceMock<InitializerMock>>();
   initializer_obs_ptr_ = initializer_ptr.get();
+  auto k_effective_updater_ptr = std::make_unique<NiceMock<KEffectiveUpdaterMock>>();
+  k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
   auto moment_calculator_ptr = std::make_unique<NiceMock<MomentCalculatorMock>>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr.get();
   auto moment_convergence_checker_ptr = std::make_unique<NiceMock<MomentConvergenceCheckerMock>>();
@@ -190,6 +195,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildGroupSolution(_)).WillByDefault(ReturnByMove(group_solution_ptr));
   ON_CALL(mock_builder_, BuildGroupSolveIteration(_,_,_,_,_,_)).WillByDefault(ReturnByMove(group_solve_iteration_ptr));
   ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
+  ON_CALL(mock_builder_, BuildKEffectiveUpdater(_,_,_)).WillByDefault(ReturnByMove(k_effective_updater_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
   ON_CALL(mock_builder_, BuildMomentConvergenceChecker(_,_)).WillByDefault(ReturnByMove(moment_convergence_checker_ptr));
@@ -326,6 +332,12 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
       .WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildParameterConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
+  if (parameters.eigen_solver_type.has_value()) {
+    EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
+                                                     Pointee(Ref(*parameters.cross_sections_.value())),
+                                                     Pointee(Ref(*domain_obs_ptr_)))).WillOnce(DoDefault());
+  }
+
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
 }
@@ -343,7 +355,7 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkDiffusio
 TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkDiffusionEigensolve) {
   auto parameters{ this->default_parameters_ };
   parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
-  this->RunTest(this->default_parameters_);
+  this->RunTest(parameters);
 }
 
 TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAF) {
