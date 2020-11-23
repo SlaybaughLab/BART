@@ -633,7 +633,7 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIteration> group_iteration_ptr,
-    std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr)
+    std::unique_ptr<ParameterConvergenceChecker> convergence_checker_ptr)
     -> std::unique_ptr<OuterIterationType> {
   ReportBuildingComponant("Outer iteration");
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;
@@ -660,7 +660,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 template<int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIteration> group_solve_iteration_ptr,
-    std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_ptr,
+    std::unique_ptr<ParameterConvergenceChecker> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
     const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr)
 -> std::unique_ptr<OuterIterationType> {
@@ -698,7 +698,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 template<int dim>
 auto FrameworkBuilder<dim>::BuildParameterConvergenceChecker(
     double max_delta, int max_iterations)
--> std::unique_ptr<ParameterConvergenceCheckerType>{
+-> std::unique_ptr<ParameterConvergenceChecker>{
   ReportBuildingComponant("Parameter (double) convergence checker");
   using CheckerType = convergence::parameters::SingleParameterChecker;
   using FinalCheckerType = convergence::FinalCheckerOrN<double, CheckerType>;

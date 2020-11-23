@@ -63,6 +63,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
   using typename FrameworkBuilderI<dim>::MomentMapConvergenceChecker;
+  using typename FrameworkBuilderI<dim>::ParameterConvergenceChecker;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
@@ -90,7 +91,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using FrameworkType = framework::FrameworkI;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using OuterIterationType = iteration::outer::OuterIterationI;
-  using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -143,9 +143,12 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   [[nodiscard]] auto  BuildMomentConvergenceChecker(
       double max_delta,
       int max_iterations) -> std::unique_ptr<MomentConvergenceChecker> override;
-  [[nodiscard]] virtual auto BuildMomentMapConvergenceChecker(
+  [[nodiscard]] auto BuildMomentMapConvergenceChecker(
       double max_delta,
       int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> override;
+  [[nodiscard]] auto BuildParameterConvergenceChecker(
+      double max_delta,
+      int max_iterations) -> std::unique_ptr<ParameterConvergenceChecker> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
@@ -184,14 +187,12 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<DomainType>&);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
-      std::unique_ptr<ParameterConvergenceCheckerType>);
+      std::unique_ptr<ParameterConvergenceChecker>);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
-      std::unique_ptr<ParameterConvergenceCheckerType>,
+      std::unique_ptr<ParameterConvergenceChecker>,
       std::unique_ptr<KEffectiveUpdaterType>,
       const std::shared_ptr<FissionSourceUpdater>&);
-  std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
-      double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
                                           const DomainType& domain,
