@@ -19,6 +19,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "system/tests/system_helper_mock.hpp"
+#include "system/solution/tests/mpi_group_angular_solution_mock.h"
 
 namespace  {
 
@@ -62,6 +63,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
   using FrameworkParameters = framework::FrameworkParameters;
+  using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using InitializerMock = iteration::initializer::InitializerMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
@@ -83,6 +85,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   DiffusionFormulationMock* diffusion_formulation_obs_ptr_{ nullptr };
   DomainMock* domain_obs_ptr_{ nullptr };
   FiniteElementMock* finite_element_obs_ptr_{ nullptr };
+  GroupSolutionMock* group_solution_obs_ptr_{ nullptr };
   InitializerMock* initializer_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   std::shared_ptr<QuadratureSetMock> quadrature_set_mock_ptr_{ nullptr };
@@ -136,6 +139,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   domain_obs_ptr_ = domain_ptr.get();
   auto finite_element_ptr = std::make_unique<NiceMock<FiniteElementMock>>();
   finite_element_obs_ptr_ = finite_element_ptr.get();
+  auto group_solution_ptr = std::make_unique<NiceMock<GroupSolutionMock>>();
+  group_solution_obs_ptr_ = group_solution_ptr.get();
   auto initializer_ptr = std::make_unique<NiceMock<InitializerMock>>();
   initializer_obs_ptr_ = initializer_ptr.get();
   auto moment_calculator_ptr = std::make_unique<NiceMock<MomentCalculatorMock>>();
@@ -158,6 +163,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildDiffusionFormulation(_,_,_)).WillByDefault(ReturnByMove(diffusion_formulation_ptr));
   ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(ReturnByMove(domain_ptr));
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
+  ON_CALL(mock_builder_, BuildGroupSolution(_)).WillByDefault(ReturnByMove(group_solution_ptr));
   ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
@@ -262,6 +268,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                    Pointee(Ref(*stamper_obs_ptr_)),
                                                    ContainerEq(reflective_boundaries))).WillOnce(DoDefault());
   }
+
+  EXPECT_CALL(mock_builder, BuildGroupSolution(n_angles)).WillOnce(DoDefault());
 
   EXPECT_CALL(mock_builder, BuildInitializer(Pointee(Ref(*updater_pointers_.fixed_updater_ptr)),
                                              parameters.neutron_energy_groups,

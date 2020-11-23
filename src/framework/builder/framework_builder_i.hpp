@@ -72,6 +72,7 @@ class FrameworkBuilderI {
       const problem::CellFiniteElementType,
       const problem::DiscretizationType,
       const FrameworkParameters::PolynomialDegree) -> std::unique_ptr<FiniteElement> = 0;
+  virtual auto BuildGroupSolution(const int n_angles) -> std::unique_ptr<GroupSolution> = 0;
   virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                 const int total_groups,
                                 const int total_angles) -> std::unique_ptr<Initializer> = 0;

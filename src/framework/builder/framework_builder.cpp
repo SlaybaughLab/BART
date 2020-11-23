@@ -510,13 +510,11 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles)
--> std::unique_ptr<GroupSolution> {
+auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles) -> std::unique_ptr<GroupSolution> {
   std::unique_ptr<GroupSolution> return_ptr = nullptr;
   ReportBuildingComponant("Group solution");
 
-  return_ptr = std::move(
-      std::make_unique<system::solution::MPIGroupAngularSolution>(n_angles));
+  return_ptr = std::move(std::make_unique<system::solution::MPIGroupAngularSolution>(n_angles));
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }

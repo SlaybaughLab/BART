@@ -120,6 +120,8 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                   parameters.neutron_energy_groups,
                                                   n_angles);
 
+  auto group_solution_ptr = Shared(builder.BuildGroupSolution(n_angles));
+
   return nullptr;
 }
 
