@@ -18,6 +18,7 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
+#include "solver/group/tests/single_group_solver_mock.h"
 #include "system/tests/system_helper_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 
@@ -69,6 +70,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
   using StamperMock = typename formulation::StamperMock<dim>;
   using SAAFFormulationMock = typename formulation::angular::SelfAdjointAngularFluxMock<dim>;
+  using SingleGroupSolverMock = solver::group::SingleGroupSolverMock;
   using SystemHelper = typename system::SystemHelperMock<dim>;
 
   using UpdaterPointers = FrameworkBuidler::UpdaterPointers;
@@ -90,6 +92,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   std::shared_ptr<QuadratureSetMock> quadrature_set_mock_ptr_{ nullptr };
   SAAFFormulationMock* saaf_formulation_obs_ptr_{ nullptr };
+  SingleGroupSolverMock* single_group_solver_obs_ptr_{ nullptr };
   StamperMock* stamper_obs_ptr_{ nullptr };
   std::shared_ptr<SystemHelper> system_helper_mock_ptr_{ nullptr };
 
@@ -148,6 +151,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   quadrature_set_mock_ptr_ = std::make_shared<QuadratureSetMock>();
   auto saaf_ptr = std::make_unique<NiceMock<SAAFFormulationMock>>();
   saaf_formulation_obs_ptr_ = saaf_ptr.get();
+  auto single_group_solver_ptr = std::make_unique<NiceMock<SingleGroupSolverMock>>();
+  single_group_solver_obs_ptr_ = single_group_solver_ptr.get();
   auto stamper_ptr = std::make_unique<NiceMock<StamperMock>>();
   stamper_obs_ptr_ = stamper_ptr.get();
   system_helper_mock_ptr_ = std::make_shared<NiceMock<SystemHelper>>();
@@ -167,6 +172,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
+  ON_CALL(mock_builder_, BuildSingleGroupSolver(_,_)).WillByDefault(ReturnByMove(single_group_solver_ptr));
   ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(ReturnByMove(stamper_ptr));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<SAAFFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
@@ -278,7 +284,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
   EXPECT_CALL(*system_helper_mock_ptr_, SetUpMPIAngularSolution(Ref(*group_solution_obs_ptr_),
                                                                 Ref(*domain_obs_ptr_),
                                                                 1.0));
-
+  EXPECT_CALL(mock_builder, BuildSingleGroupSolver(10000, 1e-10)).WillOnce(DoDefault());
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
