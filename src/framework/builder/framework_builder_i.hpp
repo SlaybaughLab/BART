@@ -27,6 +27,7 @@
 #include "solver/group/single_group_solver_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
+#include "system/system.h"
 
 namespace bart::framework::builder {
 
@@ -52,6 +53,7 @@ class FrameworkBuilderI {
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
+  using System = system::System;
 
   // Other types
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
@@ -128,6 +130,12 @@ class FrameworkBuilderI {
   virtual auto BuildSingleGroupSolver(const int max_iterations,
                                       const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> = 0;
   virtual auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> = 0;
+  virtual auto BuildSystem(const int n_groups,
+                           const int n_angles,
+                           const Domain& domain,
+                           const std::size_t solution_size,
+                           bool is_eigenvalue_problem,
+                           bool need_rhs_boundary_condition) -> std::unique_ptr<System> = 0;
   virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
                                     std::unique_ptr<Stamper>,
                                     const std::map<problem::Boundary, bool>&) -> UpdaterPointers = 0;

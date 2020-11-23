@@ -71,6 +71,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
+  using typename FrameworkBuilderI<dim>::System;
 
   using typename FrameworkBuilderI<dim>::UpdaterPointers;
   using typename FrameworkBuilderI<dim>::BoundaryConditionsUpdater;
@@ -87,13 +88,11 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
-  using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FrameworkType = framework::FrameworkI;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
-  using SystemType = system::System;
 
   using ColorStatusPair = std::pair<std::string, utility::Color>;
   // Instrumentation
@@ -173,6 +172,12 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const int max_iterations,
       const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> override;
   [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
+  [[nodiscard]] auto BuildSystem(const int n_groups,
+                                 const int n_angles,
+                                 const Domain& domain,
+                                 const std::size_t solution_size,
+                                 bool is_eigenvalue_problem,
+                                 bool need_rhs_boundary_condition) -> std::unique_ptr<System> override;
   [[nodiscard]] auto BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulation>,
       std::unique_ptr<Stamper>,
@@ -188,17 +193,13 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   std::unique_ptr<CrossSections> BuildCrossSections(ParametersType);
 
-  std::unique_ptr<DomainType> BuildDomain(
+  std::unique_ptr<Domain> BuildDomain(
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
 
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
-  std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
-                                          const DomainType& domain,
-                                          const std::size_t solution_size,
-                                          bool is_eigenvalue_problem = true,
-                                          bool need_rhs_boundary_condition = false);
+
 
  private:
   void ReportBuildingComponant(std::string componant) {

@@ -291,8 +291,8 @@ auto FrameworkBuilder<dim>::BuildDomain(
     ParametersType problem_parameters,
     const std::shared_ptr<FiniteElementType>& finite_element_ptr,
     std::string material_mapping)
--> std::unique_ptr<DomainType>{
-  std::unique_ptr<DomainType> return_ptr = nullptr;
+-> std::unique_ptr<Domain>{
+  std::unique_ptr<Domain> return_ptr = nullptr;
 
   ReportBuildingComponant("Mesh");
   auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
@@ -845,15 +845,15 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildSystem(
     const int total_groups,
     const int total_angles,
-    const DomainType& domain,
+    const Domain& domain,
     const std::size_t solution_size,
     bool is_eigenvalue_problem,
-    bool need_rhs_boundary_condition) -> std::unique_ptr<SystemType> {
-  std::unique_ptr<SystemType> return_ptr;
+    bool need_rhs_boundary_condition) -> std::unique_ptr<System> {
+  std::unique_ptr<System> return_ptr;
 
   ReportBuildingComponant("system");
   try {
-    return_ptr = std::move(std::make_unique<SystemType>());
+    return_ptr = std::move(std::make_unique<System>());
     system_helper_.InitializeSystem(*return_ptr, total_groups, total_angles,
                              is_eigenvalue_problem, need_rhs_boundary_condition);
     system_helper_.SetUpSystemTerms(*return_ptr, domain);

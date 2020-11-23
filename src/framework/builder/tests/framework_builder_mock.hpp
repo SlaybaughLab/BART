@@ -27,6 +27,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::Stamper;
+  using typename FrameworkBuilderI<dim>::System;
 
   using typename FrameworkBuilderI<dim>::AngularFluxStorage;
   using typename FrameworkBuilderI<dim>::DiffusionFormulationImpl;
@@ -73,6 +74,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
       const formulation::SAAFFormulationImpl), (override));
   MOCK_METHOD(std::unique_ptr<SingleGroupSolver>, BuildSingleGroupSolver,(const int, const double), (override));
   MOCK_METHOD(std::unique_ptr<Stamper>, BuildStamper, (const std::shared_ptr<Domain>&), (override));
+  MOCK_METHOD(std::unique_ptr<System>, BuildSystem, (const int, const int, const Domain&,
+      const std::size_t solution_size, bool is_eigenvalue_problem, bool need_rhs_boundary_condition), (override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<DiffusionFormulation>,
       std::unique_ptr<Stamper>, (const std::map<problem::Boundary, bool>&)), (override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<SAAFFormulation>,
