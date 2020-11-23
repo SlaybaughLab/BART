@@ -124,6 +124,7 @@ auto FrameworkHelper<dim>::BuildFramework(
   system_helper_ptr_->SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr, 1.0);
 
   auto single_group_solver_ptr = builder.BuildSingleGroupSolver(10000, 1e-10);
+  auto moment_convergence_checker_ptr = builder.BuildMomentConvergenceChecker(1e-6, 10000);
 
   return nullptr;
 }

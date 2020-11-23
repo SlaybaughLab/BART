@@ -1,5 +1,6 @@
 #include "framework/framework_helper.hpp"
 
+#include "convergence/tests/final_checker_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
@@ -21,6 +22,7 @@
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/tests/system_helper_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
+#include "system/moments/spherical_harmonic_types.h"
 
 namespace  {
 
@@ -67,6 +69,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using InitializerMock = iteration::initializer::InitializerMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
+  using MomentConvergenceCheckerMock = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
   using StamperMock = typename formulation::StamperMock<dim>;
   using SAAFFormulationMock = typename formulation::angular::SelfAdjointAngularFluxMock<dim>;
@@ -90,6 +93,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   GroupSolutionMock* group_solution_obs_ptr_{ nullptr };
   InitializerMock* initializer_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
+  MomentConvergenceCheckerMock* moment_convergence_checker_obs_ptr_{ nullptr };
   std::shared_ptr<QuadratureSetMock> quadrature_set_mock_ptr_{ nullptr };
   SAAFFormulationMock* saaf_formulation_obs_ptr_{ nullptr };
   SingleGroupSolverMock* single_group_solver_obs_ptr_{ nullptr };
@@ -148,6 +152,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   initializer_obs_ptr_ = initializer_ptr.get();
   auto moment_calculator_ptr = std::make_unique<NiceMock<MomentCalculatorMock>>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr.get();
+  auto moment_convergence_checker_ptr = std::make_unique<NiceMock<MomentConvergenceCheckerMock>>();
+  moment_convergence_checker_obs_ptr_ = moment_convergence_checker_ptr.get();
   quadrature_set_mock_ptr_ = std::make_shared<QuadratureSetMock>();
   auto saaf_ptr = std::make_unique<NiceMock<SAAFFormulationMock>>();
   saaf_formulation_obs_ptr_ = saaf_ptr.get();
@@ -170,6 +176,9 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
   ON_CALL(mock_builder_, BuildGroupSolution(_)).WillByDefault(ReturnByMove(group_solution_ptr));
   ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
+  ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
+  ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
+  ON_CALL(mock_builder_, BuildMomentConvergenceChecker(_,_)).WillByDefault(ReturnByMove(moment_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
   ON_CALL(mock_builder_, BuildSingleGroupSolver(_,_)).WillByDefault(ReturnByMove(single_group_solver_ptr));
@@ -177,8 +186,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<SAAFFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
-  ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
-  ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
+
 
   ON_CALL(*domain_obs_ptr_, SetUpMesh(_)).WillByDefault(ReturnRef(*domain_obs_ptr_));
   ON_CALL(*domain_obs_ptr_, SetUpDOF()).WillByDefault(ReturnRef(*domain_obs_ptr_));
@@ -285,6 +293,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                                 Ref(*domain_obs_ptr_),
                                                                 1.0));
   EXPECT_CALL(mock_builder, BuildSingleGroupSolver(10000, 1e-10)).WillOnce(DoDefault());
+  EXPECT_CALL(mock_builder, BuildMomentConvergenceChecker(1e-6, 10000)).WillOnce(DoDefault());
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
