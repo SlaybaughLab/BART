@@ -9,6 +9,7 @@
 #include "quadrature/quadrature_types.h"
 
 #include "utility/has_description.h"
+#include "system/system_helper.hpp"
 
 #include "framework/builder/framework_validator.h"
 // Problem parameters
@@ -32,7 +33,7 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 #include "instrumentation/instrument_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
@@ -44,7 +45,7 @@
 // Dependency clases
 #include "formulation/updater/fixed_updater_i.h"
 #include "utility/colors.hpp"
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 
 
 namespace bart {
@@ -222,6 +223,7 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{nullptr};
   std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };
   mutable FrameworkValidator validator_;
+  const system::SystemHelper<dim> system_helper_;
   bool build_report_closed_ = true;
   std::string filename_{""};
 };

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "convergence/final_i.h"
-#include "instrumentation/port.h"
+#include "instrumentation/port.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "system/system.h"
