@@ -336,7 +336,13 @@ TYPED_TEST_SUITE(FrameworkHelperBuildFrameworkIntegrationTests, bart::testing::A
 
 // ===== BuildFramework ================================================================================================
 
-TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkDefaultParameters) {
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkDiffusion) {
+  this->RunTest(this->default_parameters_);
+}
+
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkDiffusionEigensolve) {
+  auto parameters{ this->default_parameters_ };
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
   this->RunTest(this->default_parameters_);
 }
 
@@ -349,12 +355,33 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAF) {
   this->RunTest(parameters);
 }
 
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEigensolve) {
+  auto parameters{ this-> default_parameters_ };
+  using Order = framework::FrameworkParameters::AngularQuadratureOrder;
+  parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
+  parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
+  parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  this->RunTest(parameters);
+}
+
 TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFReflectiveBCs) {
   auto parameters{ this-> default_parameters_ };
   using Order = framework::FrameworkParameters::AngularQuadratureOrder;
   parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
   parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
   parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
+  parameters.reflective_boundaries = {problem::Boundary::kXMin};
+  this->RunTest(parameters);
+}
+
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFReflectiveBCsEigenSolve) {
+  auto parameters{ this-> default_parameters_ };
+  using Order = framework::FrameworkParameters::AngularQuadratureOrder;
+  parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
+  parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
+  parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
   parameters.reflective_boundaries = {problem::Boundary::kXMin};
   this->RunTest(parameters);
 }
