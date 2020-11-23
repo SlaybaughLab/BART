@@ -17,6 +17,7 @@
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.h"
 #include "iteration/initializer/initializer_i.h"
+#include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
@@ -35,6 +36,7 @@ class FrameworkBuilderI {
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
+  using GroupSolveIteration = iteration::group::GroupSolveIterationI;
   using Initializer = iteration::initializer::InitializerI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
@@ -79,6 +81,13 @@ class FrameworkBuilderI {
       const problem::DiscretizationType,
       const FrameworkParameters::PolynomialDegree) -> std::unique_ptr<FiniteElement> = 0;
   virtual auto BuildGroupSolution(const int n_angles) -> std::unique_ptr<GroupSolution> = 0;
+  virtual auto BuildGroupSolveIteration(
+      std::unique_ptr<SingleGroupSolver>,
+      std::unique_ptr<MomentConvergenceChecker>,
+      std::unique_ptr<MomentCalculator>,
+      const std::shared_ptr<GroupSolution>&,
+      const UpdaterPointers& updater_ptrs,
+      std::unique_ptr<MomentMapConvergenceChecker>) -> std::unique_ptr<GroupSolveIteration> = 0;
   virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                 const int total_groups,
                                 const int total_angles) -> std::unique_ptr<Initializer> = 0;

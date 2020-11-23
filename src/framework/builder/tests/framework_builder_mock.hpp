@@ -14,6 +14,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
   using typename FrameworkBuilderI<dim>::GroupSolution;
+  using typename FrameworkBuilderI<dim>::GroupSolveIteration;
   using typename FrameworkBuilderI<dim>::Initializer;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
@@ -42,6 +43,10 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   MOCK_METHOD(std::unique_ptr<FiniteElement>, BuildFiniteElement, (const problem::CellFiniteElementType,
       const problem::DiscretizationType, const FrameworkParameters::PolynomialDegree), (override));
   MOCK_METHOD(std::unique_ptr<GroupSolution>, BuildGroupSolution, (const int), (override));
+  MOCK_METHOD(std::unique_ptr<GroupSolveIteration>, BuildGroupSolveIteration, (
+      std::unique_ptr<SingleGroupSolver>, std::unique_ptr<MomentConvergenceChecker>, std::unique_ptr<MomentCalculator>,
+      const std::shared_ptr<GroupSolution>&, const UpdaterPointers& updater_ptrs,
+      std::unique_ptr<MomentMapConvergenceChecker>), (override));
   MOCK_METHOD(std::unique_ptr<Initializer>, BuildInitializer, (const std::shared_ptr<FixedTermUpdater>&,
       const int total_groups, const int total_angles), (override));
   MOCK_METHOD(std::unique_ptr<MomentCalculator>, BuildMomentCalculator,(quadrature::MomentCalculatorImpl), (override));

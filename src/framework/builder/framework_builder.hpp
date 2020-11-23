@@ -58,6 +58,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
   using typename FrameworkBuilderI<dim>::GroupSolution;
+  using typename FrameworkBuilderI<dim>::GroupSolveIteration;
   using typename FrameworkBuilderI<dim>::Initializer;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
@@ -87,7 +88,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FrameworkType = framework::FrameworkI;
-  using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
@@ -123,6 +123,13 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const problem::DiscretizationType discretization_type,
       const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElement> override;
   [[nodiscard]] auto BuildGroupSolution(const int n_angles) -> std::unique_ptr<GroupSolution> override;
+  [[nodiscard]] auto BuildGroupSolveIteration(
+      std::unique_ptr<SingleGroupSolver>,
+      std::unique_ptr<MomentConvergenceChecker>,
+      std::unique_ptr<MomentCalculator>,
+      const std::shared_ptr<GroupSolution>&,
+      const UpdaterPointers& updater_ptrs,
+      std::unique_ptr<MomentMapConvergenceChecker>) -> std::unique_ptr<GroupSolveIteration> override;
   [[nodiscard]] auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                       const int total_groups,
                                       const int total_angles) -> std::unique_ptr<Initializer> override;
@@ -171,22 +178,15 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
-      std::unique_ptr<SingleGroupSolver>,
-      std::unique_ptr<MomentConvergenceChecker>,
-      std::unique_ptr<MomentCalculator>,
-      const std::shared_ptr<GroupSolution>&,
-      const UpdaterPointers& updater_ptrs,
-      std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr);
   std::unique_ptr<KEffectiveUpdaterType> BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<CrossSectionType>&,
       const std::shared_ptr<DomainType>&);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
-      std::unique_ptr<GroupSolveIterationType>,
+      std::unique_ptr<GroupSolveIteration>,
       std::unique_ptr<ParameterConvergenceCheckerType>);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
-      std::unique_ptr<GroupSolveIterationType>,
+      std::unique_ptr<GroupSolveIteration>,
       std::unique_ptr<ParameterConvergenceCheckerType>,
       std::unique_ptr<KEffectiveUpdaterType>,
       const std::shared_ptr<FissionSourceUpdater>&);

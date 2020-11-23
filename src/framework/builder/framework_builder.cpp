@@ -468,8 +468,8 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     const std::shared_ptr<GroupSolution>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
     std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
-    -> std::unique_ptr<GroupSolveIterationType> {
-  std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
+    -> std::unique_ptr<GroupSolveIteration> {
+  std::unique_ptr<GroupSolveIteration> return_ptr = nullptr;
 
   ReportBuildingComponant("Iterative group solver");
 
@@ -632,7 +632,7 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
 }
 template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
-    std::unique_ptr<GroupSolveIterationType> group_iteration_ptr,
+    std::unique_ptr<GroupSolveIteration> group_iteration_ptr,
     std::unique_ptr<ParameterConvergenceCheckerType> convergence_checker_ptr)
     -> std::unique_ptr<OuterIterationType> {
   ReportBuildingComponant("Outer iteration");
@@ -659,7 +659,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
-    std::unique_ptr<GroupSolveIterationType> group_solve_iteration_ptr,
+    std::unique_ptr<GroupSolveIteration> group_solve_iteration_ptr,
     std::unique_ptr<ParameterConvergenceCheckerType> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
     const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr)
