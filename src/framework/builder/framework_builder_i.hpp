@@ -19,6 +19,7 @@
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
+#include "solver/group/single_group_solver_i.h"
 #include "system/solution/solution_types.h"
 
 namespace bart::framework::builder {
@@ -36,6 +37,7 @@ class FrameworkBuilderI {
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
+  using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
 
   // Other types
@@ -86,6 +88,8 @@ class FrameworkBuilderI {
                                     const std::shared_ptr<data::CrossSections>&,
                                     const std::shared_ptr<QuadratureSet>&,
                                     const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
+  virtual auto BuildSingleGroupSolver(const int max_iterations,
+                                      const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> = 0;
   virtual auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> = 0;
   virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
                                     std::unique_ptr<Stamper>,

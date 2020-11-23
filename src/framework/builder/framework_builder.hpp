@@ -63,6 +63,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
+  using typename FrameworkBuilderI<dim>::SingleGroupSolver;
 
   using typename FrameworkBuilderI<dim>::UpdaterPointers;
   using typename FrameworkBuilderI<dim>::BoundaryConditionsUpdater;
@@ -92,7 +93,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
-  using SingleGroupSolverType = solver::group::SingleGroupSolverI;
   using StamperType = formulation::StamperI<dim>;
   using SystemType = system::System;
 
@@ -142,6 +142,9 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<QuadratureSet>&,
       const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault)
   -> std::unique_ptr<SAAFFormulation> override;
+  [[nodiscard]] auto BuildSingleGroupSolver(
+      const int max_iterations,
+      const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> override;
   [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
   [[nodiscard]] auto BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulation>,
@@ -163,7 +166,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
-      std::unique_ptr<SingleGroupSolverType>,
+      std::unique_ptr<SingleGroupSolver>,
       std::unique_ptr<MomentConvergenceCheckerType>,
       std::unique_ptr<MomentCalculator>,
       const std::shared_ptr<GroupSolution>&,
@@ -188,9 +191,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
       double max_delta, int max_iterations);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
-  std::unique_ptr<SingleGroupSolverType> BuildSingleGroupSolver(
-      const int max_iterations = 1000,
-      const double convergence_tolerance = 1e-10);
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
                                           const DomainType& domain,
                                           const std::size_t solution_size,

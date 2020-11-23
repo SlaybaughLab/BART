@@ -199,7 +199,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
   system_helper_.SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr);
 
   auto iterative_group_solver_ptr = BuildGroupSolveIteration(
-      BuildSingleGroupSolver(),
+      BuildSingleGroupSolver(1000, 1e-10),
       BuildMomentConvergenceChecker(1e-6, 10000),
       std::move(moment_calculator_ptr),
       group_solution_ptr,
@@ -462,7 +462,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
 
 template <int dim>
 auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
-    std::unique_ptr<SingleGroupSolverType> single_group_solver_ptr,
+    std::unique_ptr<SingleGroupSolver> single_group_solver_ptr,
     std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolution>& group_solution_ptr,
@@ -828,12 +828,12 @@ auto FrameworkBuilder<dim>::BuildSAAFFormulation(
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildSingleGroupSolver(const int max_iterations, const double convergence_tolerance)
--> std::unique_ptr<SingleGroupSolverType> {
+-> std::unique_ptr<SingleGroupSolver> {
   using SolverName = solver::builder::SolverName;
   using SolverBuilder = solver::builder::SolverBuilder;
 
   ReportBuildingComponant("Single group solver");
-  std::unique_ptr<SingleGroupSolverType> return_ptr = nullptr;
+  std::unique_ptr<SingleGroupSolver> return_ptr = nullptr;
 
   return_ptr = std::move(SolverBuilder::BuildSolver(SolverName::kDefaultGMRESGroupSolver, max_iterations,
                                                     convergence_tolerance));
