@@ -27,6 +27,7 @@ auto FrameworkHelper<dim>::BuildFramework(
     const framework::FrameworkParameters& parameters) -> std::unique_ptr<framework::FrameworkI> {
   using FrameworkPart = framework::builder::FrameworkPart;
   using MomentCalculator = typename builder::FrameworkBuilderI<dim>::MomentCalculator;
+  using OuterIteration = typename builder::FrameworkBuilderI<dim>::OuterIteration;
   using MomentCalculatorImpl = typename builder::FrameworkBuilderI<dim>::MomentCalculatorImpl;
   using UpdaterPointers = typename builder::FrameworkBuilderI<dim>::UpdaterPointers;
   using QuadratureSet = typename builder::FrameworkBuilderI<dim>::QuadratureSet;
@@ -136,13 +137,18 @@ auto FrameworkHelper<dim>::BuildFramework(
     validator.AddPart(FrameworkPart::AngularSolutionStorage);
   }
 
+  std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
+
   if (parameters.eigen_solver_type.has_value()){
-    auto k_effective_updater = builder.BuildKEffectiveUpdater(finite_element_ptr,
-                                                              parameters.cross_sections_.value(),
-                                                              domain_ptr);
-    auto parameter_convergence_checker_ptr = builder.BuildParameterConvergenceChecker(1e-6, 1000);
+    outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
+                                                      builder.BuildParameterConvergenceChecker(1e-6, 1000),
+                                                      builder.BuildKEffectiveUpdater(finite_element_ptr,
+                                                                                     parameters.cross_sections_.value(),
+                                                                                     domain_ptr),
+                                                      updater_pointers.fission_source_updater_ptr);
   } else {
-    auto parameter_convergence_checker_ptr = builder.BuildParameterConvergenceChecker(1e-6, 1000);
+    outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
+                                                      builder.BuildParameterConvergenceChecker(1e-6, 1000));
   }
 
   return nullptr;

@@ -14,6 +14,7 @@
 #include "framework/framework_parameters.hpp"
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
+#include "iteration/outer/tests/outer_iteration_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "material/tests/mock_material.h"
@@ -75,6 +76,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::FinalCheckerMock<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerMock = convergence::FinalCheckerMock<const system::moments::MomentsMap>;
+  using OuterIterationMock = iteration::outer::OuterIterationMock;
   using ParameterConvergenceCheckerMock = convergence::FinalCheckerMock<double>;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
   using StamperMock = typename formulation::StamperMock<dim>;
@@ -103,6 +105,8 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   MomentConvergenceCheckerMock* moment_convergence_checker_obs_ptr_{ nullptr };
   MomentMapConvergenceCheckerMock* moment_map_convergence_checker_obs_ptr_{ nullptr };
+  OuterIterationMock* outer_iteration_obs_ptr_{ nullptr };
+  OuterIterationMock* outer_iteration_eigensolve_obs_ptr_{ nullptr };
   ParameterConvergenceCheckerMock* parameter_convergence_checker_obs_ptr_{ nullptr };
   std::shared_ptr<QuadratureSetMock> quadrature_set_mock_ptr_{ nullptr };
   SAAFFormulationMock* saaf_formulation_obs_ptr_{ nullptr };
@@ -170,6 +174,10 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   moment_convergence_checker_obs_ptr_ = moment_convergence_checker_ptr.get();
   auto moment_map_convergence_checker_ptr = std::make_unique<NiceMock<MomentMapConvergenceCheckerMock>>();
   moment_map_convergence_checker_obs_ptr_ = moment_map_convergence_checker_ptr.get();
+  auto outer_iteration_ptr = std::make_unique<NiceMock<OuterIterationMock>>();
+  outer_iteration_obs_ptr_ = outer_iteration_ptr.get();
+  auto outer_iteration_eigensolve_ptr = std::make_unique<NiceMock<OuterIterationMock>>();
+  outer_iteration_eigensolve_obs_ptr_ = outer_iteration_eigensolve_ptr.get();
   auto parameter_convergence_checker_ptr = std::make_unique<NiceMock<ParameterConvergenceCheckerMock>>();
   parameter_convergence_checker_obs_ptr_ = parameter_convergence_checker_ptr.get();
   quadrature_set_mock_ptr_ = std::make_shared<QuadratureSetMock>();
@@ -201,6 +209,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildMomentConvergenceChecker(_,_)).WillByDefault(ReturnByMove(moment_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildMomentMapConvergenceChecker(_,_))
       .WillByDefault(ReturnByMove(moment_map_convergence_checker_ptr));
+  ON_CALL(mock_builder_, BuildOuterIteration(_,_)).WillByDefault(ReturnByMove(outer_iteration_ptr));
+  ON_CALL(mock_builder_, BuildOuterIteration(_,_,_,_)).WillByDefault(ReturnByMove(outer_iteration_eigensolve_ptr));
   ON_CALL(mock_builder_, BuildParameterConvergenceChecker(_,_))
       .WillByDefault(ReturnByMove(parameter_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
@@ -336,6 +346,15 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
     EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
                                                      Pointee(Ref(*parameters.cross_sections_.value())),
                                                      Pointee(Ref(*domain_obs_ptr_)))).WillOnce(DoDefault());
+    EXPECT_CALL(mock_builder, BuildOuterIteration(Pointee(Ref(*group_solve_iteration_obs_ptr)),
+                                                  Pointee(Ref(*parameter_convergence_checker_obs_ptr_)),
+                                                  Pointee(Ref(*k_effective_updater_obs_ptr_)),
+                                                  Pointee(Ref(*updater_pointers_.fission_source_updater_ptr))))
+        .WillOnce(DoDefault());
+  } else {
+    EXPECT_CALL(mock_builder, BuildOuterIteration(Pointee(Ref(*group_solve_iteration_obs_ptr)),
+                                                  Pointee(Ref(*parameter_convergence_checker_obs_ptr_))))
+        .WillOnce(DoDefault());
   }
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
