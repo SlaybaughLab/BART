@@ -49,8 +49,7 @@ class GroupSolveIteration
       const std::shared_ptr<GroupSolution> &group_solution_ptr,
       std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr = nullptr);
 
-  GroupSolveIteration& UpdateThisAngularSolutionMap(
-      EnergyGroupToAngularSolutionPtrMap& to_update) {
+  GroupSolveIteration& UpdateThisAngularSolutionMap(EnergyGroupToAngularSolutionPtrMap& to_update) override {
     is_storing_angular_solution_ = true;
     angular_solution_ptr_map_ = to_update;
     return *this;

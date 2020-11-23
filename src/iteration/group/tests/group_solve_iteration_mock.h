@@ -14,6 +14,8 @@ namespace group {
 class GroupSolveIterationMock : public GroupSolveIterationI {
  public:
   MOCK_METHOD(void, Iterate, (system::System &system), (override));
+  MOCK_METHOD(GroupSolveIterationMock&, UpdateThisAngularSolutionMap,
+              (system::solution::EnergyGroupToAngularSolutionPtrMap&), (override));
 };
 
 } // namespace group
