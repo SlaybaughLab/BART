@@ -31,6 +31,7 @@ class FrameworkBuilderI {
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
+  using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using Initializer = iteration::initializer::InitializerI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;

@@ -465,7 +465,7 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<SingleGroupSolverType> single_group_solver_ptr,
     std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
-    const std::shared_ptr<GroupSolutionType>& group_solution_ptr,
+    const std::shared_ptr<GroupSolution>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
     std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
@@ -511,8 +511,8 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles)
--> std::unique_ptr<GroupSolutionType> {
-  std::unique_ptr<GroupSolutionType> return_ptr = nullptr;
+-> std::unique_ptr<GroupSolution> {
+  std::unique_ptr<GroupSolution> return_ptr = nullptr;
   ReportBuildingComponant("Group solution");
 
   return_ptr = std::move(

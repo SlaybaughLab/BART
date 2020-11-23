@@ -57,6 +57,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::GroupSolution;
   using typename FrameworkBuilderI<dim>::Initializer;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
@@ -83,7 +84,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FrameworkType = framework::FrameworkI;
-  using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
@@ -165,10 +165,10 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       std::unique_ptr<SingleGroupSolverType>,
       std::unique_ptr<MomentConvergenceCheckerType>,
       std::unique_ptr<MomentCalculator>,
-      const std::shared_ptr<GroupSolutionType>&,
+      const std::shared_ptr<GroupSolution>&,
       const UpdaterPointers& updater_ptrs,
       std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
-  std::unique_ptr<GroupSolutionType> BuildGroupSolution(const int n_angles);
+  std::unique_ptr<GroupSolution> BuildGroupSolution(const int n_angles);
   std::unique_ptr<KEffectiveUpdaterType> BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<CrossSectionType>&,
