@@ -60,6 +60,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::GroupSolution;
   using typename FrameworkBuilderI<dim>::Initializer;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
+  using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
@@ -87,7 +88,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using FrameworkType = framework::FrameworkI;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
-  using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerType = convergence::FinalI<const system::moments::MomentsMap>;
   using OuterIterationType = iteration::outer::OuterIterationI;
   using ParameterConvergenceCheckerType = convergence::FinalI<double>;
@@ -133,6 +133,9 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       std::shared_ptr<QuadratureSet>,
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly)
   -> std::unique_ptr<MomentCalculator> override;
+  [[nodiscard]] auto  BuildMomentConvergenceChecker(
+      double max_delta,
+      int max_iterations) -> std::unique_ptr<MomentConvergenceChecker> override;
   [[nodiscard]] auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
@@ -167,7 +170,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
   std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
       std::unique_ptr<SingleGroupSolver>,
-      std::unique_ptr<MomentConvergenceCheckerType>,
+      std::unique_ptr<MomentConvergenceChecker>,
       std::unique_ptr<MomentCalculator>,
       const std::shared_ptr<GroupSolution>&,
       const UpdaterPointers& updater_ptrs,
@@ -176,8 +179,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<FiniteElementType>&,
       const std::shared_ptr<CrossSectionType>&,
       const std::shared_ptr<DomainType>&);
-  std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
-      double max_delta, int max_iterations);
   std::unique_ptr<MomentMapConvergenceCheckerType> BuildMomentMapConvergenceChecker(
       double max_delta, int max_iterations);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(

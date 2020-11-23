@@ -463,7 +463,7 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<SingleGroupSolver> single_group_solver_ptr,
-    std::unique_ptr<MomentConvergenceCheckerType> moment_convergence_checker_ptr,
+    std::unique_ptr<MomentConvergenceChecker> moment_convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolution>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
@@ -597,19 +597,17 @@ auto FrameworkBuilder<dim>::BuildMomentCalculator(std::shared_ptr<QuadratureSet>
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
-    double max_delta, int max_iterations)
--> std::unique_ptr<MomentConvergenceCheckerType>{
+    double max_delta,
+    int max_iterations) -> std::unique_ptr<MomentConvergenceChecker>{
   //TODO(Josh): Add option for using other than L1Norm
   ReportBuildingComponant("Moment convergence checker");
 
   using CheckerType = convergence::moments::SingleMomentCheckerL1Norm;
-  using FinalCheckerType = convergence::FinalCheckerOrN<
-      system::moments::MomentVector,
-      convergence::moments::SingleMomentCheckerI>;
+  using FinalCheckerType = convergence::FinalCheckerOrN<system::moments::MomentVector,
+                                                        convergence::moments::SingleMomentCheckerI>;
 
   auto single_checker_ptr = std::make_unique<CheckerType>(max_delta);
-  auto return_ptr = std::make_unique<FinalCheckerType>(
-      std::move(single_checker_ptr));
+  auto return_ptr = std::make_unique<FinalCheckerType>(std::move(single_checker_ptr));
   return_ptr->SetMaxIterations(max_iterations);
   return return_ptr;
 }

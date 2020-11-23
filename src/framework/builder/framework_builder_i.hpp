@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "convergence/final_i.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
 #include "framework/framework_i.hpp"
@@ -20,6 +21,7 @@
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 #include "solver/group/single_group_solver_i.h"
+#include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
 
 namespace bart::framework::builder {
@@ -35,6 +37,7 @@ class FrameworkBuilderI {
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using Initializer = iteration::initializer::InitializerI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
+  using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
@@ -81,6 +84,8 @@ class FrameworkBuilderI {
   virtual auto BuildMomentCalculator(MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;
   virtual auto BuildMomentCalculator(std::shared_ptr<QuadratureSet>,
                                      MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;
+  virtual auto BuildMomentConvergenceChecker(double max_delta,
+                                             int max_iterations) -> std::unique_ptr<MomentConvergenceChecker> = 0;
   virtual auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;
