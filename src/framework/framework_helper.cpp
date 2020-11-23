@@ -123,9 +123,13 @@ auto FrameworkHelper<dim>::BuildFramework(
   auto group_solution_ptr = Shared(builder.BuildGroupSolution(n_angles));
   system_helper_ptr_->SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr, 1.0);
 
-  auto single_group_solver_ptr = builder.BuildSingleGroupSolver(10000, 1e-10);
-  auto moment_convergence_checker_ptr = builder.BuildMomentConvergenceChecker(1e-6, 10000);
-  auto moment_map_convergence_checker_ptr = builder.BuildMomentMapConvergenceChecker(1e-6, 1000);
+  auto group_iteration_ptr = builder.BuildGroupSolveIteration(
+      builder.BuildSingleGroupSolver(10000, 1e-10),
+      builder.BuildMomentConvergenceChecker(1e-6, 10000),
+      std::move(moment_calculator_ptr),
+      group_solution_ptr,
+      updater_pointers,
+      builder.BuildMomentMapConvergenceChecker(1e-6, 1000));
 
   return nullptr;
 }

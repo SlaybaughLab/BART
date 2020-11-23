@@ -12,6 +12,7 @@
 #include "framework/builder/tests/framework_builder_mock.hpp"
 #include "framework/framework_parameters.hpp"
 #include "iteration/initializer/tests/initializer_mock.h"
+#include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "material/tests/mock_material.h"
@@ -67,6 +68,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
   using FrameworkParameters = framework::FrameworkParameters;
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
+  using GroupSolveIterationMock = iteration::group::GroupSolveIterationMock;
   using InitializerMock = iteration::initializer::InitializerMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::FinalCheckerMock<system::moments::MomentVector>;
@@ -92,6 +94,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   DomainMock* domain_obs_ptr_{ nullptr };
   FiniteElementMock* finite_element_obs_ptr_{ nullptr };
   GroupSolutionMock* group_solution_obs_ptr_{ nullptr };
+  GroupSolveIterationMock* group_solve_iteration_obs_ptr{ nullptr };
   InitializerMock* initializer_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   MomentConvergenceCheckerMock* moment_convergence_checker_obs_ptr_{ nullptr };
@@ -150,6 +153,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   finite_element_obs_ptr_ = finite_element_ptr.get();
   auto group_solution_ptr = std::make_unique<NiceMock<GroupSolutionMock>>();
   group_solution_obs_ptr_ = group_solution_ptr.get();
+  auto group_solve_iteration_ptr = std::make_unique<NiceMock<GroupSolveIterationMock>>();
+  group_solve_iteration_obs_ptr = group_solve_iteration_ptr.get();
   auto initializer_ptr = std::make_unique<NiceMock<InitializerMock>>();
   initializer_obs_ptr_ = initializer_ptr.get();
   auto moment_calculator_ptr = std::make_unique<NiceMock<MomentCalculatorMock>>();
@@ -179,6 +184,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(ReturnByMove(domain_ptr));
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
   ON_CALL(mock_builder_, BuildGroupSolution(_)).WillByDefault(ReturnByMove(group_solution_ptr));
+  ON_CALL(mock_builder_, BuildGroupSolveIteration(_,_,_,_,_,_)).WillByDefault(ReturnByMove(group_solve_iteration_ptr));
   ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
@@ -301,6 +307,15 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
   EXPECT_CALL(mock_builder, BuildSingleGroupSolver(10000, 1e-10)).WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildMomentConvergenceChecker(1e-6, 10000)).WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildMomentMapConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
+
+  EXPECT_CALL(mock_builder, BuildGroupSolveIteration(Pointee(Ref(*single_group_solver_obs_ptr_)),
+                                                     Pointee(Ref(*moment_convergence_checker_obs_ptr_)),
+                                                     _,
+                                                     Pointee(Ref(*group_solution_obs_ptr_)),
+                                                     _,
+                                                     Pointee(Ref(*moment_map_convergence_checker_obs_ptr_))))
+      .WillOnce(DoDefault());
+
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
