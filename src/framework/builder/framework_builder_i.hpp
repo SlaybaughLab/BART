@@ -38,6 +38,7 @@ class FrameworkBuilderI {
   using Initializer = iteration::initializer::InitializerI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
+  using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
@@ -86,6 +87,8 @@ class FrameworkBuilderI {
                                      MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;
   virtual auto BuildMomentConvergenceChecker(double max_delta,
                                              int max_iterations) -> std::unique_ptr<MomentConvergenceChecker> = 0;
+  virtual auto BuildMomentMapConvergenceChecker(double max_delta,
+                                                int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> = 0;
   virtual auto BuildQuadratureSet(
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;

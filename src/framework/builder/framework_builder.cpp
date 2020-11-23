@@ -467,7 +467,7 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
     const std::shared_ptr<GroupSolution>& group_solution_ptr,
     const UpdaterPointers& updater_ptrs,
-    std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr)
+    std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
     -> std::unique_ptr<GroupSolveIterationType> {
   std::unique_ptr<GroupSolveIterationType> return_ptr = nullptr;
 
@@ -615,7 +615,7 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
     double max_delta, int max_iterations)
--> std::unique_ptr<MomentMapConvergenceCheckerType> {
+-> std::unique_ptr<MomentMapConvergenceChecker> {
   ReportBuildingComponant("Moment map convergence checker");
 
   using SingleCheckerType = convergence::moments::SingleMomentCheckerL1Norm;
