@@ -250,9 +250,9 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
 template<int dim>
 auto FrameworkBuilder<dim>::BuildCrossSections(
     const problem::ParametersI& problem_parameters)
-    -> std::unique_ptr<CrossSectionType> {
+    -> std::unique_ptr<CrossSections> {
   ReportBuildingComponant("Cross-sections");
-  std::unique_ptr<CrossSectionType> return_ptr = nullptr;
+  std::unique_ptr<CrossSections> return_ptr = nullptr;
   // Default implementation using protocol buffers
   try {
     MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
@@ -260,7 +260,7 @@ auto FrameworkBuilder<dim>::BuildCrossSections(
                                problem_parameters.DoNDA(),
                                problem_parameters.NEnergyGroups(),
                                problem_parameters.NumberOfMaterials());
-    return_ptr = std::move(std::make_unique<CrossSectionType>(materials));
+    return_ptr = std::move(std::make_unique<CrossSections>(materials));
     ReportBuildSuccess("(default) Cross-sections using protobuf");
   } catch (...) {
     ReportBuildError("(default) Cross-sections using protobuf");
@@ -536,16 +536,16 @@ auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpda
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
-    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
-    const std::shared_ptr<CrossSectionType>& cross_sections_ptr,
-    const std::shared_ptr<DomainType>& domain_ptr)
--> std::unique_ptr<KEffectiveUpdaterType> {
+    const std::shared_ptr<FiniteElement>& finite_element_ptr,
+    const std::shared_ptr<CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<Domain>& domain_ptr)
+-> std::unique_ptr<KEffectiveUpdater> {
   using AggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
   using IntegratedFissionSource = calculator::cell::IntegratedFissionSource<dim>;
   using ReturnType = eigenvalue::k_effective::UpdaterViaFissionSource;
 
   ReportBuildingComponant("K_Effective updater");
-  std::unique_ptr<KEffectiveUpdaterType> return_ptr = nullptr;
+  std::unique_ptr<KEffectiveUpdater> return_ptr = nullptr;
 
   return_ptr = std::move(
       std::make_unique<ReturnType>(
@@ -661,7 +661,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIteration> group_solve_iteration_ptr,
     std::unique_ptr<ParameterConvergenceChecker> parameter_convergence_checker_ptr,
-    std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_ptr,
+    std::unique_ptr<KEffectiveUpdater> k_effective_updater_ptr,
     const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr)
 -> std::unique_ptr<OuterIterationType> {
   std::unique_ptr<OuterIterationType> return_ptr = nullptr;

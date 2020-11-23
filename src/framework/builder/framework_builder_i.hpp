@@ -4,9 +4,11 @@
 #include <memory>
 #include <string>
 
+#include "data/cross_sections.h"
 #include "convergence/final_i.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
+#include "eigenvalue/k_effective/k_effective_updater_i.h"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
@@ -31,6 +33,7 @@ template <int dim>
 class FrameworkBuilderI {
  public:
   // Classes built by member functions
+  using CrossSections = data::CrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
@@ -38,6 +41,7 @@ class FrameworkBuilderI {
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIteration = iteration::group::GroupSolveIterationI;
   using Initializer = iteration::initializer::InitializerI;
+  using KEffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
@@ -92,6 +96,10 @@ class FrameworkBuilderI {
   virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                 const int total_groups,
                                 const int total_angles) -> std::unique_ptr<Initializer> = 0;
+  virtual auto BuildKEffectiveUpdater(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<CrossSections>&,
+      const std::shared_ptr<Domain>&) -> std::unique_ptr<KEffectiveUpdater> = 0;
   virtual auto BuildMomentCalculator(MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;
   virtual auto BuildMomentCalculator(std::shared_ptr<QuadratureSet>,
                                      MomentCalculatorImpl) -> std::unique_ptr<MomentCalculator> = 0;

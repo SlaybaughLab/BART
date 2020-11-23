@@ -9,6 +9,7 @@ namespace bart::framework::builder {
 template <int dim>
 class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
  public:
+  using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
@@ -16,6 +17,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::GroupSolution;
   using typename FrameworkBuilderI<dim>::GroupSolveIteration;
   using typename FrameworkBuilderI<dim>::Initializer;
+  using typename FrameworkBuilderI<dim>::KEffectiveUpdater;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
   using typename FrameworkBuilderI<dim>::MomentMapConvergenceChecker;
@@ -50,6 +52,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
       std::unique_ptr<MomentMapConvergenceChecker>), (override));
   MOCK_METHOD(std::unique_ptr<Initializer>, BuildInitializer, (const std::shared_ptr<FixedTermUpdater>&,
       const int total_groups, const int total_angles), (override));
+  MOCK_METHOD(std::unique_ptr<KEffectiveUpdater>, BuildKEffectiveUpdater, (const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<CrossSections>&, const std::shared_ptr<Domain>&), (override));
   MOCK_METHOD(std::unique_ptr<MomentCalculator>, BuildMomentCalculator,(quadrature::MomentCalculatorImpl), (override));
   MOCK_METHOD(std::unique_ptr<MomentCalculator>, BuildMomentCalculator, (std::shared_ptr<QuadratureSet>,
       quadrature::MomentCalculatorImpl), (override));

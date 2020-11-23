@@ -53,6 +53,7 @@ template <int dim>
 class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
   // New using types from refactor
+  using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
@@ -60,6 +61,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::GroupSolution;
   using typename FrameworkBuilderI<dim>::GroupSolveIteration;
   using typename FrameworkBuilderI<dim>::Initializer;
+  using typename FrameworkBuilderI<dim>::KEffectiveUpdater;
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
   using typename FrameworkBuilderI<dim>::MomentMapConvergenceChecker;
@@ -84,12 +86,9 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
 
-
-  using CrossSectionType = data::CrossSections;
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FrameworkType = framework::FrameworkI;
-  using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using OuterIterationType = iteration::outer::OuterIterationI;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
@@ -133,6 +132,10 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   [[nodiscard]] auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                       const int total_groups,
                                       const int total_angles) -> std::unique_ptr<Initializer> override;
+  [[nodiscard]] auto BuildKEffectiveUpdater(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<CrossSections>&,
+      const std::shared_ptr<Domain>&) -> std::unique_ptr<KEffectiveUpdater> override;
   [[nodiscard]] auto BuildMomentCalculator(
       MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment)
   -> std::unique_ptr<MomentCalculator> override;
@@ -175,23 +178,19 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                           const std::map<problem::Boundary, bool>& reflective_boundaries,
                                           const AngularFluxStorage&) -> UpdaterPointers override;
 
-  std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
+  std::unique_ptr<CrossSections> BuildCrossSections(ParametersType);
 
   std::unique_ptr<DomainType> BuildDomain(
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  std::unique_ptr<KEffectiveUpdaterType> BuildKEffectiveUpdater(
-      const std::shared_ptr<FiniteElementType>&,
-      const std::shared_ptr<CrossSectionType>&,
-      const std::shared_ptr<DomainType>&);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
       std::unique_ptr<ParameterConvergenceChecker>);
   std::unique_ptr<OuterIterationType> BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
       std::unique_ptr<ParameterConvergenceChecker>,
-      std::unique_ptr<KEffectiveUpdaterType>,
+      std::unique_ptr<KEffectiveUpdater>,
       const std::shared_ptr<FissionSourceUpdater>&);
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
