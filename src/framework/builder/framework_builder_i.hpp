@@ -20,6 +20,7 @@
 #include "formulation/stamper_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
+#include "iteration/outer/outer_iteration_i.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
@@ -45,6 +46,7 @@ class FrameworkBuilderI {
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
   using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
+  using OuterIteration = iteration::outer::OuterIterationI;
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
@@ -107,6 +109,13 @@ class FrameworkBuilderI {
                                              int max_iterations) -> std::unique_ptr<MomentConvergenceChecker> = 0;
   virtual auto BuildMomentMapConvergenceChecker(double max_delta,
                                                 int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> = 0;
+  virtual auto BuildOuterIteration(std::unique_ptr<GroupSolveIteration>,
+                                   std::unique_ptr<ParameterConvergenceChecker>) -> std::unique_ptr<OuterIteration> = 0;
+  virtual auto BuildOuterIteration(
+      std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>,
+      std::unique_ptr<KEffectiveUpdater>,
+      const std::shared_ptr<FissionSourceUpdater>&) -> std::unique_ptr<OuterIteration> = 0;
   virtual auto BuildParameterConvergenceChecker(double max_delta,
                                                 int max_iterations) -> std::unique_ptr<ParameterConvergenceChecker> = 0;
   virtual auto BuildQuadratureSet(

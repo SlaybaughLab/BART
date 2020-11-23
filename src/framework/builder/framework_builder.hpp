@@ -65,6 +65,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
   using typename FrameworkBuilderI<dim>::MomentMapConvergenceChecker;
+  using typename FrameworkBuilderI<dim>::OuterIteration;
   using typename FrameworkBuilderI<dim>::ParameterConvergenceChecker;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
@@ -89,7 +90,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using DomainType = domain::DefinitionI<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
   using FrameworkType = framework::FrameworkI;
-  using OuterIterationType = iteration::outer::OuterIterationI;
   using QuadratureSetType = quadrature::QuadratureSetI<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
@@ -149,6 +149,14 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   [[nodiscard]] auto BuildMomentMapConvergenceChecker(
       double max_delta,
       int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> override;
+  [[nodiscard]] auto BuildOuterIteration(
+      std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>) -> std::unique_ptr<OuterIteration> override;
+  [[nodiscard]] auto BuildOuterIteration(
+      std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>,
+      std::unique_ptr<KEffectiveUpdater>,
+      const std::shared_ptr<FissionSourceUpdater>&) -> std::unique_ptr<OuterIteration> override;
   [[nodiscard]] auto BuildParameterConvergenceChecker(
       double max_delta,
       int max_iterations) -> std::unique_ptr<ParameterConvergenceChecker> override;
@@ -184,14 +192,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
   std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  std::unique_ptr<OuterIterationType> BuildOuterIteration(
-      std::unique_ptr<GroupSolveIteration>,
-      std::unique_ptr<ParameterConvergenceChecker>);
-  std::unique_ptr<OuterIterationType> BuildOuterIteration(
-      std::unique_ptr<GroupSolveIteration>,
-      std::unique_ptr<ParameterConvergenceChecker>,
-      std::unique_ptr<KEffectiveUpdater>,
-      const std::shared_ptr<FissionSourceUpdater>&);
+
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
   std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
                                           const DomainType& domain,

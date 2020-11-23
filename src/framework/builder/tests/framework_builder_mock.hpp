@@ -21,6 +21,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::MomentCalculator;
   using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
   using typename FrameworkBuilderI<dim>::MomentMapConvergenceChecker;
+  using typename FrameworkBuilderI<dim>::OuterIteration;
   using typename FrameworkBuilderI<dim>::ParameterConvergenceChecker;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
@@ -59,6 +60,11 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
       quadrature::MomentCalculatorImpl), (override));
   MOCK_METHOD(std::unique_ptr<MomentConvergenceChecker>, BuildMomentConvergenceChecker, (double, int), (override));
   MOCK_METHOD(std::unique_ptr<MomentMapConvergenceChecker>, BuildMomentMapConvergenceChecker,(double, int), (override));
+  MOCK_METHOD(std::unique_ptr<OuterIteration>, BuildOuterIteration, (std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>), (override));
+  MOCK_METHOD(std::unique_ptr<OuterIteration>, BuildOuterIteration, (std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>, std::unique_ptr<KEffectiveUpdater>,
+      const std::shared_ptr<FissionSourceUpdater>&), (override));
   MOCK_METHOD(std::unique_ptr<ParameterConvergenceChecker>, BuildParameterConvergenceChecker, (double, int), (override));
   MOCK_METHOD(std::shared_ptr<QuadratureSet>, BuildQuadratureSet, (const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder), (override));

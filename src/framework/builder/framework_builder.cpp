@@ -213,7 +213,7 @@ auto FrameworkBuilder<dim>::BuildFramework(std::string name,
     validator_.AddPart(FrameworkPart::AngularSolutionStorage);
   };
 
-  std::unique_ptr<OuterIterationType> outer_iteration_ptr;
+  std::unique_ptr<OuterIteration> outer_iteration_ptr;
 
   if (prm.IsEigenvalueProblem()) {
     outer_iteration_ptr = BuildOuterIteration(
@@ -634,9 +634,9 @@ template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIteration> group_iteration_ptr,
     std::unique_ptr<ParameterConvergenceChecker> convergence_checker_ptr)
-    -> std::unique_ptr<OuterIterationType> {
+    -> std::unique_ptr<OuterIteration> {
   ReportBuildingComponant("Outer iteration");
-  std::unique_ptr<OuterIterationType> return_ptr = nullptr;
+  std::unique_ptr<OuterIteration> return_ptr = nullptr;
   using ReturnType = iteration::outer::OuterFixedSourceIteration;
 
   return_ptr = std::move(std::make_unique<ReturnType>(
@@ -663,8 +663,8 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<ParameterConvergenceChecker> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdater> k_effective_updater_ptr,
     const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr)
--> std::unique_ptr<OuterIterationType> {
-  std::unique_ptr<OuterIterationType> return_ptr = nullptr;
+-> std::unique_ptr<OuterIteration> {
+  std::unique_ptr<OuterIteration> return_ptr = nullptr;
   ReportBuildingComponant("Outer Iteration");
 
   using DefaultOuterPowerIteration = iteration::outer::OuterPowerIteration;
