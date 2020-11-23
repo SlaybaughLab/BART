@@ -125,6 +125,7 @@ auto FrameworkHelper<dim>::BuildFramework(
 
   auto single_group_solver_ptr = builder.BuildSingleGroupSolver(10000, 1e-10);
   auto moment_convergence_checker_ptr = builder.BuildMomentConvergenceChecker(1e-6, 10000);
+  auto moment_map_convergence_checker_ptr = builder.BuildMomentMapConvergenceChecker(1e-6, 1000);
 
   return nullptr;
 }
