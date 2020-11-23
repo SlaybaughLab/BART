@@ -131,6 +131,11 @@ auto FrameworkHelper<dim>::BuildFramework(
       updater_pointers,
       builder.BuildMomentMapConvergenceChecker(1e-6, 1000));
 
+  if (need_angular_solution_storage) {
+    group_iteration_ptr->UpdateThisAngularSolutionMap(angular_solutions_);
+    validator.AddPart(FrameworkPart::AngularSolutionStorage);
+  }
+
   return nullptr;
 }
 

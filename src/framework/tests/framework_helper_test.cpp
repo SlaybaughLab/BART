@@ -199,6 +199,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
 
+  ON_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_))
+      .WillByDefault(ReturnRef(*group_solve_iteration_obs_ptr));
 
   ON_CALL(*domain_obs_ptr_, SetUpMesh(_)).WillByDefault(ReturnRef(*domain_obs_ptr_));
   ON_CALL(*domain_obs_ptr_, SetUpDOF()).WillByDefault(ReturnRef(*domain_obs_ptr_));
@@ -284,6 +286,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
           ContainerEq(reflective_boundaries),
           _))
           .WillOnce(DoDefault());
+      EXPECT_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_)).WillOnce(DoDefault());
     }
   } else if (parameters.equation_type == problem::EquationType::kDiffusion) {
     EXPECT_CALL(mock_builder, BuildDiffusionFormulation(Pointee(Ref(*finite_element_obs_ptr_)),
