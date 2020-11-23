@@ -121,6 +121,7 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                   n_angles);
 
   auto group_solution_ptr = Shared(builder.BuildGroupSolution(n_angles));
+  system_helper_ptr_->SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr, 1.0);
 
   return nullptr;
 }

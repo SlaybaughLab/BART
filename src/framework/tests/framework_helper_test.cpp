@@ -177,6 +177,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(*domain_obs_ptr_, SetUpMesh(_)).WillByDefault(ReturnRef(*domain_obs_ptr_));
   ON_CALL(*domain_obs_ptr_, SetUpDOF()).WillByDefault(ReturnRef(*domain_obs_ptr_));
   ON_CALL(*domain_obs_ptr_, Cells()).WillByDefault(Return(cells_));
+
   ON_CALL(*quadrature_set_mock_ptr_, size()).WillByDefault(Return(this->total_quadrature_angles));
 
   test_helper_ptr_ = std::make_unique<FrameworkHelper>(system_helper_mock_ptr_);
@@ -274,6 +275,9 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
   EXPECT_CALL(mock_builder, BuildInitializer(Pointee(Ref(*updater_pointers_.fixed_updater_ptr)),
                                              parameters.neutron_energy_groups,
                                              n_angles)).WillOnce(DoDefault());
+  EXPECT_CALL(*system_helper_mock_ptr_, SetUpMPIAngularSolution(Ref(*group_solution_obs_ptr_),
+                                                                Ref(*domain_obs_ptr_),
+                                                                1.0));
 
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
