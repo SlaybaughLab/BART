@@ -12,6 +12,7 @@
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"
 #include "framework/framework_parameters.hpp"
+#include "framework/framework.hpp"
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "iteration/outer/tests/outer_iteration_mock.hpp"
@@ -378,8 +379,19 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                         is_eigenvalue_solve,
                                         need_angular_storage)).WillOnce(DoDefault());
 
+  using ExpectedType = framework::Framework;
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(framework_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_THAT(dynamic_ptr->system(), Pointee(Ref(*system_obs_ptr_)));
+  if (is_eigenvalue_solve) {
+    EXPECT_THAT(dynamic_ptr->outer_iterator_ptr(), Pointee(Ref(*outer_iteration_eigensolve_obs_ptr_)));
+  } else {
+    EXPECT_THAT(dynamic_ptr->outer_iterator_ptr(), Pointee(Ref(*outer_iteration_obs_ptr_)));
+  }
+  EXPECT_THAT(dynamic_ptr->initializer_ptr(), Pointee(Ref(*initializer_obs_ptr_)));
+  EXPECT_THAT(dynamic_ptr->results_output_ptr(), NotNull());
 }
 
 TYPED_TEST_SUITE(FrameworkHelperBuildFrameworkIntegrationTests, bart::testing::AllDimensions);

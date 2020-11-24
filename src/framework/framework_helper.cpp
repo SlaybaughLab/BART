@@ -1,6 +1,8 @@
 #include "framework/framework_helper.hpp"
 
+#include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
+#include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
 #include "system/solution/solution_types.h"
 
@@ -158,7 +160,12 @@ auto FrameworkHelper<dim>::BuildFramework(
                                         parameters.eigen_solver_type.has_value(),
                                         need_angular_solution_storage);
 
-  return nullptr;
+  validator.ReportValidation();
+
+  return std::make_unique<framework::Framework>(std::move(system_ptr),
+                                                std::move(initializer_ptr),
+                                                std::move(outer_iteration_ptr),
+                                                std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr));
 }
 
 template class FrameworkHelper<1>;
