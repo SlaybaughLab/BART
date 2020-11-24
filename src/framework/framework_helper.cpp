@@ -151,6 +151,13 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                       builder.BuildParameterConvergenceChecker(1e-6, 1000));
   }
 
+  auto system_ptr = builder.BuildSystem(parameters.neutron_energy_groups,
+                                        n_angles,
+                                        *domain_ptr,
+                                        group_solution_ptr->GetSolution(0).size(),
+                                        parameters.eigen_solver_type.has_value(),
+                                        need_angular_solution_storage);
+
   return nullptr;
 }
 

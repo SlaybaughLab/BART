@@ -26,6 +26,7 @@
 #include "system/tests/system_helper_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/moments/spherical_harmonic_types.h"
+#include "system/system.h"
 
 namespace  {
 
@@ -83,6 +84,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using SAAFFormulationMock = typename formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using SingleGroupSolverMock = solver::group::SingleGroupSolverMock;
   using SystemHelper = typename system::SystemHelperMock<dim>;
+  using System = system::System;
 
   using UpdaterPointers = FrameworkBuidler::UpdaterPointers;
   using BoundaryConditionsUpdaterMock = formulation::updater::BoundaryConditionsUpdaterMock;
@@ -113,6 +115,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   SingleGroupSolverMock* single_group_solver_obs_ptr_{ nullptr };
   StamperMock* stamper_obs_ptr_{ nullptr };
   std::shared_ptr<SystemHelper> system_helper_mock_ptr_{ nullptr };
+  System* system_obs_ptr_{ nullptr };
 
   UpdaterPointers updater_pointers_;
 
@@ -121,6 +124,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   FrameworkParameters default_parameters_;
   const int total_quadrature_angles{ test_helpers::RandomInt(10, 20) };
   std::vector<domain::CellPtr<dim>> cells_;
+  system::MPIVector solution_;
 
   auto RunTest(const FrameworkParameters& parameters) -> void;
   auto SetUp() -> void override;
@@ -188,11 +192,16 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   auto stamper_ptr = std::make_unique<NiceMock<StamperMock>>();
   stamper_obs_ptr_ = stamper_ptr.get();
   system_helper_mock_ptr_ = std::make_shared<NiceMock<SystemHelper>>();
+  auto system_ptr = std::make_unique<System>();
+  system_obs_ptr_ = system_ptr.get();
 
   updater_pointers_.boundary_conditions_updater_ptr = std::make_shared<NiceMock<BoundaryConditionsUpdaterMock>>();
   updater_pointers_.fission_source_updater_ptr = std::make_shared<NiceMock<FissionSourceUpdaterMock>>();
   updater_pointers_.fixed_updater_ptr = std::make_shared<NiceMock<FixedTermUpdaterMock>>();
   updater_pointers_.scattering_source_updater_ptr = std::make_shared<NiceMock<ScatteringSourceUpdaterMock>>();
+
+
+  ON_CALL(*group_solution_obs_ptr_, GetSolution(_)).WillByDefault(ReturnRef(solution_));
 
   using DiffusionFormulationPtr = std::unique_ptr<typename FrameworkBuidler::DiffusionFormulation>;
   using SAAFFormulationPtr = std::unique_ptr<typename FrameworkBuidler::SAAFFormulation>;
@@ -220,6 +229,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<SAAFFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
+  ON_CALL(mock_builder_, BuildSystem(_,_,_,_,_,_)).WillByDefault(ReturnByMove(system_ptr));
 
   ON_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_))
       .WillByDefault(ReturnRef(*group_solve_iteration_obs_ptr));
@@ -238,6 +248,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
     const FrameworkParameters &parameters) -> void {
   auto& mock_builder = this->mock_builder_;
   int n_angles{ 1 };
+  bool need_angular_storage{ false };
+  const bool is_eigenvalue_solve {parameters.eigen_solver_type.has_value() };
 
   // Mock Builder calls
   EXPECT_CALL(mock_builder, BuildFiniteElement(parameters.cell_finite_element_type,
@@ -299,6 +311,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
           .WillOnce(DoDefault());
     } else {
       // Should have angular storage
+      need_angular_storage = true;
       EXPECT_CALL(*system_helper_mock_ptr_, SetUpEnergyGroupToAngularSolutionPtrMap(
           _, parameters.neutron_energy_groups, total_quadrature_angles));
       EXPECT_CALL(mock_builder, BuildUpdaterPointers(
@@ -342,7 +355,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
       .WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildParameterConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
-  if (parameters.eigen_solver_type.has_value()) {
+  if (is_eigenvalue_solve) {
     EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
                                                      Pointee(Ref(*parameters.cross_sections_.value())),
                                                      Pointee(Ref(*domain_obs_ptr_)))).WillOnce(DoDefault());
@@ -356,6 +369,14 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                   Pointee(Ref(*parameter_convergence_checker_obs_ptr_))))
         .WillOnce(DoDefault());
   }
+
+  EXPECT_CALL(*group_solution_obs_ptr_, GetSolution(0)).WillOnce(DoDefault());
+  EXPECT_CALL(mock_builder, BuildSystem(parameters.neutron_energy_groups,
+                                        n_angles,
+                                        Ref(*domain_obs_ptr_),
+                                        _,
+                                        is_eigenvalue_solve,
+                                        need_angular_storage)).WillOnce(DoDefault());
 
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
