@@ -24,6 +24,12 @@ FrameworkHelper<dim>::FrameworkHelper(const std::shared_ptr<SystemHelper>& syste
 }
 
 template<int dim>
+auto FrameworkHelper<dim>::ToFrameworkParameters(
+    const problem::ParametersI &parameters) -> framework::FrameworkParameters {
+  return framework::FrameworkParameters();
+}
+
+template<int dim>
 auto FrameworkHelper<dim>::BuildFramework(
     builder::FrameworkBuilderI<dim>& builder,
     const framework::FrameworkParameters& parameters) -> std::unique_ptr<framework::FrameworkI> {
