@@ -2,9 +2,12 @@
 
 #include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
+#include "material/material_protobuf.h"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
 #include "system/solution/solution_types.h"
+
+#include <fstream>
 
 #include <fmt/color.h>
 #include <system/system_helper.hpp>
@@ -25,8 +28,56 @@ FrameworkHelper<dim>::FrameworkHelper(const std::shared_ptr<SystemHelper>& syste
 
 template<int dim>
 auto FrameworkHelper<dim>::ToFrameworkParameters(
-    const problem::ParametersI &parameters) -> framework::FrameworkParameters {
-  return framework::FrameworkParameters();
+    const problem::ParametersI &problem_parameters) -> framework::FrameworkParameters {
+  using Boundary = problem::Boundary;
+
+  framework::FrameworkParameters return_parameters {
+    .output_filename_base{ problem_parameters.OutputFilenameBase()},
+    .neutron_energy_groups{ problem_parameters.NEnergyGroups() },
+    .equation_type{ problem_parameters.TransportModel() },
+    .group_solver_type{ problem_parameters.InGroupSolver() },
+    .angular_quadrature_type{ problem_parameters.AngularQuad() },
+    .angular_quadrature_order{ quadrature::Order(problem_parameters.AngularQuadOrder()) },
+    .spatial_dimension{ framework::FrameworkParameters::SpatialDimension(problem_parameters.SpatialDimension()) },
+    .domain_size{ framework::FrameworkParameters::DomainSize(problem_parameters.SpatialMax()) },
+    .number_of_cells{ framework::FrameworkParameters::NumberOfCells(problem_parameters.NCells()) },
+    .uniform_refinements{ problem_parameters.UniformRefinements() },
+    .discretization_type{ problem_parameters.Discretization() },
+    .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) }
+  };
+
+  std::set<Boundary> reflective_boundaries;
+  for (const auto& [boundary, is_reflective] : problem_parameters.ReflectiveBoundary()){
+    if (is_reflective)
+      reflective_boundaries.insert(boundary);
+  }
+  return_parameters.reflective_boundaries = reflective_boundaries;
+
+  // Open material mapping file and read
+  std::ifstream mapping_file(problem_parameters.MaterialMapFilename());
+  if (mapping_file.is_open()) {
+    return_parameters.material_mapping = std::string((std::istreambuf_iterator<char>(mapping_file)),
+                                                     std::istreambuf_iterator<char>());
+  } else {
+    AssertThrow(false, dealii::ExcMessage("Failed to open material mapping file."))
+  }
+
+  const auto eigen_solver_type{ problem_parameters.EigenSolver() };
+  const bool is_eigenvalue_solve{ eigen_solver_type != problem::EigenSolverType::kNone };
+
+  if (is_eigenvalue_solve) {
+    return_parameters.eigen_solver_type = eigen_solver_type;
+  }
+
+  MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
+                             is_eigenvalue_solve,
+                             false,
+                             return_parameters.neutron_energy_groups,
+                             problem_parameters.NumberOfMaterials());
+
+  return_parameters.cross_sections_ = std::make_shared<data::CrossSections>(materials);
+
+  return return_parameters;
 }
 
 template<int dim>

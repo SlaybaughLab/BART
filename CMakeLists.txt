@@ -117,20 +117,19 @@ DEAL_II_SETUP_TARGET(bart_test)
 ### TEST FILES ##################################################
 # Create copies of .gold files in the BART/src directory for gtest
 
-add_custom_target(copy_gtest_gold_files ALL)
+add_custom_target(copy_gtest_files ALL)
 
-add_custom_command(TARGET copy_gtest_gold_files PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory test_data)
+add_custom_command(TARGET copy_gtest_files PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory test_data)
 
-file(GLOB_RECURSE gtest_files "src/*.gold")
+file(GLOB_RECURSE gtest_files "src/*.gold" "src/*.test_material_mapping")
 foreach(test_file ${gtest_files})
   get_filename_component(file_name ${test_file} NAME)
   add_custom_command(
-    TARGET copy_gtest_gold_files PRE_BUILD
+    TARGET copy_gtest_files PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${test_file}
             ${CMAKE_CURRENT_BINARY_DIR}/test_data/${file_name})
 endforeach()
-add_dependencies(bart_test copy_gtest_gold_files)
+add_dependencies(bart_test copy_gtest_files)
 
 # Creates copies of .output files in the BART/test directory for CTEST
 

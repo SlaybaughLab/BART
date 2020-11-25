@@ -3,6 +3,7 @@
 
 #include "problem/parameters_i.h"
 #include "framework/builder/framework_builder_i.hpp"
+#include "material/material_protobuf.h"
 #include "system/system_helper_i.hpp"
 
 namespace bart::framework {
