@@ -38,6 +38,11 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::FixedTermUpdater ;
   using typename FrameworkBuilderI<dim>::ScatteringSourceUpdater;
 
+  using typename FrameworkBuilderI<dim>::ColorStatusPair;
+  using typename FrameworkBuilderI<dim>::ColorStatusInstrument;
+  using typename FrameworkBuilderI<dim>::ConvergenceInstrument;
+  using typename FrameworkBuilderI<dim>::StatusInstrument;
+
 
   MOCK_METHOD(std::unique_ptr<DiffusionFormulation>, BuildDiffusionFormulation,
       (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
@@ -83,6 +88,16 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<SAAFFormulation>, std::unique_ptr<Stamper>,
       const std::shared_ptr<QuadratureSet>&, (const std::map<problem::Boundary, bool>)& reflective_boundaries,
       const AngularFluxStorage&), (override));
+
+  MOCK_METHOD(FrameworkBuilderI<dim>&, set_color_status_instrument_ptr, (const std::shared_ptr<ColorStatusInstrument>&),
+              (override));
+  MOCK_METHOD(FrameworkBuilderI<dim>&, set_convergence_status_instrument_ptr,(
+      const std::shared_ptr<ConvergenceInstrument>&), (override));
+  MOCK_METHOD(FrameworkBuilderI<dim>&, set_status_instrument_ptr,(const std::shared_ptr<StatusInstrument>&),
+              (override));
+  MOCK_METHOD(std::shared_ptr<ColorStatusInstrument>, color_status_instrument_ptr, (), (const, override));
+  MOCK_METHOD(std::shared_ptr<ConvergenceInstrument>, convergence_status_instrument_ptr, (), (const, override));
+  MOCK_METHOD(std::shared_ptr<StatusInstrument>, status_instrument_ptr, (), (const, override));
 };
 
 } // namespace bart::framework::builder

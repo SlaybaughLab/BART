@@ -2,6 +2,7 @@
 
 #include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
+#include "instrumentation/builder/instrument_builder.hpp"
 #include "material/material_protobuf.h"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
@@ -92,7 +93,21 @@ auto FrameworkHelper<dim>::BuildFramework(
   using QuadratureSet = typename builder::FrameworkBuilderI<dim>::QuadratureSet;
   using Validator = framework::builder::FrameworkValidator;
 
+//  using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
+//  using InstrumentName = instrumentation::builder::InstrumentName;
+//  using ColorStringPair = std::pair<utility::Color, std::string>;
+//
+//  // Build instruments to be used
+//  auto status_instrument = Shared(
+//      InstrumentBuilder::BuildInstrument<ColorStringPair>(InstrumentName::kColorStatusToConditionalOstream));
+//  auto convergence_status_instrument_ptr = Shared(
+//      InstrumentBuilder::BuildInstrument<convergence::Status>(InstrumentName::kConvergenceStatusToConditionalOstream));
+//  auto string_instrument_ptr = Shared(
+//      InstrumentBuilder::BuildInstrument<std::string>(InstrumentName::kStringToConditionalOstream));
+
   Validator validator;
+//  using ValidatorStatusPort = framework::builder::data_port::ValidatorStatusPort;
+//  instrumentation::GetPort<ValidatorStatusPort>(validator).AddInstrument(status_instrument);
   validator.Parse(parameters);
 
   const int n_groups{ parameters.neutron_energy_groups };

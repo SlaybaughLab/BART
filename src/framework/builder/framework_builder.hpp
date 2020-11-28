@@ -82,6 +82,11 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::DiffusionFormulationImpl;
   using typename FrameworkBuilderI<dim>::MomentCalculatorImpl;
 
+  using typename FrameworkBuilderI<dim>::ColorStatusPair;
+  using typename FrameworkBuilderI<dim>::ColorStatusInstrument;
+  using typename FrameworkBuilderI<dim>::ConvergenceInstrument;
+  using typename FrameworkBuilderI<dim>::StatusInstrument;
+
   // TODO: Remove old types as they are unneeded
   using ParametersType = const problem::ParametersI&;
   using Color = utility::Color;
@@ -94,11 +99,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
   using StamperType = formulation::StamperI<dim>;
 
-  using ColorStatusPair = std::pair<std::string, utility::Color>;
-  // Instrumentation
-  using ColorStatusInstrument = instrumentation::InstrumentI<ColorStatusPair>;
-  using ConvergenceInstrument = instrumentation::InstrumentI<convergence::Status>;
-  using StatusInstrument = instrumentation::InstrumentI<std::string>;
+
 
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
@@ -200,6 +201,31 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
 
+  // Instrumentation
+  auto set_color_status_instrument_ptr(
+      const std::shared_ptr<ColorStatusInstrument>& to_set) -> FrameworkBuilderI<dim>& override {
+    AssertThrow(to_set != nullptr, dealii::ExcMessage("Error setting instrument, pointer is null"))
+    color_status_instrument_ptr_ = to_set;
+    return *this;
+  };
+  auto set_convergence_status_instrument_ptr(
+      const std::shared_ptr<ConvergenceInstrument>& to_set) -> FrameworkBuilderI<dim>& override {
+    AssertThrow(to_set != nullptr, dealii::ExcMessage("Error setting instrument, pointer is null"))
+    convergence_status_instrument_ptr_ = to_set;
+    return *this;
+  };
+  auto set_status_instrument_ptr(const std::shared_ptr<StatusInstrument>& to_set) -> FrameworkBuilderI<dim>& override{
+    AssertThrow(to_set != nullptr, dealii::ExcMessage("Error setting instrument, pointer is null"))
+    status_instrument_ptr_ = to_set;
+    return *this;
+  };
+
+  auto color_status_instrument_ptr() const -> std::shared_ptr<ColorStatusInstrument> override {
+    return color_status_instrument_ptr_; };
+  auto convergence_status_instrument_ptr() const -> std::shared_ptr<ConvergenceInstrument> override {
+    return convergence_status_instrument_ptr_; };
+  auto status_instrument_ptr() const -> std::shared_ptr<StatusInstrument> override {
+    return status_instrument_ptr_; };
 
  private:
   void ReportBuildingComponant(std::string componant) {

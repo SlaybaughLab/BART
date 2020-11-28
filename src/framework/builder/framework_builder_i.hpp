@@ -5,6 +5,7 @@
 #include <string>
 
 #include "data/cross_sections.h"
+#include "convergence/status.hpp"
 #include "convergence/final_i.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
@@ -18,6 +19,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.h"
+#include "instrumentation/instrument_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
@@ -28,6 +30,7 @@
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
 #include "system/system.h"
+#include "utility/colors.hpp"
 
 namespace bart::framework::builder {
 
@@ -54,6 +57,12 @@ class FrameworkBuilderI {
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
   using System = system::System;
+
+  // Instrumentation
+  using ColorStatusPair = std::pair<std::string, utility::Color>;
+  using ColorStatusInstrument = instrumentation::InstrumentI<ColorStatusPair>;
+  using ConvergenceInstrument = instrumentation::InstrumentI<convergence::Status>;
+  using StatusInstrument = instrumentation::InstrumentI<std::string>;
 
   // Other types
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
@@ -147,6 +156,17 @@ class FrameworkBuilderI {
                                     const std::shared_ptr<QuadratureSet>&,
                                     const std::map<problem::Boundary, bool>& reflective_boundaries,
                                     const AngularFluxStorage&) -> UpdaterPointers = 0;
+
+  // Instrumentation getters and setters
+  virtual auto set_color_status_instrument_ptr(
+      const std::shared_ptr<ColorStatusInstrument>&) -> FrameworkBuilderI<dim>& = 0;
+  virtual auto set_convergence_status_instrument_ptr(
+      const std::shared_ptr<ConvergenceInstrument>&) -> FrameworkBuilderI<dim>& = 0;
+  virtual auto set_status_instrument_ptr(
+      const std::shared_ptr<StatusInstrument>&) -> FrameworkBuilderI<dim>& = 0;
+  virtual auto color_status_instrument_ptr() const -> std::shared_ptr<ColorStatusInstrument> = 0;
+  virtual auto convergence_status_instrument_ptr() const -> std::shared_ptr<ConvergenceInstrument> = 0;
+  virtual auto status_instrument_ptr() const -> std::shared_ptr<StatusInstrument> = 0;
 };
 
 } // namespace bart::framework::builder
