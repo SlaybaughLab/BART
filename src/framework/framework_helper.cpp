@@ -5,6 +5,7 @@
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
 #include "material/material_protobuf.h"
+#include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
 #include "system/solution/solution_types.h"
@@ -17,7 +18,8 @@
 namespace bart::framework {
 
 namespace  {
-
+using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
+using InstrumentName = instrumentation::builder::InstrumentName;
 template <typename T> inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) { return to_convert_ptr; }
 } // namespace
 
@@ -94,8 +96,6 @@ auto FrameworkHelper<dim>::BuildFramework(
   using QuadratureSet = typename builder::FrameworkBuilderI<dim>::QuadratureSet;
   using Validator = framework::builder::FrameworkValidator;
 
-  using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
-  using InstrumentName = instrumentation::builder::InstrumentName;
   using ColorStringPair = std::pair<std::string, utility::Color>;
 
   // Build instruments to be used
@@ -250,6 +250,25 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                 std::move(initializer_ptr),
                                                 std::move(outer_iteration_ptr),
                                                 std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr));
+}
+
+template<int dim>
+auto FrameworkHelper<dim>::BuildFramework(
+    builder::FrameworkBuilderI<dim>& builder,
+    const FrameworkParameters& parameters,
+    system::moments::SphericalHarmonicI* previous_solution_ptr) -> std::unique_ptr<framework::FrameworkI> {
+  auto framework_ptr = BuildFramework(builder, parameters);
+  auto dynamic_framework_ptr = dynamic_cast<framework::Framework*>(framework_ptr.get());
+  auto outer_iteration_ptr = dynamic_framework_ptr->outer_iterator_ptr();
+
+  auto fourier_instrument = Shared(
+      InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
+          InstrumentName::kFourierTransformOfAllGroupScalarFluxErrorToFile,
+          previous_solution_ptr,
+          parameters.output_filename_base + "_fourier_of_error_group"));
+  using FourierDataPort = iteration::outer::data_names::SolutionMomentsPort;
+  instrumentation::GetPort<FourierDataPort>(*outer_iteration_ptr).AddInstrument(fourier_instrument);
+  return framework_ptr;
 }
 
 template class FrameworkHelper<1>;
