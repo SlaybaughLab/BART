@@ -207,6 +207,9 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildSystem(_,_,_,_,_,_)).WillByDefault(ReturnByMove(system_ptr));
+  ON_CALL(mock_builder_, set_color_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
+  ON_CALL(mock_builder_, set_convergence_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
+  ON_CALL(mock_builder_, set_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
 
   ON_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_))
       .WillByDefault(ReturnRef(*group_solve_iteration_obs_ptr));
@@ -229,6 +232,9 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
   const bool is_eigenvalue_solve {parameters.eigen_solver_type.has_value() };
 
   // Mock Builder calls
+  EXPECT_CALL(mock_builder, set_color_status_instrument_ptr(NotNull())).WillOnce(DoDefault());
+  EXPECT_CALL(mock_builder, set_convergence_status_instrument_ptr(NotNull())).WillOnce(DoDefault());
+  EXPECT_CALL(mock_builder, set_status_instrument_ptr(NotNull())).WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildFiniteElement(parameters.cell_finite_element_type,
                                                parameters.discretization_type,
                                                parameters.polynomial_degree))

@@ -1,5 +1,6 @@
 #include "framework/framework_helper.hpp"
 
+#include "framework/builder/framework_builder.hpp"
 #include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
@@ -93,21 +94,32 @@ auto FrameworkHelper<dim>::BuildFramework(
   using QuadratureSet = typename builder::FrameworkBuilderI<dim>::QuadratureSet;
   using Validator = framework::builder::FrameworkValidator;
 
-//  using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
-//  using InstrumentName = instrumentation::builder::InstrumentName;
-//  using ColorStringPair = std::pair<utility::Color, std::string>;
-//
-//  // Build instruments to be used
-//  auto status_instrument = Shared(
-//      InstrumentBuilder::BuildInstrument<ColorStringPair>(InstrumentName::kColorStatusToConditionalOstream));
-//  auto convergence_status_instrument_ptr = Shared(
-//      InstrumentBuilder::BuildInstrument<convergence::Status>(InstrumentName::kConvergenceStatusToConditionalOstream));
-//  auto string_instrument_ptr = Shared(
-//      InstrumentBuilder::BuildInstrument<std::string>(InstrumentName::kStringToConditionalOstream));
+  using InstrumentBuilder = instrumentation::builder::InstrumentBuilder;
+  using InstrumentName = instrumentation::builder::InstrumentName;
+  using ColorStringPair = std::pair<std::string, utility::Color>;
+
+  // Build instruments to be used
+  auto color_string_instrument_ptr = Shared(
+      InstrumentBuilder::BuildInstrument<ColorStringPair>(InstrumentName::kColorStatusToConditionalOstream));
+  auto convergence_status_instrument_ptr = Shared(
+      InstrumentBuilder::BuildInstrument<convergence::Status>(InstrumentName::kConvergenceStatusToConditionalOstream));
+  auto string_instrument_ptr = Shared(
+      InstrumentBuilder::BuildInstrument<std::string>(InstrumentName::kStringToConditionalOstream));
+  builder.set_color_status_instrument_ptr(color_string_instrument_ptr);
+  builder.set_convergence_status_instrument_ptr(convergence_status_instrument_ptr);
+  builder.set_status_instrument_ptr(string_instrument_ptr);
+
+  try {
+    auto& dynamic_framework_builder = dynamic_cast<framework::builder::FrameworkBuilder<dim>&>(builder);
+    instrumentation::GetPort<framework::builder::data_port::StatusDataPort>(dynamic_framework_builder)
+        .AddInstrument(color_string_instrument_ptr);
+  } catch (std::bad_cast&) {}
+
 
   Validator validator;
-//  using ValidatorStatusPort = framework::builder::data_port::ValidatorStatusPort;
-//  instrumentation::GetPort<ValidatorStatusPort>(validator).AddInstrument(status_instrument);
+  using ValidatorStatusPort = framework::builder::data_port::ValidatorStatusPort;
+  instrumentation::GetPort<ValidatorStatusPort>(validator)
+      .AddInstrument(color_string_instrument_ptr);
   validator.Parse(parameters);
 
   const int n_groups{ parameters.neutron_energy_groups };
