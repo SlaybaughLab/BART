@@ -1,10 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_HPP_
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_HPP_
 
-#include "problem/parameters_i.h"
-#include "instrumentation/port.hpp"
-#include "framework/framework_parameters.hpp"
-#include "problem/parameters_i.h"
+#include "framework/builder/framework_validator_i.hpp"
 #include "utility/colors.hpp"
 #include "utility/uncopyable.h"
 
@@ -12,29 +9,25 @@
 
 namespace bart::framework::builder {
 
-enum class FrameworkPart {
-  ScatteringSourceUpdate = 0,
-  FissionSourceUpdate = 1,
-  AngularSolutionStorage = 2
-};
-
 namespace data_port {
 struct ValidatorStatus;
 using ValidatorStatusPort = instrumentation::Port<std::pair<std::string, utility::Color>, ValidatorStatus>;
 } // namespace data_port
 
-class FrameworkValidator : public data_port::ValidatorStatusPort, public utility::Uncopyable {
+class FrameworkValidator : public FrameworkValidatorI,
+                           public data_port::ValidatorStatusPort,
+                           public utility::Uncopyable {
  public:
-  auto AddPart(const FrameworkPart to_add) -> FrameworkValidator&;
-  auto Parse(const framework::FrameworkParameters) -> void;
-  auto Parse(const problem::ParametersI& to_parse) -> void;
-  auto ReportValidation() -> void;
+  auto AddPart(const FrameworkPart to_add) -> FrameworkValidator& override;
+  auto Parse(const framework::FrameworkParameters) -> void override;
+  auto Parse(const problem::ParametersI& to_parse) -> void override;
+  auto ReportValidation() -> void override;
 
-  [[nodiscard]] auto HasNeededParts() const -> bool { return needed_parts_.size() > 0; }
-  [[nodiscard]] auto HasUnneededParts() const -> bool { return parts_.size() > needed_parts_.size(); }
-  [[nodiscard]] auto NeededParts() const -> std::set<FrameworkPart> { return needed_parts_; }
-  [[nodiscard]] auto Parts() const -> std::set<FrameworkPart> { return parts_; }
-  [[nodiscard]] auto UnneededParts() const -> std::set<FrameworkPart>;
+  [[nodiscard]] auto HasNeededParts() const -> bool  override { return needed_parts_.size() > 0; }
+  [[nodiscard]] auto HasUnneededParts() const -> bool  override { return parts_.size() > needed_parts_.size(); }
+  [[nodiscard]] auto NeededParts() const -> std::set<FrameworkPart>  override { return needed_parts_; }
+  [[nodiscard]] auto Parts() const -> std::set<FrameworkPart>  override { return parts_; }
+  [[nodiscard]] auto UnneededParts() const -> std::set<FrameworkPart> override;
  private:
   std::set<FrameworkPart> needed_parts_{};
   std::set<FrameworkPart> parts_{};
