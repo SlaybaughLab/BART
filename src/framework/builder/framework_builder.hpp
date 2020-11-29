@@ -104,10 +104,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
 
-  std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
-  std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
-                                                system::moments::SphericalHarmonicI*);
-
   [[nodiscard]] auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
