@@ -41,6 +41,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::System;
+  using typename FrameworkBuilderI<dim>::Validator;
 
   using typename FrameworkBuilderI<dim>::UpdaterPointers;
   using typename FrameworkBuilderI<dim>::BoundaryConditionsUpdater;
@@ -58,7 +59,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   using typename FrameworkBuilderI<dim>::AngularFluxStorage;
 
-  FrameworkBuilder() = default;
+  FrameworkBuilder(std::unique_ptr<Validator> validator_ptr);
   ~FrameworkBuilder() = default;
 
   [[nodiscard]] auto BuildDiffusionFormulation(
@@ -171,6 +172,8 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   auto status_instrument_ptr() const -> std::shared_ptr<StatusInstrument> override {
     return status_instrument_ptr_; };
 
+  auto validator_ptr() -> Validator* override { return validator_ptr_.get(); };
+
  private:
   void ReportBuildingComponant(std::string componant) {
     if (!build_report_closed_) {
@@ -203,11 +206,10 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return to_convert_ptr;
   }
-
+  std::unique_ptr<Validator> validator_ptr_{ nullptr };
   std::shared_ptr<StatusInstrument> status_instrument_ptr_{nullptr};
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{nullptr};
   std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };
-  mutable FrameworkValidator validator_;
   const system::SystemHelper<dim> system_helper_;
   bool build_report_closed_ = true;
   std::string filename_{""};

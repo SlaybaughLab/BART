@@ -28,6 +28,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::System;
+  using typename FrameworkBuilderI<dim>::Validator;
 
   using typename FrameworkBuilderI<dim>::AngularFluxStorage;
   using typename FrameworkBuilderI<dim>::DiffusionFormulationImpl;
@@ -98,6 +99,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   MOCK_METHOD(std::shared_ptr<ColorStatusInstrument>, color_status_instrument_ptr, (), (const, override));
   MOCK_METHOD(std::shared_ptr<ConvergenceInstrument>, convergence_status_instrument_ptr, (), (const, override));
   MOCK_METHOD(std::shared_ptr<StatusInstrument>, status_instrument_ptr, (), (const, override));
+
+  MOCK_METHOD(Validator*, validator_ptr, (), (override));
 };
 
 } // namespace bart::framework::builder

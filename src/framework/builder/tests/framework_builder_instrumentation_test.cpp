@@ -1,6 +1,7 @@
 #include "framework/builder/framework_builder.hpp"
 
 #include "convergence/status.hpp"
+#include "framework/builder/tests/framework_validator_mock.hpp"
 #include "instrumentation/tests/instrument_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "utility/colors.hpp"
@@ -18,6 +19,7 @@ class FrameworkBuilderInstrumentationTest : public ::testing::Test {
   using ColorStatusInstrument = instrumentation::InstrumentMock<ColorStatusPair>;
   using ConvergenceInstrument = instrumentation::InstrumentMock<convergence::Status>;
   using StatusInstrument = instrumentation::InstrumentMock<std::string>;
+  using Validator = framework::builder::FrameworkValidatorMock;
 
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{ nullptr };
   std::shared_ptr<ConvergenceInstrument> convergence_instrument_ptr_{ nullptr };
@@ -33,7 +35,7 @@ auto FrameworkBuilderInstrumentationTest::SetUp() -> void {
 }
 
 TEST_F(FrameworkBuilderInstrumentationTest, GettersAndSetters) {
-  framework::builder::FrameworkBuilder<dim> test_builder;
+  framework::builder::FrameworkBuilder<dim> test_builder(std::make_unique<Validator>());
   EXPECT_NO_THROW({
     test_builder.set_color_status_instrument_ptr(color_status_instrument_ptr_);
   });
@@ -50,7 +52,7 @@ TEST_F(FrameworkBuilderInstrumentationTest, GettersAndSetters) {
 }
 
 TEST_F(FrameworkBuilderInstrumentationTest, GettersAndSettersNullptrs) {
-  framework::builder::FrameworkBuilder<dim> test_builder;
+  framework::builder::FrameworkBuilder<dim> test_builder(std::make_unique<Validator>());
   EXPECT_ANY_THROW({
                     test_builder.set_color_status_instrument_ptr(nullptr);
                   });

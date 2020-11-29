@@ -19,6 +19,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.h"
+#include "framework/builder/framework_validator.hpp"
 #include "instrumentation/instrument_i.h"
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
@@ -57,6 +58,7 @@ class FrameworkBuilderI {
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
   using System = system::System;
+  using Validator = framework::builder::FrameworkValidatorI;
 
   // Instrumentation
   using ColorStatusPair = std::pair<std::string, utility::Color>;
@@ -167,6 +169,9 @@ class FrameworkBuilderI {
   virtual auto color_status_instrument_ptr() const -> std::shared_ptr<ColorStatusInstrument> = 0;
   virtual auto convergence_status_instrument_ptr() const -> std::shared_ptr<ConvergenceInstrument> = 0;
   virtual auto status_instrument_ptr() const -> std::shared_ptr<StatusInstrument> = 0;
+
+  // Access the internal validator object
+  virtual auto validator_ptr() -> Validator* = 0;
 };
 
 } // namespace bart::framework::builder

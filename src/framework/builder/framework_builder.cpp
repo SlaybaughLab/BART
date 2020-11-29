@@ -70,6 +70,10 @@ using StringColorPair = std::pair<std::string, utility::Color>;
 
 } // namespace
 
+template<int dim>
+FrameworkBuilder<dim>::FrameworkBuilder(std::unique_ptr<Validator> validator_ptr)
+    : validator_ptr_(std::move(validator_ptr)) {}
+
 // =============================================================================
 
 template<int dim>
@@ -262,7 +266,7 @@ auto FrameworkBuilder<dim>::BuildGroupSolveIteration(
   instrumentation::GetPort<StatusPort>(*return_ptr)
       .AddInstrument(status_instrument_ptr_);
 
-  validator_.AddPart(FrameworkPart::ScatteringSourceUpdate);
+  validator_ptr_->AddPart(FrameworkPart::ScatteringSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
@@ -448,7 +452,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
           instrumentation::builder::InstrumentName::kIntDoublePairToFile,
           filename_ + "_iteration_error.csv")));
 
-  validator_.AddPart(FrameworkPart::FissionSourceUpdate);
+  validator_ptr_->AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
@@ -587,7 +591,7 @@ auto FrameworkBuilder<dim>::BuildStamper(const std::shared_ptr<Domain>& domain_p
 
 template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
-  validator_.ReportValidation();
+  validator_ptr_->ReportValidation();
 }
 
 template class FrameworkBuilder<1>;

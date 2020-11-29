@@ -48,6 +48,7 @@
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
+#include "framework/builder/tests/framework_validator_mock.hpp"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
@@ -70,6 +71,8 @@ using ::testing::HasSubstr, ::testing::_;
 using ::testing::ReturnRef, ::testing::A;
 
 using ::testing::AtLeast;
+
+using Part = framework::builder::FrameworkPart;
 
 template <typename DimensionWrapper>
 class FrameworkBuilderIntegrationTest : public ::testing::Test {
@@ -97,6 +100,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
   using SingleGroupSolverType = solver::group::SingleGroupSolverMock;
   using StamperType = formulation::StamperMock<dim>;
+  using Validator = NiceMock<framework::builder::FrameworkValidatorMock>;
 
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
@@ -124,6 +128,8 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_sptr_;
   std::unique_ptr<SingleGroupSolverType> single_group_solver_uptr_;
   std::unique_ptr<StamperType> stamper_uptr_;
+
+  Validator* validator_obs_ptr_{ nullptr };
 
   // Test Parameters
   const int polynomial_degree = 2;
@@ -153,31 +159,29 @@ int FrameworkBuilderIntegrationTest<DimensionWrapper>::files_in_working_director
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
-  boundary_conditions_updater_sptr_ =
-      std::make_shared<BoundaryConditionsUpdaterType>();
+  boundary_conditions_updater_sptr_ = std::make_shared<BoundaryConditionsUpdaterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
-  diffusion_formulation_uptr_ =
-      std::move(std::make_unique<DiffusionFormulationType>());
+  diffusion_formulation_uptr_ = std::move(std::make_unique<DiffusionFormulationType>());
   domain_sptr_ = std::make_shared<DomainType>();
   finite_element_sptr_ = std::make_shared<FiniteElementType>();
   fission_source_updater_sptr_ = std::make_shared<FissionSourceUpdaterType>();
   group_solution_sptr_ = std::make_shared<GroupSolutionType>();
-  group_solve_iteration_uptr_  = std::move(
-      std::make_unique<GroupSolveIterationType>());
-  k_effective_updater_uptr_ = std::move(
-      std::make_unique<KEffectiveUpdaterType>());
+  group_solve_iteration_uptr_  = std::move(std::make_unique<GroupSolveIterationType>());
+  k_effective_updater_uptr_ = std::move(std::make_unique<KEffectiveUpdaterType>());
   moment_calculator_uptr_ = std::move(std::make_unique<MomentCalculatorType>());
-  moment_convergence_checker_uptr_ =
-      std::move(std::make_unique<MomentConvergenceCheckerType>());
-  parameter_convergence_checker_uptr_ = std::move(
-      std::make_unique<ParameterConvergenceCheckerType>());
+  moment_convergence_checker_uptr_ = std::move(std::make_unique<MomentConvergenceCheckerType>());
+  parameter_convergence_checker_uptr_ = std::move(std::make_unique<ParameterConvergenceCheckerType>());
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
   single_group_solver_uptr_ = std::move(std::make_unique<SingleGroupSolverType>());
+  auto validator_ptr = std::make_unique<Validator>();
+  validator_obs_ptr_ = validator_ptr.get();
 
-  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>());
+  ON_CALL(*validator_ptr, AddPart(_)).WillByDefault(ReturnRef(*validator_ptr));
+
+  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(std::move(validator_ptr)));
 
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(10);
@@ -221,8 +225,13 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::TearDown() {
             << files_in_working_directory_after << std::endl;
 }
 
-TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
-                bart::testing::AllDimensions);
+TYPED_TEST_CASE(FrameworkBuilderIntegrationTest, bart::testing::AllDimensions);
+
+// =====================================================================================================================
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, Constructor) {
+  ASSERT_NE(this->test_builder_ptr_->validator_ptr(), nullptr);
+}
 
 // =============================================================================
 
@@ -398,6 +407,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
   UpdaterPointersStruct updater_ptrs;
   updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
 
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::ScatteringSourceUpdate)).WillOnce(DoDefault());
+
   auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
       std::move(this->single_group_solver_uptr_),
       std::move(this->moment_convergence_checker_uptr_),
@@ -416,6 +427,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdat
   UpdaterPointersStruct updater_ptrs;
   updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
   updater_ptrs.boundary_conditions_updater_ptr = this->boundary_conditions_updater_sptr_;
+
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::ScatteringSourceUpdate)).WillOnce(DoDefault());
 
   auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
       std::move(this->single_group_solver_uptr_),
@@ -511,6 +524,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BulidMomentCalculatorAngular) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::FissionSourceUpdate)).WillOnce(DoDefault());
+
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
       std::move(this->parameter_convergence_checker_uptr_),
@@ -523,6 +538,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::FissionSourceUpdate)).WillOnce(DoDefault());
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
       std::move(this->parameter_convergence_checker_uptr_));
