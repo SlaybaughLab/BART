@@ -188,8 +188,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                           const std::map<problem::Boundary, bool>& reflective_boundaries,
                                           const AngularFluxStorage&) -> UpdaterPointers override;
 
-  std::unique_ptr<CrossSections> BuildCrossSections(ParametersType);
-
   std::unique_ptr<Domain> BuildDomain(
       ParametersType, const std::shared_ptr<FiniteElementType>&,
       std::string material_mapping);
@@ -256,7 +254,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
     return to_convert_ptr;
   }
 
-  std::string ReadMappingFile(std::string filename);
   std::shared_ptr<StatusInstrument> status_instrument_ptr_{nullptr};
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{nullptr};
   std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };

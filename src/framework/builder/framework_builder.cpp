@@ -73,28 +73,6 @@ using StringColorPair = std::pair<std::string, utility::Color>;
 // =============================================================================
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildCrossSections(
-    const problem::ParametersI& problem_parameters)
-    -> std::unique_ptr<CrossSections> {
-  ReportBuildingComponant("Cross-sections");
-  std::unique_ptr<CrossSections> return_ptr = nullptr;
-  // Default implementation using protocol buffers
-  try {
-    MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
-                               problem_parameters.IsEigenvalueProblem(),
-                               problem_parameters.DoNDA(),
-                               problem_parameters.NEnergyGroups(),
-                               problem_parameters.NumberOfMaterials());
-    return_ptr = std::move(std::make_unique<CrossSections>(materials));
-    ReportBuildSuccess("(default) Cross-sections using protobuf");
-  } catch (...) {
-    ReportBuildError("(default) Cross-sections using protobuf");
-    throw;
-  }
-  return return_ptr;
-}
-
-template<int dim>
 auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<FiniteElement>& finite_element_ptr,
                                                       const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
                                                       const DiffusionFormulationImpl implementation)
@@ -700,23 +678,6 @@ auto FrameworkBuilder<dim>::BuildStamper(const std::shared_ptr<Domain>& domain_p
   return_ptr = std::move(std::make_unique<formulation::Stamper<dim>>(domain_ptr));
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
-}
-template<int dim>
-std::string FrameworkBuilder<dim>::ReadMappingFile(std::string filename) {
-  ReportBuildingComponant("Reading mapping file: ");
-
-  std::ifstream mapping_file(filename);
-  if (mapping_file.is_open()) {
-    ReportBuildSuccess(filename);
-
-    return std::string(
-        (std::istreambuf_iterator<char>(mapping_file)),
-        std::istreambuf_iterator<char>());
-  } else {
-    ReportBuildError("Error reading " + filename);
-    AssertThrow(false,
-                dealii::ExcMessage("Failed to open material mapping file"))
-  }
 }
 
 template<int dim>
