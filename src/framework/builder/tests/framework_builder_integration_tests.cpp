@@ -332,25 +332,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest,
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
-  constexpr int dim = this->dim;
-  auto finite_element_ptr =
-      std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
-
-  EXPECT_CALL(this->parameters, NCells())
-      .WillOnce(DoDefault());
-  EXPECT_CALL(this->parameters, SpatialMax())
-      .WillOnce(DoDefault());
-
-  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(
-      this->parameters, finite_element_ptr, "1 1 2 2");
-
-  using ExpectedType = domain::Definition<this->dim>;
-
-  EXPECT_THAT(test_domain_ptr.get(),
-              WhenDynamicCastTo<ExpectedType*>(NotNull()));
-}
-
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainParametersTest) {
   constexpr int dim = this->dim;
   using Parameters = framework::FrameworkParameters;
@@ -457,23 +438,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSolution) {
   EXPECT_EQ(n_angles, group_solution_ptr->total_angles());
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
-  constexpr int dim = this->dim;
-  EXPECT_CALL(this->parameters, FEPolynomialDegree())
-      .WillOnce(DoDefault());
-
-  using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
-
-  auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(this->parameters);
-  auto gaussian_ptr = dynamic_cast<ExpectedType*>(finite_element_ptr.get());
-
-  EXPECT_NE(gaussian_ptr, nullptr);
-  EXPECT_EQ(finite_element_ptr->polynomial_degree(), this->polynomial_degree);
-  auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(
-      finite_element_ptr->finite_element());
-  EXPECT_NE(dealii_finite_element_ptr, nullptr);
-}
-
 // BuildFiniteElement should return correct object when given good parameters
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParameters) {
   constexpr int dim = this->dim;
@@ -565,50 +529,6 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
   using ExpectedType = iteration::outer::OuterFixedSourceIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
-}
-
-
-
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSet) {
-  constexpr int dim = this->dim;
-  const int order = 4;
-  EXPECT_CALL(this->parameters, AngularQuad())
-      .WillOnce(Return(problem::AngularQuadType::kGaussLegendre));
-  EXPECT_CALL(this->parameters, AngularQuadOrder())
-      .WillOnce(Return(order));
-
-  if (dim == 1) {
-    using ExpectedType = quadrature::QuadratureSet<dim>;
-    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
-    ASSERT_NE(nullptr, quadrature_set);
-    ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
-    EXPECT_EQ(quadrature_set->size(), 2*order);
-  } else {
-    EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
-                     });
-  }
-}
-
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
-  constexpr int dim = this->dim;
-  const int order = 4;
-  EXPECT_CALL(this->parameters, AngularQuad())
-      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetricGaussian));
-  EXPECT_CALL(this->parameters, AngularQuadOrder())
-      .WillOnce(Return(order));
-
-  if (dim == 3) {
-    using ExpectedType = quadrature::QuadratureSet<dim>;
-    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
-    ASSERT_NE(nullptr, quadrature_set);
-    ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
-    EXPECT_EQ(quadrature_set->size(), order * (order + 2));
-  } else {
-    EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
-    });
-  }
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildQuadratureSetBadOrder) {

@@ -90,29 +90,6 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<Fini
 }
 
 template<int dim>
-auto FrameworkBuilder<dim>::BuildDomain(
-    ParametersType problem_parameters,
-    const std::shared_ptr<FiniteElementType>& finite_element_ptr,
-    std::string material_mapping)
--> std::unique_ptr<Domain>{
-  std::unique_ptr<Domain> return_ptr = nullptr;
-
-  ReportBuildingComponant("Mesh");
-  auto mesh_ptr = std::make_unique<domain::mesh::MeshCartesian<dim>>(
-      problem_parameters.SpatialMax(),
-      problem_parameters.NCells(),
-      material_mapping);
-  ReportBuildSuccess(mesh_ptr->description());
-
-  ReportBuildingComponant("Domain");
-  return_ptr = std::move(std::make_unique<domain::Definition<dim>>(
-      std::move(mesh_ptr),
-      finite_element_ptr));
-  ReportBuildSuccess(return_ptr->description());
-  return return_ptr;
-}
-
-template<int dim>
 auto FrameworkBuilder<dim>::BuildDomain(FrameworkParameters::DomainSize domain_size,
                                         FrameworkParameters::NumberOfCells number_of_cells,
                                         const std::shared_ptr<FiniteElement>& finite_element_ptr,
@@ -140,7 +117,7 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType fi
                                                FrameworkParameters::PolynomialDegree polynomial_degree)
 -> std::unique_ptr<FiniteElement> {
   ReportBuildingComponant("Cell finite element basis");
-  std::unique_ptr<FiniteElementType> return_ptr{ nullptr };
+  std::unique_ptr<FiniteElement> return_ptr{ nullptr };
 
   try {
     AssertThrow(polynomial_degree.get() > 0, dealii::ExcMessage("Bad polynomial degree"))
@@ -155,28 +132,6 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType fi
     throw;
   }
   ReportBuildSuccess(return_ptr->description());
-  return return_ptr;
-}
-
-template<int dim>
-auto FrameworkBuilder<dim>::BuildFiniteElement(ParametersType problem_parameters)
--> std::unique_ptr<FiniteElementType>{
-  std::unique_ptr<FiniteElementType> return_ptr = nullptr;
-
-  using FiniteElementGaussianType = domain::finite_element::FiniteElementGaussian<dim>;
-
-  ReportBuildingComponant("Cell finite element basis");
-
-  try {
-    return_ptr = std::move(std::make_unique<FiniteElementGaussianType>(
-        problem::DiscretizationType::kContinuousFEM,
-        problem_parameters.FEPolynomialDegree()));
-
-    ReportBuildSuccess(return_ptr->description());
-  } catch (...) {
-    ReportBuildError();
-    throw;
-  }
   return return_ptr;
 }
 
@@ -558,56 +513,6 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(
     ReportBuildError();
     throw;
   }
-}
-
-template<int dim>
-auto FrameworkBuilder<dim>::BuildQuadratureSet(ParametersType problem_parameters)
--> std::shared_ptr<QuadratureSetType> {
-  ReportBuildingComponant("quadrature set");
-  using QuadratureGeneratorType = quadrature::QuadratureGeneratorI<dim>;
-
-  std::shared_ptr<QuadratureSetType> return_ptr = nullptr;
-  std::shared_ptr<QuadratureGeneratorType > quadrature_generator_ptr = nullptr;
-
-  const int order_value = problem_parameters.AngularQuadOrder();
-  switch (problem_parameters.AngularQuad()) {
-    case problem::AngularQuadType::kLevelSymmetricGaussian: {
-      AssertThrow(dim == 3, dealii::ExcMessage("Error in BuildQuadratureSet "
-                                               "LSGC only available for 3D"))
-      quadrature_generator_ptr =
-          quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
-              quadrature::Order(order_value),
-              quadrature::AngularQuadratureSetType::kLevelSymmetricGaussian);
-      break;
-    }
-    case problem::AngularQuadType::kGaussLegendre: {
-      AssertThrow(dim == 1, dealii::ExcMessage("Error in BuildQuadratureSet "
-                                               "GaussLegendre only available "
-                                               "for 1D"))
-      quadrature_generator_ptr =
-          quadrature::factory::MakeAngularQuadratureGeneratorPtr<dim>(
-              quadrature::Order(order_value),
-              quadrature::AngularQuadratureSetType::kGaussLegendre);
-      break;
-    }
-    default: {
-        AssertThrow(false,
-                    dealii::ExcMessage("No supported quadratures for this dimension "
-                                       "and transport model"))
-      break;
-    }
-  }
-  ReportBuildSuccess(quadrature_generator_ptr->description());
-
-  return_ptr = quadrature::factory::MakeQuadratureSetPtr<dim>();
-
-  auto quadrature_points = quadrature::utility::GenerateAllPositiveX<dim>(
-      quadrature_generator_ptr->GenerateSet());
-
-  quadrature::factory::FillQuadratureSet<dim>(return_ptr.get(),
-                                              quadrature_points);
-
-  return return_ptr;
 }
 
 template <int dim>

@@ -3,44 +3,13 @@
 
 #include "framework/builder/framework_builder_i.hpp"
 
-#include <fstream>
-#include <memory>
-#include <data/cross_sections.h>
 #include <deal.II/base/conditional_ostream.h>
 
-#include "quadrature/quadrature_types.h"
-
-#include "utility/has_description.h"
-#include "system/system_helper.hpp"
-
-#include "framework/framework_parameters.hpp"
 #include "framework/builder/framework_validator.hpp"
-// Problem parameters
-#include "problem/parameters_i.h"
-#include "system/solution/solution_types.h"
-
-// Interface classes built by this factory
-#include "convergence/final_i.h"
-#include "data/cross_sections.h"
-#include "domain/definition_i.h"
-#include "domain/finite_element/finite_element_i.h"
-#include "eigenvalue/k_effective/k_effective_updater_i.h"
-#include "formulation/stamper_i.h"
-#include "framework/framework_i.hpp"
-#include "iteration/group/group_solve_iteration_i.h"
-#include "iteration/outer/outer_iteration_i.hpp"
 #include "instrumentation/port.hpp"
-#include "instrumentation/instrument_i.h"
-#include "quadrature/quadrature_set_i.h"
-#include "solver/group/single_group_solver_i.h"
-#include "system/solution/mpi_group_angular_solution_i.h"
-#include "system/system.h"
-#include "system/moments/spherical_harmonic_i.h"
+#include "system/system_helper.hpp"
+#include "utility/has_description.h"
 
-// Dependency clases
-#include "formulation/updater/fixed_updater_i.h"
-#include "utility/colors.hpp"
-#include "instrumentation/port.hpp"
 
 namespace bart::framework::builder {
 
@@ -87,19 +56,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::ConvergenceInstrument;
   using typename FrameworkBuilderI<dim>::StatusInstrument;
 
-  // TODO: Remove old types as they are unneeded
-  using ParametersType = const problem::ParametersI&;
-  using Color = utility::Color;
-
-  using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
-
-  using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
-  using FrameworkType = framework::FrameworkI;
-  using QuadratureSetType = quadrature::QuadratureSetI<dim>;
-  using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
-  using StamperType = formulation::StamperI<dim>;
-
-
+  using typename FrameworkBuilderI<dim>::AngularFluxStorage;
 
   FrameworkBuilder() = default;
   ~FrameworkBuilder() = default;
@@ -187,13 +144,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                           const std::shared_ptr<QuadratureSet>&,
                                           const std::map<problem::Boundary, bool>& reflective_boundaries,
                                           const AngularFluxStorage&) -> UpdaterPointers override;
-
-  std::unique_ptr<Domain> BuildDomain(
-      ParametersType, const std::shared_ptr<FiniteElementType>&,
-      std::string material_mapping);
-  std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-
-  std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
 
   // Instrumentation
   auto set_color_status_instrument_ptr(
