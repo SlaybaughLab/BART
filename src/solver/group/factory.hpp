@@ -18,6 +18,7 @@ BART_INTERFACE_FACTORY(SingleGroupSolverI, GroupSolverName)
     case GroupSolverName::kDefaultImplementation:
       return std::string{"GroupSolverName::kDefaultImplementation"};
   }
+  return std::string{"String not defined for specified GroupSolverName"};
 }
 
 
