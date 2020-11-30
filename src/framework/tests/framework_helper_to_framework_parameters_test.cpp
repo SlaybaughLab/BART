@@ -197,6 +197,15 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, BadMaterialMapping) {
   EXPECT_CALL(parameters_mock_, OutputFilenameBase()).WillOnce(Return(test_parameters.output_filename_base));
   EXPECT_CALL(parameters_mock_, NEnergyGroups()).WillOnce(Return(test_parameters.neutron_energy_groups));
   EXPECT_CALL(parameters_mock_, TransportModel()).WillOnce(Return(test_parameters.equation_type));
+  EXPECT_CALL(parameters_mock_, InGroupSolver()).WillOnce(Return(test_parameters.group_solver_type));
+  EXPECT_CALL(parameters_mock_, AngularQuad()).WillOnce(Return(test_parameters.angular_quadrature_type));
+  EXPECT_CALL(parameters_mock_, AngularQuadOrder()).WillOnce(Return(test_parameters.angular_quadrature_order.value().get()));
+  EXPECT_CALL(parameters_mock_, SpatialDimension()).WillOnce(Return(test_parameters.spatial_dimension.get()));
+  EXPECT_CALL(parameters_mock_, SpatialMax()).WillOnce(Return(test_parameters.domain_size.get()));
+  EXPECT_CALL(parameters_mock_, NCells()).WillOnce(Return(test_parameters.number_of_cells.get()));
+  EXPECT_CALL(parameters_mock_, UniformRefinements()).WillOnce(Return(test_parameters.uniform_refinements));
+  EXPECT_CALL(parameters_mock_, Discretization()).WillOnce(Return(test_parameters.discretization_type));
+  EXPECT_CALL(parameters_mock_, FEPolynomialDegree()).WillOnce(Return(test_parameters.polynomial_degree.get()));
   std::map<Boundary, bool> reflective_boundaries {
       {Boundary::kXMin, false}, {Boundary::kXMax, false}, {Boundary::kYMin, false}, {Boundary::kYMax, false},
       {Boundary::kZMin, false}, {Boundary::kZMax, false}};
