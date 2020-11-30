@@ -8,6 +8,9 @@
 
 #include "framework/framework_helper.hpp"
 #include "framework/builder/framework_builder.hpp"
+#include "framework/builder/framework_validator.hpp"
+#include "instrumentation/builder/instrument_builder.hpp"
+#include "instrumentation/port.hpp"
 #include "problem/parameters_dealii_handler.h"
 #include "utility/runtime/runtime_helper.h"
 #include "system/system_helper.hpp"
@@ -68,8 +71,17 @@ int main(int argc, char* argv[]) {
     const auto BuildFramework = [&]<int dim>() -> std::unique_ptr<bart::framework::FrameworkI> {
       using FrameworkBuilder = bart::framework::builder::FrameworkBuilder<dim>;
       using FrameworkHelper = bart::framework::FrameworkHelper<dim>;
+      using InstrumentBuilder = bart::instrumentation::builder::InstrumentBuilder;
+      using InstrumentName = bart::instrumentation::builder::InstrumentName;
       using SystemHelper = bart::system::SystemHelper<dim>;
-      FrameworkBuilder builder;
+      using Validator = bart::framework::builder::FrameworkValidator;
+      using ValidatorStatusPort = bart::framework::builder::data_port::ValidatorStatusPort;
+
+      FrameworkBuilder builder(std::make_unique<Validator>());
+      bart::instrumentation::GetPort<ValidatorStatusPort>(*builder.validator_ptr())
+      .AddInstrument(InstrumentBuilder::BuildInstrument<std::pair<std::string, bart::utility::Color>>(
+      InstrumentName::kColorStatusToConditionalOstream));
+
 
       FrameworkHelper helper(std::make_shared<SystemHelper>());
       auto parameters = helper.ToFrameworkParameters(prm);
@@ -102,15 +114,23 @@ int main(int argc, char* argv[]) {
     if (prm.DoDiscreteFourierTransformOfError()) {
 
       const auto BuildFourierFramework = [&]<int dim>() -> std::unique_ptr<bart::framework::FrameworkI> {
-        using FrameworkBuilder = bart::framework::builder::FrameworkBuilder<dim>;
-        using FrameworkHelper = bart::framework::FrameworkHelper<dim>;
-        using SystemHelper = bart::system::SystemHelper<dim>;
+          using FrameworkBuilder = bart::framework::builder::FrameworkBuilder<dim>;
+          using FrameworkHelper = bart::framework::FrameworkHelper<dim>;
+          using InstrumentBuilder = bart::instrumentation::builder::InstrumentBuilder;
+          using InstrumentName = bart::instrumentation::builder::InstrumentName;
+          using SystemHelper = bart::system::SystemHelper<dim>;
+          using Validator = bart::framework::builder::FrameworkValidator;
+          using ValidatorStatusPort = bart::framework::builder::data_port::ValidatorStatusPort;
 
-        FrameworkHelper helper(std::make_shared<SystemHelper>());
-        FrameworkBuilder builder;
-        auto parameters = helper.ToFrameworkParameters(prm);
-        parameters.name = "fourier";
-        return helper.BuildFramework(builder, parameters, framework_ptr->system()->current_moments.get());
+          FrameworkBuilder builder(std::make_unique<Validator>());
+          bart::instrumentation::GetPort<ValidatorStatusPort>(*builder.validator_ptr())
+          .AddInstrument(InstrumentBuilder::BuildInstrument<std::pair<std::string, bart::utility::Color>>(
+          InstrumentName::kColorStatusToConditionalOstream));
+
+          FrameworkHelper helper(std::make_shared<SystemHelper>());
+          auto parameters = helper.ToFrameworkParameters(prm);
+          parameters.name = "fourier";
+          return helper.BuildFramework(builder, parameters, framework_ptr->system()->current_moments.get());
       };
 
       std::unique_ptr<bart::framework::FrameworkI> fourier_framework_ptr;
