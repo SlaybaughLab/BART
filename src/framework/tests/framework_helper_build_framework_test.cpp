@@ -11,6 +11,7 @@
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"
+#include "framework/builder/tests/framework_validator_mock.hpp"
 #include "framework/framework_parameters.hpp"
 #include "framework/framework.hpp"
 #include "iteration/initializer/tests/initializer_mock.h"
@@ -36,6 +37,9 @@ using ::testing::Return, ::testing::ByMove, ::testing::DoDefault, ::testing::_, 
 using ::testing::Ref, ::testing::Pointee, ::testing::ReturnRef, ::testing::ContainerEq, ::testing::SizeIs;
 using ::testing::A, ::testing::AllOf;
 using ::testing::NotNull, ::testing::WhenDynamicCastTo;
+using ::testing::AtLeast;
+
+using FrameworkPart = framework::builder::FrameworkPart;
 
 template <typename DimensionWrapper>
 class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
@@ -62,6 +66,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using SingleGroupSolverMock = solver::group::SingleGroupSolverMock;
   using SystemHelper = typename system::SystemHelperMock<dim>;
   using System = system::System;
+  using Validator = framework::builder::FrameworkValidatorMock;
 
   using UpdaterPointers = FrameworkBuidler::UpdaterPointers;
   using BoundaryConditionsUpdaterMock = formulation::updater::BoundaryConditionsUpdaterMock;
@@ -102,6 +107,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   const int total_quadrature_angles{ test_helpers::RandomInt(10, 20) };
   std::vector<domain::CellPtr<dim>> cells_;
   system::MPIVector solution_;
+  Validator mock_validator_;
 
   auto RunTest(const FrameworkParameters& parameters) -> void;
   auto SetUp() -> void override;
@@ -210,6 +216,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, set_color_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
   ON_CALL(mock_builder_, set_convergence_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
   ON_CALL(mock_builder_, set_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
+  ON_CALL(mock_builder_, validator_ptr()).WillByDefault(Return(&mock_validator_));
 
   ON_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_))
       .WillByDefault(ReturnRef(*group_solve_iteration_obs_ptr));
@@ -230,6 +237,10 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
   int n_angles{ 1 };
   bool need_angular_storage{ false };
   const bool is_eigenvalue_solve {parameters.eigen_solver_type.has_value() };
+
+  EXPECT_CALL(mock_builder, validator_ptr()).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+  EXPECT_CALL(mock_validator_, Parse(A<FrameworkParameters>()));
+
 
   // Mock Builder calls
   EXPECT_CALL(mock_builder, set_color_status_instrument_ptr(NotNull())).WillOnce(DoDefault());
@@ -317,6 +328,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                    ContainerEq(reflective_boundaries))).WillOnce(DoDefault());
   }
 
+  // End formulation specific calls, need_angular_storage should be set properly now
+
   EXPECT_CALL(mock_builder, BuildGroupSolution(n_angles)).WillOnce(DoDefault());
 
   EXPECT_CALL(mock_builder, BuildInitializer(Pointee(Ref(*updater_pointers_.fixed_updater_ptr)),
@@ -352,6 +365,17 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                   Pointee(Ref(*parameter_convergence_checker_obs_ptr_))))
         .WillOnce(DoDefault());
   }
+
+  std::set<FrameworkPart> needed_parts{ {FrameworkPart::ScatteringSourceUpdate} };
+  if (is_eigenvalue_solve)
+    needed_parts.insert(FrameworkPart::FissionSourceUpdate);
+  if (need_angular_storage) {
+    needed_parts.insert(FrameworkPart::AngularSolutionStorage);
+    EXPECT_CALL(mock_validator_, AddPart(FrameworkPart::AngularSolutionStorage)).WillOnce(ReturnRef(mock_validator_));
+  }
+  EXPECT_CALL(mock_validator_, NeededParts()).WillOnce(Return(needed_parts));
+  EXPECT_CALL(mock_validator_, ReportValidation());
+
 
   EXPECT_CALL(*group_solution_obs_ptr_, GetSolution(0)).WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildSystem(parameters.neutron_energy_groups,

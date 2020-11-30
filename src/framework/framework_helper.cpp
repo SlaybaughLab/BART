@@ -115,11 +115,7 @@ auto FrameworkHelper<dim>::BuildFramework(
         .AddInstrument(color_string_instrument_ptr);
   } catch (std::bad_cast&) {}
 
-
-  Validator validator;
-  using ValidatorStatusPort = framework::builder::data_port::ValidatorStatusPort;
-  instrumentation::GetPort<ValidatorStatusPort>(validator)
-      .AddInstrument(color_string_instrument_ptr);
+  auto& validator = *builder.validator_ptr();
   validator.Parse(parameters);
 
   const int n_groups{ parameters.neutron_energy_groups };
