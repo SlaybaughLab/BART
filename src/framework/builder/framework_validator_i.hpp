@@ -16,6 +16,7 @@ enum class FrameworkPart {
 
 class FrameworkValidatorI {
  public:
+  virtual ~FrameworkValidatorI() = default;
   virtual auto AddPart(const FrameworkPart to_add) -> FrameworkValidatorI& = 0;
   virtual auto Parse(const framework::FrameworkParameters) -> void = 0;
   virtual auto Parse(const problem::ParametersI& to_parse) -> void = 0;
