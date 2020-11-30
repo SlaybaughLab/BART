@@ -395,7 +395,8 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIteration> group_iteration_ptr,
-    std::unique_ptr<ParameterConvergenceChecker> convergence_checker_ptr)
+    std::unique_ptr<ParameterConvergenceChecker> convergence_checker_ptr,
+    const std::string&)
     -> std::unique_ptr<OuterIteration> {
   ReportBuildingComponant("Outer iteration");
   std::unique_ptr<OuterIteration> return_ptr = nullptr;
@@ -424,7 +425,8 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
     std::unique_ptr<GroupSolveIteration> group_solve_iteration_ptr,
     std::unique_ptr<ParameterConvergenceChecker> parameter_convergence_checker_ptr,
     std::unique_ptr<KEffectiveUpdater> k_effective_updater_ptr,
-    const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr)
+    const std::shared_ptr<FissionSourceUpdater>& fission_source_updater_ptr,
+    const std::string& output_filename_base)
 -> std::unique_ptr<OuterIteration> {
   std::unique_ptr<OuterIteration> return_ptr = nullptr;
   ReportBuildingComponant("Outer Iteration");
@@ -450,7 +452,7 @@ auto FrameworkBuilder<dim>::BuildOuterIteration(
   instrumentation::GetPort<IterationErrorPort>(*return_ptr)
       .AddInstrument(Shared(InstrumentBuilder::BuildInstrument<std::pair<int,double>>(
           instrumentation::builder::InstrumentName::kIntDoublePairToFile,
-          filename_ + "_iteration_error.csv")));
+          output_filename_base + "_iteration_error.csv")));
 
   validator_ptr_->AddPart(FrameworkPart::FissionSourceUpdate);
   ReportBuildSuccess(return_ptr->description());

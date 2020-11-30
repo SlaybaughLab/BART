@@ -201,8 +201,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildMomentConvergenceChecker(_,_)).WillByDefault(ReturnByMove(moment_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildMomentMapConvergenceChecker(_,_))
       .WillByDefault(ReturnByMove(moment_map_convergence_checker_ptr));
-  ON_CALL(mock_builder_, BuildOuterIteration(_,_)).WillByDefault(ReturnByMove(outer_iteration_ptr));
-  ON_CALL(mock_builder_, BuildOuterIteration(_,_,_,_)).WillByDefault(ReturnByMove(outer_iteration_eigensolve_ptr));
+  ON_CALL(mock_builder_, BuildOuterIteration(_,_,_)).WillByDefault(ReturnByMove(outer_iteration_ptr));
+  ON_CALL(mock_builder_, BuildOuterIteration(_,_,_,_,_)).WillByDefault(ReturnByMove(outer_iteration_eigensolve_ptr));
   ON_CALL(mock_builder_, BuildParameterConvergenceChecker(_,_))
       .WillByDefault(ReturnByMove(parameter_convergence_checker_ptr));
   ON_CALL(mock_builder_, BuildQuadratureSet(_,_)).WillByDefault(Return(quadrature_set_mock_ptr_));
@@ -358,11 +358,13 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
     EXPECT_CALL(mock_builder, BuildOuterIteration(Pointee(Ref(*group_solve_iteration_obs_ptr)),
                                                   Pointee(Ref(*parameter_convergence_checker_obs_ptr_)),
                                                   Pointee(Ref(*k_effective_updater_obs_ptr_)),
-                                                  Pointee(Ref(*updater_pointers_.fission_source_updater_ptr))))
+                                                  Pointee(Ref(*updater_pointers_.fission_source_updater_ptr)),
+                                                  parameters.output_filename_base))
         .WillOnce(DoDefault());
   } else {
     EXPECT_CALL(mock_builder, BuildOuterIteration(Pointee(Ref(*group_solve_iteration_obs_ptr)),
-                                                  Pointee(Ref(*parameter_convergence_checker_obs_ptr_))))
+                                                  Pointee(Ref(*parameter_convergence_checker_obs_ptr_)),
+                                                  parameters.output_filename_base))
         .WillOnce(DoDefault());
   }
 

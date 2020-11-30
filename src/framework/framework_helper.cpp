@@ -227,10 +227,12 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                       builder.BuildKEffectiveUpdater(finite_element_ptr,
                                                                                      parameters.cross_sections_.value(),
                                                                                      domain_ptr),
-                                                      updater_pointers.fission_source_updater_ptr);
+                                                      updater_pointers.fission_source_updater_ptr,
+                                                      parameters.output_filename_base);
   } else {
     outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
-                                                      builder.BuildParameterConvergenceChecker(1e-6, 1000));
+                                                      builder.BuildParameterConvergenceChecker(1e-6, 1000),
+                                                      parameters.output_filename_base);
   }
 
   auto system_ptr = builder.BuildSystem(parameters.neutron_energy_groups,

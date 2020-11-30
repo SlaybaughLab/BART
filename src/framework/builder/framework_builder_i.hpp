@@ -123,12 +123,14 @@ class FrameworkBuilderI {
   virtual auto BuildMomentMapConvergenceChecker(double max_delta,
                                                 int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> = 0;
   virtual auto BuildOuterIteration(std::unique_ptr<GroupSolveIteration>,
-                                   std::unique_ptr<ParameterConvergenceChecker>) -> std::unique_ptr<OuterIteration> = 0;
+                                   std::unique_ptr<ParameterConvergenceChecker>,
+                                   const std::string& output_filename_base) -> std::unique_ptr<OuterIteration> = 0;
   virtual auto BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
       std::unique_ptr<ParameterConvergenceChecker>,
       std::unique_ptr<KEffectiveUpdater>,
-      const std::shared_ptr<FissionSourceUpdater>&) -> std::unique_ptr<OuterIteration> = 0;
+      const std::shared_ptr<FissionSourceUpdater>&,
+      const std::string& output_filename_base) -> std::unique_ptr<OuterIteration> = 0;
   virtual auto BuildParameterConvergenceChecker(double max_delta,
                                                 int max_iterations) -> std::unique_ptr<ParameterConvergenceChecker> = 0;
   virtual auto BuildQuadratureSet(

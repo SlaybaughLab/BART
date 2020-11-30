@@ -105,12 +105,14 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> override;
   [[nodiscard]] auto BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
-      std::unique_ptr<ParameterConvergenceChecker>) -> std::unique_ptr<OuterIteration> override;
+      std::unique_ptr<ParameterConvergenceChecker>,
+      const std::string& output_filename_base) -> std::unique_ptr<OuterIteration> override;
   [[nodiscard]] auto BuildOuterIteration(
       std::unique_ptr<GroupSolveIteration>,
       std::unique_ptr<ParameterConvergenceChecker>,
       std::unique_ptr<KEffectiveUpdater>,
-      const std::shared_ptr<FissionSourceUpdater>&) -> std::unique_ptr<OuterIteration> override;
+      const std::shared_ptr<FissionSourceUpdater>&,
+      const std::string& output_filename_base) -> std::unique_ptr<OuterIteration> override;
   [[nodiscard]] auto BuildParameterConvergenceChecker(
       double max_delta,
       int max_iterations) -> std::unique_ptr<ParameterConvergenceChecker> override;
@@ -212,7 +214,6 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };
   const system::SystemHelper<dim> system_helper_;
   bool build_report_closed_ = true;
-  std::string filename_{""};
 };
 
 } // namespace bart::framework::builder

@@ -530,18 +530,19 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
       std::move(this->group_solve_iteration_uptr_),
       std::move(this->parameter_convergence_checker_uptr_),
       std::move(this->k_effective_updater_uptr_),
-      this->fission_source_updater_sptr_);
+      this->fission_source_updater_sptr_,
+      "test");
   using ExpectedType = iteration::outer::OuterPowerIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
-  EXPECT_EQ(remove("_iteration_error.csv"), 0);
+  EXPECT_EQ(remove("test_iteration_error.csv"), 0);
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
   EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::FissionSourceUpdate)).WillOnce(DoDefault());
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
-      std::move(this->parameter_convergence_checker_uptr_));
+      std::move(this->parameter_convergence_checker_uptr_), "");
   using ExpectedType = iteration::outer::OuterFixedSourceIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
