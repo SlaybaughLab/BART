@@ -38,6 +38,10 @@ enum class EquationType {
   kSelfAdjointAngularFlux,
 };
 
+enum class CellFiniteElementType {
+  kGaussian = 0,
+};
+
 enum class FuelPinTriangulationType {
   kNone,
   kSimple,

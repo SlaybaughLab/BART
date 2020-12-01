@@ -6,9 +6,14 @@
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/mpi.h>
 
+#include "framework/framework_helper.hpp"
 #include "framework/builder/framework_builder.hpp"
+#include "framework/builder/framework_validator.hpp"
+#include "instrumentation/builder/instrument_builder.hpp"
+#include "instrumentation/port.hpp"
 #include "problem/parameters_dealii_handler.h"
 #include "utility/runtime/runtime_helper.h"
+#include "system/system_helper.hpp"
 
 int main(int argc, char* argv[]) {
   try {
@@ -63,20 +68,38 @@ int main(int argc, char* argv[]) {
     // Framework pointer
     std::unique_ptr<bart::framework::FrameworkI> framework_ptr;
 
+    const auto BuildFramework = [&]<int dim>() -> std::unique_ptr<bart::framework::FrameworkI> {
+      using FrameworkBuilder = bart::framework::builder::FrameworkBuilder<dim>;
+      using FrameworkHelper = bart::framework::FrameworkHelper<dim>;
+      using InstrumentBuilder = bart::instrumentation::builder::InstrumentBuilder;
+      using InstrumentName = bart::instrumentation::builder::InstrumentName;
+      using SystemHelper = bart::system::SystemHelper<dim>;
+      using Validator = bart::framework::builder::FrameworkValidator;
+      using ValidatorStatusPort = bart::framework::builder::data_port::ValidatorStatusPort;
+
+      FrameworkBuilder builder(std::make_unique<Validator>());
+      bart::instrumentation::GetPort<ValidatorStatusPort>(*builder.validator_ptr())
+      .AddInstrument(InstrumentBuilder::BuildInstrument<std::pair<std::string, bart::utility::Color>>(
+      InstrumentName::kColorStatusToConditionalOstream));
+
+
+      FrameworkHelper helper(std::make_shared<SystemHelper>());
+      auto parameters = helper.ToFrameworkParameters(prm);
+      parameters.name = "main";
+      return helper.BuildFramework(builder, parameters);
+    };
+
     switch(prm.SpatialDimension()) {
       case 1: {
-        bart::framework::builder::FrameworkBuilder<1> builder;
-        framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr = BuildFramework.operator()<1>();
         break;
       }
       case 2: {
-        bart::framework::builder::FrameworkBuilder<2> builder;
-        framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr = BuildFramework.operator()<2>();
         break;
       }
       case 3: {
-        bart::framework::builder::FrameworkBuilder<3> builder;
-        framework_ptr = builder.BuildFramework("main", prm);
+        framework_ptr = BuildFramework.operator()<3>();
         break;
       }
     }
@@ -90,24 +113,38 @@ int main(int argc, char* argv[]) {
     framework_ptr->SolveSystem();
     if (prm.DoDiscreteFourierTransformOfError()) {
 
+      const auto BuildFourierFramework = [&]<int dim>() -> std::unique_ptr<bart::framework::FrameworkI> {
+          using FrameworkBuilder = bart::framework::builder::FrameworkBuilder<dim>;
+          using FrameworkHelper = bart::framework::FrameworkHelper<dim>;
+          using InstrumentBuilder = bart::instrumentation::builder::InstrumentBuilder;
+          using InstrumentName = bart::instrumentation::builder::InstrumentName;
+          using SystemHelper = bart::system::SystemHelper<dim>;
+          using Validator = bart::framework::builder::FrameworkValidator;
+          using ValidatorStatusPort = bart::framework::builder::data_port::ValidatorStatusPort;
+
+          FrameworkBuilder builder(std::make_unique<Validator>());
+          bart::instrumentation::GetPort<ValidatorStatusPort>(*builder.validator_ptr())
+          .AddInstrument(InstrumentBuilder::BuildInstrument<std::pair<std::string, bart::utility::Color>>(
+          InstrumentName::kColorStatusToConditionalOstream));
+
+          FrameworkHelper helper(std::make_shared<SystemHelper>());
+          auto parameters = helper.ToFrameworkParameters(prm);
+          parameters.name = "fourier";
+          return helper.BuildFramework(builder, parameters, framework_ptr->system()->current_moments.get());
+      };
+
       std::unique_ptr<bart::framework::FrameworkI> fourier_framework_ptr;
       switch (prm.SpatialDimension()) {
         case 1: {
-          bart::framework::builder::FrameworkBuilder<1> builder;
-          fourier_framework_ptr = builder.BuildFramework("fourier", prm,
-                                                         framework_ptr->system()->current_moments.get());
+          fourier_framework_ptr = BuildFourierFramework.operator()<1>();
           break;
         }
         case 2: {
-          bart::framework::builder::FrameworkBuilder<2> builder;
-          fourier_framework_ptr = builder.BuildFramework("fourier", prm,
-                                                         framework_ptr->system()->current_moments.get());
+          fourier_framework_ptr = BuildFourierFramework.operator()<2>();
           break;
         }
         case 3: {
-          bart::framework::builder::FrameworkBuilder<3> builder;
-          fourier_framework_ptr = builder.BuildFramework("fourier", prm,
-                                                         framework_ptr->system()->current_moments.get());
+          fourier_framework_ptr = BuildFourierFramework.operator()<3>();
           break;
         }
       }

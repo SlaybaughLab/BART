@@ -15,6 +15,8 @@ namespace  {
 
 using namespace bart;
 
+using ::testing::AllOf, ::testing::Ge, ::testing::Le;
+
 class TestHelperFunctionTest : public ::testing::Test {
  protected:
 };
@@ -25,19 +27,15 @@ TEST_F(TestHelperFunctionTest, RandomIntTest) {
       {1, 2}
   };
 
-  for (auto p : test_pairs) {
-    EXPECT_THAT(test_helpers::RandomInt(p.first,p.second),
-                ::testing::AllOf(::testing::Ge(p.first),
-                                 ::testing::Lt(p.second)));
+  for (auto [min, max] : test_pairs) {
+    EXPECT_THAT(test_helpers::RandomInt(min, max), AllOf(Ge(min), Le(max)));
   }
   const std::vector<std::pair<double, double>> bad_pairs = {
       {100, 0}, {50, -50}, {0, -50}, {100, 100}, {0,0}, {-100, -100}};
 
-  for (auto p : bad_pairs) {
-
-    EXPECT_THROW(test_helpers::RandomInt(p.first,p.second),
-                 std::runtime_error) << "Values: min = " << p.first << ", max = "
-                                     << p.second;
+  for (auto [min, max] : bad_pairs) {
+    EXPECT_THROW(test_helpers::RandomInt(min, max), std::runtime_error)
+              << "Values: min = " << min << ", max = " << max;
   }
 }
 

@@ -1,16 +1,41 @@
-#include "framework/builder/framework_validator.h"
+#include "framework/builder/framework_validator.hpp"
 
 #include <algorithm>
 
-namespace bart {
+#include <deal.II/base/exceptions.h>
 
-namespace framework {
+namespace bart::framework::builder {
 
-namespace builder {
+namespace  {
+std::string error_start{"Error in FrameworkValidator::"};
+} // namespace
 
 FrameworkValidator &FrameworkValidator::AddPart(FrameworkPart to_add) {
   parts_.insert(to_add);
   return *this;
+}
+
+auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) -> void {
+  std::string error{error_start + "Parse: "};
+  AssertThrow(parameters.neutron_energy_groups > 0, dealii::ExcMessage(error + "bad parameter energy group number"));
+
+  needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
+
+  // Check if this is an eigensolve
+  if (parameters.eigen_solver_type.has_value()) {
+    if (parameters.eigen_solver_type.value() != problem::EigenSolverType::kNone) {
+      needed_parts_.insert(FrameworkPart::FissionSourceUpdate);
+    } else {
+      Expose({"Warning, eigen_solver_type has been set to a value of kNone. This is not a valid EigenSolverType, "
+              "check that this was not done inadvertantly.", utility::Color::kYellow});
+    }
+  }
+
+  // Check for required angular solution storage
+  if (!parameters.reflective_boundaries.empty() &&
+      parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
+    needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
+  }
 }
 
 void FrameworkValidator::Parse(const problem::ParametersI& to_parse) {
@@ -72,8 +97,4 @@ void FrameworkValidator::ReportValidation() {
   }
 }
 
-} // namespace builder
-
-} // namespace framework
-
-} // namespace bart
+} // namespace bart::framework::builder

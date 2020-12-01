@@ -1,58 +1,17 @@
 #ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_HPP_
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_HPP_
 
-#include <fstream>
-#include <memory>
-#include <data/cross_sections.h>
+#include "framework/builder/framework_builder_i.hpp"
+
 #include <deal.II/base/conditional_ostream.h>
 
-#include "quadrature/quadrature_types.h"
-
-#include "utility/has_description.h"
+#include "framework/builder/framework_validator.hpp"
+#include "instrumentation/port.hpp"
 #include "system/system_helper.hpp"
-
-#include "framework/builder/framework_validator.h"
-// Problem parameters
-#include "problem/parameters_i.h"
-#include "system/solution/solution_types.h"
-
-// Interface classes built by this factory
-#include "convergence/final_i.h"
-#include "data/cross_sections.h"
-#include "domain/definition_i.h"
-#include "domain/finite_element/finite_element_i.h"
-#include "eigenvalue/k_effective/k_effective_updater_i.h"
-#include "formulation/stamper_i.h"
-#include "formulation/angular/self_adjoint_angular_flux_i.h"
-#include "formulation/scalar/diffusion_i.h"
-#include "formulation/updater/fission_source_updater_i.h"
-#include "formulation/updater/fixed_updater_i.h"
-#include "formulation/updater/scattering_source_updater_i.h"
-#include "formulation/updater/boundary_conditions_updater_i.h"
-#include "framework/framework_i.hpp"
-#include "iteration/group/group_solve_iteration_i.h"
-#include "iteration/initializer/initializer_i.h"
-#include "iteration/outer/outer_iteration_i.hpp"
-#include "instrumentation/port.hpp"
-#include "instrumentation/instrument_i.h"
-#include "quadrature/quadrature_set_i.h"
-#include "quadrature/calculators/spherical_harmonic_moments_i.h"
-#include "solver/group/single_group_solver_i.h"
-#include "system/solution/mpi_group_angular_solution_i.h"
-#include "system/system.h"
-#include "system/moments/spherical_harmonic_i.h"
-
-// Dependency clases
-#include "formulation/updater/fixed_updater_i.h"
-#include "utility/colors.hpp"
-#include "instrumentation/port.hpp"
+#include "utility/has_description.h"
 
 
-namespace bart {
-
-namespace framework {
-
-namespace builder {
+namespace bart::framework::builder {
 
 namespace data_port {
 struct BuilderStatus;
@@ -60,130 +19,162 @@ using StatusDataPort = instrumentation::Port<std::pair<std::string, utility::Col
 }
 
 template <int dim>
-class FrameworkBuilder : public data_port::StatusDataPort {
+class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
-  using ParametersType = const problem::ParametersI&;
-  using Color = utility::Color;
-  using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
+  // New using types from refactor
+  using typename FrameworkBuilderI<dim>::CrossSections;
+  using typename FrameworkBuilderI<dim>::DiffusionFormulation;
+  using typename FrameworkBuilderI<dim>::Domain;
+  using typename FrameworkBuilderI<dim>::FiniteElement;
+  using typename FrameworkBuilderI<dim>::FrameworkI;
+  using typename FrameworkBuilderI<dim>::GroupSolution;
+  using typename FrameworkBuilderI<dim>::GroupSolveIteration;
+  using typename FrameworkBuilderI<dim>::Initializer;
+  using typename FrameworkBuilderI<dim>::KEffectiveUpdater;
+  using typename FrameworkBuilderI<dim>::MomentCalculator;
+  using typename FrameworkBuilderI<dim>::MomentConvergenceChecker;
+  using typename FrameworkBuilderI<dim>::MomentMapConvergenceChecker;
+  using typename FrameworkBuilderI<dim>::OuterIteration;
+  using typename FrameworkBuilderI<dim>::ParameterConvergenceChecker;
+  using typename FrameworkBuilderI<dim>::QuadratureSet;
+  using typename FrameworkBuilderI<dim>::Stamper;
+  using typename FrameworkBuilderI<dim>::SAAFFormulation;
+  using typename FrameworkBuilderI<dim>::SingleGroupSolver;
+  using typename FrameworkBuilderI<dim>::System;
+  using typename FrameworkBuilderI<dim>::Validator;
 
-  using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
+  using typename FrameworkBuilderI<dim>::UpdaterPointers;
+  using typename FrameworkBuilderI<dim>::BoundaryConditionsUpdater;
+  using typename FrameworkBuilderI<dim>::FissionSourceUpdater;
+  using typename FrameworkBuilderI<dim>::FixedTermUpdater;
+  using typename FrameworkBuilderI<dim>::ScatteringSourceUpdater;
 
-  using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterI;
-  using CrossSectionType = data::CrossSections;
-  using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
-  using DomainType = domain::DefinitionI<dim>;
-  using FiniteElementType = domain::finite_element::FiniteElementI<dim>;
-  using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterI;
-  using FixedUpdaterType = formulation::updater::FixedUpdaterI;
-  using FrameworkType = framework::FrameworkI;
-  using GroupSolutionType = system::solution::MPIGroupAngularSolutionI;
-  using GroupSolveIterationType = iteration::group::GroupSolveIterationI;
-  using InitializerType = iteration::initializer::InitializerI;
-  using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterI;
-  using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsI;
-  using MomentConvergenceCheckerType = convergence::FinalI<system::moments::MomentVector>;
-  using MomentMapConvergenceCheckerType = convergence::FinalI<const system::moments::MomentsMap>;
-  using OuterIterationType = iteration::outer::OuterIterationI;
-  using ParameterConvergenceCheckerType = convergence::FinalI<double>;
-  using QuadratureSetType = quadrature::QuadratureSetI<dim>;
-  using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxI<dim>;
-  using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterI;
-  using SingleGroupSolverType = solver::group::SingleGroupSolverI;
-  using StamperType = formulation::StamperI<dim>;
-  using SystemType = system::System;
+  using typename FrameworkBuilderI<dim>::DiffusionFormulationImpl;
+  using typename FrameworkBuilderI<dim>::MomentCalculatorImpl;
 
-  using ColorStatusPair = std::pair<std::string, utility::Color>;
-  // Instrumentation
-  using ColorStatusInstrument = instrumentation::InstrumentI<ColorStatusPair>;
-  using ConvergenceInstrument = instrumentation::InstrumentI<convergence::Status>;
-  using StatusInstrument = instrumentation::InstrumentI<std::string>;
+  using typename FrameworkBuilderI<dim>::ColorStatusPair;
+  using typename FrameworkBuilderI<dim>::ColorStatusInstrument;
+  using typename FrameworkBuilderI<dim>::ConvergenceInstrument;
+  using typename FrameworkBuilderI<dim>::StatusInstrument;
 
-  struct UpdaterPointers {
-    std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_ptr = nullptr;
-    std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_ptr = nullptr;
-    std::shared_ptr<FixedUpdaterType> fixed_updater_ptr = nullptr;
-    std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_ptr = nullptr;
-  };
+  using typename FrameworkBuilderI<dim>::AngularFluxStorage;
 
-  FrameworkBuilder() = default;
+  FrameworkBuilder(std::unique_ptr<Validator> validator_ptr);
   ~FrameworkBuilder() = default;
 
-  std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&);
-  std::unique_ptr<FrameworkType> BuildFramework(std::string name, ParametersType&,
-                                                system::moments::SphericalHarmonicI*);
-
-  std::unique_ptr<CrossSectionType> BuildCrossSections(ParametersType);
-  std::unique_ptr<DiffusionFormulationType> BuildDiffusionFormulation(
-      const std::shared_ptr<FiniteElementType>&,
+  [[nodiscard]] auto BuildDiffusionFormulation(
+      const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
-      const formulation::DiffusionFormulationImpl implementation = formulation::DiffusionFormulationImpl::kDefault);
-  std::unique_ptr<DomainType> BuildDomain(
-      ParametersType, const std::shared_ptr<FiniteElementType>&,
-      std::string material_mapping);
-  std::unique_ptr<FiniteElementType> BuildFiniteElement(ParametersType);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<DiffusionFormulationType>,
-      std::unique_ptr<StamperType>,
-      const std::map<problem::Boundary, bool>& reflective_boundaries);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<SAAFFormulationType>,
-      std::unique_ptr<StamperType>,
-      const std::shared_ptr<QuadratureSetType>&);
-  UpdaterPointers BuildUpdaterPointers(
-      std::unique_ptr<SAAFFormulationType>,
-      std::unique_ptr<StamperType>,
-      const std::shared_ptr<QuadratureSetType>&,
-      const std::map<problem::Boundary, bool>& reflective_boundaries,
-      const AngularFluxStorage&);
-  std::unique_ptr<GroupSolveIterationType> BuildGroupSolveIteration(
-      std::unique_ptr<SingleGroupSolverType>,
-      std::unique_ptr<MomentConvergenceCheckerType>,
-      std::unique_ptr<MomentCalculatorType>,
-      const std::shared_ptr<GroupSolutionType>&,
+      const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault)
+  -> std::unique_ptr<DiffusionFormulation> override;
+  [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
+                                 const FrameworkParameters::NumberOfCells,
+                                 const std::shared_ptr<FiniteElement>&,
+                                 const std::string material_mapping) -> std::unique_ptr<Domain> override;
+  [[nodiscard]] auto BuildFiniteElement(
+      const problem::CellFiniteElementType finite_element_type,
+      const problem::DiscretizationType discretization_type,
+      const FrameworkParameters::PolynomialDegree polynomial_degree) -> std::unique_ptr<FiniteElement> override;
+  [[nodiscard]] auto BuildGroupSolution(const int n_angles) -> std::unique_ptr<GroupSolution> override;
+  [[nodiscard]] auto BuildGroupSolveIteration(
+      std::unique_ptr<SingleGroupSolver>,
+      std::unique_ptr<MomentConvergenceChecker>,
+      std::unique_ptr<MomentCalculator>,
+      const std::shared_ptr<GroupSolution>&,
       const UpdaterPointers& updater_ptrs,
-      std::unique_ptr<MomentMapConvergenceCheckerType> moment_map_convergence_checker_ptr);
-  std::unique_ptr<InitializerType> BuildInitializer(
-      const std::shared_ptr<formulation::updater::FixedUpdaterI>&,
-      const int total_groups, const int total_angles);
-  std::unique_ptr<GroupSolutionType> BuildGroupSolution(const int n_angles);
-  std::unique_ptr<KEffectiveUpdaterType> BuildKEffectiveUpdater(
-      const std::shared_ptr<FiniteElementType>&,
-      const std::shared_ptr<CrossSectionType>&,
-      const std::shared_ptr<DomainType>&);
-  std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
-      MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment);
-  std::unique_ptr<MomentCalculatorType> BuildMomentCalculator(
-      std::shared_ptr<QuadratureSetType>,
-      MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly);
-  std::unique_ptr<MomentConvergenceCheckerType> BuildMomentConvergenceChecker(
-      double max_delta, int max_iterations);
-  std::unique_ptr<MomentMapConvergenceCheckerType> BuildMomentMapConvergenceChecker(
-      double max_delta, int max_iterations);
-  std::unique_ptr<OuterIterationType> BuildOuterIteration(
-      std::unique_ptr<GroupSolveIterationType>,
-      std::unique_ptr<ParameterConvergenceCheckerType>);
-  std::unique_ptr<OuterIterationType> BuildOuterIteration(
-      std::unique_ptr<GroupSolveIterationType>,
-      std::unique_ptr<ParameterConvergenceCheckerType>,
-      std::unique_ptr<KEffectiveUpdaterType>,
-      const std::shared_ptr<FissionSourceUpdaterType>&);
-  std::unique_ptr<ParameterConvergenceCheckerType> BuildParameterConvergenceChecker(
-      double max_delta, int max_iterations);
-  std::shared_ptr<QuadratureSetType> BuildQuadratureSet(ParametersType);
-  std::unique_ptr<SAAFFormulationType> BuildSAAFFormulation(
-      const std::shared_ptr<FiniteElementType>&,
+      std::unique_ptr<MomentMapConvergenceChecker>) -> std::unique_ptr<GroupSolveIteration> override;
+  [[nodiscard]] auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
+                                      const int total_groups,
+                                      const int total_angles) -> std::unique_ptr<Initializer> override;
+  [[nodiscard]] auto BuildKEffectiveUpdater(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<CrossSections>&,
+      const std::shared_ptr<Domain>&) -> std::unique_ptr<KEffectiveUpdater> override;
+  [[nodiscard]] auto BuildMomentCalculator(
+      MomentCalculatorImpl implementation = MomentCalculatorImpl::kScalarMoment)
+  -> std::unique_ptr<MomentCalculator> override;
+  [[nodiscard]] auto BuildMomentCalculator(
+      std::shared_ptr<QuadratureSet>,
+      MomentCalculatorImpl implementation = MomentCalculatorImpl::kZerothMomentOnly)
+  -> std::unique_ptr<MomentCalculator> override;
+  [[nodiscard]] auto  BuildMomentConvergenceChecker(
+      double max_delta,
+      int max_iterations) -> std::unique_ptr<MomentConvergenceChecker> override;
+  [[nodiscard]] auto BuildMomentMapConvergenceChecker(
+      double max_delta,
+      int max_iterations) -> std::unique_ptr<MomentMapConvergenceChecker> override;
+  [[nodiscard]] auto BuildOuterIteration(
+      std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>,
+      const std::string& output_filename_base) -> std::unique_ptr<OuterIteration> override;
+  [[nodiscard]] auto BuildOuterIteration(
+      std::unique_ptr<GroupSolveIteration>,
+      std::unique_ptr<ParameterConvergenceChecker>,
+      std::unique_ptr<KEffectiveUpdater>,
+      const std::shared_ptr<FissionSourceUpdater>&,
+      const std::string& output_filename_base) -> std::unique_ptr<OuterIteration> override;
+  [[nodiscard]] auto BuildParameterConvergenceChecker(
+      double max_delta,
+      int max_iterations) -> std::unique_ptr<ParameterConvergenceChecker> override;
+  [[nodiscard]] auto BuildQuadratureSet(
+      const problem::AngularQuadType,
+      const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
+  [[nodiscard]] auto BuildSAAFFormulation(
+      const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
-      const std::shared_ptr<QuadratureSetType>&,
-      const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault);
-  std::unique_ptr<SingleGroupSolverType> BuildSingleGroupSolver(
-      const int max_iterations = 1000,
-      const double convergence_tolerance = 1e-10);
-  std::unique_ptr<StamperType> BuildStamper(const std::shared_ptr<DomainType>&);
-  std::unique_ptr<SystemType> BuildSystem(const int n_groups, const int n_angles,
-                                          const DomainType& domain,
-                                          const std::size_t solution_size,
-                                          bool is_eigenvalue_problem = true,
-                                          bool need_rhs_boundary_condition = false);
+      const std::shared_ptr<QuadratureSet>&,
+      const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault)
+  -> std::unique_ptr<SAAFFormulation> override;
+  [[nodiscard]] auto BuildSingleGroupSolver(
+      const int max_iterations,
+      const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> override;
+  [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
+  [[nodiscard]] auto BuildSystem(const int n_groups,
+                                 const int n_angles,
+                                 const Domain& domain,
+                                 const std::size_t solution_size,
+                                 bool is_eigenvalue_problem,
+                                 bool need_rhs_boundary_condition) -> std::unique_ptr<System> override;
+  [[nodiscard]] auto BuildUpdaterPointers(
+      std::unique_ptr<DiffusionFormulation>,
+      std::unique_ptr<Stamper>,
+      const std::map<problem::Boundary, bool>& reflective_boundaries) -> UpdaterPointers override;
+  [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
+                                          std::unique_ptr<Stamper>,
+                                          const std::shared_ptr<QuadratureSet>&) -> UpdaterPointers override;
+  [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<SAAFFormulation>,
+                                          std::unique_ptr<Stamper>,
+                                          const std::shared_ptr<QuadratureSet>&,
+                                          const std::map<problem::Boundary, bool>& reflective_boundaries,
+                                          const AngularFluxStorage&) -> UpdaterPointers override;
+
+  // Instrumentation
+  auto set_color_status_instrument_ptr(
+      const std::shared_ptr<ColorStatusInstrument>& to_set) -> FrameworkBuilderI<dim>& override {
+    AssertThrow(to_set != nullptr, dealii::ExcMessage("Error setting instrument, pointer is null"))
+    color_status_instrument_ptr_ = to_set;
+    return *this;
+  };
+  auto set_convergence_status_instrument_ptr(
+      const std::shared_ptr<ConvergenceInstrument>& to_set) -> FrameworkBuilderI<dim>& override {
+    AssertThrow(to_set != nullptr, dealii::ExcMessage("Error setting instrument, pointer is null"))
+    convergence_status_instrument_ptr_ = to_set;
+    return *this;
+  };
+  auto set_status_instrument_ptr(const std::shared_ptr<StatusInstrument>& to_set) -> FrameworkBuilderI<dim>& override{
+    AssertThrow(to_set != nullptr, dealii::ExcMessage("Error setting instrument, pointer is null"))
+    status_instrument_ptr_ = to_set;
+    return *this;
+  };
+
+  auto color_status_instrument_ptr() const -> std::shared_ptr<ColorStatusInstrument> override {
+    return color_status_instrument_ptr_; };
+  auto convergence_status_instrument_ptr() const -> std::shared_ptr<ConvergenceInstrument> override {
+    return convergence_status_instrument_ptr_; };
+  auto status_instrument_ptr() const -> std::shared_ptr<StatusInstrument> override {
+    return status_instrument_ptr_; };
+
+  auto validator_ptr() -> Validator* override { return validator_ptr_.get(); };
 
  private:
   void ReportBuildingComponant(std::string componant) {
@@ -217,21 +208,14 @@ class FrameworkBuilder : public data_port::StatusDataPort {
   inline std::shared_ptr<T> Shared(std::unique_ptr<T> to_convert_ptr) {
     return to_convert_ptr;
   }
-
-  std::string ReadMappingFile(std::string filename);
+  std::unique_ptr<Validator> validator_ptr_{ nullptr };
   std::shared_ptr<StatusInstrument> status_instrument_ptr_{nullptr};
   std::shared_ptr<ColorStatusInstrument> color_status_instrument_ptr_{nullptr};
   std::shared_ptr<ConvergenceInstrument> convergence_status_instrument_ptr_{ nullptr };
-  mutable FrameworkValidator validator_;
   const system::SystemHelper<dim> system_helper_;
   bool build_report_closed_ = true;
-  std::string filename_{""};
 };
 
-} // namespace builder
-
-} // namespace framework
-
-} // namespace bart
+} // namespace bart::framework::builder
 
 #endif //BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_BUILDER_HPP_

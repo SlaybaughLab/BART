@@ -61,7 +61,7 @@ TEST_P(InstrumentationConverterCalculatorVectorSubtractorTest, ConvertBadSizes) 
 
   for (const int bad_size : {vector_length_ - 1, vector_length_ + 1}) {
     DealiiVector bad_subtrahend(bad_size);
-    for (int i = 0; i < bad_subtrahend.size(); ++i)
+    for (dealii::Vector<double>::size_type i = 0; i < bad_subtrahend.size(); ++i)
       bad_subtrahend[i] = test_helpers::RandomDouble(-100, 100);
     EXPECT_ANY_THROW(test_subtractor_ptr_->Convert(bad_subtrahend))
               << "Failed to throw of bad vector size: " << bad_size;

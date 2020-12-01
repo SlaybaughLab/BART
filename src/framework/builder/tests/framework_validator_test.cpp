@@ -1,4 +1,4 @@
-#include "framework/builder/framework_validator.h"
+#include "framework/builder/framework_validator.hpp"
 
 #include "problem/tests/parameters_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -15,7 +15,7 @@ using ::testing::DoDefault, ::testing::NiceMock, ::testing::Return,
 ::testing::_, ::testing::ElementsAre, ::testing::Pair;
 
 using Part = framework::builder::FrameworkPart;
-
+//TODO: If parameter handler support is pulled from Parse, rename these tests Base tests
 class FrameworkBuilderFrameworkValidatorTest : public ::testing::Test {
  public:
   using StatusInstrumentType = instrumentation::InstrumentMock<std::pair<std::string, utility::Color>>;

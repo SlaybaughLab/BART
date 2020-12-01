@@ -16,12 +16,13 @@ Definition<dim>::Definition(
     problem::DiscretizationType discretization)
     : mesh_(std::move(mesh)),                     
       finite_element_(finite_element),
-      triangulation_(MPI_COMM_WORLD,
-                     typename dealii::Triangulation<dim>::MeshSmoothing(
-                         dealii::Triangulation<dim>::smoothing_on_refinement |
-                         dealii::Triangulation<dim>::smoothing_on_coarsening)),
+      triangulation_(MPI_COMM_WORLD, typename dealii::Triangulation<dim>::MeshSmoothing(
+          dealii::Triangulation<dim>::smoothing_on_refinement | dealii::Triangulation<dim>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
       discretization_type_(discretization) {
+  AssertThrow(mesh_ != nullptr, dealii::ExcMessage("Error in domain constructor: mesh pointer is null"))
+  AssertThrow(finite_element_ != nullptr, dealii::ExcMessage("Error in domain constructor: FE pointer is null"))
+
   std::string description{"Domain, " + std::to_string(dim) + "D"};
   if (discretization == problem::DiscretizationType::kContinuousFEM) {
     description += ", Continuous";
@@ -43,6 +44,8 @@ Definition<1>::Definition(
                              dealii::Triangulation<1>::smoothing_on_coarsening)),
       dof_handler_(triangulation_),
       discretization_type_(discretization) {
+  AssertThrow(mesh_ != nullptr, dealii::ExcMessage("Error in domain constructor: mesh pointer is null"))
+  AssertThrow(finite_element_ != nullptr, dealii::ExcMessage("Error in domain constructor: FE pointer is null"))
   std::string description{"Domain, 1D"};
   if (discretization == problem::DiscretizationType::kContinuousFEM) {
     description += ", Continuous";

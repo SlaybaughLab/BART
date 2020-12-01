@@ -4,6 +4,7 @@
 #include <deal.II/fe/fe_q.h>
 
 #include "framework/builder/framework_builder.hpp"
+#include "framework/framework_parameters.hpp"
 
 // Instantiated concerete classes
 #include "convergence/final_checker_or_n.h"
@@ -47,6 +48,7 @@
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
+#include "framework/builder/tests/framework_validator_mock.hpp"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
@@ -69,6 +71,8 @@ using ::testing::HasSubstr, ::testing::_;
 using ::testing::ReturnRef, ::testing::A;
 
 using ::testing::AtLeast;
+
+using Part = framework::builder::FrameworkPart;
 
 template <typename DimensionWrapper>
 class FrameworkBuilderIntegrationTest : public ::testing::Test {
@@ -96,6 +100,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
   using SingleGroupSolverType = solver::group::SingleGroupSolverMock;
   using StamperType = formulation::StamperMock<dim>;
+  using Validator = NiceMock<framework::builder::FrameworkValidatorMock>;
 
   FrameworkBuilderIntegrationTest()
       : mock_material() {}
@@ -123,6 +128,8 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_sptr_;
   std::unique_ptr<SingleGroupSolverType> single_group_solver_uptr_;
   std::unique_ptr<StamperType> stamper_uptr_;
+
+  Validator* validator_obs_ptr_{ nullptr };
 
   // Test Parameters
   const int polynomial_degree = 2;
@@ -152,31 +159,29 @@ int FrameworkBuilderIntegrationTest<DimensionWrapper>::files_in_working_director
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
-  boundary_conditions_updater_sptr_ =
-      std::make_shared<BoundaryConditionsUpdaterType>();
+  boundary_conditions_updater_sptr_ = std::make_shared<BoundaryConditionsUpdaterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
-  diffusion_formulation_uptr_ =
-      std::move(std::make_unique<DiffusionFormulationType>());
+  diffusion_formulation_uptr_ = std::move(std::make_unique<DiffusionFormulationType>());
   domain_sptr_ = std::make_shared<DomainType>();
   finite_element_sptr_ = std::make_shared<FiniteElementType>();
   fission_source_updater_sptr_ = std::make_shared<FissionSourceUpdaterType>();
   group_solution_sptr_ = std::make_shared<GroupSolutionType>();
-  group_solve_iteration_uptr_  = std::move(
-      std::make_unique<GroupSolveIterationType>());
-  k_effective_updater_uptr_ = std::move(
-      std::make_unique<KEffectiveUpdaterType>());
+  group_solve_iteration_uptr_  = std::move(std::make_unique<GroupSolveIterationType>());
+  k_effective_updater_uptr_ = std::move(std::make_unique<KEffectiveUpdaterType>());
   moment_calculator_uptr_ = std::move(std::make_unique<MomentCalculatorType>());
-  moment_convergence_checker_uptr_ =
-      std::move(std::make_unique<MomentConvergenceCheckerType>());
-  parameter_convergence_checker_uptr_ = std::move(
-      std::make_unique<ParameterConvergenceCheckerType>());
+  moment_convergence_checker_uptr_ = std::move(std::make_unique<MomentConvergenceCheckerType>());
+  parameter_convergence_checker_uptr_ = std::move(std::make_unique<ParameterConvergenceCheckerType>());
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
   single_group_solver_uptr_ = std::move(std::make_unique<SingleGroupSolverType>());
+  auto validator_ptr = std::make_unique<Validator>();
+  validator_obs_ptr_ = validator_ptr.get();
 
-  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>());
+  ON_CALL(*validator_ptr, AddPart(_)).WillByDefault(ReturnRef(*validator_ptr));
+
+  test_builder_ptr_ = std::move(std::make_unique<FrameworkBuilder>(std::move(validator_ptr)));
 
   for (int i = 0; i < this->dim; ++i) {
     spatial_max.push_back(10);
@@ -220,8 +225,13 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::TearDown() {
             << files_in_working_directory_after << std::endl;
 }
 
-TYPED_TEST_CASE(FrameworkBuilderIntegrationTest,
-                bart::testing::AllDimensions);
+TYPED_TEST_CASE(FrameworkBuilderIntegrationTest, bart::testing::AllDimensions);
+
+// =====================================================================================================================
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, Constructor) {
+  ASSERT_NE(this->test_builder_ptr_->validator_ptr(), nullptr);
+}
 
 // =============================================================================
 
@@ -331,23 +341,63 @@ TYPED_TEST(FrameworkBuilderIntegrationTest,
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainTest) {
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainParametersTest) {
   constexpr int dim = this->dim;
-  auto finite_element_ptr =
-      std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+  using Parameters = framework::FrameworkParameters;
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
 
-  EXPECT_CALL(this->parameters, NCells())
-      .WillOnce(DoDefault());
-  EXPECT_CALL(this->parameters, SpatialMax())
-      .WillOnce(DoDefault());
-
-  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(
-      this->parameters, finite_element_ptr, "1 1 2 2");
+  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
+                                                              Parameters::NumberOfCells(this->n_cells),
+                                                              finite_element_ptr,
+                                                              "1 1 2 2");
 
   using ExpectedType = domain::Definition<this->dim>;
 
-  EXPECT_THAT(test_domain_ptr.get(),
-              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  ASSERT_THAT(test_domain_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainNullFiniteElementPtr) {
+  using Parameters = framework::FrameworkParameters;
+  EXPECT_ANY_THROW({
+  auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
+                                                              Parameters::NumberOfCells(this->n_cells),
+                                                              nullptr,
+                                                              "1 1 2 2");
+                   });
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainBadDomainSize) {
+  constexpr int dim = this->dim;
+  using Parameters = framework::FrameworkParameters;
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+
+  const auto bad_index{ bart::test_helpers::RandomInt(0, this->dim) };
+  auto bad_spatial_max { this->spatial_max };
+  bad_spatial_max.at(bad_index) = 0;
+
+  EXPECT_ANY_THROW({
+    auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(bad_spatial_max),
+                                                                Parameters::NumberOfCells(this->n_cells),
+                                                                finite_element_ptr,
+                                                                "1 1 2 2");
+                   });
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainBadNCells) {
+  constexpr int dim = this->dim;
+  using Parameters = framework::FrameworkParameters;
+  auto finite_element_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<dim>>>();
+
+  const auto bad_index{ bart::test_helpers::RandomInt(0, this->dim) };
+  auto bad_n_cells { this->n_cells };
+  bad_n_cells.at(bad_index) = 0;
+
+  EXPECT_ANY_THROW({
+                     auto test_domain_ptr = this->test_builder_ptr_->BuildDomain(Parameters::DomainSize(this->spatial_max),
+                                                                                 Parameters::NumberOfCells(bad_n_cells),
+                                                                                 finite_element_ptr,
+                                                                                 "1 1 2 2");
+                   });
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
@@ -356,6 +406,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationTest) {
 
   UpdaterPointersStruct updater_ptrs;
   updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
+
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::ScatteringSourceUpdate)).WillOnce(DoDefault());
 
   auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
       std::move(this->single_group_solver_uptr_),
@@ -375,6 +427,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSourceIterationWithBCUpdat
   UpdaterPointersStruct updater_ptrs;
   updater_ptrs.scattering_source_updater_ptr = this->scattering_source_updater_sptr_;
   updater_ptrs.boundary_conditions_updater_ptr = this->boundary_conditions_updater_sptr_;
+
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::ScatteringSourceUpdate)).WillOnce(DoDefault());
 
   auto source_iteration_ptr = this->test_builder_ptr_->BuildGroupSolveIteration(
       std::move(this->single_group_solver_uptr_),
@@ -397,21 +451,37 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGroupSolution) {
   EXPECT_EQ(n_angles, group_solution_ptr->total_angles());
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementTest) {
+// BuildFiniteElement should return correct object when given good parameters
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParameters) {
   constexpr int dim = this->dim;
-  EXPECT_CALL(this->parameters, FEPolynomialDegree())
-      .WillOnce(DoDefault());
-
+  using PolynomialDegree = framework::FrameworkParameters::PolynomialDegree;
   using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
 
-  auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(this->parameters);
+  auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(problem::CellFiniteElementType::kGaussian,
+                                                                        problem::DiscretizationType::kContinuousFEM,
+                                                                        PolynomialDegree(this->polynomial_degree));
+  ASSERT_NE(finite_element_ptr, nullptr);
   auto gaussian_ptr = dynamic_cast<ExpectedType*>(finite_element_ptr.get());
-
-  EXPECT_NE(gaussian_ptr, nullptr);
+  ASSERT_NE(gaussian_ptr, nullptr);
   EXPECT_EQ(finite_element_ptr->polynomial_degree(), this->polynomial_degree);
-  auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(
-      finite_element_ptr->finite_element());
-  EXPECT_NE(dealii_finite_element_ptr, nullptr);
+  auto dealii_finite_element_ptr = dynamic_cast<dealii::FE_Q<dim>*>(finite_element_ptr->finite_element());
+  ASSERT_NE(dealii_finite_element_ptr, nullptr);
+}
+
+// BuildFiniteElement should throw if bad parameters are passed
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParametersBadPolynomialDegree) {
+  constexpr int dim = this->dim;
+  using PolynomialDegree = framework::FrameworkParameters::PolynomialDegree;
+  using ExpectedType = domain::finite_element::FiniteElementGaussian<dim>;
+  auto bad_polynomial_degrees = bart::test_helpers::RandomVector(5, -10, -1);
+  bad_polynomial_degrees.push_back(0);
+  for (int bad_polynomial_degree : bad_polynomial_degrees) {
+    EXPECT_ANY_THROW({
+      auto finite_element_ptr = this->test_builder_ptr_->BuildFiniteElement(problem::CellFiniteElementType::kGaussian,
+                                                                            problem::DiscretizationType::kContinuousFEM,
+                                                                            PolynomialDegree(bad_polynomial_degree));
+    });
+  }
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
@@ -454,68 +524,86 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BulidMomentCalculatorAngular) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildPowerIterationTest) {
+  EXPECT_CALL(*this->validator_obs_ptr_, AddPart(Part::FissionSourceUpdate)).WillOnce(DoDefault());
+
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
       std::move(this->parameter_convergence_checker_uptr_),
       std::move(this->k_effective_updater_uptr_),
-      this->fission_source_updater_sptr_);
+      this->fission_source_updater_sptr_,
+      "test");
   using ExpectedType = iteration::outer::OuterPowerIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
                   WhenDynamicCastTo<ExpectedType*>(NotNull()));
-  EXPECT_EQ(remove("_iteration_error.csv"), 0);
+  EXPECT_EQ(remove("test_iteration_error.csv"), 0);
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFixedSourceIterationTest) {
   auto power_iteration_ptr = this->test_builder_ptr_->BuildOuterIteration(
       std::move(this->group_solve_iteration_uptr_),
-      std::move(this->parameter_convergence_checker_uptr_));
+      std::move(this->parameter_convergence_checker_uptr_), "");
   using ExpectedType = iteration::outer::OuterFixedSourceIteration;
   ASSERT_THAT(power_iteration_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildQuadratureSetBadOrder) {
+  using Order = framework::FrameworkParameters::AngularQuadratureOrder;
+  auto bad_orders{ test_helpers::RandomVector(5, -10, -1) };
+  bad_orders.push_back(0);
+  for (const auto bad_order : bad_orders) {
+    for (const auto quadrature_type : {problem::AngularQuadType::kLevelSymmetricGaussian,
+                                       problem::AngularQuadType::kGaussLegendre}) {
+      EXPECT_ANY_THROW({
+        auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(quadrature_type, Order(bad_order));
+      });
+    }
+  }
+}
 
-
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSet) {
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildGaussLegendreQuadratureSetWithParameters) {
   constexpr int dim = this->dim;
-  const int order = 4;
-  EXPECT_CALL(this->parameters, AngularQuad())
-      .WillOnce(Return(problem::AngularQuadType::kGaussLegendre));
-  EXPECT_CALL(this->parameters, AngularQuadOrder())
-      .WillOnce(Return(order));
+  const framework::FrameworkParameters::AngularQuadratureOrder order{ 4 };
+  const auto framework_type { problem::AngularQuadType::kGaussLegendre };
 
   if (dim == 1) {
     using ExpectedType = quadrature::QuadratureSet<dim>;
-    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
     ASSERT_NE(nullptr, quadrature_set);
     ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
-    EXPECT_EQ(quadrature_set->size(), 2*order);
+    EXPECT_EQ(quadrature_set->size(), 2*order.get());
   } else {
     EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
                      });
   }
 }
 
-TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSet) {
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildLSAngularQuadratureSetWithParameters) {
   constexpr int dim = this->dim;
-  const int order = 4;
-  EXPECT_CALL(this->parameters, AngularQuad())
-      .WillOnce(Return(problem::AngularQuadType::kLevelSymmetricGaussian));
-  EXPECT_CALL(this->parameters, AngularQuadOrder())
-      .WillOnce(Return(order));
+  const framework::FrameworkParameters::AngularQuadratureOrder order{ 4 };
+  const auto framework_type { problem::AngularQuadType::kLevelSymmetricGaussian };
 
   if (dim == 3) {
     using ExpectedType = quadrature::QuadratureSet<dim>;
-    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
     ASSERT_NE(nullptr, quadrature_set);
     ASSERT_NE(nullptr, dynamic_cast<ExpectedType*>(quadrature_set.get()));
-    EXPECT_EQ(quadrature_set->size(), order * (order + 2));
+    EXPECT_EQ(quadrature_set->size(), order.get() * (order.get() + 2));
   } else {
     EXPECT_ANY_THROW({
-      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(this->parameters);
-    });
+      auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
+                     });
   }
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildkNoneTypeQuadratureSetWithParameters) {
+  const framework::FrameworkParameters::AngularQuadratureOrder order{ 4 };
+  const auto framework_type { problem::AngularQuadType::kNone };
+
+  EXPECT_ANY_THROW({
+    auto quadrature_set = this->test_builder_ptr_->BuildQuadratureSet(framework_type, order);
+                   });
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSingleGroupSolver) {
