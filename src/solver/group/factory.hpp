@@ -13,6 +13,7 @@ enum class GroupSolverName {
 
 BART_INTERFACE_FACTORY(SingleGroupSolverI, GroupSolverName)
 
+// LCOV_EXCL_START
 [[nodiscard]] inline auto to_string(GroupSolverName to_convert) -> std::string {
   switch (to_convert) {
     case GroupSolverName::kDefaultImplementation:
@@ -20,7 +21,7 @@ BART_INTERFACE_FACTORY(SingleGroupSolverI, GroupSolverName)
   }
   return std::string{"String not defined for specified GroupSolverName"};
 }
-
+// LCOV_EXCL_STOP
 
 } // namespace bart::solver::group
 

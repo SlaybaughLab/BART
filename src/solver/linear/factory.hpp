@@ -14,6 +14,7 @@ enum class LinearSolverName {
 
 BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
 
+// LCOV_EXCL_START
 [[nodiscard]] inline auto to_string(LinearSolverName to_convert) -> std::string {
   switch (to_convert) {
     case LinearSolverName::kGMRES:
@@ -21,6 +22,7 @@ BART_INTERFACE_FACTORY(LinearI, LinearSolverName)
   }
   return std::string{"String not defined for specified LinearSolverName"};
 }
+// LCOV_EXCL_STOP
 
 } // namespace bart::solver::linear
 
