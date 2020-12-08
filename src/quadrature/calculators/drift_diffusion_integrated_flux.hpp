@@ -15,6 +15,8 @@ class DriftDiffusionIntegratedFlux : public DriftDiffusionIntegratedFluxI, publi
 
   DriftDiffusionIntegratedFlux(std::shared_ptr<QuadratureSet>);
 
+  [[nodiscard]] auto Integrate(const VectorMap&) const -> std::vector<double> override;
+
   auto quadrature_set_ptr() const -> QuadratureSet* { return quadrature_set_ptr_.get(); }
 
  private:

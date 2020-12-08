@@ -9,7 +9,7 @@ namespace bart::quadrature::calculators {
 
 class DriftDiffusionIntegratedFluxMock : public DriftDiffusionIntegratedFluxI {
  public:
-
+  MOCK_METHOD(std::vector<double>, Integrate, (const VectorMap&), (const, override));
 };
 
 } // namespace bart::quadrature::calculators
