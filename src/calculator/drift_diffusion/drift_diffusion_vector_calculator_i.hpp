@@ -30,9 +30,9 @@ class DriftDiffusionVectorCalculatorI {
   using Tensor = typename dealii::Tensor<1, dim>;
   virtual auto DriftDiffusion(const double scalar_flux,
                               const double integrated_angular_flux,
-                              const Tensor& shapte_gradient,
+                              const Tensor& shape_gradient,
                               const double sigma_t,
-                              const double diffusion_coefficient) = 0;
+                              const double diffusion_coefficient) const -> Tensor = 0;
 };
 
 } // namespace bart::calculator::drift_diffusion
