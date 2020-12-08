@@ -9,7 +9,7 @@ DriftDiffusionIntegratedFlux<dim>::DriftDiffusionIntegratedFlux(std::shared_ptr<
 }
 
 template<int dim>
-auto DriftDiffusionIntegratedFlux<dim>::Integrate(const VectorMap& vector_map) const -> std::vector<double> {
+auto DriftDiffusionIntegratedFlux<dim>::Integrate(const VectorMap& vector_map) const -> Vector {
   using Index = quadrature::QuadraturePointIndex;
   const VectorMap::size_type n_quadrature_points{ this->quadrature_set_ptr_->size() };
   AssertThrow(vector_map.size() == n_quadrature_points, dealii::ExcMessage("Error in DriftDiffusionIntegratedFlux "
@@ -25,11 +25,7 @@ auto DriftDiffusionIntegratedFlux<dim>::Integrate(const VectorMap& vector_map) c
     result_vector.add(weight * position * position, *vector_map.at(Index(i)));
   }
 
-  std::vector<double> return_vector(vector_size);
-  for (Vector::size_type i = 0; i < vector_size; ++i)
-    return_vector.at(i) = result_vector[i];
-
-  return return_vector;
+  return result_vector;
 }
 
 template class DriftDiffusionIntegratedFlux<1>;

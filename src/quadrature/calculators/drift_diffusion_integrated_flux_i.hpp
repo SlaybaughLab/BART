@@ -16,7 +16,7 @@ class DriftDiffusionIntegratedFluxI {
   using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
 
-  virtual auto Integrate(const VectorMap&) const -> std::vector<double> = 0;
+  virtual auto Integrate(const VectorMap&) const -> Vector = 0;
 };
 
 } // namespace bart::quadrature::calculators

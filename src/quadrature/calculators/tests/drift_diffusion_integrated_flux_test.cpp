@@ -25,6 +25,9 @@ class DriftDiffusionIntegratedFluxTest : public ::testing::Test {
   using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
 
+  DriftDiffusionIntegratedFluxTest()
+      : expected_result_(expected_result_values_.cbegin(), expected_result_values_.cend()) {}
+
   // Test parameters
   static constexpr int n_quadrature_points{ 3 };
   static constexpr int n_total_dofs{ 2 };
@@ -38,7 +41,8 @@ class DriftDiffusionIntegratedFluxTest : public ::testing::Test {
 
   // Supporting objects
   VectorMap angular_flux_map_{};
-  std::vector<double> expected_result_{5501.5 * dim, 11003 * dim};
+  const std::vector<double> expected_result_values_{5501.5 * dim, 11003 * dim};
+  const Vector expected_result_;
 
   auto SetUp() -> void override;
 };
