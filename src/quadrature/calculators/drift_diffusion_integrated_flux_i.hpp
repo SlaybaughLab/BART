@@ -5,6 +5,7 @@ namespace bart::quadrature::calculators {
 
 class DriftDiffusionIntegratedFluxI {
  public:
+  virtual ~DriftDiffusionIntegratedFluxI() = default;
 };
 
 } // namespace bart::quadrature::calculators
