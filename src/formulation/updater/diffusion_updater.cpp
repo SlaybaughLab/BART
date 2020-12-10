@@ -12,7 +12,7 @@ DiffusionUpdater<dim>::DiffusionUpdater(
     std::unique_ptr<StamperType> stamper_ptr,
     std::unordered_set<problem::Boundary> reflective_boundaries)
     : formulation_ptr_(std::move(formulation_ptr)),
-      stamper_ptr_(std::move(stamper_ptr)),
+      stamper_ptr_(std::shared_ptr<StamperType>(std::move(stamper_ptr))),
       reflective_boundaries_(reflective_boundaries) {
   AssertThrow(formulation_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of DiffusionUpdater, "
