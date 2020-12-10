@@ -18,7 +18,7 @@
 #include "formulation/scalar/diffusion.h"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/updater/saaf_updater.h"
-#include "formulation/updater/diffusion_updater.h"
+#include "formulation/updater/diffusion_updater.hpp"
 #include "formulation/stamper.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"

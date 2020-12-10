@@ -24,7 +24,7 @@
 #include "formulation/scalar/diffusion.h"
 #include "formulation/stamper.h"
 #include "formulation/updater/saaf_updater.h"
-#include "formulation/updater/diffusion_updater.h"
+#include "formulation/updater/diffusion_updater.hpp"
 
 // Framework class
 #include "framework/framework.hpp"

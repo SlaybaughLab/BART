@@ -1,4 +1,4 @@
-#include "formulation/updater/diffusion_updater.h"
+#include "formulation/updater/diffusion_updater.hpp"
 
 namespace bart {
 

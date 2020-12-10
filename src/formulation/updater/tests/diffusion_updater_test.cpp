@@ -1,4 +1,4 @@
-#include "formulation/updater/diffusion_updater.h"
+#include "formulation/updater/diffusion_updater.hpp"
 
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
