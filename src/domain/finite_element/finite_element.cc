@@ -44,8 +44,7 @@ bool FiniteElement<dim>::SetFace(const domain::CellPtr<dim> &to_set,
   return !cell_already_set;
 }
 template<int dim>
-std::vector<double> FiniteElement<dim>::ValueAtQuadrature(
-    const system::moments::MomentVector moment) const {
+std::vector<double> FiniteElement<dim>::ValueAtQuadrature(const system::moments::MomentVector& moment) const {
 
   std::vector<double> return_vector(n_cell_quad_pts(), 0);
 

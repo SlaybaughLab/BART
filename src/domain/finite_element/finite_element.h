@@ -73,8 +73,7 @@ class FiniteElement : public FiniteElementI<dim> {
     return face_values_->normal_vector(0);
   };
 
-  std::vector<double> ValueAtQuadrature(
-      const system::moments::MomentVector moment) const override;
+  std::vector<double> ValueAtQuadrature(const system::moments::MomentVector& moment) const override;
 
   std::vector<double> ValueAtFaceQuadrature(
       const dealii::Vector<double>& values_at_dofs) const override;
