@@ -22,8 +22,11 @@ auto DriftDiffusion<dim>::FillCellDriftDiffusionTerm(Matrix& to_fill,
                                                      system::EnergyGroup group,
                                                      const Vector& group_scalar_flux,
                                                      const Vector& integrated_angular_flux) const -> void {
+  std::string error_prefix{"Error in DriftDiffusion<dim>::FillCellDriftDiffusionTerm: "};
+  AssertThrow(to_fill.m() == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong m()"))
+  AssertThrow(to_fill.n() == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong n()"))
   finite_element_ptr_->SetCell(cell_ptr);
-  const int material_id{ cell_ptr->material_id() };
+  const auto material_id{ cell_ptr->material_id() };
   const double sigma_t{ cross_sections_ptr_->sigma_t.at(material_id).at(group.get()) };
   const double diffusion_coeff{ cross_sections_ptr_->diffusion_coef.at(material_id).at(group.get()) };
 
