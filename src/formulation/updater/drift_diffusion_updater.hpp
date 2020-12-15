@@ -6,6 +6,7 @@
 #include "formulation/stamper_i.h"
 #include "quadrature/calculators/drift_diffusion_integrated_flux_i.hpp"
 #include "system/solution/solution_types.h"
+#include "system/moments/spherical_harmonic_i.h"
 #include "utility/has_dependencies.h"
 
 namespace bart::formulation::updater {
@@ -17,12 +18,14 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   using DiffusionFormulation = typename DiffusionUpdater<dim>::DiffusionFormulationType;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionI<dim>;
   using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxI;
+  using HighOrderMoments = system::moments::SphericalHarmonicI;
   using Stamper = typename DiffusionUpdater<dim>::StamperType;
 
   DriftDiffusionUpdater(std::unique_ptr<DiffusionFormulation>,
                         std::unique_ptr<DriftDiffusionFormulation>,
                         std::shared_ptr<Stamper>,
                         std::unique_ptr<IntegratedFluxCalculator>,
+                        std::shared_ptr<HighOrderMoments>,
                         AngularFluxStorageMap&,
                         std::unordered_set<problem::Boundary> reflective_boundaries = {});
   virtual ~DriftDiffusionUpdater() = default;
@@ -32,11 +35,14 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
     return angular_flux_storage_map_; }
   auto drift_diffusion_formulation_ptr() const -> DriftDiffusionFormulation* {
     return drift_diffusion_formulation_ptr_.get(); }
+  auto high_order_moments() const -> HighOrderMoments* {
+    return high_order_moments_.get(); }
   auto integrated_flux_calculator_ptr() const -> IntegratedFluxCalculator* {
     return integrated_flux_calculator_ptr_.get(); }
  protected:
   auto SetUpFixedFunctions(system::System&, system::EnergyGroup, quadrature::QuadraturePointIndex) -> void override;
   AngularFluxStorageMap angular_flux_storage_map_{};
+  std::shared_ptr<HighOrderMoments> high_order_moments_;
   std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr_{ nullptr };
   std::unique_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr_{ nullptr };
 };
