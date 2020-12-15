@@ -27,6 +27,7 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
                         std::unordered_set<problem::Boundary> reflective_boundaries = {});
   virtual ~DriftDiffusionUpdater() = default;
 
+
   auto angular_flux_storage_map() const -> AngularFluxStorageMap {
     return angular_flux_storage_map_; }
   auto drift_diffusion_formulation_ptr() const -> DriftDiffusionFormulation* {
@@ -34,6 +35,7 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   auto integrated_flux_calculator_ptr() const -> IntegratedFluxCalculator* {
     return integrated_flux_calculator_ptr_.get(); }
  protected:
+  auto SetUpFixedFunctions(system::System&, system::EnergyGroup, quadrature::QuadraturePointIndex) -> void override;
   AngularFluxStorageMap angular_flux_storage_map_{};
   std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr_{ nullptr };
   std::unique_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr_{ nullptr };

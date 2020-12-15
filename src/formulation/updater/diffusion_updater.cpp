@@ -34,7 +34,6 @@ template<int dim>
 auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
                                                 system::EnergyGroup group,
                                                 quadrature::QuadraturePointIndex /*index*/) -> void {
-
   const auto streaming_term_function = [&, group](formulation::FullMatrix& cell_matrix, const CellPtr& cell_ptr) -> void {
     formulation_ptr_->FillCellStreamingTerm(cell_matrix, cell_ptr, group.get()); };
   const auto collision_term_function = [&, group](formulation::FullMatrix& cell_matrix, const CellPtr& cell_ptr) -> void {

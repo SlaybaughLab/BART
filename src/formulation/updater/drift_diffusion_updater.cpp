@@ -18,6 +18,12 @@ DriftDiffusionUpdater<dim>::DriftDiffusionUpdater(
   AssertPointerNotNull(drift_diffusion_formulation_ptr_.get(), "drift diffusion formulation", call_location);
   AssertPointerNotNull(integrated_flux_calculator_ptr_.get(), "integrated flux calculator", call_location);
 }
+template<int dim>
+auto DriftDiffusionUpdater<dim>::SetUpFixedFunctions(system::System& system,
+                                                     system::EnergyGroup energy_group,
+                                                     quadrature::QuadraturePointIndex quadrature_point_index) -> void {
+  DiffusionUpdater<dim>::SetUpFixedFunctions(system, energy_group, quadrature_point_index);
+}
 
 template class DriftDiffusionUpdater<1>;
 template class DriftDiffusionUpdater<2>;

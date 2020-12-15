@@ -9,6 +9,7 @@
 #include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
+#include "test_helpers/test_assertions.hpp"
 #include "system/solution/solution_types.h"
 
 namespace  {
@@ -18,7 +19,7 @@ template <int dim>
 using UpdaterTest = bart::formulation::updater::test_helpers::UpdaterTests<dim>;
 
 
-using ::testing::ContainerEq;
+using ::testing::ContainerEq, ::testing::DoDefault, ::testing::_, ::testing::Ref;
 
 template <typename DimensionWrapper>
 class FormulationUpdaterDriftDiffusionTest : public UpdaterTest<DimensionWrapper::value> {
@@ -31,6 +32,10 @@ class FormulationUpdaterDriftDiffusionTest : public UpdaterTest<DimensionWrapper
   using Stamper = formulation::StamperMock<dim>;
   using Boundary = problem::Boundary;
   using Vector = dealii::Vector<double>;
+
+  // Test object
+  using TestUpdater = formulation::updater::DriftDiffusionUpdater<dim>;
+  std::unique_ptr<TestUpdater> test_updater_ptr_{ nullptr };
 
   // Supporting objects
   AngularFluxStorageMap angular_flux_storage_map_{};
@@ -60,7 +65,7 @@ void FormulationUpdaterDriftDiffusionTest<DimensionWrapper>::SetUp() {
   drift_diffusion_formulation_obs_ptr_ = drift_diffusion_formulation_ptr.get();
   auto integrated_flux_calculator_ptr = std::make_unique<IntegratedFluxCalculator>();
   integrated_flux_calculator_obs_ptr_ = integrated_flux_calculator_ptr.get();
-  auto stamper_ptr = std::make_unique<Stamper>();
+  auto stamper_ptr = std::shared_ptr<Stamper>(this->MakeStamper());
   stamper_obs_ptr_ = stamper_ptr.get();
 
   using Index = system::SolutionIndex;
@@ -70,6 +75,12 @@ void FormulationUpdaterDriftDiffusionTest<DimensionWrapper>::SetUp() {
       angular_flux_storage_map_.insert({solution_index, std::make_shared<Vector>(angular_flux_size)});
     }
   }
+  test_updater_ptr_ = std::make_unique<TestUpdater>(std::move(diffusion_formulation_ptr),
+                                                    std::move(drift_diffusion_formulation_ptr),
+                                                    stamper_ptr,
+                                                    std::move(integrated_flux_calculator_ptr),
+                                                    angular_flux_storage_map_,
+                                                    reflective_boundaries);
 }
 
 TYPED_TEST_SUITE(FormulationUpdaterDriftDiffusionTest, bart::testing::AllDimensions);
@@ -87,7 +98,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorDependencyGetters) {
   EXPECT_NO_THROW({
     test_updater = std::make_unique<Updater>(std::make_unique<DiffusionFormulation>(),
                                              std::make_unique<DriftDiffusionFormulation>(),
-                                             std::make_unique<Stamper>(),
+                                             std::make_shared<Stamper>(),
                                              std::make_unique<IntegratedFluxCalculator>(),
                                              this->angular_flux_storage_map_);
   });
@@ -116,6 +127,46 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorBadDependencies) {
                                                this->angular_flux_storage_map_);
                      });
   }
+}
+
+TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
+  system::EnergyGroup group_number(this->group_number);
+  quadrature::QuadraturePointIndex angle_index(this->angle_index);
+  bart::system::Index scalar_index{this->group_number, 0};
+
+  EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
+
+  for (auto& cell : this->cells_) {
+    EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillCellStreamingTerm(_, cell, this->group_number));
+    EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillCellCollisionTerm(_, cell, this->group_number));
+    EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillCellFixedSource(_, cell, this->group_number));
+    if (cell->at_boundary()) {
+      int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
+      for (int face = 0; face < faces_per_cell; ++face) {
+        if (cell->face(face)->at_boundary()) {
+          problem::Boundary boundary_id = static_cast<problem::Boundary>(cell->face(face)->boundary_id());
+
+          using BoundaryType = typename formulation::scalar::DiffusionI<this->dim>::BoundaryType;
+          BoundaryType boundary_type = BoundaryType::kVacuum;
+          if (this->reflective_boundaries.count(boundary_id) == 1)
+            boundary_type = BoundaryType::kReflective;
+
+          EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillBoundaryTerm(_, cell, face, boundary_type));
+        }
+      }
+    }
+  }
+
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampMatrix(Ref(*this->matrix_to_stamp), _))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(Ref(*this->vector_to_stamp), _)).WillOnce(DoDefault());
+
+  this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_result, *this->matrix_to_stamp));
+  EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result, *this->vector_to_stamp));
 }
 
 } // namespace
