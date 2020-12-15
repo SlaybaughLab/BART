@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FORMULATION_UPDATER_FIXED_SOURCE_UPDATER_I_H_
 #define BART_SRC_FORMULATION_UPDATER_FIXED_SOURCE_UPDATER_I_H_
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/system_types.h"
 #include "quadrature/quadrature_types.h"
 

@@ -10,7 +10,7 @@
 #include "system/terms/tests/bilinear_term_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/dealii_test_domain.h"

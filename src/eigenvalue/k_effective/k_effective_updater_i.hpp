@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "utility/has_description.h"
 
 namespace bart::eigenvalue::k_effective {

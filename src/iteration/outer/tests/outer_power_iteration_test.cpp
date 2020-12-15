@@ -8,7 +8,7 @@
 #include "convergence/tests/final_checker_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
-#include "system/system.h"
+#include "system/system.hpp"
 
 namespace  {
 

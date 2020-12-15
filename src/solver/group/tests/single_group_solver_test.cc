@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/terms/tests/linear_term_mock.h"
 #include "system/terms/tests/bilinear_term_mock.h"

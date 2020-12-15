@@ -1,7 +1,7 @@
 #ifndef BART_SRC_ITERATION_INITIALIZER_INITIALIZER_I_H_
 #define BART_SRC_ITERATION_INITIALIZER_INITIALIZER_I_H_
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "utility/has_description.h"
 
 namespace bart {

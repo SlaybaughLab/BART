@@ -62,7 +62,7 @@
 #include "results/output_dealii_vtu.h"
 
 // System classes
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "system/solution/solution_types.h"
 

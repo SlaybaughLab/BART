@@ -7,7 +7,7 @@
 
 #include "domain/tests/definition_mock.h"
 #include "results/tests/output_test.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"

@@ -16,7 +16,7 @@
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/solution/solution_types.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"

@@ -1,6 +1,6 @@
 #include <ostream>
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "results/output_dealii_vtu.h"
 
 namespace bart {

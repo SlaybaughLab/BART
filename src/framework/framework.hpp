@@ -7,7 +7,7 @@
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "iteration/initializer/initializer_i.h"
 #include "results/output_i.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "framework/framework_i.hpp"
 
 namespace bart {

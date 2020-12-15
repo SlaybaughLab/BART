@@ -33,7 +33,7 @@
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "utility/colors.hpp"
 
 namespace bart::framework::builder {

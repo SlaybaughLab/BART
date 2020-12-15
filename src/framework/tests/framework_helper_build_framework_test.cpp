@@ -29,7 +29,7 @@
 #include "system/tests/system_helper_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/moments/spherical_harmonic_types.h"
-#include "system/system.h"
+#include "system/system.hpp"
 
 namespace  {
 

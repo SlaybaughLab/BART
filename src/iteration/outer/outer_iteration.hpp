@@ -7,7 +7,7 @@
 #include "instrumentation/port.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 #include "utility/uncopyable.h"
 

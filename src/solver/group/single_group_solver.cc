@@ -1,7 +1,7 @@
 #include "solver/group/single_group_solver.h"
 
 #include "solver/group/factory.hpp"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/solution/mpi_group_angular_solution_i.h"
 
 namespace bart {

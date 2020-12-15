@@ -3,7 +3,7 @@
 
 #include "iteration/outer/outer_iteration_i.hpp"
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
