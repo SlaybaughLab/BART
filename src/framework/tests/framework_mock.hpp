@@ -7,6 +7,7 @@
 namespace bart::framework {
 
 class FrameworkMock : public FrameworkI {
+ public:
   MOCK_METHOD(void, SolveSystem, (), (override));
   MOCK_METHOD(system::System*, system, (), (const, override));
   MOCK_METHOD(void, OutputResults, (std::ostream& output_stream), (override));
