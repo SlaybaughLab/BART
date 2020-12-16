@@ -5,11 +5,7 @@
 #include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/gmock_wrapper.h"
 
-namespace bart {
-
-namespace system {
-
-namespace moments {
+namespace bart::system::moments {
 
 class SphericalHarmonicMock : public SphericalHarmonicI {
  public:
@@ -17,6 +13,7 @@ class SphericalHarmonicMock : public SphericalHarmonicI {
   MOCK_METHOD(int, max_harmonic_l, (), (const, override));
   MOCK_METHOD(const MomentsMap&, moments, (), (const, override));
   MOCK_METHOD(const MomentVector&, GetMoment, (const MomentIndex), (const, override));
+  MOCK_METHOD(MomentVector&, GetMoment, (const MomentIndex), (override));
   MOCK_METHOD(MomentsMap::const_iterator, cbegin, (), (const, override));
   MOCK_METHOD(MomentsMap::iterator, begin, (), (override));
   MOCK_METHOD(MomentsMap::const_iterator, cend, (), (const, override));
@@ -34,11 +31,6 @@ class SphericalHarmonicMock : public SphericalHarmonicI {
   };
 };
 
-} // namespace moments
-
-} // namespace system
-
-
-} // namespace bart
+} // namespace bart::system::moments
 
 #endif // BART_SRC_SYSTEM_MOMENTS_TESTS_SPHERICAL_HARMONIC_MOCK_H_

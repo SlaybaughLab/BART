@@ -48,8 +48,10 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BracketOperator) {
   for (const auto& moment_pair : test_moments.moments()) {
     const auto& moment = test_moments[moment_pair.first];
     const auto& moment_from_get = test_moments.GetMoment(moment_pair.first);
+    auto& non_const_moment_from_get = test_moments.GetMoment(moment_pair.first);
     EXPECT_THAT(moment, Ref(moment_pair.second));
     EXPECT_THAT(moment_from_get, Ref(moment_pair.second));
+    EXPECT_THAT(non_const_moment_from_get, Ref(moment_pair.second));
   }
 
   const auto& const_test_moments = test_moments;

@@ -12,7 +12,7 @@ namespace instrumentation = bart::instrumentation;
 namespace moments = bart::system::moments;
 namespace test_helpers = bart::test_helpers;
 
-using ::testing::DoDefault, ::testing::Return, ::testing::ReturnRef;
+using ::testing::DoDefault, ::testing::Return, ::testing::ReturnRef, ::testing::Const;
 
 class InstrumentationConverterGroupScalarFluxExtractorTest : public ::testing::Test {
  public:
@@ -48,9 +48,10 @@ void InstrumentationConverterGroupScalarFluxExtractorTest::SetUp() {
   }
 
   for (std::size_t group = 0; group < group_scalar_fluxes_.size(); ++group) {
-    ON_CALL(*spherical_harmonics_obs_ptr_,
-            GetMoment(std::array<int,3>{static_cast<int>(group), 0, 0}))
-        .WillByDefault(ReturnRef(group_scalar_fluxes_.at(group)));
+    auto& scalar_flux = group_scalar_fluxes_.at(group);
+    std::array<int,3> index{static_cast<int>(group), 0, 0};
+    ON_CALL(*spherical_harmonics_obs_ptr_, GetMoment(index)).WillByDefault(ReturnRef(scalar_flux));
+    ON_CALL(Const(*spherical_harmonics_obs_ptr_), GetMoment(index)).WillByDefault(ReturnRef(scalar_flux));
   }
 }
 
@@ -64,8 +65,7 @@ TEST_F(InstrumentationConverterGroupScalarFluxExtractorTest,
 TEST_F(InstrumentationConverterGroupScalarFluxExtractorTest, Convert) {
   const int group_to_extract{ test_helpers::RandomInt(0, total_groups_) };
   TestConverter test_converter(group_to_extract);
-  EXPECT_CALL(*spherical_harmonics_obs_ptr_,
-              GetMoment(std::array{group_to_extract, 0, 0}))
+  EXPECT_CALL(Const(*spherical_harmonics_obs_ptr_), GetMoment(std::array{group_to_extract, 0, 0}))
       .WillOnce(DoDefault());
   auto extracted_value = test_converter.Convert(*test_spherical_harmonics_);
   ASSERT_NE(extracted_value.size(), 0);
