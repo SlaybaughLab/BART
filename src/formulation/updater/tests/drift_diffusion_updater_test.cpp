@@ -120,6 +120,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorDependencyGetters) {
   ASSERT_NE(test_updater->formulation_ptr(), nullptr);
   ASSERT_NE(test_updater->drift_diffusion_formulation_ptr(), nullptr);
   ASSERT_NE(test_updater->stamper_ptr(), nullptr);
+  ASSERT_NE(test_updater->integrated_flux_calculator_ptr(), nullptr);
   EXPECT_EQ(test_updater->high_order_moments(), this->high_order_moments_ptr_.get());
   ASSERT_THAT(test_updater->angular_flux_storage_map(), ContainerEq(this->angular_flux_storage_map_));
 }
