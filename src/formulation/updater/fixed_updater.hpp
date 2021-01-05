@@ -36,8 +36,11 @@ class FixedUpdater : public FixedUpdaterI {
       stamper_ptr_->StampVector(*fixed_vector_ptr, vector_function);
     for (auto& matrix_boundary_function : fixed_matrix_boundary_functions_)
       stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr, matrix_boundary_function);
+    // LCOV_EXCL_START
+    // Excluded from coverage because no current formulations utilize this.
     for (auto& vector_boundary_function : fixed_vector_boundary_functions_)
       stamper_ptr_->StampBoundaryVector(*fixed_vector_ptr, vector_boundary_function);
+    // LCOV_EXCL_STOP
   }
 
  protected:
