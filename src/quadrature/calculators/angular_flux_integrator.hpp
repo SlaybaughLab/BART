@@ -1,7 +1,7 @@
-#ifndef BART_SRC_QUADRATURE_CALCULATORS_DRIFT_DIFFUSION_INTEGRATED_FLUX_HPP_
-#define BART_SRC_QUADRATURE_CALCULATORS_DRIFT_DIFFUSION_INTEGRATED_FLUX_HPP_
+#ifndef BART_SRC_QUADRATURE_CALCULATORS_ANGULAR_FLUX_INTEGRATOR_HPP_
+#define BART_SRC_QUADRATURE_CALCULATORS_ANGULAR_FLUX_INTEGRATOR_HPP_
 
-#include "quadrature/calculators/drift_diffusion_integrated_flux_i.hpp"
+#include "quadrature/calculators/angular_flux_integrator_i.hpp"
 
 #include "quadrature/quadrature_set_i.h"
 #include "utility/has_dependencies.h"
@@ -9,11 +9,11 @@
 namespace bart::quadrature::calculators {
 
 template <int dim>
-class DriftDiffusionIntegratedFlux : public DriftDiffusionIntegratedFluxI, public utility::HasDependencies {
+class AngularFluxIntegrator : public AngularFluxIntegratorI, public utility::HasDependencies {
  public:
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
 
-  DriftDiffusionIntegratedFlux(std::shared_ptr<QuadratureSet>);
+  AngularFluxIntegrator(std::shared_ptr<QuadratureSet>);
 
   [[nodiscard]] auto Integrate(const VectorMap&) const -> Vector override;
 
@@ -25,4 +25,4 @@ class DriftDiffusionIntegratedFlux : public DriftDiffusionIntegratedFluxI, publi
 
 } // namespace bart::quadrature::calculators
 
-#endif //BART_SRC_QUADRATURE_CALCULATORS_DRIFT_DIFFUSION_INTEGRATED_FLUX_HPP_
+#endif //BART_SRC_QUADRATURE_CALCULATORS_ANGULAR_FLUX_INTEGRATOR_HPP_

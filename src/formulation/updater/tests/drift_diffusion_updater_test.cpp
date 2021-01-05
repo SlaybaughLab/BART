@@ -2,7 +2,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "quadrature/calculators/tests/drift_diffusion_integrated_flux_mock.hpp"
+#include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
 #include "formulation/tests/stamper_mock.h"
@@ -29,7 +29,7 @@ class FormulationUpdaterDriftDiffusionTest : public UpdaterTest<DimensionWrapper
   using AngularFluxStorageMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
   using DiffusionFormulation = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxMock;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorMock;
   using Stamper = formulation::StamperMock<dim>;
   using Boundary = problem::Boundary;
   using Vector = dealii::Vector<double>;
@@ -104,7 +104,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorDependencyGetters) {
   constexpr int dim{ this->dim };
   using DiffusionFormulation = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxMock;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorMock;
   using Updater = formulation::updater::DriftDiffusionUpdater<dim>;
   using Stamper = formulation::StamperMock<dim>;
 
@@ -129,7 +129,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorBadDependencies) {
   constexpr int dim{ this->dim };
   using DiffusionFormulation = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxMock;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorMock;
   using Updater = formulation::updater::DriftDiffusionUpdater<dim>;
   using Stamper = formulation::StamperMock<dim>;
   using HighOrderMoments = system::moments::SphericalHarmonicMock;

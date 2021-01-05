@@ -1,15 +1,15 @@
-#include "quadrature/calculators/drift_diffusion_integrated_flux.hpp"
+#include "quadrature/calculators/angular_flux_integrator.hpp"
 
 namespace bart::quadrature::calculators {
 
 template<int dim>
-DriftDiffusionIntegratedFlux<dim>::DriftDiffusionIntegratedFlux(std::shared_ptr<QuadratureSet> quadrature_set_ptr)
+AngularFluxIntegrator<dim>::AngularFluxIntegrator(std::shared_ptr<QuadratureSet> quadrature_set_ptr)
     : quadrature_set_ptr_(quadrature_set_ptr) {
   this->AssertPointerNotNull(quadrature_set_ptr_.get(), "quadrature set", "DriftDiffusionIntegratedFlux constructor");
 }
 
 template<int dim>
-auto DriftDiffusionIntegratedFlux<dim>::Integrate(const VectorMap& vector_map) const -> Vector {
+auto AngularFluxIntegrator<dim>::Integrate(const VectorMap& vector_map) const -> Vector {
   using Index = quadrature::QuadraturePointIndex;
   const VectorMap::size_type n_quadrature_points{ this->quadrature_set_ptr_->size() };
   AssertThrow(vector_map.size() == n_quadrature_points, dealii::ExcMessage("Error in DriftDiffusionIntegratedFlux "
@@ -28,8 +28,8 @@ auto DriftDiffusionIntegratedFlux<dim>::Integrate(const VectorMap& vector_map) c
   return result_vector;
 }
 
-template class DriftDiffusionIntegratedFlux<1>;
-template class DriftDiffusionIntegratedFlux<2>;
-template class DriftDiffusionIntegratedFlux<3>;
+template class AngularFluxIntegrator<1>;
+template class AngularFluxIntegrator<2>;
+template class AngularFluxIntegrator<3>;
 
 } // namespace bart::quadrature::calculators

@@ -1,10 +1,10 @@
-#include "quadrature/calculators/drift_diffusion_integrated_flux.hpp"
+#include "quadrature/calculators/angular_flux_integrator.hpp"
 
 #include <memory>
 
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
-#include "quadrature/calculators/tests/drift_diffusion_integrated_flux_mock.hpp"
+#include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"
 
@@ -15,17 +15,17 @@ using namespace bart;
 using ::testing::NiceMock, ::testing::Return, ::testing::DoDefault, ::testing::ContainerEq;
 
 template <typename DimensionWrapper>
-class DriftDiffusionIntegratedFluxTest : public ::testing::Test {
+class AngularFluxIntegratorTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
   using QuadraturePointType = NiceMock<typename quadrature::QuadraturePointMock<dim>>;
   using QuadratureSetType = NiceMock<typename quadrature::QuadratureSetMock<dim>>;
-  using TestIntegrator = typename quadrature::calculators::DriftDiffusionIntegratedFlux<dim>;
+  using TestIntegrator = typename quadrature::calculators::AngularFluxIntegrator<dim>;
   using Vector = dealii::Vector<double>;
   using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
 
-  DriftDiffusionIntegratedFluxTest()
+  AngularFluxIntegratorTest()
       : expected_result_(expected_result_values_.cbegin(), expected_result_values_.cend()) {}
 
   // Test parameters
@@ -48,7 +48,7 @@ class DriftDiffusionIntegratedFluxTest : public ::testing::Test {
 };
 
 template <typename DimensionWrapper>
-auto DriftDiffusionIntegratedFluxTest<DimensionWrapper>::SetUp() -> void {
+auto AngularFluxIntegratorTest<DimensionWrapper>::SetUp() -> void {
   quadrature_set_ptr_ = std::make_shared<QuadratureSetType>();
   test_integrator_ = std::move(std::make_unique<TestIntegrator>(quadrature_set_ptr_));
 
@@ -71,11 +71,11 @@ auto DriftDiffusionIntegratedFluxTest<DimensionWrapper>::SetUp() -> void {
   ON_CALL(*quadrature_set_ptr_, size()).WillByDefault(Return(n_quadrature_points));
 }
 
-TYPED_TEST_SUITE(DriftDiffusionIntegratedFluxTest, bart::testing::AllDimensions);
+TYPED_TEST_SUITE(AngularFluxIntegratorTest, bart::testing::AllDimensions);
 
-TYPED_TEST(DriftDiffusionIntegratedFluxTest, Constructor) {
+TYPED_TEST(AngularFluxIntegratorTest, Constructor) {
   constexpr int dim = this->dim;
-  using TestIntegrator = typename quadrature::calculators::DriftDiffusionIntegratedFlux<dim>;
+  using TestIntegrator = typename quadrature::calculators::AngularFluxIntegrator<dim>;
   using QuadratureSetType = typename quadrature::QuadratureSetMock<dim>;
 
   auto quadrature_set_ptr = std::make_shared<QuadratureSetType>();
@@ -84,16 +84,16 @@ TYPED_TEST(DriftDiffusionIntegratedFluxTest, Constructor) {
   EXPECT_EQ(integrator.quadrature_set_ptr(), quadrature_set_ptr.get());
 }
 
-TYPED_TEST(DriftDiffusionIntegratedFluxTest, ConstructorBadDependencies) {
+TYPED_TEST(AngularFluxIntegratorTest, ConstructorBadDependencies) {
   constexpr int dim = this->dim;
-  using TestIntegrator = typename quadrature::calculators::DriftDiffusionIntegratedFlux<dim>;
+  using TestIntegrator = typename quadrature::calculators::AngularFluxIntegrator<dim>;
 
   EXPECT_ANY_THROW({
                      TestIntegrator integrator(nullptr);
   });
 }
 
-TYPED_TEST(DriftDiffusionIntegratedFluxTest, Integrate) {
+TYPED_TEST(AngularFluxIntegratorTest, Integrate) {
   EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
   for (int i = 0; i < this->n_quadrature_points; ++i) {
     using Index = quadrature::QuadraturePointIndex;
@@ -107,7 +107,7 @@ TYPED_TEST(DriftDiffusionIntegratedFluxTest, Integrate) {
   EXPECT_TRUE(test_helpers::AreEqual(result, this->expected_result_));
 }
 
-TYPED_TEST(DriftDiffusionIntegratedFluxTest, IntegrateBadAngularFluxSize) {
+TYPED_TEST(AngularFluxIntegratorTest, IntegrateBadAngularFluxSize) {
   using Vector = dealii::Vector<double>;
   using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;

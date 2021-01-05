@@ -4,7 +4,7 @@
 #include "diffusion_updater.hpp"
 #include "formulation/scalar/drift_diffusion_i.hpp"
 #include "formulation/stamper_i.h"
-#include "quadrature/calculators/drift_diffusion_integrated_flux_i.hpp"
+#include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "system/solution/solution_types.h"
 #include "system/moments/spherical_harmonic_i.h"
 #include "utility/has_dependencies.h"
@@ -17,7 +17,7 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   using AngularFluxStorageMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
   using DiffusionFormulation = typename DiffusionUpdater<dim>::DiffusionFormulationType;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionI<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxI;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorI;
   using HighOrderMoments = system::moments::SphericalHarmonicI;
   using Stamper = typename DiffusionUpdater<dim>::StamperType;
 
