@@ -11,6 +11,7 @@
 #include <deal.II/grid/grid_tools.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/petsc_sparse_matrix.h>
+#include <deal.II/base/tensor.h>
 
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_helper_functions.h"
@@ -123,6 +124,42 @@ TEST_F(TestAssertionsMatrixTests, GoodComparisonWithinTolerance) {
   EXPECT_TRUE(test_helpers::AreEqual(matrix_1, matrix_3, 1e-4));
 }
 
+template <typename DimensionWrapper>
+class TestAssertionsTensorsAreEqual : public ::testing::Test {
+ public:
+  static constexpr int dim = DimensionWrapper::value;
+  dealii::Tensor<1, dim> tensor_1_, tensor_2_;
+
+  auto SetUp() -> void override;
+};
+
+template <typename DimensionWrapper>
+auto TestAssertionsTensorsAreEqual<DimensionWrapper>::SetUp() -> void {
+  for (int i = 0; i < dim; ++i) {
+    tensor_1_[i] = test_helpers::RandomDouble(-100, 100);
+    tensor_2_[i] = test_helpers::RandomDouble(-100, 100);
+  }
+}
+
+TYPED_TEST_SUITE(TestAssertionsTensorsAreEqual, bart::testing::AllDimensions);
+
+TYPED_TEST(TestAssertionsTensorsAreEqual, GoodComparison) {
+  EXPECT_TRUE(test_helpers::AreEqual(this->tensor_1_, this->tensor_1_));
+  EXPECT_TRUE(test_helpers::AreEqual(this->tensor_2_, this->tensor_2_));
+}
+
+TYPED_TEST(TestAssertionsTensorsAreEqual, BadComparison) {
+  EXPECT_FALSE(test_helpers::AreEqual(this->tensor_1_, this->tensor_2_));
+  EXPECT_FALSE(test_helpers::AreEqual(this->tensor_2_, this->tensor_1_));
+}
+
+TYPED_TEST(TestAssertionsTensorsAreEqual, Tolerance) {
+  auto tensor_3 = this->tensor_1_;
+  tensor_3 *= (1 + 1e-8);
+  EXPECT_TRUE(test_helpers::AreEqual(this->tensor_1_, tensor_3));
+  tensor_3 *= (1 + 1e-5);
+  EXPECT_FALSE(test_helpers::AreEqual(this->tensor_1_, tensor_3));
+}
 
 
 class TestAssertionsMPIMatricesTests : public ::testing::Test, public bart::testing::DealiiTestDomain<2> {

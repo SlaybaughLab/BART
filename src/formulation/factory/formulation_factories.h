@@ -14,7 +14,7 @@
 
 // Updaters
 #include "formulation/updater/saaf_updater.h"
-#include "formulation/updater/diffusion_updater.h"
+#include "formulation/updater/diffusion_updater.hpp"
 
 // Dependencies
 #include "data/cross_sections.h"

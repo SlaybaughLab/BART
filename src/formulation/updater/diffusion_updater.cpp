@@ -1,4 +1,4 @@
-#include "formulation/updater/diffusion_updater.h"
+#include "formulation/updater/diffusion_updater.hpp"
 
 namespace bart {
 
@@ -9,10 +9,11 @@ namespace updater {
 template<int dim>
 DiffusionUpdater<dim>::DiffusionUpdater(
     std::unique_ptr<DiffusionFormulationType> formulation_ptr,
-    std::unique_ptr<StamperType> stamper_ptr,
+    std::shared_ptr<StamperType> stamper_ptr,
     std::unordered_set<problem::Boundary> reflective_boundaries)
-    : formulation_ptr_(std::move(formulation_ptr)),
-      stamper_ptr_(std::move(stamper_ptr)),
+    : FixedUpdater<dim>(stamper_ptr),
+      formulation_ptr_(std::move(formulation_ptr)),
+      stamper_ptr_(stamper_ptr),
       reflective_boundaries_(reflective_boundaries) {
   AssertThrow(formulation_ptr_ != nullptr,
               dealii::ExcMessage("Error in constructor of DiffusionUpdater, "
@@ -30,48 +31,34 @@ DiffusionUpdater<dim>::DiffusionUpdater(
 }
 
 template<int dim>
-void DiffusionUpdater<dim>::UpdateFixedTerms(
-    system::System& to_update,
-    system::EnergyGroup energy_group,
-    quadrature::QuadraturePointIndex /*index*/) {
-  using CellPtr = domain::CellPtr<dim>;
-  int group = energy_group.get();
-  auto fixed_matrix_ptr =
-     to_update.left_hand_side_ptr_->GetFixedTermPtr({group, 0});
-  auto fixed_vector_ptr =
-      to_update.right_hand_side_ptr_->GetFixedTermPtr({group, 0});
-  auto streaming_term_function = [&](formulation::FullMatrix& cell_matrix,
-                                     const CellPtr& cell_ptr) -> void {
-        formulation_ptr_->FillCellStreamingTerm(cell_matrix, cell_ptr, group);
-      };
-  auto collision_term_function = [&](formulation::FullMatrix& cell_matrix,
-                                     const CellPtr& cell_ptr) -> void {
-        formulation_ptr_->FillCellCollisionTerm(cell_matrix, cell_ptr, group);
-      };
-  auto fixed_term_function = [&](formulation::Vector& cell_vector,
-                                 const CellPtr& cell_ptr) -> void {
-    formulation_ptr_->FillCellFixedSource(cell_vector, cell_ptr, group);
-  };
-  auto boundary_function = [&](formulation::FullMatrix& cell_matrix,
-                               const domain::FaceIndex face_index,
+auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
+                                                system::EnergyGroup group,
+                                                quadrature::QuadraturePointIndex /*index*/) -> void {
+  const auto streaming_term_function = [&, group](formulation::FullMatrix& cell_matrix, const CellPtr& cell_ptr) -> void {
+    formulation_ptr_->FillCellStreamingTerm(cell_matrix, cell_ptr, group.get()); };
+  const auto collision_term_function = [&, group](formulation::FullMatrix& cell_matrix, const CellPtr& cell_ptr) -> void {
+    formulation_ptr_->FillCellCollisionTerm(cell_matrix, cell_ptr, group.get()); };
+  this->fixed_matrix_functions_.push_back(streaming_term_function);
+  this->fixed_matrix_functions_.push_back(collision_term_function);
+
+  auto fixed_term_function = [&, group](formulation::Vector& cell_vector, const CellPtr& cell_ptr) -> void {
+    formulation_ptr_->FillCellFixedSource(cell_vector, cell_ptr, group.get()); };
+  this->fixed_vector_functions_.push_back(fixed_term_function);
+
+  auto boundary_function = [&](formulation::FullMatrix& cell_matrix, const domain::FaceIndex face_index,
                                const CellPtr& cell_ptr) -> void {
     using DiffusionBoundaryType = typename formulation::scalar::DiffusionI<dim>::BoundaryType;
-    problem::Boundary boundary = static_cast<problem::Boundary>(
-        cell_ptr->face(face_index.get())->boundary_id());
+    problem::Boundary boundary = static_cast<problem::Boundary>(cell_ptr->face(face_index.get())->boundary_id());
     DiffusionBoundaryType boundary_type = DiffusionBoundaryType::kVacuum;
 
     if (reflective_boundaries_.count(boundary) == 1)
       boundary_type = DiffusionBoundaryType::kReflective;
-    formulation_ptr_->FillBoundaryTerm(cell_matrix, cell_ptr,
-                                       face_index.get(), boundary_type);
+
+    formulation_ptr_->FillBoundaryTerm(cell_matrix, cell_ptr,face_index.get(), boundary_type);
   };
-  *fixed_matrix_ptr = 0;
-  *fixed_vector_ptr = 0;
-  stamper_ptr_->StampMatrix(*fixed_matrix_ptr, streaming_term_function);
-  stamper_ptr_->StampMatrix(*fixed_matrix_ptr, collision_term_function);
-  stamper_ptr_->StampBoundaryMatrix(*fixed_matrix_ptr, boundary_function);
-  stamper_ptr_->StampVector(*fixed_vector_ptr, fixed_term_function);
+  this->fixed_matrix_boundary_functions_.push_back(boundary_function);
 }
+
 template<int dim>
 void DiffusionUpdater<dim>::UpdateScatteringSource(
     system::System &to_update,

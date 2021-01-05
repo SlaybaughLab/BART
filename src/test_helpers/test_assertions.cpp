@@ -1,5 +1,6 @@
 #include "test_helpers/test_assertions.hpp"
 
+#include <deal.II/base/tensor.h>
 #include <deal.II/base/mpi.h>
 
 namespace bart {
@@ -12,6 +13,9 @@ using ::testing::AssertionSuccess;
 
 using DealiiVector = dealii::Vector<double>;
 using FullMatrix = dealii::FullMatrix<double>;
+
+template <int dim>
+using Tensor = dealii::Tensor<1, dim>;
 }
 
 template <>
@@ -28,6 +32,33 @@ auto AreEqual<dealii::Vector<double>>(const DealiiVector& expected, const Dealii
       return AssertionFailure() << "Entry (" << i <<
                                 ") has value: " << result[i] <<
                                 ", expected: " << expected[i];
+    }
+  }
+  return AssertionSuccess();
+}
+
+template <>
+auto AreEqual<Tensor<1>>(const Tensor<1>& expected, const Tensor<1>& result, const double tol) -> AssertionResult {
+  if (abs(result[0] - expected[0]) > tol)
+    return AssertionFailure() << "Entry (" << 0 << ") has value: " << result[0] << ", expected: " << expected[0];
+  return AssertionSuccess();
+}
+
+template <>
+auto AreEqual<Tensor<2>>(const Tensor<2>& expected, const Tensor<2>& result, const double tol) -> AssertionResult {
+  for (int i = 0; i < 2; ++i) {
+    if (abs(result[i] - expected[i]) > tol) {
+      return AssertionFailure() << "Entry (" << i << ") has value: " << result[i] << ", expected: " << expected[i];
+    }
+  }
+  return AssertionSuccess();
+}
+
+template <>
+auto AreEqual<Tensor<3>>(const Tensor<3>& expected, const Tensor<3>& result, const double tol) -> AssertionResult {
+  for (int i = 0; i < 3; ++i) {
+    if (abs(result[i] - expected[i]) > tol) {
+      return AssertionFailure() << "Entry (" << i << ") has value: " << result[i] << ", expected: " << expected[i];
     }
   }
   return AssertionSuccess();

@@ -135,8 +135,7 @@ class FiniteElementI {
    * \param moment flux moment to get the value of.
    * \return a vector holding the value of the moment at each quadrature point.
    */
-  virtual std::vector<double> ValueAtQuadrature(
-      const system::moments::MomentVector moment) const = 0;
+  virtual std::vector<double> ValueAtQuadrature(const system::moments::MomentVector& moment) const = 0;
 
   /*! \brief Get the value of an MPI Vector at the cell face quadrature points.
    *

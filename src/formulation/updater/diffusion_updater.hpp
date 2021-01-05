@@ -6,6 +6,7 @@
 
 #include "formulation/scalar/diffusion_i.h"
 #include "formulation/stamper_i.h"
+#include "formulation/updater/fixed_updater.hpp"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/fixed_source_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
@@ -22,21 +23,22 @@ namespace updater {
 
 template <int dim>
 class DiffusionUpdater
-    : public FixedUpdaterI, public ScatteringSourceUpdaterI,
+    : public FixedUpdater<dim>, public ScatteringSourceUpdaterI,
       public FissionSourceUpdaterI, public FixedSourceUpdaterI,
       public utility::HasDescription {
  public:
+  using typename FixedUpdater<dim>::CellPtr;
+  using typename FixedUpdater<dim>::MatrixFunction;
+  using typename FixedUpdater<dim>::VectorFunction;
+  using typename FixedUpdater<dim>::MatrixBoundaryFunction;
+  using typename FixedUpdater<dim>::VectorBoundaryFunction;
+
   using DiffusionFormulationType = formulation::scalar::DiffusionI<dim>;
   using StamperType = formulation::StamperI<dim>;
   DiffusionUpdater(std::unique_ptr<DiffusionFormulationType>,
-                   std::unique_ptr<StamperType>,
+                   std::shared_ptr<StamperType>,
                    std::unordered_set<problem::Boundary> reflective_boundaries = {});
   virtual ~DiffusionUpdater() = default;
-
-  void UpdateFixedTerms(
-      system::System&,
-      system::EnergyGroup,
-      quadrature::QuadraturePointIndex) override;
 
   void UpdateScatteringSource(
       system::System &,
@@ -58,9 +60,11 @@ class DiffusionUpdater
   DiffusionFormulationType* formulation_ptr() const {
     return formulation_ptr_.get(); }
   StamperType* stamper_ptr() const { return stamper_ptr_.get(); }
+ protected:
+  auto SetUpFixedFunctions(system::System&, system::EnergyGroup, quadrature::QuadraturePointIndex) -> void override;
  private:
   std::unique_ptr<DiffusionFormulationType> formulation_ptr_;
-  std::unique_ptr<StamperType> stamper_ptr_;
+  std::shared_ptr<StamperType> stamper_ptr_;
   std::unordered_set<problem::Boundary> reflective_boundaries_;
 };
 
