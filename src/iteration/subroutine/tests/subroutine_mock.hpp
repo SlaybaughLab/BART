@@ -7,6 +7,7 @@
 namespace bart::iteration::subroutine {
 
 class SubroutineMock : public SubroutineI {
+ public:
   MOCK_METHOD(void, Execute, (system::System&), (override));
 };
 
