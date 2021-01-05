@@ -41,10 +41,12 @@ class AngularFluxIntegratorTest : public ::testing::Test {
 
   // Supporting objects
   VectorMap angular_flux_map_{};
-  const std::vector<double> expected_result_values_{5501.5 * dim, 11003 * dim};
+  const std::vector<double> expected_result_values_{2426.5 * dim, 4853 * dim};
   const Vector expected_result_;
+  std::array<Vector, n_total_dofs> expected_net_current_at_dofs;
 
   auto SetUp() -> void override;
+  auto SetUpExpectedValues() -> void;
 };
 
 template <typename DimensionWrapper>
@@ -58,8 +60,14 @@ auto AngularFluxIntegratorTest<DimensionWrapper>::SetUp() -> void {
     auto quadrature_point_ptr = std::make_shared<QuadraturePointType>();
     mock_quadrature_points_.at(i) = quadrature_point_ptr;
     dealii::Tensor<1, dim> position_tensor;
+    double omega_value{ 1 };
+    if (i == 1) {
+      omega_value = -1;
+    } else if (i == 2) {
+      omega_value = 2;
+    }
     for (int j = 0; j < dim; ++j)
-      position_tensor[j] = i + 1;
+      position_tensor[j] = omega_value;
     ON_CALL(*quadrature_point_ptr, weight()).WillByDefault(Return(weights.at(i)));
     ON_CALL(*quadrature_point_ptr, cartesian_position_tensor()).WillByDefault(Return(position_tensor));
     ON_CALL(*quadrature_set_ptr_, GetQuadraturePoint(Index(i))).WillByDefault(Return(quadrature_point_ptr));
@@ -69,6 +77,17 @@ auto AngularFluxIntegratorTest<DimensionWrapper>::SetUp() -> void {
     angular_flux_map_.insert({Index(i), vector_ptr});
   }
   ON_CALL(*quadrature_set_ptr_, size()).WillByDefault(Return(n_quadrature_points));
+  SetUpExpectedValues();
+}
+
+template <typename DimensionWrapper>
+auto AngularFluxIntegratorTest<DimensionWrapper>::SetUpExpectedValues() -> void {
+  for (int i = 0; i < n_total_dofs; ++i) {
+    Vector expected_vector(dim);
+    for (int j = 0; j < dim; ++j)
+      expected_vector[j] = 1176.5 * (i + 1);
+    expected_net_current_at_dofs.at(i) = expected_vector;
+  }
 }
 
 TYPED_TEST_SUITE(AngularFluxIntegratorTest, bart::testing::AllDimensions);
@@ -91,6 +110,25 @@ TYPED_TEST(AngularFluxIntegratorTest, ConstructorBadDependencies) {
   EXPECT_ANY_THROW({
                      TestIntegrator integrator(nullptr);
   });
+}
+
+TYPED_TEST(AngularFluxIntegratorTest, NetCurrent) {
+  for (int dof = 0; dof < this->n_total_dofs; ++dof) {
+    EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
+    for (int i = 0; i < this->n_quadrature_points; ++i) {
+      using Index = quadrature::QuadraturePointIndex;
+      EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i))).WillOnce(DoDefault());
+    }
+    for (auto &quadrature_point : this->mock_quadrature_points_) {
+      EXPECT_CALL(*quadrature_point, weight()).WillOnce(DoDefault());
+      EXPECT_CALL(*quadrature_point, cartesian_position_tensor()).WillOnce(DoDefault());
+    }
+
+    using DegreeOfFreedom = typename quadrature::calculators::AngularFluxIntegrator<this->dim>::DegreeOfFreedom;
+    auto result = this->test_integrator_->NetCurrent(this->angular_flux_map_, DegreeOfFreedom(dof));
+    EXPECT_EQ(result, this->expected_net_current_at_dofs.at(dof));
+  }
+
 }
 
 TYPED_TEST(AngularFluxIntegratorTest, Integrate) {

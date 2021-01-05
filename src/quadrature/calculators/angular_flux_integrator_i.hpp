@@ -6,6 +6,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "quadrature/quadrature_types.h"
+#include "utility/named_type.h"
 
 namespace bart::quadrature::calculators {
 /*! \brief Interface for a class that integrates angular flux using a quadrature set.
@@ -30,8 +31,10 @@ class AngularFluxIntegratorI {
   using Vector = dealii::Vector<double>;
   using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
+  using DegreeOfFreedom = utility::NamedType<int, struct DegreeOfFreedomParam>;
 
   virtual auto Integrate(const VectorMap&) const -> Vector = 0;
+  virtual auto NetCurrent(const VectorMap&, const DegreeOfFreedom) const -> Vector = 0;
 };
 
 } // namespace bart::quadrature::calculators

@@ -27,6 +27,25 @@ auto AngularFluxIntegrator<dim>::Integrate(const VectorMap& vector_map) const ->
 
   return result_vector;
 }
+template<int dim>
+auto AngularFluxIntegrator<dim>::NetCurrent(const VectorMap& angular_flux_map,
+                                            const DegreeOfFreedom degree_of_freedom) const -> Vector {
+  using Index = quadrature::QuadraturePointIndex;
+  const VectorMap::size_type n_quadrature_points{ this->quadrature_set_ptr_->size() };
+
+  Vector result_vector(dim);
+
+  for (VectorMap::size_type i = 0; i < n_quadrature_points; ++i) {
+    auto& quadrature_point = *quadrature_set_ptr_->GetQuadraturePoint(Index(i));
+    const double weight{ quadrature_point.weight() };
+    const auto position{ quadrature_point.cartesian_position_tensor() };
+    Vector position_vector(position.begin_raw(), position.end_raw());
+    const auto angular_flux_at_dof = (*angular_flux_map.at(Index(i)))[degree_of_freedom.get()];
+    result_vector.add(weight * angular_flux_at_dof, position_vector);
+  }
+
+  return result_vector;
+}
 
 template class AngularFluxIntegrator<1>;
 template class AngularFluxIntegrator<2>;

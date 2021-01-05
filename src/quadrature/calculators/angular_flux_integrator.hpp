@@ -16,6 +16,7 @@ class AngularFluxIntegrator : public AngularFluxIntegratorI, public utility::Has
   AngularFluxIntegrator(std::shared_ptr<QuadratureSet>);
 
   [[nodiscard]] auto Integrate(const VectorMap&) const -> Vector override;
+  [[nodiscard]] auto NetCurrent(const VectorMap&, DegreeOfFreedom) const -> Vector override;
 
   auto quadrature_set_ptr() const -> QuadratureSet* { return quadrature_set_ptr_.get(); }
 
