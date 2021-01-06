@@ -11,6 +11,7 @@ class AngularFluxIntegratorMock : public AngularFluxIntegratorI {
  public:
   MOCK_METHOD(Vector, Integrate, (const VectorMap&), (const, override));
   MOCK_METHOD(Vector, NetCurrent, (const VectorMap&, const DegreeOfFreedom), (const, override));
+  MOCK_METHOD(double, DirectionalCurrent, (const VectorMap&, const Vector, const DegreeOfFreedom), (const, override));
 };
 
 } // namespace bart::quadrature::calculators

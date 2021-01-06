@@ -35,6 +35,7 @@ class AngularFluxIntegratorI {
 
   virtual auto Integrate(const VectorMap&) const -> Vector = 0;
   virtual auto NetCurrent(const VectorMap&, const DegreeOfFreedom) const -> Vector = 0;
+  virtual auto DirectionalCurrent(const VectorMap&, const Vector normal, const DegreeOfFreedom) const -> double = 0;
 };
 
 } // namespace bart::quadrature::calculators
