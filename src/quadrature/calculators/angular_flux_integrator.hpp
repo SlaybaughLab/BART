@@ -18,6 +18,7 @@ class AngularFluxIntegrator : public AngularFluxIntegratorI, public utility::Has
   [[nodiscard]] auto Integrate(const VectorMap&) const -> Vector override;
   [[nodiscard]] auto NetCurrent(const VectorMap&, DegreeOfFreedom) const -> Vector override;
   [[nodiscard]] auto DirectionalCurrent(const VectorMap&, const Vector normal, DegreeOfFreedom) const -> double override;
+  [[nodiscard]] auto DirectionalFlux(const VectorMap&, const Vector normal, DegreeOfFreedom) const -> double override;
 
   auto quadrature_set_ptr() const -> QuadratureSet* { return quadrature_set_ptr_.get(); }
 

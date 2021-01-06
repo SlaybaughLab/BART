@@ -73,6 +73,32 @@ auto AngularFluxIntegrator<dim>::DirectionalCurrent(const VectorMap& angular_flu
   return result;
 }
 
+template<int dim>
+auto AngularFluxIntegrator<dim>::DirectionalFlux(const VectorMap& angular_flux_map,
+                                                 const Vector normal,
+                                                 DegreeOfFreedom degree_of_freedom) const -> double {
+  using Index = quadrature::QuadraturePointIndex;
+  const VectorMap::size_type n_quadrature_points{ this->quadrature_set_ptr_->size() };
+
+  double result{ 0 };
+
+  for (VectorMap::size_type i = 0; i < n_quadrature_points; ++i) {
+    auto& quadrature_point = *quadrature_set_ptr_->GetQuadraturePoint(Index(i));
+    const double weight{ quadrature_point.weight() };
+    const auto position{ quadrature_point.cartesian_position_tensor() };
+    Vector position_vector(position.begin_raw(), position.end_raw());
+    AssertThrow(position_vector.size() == normal.size(), dealii::ExcMessage("Error in DirectionalFluxIntegration, "
+                                                                            "normal vector is incorrect size"))
+    const double omega_dot_normal = position_vector * normal;
+    if (omega_dot_normal >= 0) {
+      const auto angular_flux_at_dof = (*angular_flux_map.at(Index(i)))[degree_of_freedom.get()];
+      result += weight * angular_flux_at_dof;
+    }
+  }
+
+  return result;
+}
+
 template class AngularFluxIntegrator<1>;
 template class AngularFluxIntegrator<2>;
 template class AngularFluxIntegrator<3>;

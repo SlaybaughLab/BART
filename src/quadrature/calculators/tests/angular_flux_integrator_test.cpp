@@ -45,6 +45,7 @@ class AngularFluxIntegratorTest : public ::testing::Test {
   const Vector expected_result_;
   std::array<Vector, n_total_dofs> expected_net_current_at_dofs;
   std::array<double, n_total_dofs> expected_directional_current_at_dofs_{1802.25 * dim, 3604.5 * dim};
+  std::array<double, n_total_dofs> expected_directional_flux_at_dofs_{ 601.5, 1203 };
 
   auto SetUp() -> void override;
   auto SetUpExpectedValues() -> void;
@@ -163,6 +164,60 @@ TYPED_TEST(AngularFluxIntegratorTest, DirectionalCurrent) {
     auto result = this->test_integrator_->DirectionalCurrent(
         this->angular_flux_map_, normal_vector, DegreeOfFreedom(dof));
     EXPECT_DOUBLE_EQ(result, this->expected_directional_current_at_dofs_.at(dof));
+  }
+}
+
+TYPED_TEST(AngularFluxIntegratorTest, DirectionalFluxBadNormal) {
+  dealii::Vector<double> normal_vector(this->dim + 1);
+  for (int i = 0; i < this->dim + 1; ++i)
+    normal_vector[i] = 1.5;
+  for (int dof = 0; dof < this->n_total_dofs; ++dof) {
+    EXPECT_CALL(*this->quadrature_set_ptr_, size())
+        .Times(::testing::AtLeast(0))
+        .WillRepeatedly(DoDefault());
+    for (int i = 0; i < this->n_quadrature_points; ++i) {
+      using Index = quadrature::QuadraturePointIndex;
+      EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i)))
+          .Times(::testing::AtLeast(0))
+          .WillRepeatedly(DoDefault());
+    }
+    for (auto &quadrature_point : this->mock_quadrature_points_) {
+      EXPECT_CALL(*quadrature_point, weight())
+          .Times(::testing::AtLeast(0))
+          .WillRepeatedly(DoDefault());
+      EXPECT_CALL(*quadrature_point, cartesian_position_tensor())
+          .Times(::testing::AtLeast(0))
+          .WillRepeatedly(DoDefault());
+    }
+
+    using DegreeOfFreedom = typename quadrature::calculators::AngularFluxIntegrator<this->dim>::DegreeOfFreedom;
+    EXPECT_ANY_THROW({
+                       [[maybe_unused]] auto result = this->test_integrator_->DirectionalFlux(
+                           this->angular_flux_map_, normal_vector, DegreeOfFreedom(dof));
+                     });
+  }
+}
+
+TYPED_TEST(AngularFluxIntegratorTest, DirectionalFlux) {
+  dealii::Vector<double> normal_vector(this->dim);
+  for (int i = 0; i < this->dim; ++i)
+    normal_vector[i] = 1.5;
+  for (int dof = 0; dof < this->n_total_dofs; ++dof) {
+    EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
+    for (int i = 0; i < this->n_quadrature_points; ++i) {
+      using Index = quadrature::QuadraturePointIndex;
+      EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i))).WillOnce(DoDefault());
+    }
+    for (auto &quadrature_point : this->mock_quadrature_points_) {
+      EXPECT_CALL(*quadrature_point, weight()).WillOnce(DoDefault());
+      EXPECT_CALL(*quadrature_point, cartesian_position_tensor()).WillOnce(DoDefault());
+    }
+
+    using DegreeOfFreedom = typename quadrature::calculators::AngularFluxIntegrator<this->dim>::DegreeOfFreedom;
+    auto result = this->test_integrator_->DirectionalFlux(this->angular_flux_map_,
+                                                          normal_vector,
+                                                          DegreeOfFreedom(dof));
+    EXPECT_DOUBLE_EQ(result, this->expected_directional_flux_at_dofs_.at(dof));
   }
 }
 
