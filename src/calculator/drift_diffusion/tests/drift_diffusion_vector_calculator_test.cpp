@@ -19,23 +19,19 @@ class DriftDiffusionVectorCalculatorTest : public ::testing::Test {
   TestCalculator test_calculator_;
 
   // Test parameters
-  const double scalar_flux_{ 5.0 };
-  const double integrated_angular_flux_{ 10.2 };
-  const double sigma_t_{ 0.25 };
-  const double diffision_coefficient_{ 2.3 };
-  Tensor shape_gradient;
+  const double scalar_flux_{ 2.0 };
+  const double diffision_coefficient_{ 3.0 };
+  Tensor shape_gradient_, current_, expected_result_;
 
   auto SetUp() -> void override;
 };
 
 template <typename DimensionWrapper>
 auto DriftDiffusionVectorCalculatorTest<DimensionWrapper>::SetUp() -> void {
-  shape_gradient[0] = 1.1;
-  if (dim > 1) {
-    shape_gradient[1] = 2.2;
-    if (dim > 2) {
-      shape_gradient[2] = 3.3;
-    }
+  for (int i = 0; i < dim; ++i) {
+    shape_gradient_[i] = 10 * (i + 1);
+    current_[i] = i + 1;
+    expected_result_[i] = (i + 1) * 15.5;
   }
 }
 
@@ -44,60 +40,23 @@ TYPED_TEST_SUITE(DriftDiffusionVectorCalculatorTest, bart::testing::AllDimension
 TYPED_TEST(DriftDiffusionVectorCalculatorTest, DefaultParameters) {
   constexpr int dim{ this->dim };
   using Tensor = dealii::Tensor<1, dim>;
-  const auto result = this->test_calculator_.DriftDiffusion(this->scalar_flux_, this->integrated_angular_flux_,
-                                                            this->shape_gradient, this->sigma_t_,
-                                                            this->diffision_coefficient_);
-  Tensor expected_result;
-  expected_result[0] = 6.446;
-  if (dim > 1) {
-    expected_result[1] = 12.892;
-    if (dim > 2) {
-      expected_result[2] = 19.338;
-    }
-  }
-  EXPECT_TRUE(AreEqual(expected_result, result));
-}
-
-TYPED_TEST(DriftDiffusionVectorCalculatorTest, ZeroSigmaT) {
-  constexpr int dim{ this->dim };
-  using Tensor = dealii::Tensor<1, dim>;
-  const double sigma_t{ 0 };
-  EXPECT_ANY_THROW({
-  [[maybe_unused]] auto result = this->test_calculator_.DriftDiffusion(this->scalar_flux_,
-                                                                       this->integrated_angular_flux_,
-                                                                       this->shape_gradient,
-                                                                       sigma_t,
-                                                                       this->diffision_coefficient_);
-                   });
-}
-
-TYPED_TEST(DriftDiffusionVectorCalculatorTest, NegativeAngularFlux) {
-  constexpr int dim{ this->dim };
-  using Tensor = dealii::Tensor<1, dim>;
-  EXPECT_ANY_THROW({
-    [[maybe_unused]] auto result = this->test_calculator_.DriftDiffusion(this->scalar_flux_,
-                                                                         -this->integrated_angular_flux_,
-                                                                         this->shape_gradient,
-                                                                         this->sigma_t_,
-                                                                         this->diffision_coefficient_);
-                   });
+  const auto result = this->test_calculator_.DriftDiffusionVector(this->scalar_flux_,
+                                                                  this->current_,
+                                                                  this->shape_gradient_,
+                                                                  this->diffision_coefficient_);
+  EXPECT_TRUE(AreEqual(this->expected_result_, result));
 }
 
 TYPED_TEST(DriftDiffusionVectorCalculatorTest, ZeroScalarFlux) {
   constexpr int dim{ this->dim };
   using Tensor = dealii::Tensor<1, dim>;
   const double scalar_flux{ 0 };
-  const auto result = this->test_calculator_.DriftDiffusion(scalar_flux, this->integrated_angular_flux_,
-                                                            this->shape_gradient, this->sigma_t_,
-                                                            this->diffision_coefficient_);
+const auto result = this->test_calculator_.DriftDiffusionVector(scalar_flux,
+                                                                this->current_,
+                                                                this->shape_gradient_,
+                                                                this->diffision_coefficient_);
   Tensor expected_result;
-  expected_result[0] = 0;
-  if (dim > 1) {
-    expected_result[1] = 0;
-    if (dim > 2) {
-      expected_result[2] = 0;
-    }
-  }
+  expected_result = 0;
   EXPECT_TRUE(AreEqual(expected_result, result));
 }
 

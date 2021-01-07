@@ -10,11 +10,10 @@ class DriftDiffusionVectorCalculator : public DriftDiffusionVectorCalculatorI<di
  public:
   using typename DriftDiffusionVectorCalculatorI<dim>::Tensor;
 
-  [[nodiscard]] auto DriftDiffusion(const double scalar_flux,
-                                    const double integrated_angular_flux,
-                                    const Tensor &shape_gradient,
-                                    const double sigma_t,
-                                    const double diffusion_coefficient) const -> Tensor override;
+  [[nodiscard]] auto DriftDiffusionVector(const double scalar_flux,
+                                          const Tensor& current,
+                                          const Tensor& shape_gradient,
+                                          const double diffusion_coefficient) const -> Tensor override;
 };
 
 } // namespace bart::calculator::drift_diffusion

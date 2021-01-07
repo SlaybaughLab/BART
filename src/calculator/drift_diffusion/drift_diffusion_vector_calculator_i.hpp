@@ -12,13 +12,11 @@ namespace bart::calculator::drift_diffusion {
  * of the scalar flux and integrated angular flux are both scalar values.
  *
  * \f[
- * D(\phi, I(\Psi), \nabla\varphi, \sigma_t, D) = \frac{1}{\phi}\left[\frac{1}{\sigma_t}I(\Psi)\nabla\varphi
- *                                                - D\nabla\varphi\phi\right]\;,
+ * D(\phi, \vec{J}, \nabla\varphi, D) = \frac{1}{\phi}\left[\vec{J} - D\nabla\varphi\right]\;,
  * \f]
  *
- * where \f$\phi\f$ is the scalar flux, \f$I(\Psi)\f$ is the angular flux integrated over angle (using quadrature)
- * \f$\sum_m w_m\hat{\Omega}_m\hat{\Omega_m}\Psi_m\f$, \f$\nabla\varphi\f$ is the gradient of the shape function,
- * \f$\sigma_t\f$ is the total cross-section, and \f$D\f$ is the diffusion coefficent. The resulting return vector
+ * where \f$\phi\f$ is the scalar flux, \f$J\f$ is the current, \f$\nabla\varphi\f$ is the gradient of the shape function,
+ * and \f$D\f$ is the diffusion coefficent. The resulting return vector
  * will be of length \f$d \times 1\f$ where \f$d\f$ is the dimension of the problem.
  *
  * @tparam dim spatial dimension, required for return tensor and shape functions.
@@ -28,11 +26,10 @@ namespace bart::calculator::drift_diffusion {
 class DriftDiffusionVectorCalculatorI {
  public:
   using Tensor = typename dealii::Tensor<1, dim>;
-  virtual auto DriftDiffusion(const double scalar_flux,
-                              const double integrated_angular_flux,
-                              const Tensor& shape_gradient,
-                              const double sigma_t,
-                              const double diffusion_coefficient) const -> Tensor = 0;
+  virtual auto DriftDiffusionVector(const double scalar_flux,
+                                    const Tensor& current,
+                                    const Tensor& shape_gradient,
+                                    const double diffusion_coefficient) const -> Tensor = 0;
 };
 
 } // namespace bart::calculator::drift_diffusion
