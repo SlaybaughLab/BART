@@ -25,9 +25,6 @@ class AngularFluxIntegratorTest : public ::testing::Test {
   using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
 
-  AngularFluxIntegratorTest()
-      : expected_result_(expected_result_values_.cbegin(), expected_result_values_.cend()) {}
-
   // Test parameters
   static constexpr int n_quadrature_points{ 3 };
   static constexpr int n_total_dofs{ 2 };
@@ -41,8 +38,6 @@ class AngularFluxIntegratorTest : public ::testing::Test {
 
   // Supporting objects
   VectorMap angular_flux_map_{};
-  const std::vector<double> expected_result_values_{2426.5 * dim, 4853 * dim};
-  const Vector expected_result_;
   std::array<Vector, n_total_dofs> expected_net_current_at_dofs;
   std::array<double, n_total_dofs> expected_directional_current_at_dofs_{1802.25 * dim, 3604.5 * dim};
   std::array<double, n_total_dofs> expected_directional_flux_at_dofs_{ 601.5, 1203 };
@@ -237,36 +232,6 @@ TYPED_TEST(AngularFluxIntegratorTest, NetCurrent) {
     auto result = this->test_integrator_->NetCurrent(this->angular_flux_map_, DegreeOfFreedom(dof));
     EXPECT_EQ(result, this->expected_net_current_at_dofs.at(dof));
   }
-
-}
-
-TYPED_TEST(AngularFluxIntegratorTest, Integrate) {
-  EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
-  for (int i = 0; i < this->n_quadrature_points; ++i) {
-    using Index = quadrature::QuadraturePointIndex;
-    EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i))).WillOnce(DoDefault());
-  }
-  for (auto& quadrature_point : this->mock_quadrature_points_) {
-    EXPECT_CALL(*quadrature_point, weight()).WillOnce(DoDefault());
-    EXPECT_CALL(*quadrature_point, cartesian_position_tensor()).WillOnce(DoDefault());
-  }
-  auto result = this->test_integrator_->Integrate(this->angular_flux_map_);
-  EXPECT_TRUE(test_helpers::AreEqual(result, this->expected_result_));
-}
-
-TYPED_TEST(AngularFluxIntegratorTest, IntegrateBadAngularFluxSize) {
-  using Vector = dealii::Vector<double>;
-  using VectorPtr = std::shared_ptr<dealii::Vector<double>>;
-  using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
-  using Index = quadrature::QuadraturePointIndex;
-
-  EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
-
-  VectorMap bad_angular_flux_map;
-  bad_angular_flux_map.insert({Index(0), std::make_shared<Vector>()});
-  EXPECT_ANY_THROW({
-    [[maybe_unused]] auto result = this->test_integrator_->Integrate(bad_angular_flux_map);
-  });
 }
 
 
