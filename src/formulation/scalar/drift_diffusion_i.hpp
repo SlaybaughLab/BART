@@ -20,6 +20,9 @@ class DriftDiffusionI {
   virtual auto FillCellDriftDiffusionTerm(Matrix& to_fill, const CellPtr&, const system::EnergyGroup,
                                           const Vector& group_scalar_flux,
                                           const Vector& integrated_angular_flux) const -> void = 0;
+  virtual auto FillCellDriftDiffusionTerm(Matrix& to_fill, const CellPtr&, const system::EnergyGroup,
+                                          const Vector& group_scalar_flux,
+                                          const std::array<Vector, dim>& current) const -> void = 0;
 };
 
 } // namespace bart::formulation::scalar

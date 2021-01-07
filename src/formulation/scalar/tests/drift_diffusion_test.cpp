@@ -53,7 +53,6 @@ class DriftDiffusionFormulationTest : public ::testing::Test {
   const int material_id_{ 1 };
   const int energy_group_{ 0 };
   dealii::FullMatrix<double> expected_result_;
-  std::unordered_map<int, std::vector<double>> sigma_t_{{material_id_, {1.0, 2.0}}};
   std::unordered_map<int, std::vector<double>> diffusion_coef_{{material_id_, {0.5, 1.0}}};
 
   auto SetUp() -> void override;
@@ -107,9 +106,8 @@ auto DriftDiffusionFormulationTest<DimensionWrapper>::SetUp() -> void {
       break;
   }
 
-  ON_CALL(*drift_diffusion_calculator_mock_ptr_, DriftDiffusion(_, _, _, _, _)).WillByDefault(Return(drift_diffusion));
+  ON_CALL(*drift_diffusion_calculator_mock_ptr_, DriftDiffusionVector(_, _, _, _)).WillByDefault(Return(drift_diffusion));
 
-  ON_CALL(mock_material, GetSigT()).WillByDefault(Return(sigma_t_));
   ON_CALL(mock_material, GetDiffusionCoef()).WillByDefault(Return(diffusion_coef_));
   cross_sections_ptr_ = std::make_shared<CrossSections>(mock_material);
 
@@ -181,17 +179,30 @@ TYPED_TEST(DriftDiffusionFormulationTest, ConstructorBadDependencies) {
 }
 
 TYPED_TEST(DriftDiffusionFormulationTest, FillDriftDiffusion) {
+  constexpr int dim = this->dim;
+  const int n_dofs { this->dof_handler_.n_dofs() };
   auto& finite_element_mock = *this->finite_element_mock_ptr_;
   auto& drift_diffusion_calculator_mock = *this->drift_diffusion_calculator_mock_ptr_;
-  const dealii::Vector<double> integrated_angular_flux_at_dofs(this->dof_handler_.n_dofs());
+  std::array<dealii::Vector<double>, dim> current_vectors_at_dofs;
   const dealii::Vector<double> scalar_flux_at_dofs(this->dof_handler_.n_dofs());
   std::vector<double> integrated_angular_flux_at_q{ test_helpers::RandomVector(this->cell_quadrature_points_, 1, 100) };
   std::vector<double> scalar_flux_at_q{ test_helpers::RandomVector(this->cell_quadrature_points_, 1, 100) };
-  const double sigma_t{ this->sigma_t_.at(this->material_id_).at(this->energy_group_) };
   const double diffusion_coeff{ this->diffusion_coef_.at(this->material_id_).at(this->energy_group_) };
-  EXPECT_CALL(finite_element_mock, ValueAtQuadrature(Ref(integrated_angular_flux_at_dofs)))
-      .WillOnce(Return(integrated_angular_flux_at_q));
-  EXPECT_CALL(finite_element_mock, ValueAtQuadrature(Ref(scalar_flux_at_dofs)))
+
+  std::array<std::vector<double>, dim> current_at_q;
+  for (auto& current_component : current_at_q)
+    current_component = test_helpers::RandomVector(this->cell_quadrature_points_, 1, 100);
+  for (int i = 0; i < dim; ++i) {
+    current_vectors_at_dofs.at(i) = dealii::Vector<double>(this->dof_handler_.n_dofs());
+    auto random_current{ test_helpers::RandomVector(n_dofs, -100, 100) };
+    for (int j = 0; j < n_dofs; ++j) {
+      current_vectors_at_dofs.at(i)[j] = random_current.at(j);
+    }
+    EXPECT_CALL(finite_element_mock, ValueAtQuadrature(Ref(current_vectors_at_dofs.at(i))))
+        .WillOnce(Return(current_at_q.at(i)));
+  }
+
+  EXPECT_CALL(finite_element_mock, ValueAtQuadrature(scalar_flux_at_dofs))
       .WillOnce(Return(scalar_flux_at_q));
   EXPECT_CALL(finite_element_mock, SetCell(this->cell_ptr_));
   for (int q = 0; q < this->cell_quadrature_points_; ++q) {
@@ -199,9 +210,14 @@ TYPED_TEST(DriftDiffusionFormulationTest, FillDriftDiffusion) {
     for (int i = 0; i < this->dofs_per_cell_; ++i) {
       EXPECT_CALL(finite_element_mock, ShapeGradient(i, q)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
       EXPECT_CALL(finite_element_mock, ShapeValue(i, q)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
-      EXPECT_CALL(drift_diffusion_calculator_mock, DriftDiffusion(
-          scalar_flux_at_q.at(q), integrated_angular_flux_at_q.at(q), this->GetShapeGradient(i, q),
-          sigma_t, diffusion_coeff))
+      dealii::Tensor<1, dim> current;
+      for (int j = 0; j < dim; ++j)
+        current[j] = current_at_q.at(j).at(q);
+
+      EXPECT_CALL(drift_diffusion_calculator_mock, DriftDiffusionVector(scalar_flux_at_q.at(q),
+                                                                        current,
+                                                                        this->GetShapeGradient(i, q),
+                                                                        diffusion_coeff))
           .Times(AtLeast(1))
           .WillRepeatedly(DoDefault());
     }
@@ -212,13 +228,13 @@ TYPED_TEST(DriftDiffusionFormulationTest, FillDriftDiffusion) {
                                                       this->cell_ptr_,
                                                       system::EnergyGroup(this->energy_group_),
                                                       scalar_flux_at_dofs,
-                                                      integrated_angular_flux_at_dofs);
+                                                      current_vectors_at_dofs);
   EXPECT_TRUE(AreEqual(this->expected_result_, cell_matrix));
 }
 
 TYPED_TEST(DriftDiffusionFormulationTest, FillCellDriftDiffusionBadMatrixSize) {
   std::vector<int> bad_sizes{this->dofs_per_cell_ - 1, this->dofs_per_cell_ + 1};
-  const dealii::Vector<double> integrated_angular_flux_at_dofs(this->dof_handler_.n_dofs());
+  const std::array<dealii::Vector<double>, this->dim> current_vectors_at_dofs;
   const dealii::Vector<double> scalar_flux_at_dofs(this->dof_handler_.n_dofs());
 
   for (const auto bad_size : bad_sizes) {
@@ -230,7 +246,7 @@ TYPED_TEST(DriftDiffusionFormulationTest, FillCellDriftDiffusionBadMatrixSize) {
                                                             this->cell_ptr_,
                                                             system::EnergyGroup(this->energy_group_),
                                                             scalar_flux_at_dofs,
-                                                            integrated_angular_flux_at_dofs);
+                                                            current_vectors_at_dofs);
       });
     }
   }
