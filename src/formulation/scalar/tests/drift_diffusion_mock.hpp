@@ -15,8 +15,6 @@ class DriftDiffusionMock : public DriftDiffusionI<dim> {
   using typename DriftDiffusionI<dim>::Vector;
 
   MOCK_METHOD(void, FillCellDriftDiffusionTerm, (Matrix& to_fill, const CellPtr&, const system::EnergyGroup,
-      const Vector& group_scalar_flux, const Vector& integrated_angular_flux), (const, override));
-  MOCK_METHOD(void, FillCellDriftDiffusionTerm, (Matrix& to_fill, const CellPtr&, const system::EnergyGroup,
                   const Vector& group_scalar_flux, (const std::array<Vector, dim>)& current), (const,override));
 };
 

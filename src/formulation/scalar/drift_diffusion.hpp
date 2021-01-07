@@ -25,11 +25,6 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
   DriftDiffusion(std::shared_ptr<FiniteElement>,
                  std::shared_ptr<CrossSections>,
                  std::shared_ptr<DriftDiffusionCalculator>);
-  [[deprecated]] auto FillCellDriftDiffusionTerm(Matrix& to_fill,
-                                  const CellPtr& cell_ptr,
-                                  system::EnergyGroup group,
-                                  const Vector& group_scalar_flux,
-                                  const Vector& integrated_angular_flux) const -> void override;
 
   auto FillCellDriftDiffusionTerm(Matrix &to_fill,
                                   const CellPtr &ptr,
