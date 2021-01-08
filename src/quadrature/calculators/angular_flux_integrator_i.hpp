@@ -33,6 +33,7 @@ class AngularFluxIntegratorI {
   using VectorMap = std::map<quadrature::QuadraturePointIndex, VectorPtr>;
   using DegreeOfFreedom = utility::NamedType<int, struct DegreeOfFreedomParam>;
 
+  virtual auto NetCurrent(const VectorMap&) const -> std::vector<Vector> = 0;
   virtual auto NetCurrent(const VectorMap&, const DegreeOfFreedom) const -> Vector = 0;
   virtual auto DirectionalCurrent(const VectorMap&, const Vector normal, const DegreeOfFreedom) const -> double = 0;
   virtual auto DirectionalFlux(const VectorMap&, const Vector normal, const DegreeOfFreedom) const -> double = 0;

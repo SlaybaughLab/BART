@@ -15,6 +15,7 @@ class AngularFluxIntegrator : public AngularFluxIntegratorI, public utility::Has
 
   AngularFluxIntegrator(std::shared_ptr<QuadratureSet>);
 
+  [[nodiscard]] auto NetCurrent(const VectorMap&) const -> std::vector<Vector> override;
   [[nodiscard]] auto NetCurrent(const VectorMap&, DegreeOfFreedom) const -> Vector override;
   [[nodiscard]] auto DirectionalCurrent(const VectorMap&, const Vector normal, DegreeOfFreedom) const -> double override;
   [[nodiscard]] auto DirectionalFlux(const VectorMap&, const Vector normal, DegreeOfFreedom) const -> double override;

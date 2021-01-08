@@ -9,6 +9,16 @@ AngularFluxIntegrator<dim>::AngularFluxIntegrator(std::shared_ptr<QuadratureSet>
 }
 
 template<int dim>
+auto AngularFluxIntegrator<dim>::NetCurrent(const VectorMap& angular_flux_map) const -> std::vector<Vector> {
+  const auto n_dofs{ angular_flux_map.cbegin()->second->size() };
+  std::vector<Vector> return_vector;
+  for (auto i = 0; i < n_dofs; ++i) {
+    return_vector.push_back(NetCurrent(angular_flux_map, DegreeOfFreedom(i)));
+  }
+  return return_vector;
+}
+
+template<int dim>
 auto AngularFluxIntegrator<dim>::NetCurrent(const VectorMap& angular_flux_map,
                                             const DegreeOfFreedom degree_of_freedom) const -> Vector {
   using Index = quadrature::QuadraturePointIndex;
@@ -79,6 +89,7 @@ auto AngularFluxIntegrator<dim>::DirectionalFlux(const VectorMap& angular_flux_m
 
   return result;
 }
+
 
 template class AngularFluxIntegrator<1>;
 template class AngularFluxIntegrator<2>;

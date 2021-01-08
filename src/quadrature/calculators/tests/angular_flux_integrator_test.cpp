@@ -216,7 +216,7 @@ TYPED_TEST(AngularFluxIntegratorTest, DirectionalFlux) {
   }
 }
 
-TYPED_TEST(AngularFluxIntegratorTest, NetCurrent) {
+TYPED_TEST(AngularFluxIntegratorTest, NetCurrentDofSpecified) {
   for (int dof = 0; dof < this->n_total_dofs; ++dof) {
     EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
     for (int i = 0; i < this->n_quadrature_points; ++i) {
@@ -233,6 +233,35 @@ TYPED_TEST(AngularFluxIntegratorTest, NetCurrent) {
     EXPECT_EQ(result, this->expected_net_current_at_dofs.at(dof));
   }
 }
+
+TYPED_TEST(AngularFluxIntegratorTest, NetCurrent) {
+  const int n_total_dofs{ this->n_total_dofs };
+  EXPECT_CALL(*this->quadrature_set_ptr_, size())
+      .Times(n_total_dofs)
+      .WillRepeatedly(DoDefault());
+  for (int i = 0; i < this->n_quadrature_points; ++i) {
+    using Index = quadrature::QuadraturePointIndex;
+    EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i)))
+        .Times(n_total_dofs)
+        .WillRepeatedly(DoDefault());
+  }
+  for (auto &quadrature_point : this->mock_quadrature_points_) {
+    EXPECT_CALL(*quadrature_point, weight())
+        .Times(n_total_dofs)
+        .WillRepeatedly(DoDefault());
+    EXPECT_CALL(*quadrature_point, cartesian_position_tensor())
+        .Times(n_total_dofs)
+        .WillRepeatedly(DoDefault());
+  }
+
+  using DegreeOfFreedom = typename quadrature::calculators::AngularFluxIntegrator<this->dim>::DegreeOfFreedom;
+  auto result = this->test_integrator_->NetCurrent(this->angular_flux_map_);
+  EXPECT_EQ(result.size(), this->expected_net_current_at_dofs.size());
+  for (std::size_t i = 0; i < result.size(); ++i)
+    EXPECT_EQ(result.at(i), this->expected_net_current_at_dofs.at(i));
+}
+
+
 
 
 
