@@ -225,6 +225,33 @@ TYPED_TEST(AngularFluxIntegratorTest, DirectionalFlux) {
   dealii::Vector<double> normal_vector(this->dim);
   for (int i = 0; i < this->dim; ++i)
     normal_vector[i] = 1.5;
+  EXPECT_CALL(*this->quadrature_set_ptr_, size())
+      .Times(this->n_total_dofs)
+      .WillRepeatedly(DoDefault());
+  for (int i = 0; i < this->n_quadrature_points; ++i) {
+    using Index = quadrature::QuadraturePointIndex;
+    EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i)))
+        .Times(this->n_total_dofs)
+        .WillRepeatedly(DoDefault());
+  }
+  for (auto &quadrature_point : this->mock_quadrature_points_) {
+    EXPECT_CALL(*quadrature_point, weight())
+        .Times(this->n_total_dofs)
+        .WillRepeatedly(DoDefault());
+    EXPECT_CALL(*quadrature_point, cartesian_position_tensor())
+        .Times(this->n_total_dofs)
+        .WillRepeatedly(DoDefault());
+  }
+
+  using DegreeOfFreedom = typename quadrature::calculators::AngularFluxIntegrator<this->dim>::DegreeOfFreedom;
+  auto result = this->test_integrator_->DirectionalFlux(this->angular_flux_map_, normal_vector);
+  EXPECT_TRUE(bart::test_helpers::AreEqual(result, this->expected_directional_flux_at_dofs_));
+}
+
+TYPED_TEST(AngularFluxIntegratorTest, DirectionalFluxDofSpecified) {
+  dealii::Vector<double> normal_vector(this->dim);
+  for (int i = 0; i < this->dim; ++i)
+    normal_vector[i] = 1.5;
   for (int dof = 0; dof < this->n_total_dofs; ++dof) {
     EXPECT_CALL(*this->quadrature_set_ptr_, size()).WillOnce(DoDefault());
     for (int i = 0; i < this->n_quadrature_points; ++i) {

@@ -37,6 +37,7 @@ class AngularFluxIntegratorI {
   virtual auto NetCurrent(const VectorMap&, const DegreeOfFreedom) const -> Vector = 0;
   virtual auto DirectionalCurrent(const VectorMap&, const Vector normal) const -> std::vector<double> = 0;
   virtual auto DirectionalCurrent(const VectorMap&, const Vector normal, const DegreeOfFreedom) const -> double = 0;
+  virtual auto DirectionalFlux(const VectorMap&, const Vector normal) const -> std::vector<double> = 0;
   virtual auto DirectionalFlux(const VectorMap&, const Vector normal, const DegreeOfFreedom) const -> double = 0;
 };
 
