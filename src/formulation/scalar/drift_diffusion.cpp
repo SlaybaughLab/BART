@@ -15,6 +15,34 @@ DriftDiffusion<dim>::DriftDiffusion(std::shared_ptr<FiniteElement> finite_elemen
   AssertPointerNotNull(drift_diffusion_calculator_ptr_.get(), "drift_diffusion_calculator_ptr", function_name);
   cell_quadrature_points_ = finite_element_ptr->n_cell_quad_pts();
   cell_degrees_of_freedom_ = finite_element_ptr->dofs_per_cell();
+  face_quadrature_points_ = finite_element_ptr->n_face_quad_pts();
+}
+
+template<int dim>
+void DriftDiffusion<dim>::FillCellBoundaryTerm(Matrix& to_fill,
+                                               const CellPtr& cell_ptr,
+                                               domain::FaceIndex face_index,
+                                               const BoundaryType boundary_type,
+                                               const Vector& boundary_factor_at_global_dofs) const {
+  std::string error_prefix{"Error in DriftDiffusion<dim>::FillCellBoundaryTerm: "};
+  AssertThrow(static_cast<int>(to_fill.m()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong m()"))
+  AssertThrow(static_cast<int>(to_fill.n()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong n()"))
+
+  if (boundary_type == BoundaryType::kVacuum) {
+    finite_element_ptr_->SetFace(cell_ptr, face_index);
+    auto boundary_factor_at_q{finite_element_ptr_->ValueAtFaceQuadrature(boundary_factor_at_global_dofs)};
+
+    for (int face_q = 0; face_q < face_quadrature_points_; ++face_q) {
+      const double jacobian{finite_element_ptr_->FaceJacobian(face_q)};
+      for (int dof_i = 0; dof_i < cell_degrees_of_freedom_; ++dof_i) {
+        auto shape_value_i{finite_element_ptr_->FaceShapeValue(dof_i, face_q)};
+        for (int dof_j = 0; dof_j < cell_degrees_of_freedom_; ++dof_j) {
+          to_fill(dof_i, dof_j) += shape_value_i * finite_element_ptr_->FaceShapeValue(dof_j, face_q)
+              * boundary_factor_at_q.at(face_q) * jacobian;
+        }
+      }
+    }
+  }
 }
 
 template<int dim>

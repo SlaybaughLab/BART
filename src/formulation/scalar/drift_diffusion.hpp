@@ -26,6 +26,12 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
                  std::shared_ptr<CrossSections>,
                  std::shared_ptr<DriftDiffusionCalculator>);
 
+  auto FillCellBoundaryTerm(Matrix& to_fill,
+                            const CellPtr& ptr,
+                            domain::FaceIndex index,
+                            const BoundaryType,
+                            const Vector& boundary_factor_at_global_dofs) const -> void override;
+
   auto FillCellDriftDiffusionTerm(Matrix &to_fill,
                                   const CellPtr &ptr,
                                   system::EnergyGroup group,
@@ -42,6 +48,7 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
   std::shared_ptr<DriftDiffusionCalculator> drift_diffusion_calculator_ptr_{ nullptr };
   int cell_quadrature_points_{ 0 };
   int cell_degrees_of_freedom_{ 0 };
+  int face_quadrature_points_{ 0 };
 };
 
 } // namespace bart::formulation::scalar

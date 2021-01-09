@@ -50,6 +50,7 @@ class DriftDiffusionFormulationTest : public ::testing::Test {
   // Test paraameters
   const int dofs_per_cell_{ 2 };
   const int cell_quadrature_points_{ 2 };
+  const int face_quadrature_points_{ 2 };
   const int material_id_{ 1 };
   const int energy_group_{ 0 };
   dealii::FullMatrix<double> expected_result_;
@@ -85,12 +86,15 @@ auto DriftDiffusionFormulationTest<DimensionWrapper>::SetUp() -> void {
 
   ON_CALL(*finite_element_mock_ptr_, dofs_per_cell()).WillByDefault(Return(dofs_per_cell_));
   ON_CALL(*finite_element_mock_ptr_, n_cell_quad_pts()).WillByDefault(Return(cell_quadrature_points_));
+  ON_CALL(*finite_element_mock_ptr_, n_face_quad_pts()).WillByDefault(Return(face_quadrature_points_));
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     ON_CALL(*finite_element_mock_ptr_, Jacobian(q)).WillByDefault(Return(3 * (q + 1)));
+    ON_CALL(*finite_element_mock_ptr_, FaceJacobian(q)).WillByDefault(Return(3 * (q + 1)));
     for (int i = 0; i < dofs_per_cell_; ++i) {
       auto shape_gradient{ GetShapeGradient(i, q) };
       ON_CALL(*finite_element_mock_ptr_, ShapeValue(i,q)).WillByDefault(Return(1 + i + q));
+      ON_CALL(*finite_element_mock_ptr_, FaceShapeValue(i,q)).WillByDefault(Return(1 + i + q));
       ON_CALL(*finite_element_mock_ptr_, ShapeGradient(i,q)).WillByDefault(Return(shape_gradient));
     }
   }
@@ -157,6 +161,7 @@ TYPED_TEST_SUITE(DriftDiffusionFormulationTest, bart::testing::AllDimensions);
 TYPED_TEST(DriftDiffusionFormulationTest, ConstructorAndDependencyGetters) {
   EXPECT_CALL(*this->finite_element_mock_ptr_, dofs_per_cell()).WillOnce(DoDefault());
   EXPECT_CALL(*this->finite_element_mock_ptr_, n_cell_quad_pts()).WillOnce(DoDefault());
+  EXPECT_CALL(*this->finite_element_mock_ptr_, n_face_quad_pts()).WillOnce(DoDefault());
   formulation::scalar::DriftDiffusion<this->dim> drift_diffusion(
       this->finite_element_mock_ptr_,
       this->cross_sections_ptr_,
@@ -180,7 +185,7 @@ TYPED_TEST(DriftDiffusionFormulationTest, ConstructorBadDependencies) {
 
 TYPED_TEST(DriftDiffusionFormulationTest, FillDriftDiffusion) {
   constexpr int dim = this->dim;
-  const int n_dofs { this->dof_handler_.n_dofs() };
+  const int n_dofs(this->dof_handler_.n_dofs());
   auto& finite_element_mock = *this->finite_element_mock_ptr_;
   auto& drift_diffusion_calculator_mock = *this->drift_diffusion_calculator_mock_ptr_;
   std::array<dealii::Vector<double>, dim> current_vectors_at_dofs;
@@ -253,6 +258,76 @@ TYPED_TEST(DriftDiffusionFormulationTest, FillCellDriftDiffusionBadMatrixSize) {
 
 }
 
+TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTerm) {
+  const int n_dofs(this->dof_handler_.n_dofs());
+  const domain::FaceIndex face_index{test_helpers::RandomInt(0, 4)};
+  auto& finite_element_mock = *this->finite_element_mock_ptr_;
+  dealii::Vector<double> boundary_factor_at_global_dofs(n_dofs);
+  const std::vector<double> boundary_factor_at_quadrature{ 10, 20 };\
+  const std::array<double, 4> expected_results_values{ 510, 780, 780, 1200 };
+  const dealii::FullMatrix<double> expected_results(2, 2, expected_results_values.begin());
+  const formulation::BoundaryType reflective_boundary{ formulation::BoundaryType::kVacuum };
 
+  for (int i = 0; i < n_dofs; ++i)
+    boundary_factor_at_global_dofs[i] = test_helpers::RandomDouble(-100, 100);
+
+  EXPECT_CALL(finite_element_mock, SetFace(this->cell_ptr_, face_index));
+  EXPECT_CALL(finite_element_mock, ValueAtFaceQuadrature(Ref(boundary_factor_at_global_dofs)))
+      .WillOnce(Return(boundary_factor_at_quadrature));
+
+  for (int q = 0; q < this->cell_quadrature_points_; ++q) {
+    EXPECT_CALL(finite_element_mock, FaceJacobian(q)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+    for (int i = 0; i < this->dofs_per_cell_; ++i) {
+      EXPECT_CALL(finite_element_mock, FaceShapeValue(i, q)).Times(AtLeast(2)).WillRepeatedly(DoDefault());
+    }
+  }
+  dealii::FullMatrix<double> cell_matrix(this->dofs_per_cell_, this->dofs_per_cell_);
+  cell_matrix = 0;
+  this->test_formulation_->FillCellBoundaryTerm(cell_matrix,
+                                                this->cell_ptr_,
+                                                face_index,
+                                                reflective_boundary,
+                                                boundary_factor_at_global_dofs);
+  EXPECT_TRUE(AreEqual(expected_results, cell_matrix));
+}
+
+TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTermReflective) {
+  const int n_dofs(this->dof_handler_.n_dofs());
+  const domain::FaceIndex face_index{test_helpers::RandomInt(0, 4)};
+  dealii::Vector<double> boundary_factor_at_global_dofs(n_dofs);
+  const std::array<double, 4> expected_results_values{ 0, 0, 0, 0 };
+  const dealii::FullMatrix<double> expected_results(2, 2, expected_results_values.begin());
+  const formulation::BoundaryType reflective_boundary{ formulation::BoundaryType::kReflective };
+
+  dealii::FullMatrix<double> cell_matrix(this->dofs_per_cell_, this->dofs_per_cell_);
+  cell_matrix = 0;
+  this->test_formulation_->FillCellBoundaryTerm(cell_matrix,
+                                                this->cell_ptr_,
+                                                face_index,
+                                                reflective_boundary,
+                                                boundary_factor_at_global_dofs);
+  EXPECT_TRUE(AreEqual(expected_results, cell_matrix));
+}
+
+TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTermBadMatrixSize) {
+  std::vector<int> bad_sizes{this->dofs_per_cell_ - 1, this->dofs_per_cell_ + 1};
+  dealii::Vector<double> boundary_factor_at_global_dofs(this->dof_handler_.n_dofs());
+  const domain::FaceIndex face_index{test_helpers::RandomInt(0, 4)};
+  const formulation::BoundaryType reflective_boundary{ formulation::BoundaryType::kVacuum };
+  for (const auto bad_size : bad_sizes) {
+    dealii::FullMatrix<double> matrix_bad_rows(bad_size, this->dofs_per_cell_);
+    dealii::FullMatrix<double> matrix_bad_cols(this->dofs_per_cell_, bad_size);
+    for (auto& matrix : std::array<dealii::FullMatrix<double>, 2>{matrix_bad_rows, matrix_bad_cols}) {
+      EXPECT_ANY_THROW({
+                         this->test_formulation_->FillCellBoundaryTerm(matrix,
+                                                                       this->cell_ptr_,
+                                                                       face_index,
+                                                                       reflective_boundary,
+                                                                       boundary_factor_at_global_dofs);
+                       });
+    }
+  }
+
+}
 
 } // namespace
