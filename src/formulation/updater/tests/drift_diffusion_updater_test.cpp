@@ -43,7 +43,8 @@ class FormulationUpdaterDriftDiffusionTest : public UpdaterTest<DimensionWrapper
   // Supporting objects
   AngularFluxStorageMap angular_flux_storage_map_{}; // All angular fluxes
   GroupAngularFluxMap group_angular_flux_{}; // Angular fluxes for a single group (the test group)
-  dealii::Vector<double> integrated_angular_flux_;
+  std::vector<dealii::Vector<double>> current_at_dofs_{};
+  std::array<dealii::Vector<double>, dim> current_components_at_dofs_;
   dealii::Vector<double> group_scalar_flux_;
 
   // Mock observation pointers
@@ -73,10 +74,22 @@ void FormulationUpdaterDriftDiffusionTest<DimensionWrapper>::SetUp() {
   auto stamper_ptr = std::shared_ptr<Stamper>(this->MakeStamper());
   stamper_obs_ptr_ = stamper_ptr.get();
   high_order_moments_ptr_ = std::make_shared<HighOrderMoments>();
-
-  integrated_angular_flux_ = dealii::Vector<double>(angular_flux_size);
   group_scalar_flux_ = dealii::Vector<double>(angular_flux_size);
 
+  for (unsigned int i = 0; i < angular_flux_size; ++i) {
+    // Create a dim-sized current vector for each degree of freedom.
+    Vector current_vector(dim);
+    for (int dir = 0; dir < dim; ++dir)
+      current_vector[dir] = test_helpers::RandomDouble(-100, 100);
+    current_at_dofs_.push_back(current_vector);
+  }
+  for (int dir = 0; dir < dim; ++dir) {
+    Vector current_component_at_dofs(angular_flux_size);
+    for (unsigned int i = 0; i < angular_flux_size; ++i) {
+      current_component_at_dofs[i] = current_at_dofs_.at(i)[dir];
+    }
+    current_components_at_dofs_[dir] = current_component_at_dofs;
+  }
 
   using Index = system::SolutionIndex;
   for (int group = 0; group < this->total_groups; ++group) {
@@ -156,10 +169,11 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
 
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
   EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
-  EXPECT_CALL(*this->integrated_flux_calculator_obs_ptr_, Integrate(ContainerEq(this->group_angular_flux_)))
-      .WillOnce(Return(this->integrated_angular_flux_));
+
   std::array<int, 3> moment_index{this->group_number, 0, 0};
   EXPECT_CALL(*this->high_order_moments_ptr_, GetMoment(moment_index)).WillOnce(ReturnRef(this->group_scalar_flux_));
+  EXPECT_CALL(*this->integrated_flux_calculator_obs_ptr_, NetCurrent(_))
+      .WillOnce(Return(this->current_at_dofs_));
 
   for (auto& cell : this->cells_) {
     EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillCellStreamingTerm(_, cell, this->group_number));
@@ -170,7 +184,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
                                    cell,
                                    system::EnergyGroup(this->group_number),
                                    this->group_scalar_flux_,
-                                   this->integrated_angular_flux_));
+                                   ContainerEq(this->current_components_at_dofs_)));
     if (cell->at_boundary()) {
       int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
       for (int face = 0; face < faces_per_cell; ++face) {
