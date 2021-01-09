@@ -39,8 +39,8 @@ class AngularFluxIntegratorTest : public ::testing::Test {
   // Supporting objects
   VectorMap angular_flux_map_{};
   std::array<Vector, n_total_dofs> expected_net_current_at_dofs;
-  std::array<double, n_total_dofs> expected_directional_current_at_dofs_{1802.25 * dim, 3604.5 * dim};
-  std::array<double, n_total_dofs> expected_directional_flux_at_dofs_{ 601.5, 1203 };
+  std::vector<double> expected_directional_current_at_dofs_{1802.25 * dim, 3604.5 * dim};
+  std::vector<double> expected_directional_flux_at_dofs_{ 601.5, 1203 };
 
   auto SetUp() -> void override;
   auto SetUpExpectedValues() -> void;
@@ -140,7 +140,7 @@ TYPED_TEST(AngularFluxIntegratorTest, DirectionalCurrentBadNormal) {
   }
 }
 
-TYPED_TEST(AngularFluxIntegratorTest, DirectionalCurrent) {
+TYPED_TEST(AngularFluxIntegratorTest, DirectionalCurrentDoFSpecified) {
   dealii::Vector<double> normal_vector(this->dim);
   for (int i = 0; i < this->dim; ++i)
     normal_vector[i] = 1.5;
@@ -160,6 +160,34 @@ TYPED_TEST(AngularFluxIntegratorTest, DirectionalCurrent) {
         this->angular_flux_map_, normal_vector, DegreeOfFreedom(dof));
     EXPECT_DOUBLE_EQ(result, this->expected_directional_current_at_dofs_.at(dof));
   }
+}
+
+TYPED_TEST(AngularFluxIntegratorTest, DirectionalCurrent) {
+  dealii::Vector<double> normal_vector(this->dim);
+  for (int i = 0; i < this->dim; ++i)
+    normal_vector[i] = 1.5;
+
+  EXPECT_CALL(*this->quadrature_set_ptr_, size())
+      .Times(this->n_total_dofs)
+      .WillRepeatedly(DoDefault());
+  for (int i = 0; i < this->n_quadrature_points; ++i) {
+    using Index = quadrature::QuadraturePointIndex;
+    EXPECT_CALL(*this->quadrature_set_ptr_, GetQuadraturePoint(Index(i)))
+        .Times(this->n_total_dofs)
+        .WillRepeatedly(DoDefault());
+  }
+  for (auto &quadrature_point : this->mock_quadrature_points_) {
+    EXPECT_CALL(*quadrature_point, weight())
+        .Times(this->n_total_dofs)
+        .WillRepeatedly(DoDefault());
+    EXPECT_CALL(*quadrature_point, cartesian_position_tensor())
+        .Times(this->n_total_dofs)
+        .WillRepeatedly(DoDefault());
+  }
+
+  using DegreeOfFreedom = typename quadrature::calculators::AngularFluxIntegrator<this->dim>::DegreeOfFreedom;
+  auto result = this->test_integrator_->DirectionalCurrent(this->angular_flux_map_, normal_vector);
+  EXPECT_TRUE(bart::test_helpers::AreEqual(result, this->expected_directional_current_at_dofs_));
 }
 
 TYPED_TEST(AngularFluxIntegratorTest, DirectionalFluxBadNormal) {

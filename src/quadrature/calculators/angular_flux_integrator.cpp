@@ -12,7 +12,7 @@ template<int dim>
 auto AngularFluxIntegrator<dim>::NetCurrent(const VectorMap& angular_flux_map) const -> std::vector<Vector> {
   const auto n_dofs{ angular_flux_map.cbegin()->second->size() };
   std::vector<Vector> return_vector;
-  for (auto i = 0; i < n_dofs; ++i) {
+  for (unsigned int i = 0; i < n_dofs; ++i) {
     return_vector.push_back(NetCurrent(angular_flux_map, DegreeOfFreedom(i)));
   }
   return return_vector;
@@ -36,6 +36,17 @@ auto AngularFluxIntegrator<dim>::NetCurrent(const VectorMap& angular_flux_map,
   }
 
   return result_vector;
+}
+
+template<int dim>
+auto AngularFluxIntegrator<dim>::DirectionalCurrent(const VectorMap& angular_flux_map,
+                                                    const Vector normal_vector) const -> std::vector<double> {
+  const auto n_dofs{ angular_flux_map.cbegin()->second->size() };
+  std::vector<double> return_vector;
+  for (unsigned int i = 0; i < n_dofs; ++i) {
+    return_vector.push_back(DirectionalCurrent(angular_flux_map, normal_vector, DegreeOfFreedom(i)));
+  }
+  return return_vector;
 }
 
 template<int dim>
@@ -89,6 +100,7 @@ auto AngularFluxIntegrator<dim>::DirectionalFlux(const VectorMap& angular_flux_m
 
   return result;
 }
+
 
 
 template class AngularFluxIntegrator<1>;

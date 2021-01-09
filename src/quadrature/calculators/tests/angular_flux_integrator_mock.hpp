@@ -11,6 +11,7 @@ class AngularFluxIntegratorMock : public AngularFluxIntegratorI {
  public:
   MOCK_METHOD(std::vector<Vector>, NetCurrent, (const VectorMap&), (const, override));
   MOCK_METHOD(Vector, NetCurrent, (const VectorMap&, const DegreeOfFreedom), (const, override));
+  MOCK_METHOD(std::vector<double>, DirectionalCurrent, (const VectorMap&, const Vector), (const, override));
   MOCK_METHOD(double, DirectionalCurrent, (const VectorMap&, const Vector, const DegreeOfFreedom), (const, override));
   MOCK_METHOD(double, DirectionalFlux, (const VectorMap&, const Vector, const DegreeOfFreedom), (const, override));
 };
