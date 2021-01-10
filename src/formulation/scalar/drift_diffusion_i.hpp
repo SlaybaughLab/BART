@@ -20,6 +20,11 @@ class DriftDiffusionI {
   using Vector = typename dealii::Vector<double>;
   virtual ~DriftDiffusionI() = default;
 
+  virtual auto FillCellBoundaryTerm(
+      Matrix& to_fill, const CellPtr&,
+      const domain::FaceIndex,
+      const BoundaryType,
+      std::function<Vector(const dealii::Tensor<1, dim>& normal_vector)> boundary_factor_function) const -> void = 0;
   virtual auto FillCellBoundaryTerm(Matrix& to_fill, const CellPtr&, const domain::FaceIndex,
                                     const BoundaryType,
                                     const Vector& boundary_factor_at_global_dofs) const -> void = 0;

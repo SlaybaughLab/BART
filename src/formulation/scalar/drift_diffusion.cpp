@@ -19,6 +19,20 @@ DriftDiffusion<dim>::DriftDiffusion(std::shared_ptr<FiniteElement> finite_elemen
 }
 
 template<int dim>
+void DriftDiffusion<dim>::FillCellBoundaryTerm(
+    Matrix &to_fill,
+    const CellPtr &cell_ptr,
+    domain::FaceIndex face_index,
+    BoundaryType boundary_type,
+    std::function<Vector(const dealii::Tensor<1, dim> &)> boundary_factor_function) const {
+  if (boundary_type == BoundaryType::kVacuum) {
+    finite_element_ptr_->SetFace(cell_ptr, face_index);
+    FillCellBoundaryTerm(to_fill, cell_ptr, face_index, boundary_type,
+                         boundary_factor_function(finite_element_ptr_->FaceNormal()));
+  }
+}
+
+template<int dim>
 void DriftDiffusion<dim>::FillCellBoundaryTerm(Matrix& to_fill,
                                                const CellPtr& cell_ptr,
                                                domain::FaceIndex face_index,

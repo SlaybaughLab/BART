@@ -291,6 +291,53 @@ TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTerm) {
   EXPECT_TRUE(AreEqual(expected_results, cell_matrix));
 }
 
+TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTermFunctional) {
+  const int dim = this->dim;
+  using Tensor = typename dealii::Tensor<1, this->dim>;
+  const int n_dofs(this->dof_handler_.n_dofs());
+  const domain::FaceIndex face_index{test_helpers::RandomInt(0, 4)};
+  auto& finite_element_mock = *this->finite_element_mock_ptr_;
+  dealii::Vector<double> boundary_factor_at_global_dofs(n_dofs);
+  const std::vector<double> boundary_factor_at_quadrature{ 10, 20 };\
+  const std::array<double, 4> expected_results_values{ 510, 780, 780, 1200 };
+  const dealii::FullMatrix<double> expected_results(2, 2, expected_results_values.begin());
+  const formulation::BoundaryType reflective_boundary{ formulation::BoundaryType::kVacuum };
+  Tensor normal_vector;
+  bool lambda_called{ false };
+  for (int dir = 0; dir < dim; ++dir)
+    normal_vector[dir] = 1.5;
+
+  for (int i = 0; i < n_dofs; ++i)
+    boundary_factor_at_global_dofs[i] = test_helpers::RandomDouble(-100, 100);
+
+  auto boundary_function = [=, &lambda_called](const Tensor& passed_normal){
+    EXPECT_EQ(normal_vector, passed_normal);
+    lambda_called = true;
+    return boundary_factor_at_global_dofs;
+  };
+
+  EXPECT_CALL(finite_element_mock, SetFace(this->cell_ptr_, face_index)).Times(::testing::AtLeast(1));
+  EXPECT_CALL(finite_element_mock, ValueAtFaceQuadrature(boundary_factor_at_global_dofs))
+      .WillOnce(Return(boundary_factor_at_quadrature));
+  EXPECT_CALL(finite_element_mock, FaceNormal()).WillOnce(Return(normal_vector));
+
+  for (int q = 0; q < this->cell_quadrature_points_; ++q) {
+    EXPECT_CALL(finite_element_mock, FaceJacobian(q)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+    for (int i = 0; i < this->dofs_per_cell_; ++i) {
+      EXPECT_CALL(finite_element_mock, FaceShapeValue(i, q)).Times(AtLeast(2)).WillRepeatedly(DoDefault());
+    }
+  }
+  dealii::FullMatrix<double> cell_matrix(this->dofs_per_cell_, this->dofs_per_cell_);
+  cell_matrix = 0;
+  this->test_formulation_->FillCellBoundaryTerm(cell_matrix,
+                                                this->cell_ptr_,
+                                                face_index,
+                                                reflective_boundary,
+                                                boundary_function);
+  EXPECT_TRUE(AreEqual(expected_results, cell_matrix));
+  EXPECT_TRUE(lambda_called);
+}
+
 TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTermReflective) {
   const int n_dofs(this->dof_handler_.n_dofs());
   const domain::FaceIndex face_index{test_helpers::RandomInt(0, 4)};
@@ -327,7 +374,6 @@ TYPED_TEST(DriftDiffusionFormulationTest, FillCellBoundaryTermBadMatrixSize) {
                        });
     }
   }
-
 }
 
 } // namespace

@@ -26,6 +26,12 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
                  std::shared_ptr<CrossSections>,
                  std::shared_ptr<DriftDiffusionCalculator>);
 
+  auto FillCellBoundaryTerm(
+      Matrix &to_fill,
+      const CellPtr &ptr,
+      domain::FaceIndex index,
+      BoundaryType boundary_type,
+      std::function<Vector(const dealii::Tensor<1, dim> &)> boundary_factor_function) const -> void override;
   auto FillCellBoundaryTerm(Matrix& to_fill,
                             const CellPtr& ptr,
                             domain::FaceIndex index,

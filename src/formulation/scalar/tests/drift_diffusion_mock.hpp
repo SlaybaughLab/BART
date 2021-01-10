@@ -14,6 +14,9 @@ class DriftDiffusionMock : public DriftDiffusionI<dim> {
   using typename DriftDiffusionI<dim>::Matrix;
   using typename DriftDiffusionI<dim>::Vector;
 
+  MOCK_METHOD(void, FillCellBoundaryTerm, (Matrix& to_fill, const CellPtr&,
+      const domain::FaceIndex, const BoundaryType,
+      std::function<Vector(const dealii::Tensor<1, dim>& normal_vector)> boundary_factor_function), (const, override));
   MOCK_METHOD(void, FillCellBoundaryTerm, (Matrix& to_fill, const CellPtr&, const domain::FaceIndex,
       const BoundaryType, const Vector& boundary_factor_at_global_dofs), (const, override));
   MOCK_METHOD(void, FillCellDriftDiffusionTerm, (Matrix& to_fill, const CellPtr&, const system::EnergyGroup,
