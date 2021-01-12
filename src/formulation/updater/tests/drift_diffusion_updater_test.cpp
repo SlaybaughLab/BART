@@ -19,7 +19,7 @@ using namespace bart;
 template <int dim>
 using UpdaterTest = bart::formulation::updater::test_helpers::UpdaterTests<dim>;
 
-
+using ::testing::A;
 using ::testing::ContainerEq, ::testing::DoDefault, ::testing::_, ::testing::Ref, ::testing::Return, ::testing::ReturnRef;
 
 template <typename DimensionWrapper>
@@ -193,10 +193,17 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
 
           using BoundaryType = typename formulation::scalar::DiffusionI<this->dim>::BoundaryType;
           BoundaryType boundary_type = BoundaryType::kVacuum;
-          if (this->reflective_boundaries.count(boundary_id) == 1)
+          formulation::BoundaryType formulation_boundary_type{ formulation::BoundaryType::kVacuum };
+          if (this->reflective_boundaries.count(boundary_id) == 1) {
             boundary_type = BoundaryType::kReflective;
+            formulation_boundary_type = formulation::BoundaryType::kReflective;
+          }
+
 
           EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillBoundaryTerm(_, cell, face, boundary_type));
+          EXPECT_CALL(*this->drift_diffusion_formulation_obs_ptr_,
+              FillCellBoundaryTerm(_, cell, domain::FaceIndex(face), formulation_boundary_type,
+                                   A<std::function<dealii::Vector<double>(const dealii::Tensor<1, this->dim> &)>>()));
         }
       }
     }
@@ -205,7 +212,9 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
   EXPECT_CALL(*this->stamper_obs_ptr_, StampMatrix(Ref(*this->matrix_to_stamp), _))
       .Times(3)
       .WillRepeatedly(DoDefault());
-  EXPECT_CALL(*this->stamper_obs_ptr_, StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
   EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(Ref(*this->vector_to_stamp), _)).WillOnce(DoDefault());
 
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);

@@ -56,6 +56,38 @@ auto DriftDiffusionUpdater<dim>::SetUpFixedFunctions(system::System& system,
         cell_matrix, cell_ptr, energy_group, scalar_flux, current_directional_components_at_global_dofs);
   };
   this->fixed_matrix_functions_.push_back(drift_diffusion_term_function);
+
+  auto boundary_factory_function = [&](const dealii::Tensor<1, dim>& normal_tensor) -> dealii::Vector<double> {
+    dealii::Vector<double> normal_vector(dim);
+    for (int i = 0; i < dim; ++i) {
+      normal_vector[i] = normal_tensor[i];
+    }
+    auto directional_current = integrated_flux_calculator_ptr_->DirectionalCurrent(group_angular_flux, normal_vector);
+    auto directional_flux = integrated_flux_calculator_ptr_->DirectionalFlux(group_angular_flux, normal_vector);
+    dealii::Vector<double> return_vector(directional_current.size());
+    for (unsigned int i = 0; i < directional_current.size(); ++i) {
+      if (directional_flux.at(i) == 0) {
+        return_vector[i] = 0;
+      } else {
+        return_vector[i] = (directional_current.at(i)/directional_flux.at(i));
+      }
+    }
+    return return_vector;
+  };
+
+  const auto drift_diffusion_boundary_function = [&, this](formulation::FullMatrix& cell_matrix,
+                                                           const domain::FaceIndex face_index,
+                                                           const CellPtr& cell_ptr) -> void {
+    using BoundaryType = formulation::BoundaryType;
+    problem::Boundary boundary = static_cast<problem::Boundary>(cell_ptr->face(face_index.get())->boundary_id());
+    BoundaryType boundary_type{ BoundaryType::kVacuum };
+
+    if (this->reflective_boundaries_.count(boundary) == 1)
+      boundary_type = BoundaryType::kReflective;
+    drift_diffusion_formulation_ptr_->FillCellBoundaryTerm(cell_matrix, cell_ptr, face_index, boundary_type,
+                                                           boundary_factory_function);
+  };
+  this->fixed_matrix_boundary_functions_.push_back(drift_diffusion_boundary_function);
 }
 
 template class DriftDiffusionUpdater<1>;
