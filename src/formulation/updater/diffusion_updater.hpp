@@ -62,7 +62,6 @@ class DiffusionUpdater
   StamperType* stamper_ptr() const { return stamper_ptr_.get(); }
  protected:
   auto SetUpFixedFunctions(system::System&, system::EnergyGroup, quadrature::QuadraturePointIndex) -> void override;
- private:
   std::unique_ptr<DiffusionFormulationType> formulation_ptr_;
   std::shared_ptr<StamperType> stamper_ptr_;
   std::unordered_set<problem::Boundary> reflective_boundaries_;

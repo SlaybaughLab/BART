@@ -2,7 +2,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "quadrature/calculators/tests/drift_diffusion_integrated_flux_mock.hpp"
+#include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
 #include "formulation/tests/stamper_mock.h"
@@ -19,7 +19,7 @@ using namespace bart;
 template <int dim>
 using UpdaterTest = bart::formulation::updater::test_helpers::UpdaterTests<dim>;
 
-
+using ::testing::A;
 using ::testing::ContainerEq, ::testing::DoDefault, ::testing::_, ::testing::Ref, ::testing::Return, ::testing::ReturnRef;
 
 template <typename DimensionWrapper>
@@ -29,7 +29,7 @@ class FormulationUpdaterDriftDiffusionTest : public UpdaterTest<DimensionWrapper
   using AngularFluxStorageMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
   using DiffusionFormulation = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxMock;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorMock;
   using Stamper = formulation::StamperMock<dim>;
   using Boundary = problem::Boundary;
   using Vector = dealii::Vector<double>;
@@ -43,7 +43,8 @@ class FormulationUpdaterDriftDiffusionTest : public UpdaterTest<DimensionWrapper
   // Supporting objects
   AngularFluxStorageMap angular_flux_storage_map_{}; // All angular fluxes
   GroupAngularFluxMap group_angular_flux_{}; // Angular fluxes for a single group (the test group)
-  dealii::Vector<double> integrated_angular_flux_;
+  std::vector<dealii::Vector<double>> current_at_dofs_{};
+  std::array<dealii::Vector<double>, dim> current_components_at_dofs_;
   dealii::Vector<double> group_scalar_flux_;
 
   // Mock observation pointers
@@ -68,15 +69,27 @@ void FormulationUpdaterDriftDiffusionTest<DimensionWrapper>::SetUp() {
   diffusion_formulation_obs_ptr_ = diffusion_formulation_ptr.get();
   auto drift_diffusion_formulation_ptr = std::make_unique<DriftDiffusionFormulation>();
   drift_diffusion_formulation_obs_ptr_ = drift_diffusion_formulation_ptr.get();
-  auto integrated_flux_calculator_ptr = std::make_unique<IntegratedFluxCalculator>();
+  auto integrated_flux_calculator_ptr = std::make_shared<IntegratedFluxCalculator>();
   integrated_flux_calculator_obs_ptr_ = integrated_flux_calculator_ptr.get();
   auto stamper_ptr = std::shared_ptr<Stamper>(this->MakeStamper());
   stamper_obs_ptr_ = stamper_ptr.get();
   high_order_moments_ptr_ = std::make_shared<HighOrderMoments>();
-
-  integrated_angular_flux_ = dealii::Vector<double>(angular_flux_size);
   group_scalar_flux_ = dealii::Vector<double>(angular_flux_size);
 
+  for (unsigned int i = 0; i < angular_flux_size; ++i) {
+    // Create a dim-sized current vector for each degree of freedom.
+    Vector current_vector(dim);
+    for (int dir = 0; dir < dim; ++dir)
+      current_vector[dir] = test_helpers::RandomDouble(-100, 100);
+    current_at_dofs_.push_back(current_vector);
+  }
+  for (int dir = 0; dir < dim; ++dir) {
+    Vector current_component_at_dofs(angular_flux_size);
+    for (unsigned int i = 0; i < angular_flux_size; ++i) {
+      current_component_at_dofs[i] = current_at_dofs_.at(i)[dir];
+    }
+    current_components_at_dofs_[dir] = current_component_at_dofs;
+  }
 
   using Index = system::SolutionIndex;
   for (int group = 0; group < this->total_groups; ++group) {
@@ -104,7 +117,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorDependencyGetters) {
   constexpr int dim{ this->dim };
   using DiffusionFormulation = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxMock;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorMock;
   using Updater = formulation::updater::DriftDiffusionUpdater<dim>;
   using Stamper = formulation::StamperMock<dim>;
 
@@ -113,7 +126,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorDependencyGetters) {
     test_updater = std::make_unique<Updater>(std::make_unique<DiffusionFormulation>(),
                                              std::make_unique<DriftDiffusionFormulation>(),
                                              std::make_shared<Stamper>(),
-                                             std::make_unique<IntegratedFluxCalculator>(),
+                                             std::make_shared<IntegratedFluxCalculator>(),
                                              this->high_order_moments_ptr_,
                                              this->angular_flux_storage_map_);
   });
@@ -129,7 +142,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorBadDependencies) {
   constexpr int dim{ this->dim };
   using DiffusionFormulation = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using IntegratedFluxCalculator = quadrature::calculators::DriftDiffusionIntegratedFluxMock;
+  using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorMock;
   using Updater = formulation::updater::DriftDiffusionUpdater<dim>;
   using Stamper = formulation::StamperMock<dim>;
   using HighOrderMoments = system::moments::SphericalHarmonicMock;
@@ -142,7 +155,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorBadDependencies) {
       test_updater = std::make_unique<Updater>(i == 0 ? nullptr : std::make_unique<DiffusionFormulation>(),
                                                i == 1 ? nullptr : std::make_unique<DriftDiffusionFormulation>(),
                                                i == 2 ? nullptr : std::make_unique<Stamper>(),
-                                               i == 3 ? nullptr : std::make_unique<IntegratedFluxCalculator>(),
+                                               i == 3 ? nullptr : std::make_shared<IntegratedFluxCalculator>(),
                                                i == 4 ? nullptr : std::make_shared<HighOrderMoments>(),
                                                this->angular_flux_storage_map_);
                      });
@@ -156,10 +169,11 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
 
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
   EXPECT_CALL(*this->mock_rhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
-  EXPECT_CALL(*this->integrated_flux_calculator_obs_ptr_, Integrate(ContainerEq(this->group_angular_flux_)))
-      .WillOnce(Return(this->integrated_angular_flux_));
+
   std::array<int, 3> moment_index{this->group_number, 0, 0};
   EXPECT_CALL(*this->high_order_moments_ptr_, GetMoment(moment_index)).WillOnce(ReturnRef(this->group_scalar_flux_));
+  EXPECT_CALL(*this->integrated_flux_calculator_obs_ptr_, NetCurrent(_))
+      .WillOnce(Return(this->current_at_dofs_));
 
   for (auto& cell : this->cells_) {
     EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillCellStreamingTerm(_, cell, this->group_number));
@@ -170,7 +184,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
                                    cell,
                                    system::EnergyGroup(this->group_number),
                                    this->group_scalar_flux_,
-                                   this->integrated_angular_flux_));
+                                   ContainerEq(this->current_components_at_dofs_)));
     if (cell->at_boundary()) {
       int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
       for (int face = 0; face < faces_per_cell; ++face) {
@@ -179,10 +193,16 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
 
           using BoundaryType = typename formulation::scalar::DiffusionI<this->dim>::BoundaryType;
           BoundaryType boundary_type = BoundaryType::kVacuum;
-          if (this->reflective_boundaries.count(boundary_id) == 1)
+          formulation::BoundaryType formulation_boundary_type{ formulation::BoundaryType::kVacuum };
+          if (this->reflective_boundaries.count(boundary_id) == 1) {
             boundary_type = BoundaryType::kReflective;
+            formulation_boundary_type = formulation::BoundaryType::kReflective;
+          }
 
           EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillBoundaryTerm(_, cell, face, boundary_type));
+          EXPECT_CALL(*this->drift_diffusion_formulation_obs_ptr_,
+              FillCellBoundaryTerm(_, cell, domain::FaceIndex(face), formulation_boundary_type,
+                                   this->group_angular_flux_));
         }
       }
     }
@@ -191,7 +211,9 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
   EXPECT_CALL(*this->stamper_obs_ptr_, StampMatrix(Ref(*this->matrix_to_stamp), _))
       .Times(3)
       .WillRepeatedly(DoDefault());
-  EXPECT_CALL(*this->stamper_obs_ptr_, StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->stamper_obs_ptr_, StampBoundaryMatrix(Ref(*this->matrix_to_stamp), _))
+      .Times(2)
+      .WillRepeatedly(DoDefault());
   EXPECT_CALL(*this->stamper_obs_ptr_, StampVector(Ref(*this->vector_to_stamp), _)).WillOnce(DoDefault());
 
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);

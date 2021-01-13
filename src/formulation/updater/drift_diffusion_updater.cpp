@@ -7,7 +7,7 @@ DriftDiffusionUpdater<dim>::DriftDiffusionUpdater(
     std::unique_ptr<DiffusionFormulation> diffusion_formulation_ptr,
     std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr,
     std::shared_ptr<Stamper> stamper_ptr,
-    std::unique_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr,
+    std::shared_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr,
     std::shared_ptr<HighOrderMoments> high_order_moments,
     AngularFluxStorageMap& angular_flux_storage_map,
     std::unordered_set<problem::Boundary> reflective_boundaries)
@@ -27,21 +27,49 @@ auto DriftDiffusionUpdater<dim>::SetUpFixedFunctions(system::System& system,
                                                      quadrature::QuadraturePointIndex quadrature_point_index) -> void {
   DiffusionUpdater<dim>::SetUpFixedFunctions(system, energy_group, quadrature_point_index);
   using CellPtr = domain::CellPtr<dim>;
+  // Extract the angular flux for this group and all quadrature angles
   std::map<quadrature::QuadraturePointIndex, std::shared_ptr<dealii::Vector<double>>> group_angular_flux;
   for (auto& [angular_flux_index, vector_ptr] : angular_flux_storage_map_) {
     auto& [solution_energy_group, solution_angle_index] = angular_flux_index;
     if (solution_energy_group == energy_group)
       group_angular_flux.insert({quadrature::QuadraturePointIndex(solution_angle_index.get()), vector_ptr});
   }
-  auto integrated_angular_flux = integrated_flux_calculator_ptr_->Integrate(group_angular_flux);
+  // Get scalar flux
   auto scalar_flux = this->high_order_moments_->GetMoment({energy_group.get(), 0, 0});
+  // Get current at all degrees of freedom
+  auto current_at_global_dofs = this->integrated_flux_calculator_ptr()->NetCurrent(group_angular_flux);
+  // Break the net current at each degree of freedom into dim arrays that represent each component at each dof
+  std::array<Vector, dim> current_directional_components_at_global_dofs;
+  for (int dir = 0; dir < dim; ++dir) {
+    const int global_dofs = current_at_global_dofs.size();
+    Vector current_component_at_dofs(global_dofs);
+    for (int i = 0; i < global_dofs; ++i) {
+      current_component_at_dofs[i] = current_at_global_dofs.at(i)[dir];
+    }
+    current_directional_components_at_global_dofs[dir] = current_component_at_dofs;
+  }
+
 
   const auto drift_diffusion_term_function = [=, this](formulation::FullMatrix& cell_matrix,
                                                        const CellPtr& cell_ptr) -> void {
     drift_diffusion_formulation_ptr_->FillCellDriftDiffusionTerm(
-        cell_matrix, cell_ptr, energy_group, scalar_flux, integrated_angular_flux);
+        cell_matrix, cell_ptr, energy_group, scalar_flux, current_directional_components_at_global_dofs);
   };
   this->fixed_matrix_functions_.push_back(drift_diffusion_term_function);
+
+  const auto drift_diffusion_boundary_function = [=, this](formulation::FullMatrix& cell_matrix,
+                                                           const domain::FaceIndex face_index,
+                                                           const CellPtr& cell_ptr) -> void {
+    using BoundaryType = formulation::BoundaryType;
+    problem::Boundary boundary = static_cast<problem::Boundary>(cell_ptr->face(face_index.get())->boundary_id());
+    BoundaryType boundary_type{ BoundaryType::kVacuum };
+
+    if (this->reflective_boundaries_.count(boundary) == 1)
+      boundary_type = BoundaryType::kReflective;
+    drift_diffusion_formulation_ptr_->FillCellBoundaryTerm(cell_matrix, cell_ptr, face_index, boundary_type,
+                                                           group_angular_flux);
+  };
+  this->fixed_matrix_boundary_functions_.push_back(drift_diffusion_boundary_function);
 }
 
 template class DriftDiffusionUpdater<1>;
