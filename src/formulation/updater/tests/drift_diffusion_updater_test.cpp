@@ -69,7 +69,7 @@ void FormulationUpdaterDriftDiffusionTest<DimensionWrapper>::SetUp() {
   diffusion_formulation_obs_ptr_ = diffusion_formulation_ptr.get();
   auto drift_diffusion_formulation_ptr = std::make_unique<DriftDiffusionFormulation>();
   drift_diffusion_formulation_obs_ptr_ = drift_diffusion_formulation_ptr.get();
-  auto integrated_flux_calculator_ptr = std::make_unique<IntegratedFluxCalculator>();
+  auto integrated_flux_calculator_ptr = std::make_shared<IntegratedFluxCalculator>();
   integrated_flux_calculator_obs_ptr_ = integrated_flux_calculator_ptr.get();
   auto stamper_ptr = std::shared_ptr<Stamper>(this->MakeStamper());
   stamper_obs_ptr_ = stamper_ptr.get();
@@ -126,7 +126,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorDependencyGetters) {
     test_updater = std::make_unique<Updater>(std::make_unique<DiffusionFormulation>(),
                                              std::make_unique<DriftDiffusionFormulation>(),
                                              std::make_shared<Stamper>(),
-                                             std::make_unique<IntegratedFluxCalculator>(),
+                                             std::make_shared<IntegratedFluxCalculator>(),
                                              this->high_order_moments_ptr_,
                                              this->angular_flux_storage_map_);
   });
@@ -155,7 +155,7 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, ConstructorBadDependencies) {
       test_updater = std::make_unique<Updater>(i == 0 ? nullptr : std::make_unique<DiffusionFormulation>(),
                                                i == 1 ? nullptr : std::make_unique<DriftDiffusionFormulation>(),
                                                i == 2 ? nullptr : std::make_unique<Stamper>(),
-                                               i == 3 ? nullptr : std::make_unique<IntegratedFluxCalculator>(),
+                                               i == 3 ? nullptr : std::make_shared<IntegratedFluxCalculator>(),
                                                i == 4 ? nullptr : std::make_shared<HighOrderMoments>(),
                                                this->angular_flux_storage_map_);
                      });

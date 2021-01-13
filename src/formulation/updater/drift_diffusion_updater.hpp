@@ -24,7 +24,7 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   DriftDiffusionUpdater(std::unique_ptr<DiffusionFormulation>,
                         std::unique_ptr<DriftDiffusionFormulation>,
                         std::shared_ptr<Stamper>,
-                        std::unique_ptr<IntegratedFluxCalculator>,
+                        std::shared_ptr<IntegratedFluxCalculator>,
                         std::shared_ptr<HighOrderMoments>,
                         AngularFluxStorageMap&,
                         std::unordered_set<problem::Boundary> reflective_boundaries = {});
@@ -44,7 +44,7 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   AngularFluxStorageMap angular_flux_storage_map_{};
   std::shared_ptr<HighOrderMoments> high_order_moments_;
   std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr_{ nullptr };
-  std::unique_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr_{ nullptr };
+  std::shared_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr_{ nullptr };
 };
 
 } // namespace bart::formulation::updater

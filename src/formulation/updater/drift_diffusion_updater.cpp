@@ -7,7 +7,7 @@ DriftDiffusionUpdater<dim>::DriftDiffusionUpdater(
     std::unique_ptr<DiffusionFormulation> diffusion_formulation_ptr,
     std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr,
     std::shared_ptr<Stamper> stamper_ptr,
-    std::unique_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr,
+    std::shared_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr,
     std::shared_ptr<HighOrderMoments> high_order_moments,
     AngularFluxStorageMap& angular_flux_storage_map,
     std::unordered_set<problem::Boundary> reflective_boundaries)
