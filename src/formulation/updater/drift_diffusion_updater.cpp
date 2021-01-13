@@ -84,8 +84,8 @@ auto DriftDiffusionUpdater<dim>::SetUpFixedFunctions(system::System& system,
 
     if (this->reflective_boundaries_.count(boundary) == 1)
       boundary_type = BoundaryType::kReflective;
-    drift_diffusion_formulation_ptr_->FillCellBoundaryTerm(cell_matrix, cell_ptr, face_index, boundary_type,
-                                                           boundary_factory_function);
+//    drift_diffusion_formulation_ptr_->FillCellBoundaryTerm(cell_matrix, cell_ptr, face_index, boundary_type,
+//                                                           boundary_factory_function);
   };
   this->fixed_matrix_boundary_functions_.push_back(drift_diffusion_boundary_function);
 }

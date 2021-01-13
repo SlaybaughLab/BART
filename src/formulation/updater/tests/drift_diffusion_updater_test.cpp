@@ -199,11 +199,10 @@ TYPED_TEST(FormulationUpdaterDriftDiffusionTest, UpdateFixedTermTest) {
             formulation_boundary_type = formulation::BoundaryType::kReflective;
           }
 
-
           EXPECT_CALL(*this->diffusion_formulation_obs_ptr_, FillBoundaryTerm(_, cell, face, boundary_type));
           EXPECT_CALL(*this->drift_diffusion_formulation_obs_ptr_,
               FillCellBoundaryTerm(_, cell, domain::FaceIndex(face), formulation_boundary_type,
-                                   A<std::function<dealii::Vector<double>(const dealii::Tensor<1, this->dim> &)>>()));
+                                   this->group_angular_flux_));
         }
       }
     }
