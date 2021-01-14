@@ -13,6 +13,8 @@
 
 namespace bart::formulation::scalar {
 
+template <int, typename ...> class DriftDiffusionIFactory;
+
 template <int dim>
 class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependencies {
  public:
@@ -24,6 +26,8 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
   using typename DriftDiffusionI<dim>::CellPtr;
   using typename DriftDiffusionI<dim>::Vector;
   using typename DriftDiffusionI<dim>::VectorMap;
+
+  using Factory = DriftDiffusionIFactory<dim, std::shared_ptr<FiniteElement>, std::shared_ptr<CrossSections>, std::shared_ptr<DriftDiffusionCalculator>, std::shared_ptr<AngularFluxIntegrator>>;
 
   DriftDiffusion(std::shared_ptr<FiniteElement>,
                  std::shared_ptr<CrossSections>,
