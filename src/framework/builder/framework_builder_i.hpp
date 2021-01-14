@@ -14,6 +14,7 @@
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/drift_diffusion_i.hpp"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
@@ -41,6 +42,7 @@ class FrameworkBuilderI {
   // Classes built by member functions
   using CrossSections = data::CrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
+  using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
@@ -92,6 +94,10 @@ class FrameworkBuilderI {
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
+  virtual auto BuildDriftDiffusionFormulation(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,

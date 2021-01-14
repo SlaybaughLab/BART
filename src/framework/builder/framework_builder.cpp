@@ -4,6 +4,11 @@
 #include <deal.II/base/mpi.h>
 #include <sstream>
 #include <fstream>
+#include <quadrature/calculators/angular_flux_integrator.hpp>
+#include <quadrature/calculators/quadrature_calculators_factories.hpp>
+#include <calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp>
+#include <calculator/drift_diffusion/factory.hpp>
+#include <formulation/scalar/scalar_formulation_factory.hpp>
 
 // Builders & factories
 #include "solver/builder/solver_builder.hpp"
@@ -22,6 +27,7 @@
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/stamper.h"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
@@ -91,6 +97,20 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<Fini
   ReportBuildSuccess(return_ptr->description());
 
   return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildDriftDiffusionFormulation(
+    const std::shared_ptr<FiniteElement>& finite_element_ptr,
+    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<QuadratureSet> quadrature_set_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
+  auto angular_flux_integrator_ptr = Shared(quadrature::calculators::AngularFluxIntegrator<dim>::Factory::get()
+      .GetConstructor(quadrature::calculators::AngularFluxIntegratorName::kDefaultImplementation)(quadrature_set_ptr));
+  auto drift_diffusion_vector_calculator_ptr = Shared(calculator::drift_diffusion::DriftDiffusionVectorCalculatorIFactory<dim>::get()
+      .GetConstructor(calculator::drift_diffusion::DriftDiffusionVectorCalculatorName::kDefaultImplementation)());
+  return formulation::scalar::DriftDiffusion<dim>::Factory::get()
+      .GetConstructor(formulation::scalar::DriftDiffusionFormulationName::kDefaultImplementation)(
+          finite_element_ptr, cross_sections_ptr, drift_diffusion_vector_calculator_ptr, angular_flux_integrator_ptr);
 }
 
 template<int dim>
@@ -595,6 +615,7 @@ template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
   validator_ptr_->ReportValidation();
 }
+
 
 template class FrameworkBuilder<1>;
 template class FrameworkBuilder<2>;

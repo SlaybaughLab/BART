@@ -11,6 +11,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
  public:
   using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
+  using typename FrameworkBuilderI<dim>::DriftDiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
@@ -48,6 +49,9 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   MOCK_METHOD(std::unique_ptr<DiffusionFormulation>, BuildDiffusionFormulation,
       (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl), (override));
+  MOCK_METHOD(std::unique_ptr<DriftDiffusionFormulation>, BuildDriftDiffusionFormulation,
+  (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<QuadratureSet>), (override));
   MOCK_METHOD(std::unique_ptr<Domain>, BuildDomain, (const FrameworkParameters::DomainSize,
       const FrameworkParameters::NumberOfCells, const std::shared_ptr<FiniteElement>&,
       const std::string material_mapping), (override));

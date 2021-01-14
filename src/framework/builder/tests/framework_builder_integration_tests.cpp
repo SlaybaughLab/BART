@@ -7,6 +7,7 @@
 #include "framework/framework_parameters.hpp"
 
 // Instantiated concerete classes
+#include "calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/single_moment_checker_i.h"
@@ -16,6 +17,7 @@
 #include "domain/definition.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
@@ -25,6 +27,7 @@
 #include "iteration/outer/outer_power_iteration.hpp"
 #include "iteration/outer/outer_fixed_source_iteration.hpp"
 #include "quadrature/calculators/scalar_moment.h"
+#include "quadrature/calculators/angular_flux_integrator.hpp"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/quadrature_set.h"
 #include "solver/linear/gmres.h"
@@ -235,6 +238,8 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Constructor) {
 
 // =============================================================================
 
+
+
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   constexpr int dim = this->dim;
 
@@ -253,6 +258,28 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   using ExpectedType = formulation::scalar::Diffusion<dim>;
   EXPECT_THAT(diffusion_formulation_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDriftDiffusionFormulationTest) {
+  constexpr int dim = this->dim;
+
+  EXPECT_CALL(*this->finite_element_sptr_, dofs_per_cell());
+  EXPECT_CALL(*this->finite_element_sptr_, n_cell_quad_pts());
+  EXPECT_CALL(*this->finite_element_sptr_, n_face_quad_pts());
+
+  auto drift_diffusion_formulation_ptr = this->test_builder_ptr_->BuildDriftDiffusionFormulation(
+      this->finite_element_sptr_, this->cross_sections_sptr_, this->quadrature_set_sptr_);
+
+  using Formulation = formulation::scalar::DriftDiffusion<dim>;
+  using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegrator<dim>;
+  using DriftDiffusionCalculator = calculator::drift_diffusion::DriftDiffusionVectorCalculator<dim>;
+
+  auto dynamic_formulation_ptr = dynamic_cast<Formulation*>(drift_diffusion_formulation_ptr.get());
+  ASSERT_NE(dynamic_formulation_ptr, nullptr);
+  EXPECT_THAT(dynamic_formulation_ptr->angular_flux_integrator_ptr(),
+              WhenDynamicCastTo<AngularFluxIntegrator*>(NotNull()));
+  EXPECT_THAT(dynamic_formulation_ptr->drift_diffusion_calculator_ptr(),
+              WhenDynamicCastTo<DriftDiffusionCalculator*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointers) {

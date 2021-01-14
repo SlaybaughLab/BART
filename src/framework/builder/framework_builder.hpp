@@ -24,6 +24,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   // New using types from refactor
   using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
+  using typename FrameworkBuilderI<dim>::DriftDiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
@@ -67,6 +68,12 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault)
   -> std::unique_ptr<DiffusionFormulation> override;
+
+  [[nodiscard]] auto BuildDriftDiffusionFormulation(
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<DriftDiffusionFormulation> override;
+
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
                                  const std::shared_ptr<FiniteElement>&,
