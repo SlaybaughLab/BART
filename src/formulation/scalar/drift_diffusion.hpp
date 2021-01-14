@@ -47,7 +47,7 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
   auto cross_sections_ptr() const -> CrossSections* { return cross_sections_ptr_.get(); }
   auto drift_diffusion_calculator_ptr() const -> DriftDiffusionCalculator* {
     return drift_diffusion_calculator_ptr_.get(); }
- private:
+ protected:
   std::shared_ptr<FiniteElement> finite_element_ptr_{ nullptr };
   std::shared_ptr<CrossSections> cross_sections_ptr_{ nullptr };
   std::shared_ptr<DriftDiffusionCalculator> drift_diffusion_calculator_ptr_{ nullptr };
@@ -55,6 +55,8 @@ class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependenc
   int cell_quadrature_points_{ 0 };
   int cell_degrees_of_freedom_{ 0 };
   int face_quadrature_points_{ 0 };
+ private:
+  static bool is_registered_;
 };
 
 } // namespace bart::formulation::scalar
