@@ -74,6 +74,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   -> std::unique_ptr<DiffusionFormulation> override;
 
   [[nodiscard]] auto BuildDriftDiffusionFormulation(
+      const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
       const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<DriftDiffusionFormulation> override;

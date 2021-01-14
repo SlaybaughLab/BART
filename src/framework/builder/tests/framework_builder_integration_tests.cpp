@@ -56,6 +56,7 @@
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
+#include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
@@ -87,6 +88,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using Material = NiceMock<btest::MockMaterial>;
 
   // Mock object types
+  using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorMock;
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
@@ -114,6 +116,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   system::SystemHelper<dim> system_helper_;
 
   // Various mock objects to be used
+  std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_sptr_ { nullptr };
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
   std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
@@ -162,6 +165,7 @@ int FrameworkBuilderIntegrationTest<DimensionWrapper>::files_in_working_director
 
 template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
+  angular_flux_integrator_sptr_ = std::make_shared<AngularFluxIntegrator>();
   boundary_conditions_updater_sptr_ = std::make_shared<BoundaryConditionsUpdaterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ = std::move(std::make_unique<DiffusionFormulationType>());
@@ -276,16 +280,17 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDriftDiffusionFormulationTest) 
   EXPECT_CALL(*this->finite_element_sptr_, n_face_quad_pts());
 
   auto drift_diffusion_formulation_ptr = this->test_builder_ptr_->BuildDriftDiffusionFormulation(
-      this->finite_element_sptr_, this->cross_sections_sptr_, this->quadrature_set_sptr_);
+      this->angular_flux_integrator_sptr_,
+      this->finite_element_sptr_,
+      this->cross_sections_sptr_,
+      this->quadrature_set_sptr_);
 
   using Formulation = formulation::scalar::DriftDiffusion<dim>;
-  using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegrator<dim>;
   using DriftDiffusionCalculator = calculator::drift_diffusion::DriftDiffusionVectorCalculator<dim>;
 
   auto dynamic_formulation_ptr = dynamic_cast<Formulation*>(drift_diffusion_formulation_ptr.get());
   ASSERT_NE(dynamic_formulation_ptr, nullptr);
-  EXPECT_THAT(dynamic_formulation_ptr->angular_flux_integrator_ptr(),
-              WhenDynamicCastTo<AngularFluxIntegrator*>(NotNull()));
+  EXPECT_EQ(dynamic_formulation_ptr->angular_flux_integrator_ptr(), this->angular_flux_integrator_sptr_.get());
   EXPECT_THAT(dynamic_formulation_ptr->drift_diffusion_calculator_ptr(),
               WhenDynamicCastTo<DriftDiffusionCalculator*>(NotNull()));
 }

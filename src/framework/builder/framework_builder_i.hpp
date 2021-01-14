@@ -99,6 +99,7 @@ class FrameworkBuilderI {
       const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
   virtual auto BuildDriftDiffusionFormulation(
+      const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
       const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
