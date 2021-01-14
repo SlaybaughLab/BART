@@ -11,6 +11,8 @@
 
 namespace bart::formulation::updater {
 
+template <int, typename ...T> class DriftDiffusionUpdaterFactory;
+
 template <int dim>
 class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasDependencies {
  public:
@@ -20,6 +22,8 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   using IntegratedFluxCalculator = quadrature::calculators::AngularFluxIntegratorI;
   using HighOrderMoments = system::moments::SphericalHarmonicI;
   using Stamper = typename DiffusionUpdater<dim>::StamperType;
+
+  using Factory = DriftDiffusionUpdaterFactory<dim, std::unique_ptr<DiffusionFormulation>, std::unique_ptr<DriftDiffusionFormulation>, std::shared_ptr<Stamper>, std::shared_ptr<IntegratedFluxCalculator>,std::shared_ptr<HighOrderMoments>, AngularFluxStorageMap&, std::unordered_set<problem::Boundary>>;
 
   DriftDiffusionUpdater(std::unique_ptr<DiffusionFormulation>,
                         std::unique_ptr<DriftDiffusionFormulation>,
@@ -45,6 +49,8 @@ class DriftDiffusionUpdater : public DiffusionUpdater<dim>, public utility::HasD
   std::shared_ptr<HighOrderMoments> high_order_moments_;
   std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr_{ nullptr };
   std::shared_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr_{ nullptr };
+ private:
+  static bool is_registered_;
 };
 
 } // namespace bart::formulation::updater
