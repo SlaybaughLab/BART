@@ -1,4 +1,5 @@
 #include "quadrature/calculators/angular_flux_integrator.hpp"
+#include "quadrature/calculators/quadrature_calculators_factories.hpp"
 
 namespace bart::quadrature::calculators {
 
@@ -7,6 +8,13 @@ AngularFluxIntegrator<dim>::AngularFluxIntegrator(std::shared_ptr<QuadratureSet>
     : quadrature_set_ptr_(quadrature_set_ptr) {
   this->AssertPointerNotNull(quadrature_set_ptr_.get(), "quadrature set", "DriftDiffusionIntegratedFlux constructor");
 }
+
+template<int dim>
+bool AngularFluxIntegrator<dim>::is_registered_ =
+    AngularFluxIntegrator<dim>::Factory::get().RegisterConstructor(
+        AngularFluxIntegratorName::kDefaultImplementation,
+        [](std::shared_ptr<QuadratureSet> quadrature_set_ptr) -> std::unique_ptr<AngularFluxIntegratorI> {
+          return std::make_unique<AngularFluxIntegrator<dim>>(quadrature_set_ptr); });
 
 template<int dim>
 auto AngularFluxIntegrator<dim>::NetCurrent(const VectorMap& angular_flux_map) const -> std::vector<Vector> {
