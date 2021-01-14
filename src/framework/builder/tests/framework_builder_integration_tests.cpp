@@ -238,7 +238,15 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, Constructor) {
 
 // =============================================================================
 
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildAngularFluxIntegratorTest) {
+  constexpr int dim = this->dim;
+  auto angular_flux_integrator_ptr = this->test_builder_ptr_->BuildAngularFluxIntegrator(this->quadrature_set_sptr_);
 
+  using ExpectedType = typename quadrature::calculators::AngularFluxIntegrator<dim>;
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(angular_flux_integrator_ptr.get());
+  ASSERT_NE(nullptr, dynamic_ptr);
+  EXPECT_EQ(dynamic_ptr->quadrature_set_ptr(), this->quadrature_set_sptr_.get());
+}
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   constexpr int dim = this->dim;

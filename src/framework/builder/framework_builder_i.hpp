@@ -26,6 +26,7 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
+#include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 #include "solver/group/single_group_solver_i.h"
@@ -40,6 +41,7 @@ template <int dim>
 class FrameworkBuilderI {
  public:
   // Classes built by member functions
+  using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
   using CrossSections = data::CrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
@@ -90,6 +92,8 @@ class FrameworkBuilderI {
 
   virtual ~FrameworkBuilderI() = default;
 
+  virtual auto BuildAngularFluxIntegrator(
+      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> = 0;
   virtual auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,

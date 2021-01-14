@@ -22,6 +22,7 @@ template <int dim>
 class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
   // New using types from refactor
+  using typename FrameworkBuilderI<dim>::AngularFluxIntegrator;
   using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
   using typename FrameworkBuilderI<dim>::DriftDiffusionFormulation;
@@ -62,6 +63,9 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   FrameworkBuilder(std::unique_ptr<Validator> validator_ptr);
   ~FrameworkBuilder() = default;
+
+  [[nodiscard]] auto BuildAngularFluxIntegrator(
+      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> override;
 
   [[nodiscard]] auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,

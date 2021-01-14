@@ -7,8 +7,9 @@
 namespace bart::framework::builder {
 
 template <int dim>
-class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
+class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
  public:
+  using typename FrameworkBuilderI<dim>::AngularFluxIntegrator;
   using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
   using typename FrameworkBuilderI<dim>::DriftDiffusionFormulation;
@@ -45,7 +46,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::ConvergenceInstrument;
   using typename FrameworkBuilderI<dim>::StatusInstrument;
 
-
+  MOCK_METHOD(std::unique_ptr<AngularFluxIntegrator>, BuildAngularFluxIntegrator,
+              (const std::shared_ptr<QuadratureSet>), (override));
   MOCK_METHOD(std::unique_ptr<DiffusionFormulation>, BuildDiffusionFormulation,
       (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl), (override));

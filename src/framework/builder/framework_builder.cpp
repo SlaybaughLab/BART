@@ -83,6 +83,13 @@ FrameworkBuilder<dim>::FrameworkBuilder(std::unique_ptr<Validator> validator_ptr
 // =============================================================================
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildAngularFluxIntegrator(const std::shared_ptr<QuadratureSet> quadrature_set_ptr)
+-> std::unique_ptr<AngularFluxIntegrator> {
+  return quadrature::calculators::AngularFluxIntegrator<dim>::Factory::get()
+      .GetConstructor(quadrature::calculators::AngularFluxIntegratorName::kDefaultImplementation)(quadrature_set_ptr);
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<FiniteElement>& finite_element_ptr,
                                                       const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
                                                       const DiffusionFormulationImpl implementation)
