@@ -41,6 +41,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
+  using typename FrameworkBuilderI<dim>::SphericalHarmonicMoments;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::System;
   using typename FrameworkBuilderI<dim>::Validator;
@@ -147,6 +148,14 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                  const std::size_t solution_size,
                                  bool is_eigenvalue_problem,
                                  bool need_rhs_boundary_condition) -> std::unique_ptr<System> override;
+
+  [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
+                                    std::unique_ptr<DriftDiffusionFormulation>,
+                                    std::shared_ptr<Stamper>,
+                                    std::shared_ptr<AngularFluxIntegrator>,
+                                    std::shared_ptr<SphericalHarmonicMoments>,
+                                    AngularFluxStorage&,
+                                    const std::map<problem::Boundary, bool>&) -> UpdaterPointers override;
   [[nodiscard]] auto BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulation>,
       std::unique_ptr<Stamper>,

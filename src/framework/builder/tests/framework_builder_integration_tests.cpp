@@ -21,6 +21,7 @@
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
+#include "formulation/updater/drift_diffusion_updater.hpp"
 #include "formulation/stamper.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
@@ -46,6 +47,7 @@
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
+#include "formulation/scalar/tests/drift_diffusion_mock.hpp"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
@@ -61,6 +63,7 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -91,6 +94,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorMock;
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
+  using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
   using DomainType = domain::DefinitionMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
   using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterMock;
@@ -103,6 +107,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
+  using SphericalHarmonicMoments = system::moments::SphericalHarmonicMock;
   using SingleGroupSolverType = solver::group::SingleGroupSolverMock;
   using StamperType = formulation::StamperMock<dim>;
   using Validator = NiceMock<framework::builder::FrameworkValidatorMock>;
@@ -120,6 +125,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
   std::shared_ptr<data::CrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
+  std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_uptr_;
   std::shared_ptr<DomainType> domain_sptr_;
   std::shared_ptr<FiniteElementType> finite_element_sptr_;
   std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_sptr_;
@@ -132,6 +138,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<QuadratureSetType> quadrature_set_sptr_;
   std::unique_ptr<SAAFFormulationType> saaf_formulation_uptr_;
   std::shared_ptr<ScatteringSourceUpdaterType> scattering_source_updater_sptr_;
+  std::shared_ptr<SphericalHarmonicMoments> spherical_harmonics_sptr_;
   std::unique_ptr<SingleGroupSolverType> single_group_solver_uptr_;
   std::unique_ptr<StamperType> stamper_uptr_;
 
@@ -169,6 +176,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   boundary_conditions_updater_sptr_ = std::make_shared<BoundaryConditionsUpdaterType>();
   cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
   diffusion_formulation_uptr_ = std::move(std::make_unique<DiffusionFormulationType>());
+  drift_diffusion_formulation_uptr_ = std::move(std::make_unique<DriftDiffusionFormulation>());
   domain_sptr_ = std::make_shared<DomainType>();
   finite_element_sptr_ = std::make_shared<FiniteElementType>();
   fission_source_updater_sptr_ = std::make_shared<FissionSourceUpdaterType>();
@@ -181,6 +189,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   quadrature_set_sptr_ = std::make_shared<QuadratureSetType>();
   saaf_formulation_uptr_ = std::move(std::make_unique<SAAFFormulationType>());
   scattering_source_updater_sptr_ = std::make_shared<ScatteringSourceUpdaterType>();
+  spherical_harmonics_sptr_ = std::make_shared<SphericalHarmonicMoments>();
   stamper_uptr_ = std::move(std::make_unique<StamperType>());
   single_group_solver_uptr_ = std::move(std::make_unique<SingleGroupSolverType>());
   auto validator_ptr = std::make_unique<Validator>();
@@ -316,6 +325,42 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointers) {
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_THAT(updater_struct.fission_source_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDriftDiffusionUpdaterPointers) {
+  constexpr int dim = this->dim;
+  using ExpectedType = typename formulation::updater::DriftDiffusionUpdater<dim>;
+  system::solution::EnergyGroupToAngularSolutionPtrMap angular_flux_storage;
+  this->system_helper_.SetUpEnergyGroupToAngularSolutionPtrMap(angular_flux_storage,
+                                                               this->n_energy_groups,
+                                                               this->n_angles);
+
+  auto updater_struct = this->test_builder_ptr_->BuildUpdaterPointers(
+      std::move(this->diffusion_formulation_uptr_),
+      std::move(this->drift_diffusion_formulation_uptr_),
+      std::move(this->stamper_uptr_),
+      this->angular_flux_integrator_sptr_,
+      this->spherical_harmonics_sptr_,
+      angular_flux_storage,
+      this->reflective_bcs_);
+  ASSERT_THAT(updater_struct.fixed_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  ASSERT_THAT(updater_struct.scattering_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  ASSERT_THAT(updater_struct.fission_source_updater_ptr.get(),
+              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(updater_struct.fixed_updater_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_NE(dynamic_ptr->drift_diffusion_formulation_ptr(), nullptr);
+  EXPECT_NE(dynamic_ptr->formulation_ptr(), nullptr);
+  EXPECT_EQ(dynamic_ptr->integrated_flux_calculator_ptr(), this->angular_flux_integrator_sptr_.get());
+  EXPECT_EQ(dynamic_ptr->high_order_moments(), this->spherical_harmonics_sptr_.get());
+  EXPECT_EQ(angular_flux_storage.size(), dynamic_ptr->angular_flux_storage_map().size());
+  for (auto& [boundary, is_reflective] : this->reflective_bcs_ ) {
+    if (is_reflective) {
+      EXPECT_EQ(dynamic_ptr->reflective_boundaries().count(boundary), 1);
+    }
+  }
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionUpdaterPointersRefl) {

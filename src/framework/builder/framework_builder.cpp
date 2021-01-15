@@ -31,6 +31,7 @@
 #include "formulation/stamper.h"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
+#include "formulation/updater/drift_diffusion_updater.hpp"
 
 // Framework class
 #include "framework/framework.hpp"
@@ -163,6 +164,41 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType fi
   }
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildUpdaterPointers(
+    std::unique_ptr<DiffusionFormulation> diffusion_formulation_ptr,
+    std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr,
+    std::shared_ptr<Stamper> stamper_ptr,
+    std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr,
+    std::shared_ptr<SphericalHarmonicMoments> higher_order_moments_ptr,
+    AngularFluxStorage& angular_flux_storage,
+    const std::map<problem::Boundary, bool>& reflective_boundaries) -> UpdaterPointers {
+  ReportBuildingComponant("Building Drift-Diffusion Formulation updater");
+  UpdaterPointers return_struct;
+
+  std::unordered_set<problem::Boundary> reflective_boundary_set;
+
+  for (const auto boundary_pair : reflective_boundaries) {
+    if (boundary_pair.second)
+      reflective_boundary_set.insert(boundary_pair.first);
+  }
+
+  using ReturnType = formulation::updater::DriftDiffusionUpdater<dim>;
+  auto drift_diffusion_updater_ptr = std::make_shared<ReturnType>(std::move(diffusion_formulation_ptr),
+                                                                  std::move(drift_diffusion_formulation_ptr),
+                                                                  stamper_ptr,
+                                                                  angular_flux_integrator_ptr,
+                                                                  higher_order_moments_ptr,
+                                                                  angular_flux_storage,
+                                                                  reflective_boundary_set);
+
+  return_struct.fixed_updater_ptr = drift_diffusion_updater_ptr;
+  return_struct.fission_source_updater_ptr = drift_diffusion_updater_ptr;
+  return_struct.scattering_source_updater_ptr = drift_diffusion_updater_ptr;
+
+  return return_struct;
 }
 
 template<int dim>
@@ -621,7 +657,6 @@ template<int dim>
 void FrameworkBuilder<dim>::Validate() const {
   validator_ptr_->ReportValidation();
 }
-
 
 template class FrameworkBuilder<1>;
 template class FrameworkBuilder<2>;

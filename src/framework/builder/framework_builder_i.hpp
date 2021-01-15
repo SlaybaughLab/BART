@@ -30,6 +30,7 @@
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 #include "solver/group/single_group_solver_i.h"
+#include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
 #include "system/system.h"
@@ -59,6 +60,7 @@ class FrameworkBuilderI {
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
+  using SphericalHarmonicMoments = system::moments::SphericalHarmonicI;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
   using System = system::System;
@@ -160,6 +162,14 @@ class FrameworkBuilderI {
                            const std::size_t solution_size,
                            bool is_eigenvalue_problem,
                            bool need_rhs_boundary_condition) -> std::unique_ptr<System> = 0;
+
+  virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
+                                    std::unique_ptr<DriftDiffusionFormulation>,
+                                    std::shared_ptr<Stamper>,
+                                    std::shared_ptr<AngularFluxIntegrator>,
+                                    std::shared_ptr<SphericalHarmonicMoments>,
+                                    AngularFluxStorage&,
+                                    const std::map<problem::Boundary, bool>&) -> UpdaterPointers = 0;
   virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
                                     std::unique_ptr<Stamper>,
                                     const std::map<problem::Boundary, bool>&) -> UpdaterPointers = 0;
