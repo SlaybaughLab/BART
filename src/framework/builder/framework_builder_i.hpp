@@ -103,8 +103,7 @@ class FrameworkBuilderI {
   virtual auto BuildDriftDiffusionFormulation(
       const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&,
-      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
+      const std::shared_ptr<data::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,

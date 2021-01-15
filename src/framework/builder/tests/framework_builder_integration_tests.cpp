@@ -291,8 +291,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDriftDiffusionFormulationTest) 
   auto drift_diffusion_formulation_ptr = this->test_builder_ptr_->BuildDriftDiffusionFormulation(
       this->angular_flux_integrator_sptr_,
       this->finite_element_sptr_,
-      this->cross_sections_sptr_,
-      this->quadrature_set_sptr_);
+      this->cross_sections_sptr_);
 
   using Formulation = formulation::scalar::DriftDiffusion<dim>;
   using DriftDiffusionCalculator = calculator::drift_diffusion::DriftDiffusionVectorCalculator<dim>;

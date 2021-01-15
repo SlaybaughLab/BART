@@ -111,8 +111,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildDriftDiffusionFormulation(
     const std::shared_ptr<AngularFluxIntegrator>& angular_flux_integrator_ptr,
     const std::shared_ptr<FiniteElement>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
-    const std::shared_ptr<QuadratureSet> quadrature_set_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
+    const std::shared_ptr<data::CrossSections>& cross_sections_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
   auto drift_diffusion_vector_calculator_ptr = Shared(calculator::drift_diffusion::DriftDiffusionVectorCalculatorIFactory<dim>::get()
       .GetConstructor(calculator::drift_diffusion::DriftDiffusionVectorCalculatorName::kDefaultImplementation)());
   return formulation::scalar::DriftDiffusion<dim>::Factory::get()
