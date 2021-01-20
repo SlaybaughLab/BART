@@ -7,10 +7,12 @@
 namespace bart::framework::builder {
 
 template <int dim>
-class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
+class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
  public:
+  using typename FrameworkBuilderI<dim>::AngularFluxIntegrator;
   using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
+  using typename FrameworkBuilderI<dim>::DriftDiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
@@ -25,6 +27,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::ParameterConvergenceChecker;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
+  using typename FrameworkBuilderI<dim>::SphericalHarmonicMoments;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::System;
@@ -44,10 +47,14 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   using typename FrameworkBuilderI<dim>::ConvergenceInstrument;
   using typename FrameworkBuilderI<dim>::StatusInstrument;
 
-
+  MOCK_METHOD(std::unique_ptr<AngularFluxIntegrator>, BuildAngularFluxIntegrator,
+              (const std::shared_ptr<QuadratureSet>), (override));
   MOCK_METHOD(std::unique_ptr<DiffusionFormulation>, BuildDiffusionFormulation,
       (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl), (override));
+  MOCK_METHOD(std::unique_ptr<DriftDiffusionFormulation>, BuildDriftDiffusionFormulation,
+  (const std::shared_ptr<AngularFluxIntegrator>&, const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&), (override));
   MOCK_METHOD(std::unique_ptr<Domain>, BuildDomain, (const FrameworkParameters::DomainSize,
       const FrameworkParameters::NumberOfCells, const std::shared_ptr<FiniteElement>&,
       const std::string material_mapping), (override));
@@ -82,6 +89,9 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim> {
   MOCK_METHOD(std::unique_ptr<Stamper>, BuildStamper, (const std::shared_ptr<Domain>&), (override));
   MOCK_METHOD(std::unique_ptr<System>, BuildSystem, (const int, const int, const Domain&,
       const std::size_t solution_size, bool is_eigenvalue_problem, bool need_rhs_boundary_condition), (override));
+  MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<DiffusionFormulation>,
+      std::unique_ptr<DriftDiffusionFormulation>, std::shared_ptr<Stamper>, std::shared_ptr<AngularFluxIntegrator>,
+      std::shared_ptr<SphericalHarmonicMoments>, AngularFluxStorage&, (const std::map<problem::Boundary, bool>&)),(override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<DiffusionFormulation>,
       std::unique_ptr<Stamper>, (const std::map<problem::Boundary, bool>&)), (override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<SAAFFormulation>,

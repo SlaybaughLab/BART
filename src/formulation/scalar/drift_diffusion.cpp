@@ -1,4 +1,5 @@
 #include "formulation/scalar/drift_diffusion.hpp"
+#include "formulation/scalar/scalar_formulation_factory.hpp"
 
 namespace bart::formulation::scalar {
 
@@ -20,6 +21,23 @@ DriftDiffusion<dim>::DriftDiffusion(std::shared_ptr<FiniteElement> finite_elemen
   cell_degrees_of_freedom_ = finite_element_ptr->dofs_per_cell();
   face_quadrature_points_ = finite_element_ptr->n_face_quad_pts();
 }
+
+template <int dim>
+bool DriftDiffusion<dim>::is_registered_ =
+    DriftDiffusionIFactory<dim, std::shared_ptr<FiniteElement>, std::shared_ptr<CrossSections>,
+                           std::shared_ptr<DriftDiffusionCalculator>, std::shared_ptr<AngularFluxIntegrator>>::get()
+        .RegisterConstructor(DriftDiffusionFormulationName::kDefaultImplementation,
+                             [](std::shared_ptr<FiniteElement> finite_element_ptr,
+                                std::shared_ptr<CrossSections> cross_sections_ptr,
+                                std::shared_ptr<DriftDiffusionCalculator> drift_diffusion_calculator_ptr,
+                                std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr)
+                                -> std::unique_ptr<DriftDiffusionI<dim>> {
+                               return std::make_unique<DriftDiffusion<dim>>(finite_element_ptr,
+                                                                            cross_sections_ptr,
+                                                                            drift_diffusion_calculator_ptr,
+                                                                            angular_flux_integrator_ptr);
+                             }
+        );
 
 template<int dim>
 void DriftDiffusion<dim>::FillCellBoundaryTerm(Matrix& to_fill,

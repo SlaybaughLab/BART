@@ -11,6 +11,8 @@ inline auto to_string(T to_convert) {
     return std::to_string(to_convert);
   } else if constexpr (requires { to_string(to_convert); }) {
     return to_string(to_convert);
+  } else {
+    return std::string{"<no conversion to string>"};
   }
 }
 

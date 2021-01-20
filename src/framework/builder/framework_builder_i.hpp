@@ -14,6 +14,7 @@
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/drift_diffusion_i.hpp"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
@@ -25,9 +26,11 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
+#include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "quadrature/quadrature_set_i.h"
 #include "problem/parameter_types.h"
 #include "solver/group/single_group_solver_i.h"
+#include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
 #include "system/system.h"
@@ -39,8 +42,10 @@ template <int dim>
 class FrameworkBuilderI {
  public:
   // Classes built by member functions
+  using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
   using CrossSections = data::CrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
+  using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
   using Domain = typename domain::DefinitionI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
@@ -55,6 +60,7 @@ class FrameworkBuilderI {
   using ParameterConvergenceChecker = convergence::FinalI<double>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
+  using SphericalHarmonicMoments = system::moments::SphericalHarmonicI;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
   using System = system::System;
@@ -88,10 +94,16 @@ class FrameworkBuilderI {
 
   virtual ~FrameworkBuilderI() = default;
 
+  virtual auto BuildAngularFluxIntegrator(
+      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> = 0;
   virtual auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
+  virtual auto BuildDriftDiffusionFormulation(
+      const std::shared_ptr<AngularFluxIntegrator>&,
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,
@@ -149,6 +161,14 @@ class FrameworkBuilderI {
                            const std::size_t solution_size,
                            bool is_eigenvalue_problem,
                            bool need_rhs_boundary_condition) -> std::unique_ptr<System> = 0;
+
+  virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
+                                    std::unique_ptr<DriftDiffusionFormulation>,
+                                    std::shared_ptr<Stamper>,
+                                    std::shared_ptr<AngularFluxIntegrator>,
+                                    std::shared_ptr<SphericalHarmonicMoments>,
+                                    AngularFluxStorage&,
+                                    const std::map<problem::Boundary, bool>&) -> UpdaterPointers = 0;
   virtual auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
                                     std::unique_ptr<Stamper>,
                                     const std::map<problem::Boundary, bool>&) -> UpdaterPointers = 0;

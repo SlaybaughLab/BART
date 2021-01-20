@@ -14,6 +14,8 @@ class DriftDiffusionVectorCalculator : public DriftDiffusionVectorCalculatorI<di
                                           const Tensor& current,
                                           const Tensor& shape_gradient,
                                           const double diffusion_coefficient) const -> Tensor override;
+ private:
+  static bool is_registered_;
 };
 
 } // namespace bart::calculator::drift_diffusion

@@ -22,8 +22,10 @@ template <int dim>
 class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuilderI<dim> {
  public:
   // New using types from refactor
+  using typename FrameworkBuilderI<dim>::AngularFluxIntegrator;
   using typename FrameworkBuilderI<dim>::CrossSections;
   using typename FrameworkBuilderI<dim>::DiffusionFormulation;
+  using typename FrameworkBuilderI<dim>::DriftDiffusionFormulation;
   using typename FrameworkBuilderI<dim>::Domain;
   using typename FrameworkBuilderI<dim>::FiniteElement;
   using typename FrameworkBuilderI<dim>::FrameworkI;
@@ -39,6 +41,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
+  using typename FrameworkBuilderI<dim>::SphericalHarmonicMoments;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::System;
   using typename FrameworkBuilderI<dim>::Validator;
@@ -62,11 +65,20 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   FrameworkBuilder(std::unique_ptr<Validator> validator_ptr);
   ~FrameworkBuilder() = default;
 
+  [[nodiscard]] auto BuildAngularFluxIntegrator(
+      const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> override;
+
   [[nodiscard]] auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<data::CrossSections>&,
       const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault)
   -> std::unique_ptr<DiffusionFormulation> override;
+
+  [[nodiscard]] auto BuildDriftDiffusionFormulation(
+      const std::shared_ptr<AngularFluxIntegrator>&,
+      const std::shared_ptr<FiniteElement>&,
+      const std::shared_ptr<data::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> override;
+
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
                                  const std::shared_ptr<FiniteElement>&,
@@ -135,6 +147,14 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
                                  const std::size_t solution_size,
                                  bool is_eigenvalue_problem,
                                  bool need_rhs_boundary_condition) -> std::unique_ptr<System> override;
+
+  [[nodiscard]] auto BuildUpdaterPointers(std::unique_ptr<DiffusionFormulation>,
+                                    std::unique_ptr<DriftDiffusionFormulation>,
+                                    std::shared_ptr<Stamper>,
+                                    std::shared_ptr<AngularFluxIntegrator>,
+                                    std::shared_ptr<SphericalHarmonicMoments>,
+                                    AngularFluxStorage&,
+                                    const std::map<problem::Boundary, bool>&) -> UpdaterPointers override;
   [[nodiscard]] auto BuildUpdaterPointers(
       std::unique_ptr<DiffusionFormulation>,
       std::unique_ptr<Stamper>,

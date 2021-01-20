@@ -8,10 +8,13 @@
 
 namespace bart::quadrature::calculators {
 
+template <typename...> class AngularFluxIntegratorIFactory;
+
 template <int dim>
 class AngularFluxIntegrator : public AngularFluxIntegratorI, public utility::HasDependencies {
  public:
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
+  using Factory = AngularFluxIntegratorIFactory<std::shared_ptr<QuadratureSet>>;
 
   AngularFluxIntegrator(std::shared_ptr<QuadratureSet>);
 
@@ -24,8 +27,10 @@ class AngularFluxIntegrator : public AngularFluxIntegratorI, public utility::Has
 
   auto quadrature_set_ptr() const -> QuadratureSet* { return quadrature_set_ptr_.get(); }
 
- private:
+ protected:
   std::shared_ptr<QuadratureSet> quadrature_set_ptr_{ nullptr };
+ private:
+  static bool is_registered_;
 };
 
 } // namespace bart::quadrature::calculators

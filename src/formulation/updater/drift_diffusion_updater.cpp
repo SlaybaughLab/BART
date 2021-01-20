@@ -1,4 +1,5 @@
 #include "drift_diffusion_updater.hpp"
+#include "formulation/updater/formulation_updater_factories.hpp"
 
 namespace bart::formulation::updater {
 
@@ -21,6 +22,35 @@ DriftDiffusionUpdater<dim>::DriftDiffusionUpdater(
   AssertPointerNotNull(integrated_flux_calculator_ptr_.get(), "integrated flux calculator", call_location);
   AssertPointerNotNull(high_order_moments_.get(), "higher order moments", call_location);
 }
+
+template <int dim>
+bool DriftDiffusionUpdater<dim>::is_registered_ = DriftDiffusionUpdaterFactory<
+    dim,
+    std::unique_ptr<DiffusionFormulation>,
+    std::unique_ptr<DriftDiffusionFormulation>,
+    std::shared_ptr<Stamper>,
+    std::shared_ptr<IntegratedFluxCalculator>,
+    std::shared_ptr<HighOrderMoments>,
+    AngularFluxStorageMap&,
+    std::unordered_set<problem::Boundary>>::get().RegisterConstructor(
+        DriftDiffusionUpdaterName::kDefaultImplementation,
+        [] (std::unique_ptr<DiffusionFormulation> diffusion_formulation_ptr,
+            std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr,
+            std::shared_ptr<Stamper> stamper_ptr,
+            std::shared_ptr<IntegratedFluxCalculator> integrated_flux_calculator_ptr,
+            std::shared_ptr<HighOrderMoments> high_order_moments,
+            AngularFluxStorageMap& angular_flux_storage_map,
+            std::unordered_set<problem::Boundary> reflective_boundaries) {
+          return std::make_unique<DriftDiffusionUpdater<dim>>(
+              std::move(diffusion_formulation_ptr),
+              std::move(drift_diffusion_formulation_ptr),
+              stamper_ptr,
+              integrated_flux_calculator_ptr,
+              high_order_moments,
+              angular_flux_storage_map,
+              reflective_boundaries); } );
+    
+
 template<int dim>
 auto DriftDiffusionUpdater<dim>::SetUpFixedFunctions(system::System& system,
                                                      system::EnergyGroup energy_group,

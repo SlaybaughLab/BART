@@ -4,6 +4,12 @@
 #include <deal.II/base/mpi.h>
 #include <sstream>
 #include <fstream>
+#include <quadrature/calculators/angular_flux_integrator.hpp>
+#include <quadrature/calculators/quadrature_calculators_factories.hpp>
+#include <calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp>
+#include <calculator/drift_diffusion/factory.hpp>
+#include <formulation/scalar/scalar_formulation_factory.hpp>
+#include <formulation/updater/formulation_updater_factories.hpp>
 
 // Builders & factories
 #include "solver/builder/solver_builder.hpp"
@@ -22,9 +28,11 @@
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/stamper.h"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
+#include "formulation/updater/drift_diffusion_updater.hpp"
 
 // Framework class
 #include "framework/framework.hpp"
@@ -77,6 +85,13 @@ FrameworkBuilder<dim>::FrameworkBuilder(std::unique_ptr<Validator> validator_ptr
 // =============================================================================
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildAngularFluxIntegrator(const std::shared_ptr<QuadratureSet> quadrature_set_ptr)
+-> std::unique_ptr<AngularFluxIntegrator> {
+  return quadrature::calculators::AngularFluxIntegrator<dim>::Factory::get()
+      .GetConstructor(quadrature::calculators::AngularFluxIntegratorName::kDefaultImplementation)(quadrature_set_ptr);
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<FiniteElement>& finite_element_ptr,
                                                       const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
                                                       const DiffusionFormulationImpl implementation)
@@ -91,6 +106,18 @@ auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<Fini
   ReportBuildSuccess(return_ptr->description());
 
   return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildDriftDiffusionFormulation(
+    const std::shared_ptr<AngularFluxIntegrator>& angular_flux_integrator_ptr,
+    const std::shared_ptr<FiniteElement>& finite_element_ptr,
+    const std::shared_ptr<data::CrossSections>& cross_sections_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
+  auto drift_diffusion_vector_calculator_ptr = Shared(calculator::drift_diffusion::DriftDiffusionVectorCalculatorIFactory<dim>::get()
+      .GetConstructor(calculator::drift_diffusion::DriftDiffusionVectorCalculatorName::kDefaultImplementation)());
+  return formulation::scalar::DriftDiffusion<dim>::Factory::get()
+      .GetConstructor(formulation::scalar::DriftDiffusionFormulationName::kDefaultImplementation)(
+          finite_element_ptr, cross_sections_ptr, drift_diffusion_vector_calculator_ptr, angular_flux_integrator_ptr);
 }
 
 template<int dim>
@@ -137,6 +164,43 @@ auto FrameworkBuilder<dim>::BuildFiniteElement(problem::CellFiniteElementType fi
   }
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildUpdaterPointers(
+    std::unique_ptr<DiffusionFormulation> diffusion_formulation_ptr,
+    std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_ptr,
+    std::shared_ptr<Stamper> stamper_ptr,
+    std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr,
+    std::shared_ptr<SphericalHarmonicMoments> higher_order_moments_ptr,
+    AngularFluxStorage& angular_flux_storage,
+    const std::map<problem::Boundary, bool>& reflective_boundaries) -> UpdaterPointers {
+  ReportBuildingComponant("Building Drift-Diffusion Formulation updater");
+  UpdaterPointers return_struct;
+
+  std::unordered_set<problem::Boundary> reflective_boundary_set;
+
+  for (const auto boundary_pair : reflective_boundaries) {
+    if (boundary_pair.second)
+      reflective_boundary_set.insert(boundary_pair.first);
+  }
+
+  using ReturnType = formulation::updater::DriftDiffusionUpdater<dim>;
+  auto implementation_name{ formulation::updater::DriftDiffusionUpdaterName::kDefaultImplementation };
+  auto drift_diffusion_updater_ptr = Shared(ReturnType::Factory::get().GetConstructor(implementation_name)(
+      std::move(diffusion_formulation_ptr),
+      std::move(drift_diffusion_formulation_ptr),
+      stamper_ptr,
+      angular_flux_integrator_ptr,
+      higher_order_moments_ptr,
+      angular_flux_storage,
+      reflective_boundary_set));
+
+  return_struct.fixed_updater_ptr = drift_diffusion_updater_ptr;
+  return_struct.fission_source_updater_ptr = drift_diffusion_updater_ptr;
+  return_struct.scattering_source_updater_ptr = drift_diffusion_updater_ptr;
+
+  return return_struct;
 }
 
 template<int dim>
