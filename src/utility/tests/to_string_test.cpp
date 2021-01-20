@@ -20,17 +20,23 @@ using OutstreamName = bart::instrumentation::outstream::OutstreamName;
 using GroupSolverName = bart::solver::group::GroupSolverName;
 using LinearSolverName = bart::solver::linear::LinearSolverName;
 
+struct NoStringConversionType{};
+
 template <typename T>
 class UtilityToStringTest : public ::testing::Test {
  public:
   [[nodiscard]] auto GetValue() const -> T;
 };
 
-using TestTypes = ::testing::Types<int, double, ConverterName, MeshName, OutstreamName, GroupSolverName, LinearSolverName>;
+using TestTypes = ::testing::Types<int, double, ConverterName, MeshName, OutstreamName, GroupSolverName, LinearSolverName, NoStringConversionType>;
 TYPED_TEST_SUITE(UtilityToStringTest, TestTypes);
 
 template <>
 auto UtilityToStringTest<int>::GetValue() const -> int { return test_helpers::RandomInt(-100, 100); }
+
+template <>
+auto UtilityToStringTest<NoStringConversionType>::GetValue() const -> NoStringConversionType {
+  return NoStringConversionType(); }
 
 template <>
 auto UtilityToStringTest<double>::GetValue() const -> double { return test_helpers::RandomDouble(-100, 100); }
