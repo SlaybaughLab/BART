@@ -32,9 +32,10 @@ auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) 
   }
 
   // Check for required angular solution storage
-  if (!parameters.reflective_boundaries.empty() &&
-      parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
+  if (const bool equation_type_is_saaf{ parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux};
+      parameters.use_nda_ || (!parameters.reflective_boundaries.empty() && equation_type_is_saaf)) {
     needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
+    if (parameters.use_nda_) AssertThrow(equation_type_is_saaf, dealii::ExcMessage("NDA requires angular solve"))
   }
 }
 
