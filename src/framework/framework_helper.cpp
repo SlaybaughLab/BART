@@ -48,7 +48,8 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .number_of_cells{ framework::FrameworkParameters::NumberOfCells(problem_parameters.NCells()) },
     .uniform_refinements{ problem_parameters.UniformRefinements() },
     .discretization_type{ problem_parameters.Discretization() },
-    .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) }
+    .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) },
+    .use_nda_{ problem_parameters.DoNDA() }
   };
 
   std::set<Boundary> reflective_boundaries;

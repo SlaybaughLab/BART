@@ -31,6 +31,7 @@ class FrameworkHelperToFrameworkParametersTest : public ::testing::Test {
   const std::unordered_map<int, std::string> material_filenames_{
     {0, "test_data/material/serialized/uo2_20.material"}};
   const int energy_groups_{ 7 }; // required by the material file
+  const bool use_nda_{ false };
 
   auto SetExpectations(const framework::FrameworkParameters&, const std::string& material_mapping_filename) -> void;
   auto SetExpectations(const framework::FrameworkParameters&) -> void;
@@ -64,6 +65,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetUp() -> void {
   default_parameters_.cell_finite_element_type = problem::CellFiniteElementType::kGaussian;
   using PolynomialDegree = framework::FrameworkParameters::PolynomialDegree;
   default_parameters_.polynomial_degree = PolynomialDegree(test_helpers::RandomInt(2, 5));
+  default_parameters_.use_nda_ = use_nda_;
 
   test_helper_ptr_ = std::make_unique<FrameworkHelper>(std::make_unique<SystemHelperMock>());
   system_helper_obs_ptr_ = dynamic_cast<SystemHelperMock*>(test_helper_ptr_->system_helper_ptr());
@@ -105,6 +107,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetExpectations(
   EXPECT_CALL(parameters_mock_, MaterialFilenames()).WillOnce(Return(material_filenames_));
   EXPECT_CALL(parameters_mock_, NumberOfMaterials()).WillOnce(Return(static_cast<int>(material_filenames_.size())));
   EXPECT_CALL(parameters_mock_, K_EffectiveUpdaterType()).WillOnce(Return(parameters.k_effective_updater));
+  EXPECT_CALL(parameters_mock_, DoNDA()).WillOnce(Return(parameters.use_nda_));
 }
 
 AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framework::FrameworkParameters& rhs) {
@@ -144,6 +147,8 @@ AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framew
     return AssertionFailure() << "polynomial degree do not match";
   } else if (lhs.k_effective_updater != rhs.k_effective_updater) {
     return AssertionFailure() << "K-effective updaters do not match";
+  } else if (lhs.use_nda_ != rhs.use_nda_) {
+    return AssertionFailure() << "use NDA flag do not match";
   }
   return AssertionSuccess();
 }
@@ -157,6 +162,14 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, DefaultParameters) {
   EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
   ASSERT_TRUE(returned_parameters.cross_sections_.has_value());
   EXPECT_NE(returned_parameters.cross_sections_.value(), nullptr);
+}
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, UseNDATrue) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.use_nda_ = true;
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(returned_parameters, test_parameters));
 }
 
 TEST_F(FrameworkHelperToFrameworkParametersTest, SAAFWithLevelSymmetric) {

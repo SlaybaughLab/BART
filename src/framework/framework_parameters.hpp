@@ -52,6 +52,8 @@ struct FrameworkParameters {
   problem::CellFiniteElementType cell_finite_element_type{problem::CellFiniteElementType::kGaussian};
   PolynomialDegree polynomial_degree{ 2 };
 
+  // Acceleration methods
+  bool use_nda_{ false };
 
   // Optional shared framework parts
   template <typename Part> using OptionalSharedPart = std::optional<std::shared_ptr<Part>>;
