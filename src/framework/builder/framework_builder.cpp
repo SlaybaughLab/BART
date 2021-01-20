@@ -9,6 +9,7 @@
 #include <calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp>
 #include <calculator/drift_diffusion/factory.hpp>
 #include <formulation/scalar/scalar_formulation_factory.hpp>
+#include <formulation/updater/formulation_updater_factories.hpp>
 
 // Builders & factories
 #include "solver/builder/solver_builder.hpp"
@@ -185,13 +186,15 @@ auto FrameworkBuilder<dim>::BuildUpdaterPointers(
   }
 
   using ReturnType = formulation::updater::DriftDiffusionUpdater<dim>;
-  auto drift_diffusion_updater_ptr = std::make_shared<ReturnType>(std::move(diffusion_formulation_ptr),
-                                                                  std::move(drift_diffusion_formulation_ptr),
-                                                                  stamper_ptr,
-                                                                  angular_flux_integrator_ptr,
-                                                                  higher_order_moments_ptr,
-                                                                  angular_flux_storage,
-                                                                  reflective_boundary_set);
+  auto implementation_name{ formulation::updater::DriftDiffusionUpdaterName::kDefaultImplementation };
+  auto drift_diffusion_updater_ptr = Shared(ReturnType::Factory::get().GetConstructor(implementation_name)(
+      std::move(diffusion_formulation_ptr),
+      std::move(drift_diffusion_formulation_ptr),
+      stamper_ptr,
+      angular_flux_integrator_ptr,
+      higher_order_moments_ptr,
+      angular_flux_storage,
+      reflective_boundary_set));
 
   return_struct.fixed_updater_ptr = drift_diffusion_updater_ptr;
   return_struct.fission_source_updater_ptr = drift_diffusion_updater_ptr;
