@@ -20,7 +20,6 @@ class FrameworkValidator : public FrameworkValidatorI,
  public:
   auto AddPart(const FrameworkPart to_add) -> FrameworkValidator& override;
   auto Parse(const framework::FrameworkParameters) -> void override;
-  [[deprecated]] auto Parse(const problem::ParametersI& to_parse) -> void override;
   auto ReportValidation() -> void override;
 
   [[nodiscard]] auto HasNeededParts() const -> bool  override { return needed_parts_.size() > 0; }
