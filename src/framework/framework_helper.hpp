@@ -23,9 +23,14 @@ class FrameworkHelper : public FrameworkHelperI<dim> {
                                     framework::FrameworkParameters&,
                                     system::moments::SphericalHarmonicI*) -> std::unique_ptr<framework::FrameworkI> override;
 
+  auto SetSubroutineFrameworkHelper(std::unique_ptr<FrameworkHelperI<dim>> framework_helper_ptr) {
+    subroutine_framework_helper_ptr_ = std::move(framework_helper_ptr); }
   auto system_helper_ptr() { return system_helper_ptr_.get(); }
+  auto subroutine_framework_helper_ptr() { return subroutine_framework_helper_ptr_.get(); }
  private:
   std::shared_ptr<SystemHelper> system_helper_ptr_{ nullptr };
+  // Subroune framework helper, helps build frameworks for subroutines, used only for testing
+  std::unique_ptr<FrameworkHelperI<dim>> subroutine_framework_helper_ptr_{ nullptr };
 };
 
 } // namespace bart::framework
