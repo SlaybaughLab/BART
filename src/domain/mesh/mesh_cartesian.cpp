@@ -10,7 +10,7 @@
 #include <deal.II/base/utilities.h>
 
 #include "domain/mesh/factory.hpp"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 
 namespace bart::domain::mesh {
 

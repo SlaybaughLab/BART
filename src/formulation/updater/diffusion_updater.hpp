@@ -12,7 +12,7 @@
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
 #include "quadrature/quadrature_set_i.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 #include "utility/has_description.h"
 
 namespace bart {

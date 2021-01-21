@@ -9,7 +9,7 @@
 #include <deal.II/fe/fe_values.h>
 #include <gtest/gtest.h>
 
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 #include "finite_element_test.hpp"
 #include "test_helpers/gmock_wrapper.h"
 

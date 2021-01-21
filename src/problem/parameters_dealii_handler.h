@@ -8,7 +8,7 @@
 #include <deal.II/base/parameter_handler.h>
 
 #include "parameters_i.h"
-#include "parameter_types.h"
+#include "parameter_types.hpp"
 
 namespace bart {
 

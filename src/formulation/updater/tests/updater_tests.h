@@ -14,7 +14,7 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/dealii_test_domain.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 
 namespace bart {
 

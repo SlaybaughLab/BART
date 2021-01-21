@@ -7,7 +7,8 @@
 #include <vector>
 
 #include "eigenvalue/k_effective/factory.hpp"
-#include "parameter_types.h"
+#include "parameter_types.hpp"
+
 
 namespace bart {
 

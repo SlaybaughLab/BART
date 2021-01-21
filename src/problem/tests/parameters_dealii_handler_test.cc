@@ -7,7 +7,7 @@
 
 #include "gtest/gtest.h"
 
-#include "../parameter_types.h"
+#include "../parameter_types.hpp"
 
 class ParametersDealiiHandlerTest : public ::testing::Test {
  protected:

@@ -2,7 +2,7 @@
 #define BART_SRC_FRAMEWORK_FRAMEWORK_PARAMETERS_HPP_
 
 #include "eigenvalue/k_effective/factory.hpp"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 #include "data/cross_sections.h"
 #include "utility/named_type.h"
 #include "quadrature/quadrature_set_i.h"
