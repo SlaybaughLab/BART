@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_FRAMEWORK_HELPER_HPP_
 #define BART_SRC_FRAMEWORK_FRAMEWORK_HELPER_HPP_
 
+#include "framework/framework_helper_i.hpp"
 #include "problem/parameters_i.h"
 #include "framework/builder/framework_builder_i.hpp"
 #include "material/material_protobuf.h"
@@ -10,17 +11,17 @@
 namespace bart::framework {
 
 template <int dim>
-class FrameworkHelper {
+class FrameworkHelper : public FrameworkHelperI<dim> {
  public:
   using SystemHelper = const system::SystemHelperI<dim>;
   FrameworkHelper(const std::shared_ptr<SystemHelper>& system_helper_ptr);
 
-  [[nodiscard]] auto ToFrameworkParameters(const problem::ParametersI& parameters) -> framework::FrameworkParameters;
+  [[nodiscard]] auto ToFrameworkParameters(const problem::ParametersI& parameters) -> framework::FrameworkParameters override;
   [[nodiscard]] auto BuildFramework(builder::FrameworkBuilderI<dim>&,
-                                    framework::FrameworkParameters&) -> std::unique_ptr<framework::FrameworkI>;
+                                    framework::FrameworkParameters&) -> std::unique_ptr<framework::FrameworkI> override;
   [[nodiscard]] auto BuildFramework(builder::FrameworkBuilderI<dim>&,
                                     framework::FrameworkParameters&,
-                                    system::moments::SphericalHarmonicI*) -> std::unique_ptr<framework::FrameworkI>;
+                                    system::moments::SphericalHarmonicI*) -> std::unique_ptr<framework::FrameworkI> override;
 
   auto system_helper_ptr() { return system_helper_ptr_.get(); }
  private:
