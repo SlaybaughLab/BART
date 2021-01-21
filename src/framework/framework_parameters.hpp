@@ -70,9 +70,9 @@ struct FrameworkParameters {
   struct NDA_Data {
     std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr_{ nullptr };
     std::shared_ptr<Moments> higher_order_moments_ptr_{ nullptr };
-    AngularFluxStorage higher_order_angular_flux_;
+    AngularFluxStorage higher_order_angular_flux_{};
   };
-  NDA_Data nda_data_;
+  NDA_Data nda_data_{};
 };
 
 } // namespace bart::framework

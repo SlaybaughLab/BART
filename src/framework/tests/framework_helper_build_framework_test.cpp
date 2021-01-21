@@ -1,6 +1,7 @@
 #include <eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp>
 #include "framework/framework_helper.hpp"
 
+#include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "convergence/tests/final_checker_mock.h"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/tests/stamper_mock.h"
@@ -10,6 +11,7 @@
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
+#include "formulation/scalar/tests/drift_diffusion_mock.hpp"
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"
 #include "framework/builder/tests/framework_validator_mock.hpp"
@@ -28,6 +30,8 @@
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/tests/system_helper_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
+#include "system/solution/solution_types.h"
+#include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/system.hpp"
 
@@ -47,8 +51,10 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
   // Mock types
+  using AngularFluxIntegratorMock = quadrature::calculators::AngularFluxIntegratorMock;
   using DiffusionFormulationMock = typename formulation::scalar::DiffusionMock<dim>;
   using DomainMock = typename domain::DefinitionMock<dim>;
+  using DriftDiffusionFormulationMock = typename formulation::scalar::DriftDiffusionMock<dim>;
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
   using FrameworkParameters = framework::FrameworkParameters;
@@ -69,7 +75,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using System = system::System;
   using Validator = framework::builder::FrameworkValidatorMock;
 
-  using UpdaterPointers = FrameworkBuidler::UpdaterPointers;
+  using UpdaterPointers = typename FrameworkBuidler::UpdaterPointers;
   using BoundaryConditionsUpdaterMock = formulation::updater::BoundaryConditionsUpdaterMock;
   using FissionSourceUpdaterMock = formulation::updater::FissionSourceUpdaterMock;
   using FixedTermUpdaterMock = formulation::updater::FixedUpdaterMock;
@@ -80,8 +86,10 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   std::unique_ptr<FrameworkHelper> test_helper_ptr_;
 
   // Mock pointers and observation pointers
+  AngularFluxIntegratorMock* angular_flux_integrator_obs_ptr_{ nullptr };
   DiffusionFormulationMock* diffusion_formulation_obs_ptr_{ nullptr };
   DomainMock* domain_obs_ptr_{ nullptr };
+  DriftDiffusionFormulationMock* drift_diffusion_formulation_obs_ptr_{ nullptr };
   FiniteElementMock* finite_element_obs_ptr_{ nullptr };
   GroupSolutionMock* group_solution_obs_ptr_{ nullptr };
   GroupSolveIterationMock* group_solve_iteration_obs_ptr{ nullptr };
@@ -111,7 +119,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   system::MPIVector solution_;
   Validator mock_validator_;
 
-  auto RunTest(const FrameworkParameters& parameters) -> void;
+  auto RunTest(FrameworkParameters& parameters) -> void;
   auto SetUp() -> void override;
 };
 
@@ -143,10 +151,14 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   }
 
   // Mocks and observation pointers
+  auto angular_flux_integrator_ptr = std::make_unique<AngularFluxIntegratorMock>();
+  angular_flux_integrator_obs_ptr_ = angular_flux_integrator_ptr.get();
   auto diffusion_formulation_ptr = std::make_unique<NiceMock<DiffusionFormulationMock>>();
   diffusion_formulation_obs_ptr_ = diffusion_formulation_ptr.get();
   auto domain_ptr = std::make_unique<NiceMock<DomainMock>>();
   domain_obs_ptr_ = domain_ptr.get();
+  auto drift_diffusion_formulation_ptr = std::make_unique<NiceMock<DriftDiffusionFormulationMock>>();
+  drift_diffusion_formulation_obs_ptr_ = drift_diffusion_formulation_ptr.get();
   auto finite_element_ptr = std::make_unique<NiceMock<FiniteElementMock>>();
   finite_element_obs_ptr_ = finite_element_ptr.get();
   auto group_solution_ptr = std::make_unique<NiceMock<GroupSolutionMock>>();
@@ -191,10 +203,14 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(*group_solution_obs_ptr_, GetSolution(_)).WillByDefault(ReturnRef(solution_));
 
   using DiffusionFormulationPtr = std::unique_ptr<typename FrameworkBuidler::DiffusionFormulation>;
+  using DriftDiffusionFormulationPtr = std::unique_ptr<typename FrameworkBuidler::DriftDiffusionFormulation>;
   using SAAFFormulationPtr = std::unique_ptr<typename FrameworkBuidler::SAAFFormulation>;
 
+  ON_CALL(mock_builder_, BuildAngularFluxIntegrator(_)).WillByDefault(ReturnByMove(angular_flux_integrator_ptr));
   ON_CALL(mock_builder_, BuildDiffusionFormulation(_,_,_)).WillByDefault(ReturnByMove(diffusion_formulation_ptr));
   ON_CALL(mock_builder_, BuildDomain(_, _, _, _)).WillByDefault(ReturnByMove(domain_ptr));
+  ON_CALL(mock_builder_, BuildDriftDiffusionFormulation(_, _, _))
+      .WillByDefault(ReturnByMove(drift_diffusion_formulation_ptr));
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
   ON_CALL(mock_builder_, BuildGroupSolution(_)).WillByDefault(ReturnByMove(group_solution_ptr));
   ON_CALL(mock_builder_, BuildGroupSolveIteration(_,_,_,_,_,_)).WillByDefault(ReturnByMove(group_solve_iteration_ptr));
@@ -216,6 +232,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(ReturnByMove(stamper_ptr));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<SAAFFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
+  ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(), A<DriftDiffusionFormulationPtr>(),_,_,_,_,_))
+      .WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(_,_,_,_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildSystem(_,_,_,_,_,_)).WillByDefault(ReturnByMove(system_ptr));
   ON_CALL(mock_builder_, set_color_status_instrument_ptr(_)).WillByDefault(ReturnRef(mock_builder_));
@@ -237,7 +255,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
 
 template<typename DimensionWrapper>
 auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
-    const FrameworkParameters &parameters) -> void {
+    FrameworkParameters &parameters) -> void {
   auto& mock_builder = this->mock_builder_;
   int n_angles{ 1 };
   bool need_angular_storage{ false };
@@ -245,7 +263,6 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
 
   EXPECT_CALL(mock_builder, validator_ptr()).Times(AtLeast(1)).WillRepeatedly(DoDefault());
   EXPECT_CALL(mock_validator_, Parse(A<FrameworkParameters>()));
-
 
   // Mock Builder calls
   EXPECT_CALL(mock_builder, set_color_status_instrument_ptr(NotNull())).WillOnce(DoDefault());
@@ -301,7 +318,9 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                                    formulation::SAAFFormulationImpl::kDefault))
         .WillOnce(DoDefault());
     EXPECT_CALL(*saaf_formulation_obs_ptr_, Initialize(cells_.at(0)));
-    if (parameters.reflective_boundaries.empty()) {
+
+    // Determine if angular flux storage is required
+    if (parameters.reflective_boundaries.empty() && !parameters.use_nda_) {
       using SAAFFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::SAAFFormulation>;
       EXPECT_CALL(mock_builder, BuildUpdaterPointers(
           A<SAAFFormulationPtr>(),
@@ -322,6 +341,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
           .WillOnce(DoDefault());
       EXPECT_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_)).WillOnce(DoDefault());
     }
+
   } else if (parameters.equation_type == problem::EquationType::kDiffusion) {
     EXPECT_CALL(mock_builder, BuildDiffusionFormulation(Pointee(Ref(*finite_element_obs_ptr_)),
                                                         Pointee(Ref(*parameters.cross_sections_.value())),
@@ -331,6 +351,24 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
     EXPECT_CALL(mock_builder, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),
                                                    Pointee(Ref(*stamper_obs_ptr_)),
                                                    ContainerEq(reflective_boundaries))).WillOnce(DoDefault());
+  } else if (parameters.equation_type == problem::EquationType::kDriftDiffusion) {
+    EXPECT_CALL(mock_builder, BuildDriftDiffusionFormulation(
+        Pointee(Ref(*parameters.nda_data_.angular_flux_integrator_ptr_)),
+        Pointee(Ref(*finite_element_obs_ptr_)),
+        Pointee(Ref(*parameters.cross_sections_.value())))).WillOnce(DoDefault());
+    EXPECT_CALL(mock_builder, BuildDiffusionFormulation(Pointee(Ref(*finite_element_obs_ptr_)),
+                                                        Pointee(Ref(*parameters.cross_sections_.value())),
+                                                        _)).WillOnce(DoDefault());
+    EXPECT_CALL(*diffusion_formulation_obs_ptr_, Precalculate(cells_.at(0)));
+    using DiffusionFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::DiffusionFormulation>;
+    using DriftDiffusionFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::DriftDiffusionFormulation>;
+    EXPECT_CALL(mock_builder, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),
+                                                   A<DriftDiffusionFormulationPtr>(),
+                                                   Pointee(Ref(*stamper_obs_ptr_)),
+                                                   Pointee(Ref(*parameters.nda_data_.angular_flux_integrator_ptr_)),
+                                                   Pointee(Ref(*parameters.nda_data_.higher_order_moments_ptr_)),
+                                                   ContainerEq(parameters.nda_data_.higher_order_angular_flux_),
+                                                   _)).WillOnce(DoDefault());
   }
 
   // End formulation specific calls, need_angular_storage should be set properly now
@@ -427,6 +465,41 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkDiffusio
   this->RunTest(parameters);
 }
 
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildDriftDiffusion) {
+  auto parameters{ this->default_parameters_ };
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  parameters.equation_type = problem::EquationType::kDriftDiffusion;
+  parameters.nda_data_.angular_flux_integrator_ptr_ = std::make_shared<quadrature::calculators::AngularFluxIntegratorMock>();
+  parameters.nda_data_.higher_order_moments_ptr_ = std::make_shared<system::moments::SphericalHarmonicMock>();
+  parameters.nda_data_.higher_order_angular_flux_[{system::EnergyGroup(0), system::AngleIdx(0)}] =
+      std::make_shared<dealii::Vector<double>>(3);
+  this->RunTest(parameters);
+}
+
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildDriftDiffusionNoAngularFluxIntegrator) {
+  auto parameters{ this->default_parameters_ };
+  parameters.equation_type = problem::EquationType::kDriftDiffusion;
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  parameters.nda_data_.higher_order_moments_ptr_ = std::make_shared<system::moments::SphericalHarmonicMock>();
+  parameters.nda_data_.higher_order_angular_flux_[{system::EnergyGroup(0), system::AngleIdx(0)}] =
+      std::make_shared<dealii::Vector<double>>(3);
+  EXPECT_ANY_THROW({
+    [[maybe_unused]] auto framework = this->test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
+  });
+}
+
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildDriftDiffusionNoHigherOrderMoments) {
+  auto parameters{ this->default_parameters_ };
+  parameters.equation_type = problem::EquationType::kDriftDiffusion;
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  parameters.nda_data_.angular_flux_integrator_ptr_ = std::make_shared<quadrature::calculators::AngularFluxIntegratorMock>();
+  parameters.nda_data_.higher_order_angular_flux_[{system::EnergyGroup(0), system::AngleIdx(0)}] =
+      std::make_shared<dealii::Vector<double>>(3);
+  EXPECT_ANY_THROW({
+                     [[maybe_unused]] auto framework = this->test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
+                   });
+}
+
 TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAF) {
   auto parameters{ this-> default_parameters_ };
   using Order = framework::FrameworkParameters::AngularQuadratureOrder;
@@ -457,6 +530,18 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEige
   this->RunTest(parameters);
 }
 
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEigensolveWithNDA) {
+  auto parameters{ this-> default_parameters_ };
+  using Order = framework::FrameworkParameters::AngularQuadratureOrder;
+  parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
+  parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
+  parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  parameters.use_nda_ = true;
+
+  this->RunTest(parameters);
+}
+
 TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFReflectiveBCs) {
   auto parameters{ this-> default_parameters_ };
   using Order = framework::FrameworkParameters::AngularQuadratureOrder;
@@ -477,5 +562,7 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFRefl
   parameters.reflective_boundaries = {problem::Boundary::kXMin};
   this->RunTest(parameters);
 }
+
+
 
 } // namespace

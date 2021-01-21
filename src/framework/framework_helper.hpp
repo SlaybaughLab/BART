@@ -17,9 +17,9 @@ class FrameworkHelper {
 
   [[nodiscard]] auto ToFrameworkParameters(const problem::ParametersI& parameters) -> framework::FrameworkParameters;
   [[nodiscard]] auto BuildFramework(builder::FrameworkBuilderI<dim>&,
-                                    const framework::FrameworkParameters&) -> std::unique_ptr<framework::FrameworkI>;
+                                    framework::FrameworkParameters&) -> std::unique_ptr<framework::FrameworkI>;
   [[nodiscard]] auto BuildFramework(builder::FrameworkBuilderI<dim>&,
-                                    const framework::FrameworkParameters&,
+                                    framework::FrameworkParameters&,
                                     system::moments::SphericalHarmonicI*) -> std::unique_ptr<framework::FrameworkI>;
 
   auto system_helper_ptr() { return system_helper_ptr_.get(); }
