@@ -119,6 +119,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   system::MPIVector solution_;
   Validator mock_validator_;
 
+  auto SetExpectations(FrameworkParameters& parameters) -> void;
   auto RunTest(FrameworkParameters& parameters) -> void;
   auto SetUp() -> void override;
 };
@@ -254,7 +255,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
 }
 
 template<typename DimensionWrapper>
-auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
+auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpectations(
     FrameworkParameters &parameters) -> void {
   auto& mock_builder = this->mock_builder_;
   int n_angles{ 1 };
@@ -433,7 +434,13 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
                                         _,
                                         is_eigenvalue_solve,
                                         need_angular_storage)).WillOnce(DoDefault());
+}
 
+template<typename DimensionWrapper>
+auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
+    FrameworkParameters &parameters) -> void {
+  SetExpectations(parameters);
+  const bool is_eigenvalue_solve {parameters.eigen_solver_type.has_value() };
   using ExpectedType = framework::Framework;
   auto framework_ptr = test_helper_ptr_->BuildFramework(this->mock_builder_, parameters);
   ASSERT_NE(framework_ptr, nullptr);
@@ -537,6 +544,10 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEige
   parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
   parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
   parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  parameters.nda_data_.angular_flux_integrator_ptr_ = std::make_shared<quadrature::calculators::AngularFluxIntegratorMock>();
+  parameters.nda_data_.higher_order_moments_ptr_ = std::make_shared<system::moments::SphericalHarmonicMock>();
+  parameters.nda_data_.higher_order_angular_flux_[{system::EnergyGroup(0), system::AngleIdx(0)}] =
+      std::make_shared<dealii::Vector<double>>(3);
   parameters.use_nda_ = true;
 
   this->RunTest(parameters);
