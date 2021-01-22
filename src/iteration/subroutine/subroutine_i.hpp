@@ -5,6 +5,10 @@
 
 namespace bart::iteration::subroutine {
 
+enum class SubroutineName {
+  kGetScalarFluxFromFramework = 0,
+};
+
 class SubroutineI {
  public:
   virtual ~SubroutineI() = default;

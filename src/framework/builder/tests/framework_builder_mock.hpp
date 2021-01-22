@@ -30,6 +30,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
   using typename FrameworkBuilderI<dim>::SphericalHarmonicMoments;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
   using typename FrameworkBuilderI<dim>::Stamper;
+  using typename FrameworkBuilderI<dim>::Subroutine;
+  using typename FrameworkBuilderI<dim>::SubroutineName;
   using typename FrameworkBuilderI<dim>::System;
   using typename FrameworkBuilderI<dim>::Validator;
 
@@ -88,6 +90,8 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
       const formulation::SAAFFormulationImpl), (override));
   MOCK_METHOD(std::unique_ptr<SingleGroupSolver>, BuildSingleGroupSolver,(const int, const double), (override));
   MOCK_METHOD(std::unique_ptr<Stamper>, BuildStamper, (const std::shared_ptr<Domain>&), (override));
+  MOCK_METHOD(std::unique_ptr<Subroutine>, BuildSubroutine, (std::unique_ptr<FrameworkI>,
+      const SubroutineName), (override));
   MOCK_METHOD(std::unique_ptr<System>, BuildSystem, (const int, const int, const Domain&,
       const std::size_t solution_size, bool is_eigenvalue_problem, bool need_rhs_boundary_condition), (override));
   MOCK_METHOD(UpdaterPointers, BuildUpdaterPointers, (std::unique_ptr<DiffusionFormulation>,

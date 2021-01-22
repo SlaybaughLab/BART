@@ -40,6 +40,8 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   using typename FrameworkBuilderI<dim>::ParameterConvergenceChecker;
   using typename FrameworkBuilderI<dim>::QuadratureSet;
   using typename FrameworkBuilderI<dim>::Stamper;
+  using typename FrameworkBuilderI<dim>::Subroutine;
+  using typename FrameworkBuilderI<dim>::SubroutineName;
   using typename FrameworkBuilderI<dim>::SAAFFormulation;
   using typename FrameworkBuilderI<dim>::SphericalHarmonicMoments;
   using typename FrameworkBuilderI<dim>::SingleGroupSolver;
@@ -142,6 +144,8 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const int max_iterations,
       const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> override;
   [[nodiscard]] auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> override;
+  [[nodiscard]] auto BuildSubroutine(std::unique_ptr<FrameworkI>,
+                                     const SubroutineName) -> std::unique_ptr<Subroutine> override;
   [[nodiscard]] auto BuildSystem(const int n_groups,
                                  const int n_angles,
                                  const Domain& domain,
