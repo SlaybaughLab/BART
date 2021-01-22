@@ -193,7 +193,7 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                              quadrature_set_ptr,
                                                              formulation::SAAFFormulationImpl::kDefault);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
-    if (has_reflective_boundaries || parameters.use_nda_) {
+    if (has_reflective_boundaries) {
       updater_pointers = builder.BuildUpdaterPointers(std::move(saaf_formulation_ptr),
                                                       builder.BuildStamper(domain_ptr),
                                                       quadrature_set_ptr,
@@ -250,6 +250,33 @@ auto FrameworkHelper<dim>::BuildFramework(
     validator.AddPart(FrameworkPart::AngularSolutionStorage);
   }
 
+  auto system_ptr = builder.BuildSystem(parameters.neutron_energy_groups,
+                                        n_angles,
+                                        *domain_ptr,
+                                        group_solution_ptr->GetSolution(0).size(),
+                                        parameters.eigen_solver_type.has_value(),
+                                        need_angular_solution_storage);
+
+  std::unique_ptr<iteration::subroutine::SubroutineI> post_processing_subroutine{ nullptr };
+  // For NDA we need to build a sub-routine framework to run the NDA process
+  if (parameters.use_nda_) {
+    auto nda_parameters{ parameters };
+    nda_parameters.name = "NDA Drift-Diffusion";
+    nda_parameters.use_nda_ = false;
+    nda_parameters.nda_data_.angular_flux_integrator_ptr_ =
+        Shared(builder.BuildAngularFluxIntegrator(quadrature_set_ptr));
+    nda_parameters.nda_data_.higher_order_moments_ptr_ = system_ptr->current_moments;
+    nda_parameters.nda_data_.higher_order_angular_flux_ = angular_solutions_;
+    std::unique_ptr<FrameworkI> subroutine_framework_ptr{ nullptr };
+    if (subroutine_framework_helper_ptr_ != nullptr) {
+      subroutine_framework_ptr = std::move(subroutine_framework_helper_ptr_->BuildFramework(builder, nda_parameters));
+    } else {
+      subroutine_framework_ptr = std::move(BuildFramework(builder, nda_parameters));
+    }
+    post_processing_subroutine = builder.BuildSubroutine(std::move(subroutine_framework_ptr),
+                                                         iteration::subroutine::SubroutineName::kGetScalarFluxFromFramework);
+  }
+
   std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
 
   if (parameters.eigen_solver_type.has_value()){
@@ -274,12 +301,10 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                       parameters.output_filename_base);
   }
 
-  auto system_ptr = builder.BuildSystem(parameters.neutron_energy_groups,
-                                        n_angles,
-                                        *domain_ptr,
-                                        group_solution_ptr->GetSolution(0).size(),
-                                        parameters.eigen_solver_type.has_value(),
-                                        need_angular_solution_storage);
+  // Add subroutines if applicable
+  if (post_processing_subroutine != nullptr) {
+    outer_iteration_ptr->AddPostIterationSubroutine(std::move(post_processing_subroutine));
+  }
 
   validator.ReportValidation();
 

@@ -17,9 +17,12 @@
 #include "framework/builder/tests/framework_validator_mock.hpp"
 #include "framework/framework_parameters.hpp"
 #include "framework/framework.hpp"
+#include "framework/tests/framework_helper_mock.hpp"
+#include "framework/tests/framework_mock.hpp"
 #include "iteration/initializer/tests/initializer_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "iteration/outer/tests/outer_iteration_mock.hpp"
+#include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.h"
 #include "domain/tests/definition_mock.h"
 #include "material/tests/mock_material.h"
@@ -57,6 +60,8 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using DriftDiffusionFormulationMock = typename formulation::scalar::DriftDiffusionMock<dim>;
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
+  using FrameworkMock = framework::FrameworkMock;
+  using FrameworkHelperMock = NiceMock<framework::FrameworkHelperMock<dim>>;
   using FrameworkParameters = framework::FrameworkParameters;
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationMock = iteration::group::GroupSolveIterationMock;
@@ -71,6 +76,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using StamperMock = typename formulation::StamperMock<dim>;
   using SAAFFormulationMock = typename formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using SingleGroupSolverMock = solver::group::SingleGroupSolverMock;
+  using SubroutineMock = iteration::subroutine::SubroutineMock;
   using SystemHelper = typename system::SystemHelperMock<dim>;
   using System = system::System;
   using Validator = framework::builder::FrameworkValidatorMock;
@@ -91,6 +97,8 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   DomainMock* domain_obs_ptr_{ nullptr };
   DriftDiffusionFormulationMock* drift_diffusion_formulation_obs_ptr_{ nullptr };
   FiniteElementMock* finite_element_obs_ptr_{ nullptr };
+  FrameworkHelperMock* subroutine_framework_helper_obs_ptr_{ nullptr };
+  FrameworkMock* subroutine_framework_obs_ptr_{ nullptr };
   GroupSolutionMock* group_solution_obs_ptr_{ nullptr };
   GroupSolveIterationMock* group_solve_iteration_obs_ptr{ nullptr };
   InitializerMock* initializer_obs_ptr_{ nullptr };
@@ -106,6 +114,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   SAAFFormulationMock* saaf_formulation_obs_ptr_{ nullptr };
   SingleGroupSolverMock* single_group_solver_obs_ptr_{ nullptr };
   StamperMock* stamper_obs_ptr_{ nullptr };
+  SubroutineMock* subroutine_obs_ptr_{ nullptr };
   std::shared_ptr<SystemHelper> system_helper_mock_ptr_{ nullptr };
   System* system_obs_ptr_{ nullptr };
 
@@ -141,6 +150,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   default_parameters_.material_mapping = "1 1";
   default_parameters_.domain_size = DomainSize(test_helpers::RandomVector(dim, 0, 100));
   default_parameters_.uniform_refinements = test_helpers::RandomInt(1, 4);
+  default_parameters_.use_nda_ = false;
 
   auto random_n_cells_double = test_helpers::RandomVector(dim, 10, 20);
   std::vector<int> random_n_cells(random_n_cells_double.cbegin(), random_n_cells_double.cend());
@@ -162,6 +172,10 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   drift_diffusion_formulation_obs_ptr_ = drift_diffusion_formulation_ptr.get();
   auto finite_element_ptr = std::make_unique<NiceMock<FiniteElementMock>>();
   finite_element_obs_ptr_ = finite_element_ptr.get();
+  auto subroutine_framework_ptr = std::make_unique<FrameworkMock>();
+  subroutine_framework_obs_ptr_ = subroutine_framework_ptr.get();
+  auto subroutine_framework_helper = std::make_unique<FrameworkHelperMock>();
+  subroutine_framework_helper_obs_ptr_ = subroutine_framework_helper.get();
   auto group_solution_ptr = std::make_unique<NiceMock<GroupSolutionMock>>();
   group_solution_obs_ptr_ = group_solution_ptr.get();
   auto group_solve_iteration_ptr = std::make_unique<NiceMock<GroupSolveIterationMock>>();
@@ -191,6 +205,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   single_group_solver_obs_ptr_ = single_group_solver_ptr.get();
   auto stamper_ptr = std::make_unique<NiceMock<StamperMock>>();
   stamper_obs_ptr_ = stamper_ptr.get();
+  auto subroutine_ptr = std::make_unique<NiceMock<SubroutineMock>>();
+  subroutine_obs_ptr_ = subroutine_ptr.get();
   system_helper_mock_ptr_ = std::make_shared<NiceMock<SystemHelper>>();
   auto system_ptr = std::make_unique<System>();
   system_obs_ptr_ = system_ptr.get();
@@ -202,6 +218,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
 
 
   ON_CALL(*group_solution_obs_ptr_, GetSolution(_)).WillByDefault(ReturnRef(solution_));
+
+  ON_CALL(*subroutine_framework_helper_obs_ptr_, BuildFramework(_,_)).WillByDefault(ReturnByMove(subroutine_framework_ptr));
 
   using DiffusionFormulationPtr = std::unique_ptr<typename FrameworkBuidler::DiffusionFormulation>;
   using DriftDiffusionFormulationPtr = std::unique_ptr<typename FrameworkBuidler::DriftDiffusionFormulation>;
@@ -231,6 +249,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildSAAFFormulation(_,_,_,_)).WillByDefault(ReturnByMove(saaf_ptr));
   ON_CALL(mock_builder_, BuildSingleGroupSolver(_,_)).WillByDefault(ReturnByMove(single_group_solver_ptr));
   ON_CALL(mock_builder_, BuildStamper(_)).WillByDefault(ReturnByMove(stamper_ptr));
+  ON_CALL(mock_builder_, BuildSubroutine(_,_)).WillByDefault(ReturnByMove(subroutine_ptr));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<SAAFFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),_,_)).WillByDefault(Return(updater_pointers_));
   ON_CALL(mock_builder_, BuildUpdaterPointers(A<DiffusionFormulationPtr>(), A<DriftDiffusionFormulationPtr>(),_,_,_,_,_))
@@ -252,6 +271,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(*quadrature_set_mock_ptr_, size()).WillByDefault(Return(this->total_quadrature_angles));
 
   test_helper_ptr_ = std::make_unique<FrameworkHelper>(system_helper_mock_ptr_);
+  test_helper_ptr_->SetSubroutineFrameworkHelper(std::move(subroutine_framework_helper));
 }
 
 template<typename DimensionWrapper>
@@ -320,8 +340,15 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
         .WillOnce(DoDefault());
     EXPECT_CALL(*saaf_formulation_obs_ptr_, Initialize(cells_.at(0)));
 
+    if (parameters.use_nda_ || !parameters.reflective_boundaries.empty()) {
+      need_angular_storage = true;
+      EXPECT_CALL(*system_helper_mock_ptr_, SetUpEnergyGroupToAngularSolutionPtrMap(
+          _, parameters.neutron_energy_groups, total_quadrature_angles));
+      EXPECT_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_)).WillOnce(DoDefault());
+    }
+
     // Determine if angular flux storage is required
-    if (parameters.reflective_boundaries.empty() && !parameters.use_nda_) {
+    if (parameters.reflective_boundaries.empty()) {
       using SAAFFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::SAAFFormulation>;
       EXPECT_CALL(mock_builder, BuildUpdaterPointers(
           A<SAAFFormulationPtr>(),
@@ -329,10 +356,6 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
           Pointee(Ref(*quadrature_set_mock_ptr_))))
           .WillOnce(DoDefault());
     } else {
-      // Should have angular storage
-      need_angular_storage = true;
-      EXPECT_CALL(*system_helper_mock_ptr_, SetUpEnergyGroupToAngularSolutionPtrMap(
-          _, parameters.neutron_energy_groups, total_quadrature_angles));
       EXPECT_CALL(mock_builder, BuildUpdaterPointers(
           Pointee(Ref(*saaf_formulation_obs_ptr_)),
           Pointee(Ref(*stamper_obs_ptr_)),
@@ -340,7 +363,6 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
           ContainerEq(reflective_boundaries),
           _))
           .WillOnce(DoDefault());
-      EXPECT_CALL(*group_solve_iteration_obs_ptr, UpdateThisAngularSolutionMap(_)).WillOnce(DoDefault());
     }
 
   } else if (parameters.equation_type == problem::EquationType::kDiffusion) {
@@ -365,11 +387,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
     using DriftDiffusionFormulationPtr = std::unique_ptr<typename framework::builder::FrameworkBuilderI<dim>::DriftDiffusionFormulation>;
     EXPECT_CALL(mock_builder, BuildUpdaterPointers(A<DiffusionFormulationPtr>(),
                                                    A<DriftDiffusionFormulationPtr>(),
-                                                   Pointee(Ref(*stamper_obs_ptr_)),
-                                                   Pointee(Ref(*parameters.nda_data_.angular_flux_integrator_ptr_)),
-                                                   Pointee(Ref(*parameters.nda_data_.higher_order_moments_ptr_)),
-                                                   ContainerEq(parameters.nda_data_.higher_order_angular_flux_),
-                                                   _)).WillOnce(DoDefault());
+                                                   Pointee(Ref(*stamper_obs_ptr_)), _, _, _, _)).WillOnce(DoDefault());
   }
 
   // End formulation specific calls, need_angular_storage should be set properly now
@@ -434,6 +452,16 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
                                         _,
                                         is_eigenvalue_solve,
                                         need_angular_storage)).WillOnce(DoDefault());
+
+  if (parameters.use_nda_) {
+    EXPECT_CALL(mock_builder, BuildAngularFluxIntegrator(Pointee(Ref(*quadrature_set_mock_ptr_)))).WillOnce(DoDefault());
+    EXPECT_CALL(*subroutine_framework_helper_obs_ptr_, BuildFramework(Ref(mock_builder), _)).WillOnce(DoDefault());
+    EXPECT_CALL(mock_builder, BuildSubroutine(Pointee(Ref(*subroutine_framework_obs_ptr_)),
+                                              iteration::subroutine::SubroutineName::kGetScalarFluxFromFramework))
+        .WillOnce(DoDefault());
+    EXPECT_CALL(*outer_iteration_eigensolve_obs_ptr_, AddPostIterationSubroutine(Pointee(Ref(*subroutine_obs_ptr_))))
+        .WillOnce(ReturnRef(*outer_iteration_eigensolve_obs_ptr_));
+  }
 }
 
 template<typename DimensionWrapper>
@@ -544,10 +572,6 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEige
   parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
   parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
   parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
-  parameters.nda_data_.angular_flux_integrator_ptr_ = std::make_shared<quadrature::calculators::AngularFluxIntegratorMock>();
-  parameters.nda_data_.higher_order_moments_ptr_ = std::make_shared<system::moments::SphericalHarmonicMock>();
-  parameters.nda_data_.higher_order_angular_flux_[{system::EnergyGroup(0), system::AngleIdx(0)}] =
-      std::make_shared<dealii::Vector<double>>(3);
   parameters.use_nda_ = true;
 
   this->RunTest(parameters);
