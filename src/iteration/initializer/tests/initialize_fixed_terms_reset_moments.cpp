@@ -1,4 +1,4 @@
-#include "iteration/initializer/initialize_fixed_terms_reset_moments_test.hpp"
+#include "iteration/initializer/initialize_fixed_terms_reset_moments.hpp"
 
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "system/moments/spherical_harmonic_types.h"
