@@ -25,8 +25,11 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
   bool is_complete{ false };
   do {
     is_complete = Iterate(system);
-    if (post_iteration_subroutine_ptr_ != nullptr)
+    if (post_iteration_subroutine_ptr_ != nullptr) {
+      data_names::StatusPort::Expose("===================== COMMENCING SUBROUTINE =====================");
       post_iteration_subroutine_ptr_->Execute(system);
+      data_names::StatusPort::Expose("===================== COMPLETED SUBROUTINE  =====================");
+    }
   } while (!is_complete);
 }
 
