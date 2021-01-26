@@ -98,6 +98,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
   [[nodiscard]] auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                       const int total_groups,
                                       const int total_angles) -> std::unique_ptr<Initializer> override;
+  [[nodiscard]] auto BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> override;
   [[nodiscard]] auto BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<CrossSections>&,

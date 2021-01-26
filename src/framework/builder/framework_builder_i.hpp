@@ -123,6 +123,7 @@ class FrameworkBuilderI {
   virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                 const int total_groups,
                                 const int total_angles) -> std::unique_ptr<Initializer> = 0;
+  virtual auto BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> = 0;
   virtual auto BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<CrossSections>&,
