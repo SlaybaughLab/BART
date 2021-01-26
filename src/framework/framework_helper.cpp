@@ -39,6 +39,7 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .output_filename_base{ problem_parameters.OutputFilenameBase()},
     .neutron_energy_groups{ problem_parameters.NEnergyGroups() },
     .equation_type{ problem_parameters.TransportModel() },
+    .k_effective_updater{ problem_parameters.K_EffectiveUpdaterType() },
     .group_solver_type{ problem_parameters.InGroupSolver() },
     .angular_quadrature_type{ problem_parameters.AngularQuad() },
     .angular_quadrature_order{ quadrature::Order(problem_parameters.AngularQuadOrder()) },
