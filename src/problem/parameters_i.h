@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "eigenvalue/k_effective/factory.hpp"
 #include "parameter_types.h"
 
 namespace bart {
@@ -103,6 +104,8 @@ class ParametersI {
   // Solver parameters
   /*! \brief Gets solver type for eigen iterations */
   virtual EigenSolverType            EigenSolver()                    const = 0;
+  /*! \brief Get type of k-effective updater */
+  virtual auto K_EffectiveUpdaterType() const -> eigenvalue::k_effective::K_EffectiveUpdaterName = 0;
   /*! \brief Gets solver type for in-group solves */
   virtual InGroupSolverType          InGroupSolver()                  const = 0;
   /*! \brief Gets solver type for linear solves */

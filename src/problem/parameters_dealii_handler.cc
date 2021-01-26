@@ -78,6 +78,7 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   // Solvers
   eigen_solver_ = kEigenSolverTypeMap_.at(
       handler.get(key_words_.kEigenSolver_));
+  k_effective_updater_type_ = kK_EffectiveUpdaterNameMap_.at(handler.get(key_words_.kK_EffectiveUpdaterType_));
   in_group_solver_ = kInGroupSolverTypeMap_.at(
       handler.get(key_words_.kInGroupSolver_));
   linear_solver_ = kLinearSolverTypeMap_.at(
@@ -273,6 +274,11 @@ void ParametersDealiiHandler::SetUpSolverParameters(
                             GetOptionString(kEigenSolverTypeMap_)),
                         "eigenvalue solvers");
 
+  handler.declare_entry(key_words_.kK_EffectiveUpdaterType_,
+                        "fission source",
+                        Pattern::Selection(GetOptionString(kK_EffectiveUpdaterNameMap_)),
+                        "k-effective updater type");
+
   handler.declare_entry(key_words_.kInGroupSolver_, "si",
                         Pattern::Selection(
                             GetOptionString(kInGroupSolverTypeMap_)),
@@ -411,6 +417,7 @@ std::unordered_map<int, std::string> ParametersDealiiHandler::ParseMap(
 
   return return_map;
 }
+
 
 } // namespace problem
 

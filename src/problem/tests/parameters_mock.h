@@ -13,75 +13,77 @@ class ParametersMock : public ParametersI {
  public:
   MOCK_METHOD(bool, DoDiscreteFourierTransformOfError, (), (const, override));
 
-  MOCK_CONST_METHOD0(Discretization, DiscretizationType());
+  MOCK_METHOD(DiscretizationType, Discretization, (), (const));
 
-  MOCK_CONST_METHOD0(IsEigenvalueProblem, bool());
+  MOCK_METHOD(bool, IsEigenvalueProblem, (), (const));
 
-  MOCK_CONST_METHOD0(FEPolynomialDegree, int());
+  MOCK_METHOD(int, FEPolynomialDegree, (), (const));
 
-  MOCK_CONST_METHOD0(FirstThermalGroup, int());
+  MOCK_METHOD(int, FirstThermalGroup, (), (const));
 
-  MOCK_CONST_METHOD0(HaveReflectiveBC, bool());
+  MOCK_METHOD(bool, HaveReflectiveBC, (), (const));
 
-  MOCK_CONST_METHOD0(NCells, std::vector<int>());
+  MOCK_METHOD(std::vector<int>, NCells, (), (const));
 
-  MOCK_CONST_METHOD0(NEnergyGroups, int());
+  MOCK_METHOD(int, NEnergyGroups, (), (const));
 
-  MOCK_CONST_METHOD0(OutputFilenameBase, std::string());
+  MOCK_METHOD(std::string, OutputFilenameBase, (), (const));
 
-  MOCK_CONST_METHOD0(ReflectiveBoundary, std::map<Boundary, bool>());
+  MOCK_METHOD((std::map<Boundary, bool>), ReflectiveBoundary, (), (const));
 
-  MOCK_CONST_METHOD0(SpatialDimension, int());
+  MOCK_METHOD(int, SpatialDimension, (), (const));
 
-  MOCK_CONST_METHOD0(SpatialMax, std::vector<double>());
+  MOCK_METHOD(std::vector<double>, SpatialMax, (), (const));
 
-  MOCK_CONST_METHOD0(TransportModel, EquationType());
+  MOCK_METHOD(EquationType, TransportModel, (), (const));
                                                                       
-  MOCK_CONST_METHOD0(IsMeshGenerated, bool());
+  MOCK_METHOD(bool, IsMeshGenerated, (), (const));
 
-  MOCK_CONST_METHOD0(MeshFilename, std::string());
+  MOCK_METHOD(std::string, MeshFilename, (), (const));
 
-  MOCK_CONST_METHOD0(UniformRefinements, int());
+  MOCK_METHOD(int, UniformRefinements, (), (const));
 
-  MOCK_CONST_METHOD0(FuelPinRadius, double());
+  MOCK_METHOD(double, FuelPinRadius, (), (const));
 
-  MOCK_CONST_METHOD0(FuelPinTriangulation, FuelPinTriangulationType());
+  MOCK_METHOD(FuelPinTriangulationType, FuelPinTriangulation, (), (const));
 
-  MOCK_CONST_METHOD0(IsMeshPinResolved, bool());
+  MOCK_METHOD(bool, IsMeshPinResolved, (), (const));
 
-  MOCK_CONST_METHOD0(NumberOfMaterials, int());
+  MOCK_METHOD(int, NumberOfMaterials, (), (const));
 
-  MOCK_CONST_METHOD0(MaterialMapFilename, std::string());
+  MOCK_METHOD(std::string, MaterialMapFilename, (), (const));
 
-  MOCK_CONST_METHOD0(MaterialFilenames, std::unordered_map<int, std::string>());
+  MOCK_METHOD((std::unordered_map<int, std::string>), MaterialFilenames, (), (const));
   
-  MOCK_CONST_METHOD0(FuelPinMaterialMapFilename, std::string());
+  MOCK_METHOD(std::string, FuelPinMaterialMapFilename, (), (const));
 
-  MOCK_CONST_METHOD0(Preconditioner, PreconditionerType());
+  MOCK_METHOD(PreconditionerType, Preconditioner, (), (const));
 
-  MOCK_CONST_METHOD0(BlockSSORFactor, double());
+  MOCK_METHOD(double, BlockSSORFactor, (), (const));
 
-  MOCK_CONST_METHOD0(DoNDA, bool());
+  MOCK_METHOD(bool, DoNDA, (), (const));
 
-  MOCK_CONST_METHOD0(NDADiscretization, DiscretizationType());
+  MOCK_METHOD(DiscretizationType, NDADiscretization, (), (const));
 
-  MOCK_CONST_METHOD0(NDALinearSolver, LinearSolverType());
+  MOCK_METHOD(LinearSolverType, NDALinearSolver, (), (const));
 
-  MOCK_CONST_METHOD0(NDAPreconditioner, PreconditionerType());
+  MOCK_METHOD(PreconditionerType, NDAPreconditioner, (), (const));
 
-  MOCK_CONST_METHOD0(NDABlockSSORFactor, double());
+  MOCK_METHOD(double, NDABlockSSORFactor, (), (const));
 
-  MOCK_CONST_METHOD0(EigenSolver, EigenSolverType());
+  MOCK_METHOD(EigenSolverType, EigenSolver, (), (const));
 
-  MOCK_CONST_METHOD0(InGroupSolver, InGroupSolverType());
+  MOCK_METHOD(eigenvalue::k_effective::K_EffectiveUpdaterName, K_EffectiveUpdaterType, (), (const));
 
-  MOCK_CONST_METHOD0(LinearSolver, LinearSolverType());
+  MOCK_METHOD(InGroupSolverType, InGroupSolver, (), (const));
 
-  MOCK_CONST_METHOD0(MultiGroupSolver, MultiGroupSolverType());
+  MOCK_METHOD(LinearSolverType, LinearSolver, (), (const));
 
-  MOCK_CONST_METHOD0(AngularQuad, AngularQuadType());
+  MOCK_METHOD(MultiGroupSolverType, MultiGroupSolver, (), (const));
 
-  MOCK_CONST_METHOD0(AngularQuadOrder, int());
+  MOCK_METHOD(AngularQuadType, AngularQuad, (), (const));
+
+  MOCK_METHOD(int, AngularQuadOrder, (), (const));
   
 };
 
