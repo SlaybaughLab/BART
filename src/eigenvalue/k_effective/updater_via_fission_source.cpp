@@ -19,6 +19,7 @@ UpdaterViaFissionSource::UpdaterViaFissionSource(
   AssertThrow(initial_fission_source > 0.0,
               dealii::ExcMessage("Error in constructor of UpdaterViaFissionSource, "
                                  "initial fission source must be > 0"));
+  this->set_description("k-effective updater via fission source.");
 }
 
 double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {

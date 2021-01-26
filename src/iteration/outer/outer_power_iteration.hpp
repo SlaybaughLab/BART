@@ -2,7 +2,7 @@
 #define BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 
 #include "formulation/updater/fission_source_updater_i.h"
-#include "eigenvalue/k_effective/k_effective_updater_i.h"
+#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 
 namespace bart {

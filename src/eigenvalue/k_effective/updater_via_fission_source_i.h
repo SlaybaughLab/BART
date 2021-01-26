@@ -1,7 +1,7 @@
 #ifndef BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_I_H_
 #define BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_I_H_
 
-#include "eigenvalue/k_effective/k_effective_updater_i.h"
+#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
 
 namespace bart {
 

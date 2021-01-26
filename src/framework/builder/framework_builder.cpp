@@ -367,6 +367,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater() -> std::unique_ptr<KEffecti
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr{ nullptr };
   return_ptr = std::move(std::make_unique<ReturnType>());
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 
@@ -392,7 +393,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
           2.0,
           10));
 
-
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 
