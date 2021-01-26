@@ -4,6 +4,7 @@
 #include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
+#include "instrumentation/converter/convert_to_string/convergence_to_string.h"
 #include "material/material_protobuf.h"
 #include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
@@ -116,6 +117,7 @@ auto FrameworkHelper<dim>::BuildFramework(
       InstrumentBuilder::BuildInstrument<convergence::Status>(InstrumentName::kConvergenceStatusToConditionalOstream));
   auto string_instrument_ptr = Shared(
       InstrumentBuilder::BuildInstrument<std::string>(InstrumentName::kStringToConditionalOstream));
+
   builder.set_color_status_instrument_ptr(color_string_instrument_ptr);
   builder.set_convergence_status_instrument_ptr(convergence_status_instrument_ptr);
   builder.set_status_instrument_ptr(string_instrument_ptr);
@@ -263,6 +265,8 @@ auto FrameworkHelper<dim>::BuildFramework(
     auto nda_parameters{ parameters };
     nda_parameters.name = "NDA Drift-Diffusion";
     nda_parameters.use_nda_ = false;
+    nda_parameters.framework_level_ = 1;
+    nda_parameters.output_filename_base = parameters.output_filename_base + "_nda";
     nda_parameters.nda_data_.angular_flux_integrator_ptr_ =
         Shared(builder.BuildAngularFluxIntegrator(quadrature_set_ptr));
     nda_parameters.nda_data_.higher_order_moments_ptr_ = system_ptr->current_moments;

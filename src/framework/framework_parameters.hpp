@@ -66,6 +66,8 @@ struct FrameworkParameters {
 
   // Acceleration methods
   bool use_nda_{ false };
+  // Indicates "level" of the framework, with 0 being the top level
+  int framework_level_{ 0 };
   // Higher order data to support NDA
   struct NDA_Data {
     std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr_{ nullptr };
