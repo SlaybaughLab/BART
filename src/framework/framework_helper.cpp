@@ -223,13 +223,21 @@ auto FrameworkHelper<dim>::BuildFramework(
   std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
 
   if (parameters.eigen_solver_type.has_value()){
-    outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
-                                                      builder.BuildParameterConvergenceChecker(1e-6, 1000),
-                                                      builder.BuildKEffectiveUpdater(finite_element_ptr,
-                                                                                     parameters.cross_sections_.value(),
-                                                                                     domain_ptr),
-                                                      updater_pointers.fission_source_updater_ptr,
-                                                      parameters.output_filename_base);
+    if (parameters.k_effective_updater == eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
+      outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
+                                                        builder.BuildParameterConvergenceChecker(1e-6, 1000),
+                                                        builder.BuildKEffectiveUpdater(),
+                                                        updater_pointers.fission_source_updater_ptr,
+                                                        parameters.output_filename_base);
+    } else {
+      outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
+                                                        builder.BuildParameterConvergenceChecker(1e-6, 1000),
+                                                        builder.BuildKEffectiveUpdater(finite_element_ptr,
+                                                                                       parameters.cross_sections_.value(),
+                                                                                       domain_ptr),
+                                                        updater_pointers.fission_source_updater_ptr,
+                                                        parameters.output_filename_base);
+    }
   } else {
     outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
                                                       builder.BuildParameterConvergenceChecker(1e-6, 1000),
