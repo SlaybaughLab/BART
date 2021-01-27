@@ -18,7 +18,7 @@ class K_EffectiveUpdaterViaRayleighQuotientTest : public ::testing::Test {
   static constexpr int total_groups_{ 2 };
   static constexpr int vector_size_{ 3 };
   const double initial_k_effective_{ 1.0235 };
-  const double expected_k_effective_{ 0.850701299 };
+  const double expected_k_effective_{ 0.4094 };
   std::array<Vector, total_groups_> current_moments_, previous_moments_;
 
   system::System test_system_ { .k_effective = initial_k_effective_, .total_groups = total_groups_ };
@@ -105,28 +105,6 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroPreviousFlux) {
 
   auto calculated_k_effective = test_updater.CalculateK_Effective(test_system_);
   EXPECT_NEAR(calculated_k_effective, initial_k_effective_, 1e-8);
-  ASSERT_TRUE(test_updater.k_effective().has_value());
-  EXPECT_EQ(calculated_k_effective, test_updater.k_effective().value());
-}
-
-TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroPreviousFluxOneGroup) {
-  eigenvalue::k_effective::UpdaterViaRayleighQuotient test_updater;
-  EXPECT_FALSE(test_updater.k_effective().has_value());
-
-  Vector zero_flux(vector_size_);
-
-  for (int group = 0; group < total_groups_; ++group) {
-    std::array<int, 3> index{ group, 0, 0 };
-    EXPECT_CALL(*current_moments_obs_ptr_, GetMoment(index)).WillOnce(DoDefault());
-    if (group == 0) {
-      EXPECT_CALL(*previous_moments_obs_ptr_, GetMoment(index)).WillOnce(ReturnRef(zero_flux));
-    } else {
-      EXPECT_CALL(*previous_moments_obs_ptr_, GetMoment(index)).WillOnce(DoDefault());
-    }
-  }
-
-  auto calculated_k_effective = test_updater.CalculateK_Effective(test_system_);
-  EXPECT_NEAR(calculated_k_effective, 0.5*expected_k_effective_, 1e-8);
   ASSERT_TRUE(test_updater.k_effective().has_value());
   EXPECT_EQ(calculated_k_effective, test_updater.k_effective().value());
 }
