@@ -235,11 +235,22 @@ auto FrameworkHelper<dim>::BuildFramework(
   if (parameters.output_fission_source) {
     auto fission_source_instrument = Shared(InstrumentBuilder::BuildInstrument<double>(
         InstrumentName::kDoubleToFile,
-        parameters.output_filename_base + "_fission_source"));
+        parameters.output_filename_base + "_fission_source.csv"));
     instrumentation::GetPort<formulation::updater::data_port::AggregatedFissionSourceValue>(
         *updater_pointers.fission_source_updater_ptr.get())
         .AddInstrument(fission_source_instrument);
   }
+
+  if (parameters.output_scattering_source) {
+    auto scattering_source_instrument = Shared(InstrumentBuilder::BuildInstrument<double>(
+        InstrumentName::kDoubleToFile,
+        parameters.output_filename_base + "_scattering_source.csv"));
+    instrumentation::GetPort<formulation::updater::data_port::AggregatedScatteringSourceValue>(
+        *updater_pointers.scattering_source_updater_ptr.get())
+        .AddInstrument(scattering_source_instrument);
+  }
+
+
 
   auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
                                                   parameters.neutron_energy_groups,

@@ -78,6 +78,7 @@ struct FrameworkParameters {
 
   // Instrumentation options
   bool output_fission_source{ true };
+  bool output_scattering_source{ true };
 };
 
 } // namespace bart::framework
