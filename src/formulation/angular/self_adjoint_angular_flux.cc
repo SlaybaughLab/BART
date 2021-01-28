@@ -109,12 +109,12 @@ void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
 }
 
 template<int dim>
-void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
+auto SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
     Vector& to_fill,
     const domain::CellPtr<dim>& cell_ptr,
     domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-    const dealii::Vector<double>& incoming_flux) {
+    const dealii::Vector<double>& incoming_flux) -> double {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSize(to_fill, __FUNCTION__);
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
@@ -123,6 +123,7 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
 
   auto normal_vector = finite_element_ptr_->FaceNormal();
   auto omega = quadrature_point->cartesian_position_tensor();
+  double total_value_added{ 0 };
 
   const double normal_dot_omega = normal_vector * omega;
 
@@ -132,13 +133,16 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
     for (int f_q = 0; f_q < face_quadrature_points_; ++f_q) {
       const double jacobian = finite_element_ptr_->FaceJacobian(f_q);
       for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-        to_fill(i) -= normal_dot_omega
+        const double value_to_add = normal_dot_omega
             * finite_element_ptr_->FaceShapeValue(i, f_q)
             * incoming_angular_flux.at(f_q)
             * jacobian;
+        to_fill(i) -= value_to_add;
+        total_value_added += std::abs(value_to_add);
       }
     }
   }
+  return total_value_added;
 }
 
 template<int dim>

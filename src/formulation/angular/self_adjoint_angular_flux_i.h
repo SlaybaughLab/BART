@@ -52,12 +52,12 @@ class SelfAdjointAngularFluxI {
   /*! \brief Fills the linear boundary term for reflective boundary conditions.
    *
    */
-   virtual void FillReflectiveBoundaryLinearTerm(
-       Vector& to_fill,
-       const domain::CellPtr<dim>& cell_ptr,
-       const domain::FaceIndex face_number,
-       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-       const dealii::Vector<double>& incoming_flux) = 0;
+   virtual auto FillReflectiveBoundaryLinearTerm(
+      Vector& to_fill,
+      const domain::CellPtr<dim>& cell_ptr,
+      const domain::FaceIndex face_number,
+      const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
+      const dealii::Vector<double>& incoming_flux) -> double = 0;
 
   /*!
    * \brief Integrates the bilinear collision term and fills a given matrix.

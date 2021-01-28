@@ -3,7 +3,7 @@
 
 #include "iteration/group/group_solve_iteration.hpp"
 #include "formulation/updater/scattering_source_updater_i.h"
-#include "formulation/updater/boundary_conditions_updater_i.h"
+#include "formulation/updater/boundary_conditions_updater_i.hpp"
 
 namespace bart {
 

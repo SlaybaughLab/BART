@@ -69,12 +69,8 @@ void SAAFUpdater<dim>::UpdateBoundaryConditions(
           const auto incoming_flux = angular_solution_ptr_map_.at(
               system::SolutionIndex(group, reflected_quadrature_point_index));
           if (incoming_flux->size() > 0) {
-            formulation_ptr_->FillReflectiveBoundaryLinearTerm(
-                cell_vector,
-                cell_ptr,
-                face_index,
-                quadrature_point_ptr,
-                *incoming_flux);
+            BoundaryConditionsUpdaterI::Add(std::abs(formulation_ptr_->FillReflectiveBoundaryLinearTerm(
+                cell_vector, cell_ptr, face_index, quadrature_point_ptr, *incoming_flux)));
           }
         }
       };
