@@ -16,6 +16,10 @@ template <typename ValueType>
 auto HasValue<ValueType>::value() const -> ValueType {
   return value_;
 }
+template<>
+HasValue<double>::HasValue() {
+  value_ = 0;
+}
 
 template class HasValue<double>;
 

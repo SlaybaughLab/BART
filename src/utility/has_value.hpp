@@ -6,7 +6,7 @@ namespace bart::utility {
 template <typename ValueType>
 class HasValue {
  public:
-  HasValue(ValueType initial_value) : value_(initial_value) {};
+  HasValue();
   ~HasValue() = default;
   auto Add(const ValueType& to_add) -> void;
   auto SetValue(const ValueType& to_set) -> void;
