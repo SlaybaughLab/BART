@@ -75,6 +75,9 @@ struct FrameworkParameters {
     AngularFluxStorage higher_order_angular_flux_{};
   };
   NDA_Data nda_data_{};
+
+  // Instrumentation options
+  bool output_fission_source{ true };
 };
 
 } // namespace bart::framework
