@@ -46,14 +46,14 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
       const domain::CellPtr<dim> &cell_ptr,
       const system::EnergyGroup group_number) override;
 
-  void FillCellFissionSourceTerm(
+  auto FillCellFissionSourceTerm(
       Vector &to_fill,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const double k_eff,
       const system::moments::MomentVector &in_group_moment,
-      const system::moments::MomentsMap &group_moments) override;
+      const system::moments::MomentsMap &group_moments) -> double override;
 
   void FillCellFixedSourceTerm(
       Vector &to_fill,
@@ -115,12 +115,12 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   void VerifyInitialized(std::string called_function_name);
 
   // Combined implementation functions
-  void FillCellSourceTerm(
+  auto FillCellSourceTerm(
       Vector& to_fill,
       const int material_id,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
-      std::vector<double> source);
+      std::vector<double> source) -> double;
 
   // Dependencies
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr_;

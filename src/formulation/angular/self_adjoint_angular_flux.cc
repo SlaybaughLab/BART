@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <cstdlib>
 
 namespace bart {
 
@@ -164,19 +165,20 @@ void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 }
 
 template<int dim>
-void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
+auto SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
     Vector &to_fill,
     const domain::CellPtr<dim> & cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
     const double k_eff,
     const system::moments::MomentVector & in_group_moment,
-    const system::moments::MomentsMap & group_moments) {
+    const system::moments::MomentsMap & group_moments) -> double {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
   const int group = group_number.get();
+  double total_value_added{ 0 };
 
   if (cross_sections_ptr_->is_material_fissile().at(material_id)) {
 
@@ -211,9 +213,10 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
       }
     }
 
-    FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
-                       fission_source);
+    total_value_added += std::abs(FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                                                     fission_source));
   }
+  return total_value_added;
 }
 
 template<int dim>
@@ -385,12 +388,13 @@ void SelfAdjointAngularFlux<dim>::ValidateVectorSize(
 
 
 template <int dim>
-void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
+auto SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
     bart::formulation::Vector &to_fill,
     const int material_id,
     const std::shared_ptr<bart::quadrature::QuadraturePointI<dim>> quadrature_point,
     const bart::system::EnergyGroup group_number,
-    std::vector<double> source) {
+    std::vector<double> source) -> double {
+  double total_value_added{ 0 };
   const double inverse_sigma_t =
       cross_sections_ptr_->inverse_sigma_t().at(material_id).at(group_number.get());
   const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
@@ -402,12 +406,13 @@ void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
         q, quadrature::QuadraturePointIndex(angle_index));
 
     for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      to_fill(i) += jacobian * source.at(q) * (
-          finite_element_ptr_->ShapeValue(i, q) +
-              omega_dot_gradient.at(i) * inverse_sigma_t
-      );
+      const double value_to_add{ jacobian * source.at(q) * (finite_element_ptr_->ShapeValue(i, q) +
+          omega_dot_gradient.at(i) * inverse_sigma_t)};
+      to_fill(i) += value_to_add;
+      total_value_added += std::abs(value_to_add);
     }
   }
+  return total_value_added;
 }
 
 template<int dim>

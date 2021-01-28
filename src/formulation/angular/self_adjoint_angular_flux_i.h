@@ -113,14 +113,14 @@ class SelfAdjointAngularFluxI {
    * @param in_group_moment in-group flux moments
    * @param group_moments full set of group moments
    */
-  virtual void FillCellFissionSourceTerm(
+  virtual auto FillCellFissionSourceTerm(
       Vector& to_fill,
       const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const double k_eff,
       const system::moments::MomentVector& in_group_moment,
-      const system::moments::MomentsMap& group_moments) = 0;
+      const system::moments::MomentsMap& group_moments) -> double = 0;
 
   /*!
  * \brief Integrates the linear fixed-source terms and fills a given vector.
