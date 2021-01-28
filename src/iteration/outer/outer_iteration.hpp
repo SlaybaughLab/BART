@@ -53,6 +53,7 @@ class OuterIteration : public OuterIterationI,
   virtual convergence::Status CheckConvergence(system::System &system) = 0;
   virtual void UpdateSystem(system::System& system, const int group,
                             const int angle) = 0;
+  virtual auto ExposeIterationData(system::System& system) -> void;
 
   std::unique_ptr<GroupIterator> group_iterator_ptr_{ nullptr };
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_{ nullptr };

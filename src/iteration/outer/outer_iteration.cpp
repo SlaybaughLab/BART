@@ -27,6 +27,7 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(system::System &syste
       post_iteration_subroutine_ptr_->Execute(system);
       data_names::StatusPort::Expose("===================== COMPLETED SUBROUTINE  =====================\n");
     }
+    ExposeIterationData(system);
   } while (!is_complete);
 }
 
@@ -56,6 +57,11 @@ auto OuterIteration<ConvergenceType>::Iterate(system::System &system) -> bool {
   data_names::SolutionMomentsPort::Expose(*system.current_moments);
 
   return convergence_status.is_complete;
+}
+
+template<typename ConvergenceType>
+auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system) -> void {
+  data_names::SolutionMomentsPort::Expose(*system.current_moments);
 }
 
 template class OuterIteration<double>;

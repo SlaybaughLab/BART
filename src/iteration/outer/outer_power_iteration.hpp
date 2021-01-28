@@ -35,6 +35,7 @@ class OuterPowerIteration : public OuterIteration<double> {
  protected:
   convergence::Status CheckConvergence(system::System &system) override;
   void UpdateSystem(system::System &system, const int group, const int angle) override;
+  auto ExposeIterationData(system::System& system) -> void override;
 
   std::shared_ptr<SourceUpdaterType> source_updater_ptr_ = nullptr;
   std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr_ = nullptr;
