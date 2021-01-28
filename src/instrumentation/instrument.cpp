@@ -40,5 +40,6 @@ template class Instrument<std::pair<int, double>, std::string>;
 template class Instrument<std::pair<std::string, utility::Color>, std::string>;
 template class Instrument<dealii::Vector<double>, std::string>;
 template class Instrument<system::moments::SphericalHarmonicI, std::string>;
+template class Instrument<double, std::string>;
 
 } // namespace bart::instrumentation

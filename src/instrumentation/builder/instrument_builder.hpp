@@ -14,6 +14,7 @@ enum class InstrumentName {
   kFourierTransformOfAllGroupScalarFluxErrorToFile = 3,
   kIntDoublePairToFile = 4,
   kStringToConditionalOstream = 5,
+  kDoubleToFile = 6,
 };
 
 class InstrumentBuilder {
