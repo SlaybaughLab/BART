@@ -71,6 +71,11 @@ void GroupSourceIteration<dim>::PerformPerGroup(system::System &system,
     }
   }
 }
+template<int dim>
+auto GroupSourceIteration<dim>::ExposeIterationData(system::System &system) -> void {
+  GroupSolveIteration<dim>::ExposeIterationData(system);
+  source_updater_ptr_->Expose(source_updater_ptr_->value());
+}
 
 template class GroupSourceIteration<1>;
 template class GroupSourceIteration<2>;

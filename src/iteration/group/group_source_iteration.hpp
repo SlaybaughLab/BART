@@ -53,7 +53,7 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
                     const int angle) override;
   virtual void PerformPerGroup(system::System& system,
                                const int group) override;
-
+  auto ExposeIterationData(system::System& system) -> void override;
 };
 
 } // namespace group

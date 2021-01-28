@@ -85,6 +85,7 @@ class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDepe
                                 const MomentVector& previous_iteration) -> convergence::Status;
   virtual auto UpdateSystem(System& system, int group, int angle) -> void = 0;
   virtual auto UpdateCurrentMoments(System &system, int group) -> void;
+  virtual auto ExposeIterationData(system::System&) -> void {};
 
   std::unique_ptr<GroupSolver> group_solver_ptr_{ nullptr };
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_{ nullptr };

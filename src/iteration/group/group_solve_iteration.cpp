@@ -92,6 +92,7 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
       data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
     }
   } while(!all_group_convergence_status.is_complete);
+  ExposeIterationData(system);
 }
 
 template <int dim>
