@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FORMULATION_UPDATER_TESTS_FISSION_SOURCE_UPDATER_MOCK_H_
 #define BART_SRC_FORMULATION_UPDATER_TESTS_FISSION_SOURCE_UPDATER_MOCK_H_
 
-#include "formulation/updater/fission_source_updater_i.h"
+#include "formulation/updater/fission_source_updater_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {

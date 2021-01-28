@@ -16,7 +16,7 @@
 #include "formulation/scalar/diffusion_i.hpp"
 #include "formulation/scalar/drift_diffusion_i.hpp"
 #include "formulation/updater/boundary_conditions_updater_i.h"
-#include "formulation/updater/fission_source_updater_i.h"
+#include "formulation/updater/fission_source_updater_i.hpp"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.hpp"

@@ -9,7 +9,7 @@
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
-#include "formulation/updater/fission_source_updater_i.h"
+#include "formulation/updater/fission_source_updater_i.hpp"
 #include "quadrature/quadrature_set_i.hpp"
 #include "problem/parameter_types.hpp"
 #include "system/solution/solution_types.h"

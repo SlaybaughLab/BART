@@ -1,8 +1,8 @@
 #ifndef BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 #define BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 
-#include "formulation/updater/fission_source_updater_i.h"
 #include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
+#include "formulation/updater/fission_source_updater_i.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 
 namespace bart {
