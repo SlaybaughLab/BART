@@ -304,7 +304,9 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFixedTermsTest) {
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
   constexpr int dim = this->dim;
   using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  using ScatteringSourceUpdater = formulation::updater::ScatteringSourceUpdaterI;
 
+  double total_value_added{ 0 };
   quadrature::QuadraturePointIndex quad_index(this->angle_index);
   system::EnergyGroup group_number(this->group_number);
   std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
@@ -320,16 +322,23 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
   EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
       .WillOnce(DoDefault());
   for (auto& cell : this->cells_) {
+    const double fill_value{ test_helpers::RandomDouble(-100, 100) };
     EXPECT_CALL(*this->formulation_obs_ptr_, FillCellScatteringSourceTerm(
         _, cell, quadrature_point_ptr_, group_number,
         Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
-        Ref(this->current_iteration_moments_)));
+        Ref(this->current_iteration_moments_)))
+        .WillOnce(Return(fill_value));
+    total_value_added += abs(fill_value);
   }
 
+  auto dynamic_updater_ptr = dynamic_cast<ScatteringSourceUpdater*>(this->test_updater_ptr.get());
+  ASSERT_NE(dynamic_updater_ptr, nullptr);
+  EXPECT_EQ(dynamic_updater_ptr->value(), 0);
   this->test_updater_ptr->UpdateScatteringSource(this->test_system_,
                                                  group_number, quad_index);
   EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
                                      *this->vector_to_stamp));
+  EXPECT_EQ(dynamic_updater_ptr->value(), total_value_added);
 }
 
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {

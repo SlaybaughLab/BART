@@ -61,13 +61,13 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
-  void FillCellScatteringSourceTerm(
+  auto FillCellScatteringSourceTerm(
       Vector &to_fill,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const system::moments::MomentVector &in_group_moment,
-      const system::moments::MomentsMap &group_moments) override;
+      const system::moments::MomentsMap &group_moments) -> double override;
 
   void FillCellStreamingTerm(
       FullMatrix &to_fill,

@@ -38,7 +38,7 @@ class SelfAdjointAngularFluxMock :
       const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup), (override));
-  MOCK_METHOD(void, FillCellScatteringSourceTerm, (Vector&,
+  MOCK_METHOD(double, FillCellScatteringSourceTerm, (Vector&,
       const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const system::moments::MomentVector&,

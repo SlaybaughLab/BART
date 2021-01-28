@@ -169,13 +169,13 @@ class SelfAdjointAngularFluxI {
    * @param in_group_moment in-group scalar flux moment
    * @param group_moments out-group scalar flux moments
    */
-  virtual void FillCellScatteringSourceTerm(
+  virtual auto FillCellScatteringSourceTerm(
       Vector& to_fill,
       const domain::CellPtr<dim>& cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const system::moments::MomentVector& in_group_moment,
-      const system::moments::MomentsMap& group_moments) = 0;
+      const system::moments::MomentsMap& group_moments) -> double = 0;
 
   /*! \brief Integrates the bilinear streaming term and fills a given matrix.
    *

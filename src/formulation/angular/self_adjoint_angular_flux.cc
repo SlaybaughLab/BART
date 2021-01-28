@@ -244,13 +244,13 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
 }
 
 template<int dim>
-void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
+auto SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     Vector &to_fill,
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
     const system::moments::MomentVector &in_group_moment,
-    const system::moments::MomentsMap &group_moments) {
+    const system::moments::MomentsMap &group_moments) -> double {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
@@ -286,8 +286,7 @@ void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     }
   }
 
-  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
-                     scattering_source);
+  return std::abs(FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number, scattering_source));
 }
 
 template<int dim>

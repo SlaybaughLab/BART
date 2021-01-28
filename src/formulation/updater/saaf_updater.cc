@@ -164,12 +164,12 @@ void SAAFUpdater<dim>::UpdateScatteringSource(
   auto scattering_source_function =
       [&](formulation::Vector& cell_vector,
           const domain::CellPtr<dim> &cell_ptr) -> void {
-    formulation_ptr_->FillCellScatteringSourceTerm(cell_vector,
-                                                   cell_ptr,
-                                                   quadrature_point_ptr,
-                                                   group,
-                                                   in_group_moment,
-                                                   current_moments);
+    ScatteringSourceUpdaterI::Add(std::abs(formulation_ptr_->FillCellScatteringSourceTerm(cell_vector,
+                                                                                 cell_ptr,
+                                                                                 quadrature_point_ptr,
+                                                                                 group,
+                                                                                 in_group_moment,
+                                                                                 current_moments)));
   };
   stamper_ptr_->StampVector(*scattering_source_ptr, scattering_source_function);
 }
