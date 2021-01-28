@@ -335,11 +335,13 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateScatteringSourceTest) {
 TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
   constexpr int dim = this->dim;
   using QuadraturePointType = quadrature::QuadraturePointI<dim>;
+  using FissionSourceUpdater = formulation::updater::FissionSourceUpdaterI;
 
   quadrature::QuadraturePointIndex quad_index(this->angle_index);
   system::EnergyGroup group_number(this->group_number);
   std::shared_ptr<QuadraturePointType> quadrature_point_ptr_;
 
+  double value_added{ 0 };
   const double k_effective = 1.045;
   this->test_system_.k_effective = k_effective;
 
@@ -354,16 +356,24 @@ TYPED_TEST(FormulationUpdaterSAAFTest, UpdateFissionSourceTest) {
   EXPECT_CALL(*this->current_moments_obs_ptr_, moments())
       .WillOnce(DoDefault());
   for (auto& cell : this->cells_) {
+    const auto cell_value_added{ test_helpers::RandomDouble(0, 100) };
     EXPECT_CALL(*this->formulation_obs_ptr_, FillCellFissionSourceTerm(
         _, cell, quadrature_point_ptr_, group_number, k_effective,
         Ref(this->current_iteration_moments_.at({group_number.get(), 0, 0})),
-        Ref(this->current_iteration_moments_)));
+        Ref(this->current_iteration_moments_)))
+        .WillOnce(Return(cell_value_added));
+    value_added += cell_value_added;
   }
+
+  auto dynamic_ptr = dynamic_cast<FissionSourceUpdater*>(this->test_updater_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_DOUBLE_EQ(dynamic_ptr->value(), 0);
 
   this->test_updater_ptr->UpdateFissionSource(this->test_system_,
                                               group_number, quad_index);
   EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result,
                                      *this->vector_to_stamp));
+  EXPECT_DOUBLE_EQ(dynamic_ptr->value(), value_added);
 }
 
 } // namespace

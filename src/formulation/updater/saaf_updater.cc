@@ -137,13 +137,13 @@ void SAAFUpdater<dim>::UpdateFissionSource(system::System &to_update,
   auto fission_source_function =
       [&](formulation::Vector& cell_vector,
           const domain::CellPtr<dim> &cell_ptr) -> void {
-        formulation_ptr_->FillCellFissionSourceTerm(cell_vector,
-                                                    cell_ptr,
-                                                    quadrature_point_ptr,
-                                                    group,
-                                                    to_update.k_effective.value(),
-                                                    in_group_moment,
-                                                    current_moments);
+        FissionSourceUpdaterI::Add(formulation_ptr_->FillCellFissionSourceTerm(cell_vector,
+                                                                               cell_ptr,
+                                                                               quadrature_point_ptr,
+                                                                               group,
+                                                                               to_update.k_effective.value(),
+                                                                               in_group_moment,
+                                                                               current_moments));
       };
   *fission_source_ptr = 0;
   stamper_ptr_->StampVector(*fission_source_ptr, fission_source_function);
