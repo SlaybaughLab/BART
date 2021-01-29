@@ -15,6 +15,7 @@ class FrameworkHelperToFrameworkParametersTest : public ::testing::Test {
   static constexpr int dim{ 2 }; // dimension to run the tests in (should be arbitrary)
   using FrameworkHelper = typename framework::FrameworkHelper<dim>;
   using SystemHelperMock = const typename system::SystemHelperMock<dim>;
+  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
 
   // Test object
   std::unique_ptr<FrameworkHelper> test_helper_ptr_{ nullptr };
@@ -47,6 +48,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetUp() -> void {
   default_parameters_.reflective_boundaries = {problem::Boundary::kYMax};
   default_parameters_.material_mapping = parsed_material_mapping_;
   default_parameters_.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  default_parameters_.k_effective_updater = K_EffectiveUpdaterName::kUpdaterViaFissionSource;
   default_parameters_.group_solver_type = problem::InGroupSolverType::kSourceIteration;
   default_parameters_.angular_quadrature_type = problem::AngularQuadType::kGaussLegendre;
   default_parameters_.angular_quadrature_order = quadrature::Order(test_helpers::RandomInt(1, 5));
@@ -102,6 +104,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetExpectations(
   EXPECT_CALL(parameters_mock_, FEPolynomialDegree()).WillOnce(Return(parameters.polynomial_degree.get()));
   EXPECT_CALL(parameters_mock_, MaterialFilenames()).WillOnce(Return(material_filenames_));
   EXPECT_CALL(parameters_mock_, NumberOfMaterials()).WillOnce(Return(static_cast<int>(material_filenames_.size())));
+  EXPECT_CALL(parameters_mock_, K_EffectiveUpdaterType()).WillOnce(Return(parameters.k_effective_updater));
 }
 
 AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framework::FrameworkParameters& rhs) {
@@ -139,6 +142,8 @@ AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framew
     return AssertionFailure() << "cell finite element type do not match";
   } else if (lhs.polynomial_degree != rhs.polynomial_degree) {
     return AssertionFailure() << "polynomial degree do not match";
+  } else if (lhs.k_effective_updater != rhs.k_effective_updater) {
+    return AssertionFailure() << "K-effective updaters do not match";
   }
   return AssertionSuccess();
 }
@@ -165,6 +170,18 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, SAAFWithLevelSymmetric) {
   ASSERT_TRUE(returned_parameters.cross_sections_.has_value());
   EXPECT_NE(returned_parameters.cross_sections_.value(), nullptr);
 }
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, KEffectiveUpdaterRayleighQuotient) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.k_effective_updater = eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
+
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
+  ASSERT_TRUE(returned_parameters.cross_sections_.has_value());
+  EXPECT_NE(returned_parameters.cross_sections_.value(), nullptr);
+}
+
 
 TEST_F(FrameworkHelperToFrameworkParametersTest, DiscontinuousFEm) {
   auto test_parameters{ default_parameters_ };

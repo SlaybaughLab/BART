@@ -23,6 +23,7 @@ namespace problem {
 
 class ParametersDealiiHandler : public ParametersI {
  public:
+  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
   struct KeyWords {
     /*!
      * \brief Data struct to contain keywords for input files
@@ -73,6 +74,7 @@ class ParametersDealiiHandler : public ParametersI {
   
     // Solvers
     const std::string kEigenSolver_ = "eigen solver name";
+    const std::string kK_EffectiveUpdaterType_ = "k_effective updater type";
     const std::string kInGroupSolver_ = "in group solver name";
     const std::string kLinearSolver_ = "ho linear solver name";
     const std::string kMultiGroupSolver_ = "mg solver name";
@@ -180,6 +182,8 @@ class ParametersDealiiHandler : public ParametersI {
   // Solver Parameters =========================================================
   EigenSolverType EigenSolver() const override { return eigen_solver_; }
 
+  auto K_EffectiveUpdaterType() const -> K_EffectiveUpdaterName override { return k_effective_updater_type_; };
+
   InGroupSolverType InGroupSolver() const override { return in_group_solver_; }
   
   LinearSolverType LinearSolver() const override { return linear_solver_; }
@@ -237,6 +241,7 @@ class ParametersDealiiHandler : public ParametersI {
                                        
   // Solvers                           
   EigenSolverType                      eigen_solver_;
+  K_EffectiveUpdaterName               k_effective_updater_type_;
   InGroupSolverType                    in_group_solver_;
   LinearSolverType                     linear_solver_;
   MultiGroupSolverType                 multi_group_solver_;
@@ -278,6 +283,11 @@ class ParametersDealiiHandler : public ParametersI {
     {"pi",   EigenSolverType::kPowerIteration},
     {"none", EigenSolverType::kNone},
         }; /*!< Maps eigen solver type to strings used in parsed input files. */
+
+  const std::unordered_map<std::string, K_EffectiveUpdaterName> kK_EffectiveUpdaterNameMap_ {
+      {"fission source", K_EffectiveUpdaterName::kUpdaterViaFissionSource},
+      {"rayleigh quotient", K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient}
+  };
 
   const std::unordered_map<std::string, FuelPinTriangulationType>
   kFuelPinTriangulationTypeMap_ {

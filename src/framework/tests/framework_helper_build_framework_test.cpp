@@ -1,3 +1,4 @@
+#include <eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp>
 #include "framework/framework_helper.hpp"
 
 #include "convergence/tests/final_checker_mock.h"
@@ -86,6 +87,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   GroupSolveIterationMock* group_solve_iteration_obs_ptr{ nullptr };
   InitializerMock* initializer_obs_ptr_{ nullptr };
   KEffectiveUpdaterMock* k_effective_updater_obs_ptr_{ nullptr };
+  KEffectiveUpdaterMock* k_effective_updater_rayleigh_obs_ptr_{ nullptr };
   MomentCalculatorMock* moment_calculator_obs_ptr_{ nullptr };
   MomentConvergenceCheckerMock* moment_convergence_checker_obs_ptr_{ nullptr };
   MomentMapConvergenceCheckerMock* moment_map_convergence_checker_obs_ptr_{ nullptr };
@@ -155,6 +157,8 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   initializer_obs_ptr_ = initializer_ptr.get();
   auto k_effective_updater_ptr = std::make_unique<NiceMock<KEffectiveUpdaterMock>>();
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
+  auto k_effective_updater_rayleigh_ptr = std::make_unique<NiceMock<KEffectiveUpdaterMock>>();
+  k_effective_updater_rayleigh_obs_ptr_ = k_effective_updater_rayleigh_ptr.get();
   auto moment_calculator_ptr = std::make_unique<NiceMock<MomentCalculatorMock>>();
   moment_calculator_obs_ptr_ = moment_calculator_ptr.get();
   auto moment_convergence_checker_ptr = std::make_unique<NiceMock<MomentConvergenceCheckerMock>>();
@@ -196,6 +200,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildGroupSolveIteration(_,_,_,_,_,_)).WillByDefault(ReturnByMove(group_solve_iteration_ptr));
   ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
   ON_CALL(mock_builder_, BuildKEffectiveUpdater(_,_,_)).WillByDefault(ReturnByMove(k_effective_updater_ptr));
+  ON_CALL(mock_builder_, BuildKEffectiveUpdater()).WillByDefault(ReturnByMove(k_effective_updater_rayleigh_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_,_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
   ON_CALL(mock_builder_, BuildMomentConvergenceChecker(_,_)).WillByDefault(ReturnByMove(moment_convergence_checker_ptr));
@@ -352,12 +357,16 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::RunTest(
   EXPECT_CALL(mock_builder, BuildParameterConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
   if (is_eigenvalue_solve) {
-    EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
-                                                     Pointee(Ref(*parameters.cross_sections_.value())),
-                                                     Pointee(Ref(*domain_obs_ptr_)))).WillOnce(DoDefault());
+    if (parameters.k_effective_updater == eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
+      EXPECT_CALL(mock_builder, BuildKEffectiveUpdater()).WillOnce(DoDefault());
+    } else {
+      EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
+                                                       Pointee(Ref(*parameters.cross_sections_.value())),
+                                                       Pointee(Ref(*domain_obs_ptr_)))).WillOnce(DoDefault());
+    }
     EXPECT_CALL(mock_builder, BuildOuterIteration(Pointee(Ref(*group_solve_iteration_obs_ptr)),
                                                   Pointee(Ref(*parameter_convergence_checker_obs_ptr_)),
-                                                  Pointee(Ref(*k_effective_updater_obs_ptr_)),
+                                                  ::testing::NotNull(),
                                                   Pointee(Ref(*updater_pointers_.fission_source_updater_ptr)),
                                                   parameters.output_filename_base))
         .WillOnce(DoDefault());
@@ -433,6 +442,17 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEige
   parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
   parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
   parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
+  parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
+  this->RunTest(parameters);
+}
+
+TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEigensolveRayleigh) {
+  auto parameters{ this-> default_parameters_ };
+  using Order = framework::FrameworkParameters::AngularQuadratureOrder;
+  parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
+  parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
+  parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
+  parameters.k_effective_updater = eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
   parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
   this->RunTest(parameters);
 }

@@ -9,7 +9,7 @@
 #include "convergence/final_i.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
-#include "eigenvalue/k_effective/k_effective_updater_i.h"
+#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
@@ -123,6 +123,7 @@ class FrameworkBuilderI {
   virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                 const int total_groups,
                                 const int total_angles) -> std::unique_ptr<Initializer> = 0;
+  virtual auto BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> = 0;
   virtual auto BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<CrossSections>&,

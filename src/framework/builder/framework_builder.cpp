@@ -41,6 +41,7 @@
 #include "calculator/cell/total_aggregated_fission_source.h"
 #include "calculator/cell/integrated_fission_source.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
+#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
 
 // Material classes
 #include "material/material_protobuf.h"
@@ -361,6 +362,16 @@ auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpda
 }
 
 template<int dim>
+auto FrameworkBuilder<dim>::BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> {
+  using ReturnType = eigenvalue::k_effective::UpdaterViaRayleighQuotient;
+  ReportBuildingComponant("K_Effective updater");
+  std::unique_ptr<KEffectiveUpdater> return_ptr{ nullptr };
+  return_ptr = std::move(std::make_unique<ReturnType>());
+  ReportBuildSuccess(return_ptr->description());
+  return return_ptr;
+}
+
+template<int dim>
 auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
     const std::shared_ptr<FiniteElement>& finite_element_ptr,
     const std::shared_ptr<CrossSections>& cross_sections_ptr,
@@ -382,7 +393,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
           2.0,
           10));
 
-
+  ReportBuildSuccess(return_ptr->description());
   return return_ptr;
 }
 

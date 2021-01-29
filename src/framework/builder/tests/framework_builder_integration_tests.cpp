@@ -16,6 +16,7 @@
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/definition.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
+#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
@@ -578,6 +579,13 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
       this->domain_sptr_);
   EXPECT_THAT(k_effective_updater_ptr.get(),
               WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdaterRayleighQuotient) {
+  using ExpectedType = eigenvalue::k_effective::UpdaterViaRayleighQuotient;
+
+  auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater();
+  EXPECT_THAT(k_effective_updater_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentCalculatorScalar) {

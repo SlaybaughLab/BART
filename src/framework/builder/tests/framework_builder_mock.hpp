@@ -67,6 +67,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
       std::unique_ptr<MomentMapConvergenceChecker>), (override));
   MOCK_METHOD(std::unique_ptr<Initializer>, BuildInitializer, (const std::shared_ptr<FixedTermUpdater>&,
       const int total_groups, const int total_angles), (override));
+  MOCK_METHOD(std::unique_ptr<KEffectiveUpdater>, BuildKEffectiveUpdater, (), (override));
   MOCK_METHOD(std::unique_ptr<KEffectiveUpdater>, BuildKEffectiveUpdater, (const std::shared_ptr<FiniteElement>&,
       const std::shared_ptr<CrossSections>&, const std::shared_ptr<Domain>&), (override));
   MOCK_METHOD(std::unique_ptr<MomentCalculator>, BuildMomentCalculator,(quadrature::MomentCalculatorImpl), (override));

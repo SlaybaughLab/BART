@@ -1,6 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_FRAMEWORK_PARAMETERS_HPP_
 #define BART_SRC_FRAMEWORK_FRAMEWORK_PARAMETERS_HPP_
 
+#include "eigenvalue/k_effective/factory.hpp"
 #include "problem/parameter_types.h"
 #include "data/cross_sections.h"
 #include "utility/named_type.h"
@@ -15,6 +16,7 @@ namespace bart::framework {
 struct FrameworkParameters {
   using AngularQuadratureOrder = quadrature::Order;
   using DomainSize = utility::NamedType<std::vector<double>, struct DomainSizeStruct>;
+  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
   using NumberOfCells = utility::NamedType<std::vector<int>, struct NumberOfCellsStruct>;
   using PolynomialDegree = utility::NamedType<int, struct PolynomialDegreeStruct>;
   using SpatialDimension = utility::NamedType<int, struct SpatialDimensionStruct>;
@@ -32,6 +34,7 @@ struct FrameworkParameters {
 
   // Solver structure
   std::optional<problem::EigenSolverType> eigen_solver_type{std::nullopt};
+  K_EffectiveUpdaterName                  k_effective_updater{ K_EffectiveUpdaterName::kUpdaterViaFissionSource };
   problem::InGroupSolverType              group_solver_type{problem::InGroupSolverType::kSourceIteration};
 
   // Angular quadrature parameters
