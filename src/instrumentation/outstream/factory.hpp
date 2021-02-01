@@ -10,6 +10,7 @@ template <typename DataType> class OutstreamI;
 enum class OutstreamName {
   kToOstream,
   kToConditionalOstream,
+  kVectorToVTU,
 };
 
 template <typename DataType, typename...ArgTypes>

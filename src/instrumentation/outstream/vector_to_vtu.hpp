@@ -6,6 +6,7 @@
 
 #include "domain/definition_i.h"
 #include "instrumentation/outstream/outstream_i.h"
+#include "instrumentation/outstream/factory.hpp"
 
 namespace bart::instrumentation::outstream {
 
@@ -14,6 +15,7 @@ class VectorToVTU : public OutstreamI<dealii::Vector<double>> {
  public:
   using Vector = dealii::Vector<double>;
   using Definition = domain::DefinitionI<dim>;
+  using Factory = OutstreamIFactory<Vector, std::shared_ptr<Definition>, std::string, std::string, std::string>;
   VectorToVTU(std::shared_ptr<Definition>, std::string data_name, std::string directory, std::string filename_base);
   auto Output(const Vector& to_output) -> VectorToVTU& override;
 
@@ -29,6 +31,7 @@ class VectorToVTU : public OutstreamI<dealii::Vector<double>> {
   const std::string filename_base_;
 
   int counter_{ 0 };
+  static bool is_registered_;
 };
 
 } // namespace bart::instrumentation::outstream
