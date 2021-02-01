@@ -77,8 +77,7 @@ struct FrameworkParameters {
   NDA_Data nda_data_{};
 
   // Instrumentation options
-  bool output_fission_source{ true };
-  bool output_scattering_source{ true };
+  bool output_aggregated_source_data{ true };
 };
 
 } // namespace bart::framework

@@ -232,24 +232,27 @@ auto FrameworkHelper<dim>::BuildFramework(
     }
   }
 
-  if (parameters.output_fission_source) {
-    auto fission_source_instrument = Shared(InstrumentBuilder::BuildInstrument<double>(
-        InstrumentName::kDoubleToFile,
-        parameters.output_filename_base + "_fission_source.csv"));
-    instrumentation::GetPort<formulation::updater::data_port::AggregatedFissionSourceValue>(
-        *updater_pointers.fission_source_updater_ptr.get())
-        .AddInstrument(fission_source_instrument);
+  if (parameters.output_aggregated_source_data) {
+    auto make_source_instrument = [](const std::string filename) {
+      return Shared(InstrumentBuilder::BuildInstrument<double>(
+          InstrumentName::kDoubleToFile, filename));
+    };
+    if (updater_pointers.fission_source_updater_ptr != nullptr) {
+      instrumentation::GetPort<formulation::updater::data_port::AggregatedFissionSourceValue>(
+          *updater_pointers.fission_source_updater_ptr.get())
+          .AddInstrument(make_source_instrument(parameters.output_filename_base + "_fission_source.csv"));
+    }
+    if (updater_pointers.scattering_source_updater_ptr != nullptr) {
+      instrumentation::GetPort<formulation::updater::data_port::AggregatedScatteringSourceValue>(
+          *updater_pointers.scattering_source_updater_ptr.get())
+          .AddInstrument(make_source_instrument(parameters.output_filename_base + "_scattering_source.csv"));
+    }
+    if (updater_pointers.boundary_conditions_updater_ptr != nullptr) {
+      instrumentation::GetPort<formulation::updater::data_port::AggregatedBoundaryConditionValue>(
+          *updater_pointers.boundary_conditions_updater_ptr.get())
+          .AddInstrument(make_source_instrument(parameters.output_filename_base + "_boundary_source.csv"));
+    }
   }
-
-  if (parameters.output_scattering_source) {
-    auto scattering_source_instrument = Shared(InstrumentBuilder::BuildInstrument<double>(
-        InstrumentName::kDoubleToFile,
-        parameters.output_filename_base + "_scattering_source.csv"));
-    instrumentation::GetPort<formulation::updater::data_port::AggregatedScatteringSourceValue>(
-        *updater_pointers.scattering_source_updater_ptr.get())
-        .AddInstrument(scattering_source_instrument);
-  }
-
 
 
   auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
