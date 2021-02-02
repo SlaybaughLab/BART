@@ -1,11 +1,13 @@
 #ifndef BART_SRC_ITERATION_SUBROUTINE_GET_SCALAR_FLUX_FROM_FRAMEWORK_HPP_
 #define BART_SRC_ITERATION_SUBROUTINE_GET_SCALAR_FLUX_FROM_FRAMEWORK_HPP_
 
+#include "framework/framework_i.hpp"
 #include "iteration/subroutine/subroutine_i.hpp"
+#include "utility/has_dependencies.h"
 
 namespace bart::iteration::subroutine {
 
-class GetScalarFluxFromFramework : public SubroutineI {
+class GetScalarFluxFromFramework : public SubroutineI, public utility::HasDependencies {
  public:
   using Framework = bart::framework::FrameworkI;
   GetScalarFluxFromFramework(std::unique_ptr<Framework> framework_ptr)

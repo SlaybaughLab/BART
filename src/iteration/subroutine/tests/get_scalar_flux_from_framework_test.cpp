@@ -1,14 +1,11 @@
 #include "iteration/subroutine/get_scalar_flux_from_framework.hpp"
 
+#include "framework/tests/framework_mock.hpp"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
-<<<<<<< HEAD
-#include "test_helpers/gmock_wrapper.h"
-=======
 #include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
->>>>>>> 6b54f712... Added implementation of Execute to GetScalarFluxFromFramework.
 
 namespace  {
 
