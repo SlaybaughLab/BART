@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "utility/has_description.h"
+#include "iteration/subroutine/subroutine_i.hpp"
 
 namespace bart {
 
@@ -16,8 +17,10 @@ namespace outer {
 
 class OuterIterationI : public utility::HasDescription {
  public:
+  using Subroutine = subroutine::SubroutineI;
   virtual ~OuterIterationI() = default;
-  virtual void IterateToConvergence(system::System &system) = 0;
+  virtual auto IterateToConvergence(system::System &system) -> void = 0;
+  virtual auto AddPostIterationSubroutine(std::unique_ptr<Subroutine>) -> OuterIterationI& = 0;
 };
 
 } // namespace outer

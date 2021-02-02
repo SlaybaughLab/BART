@@ -4,6 +4,7 @@
 
 #include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
+#include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "convergence/tests/final_checker_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
@@ -27,6 +28,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
+  using Subroutine = iteration::subroutine::SubroutineMock;
 
   std::unique_ptr<OuterPowerIteration> test_iterator;
 
@@ -43,6 +45,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   GroupIterator* group_iterator_obs_ptr_;
   ConvergenceChecker* convergence_checker_obs_ptr_;
   K_EffectiveUpdater* k_effective_updater_obs_ptr_;
+  Subroutine* post_iteration_subroutine_obs_ptr_;
 
   // Test parameters
   const int total_groups = 2;
@@ -64,6 +67,8 @@ void IterationOuterPowerIterationTest::SetUp() {
   convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
   status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
   error_instrument_ptr_ = std::make_shared<ErrorInstrumentType>();
+  auto post_iteration_subroutine_ptr = std::make_unique<Subroutine>();
+  post_iteration_subroutine_obs_ptr_ = post_iteration_subroutine_ptr.get();
 
   // Set up system
   test_system.total_angles = total_angles;
@@ -75,6 +80,7 @@ void IterationOuterPowerIterationTest::SetUp() {
       std::move(convergenge_checker_ptr),
       std::move(k_effective_updater_ptr),
       source_updater_ptr_);
+  test_iterator->AddPostIterationSubroutine(std::move(post_iteration_subroutine_ptr));
 
   using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
   instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator).AddInstrument(
@@ -93,6 +99,7 @@ TEST_F(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator->source_updater_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->convergence_checker_ptr(), nullptr);
   EXPECT_NE(this->test_iterator->k_effective_updater_ptr(), nullptr);
+  EXPECT_NE(this->test_iterator->post_iteration_subroutine_ptr(), nullptr);
   EXPECT_EQ(this->source_updater_ptr_.use_count(), 2);
 }
 
@@ -165,6 +172,8 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
       .Times(this->iterations_);
 
   EXPECT_CALL(*this->convergence_instrument_ptr_, Read(_))
+      .Times(this->iterations_);
+  EXPECT_CALL(*this->post_iteration_subroutine_obs_ptr_, Execute(Ref(this->test_system)))
       .Times(this->iterations_);
   EXPECT_CALL(*this->status_instrument_ptr_, Read(_))
       .Times(AtLeast(this->iterations_));

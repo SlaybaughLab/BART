@@ -1,16 +1,14 @@
 #ifndef BART_SRC_ITERATION_SUBROUTINE_SUBROUTINE_I_HPP_
 #define BART_SRC_ITERATION_SUBROUTINE_SUBROUTINE_I_HPP_
 
-namespace bart::iteration::subroutine {
+#include "system/system.hpp"
 
-namespace system {
-struct System;
-} // namespace system
+namespace bart::iteration::subroutine {
 
 class SubroutineI {
  public:
   virtual ~SubroutineI() = default;
-  virtual auto Execute(system::System&) -> void;
+  virtual auto Execute(system::System&) -> void = 0;
 };
 
 } // namespace bart::iteration::subroutine

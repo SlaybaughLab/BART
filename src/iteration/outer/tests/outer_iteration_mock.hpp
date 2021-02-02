@@ -14,7 +14,9 @@ namespace outer {
 
 class OuterIterationMock : public OuterIterationI {
  public:
+  using Subroutine = OuterIterationI::Subroutine;
   MOCK_METHOD(void, IterateToConvergence, (system::System &), (override));
+  MOCK_METHOD(OuterIterationMock&, AddPostIterationSubroutine, (std::unique_ptr<Subroutine>), (override));
 }; // namespace outer
 
 } // namespace iteration

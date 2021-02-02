@@ -5,9 +5,8 @@
 namespace bart::iteration::outer {
 
 template <typename ConvergenceType>
-OuterIteration<ConvergenceType>::OuterIteration(
-    std::unique_ptr<GroupIterator> group_iterator_ptr,
-    std::unique_ptr<ConvergenceChecker> convergence_checker_ptr)
+OuterIteration<ConvergenceType>::OuterIteration(std::unique_ptr<GroupIterator> group_iterator_ptr,
+                                                std::unique_ptr<ConvergenceChecker> convergence_checker_ptr)
     : group_iterator_ptr_(std::move(group_iterator_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)) {
 
@@ -26,6 +25,8 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
   bool is_complete{ false };
   do {
     is_complete = Iterate(system);
+    if (post_iteration_subroutine_ptr_ != nullptr)
+      post_iteration_subroutine_ptr_->Execute(system);
   } while (!is_complete);
 }
 
