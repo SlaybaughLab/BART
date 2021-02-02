@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FORMULATION_UPDATER_FISSION_SOURCE_UPDATER_I_HPP_
 #define BART_SRC_FORMULATION_UPDATER_FISSION_SOURCE_UPDATER_I_HPP_
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/system_types.h"
 #include "quadrature/quadrature_types.h"
 #include "utility/has_value.hpp"
