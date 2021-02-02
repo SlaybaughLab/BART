@@ -25,6 +25,8 @@ class OutstreamIFactory : public utility::factory::AutoRegisteringFactory<
       return std::string{"OutstreamName::kToOstream"};
     case (OutstreamName::kToConditionalOstream):
       return std::string{"OutstreamName::kToConditionalOstream"};
+    case (OutstreamName::kVectorToVTU):
+      return std::string{"OutstreamName::kVectorToVTU"};
   }
   return std::string{"Unknown OutstreamName conversion to string requested."};
 }
