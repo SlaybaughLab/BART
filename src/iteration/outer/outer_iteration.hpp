@@ -19,6 +19,8 @@ using ConvergenceStatusPort = instrumentation::Port<convergence::Status, struct 
 using StatusPort = instrumentation::Port<std::string, struct Status>;
 using IterationErrorPort = instrumentation::Port<std::pair<int, double>, struct IterationError>;
 using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, struct SolutionMoments>;
+using ScatteringSourcePort = instrumentation::Port<dealii::Vector<double>, struct ScatteringSourcePortParameter>;
+using FissionSourcePort = instrumentation::Port<dealii::Vector<double>, struct FissionSourcePortParameter>;
 } // namespace data_names
 
 
@@ -28,6 +30,8 @@ class OuterIteration : public OuterIterationI,
                        public data_names::ConvergenceStatusPort,
                        public data_names::StatusPort,
                        public data_names::IterationErrorPort,
+                       public data_names::FissionSourcePort,
+                       public data_names::ScatteringSourcePort,
                        public data_names::SolutionMomentsPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;

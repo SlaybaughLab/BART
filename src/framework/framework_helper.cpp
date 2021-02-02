@@ -11,6 +11,10 @@
 #include "system/system_helper.hpp"
 #include "system/solution/solution_types.h"
 
+// to be removed
+#include "instrumentation/basic_instrument.h"
+#include "instrumentation/outstream/vector_to_vtu.hpp"
+
 #include <fstream>
 
 #include <fmt/color.h>
@@ -254,7 +258,6 @@ auto FrameworkHelper<dim>::BuildFramework(
     }
   }
 
-
   auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
                                                   parameters.neutron_energy_groups,
                                                   n_angles);
@@ -332,6 +335,20 @@ auto FrameworkHelper<dim>::BuildFramework(
   if (post_processing_subroutine != nullptr) {
     outer_iteration_ptr->AddPostIterationSubroutine(std::move(post_processing_subroutine));
   }
+
+  try {
+    // Install if port is present
+    auto vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+        std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "scattering_source", "scattering_source",
+                                                                                parameters.output_filename_base + "_scattering_source"));
+    instrumentation::GetPort<iteration::outer::data_names::ScatteringSourcePort>(*outer_iteration_ptr)
+        .AddInstrument(vector_to_vtu_instrument);
+    auto fission_source_vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+        std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "fission_source", "fission_source",
+                                                                                parameters.output_filename_base + "_fission_source"));
+    instrumentation::GetPort<iteration::outer::data_names::FissionSourcePort>(*outer_iteration_ptr)
+        .AddInstrument(fission_source_vector_to_vtu_instrument);
+  } catch (std::bad_cast&) {}
 
   validator.ReportValidation();
 
