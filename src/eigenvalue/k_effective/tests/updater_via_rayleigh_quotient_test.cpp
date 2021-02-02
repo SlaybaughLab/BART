@@ -1,6 +1,6 @@
 #include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
