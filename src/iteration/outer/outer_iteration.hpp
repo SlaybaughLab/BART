@@ -21,6 +21,7 @@ using IterationErrorPort = instrumentation::Port<std::pair<int, double>, struct 
 using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, struct SolutionMoments>;
 using ScatteringSourcePort = instrumentation::Port<dealii::Vector<double>, struct ScatteringSourcePortParameter>;
 using FissionSourcePort = instrumentation::Port<dealii::Vector<double>, struct FissionSourcePortParameter>;
+using ScalarFluxPort = instrumentation::Port<dealii::Vector<double>, struct ScalarFluxPortParameter>;
 } // namespace data_names
 
 
@@ -32,6 +33,7 @@ class OuterIteration : public OuterIterationI,
                        public data_names::IterationErrorPort,
                        public data_names::FissionSourcePort,
                        public data_names::ScatteringSourcePort,
+                       public data_names::ScalarFluxPort,
                        public data_names::SolutionMomentsPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
