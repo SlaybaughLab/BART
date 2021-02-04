@@ -1,5 +1,5 @@
-#ifndef BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
-#define BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
+#ifndef BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_HPP_
+#define BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_HPP_
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/spherical_harmonic_i.h"
@@ -53,4 +53,4 @@ class SphericalHarmonic : public SphericalHarmonicI {
 
 } // namespace bart::system::moments
 
-#endif // BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
+#endif // BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_HPP_

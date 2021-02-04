@@ -1,4 +1,4 @@
-#include "system/moments/spherical_harmonic.h"
+#include "system/moments/spherical_harmonic.hpp"
 
 #include <array>
 

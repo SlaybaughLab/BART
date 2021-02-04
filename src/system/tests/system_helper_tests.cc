@@ -11,7 +11,7 @@
 #include "test_helpers/test_helper_functions.h"
 
 #include "system/terms/term.h"
-#include "system/moments/spherical_harmonic.h"
+#include "system/moments/spherical_harmonic.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/terms/tests/linear_term_mock.h"

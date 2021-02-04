@@ -1,7 +1,7 @@
 #include "system/system_helper.hpp"
 
 #include "system/terms/term.h"
-#include "system/moments/spherical_harmonic.h"
+#include "system/moments/spherical_harmonic.hpp"
 #include "system/solution/mpi_group_angular_solution.h"
 
 namespace bart::system {
