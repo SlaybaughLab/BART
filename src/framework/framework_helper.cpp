@@ -193,7 +193,7 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                              quadrature_set_ptr,
                                                              formulation::SAAFFormulationImpl::kDefault);
     saaf_formulation_ptr->Initialize(domain_ptr->Cells().at(0));
-    if (has_reflective_boundaries) {
+    if (has_reflective_boundaries || parameters.use_nda_) {
       updater_pointers = builder.BuildUpdaterPointers(std::move(saaf_formulation_ptr),
                                                       builder.BuildStamper(domain_ptr),
                                                       quadrature_set_ptr,
