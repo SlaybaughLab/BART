@@ -25,6 +25,7 @@
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
+#include "iteration/subroutine/subroutine_i.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "quadrature/quadrature_set_i.h"
@@ -33,7 +34,7 @@
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/solution/solution_types.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "utility/colors.hpp"
 
 namespace bart::framework::builder {
@@ -63,6 +64,7 @@ class FrameworkBuilderI {
   using SphericalHarmonicMoments = system::moments::SphericalHarmonicI;
   using SingleGroupSolver = solver::group::SingleGroupSolverI;
   using Stamper = formulation::StamperI<dim>;
+  using Subroutine = iteration::subroutine::SubroutineI;
   using System = system::System;
   using Validator = framework::builder::FrameworkValidatorI;
 
@@ -78,6 +80,7 @@ class FrameworkBuilderI {
   // Implementation specifiers
   using DiffusionFormulationImpl = formulation::DiffusionFormulationImpl;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
+  using SubroutineName = iteration::subroutine::SubroutineName;
 
   // Updater Pointers
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterI;
@@ -156,6 +159,7 @@ class FrameworkBuilderI {
   virtual auto BuildSingleGroupSolver(const int max_iterations,
                                       const double convergence_tolerance) -> std::unique_ptr<SingleGroupSolver> = 0;
   virtual auto BuildStamper(const std::shared_ptr<Domain>&) -> std::unique_ptr<Stamper> = 0;
+  virtual auto BuildSubroutine(std::unique_ptr<FrameworkI>, const SubroutineName) -> std::unique_ptr<Subroutine> = 0;
   virtual auto BuildSystem(const int n_groups,
                            const int n_angles,
                            const Domain& domain,

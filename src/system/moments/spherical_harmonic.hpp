@@ -1,14 +1,11 @@
-#ifndef BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
-#define BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
+#ifndef BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_HPP_
+#define BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_HPP_
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/spherical_harmonic_i.h"
 
-namespace bart {
+namespace bart::system::moments {
 
-namespace system {
-
-namespace moments {
 /*! \brief Stores spherical harmonic moments.
  *
  * This class stores the spherical harmonic moments for a system. Each is stored
@@ -32,23 +29,14 @@ namespace moments {
  */
 class SphericalHarmonic : public SphericalHarmonicI {
  public:
-  SphericalHarmonic(const int total_groups,
-                    const int max_harmonic_l);
+  SphericalHarmonic(const int total_groups, const int max_harmonic_l);
   virtual ~SphericalHarmonic() = default;
 
   const MomentsMap& moments() const override { return moments_; }
-
-  const MomentVector& GetMoment(const MomentIndex index) const override {
-    return moments_.at(index);
-  }
-
-  const MomentVector& operator[](const MomentIndex index) const override {
-    return moments_.at(index);
-  };
-
-  MomentVector& operator[](const MomentIndex index) override {
-    return moments_.at(index);
-  };
+  const MomentVector& GetMoment(const MomentIndex index) const override { return moments_.at(index); }
+  MomentVector& GetMoment(const MomentIndex index) override { return moments_.at(index); }
+  const MomentVector& operator[](const MomentIndex index) const override { return moments_.at(index); };
+  MomentVector& operator[](const MomentIndex index) override { return moments_.at(index); };
 
   int total_groups() const override { return total_groups_; }
   int max_harmonic_l() const override { return max_harmonic_l_;}
@@ -58,15 +46,11 @@ class SphericalHarmonic : public SphericalHarmonicI {
   std::map<MomentIndex, MomentVector>::const_iterator cend() const override;
   std::map<MomentIndex, MomentVector>::iterator end() override;
  private:
-  MomentsMap moments_ = {};
-  const int total_groups_ = 0;
-  const int max_harmonic_l_ = 0;
+  MomentsMap moments_{};
+  const int total_groups_{ 0 };
+  const int max_harmonic_l_{ 0 };
 };
 
-} // namespace moments
+} // namespace bart::system::moments
 
-} // namespace system
-
-} // namespace bart
-
-#endif // BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_H_
+#endif // BART_SRC_SYSTEM_MOMENTS_SPHERICAL_HARMONIC_HPP_

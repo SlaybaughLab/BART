@@ -10,6 +10,7 @@
 #include <calculator/drift_diffusion/factory.hpp>
 #include <formulation/scalar/scalar_formulation_factory.hpp>
 #include <formulation/updater/formulation_updater_factories.hpp>
+#include <iteration/subroutine/get_scalar_flux_from_framework.hpp>
 
 // Builders & factories
 #include "solver/builder/solver_builder.hpp"
@@ -62,7 +63,7 @@
 #include "results/output_dealii_vtu.h"
 
 // System classes
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "system/solution/solution_types.h"
 
@@ -663,6 +664,17 @@ auto FrameworkBuilder<dim>::BuildStamper(const std::shared_ptr<Domain>& domain_p
 
   return_ptr = std::move(std::make_unique<formulation::Stamper<dim>>(domain_ptr));
   ReportBuildSuccess(return_ptr->description());
+  return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildSubroutine(std::unique_ptr<FrameworkI> framework_ptr,
+                                            const SubroutineName subroutine_name) -> std::unique_ptr<Subroutine> {
+  std::unique_ptr<Subroutine> return_ptr{ nullptr };
+  if (subroutine_name == SubroutineName::kGetScalarFluxFromFramework) {
+    using ReturnType = iteration::subroutine::GetScalarFluxFromFramework;
+    return_ptr = std::move(std::make_unique<ReturnType>(std::move(framework_ptr)));
+  }
   return return_ptr;
 }
 

@@ -7,7 +7,8 @@
 #include "instrumentation/port.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
-#include "system/system.h"
+#include "iteration/subroutine/subroutine_i.hpp"
+#include "system/system.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 #include "utility/uncopyable.h"
 
@@ -31,29 +32,31 @@ class OuterIteration : public OuterIterationI,
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
   using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
+  using Subroutine = iteration::subroutine::SubroutineI;
 
-  OuterIteration(
-      std::unique_ptr<GroupIterator> group_iterator_ptr,
-      std::unique_ptr<ConvergenceChecker> convergence_checker_ptr);
+  OuterIteration(std::unique_ptr<GroupIterator> group_iterator_ptr,
+                 std::unique_ptr<ConvergenceChecker> convergence_checker_ptr);
+
+  auto AddPostIterationSubroutine(std::unique_ptr<Subroutine> subroutine_ptr) -> OuterIteration & override {
+    post_iteration_subroutine_ptr_ = std::move(subroutine_ptr);
+    return *this; };
   virtual ~OuterIteration() = default;
   virtual void IterateToConvergence(system::System &system);
 
-  GroupIterator* group_iterator_ptr() const {
-    return group_iterator_ptr_.get();
-  }
-
-  ConvergenceChecker* convergence_checker_ptr() const {
-    return convergence_checker_ptr_.get();
-  }
+  GroupIterator* group_iterator_ptr() const { return group_iterator_ptr_.get(); }
+  ConvergenceChecker* convergence_checker_ptr() const { return convergence_checker_ptr_.get(); }
+  Subroutine* post_iteration_subroutine_ptr() const { return post_iteration_subroutine_ptr_.get(); }
 
  protected:
   virtual void InnerIterationToConvergence(system::System &system);
+  virtual auto Iterate(system::System &system) -> bool;
   virtual convergence::Status CheckConvergence(system::System &system) = 0;
   virtual void UpdateSystem(system::System& system, const int group,
                             const int angle) = 0;
 
-  std::unique_ptr<GroupIterator> group_iterator_ptr_ = nullptr;
-  std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_ = nullptr;
+  std::unique_ptr<GroupIterator> group_iterator_ptr_{ nullptr };
+  std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_{ nullptr };
+  std::unique_ptr<Subroutine> post_iteration_subroutine_ptr_{ nullptr };
 };
 
 } // namespace bart::iteration::outer

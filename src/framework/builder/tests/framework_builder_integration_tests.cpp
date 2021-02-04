@@ -37,6 +37,7 @@
 #include "system/solution/mpi_group_angular_solution.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/group/group_source_iteration.h"
+#include "iteration/subroutine/get_scalar_flux_from_framework.hpp"
 #include "system/system_types.h"
 #include "system/solution/solution_types.h"
 #include "system/system_helper.hpp"
@@ -55,6 +56,7 @@
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "framework/builder/tests/framework_validator_mock.hpp"
+#include "framework/tests/framework_mock.hpp"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
@@ -99,6 +101,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using DomainType = domain::DefinitionMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
   using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterMock;
+  using FrameworkMock = framework::FrameworkMock;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationMock;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterMock;
@@ -130,6 +133,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   std::shared_ptr<DomainType> domain_sptr_;
   std::shared_ptr<FiniteElementType> finite_element_sptr_;
   std::shared_ptr<FissionSourceUpdaterType> fission_source_updater_sptr_;
+  std::unique_ptr<FrameworkMock> framework_uptr_{ nullptr };
   std::shared_ptr<GroupSolutionType> group_solution_sptr_;
   std::unique_ptr<GroupSolveIterationType> group_solve_iteration_uptr_;
   std::unique_ptr<KEffectiveUpdaterType> k_effective_updater_uptr_;
@@ -181,6 +185,7 @@ void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   domain_sptr_ = std::make_shared<DomainType>();
   finite_element_sptr_ = std::make_shared<FiniteElementType>();
   fission_source_updater_sptr_ = std::make_shared<FissionSourceUpdaterType>();
+  framework_uptr_ = std::make_unique<FrameworkMock>();
   group_solution_sptr_ = std::make_shared<GroupSolutionType>();
   group_solve_iteration_uptr_  = std::move(std::make_unique<GroupSolveIterationType>());
   k_effective_updater_uptr_ = std::move(std::make_unique<KEffectiveUpdaterType>());
@@ -809,6 +814,16 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
   auto stamper_ptr = this->test_builder_ptr_->BuildStamper(domain_ptr);
 
   EXPECT_THAT(stamper_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+}
+
+TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSubroutine) {
+  using ExpectedType = iteration::subroutine::GetScalarFluxFromFramework;
+  auto subroutine_ptr = this->test_builder_ptr_->BuildSubroutine(
+      std::move(this->framework_uptr_),
+      iteration::subroutine::SubroutineName::kGetScalarFluxFromFramework);
+  auto dynamic_ptr{ dynamic_cast<ExpectedType*>(subroutine_ptr.get()) };
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_NE(dynamic_ptr->framework_ptr(), nullptr);
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSystem) {

@@ -2,7 +2,7 @@
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 
 #include "calculator/cell/tests/total_aggregated_fission_source_mock.h"
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 

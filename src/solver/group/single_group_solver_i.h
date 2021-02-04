@@ -1,7 +1,7 @@
 #ifndef BART_SRC_SOLVER_GROUP_TESTS_SINGLE_GROUP_SOLVER_I_H_
 #define BART_SRC_SOLVER_GROUP_TESTS_SINGLE_GROUP_SOLVER_I_H_
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "system/solution/mpi_group_angular_solution_i.h"
 
 namespace bart {

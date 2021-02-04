@@ -3,7 +3,7 @@
 
 #include <ostream>
 
-#include "system/system.h"
+#include "system/system.hpp"
 
 namespace bart::framework {
 

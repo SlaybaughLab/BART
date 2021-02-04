@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "system/system.h"
+#include "system/system.hpp"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
