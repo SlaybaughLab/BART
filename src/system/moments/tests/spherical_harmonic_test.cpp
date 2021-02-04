@@ -11,10 +11,8 @@ using namespace bart;
 using ::testing::Ref, ::testing::WhenDynamicCastTo, ::testing::NotNull;
 
 class SystemMomentsSphericalHarmonicTest : public ::testing::Test {
- protected:
-
-  SystemMomentsSphericalHarmonicTest()
-      : test_moments(total_groups, max_harmonic_l) {}
+ public:
+  SystemMomentsSphericalHarmonicTest() : test_moments(total_groups, max_harmonic_l) {}
 
   // Test objects
   system::moments::SphericalHarmonic test_moments;
@@ -37,9 +35,7 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BadGroupsAndHarmonics) {
 
   for (const auto group : bad_groups) {
     for (const auto max_harmonic_l : bad_max_harmonic_l) {
-      EXPECT_ANY_THROW({
-        system::moments::SphericalHarmonic bad_moment(group, max_harmonic_l);
-      });
+      EXPECT_ANY_THROW({ system::moments::SphericalHarmonic bad_moment(group, max_harmonic_l); });
     }
   }
 }
@@ -58,16 +54,16 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BracketOperator) {
 
   for (const auto& moment_pair : const_test_moments.moments()) {
     const auto& moment = const_test_moments[moment_pair.first];
+    const auto& const_moment = const_test_moments.GetMoment(moment_pair.first);
     EXPECT_THAT(moment, Ref(moment_pair.second));
+    EXPECT_THAT(const_moment, Ref(moment_pair.second));
   }
-
 }
 
 TEST_F(SystemMomentsSphericalHarmonicTest, Assignment) {
   system::moments::MomentVector moment{10};
   system::moments::MomentIndex index{0,0,0};
   moment = 5;
-
   test_moments[index] = moment;
   EXPECT_EQ(test_moments[index], moment);
 }
@@ -77,7 +73,6 @@ TEST_F(SystemMomentsSphericalHarmonicTest, BeginEndIterators) {
   EXPECT_EQ(test_moments.end(), test_moments.moments().end());
   EXPECT_EQ(test_moments.cbegin(), test_moments.moments().cbegin());
   EXPECT_EQ(test_moments.cend(), test_moments.moments().cend());
-
 }
 
 } // namespace
