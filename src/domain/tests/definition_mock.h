@@ -7,7 +7,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "domain/definition_i.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 

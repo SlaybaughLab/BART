@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "domain/finite_element/finite_element.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 
 namespace bart {
 

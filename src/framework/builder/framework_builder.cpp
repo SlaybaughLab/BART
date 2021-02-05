@@ -49,6 +49,7 @@
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/initializer/initialize_fixed_terms_reset_moments.hpp"
 #include "iteration/group/group_solve_iteration.h"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/outer/outer_power_iteration.hpp"
@@ -350,16 +351,29 @@ auto FrameworkBuilder<dim>::BuildGroupSolution(const int n_angles) -> std::uniqu
 template<int dim>
 auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpdater>& updater_ptr,
                                              const int total_groups,
-                                             const int total_angles) -> std::unique_ptr<Initializer> {
+                                             const int total_angles,
+                                             const InitializerName implementation) -> std::unique_ptr<Initializer> {
   ReportBuildingComponant("Initializer");
 
   std::unique_ptr<Initializer> return_ptr = nullptr;
 
-  using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
+  if (implementation == InitializerName::kInitializeFixedTermsOnce) {
+    using InitializeOnceType = iteration::initializer::InitializeFixedTermsOnce;
+    return_ptr = std::move(std::make_unique<InitializeOnceType>(updater_ptr, total_groups, total_angles));
+  } else if (implementation == InitializerName::kInitializeFixedTermsAndResetMoments) {
+    using InitializeAndResetMoments = iteration::initializer::InitializeFixedTermsResetMoments;
+    return_ptr = std::move(std::make_unique<InitializeAndResetMoments>(updater_ptr, total_groups, total_angles));
+  }
 
-  return_ptr = std::move(std::make_unique<InitializeOnceType>(updater_ptr, total_groups, total_angles));
   ReportBuildSuccess(return_ptr->description());
   return return_ptr;
+}
+
+template<int dim>
+auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpdater>& updater_ptr,
+                                             const int total_groups,
+                                             const int total_angles) -> std::unique_ptr<Initializer> {
+  return BuildInitializer(updater_ptr, total_groups, total_angles, InitializerName::kInitializeFixedTermsOnce);
 }
 
 template<int dim>

@@ -4,7 +4,7 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 #include "utility/colors.hpp"
 
 namespace  {
@@ -89,6 +89,22 @@ TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, SAAFRequiresAngularSolu
   EXPECT_TRUE(test_validator_.NeededParts().contains(Part::AngularSolutionStorage));
 }
 
+TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, FrameworkNDAHasAngularStorage) {
+  FrameworkParameters nda_parameters{ framework_parameters_ };
+  nda_parameters.use_nda_ = true;
+  nda_parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
+
+  EXPECT_NO_THROW(test_validator_.Parse(nda_parameters));
+  EXPECT_TRUE(test_validator_.NeededParts().contains(Part::AngularSolutionStorage));
+}
+
+TEST_F(FrameworkBuilderFrameworkValidatorParametersTest, FrameworkNDABadEquationType) {
+  FrameworkParameters nda_parameters{ framework_parameters_ };
+  nda_parameters.use_nda_ = true;
+  nda_parameters.equation_type = problem::EquationType::kDiffusion;
+
+  EXPECT_ANY_THROW(test_validator_.Parse(nda_parameters));
+}
 
 
 } // namespace

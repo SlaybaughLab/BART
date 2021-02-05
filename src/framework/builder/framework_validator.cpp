@@ -32,26 +32,10 @@ auto FrameworkValidator::Parse(const framework::FrameworkParameters parameters) 
   }
 
   // Check for required angular solution storage
-  if (!parameters.reflective_boundaries.empty() &&
-      parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
+  if (const bool equation_type_is_saaf{ parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux};
+      parameters.use_nda_ || (!parameters.reflective_boundaries.empty() && equation_type_is_saaf)) {
     needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
-  }
-}
-
-void FrameworkValidator::Parse(const problem::ParametersI& to_parse) {
-  needed_parts_ = {FrameworkPart::ScatteringSourceUpdate};
-  if (to_parse.IsEigenvalueProblem())
-    needed_parts_.insert(FrameworkPart::FissionSourceUpdate);
-
-  const auto reflective_boundary = to_parse.ReflectiveBoundary();
-  bool has_reflective = std::any_of(
-      reflective_boundary.begin(),
-      reflective_boundary.end(),
-      [](std::pair<problem::Boundary, bool> pair){ return pair.second; });
-
-  if (has_reflective &&
-      to_parse.TransportModel() == problem::EquationType::kSelfAdjointAngularFlux) {
-    needed_parts_.insert(FrameworkPart::AngularSolutionStorage);
+    if (parameters.use_nda_) AssertThrow(equation_type_is_saaf, dealii::ExcMessage("NDA requires angular solve"))
   }
 }
 

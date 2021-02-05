@@ -9,7 +9,7 @@
 
 #include <deal.II/base/point.h>
 #include <deal.II/grid/tria.h>
-#include <problem/parameter_types.h>
+#include <problem/parameter_types.hpp>
 
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"

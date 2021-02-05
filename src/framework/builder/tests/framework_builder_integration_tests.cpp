@@ -36,6 +36,7 @@
 #include "solver/group/single_group_solver.h"
 #include "system/solution/mpi_group_angular_solution.h"
 #include "iteration/initializer/initialize_fixed_terms_once.h"
+#include "iteration/initializer/initialize_fixed_terms_reset_moments.hpp"
 #include "iteration/group/group_source_iteration.h"
 #include "iteration/subroutine/get_scalar_flux_from_framework.hpp"
 #include "system/system_types.h"
@@ -877,9 +878,9 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSystem) {
 class FrameworkBuilderIntegrationNonDimTest
  : public FrameworkBuilderIntegrationTest<bart::testing::OneD> {};
 
-TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
-  auto fixed_updater_ptr =
-      std::make_shared<formulation::updater::FixedUpdaterMock>();
+TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildDefaultInitializer) {
+  using InitializerName = iteration::initializer::InitializerName;
+  auto fixed_updater_ptr = std::make_shared<formulation::updater::FixedUpdaterMock>();
 
   using ExpectedType = iteration::initializer::InitializeFixedTermsOnce;
   const int total_groups = bart::test_helpers::RandomDouble(1, 10);
@@ -888,6 +889,44 @@ TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializer) {
   auto initializer_ptr = this->test_builder_ptr_->BuildInitializer(fixed_updater_ptr,
                                                                   total_groups,
                                                                   total_angles);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(initializer_ptr.get());
+  ASSERT_NE(initializer_ptr, nullptr);
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_EQ(dynamic_ptr->total_angles(), total_angles);
+  EXPECT_EQ(dynamic_ptr->total_groups(), total_groups);
+}
+
+TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializerFixedOnceSpecified) {
+  using InitializerName = iteration::initializer::InitializerName;
+  auto fixed_updater_ptr = std::make_shared<formulation::updater::FixedUpdaterMock>();
+
+  using ExpectedType = iteration::initializer::InitializeFixedTermsOnce;
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+
+  auto initializer_ptr = this->test_builder_ptr_->BuildInitializer(fixed_updater_ptr,
+                                                                   total_groups,
+                                                                   total_angles,
+                                                                   InitializerName::kInitializeFixedTermsOnce);
+  auto dynamic_ptr = dynamic_cast<ExpectedType*>(initializer_ptr.get());
+  ASSERT_NE(initializer_ptr, nullptr);
+  ASSERT_NE(dynamic_ptr, nullptr);
+  EXPECT_EQ(dynamic_ptr->total_angles(), total_angles);
+  EXPECT_EQ(dynamic_ptr->total_groups(), total_groups);
+}
+
+TEST_F(FrameworkBuilderIntegrationNonDimTest, BuildInitializerResetMoments) {
+  using InitializerName = iteration::initializer::InitializerName;
+  auto fixed_updater_ptr = std::make_shared<formulation::updater::FixedUpdaterMock>();
+
+  using ExpectedType = iteration::initializer::InitializeFixedTermsResetMoments;
+  const int total_groups = bart::test_helpers::RandomDouble(1, 10);
+  const int total_angles = total_groups + 1;
+
+  auto initializer_ptr = this->test_builder_ptr_->BuildInitializer(fixed_updater_ptr,
+                                                                   total_groups,
+                                                                   total_angles,
+                                                                   InitializerName::kInitializeFixedTermsAndResetMoments);
   auto dynamic_ptr = dynamic_cast<ExpectedType*>(initializer_ptr.get());
   ASSERT_NE(initializer_ptr, nullptr);
   ASSERT_NE(dynamic_ptr, nullptr);

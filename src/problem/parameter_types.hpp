@@ -1,5 +1,5 @@
-#ifndef BART_SRC_PROBLEM_PARAMETER_TYPES_H_
-#define BART_SRC_PROBLEM_PARAMETER_TYPES_H_
+#ifndef BART_SRC_PROBLEM_PARAMETER_TYPES_HPP_
+#define BART_SRC_PROBLEM_PARAMETER_TYPES_HPP_
 
 namespace bart {
 
@@ -34,6 +34,7 @@ enum class EigenSolverType {
 enum class EquationType {
   kNone,
   kDiffusion,
+  kDriftDiffusion,
   kEvenParity,
   kSelfAdjointAngularFlux,
 };
@@ -79,4 +80,4 @@ enum class PreconditionerType {
 
 } // namespace bart
 
-#endif // BART_SRC_PROBLEM_PARAMETER_TYPES_H_
+#endif // BART_SRC_PROBLEM_PARAMETER_TYPES_HPP_

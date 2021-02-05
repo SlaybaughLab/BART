@@ -3,7 +3,7 @@
 
 #include "quadrature/quadrature_point_i.h"
 #include "quadrature/quadrature_types.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 
 #include <memory>
 #include <optional>

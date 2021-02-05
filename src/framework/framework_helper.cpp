@@ -4,6 +4,7 @@
 #include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
+#include "instrumentation/converter/convert_to_string/convergence_to_string.h"
 #include "material/material_protobuf.h"
 #include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
@@ -48,7 +49,8 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .number_of_cells{ framework::FrameworkParameters::NumberOfCells(problem_parameters.NCells()) },
     .uniform_refinements{ problem_parameters.UniformRefinements() },
     .discretization_type{ problem_parameters.Discretization() },
-    .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) }
+    .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) },
+    .use_nda_{ problem_parameters.DoNDA() }
   };
 
   std::set<Boundary> reflective_boundaries;
@@ -88,7 +90,7 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
 template<int dim>
 auto FrameworkHelper<dim>::BuildFramework(
     builder::FrameworkBuilderI<dim>& builder,
-    const framework::FrameworkParameters& parameters) -> std::unique_ptr<framework::FrameworkI> {
+    framework::FrameworkParameters& parameters) -> std::unique_ptr<framework::FrameworkI> {
   using FrameworkPart = framework::builder::FrameworkPart;
   using MomentCalculator = typename builder::FrameworkBuilderI<dim>::MomentCalculator;
   using OuterIteration = typename builder::FrameworkBuilderI<dim>::OuterIteration;
@@ -99,6 +101,15 @@ auto FrameworkHelper<dim>::BuildFramework(
 
   using ColorStringPair = std::pair<std::string, utility::Color>;
 
+  // Check that if Drift-Diffusion formujlation is specified that we have the required dependencies provided
+  if (parameters.equation_type == problem::EquationType::kDriftDiffusion) {
+    std::string nda_dependency_error{ "Error building framework for Drift Diffusion: Required dependency missing: "};
+    AssertThrow(parameters.nda_data_.angular_flux_integrator_ptr_ != nullptr,
+        dealii::ExcMessage(nda_dependency_error + "angular flux integrator ptr is null"))
+    AssertThrow(parameters.nda_data_.higher_order_moments_ptr_ != nullptr,
+                dealii::ExcMessage(nda_dependency_error + "higher order moments ptr is null"))
+  }
+
   // Build instruments to be used
   auto color_string_instrument_ptr = Shared(
       InstrumentBuilder::BuildInstrument<ColorStringPair>(InstrumentName::kColorStatusToConditionalOstream));
@@ -106,6 +117,7 @@ auto FrameworkHelper<dim>::BuildFramework(
       InstrumentBuilder::BuildInstrument<convergence::Status>(InstrumentName::kConvergenceStatusToConditionalOstream));
   auto string_instrument_ptr = Shared(
       InstrumentBuilder::BuildInstrument<std::string>(InstrumentName::kStringToConditionalOstream));
+
   builder.set_color_status_instrument_ptr(color_string_instrument_ptr);
   builder.set_convergence_status_instrument_ptr(convergence_status_instrument_ptr);
   builder.set_status_instrument_ptr(string_instrument_ptr);
@@ -143,7 +155,11 @@ auto FrameworkHelper<dim>::BuildFramework(
 
 
   // Set up for Angular/Scalar solve
-  if (parameters.equation_type != problem::EquationType::kDiffusion) {
+  using EquationType = problem::EquationType;
+  std::set<EquationType> scalar_types{EquationType::kDiffusion, EquationType::kDriftDiffusion};
+  std::set<EquationType> angular_types{EquationType::kSelfAdjointAngularFlux};
+
+  if (angular_types.contains(parameters.equation_type)) {
     // Angular solve
     AssertThrow(parameters.angular_quadrature_order.has_value(),
                 dealii::ExcMessage("Error building framework, equation type requires quadrature but order is null"))
@@ -190,14 +206,30 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                       builder.BuildStamper(domain_ptr),
                                                       quadrature_set_ptr);
     }
-  } else if (parameters.equation_type == problem::EquationType::kDiffusion) {
+  } else if (parameters.equation_type == EquationType::kDiffusion ||
+      parameters.equation_type == EquationType::kDriftDiffusion) {
     auto diffusion_formulation_ptr = builder.BuildDiffusionFormulation(finite_element_ptr,
                                                                        parameters.cross_sections_.value(),
                                                                        formulation::DiffusionFormulationImpl::kDefault);
     diffusion_formulation_ptr->Precalculate(domain_ptr->Cells().at(0));
-    updater_pointers = builder.BuildUpdaterPointers(std::move(diffusion_formulation_ptr),
-                                                    builder.BuildStamper(domain_ptr),
-                                                    reflective_boundaries);
+    if (parameters.equation_type == EquationType::kDriftDiffusion) {
+      auto drift_diffusion_formulation_ptr = builder.BuildDriftDiffusionFormulation(
+          parameters.nda_data_.angular_flux_integrator_ptr_,
+          finite_element_ptr,
+          parameters.cross_sections_.value());
+      updater_pointers = builder.BuildUpdaterPointers(
+          std::move(diffusion_formulation_ptr),
+          std::move(drift_diffusion_formulation_ptr),
+          builder.BuildStamper(domain_ptr),
+          parameters.nda_data_.angular_flux_integrator_ptr_,
+          parameters.nda_data_.higher_order_moments_ptr_,
+          parameters.nda_data_.higher_order_angular_flux_,
+          reflective_boundaries);
+    } else {
+      updater_pointers = builder.BuildUpdaterPointers(std::move(diffusion_formulation_ptr),
+                                                      builder.BuildStamper(domain_ptr),
+                                                      reflective_boundaries);
+    }
   }
 
   auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
@@ -218,6 +250,35 @@ auto FrameworkHelper<dim>::BuildFramework(
   if (need_angular_solution_storage) {
     group_iteration_ptr->UpdateThisAngularSolutionMap(angular_solutions_);
     validator.AddPart(FrameworkPart::AngularSolutionStorage);
+  }
+
+  auto system_ptr = builder.BuildSystem(parameters.neutron_energy_groups,
+                                        n_angles,
+                                        *domain_ptr,
+                                        group_solution_ptr->GetSolution(0).size(),
+                                        parameters.eigen_solver_type.has_value(),
+                                        need_angular_solution_storage);
+
+  std::unique_ptr<iteration::subroutine::SubroutineI> post_processing_subroutine{ nullptr };
+  // For NDA we need to build a sub-routine framework to run the NDA process
+  if (parameters.use_nda_) {
+    auto nda_parameters{ parameters };
+    nda_parameters.name = "NDA Drift-Diffusion";
+    nda_parameters.use_nda_ = false;
+    nda_parameters.framework_level_ = 1;
+    nda_parameters.output_filename_base = parameters.output_filename_base + "_nda";
+    nda_parameters.nda_data_.angular_flux_integrator_ptr_ =
+        Shared(builder.BuildAngularFluxIntegrator(quadrature_set_ptr));
+    nda_parameters.nda_data_.higher_order_moments_ptr_ = system_ptr->current_moments;
+    nda_parameters.nda_data_.higher_order_angular_flux_ = angular_solutions_;
+    std::unique_ptr<FrameworkI> subroutine_framework_ptr{ nullptr };
+    if (subroutine_framework_helper_ptr_ != nullptr) {
+      subroutine_framework_ptr = std::move(subroutine_framework_helper_ptr_->BuildFramework(builder, nda_parameters));
+    } else {
+      subroutine_framework_ptr = std::move(BuildFramework(builder, nda_parameters));
+    }
+    post_processing_subroutine = builder.BuildSubroutine(std::move(subroutine_framework_ptr),
+                                                         iteration::subroutine::SubroutineName::kGetScalarFluxFromFramework);
   }
 
   std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
@@ -244,12 +305,10 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                       parameters.output_filename_base);
   }
 
-  auto system_ptr = builder.BuildSystem(parameters.neutron_energy_groups,
-                                        n_angles,
-                                        *domain_ptr,
-                                        group_solution_ptr->GetSolution(0).size(),
-                                        parameters.eigen_solver_type.has_value(),
-                                        need_angular_solution_storage);
+  // Add subroutines if applicable
+  if (post_processing_subroutine != nullptr) {
+    outer_iteration_ptr->AddPostIterationSubroutine(std::move(post_processing_subroutine));
+  }
 
   validator.ReportValidation();
 
@@ -262,7 +321,7 @@ auto FrameworkHelper<dim>::BuildFramework(
 template<int dim>
 auto FrameworkHelper<dim>::BuildFramework(
     builder::FrameworkBuilderI<dim>& builder,
-    const FrameworkParameters& parameters,
+    FrameworkParameters& parameters,
     system::moments::SphericalHarmonicI* previous_solution_ptr) -> std::unique_ptr<framework::FrameworkI> {
   auto framework_ptr = BuildFramework(builder, parameters);
   auto dynamic_framework_ptr = dynamic_cast<framework::Framework*>(framework_ptr.get());

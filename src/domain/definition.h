@@ -13,7 +13,7 @@
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
 #include "domain/mesh/mesh_i.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 #include "system/system_types.h"
 
 namespace bart {

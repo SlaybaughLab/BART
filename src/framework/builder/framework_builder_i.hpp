@@ -26,10 +26,11 @@
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "iteration/subroutine/subroutine_i.hpp"
+#include "iteration/initializer/factory.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "quadrature/quadrature_set_i.h"
-#include "problem/parameter_types.h"
+#include "problem/parameter_types.hpp"
 #include "solver/group/single_group_solver_i.h"
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/moments/spherical_harmonic_types.h"
@@ -79,6 +80,7 @@ class FrameworkBuilderI {
 
   // Implementation specifiers
   using DiffusionFormulationImpl = formulation::DiffusionFormulationImpl;
+  using InitializerName = iteration::initializer::InitializerName;
   using MomentCalculatorImpl = quadrature::MomentCalculatorImpl;
   using SubroutineName = iteration::subroutine::SubroutineName;
 
@@ -126,6 +128,10 @@ class FrameworkBuilderI {
   virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
                                 const int total_groups,
                                 const int total_angles) -> std::unique_ptr<Initializer> = 0;
+  virtual auto BuildInitializer(const std::shared_ptr<FixedTermUpdater>&,
+                                const int total_groups,
+                                const int total_angles,
+                                const InitializerName) -> std::unique_ptr<Initializer> = 0;
   virtual auto BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> = 0;
   virtual auto BuildKEffectiveUpdater(
       const std::shared_ptr<FiniteElement>&,

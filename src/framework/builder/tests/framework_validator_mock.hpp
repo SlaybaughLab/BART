@@ -10,7 +10,6 @@ class FrameworkValidatorMock : public FrameworkValidatorI {
  public:
   MOCK_METHOD(FrameworkValidatorI&, AddPart, (const FrameworkPart to_add), (override));
   MOCK_METHOD(void, Parse, (const framework::FrameworkParameters), (override));
-  MOCK_METHOD(void, Parse, (const problem::ParametersI& to_parse), (override));
   MOCK_METHOD(void, ReportValidation, (), (override));
 
   MOCK_METHOD(bool, HasNeededParts, (), (override, const ));
