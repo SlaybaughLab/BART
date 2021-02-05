@@ -60,8 +60,10 @@ auto OuterIteration<ConvergenceType>::Iterate(system::System &system) -> bool {
 
 template<typename ConvergenceType>
 auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system) -> void {
-  data_names::SolutionMomentsPort::Expose(*system.current_moments);
-  data_names::ScalarFluxPort::Expose(system.current_moments->GetMoment({0,0,0}));
+  if (system.current_moments != nullptr) {
+    data_names::SolutionMomentsPort::Expose(*system.current_moments);
+    data_names::ScalarFluxPort::Expose(system.current_moments->GetMoment({0, 0, 0}));
+  }
 
   if (system.right_hand_side_ptr_ != nullptr) {
     auto scattering_source_ptr =
@@ -72,7 +74,7 @@ auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system
     }
     auto fission_source_ptr =
         system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kFissionSource);
-    if (scattering_source_ptr != nullptr) {
+    if (fission_source_ptr != nullptr) {
       dealii::Vector<double> fission_source(*fission_source_ptr);
       data_names::FissionSourcePort::Expose(fission_source);
     }
