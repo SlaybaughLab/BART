@@ -351,11 +351,13 @@ auto FrameworkHelper<dim>::BuildFramework(
     instrumentation::GetPort<iteration::outer::data_names::FissionSourcePort>(*outer_iteration_ptr)
         .AddInstrument(fission_source_vector_to_vtu_instrument);
   } catch (std::bad_cast&) {}
-  auto scalar_flux_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-      std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "scalar_flux", "scalar_flux",
-                                                                              parameters.output_filename_base + "_scalar_flux"));
-  instrumentation::GetPort<iteration::outer::data_names::ScalarFluxPort>(*outer_iteration_ptr)
-      .AddInstrument(scalar_flux_to_vtu_instrument);
+  try {
+    auto scalar_flux_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+        std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "scalar_flux", "scalar_flux",
+                                                                                parameters.output_filename_base + "_scalar_flux"));
+    instrumentation::GetPort<iteration::outer::data_names::ScalarFluxPort>(*outer_iteration_ptr)
+        .AddInstrument(scalar_flux_to_vtu_instrument);
+  } catch (std::bad_cast&) {}
 
   validator.ReportValidation();
 
