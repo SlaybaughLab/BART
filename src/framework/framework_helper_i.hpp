@@ -12,6 +12,7 @@ namespace bart::framework {
 template <int dim>
 class FrameworkHelperI {
  public:
+  virtual ~FrameworkHelperI() = default;
   virtual auto ToFrameworkParameters(const problem::ParametersI& parameters) -> framework::FrameworkParameters = 0;
   virtual auto BuildFramework(builder::FrameworkBuilderI<dim>&,
                       framework::FrameworkParameters&) -> std::unique_ptr<framework::FrameworkI> = 0;
