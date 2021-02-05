@@ -243,6 +243,8 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, BadMaterialMapping) {
     reflective_boundaries.at(boundary) = true;
   EXPECT_CALL(parameters_mock_, ReflectiveBoundary()).WillOnce(Return(reflective_boundaries));
   EXPECT_CALL(parameters_mock_, MaterialMapFilename()).WillOnce(Return("bad_material_file"));
+  EXPECT_CALL(parameters_mock_, K_EffectiveUpdaterType()).WillOnce(Return(test_parameters.k_effective_updater));
+  EXPECT_CALL(parameters_mock_, DoNDA()).WillOnce(Return(test_parameters.use_nda_));
 
   EXPECT_ANY_THROW({
     auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
