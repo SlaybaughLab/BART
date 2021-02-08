@@ -1,4 +1,4 @@
-#include "calculator/cell/integrated_fission_source.h"
+#include "calculator/cell/integrated_fission_source.hpp"
 
 #include "data/cross_sections.h"
 #include "domain/finite_element/finite_element_i.h"

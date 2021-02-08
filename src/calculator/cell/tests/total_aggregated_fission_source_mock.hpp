@@ -1,7 +1,7 @@
-#ifndef BART_SRC_CALCULATOR_CELL_TESTS_TOTAL_AGGREGATED_FISSION_SOURCE_MOCK_H_
-#define BART_SRC_CALCULATOR_CELL_TESTS_TOTAL_AGGREGATED_FISSION_SOURCE_MOCK_H_
+#ifndef BART_SRC_CALCULATOR_CELL_TESTS_TOTAL_AGGREGATED_FISSION_SOURCE_MOCK_HPP_
+#define BART_SRC_CALCULATOR_CELL_TESTS_TOTAL_AGGREGATED_FISSION_SOURCE_MOCK_HPP_
 
-#include "calculator/cell/total_aggregated_fission_source_i.h"
+#include "calculator/cell/total_aggregated_fission_source_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
@@ -28,4 +28,4 @@ class TotalAggregatedFissionSourceMock : public TotalAggregatedFissionSourceI {
 
 } // namespace bart
 
-#endif // BART_SRC_CALCULATOR_CELL_TESTS_TOTAL_AGGREGATED_FISSION_SOURCE_MOCK_H_
+#endif // BART_SRC_CALCULATOR_CELL_TESTS_TOTAL_AGGREGATED_FISSION_SOURCE_MOCK_HPP_

@@ -1,10 +1,10 @@
-#include "calculator/cell/total_aggregated_fission_source.h"
+#include "calculator/cell/total_aggregated_fission_source.hpp"
 
 #include <deal.II/base/utilities.h>
 
 #include "system/moments/spherical_harmonic_i.h"
 #include "domain/definition_i.h"
-#include "calculator/cell/integrated_fission_source_i.h"
+#include "calculator/cell/integrated_fission_source_i.hpp"
 
 namespace bart {
 

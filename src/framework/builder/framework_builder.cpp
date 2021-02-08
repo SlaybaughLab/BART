@@ -39,8 +39,8 @@
 #include "framework/framework.hpp"
 
 // KEffective Updater Classes
-#include "calculator/cell/total_aggregated_fission_source.h"
-#include "calculator/cell/integrated_fission_source.h"
+#include "calculator/cell/total_aggregated_fission_source.hpp"
+#include "calculator/cell/integrated_fission_source.hpp"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
 

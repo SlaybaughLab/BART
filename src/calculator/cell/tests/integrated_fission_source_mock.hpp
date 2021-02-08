@@ -1,7 +1,7 @@
-#ifndef BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_H_
-#define BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_H_
+#ifndef BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_HPP_
+#define BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_HPP_
 
-#include "calculator/cell/integrated_fission_source_i.h"
+#include "calculator/cell/integrated_fission_source_i.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -25,4 +25,4 @@ class IntegratedFissionSourceMock : public IntegratedFissionSourceI<dim> {
 
 } // namespace bart
 
-#endif // BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_H_
+#endif // BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_HPP_

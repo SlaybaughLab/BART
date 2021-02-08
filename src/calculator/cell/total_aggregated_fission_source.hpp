@@ -1,11 +1,11 @@
-#ifndef BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_H_
-#define BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_H_
+#ifndef BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_HPP_
+#define BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_HPP_
 
 #include "domain/domain_types.h"
 
 #include <memory>
 
-#include "calculator/cell/total_aggregated_fission_source_i.h"
+#include "calculator/cell/total_aggregated_fission_source_i.hpp"
 
 namespace bart {
 
@@ -47,4 +47,4 @@ class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI {
 
 } // namespace bart
 
-#endif // BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_H_
+#endif // BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_HPP_

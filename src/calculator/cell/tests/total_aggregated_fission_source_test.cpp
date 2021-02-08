@@ -1,10 +1,10 @@
-#include "calculator/cell/total_aggregated_fission_source.h"
+#include "calculator/cell/total_aggregated_fission_source.hpp"
 
 #include <memory>
 
 #include "domain/tests/definition_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
-#include "calculator/cell/tests/integrated_fission_source_mock.h"
+#include "calculator/cell/tests/integrated_fission_source_mock.hpp"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 

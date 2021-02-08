@@ -1,9 +1,9 @@
-#ifndef BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_H_
-#define BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_H_
+#ifndef BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_HPP_
+#define BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_HPP_
 
 #include <memory>
 
-#include "calculator/cell/integrated_fission_source_i.h"
+#include "calculator/cell/integrated_fission_source_i.hpp"
 #include "domain/domain_types.h"
 
 namespace bart {
@@ -78,4 +78,4 @@ class IntegratedFissionSource : public IntegratedFissionSourceI<dim> {
 
 } // namespace bart
 
-#endif // BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_H_
+#endif // BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_HPP_
