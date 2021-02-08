@@ -5,24 +5,14 @@
 
 #include "test_helpers/gmock_wrapper.h"
 
-namespace bart {
-
-namespace calculator {
-
-namespace cell {
+namespace bart::calculator::cell {
 
 template<int dim>
 class IntegratedFissionSourceMock : public IntegratedFissionSourceI<dim> {
  public:
-  MOCK_CONST_METHOD2_T(CellValue, double(domain::CellPtr<dim>,
-      system::moments::SphericalHarmonicI*));
-
+  MOCK_METHOD(double, CellValue, (domain::CellPtr<dim>, system::moments::SphericalHarmonicI*), (const, override));
 };
 
-} // namespace cell
-
-} // namespace calculator
-
-} // namespace bart
+} // namespace bart::calculator::cell
 
 #endif // BART_SRC_CALCULATOR_CELL_TESTS_INTEGRATED_FISSION_SOURCE_MOCK_HPP_

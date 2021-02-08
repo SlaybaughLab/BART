@@ -2,27 +2,26 @@
 #define BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_I_HPP_
 
 #include "domain/domain_types.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
-namespace system {
-namespace moments {
+namespace system::moments {
 class SphericalHarmonicI;
-} // namespace moments
-} // namespace system
+} // namespace system::moments
 
-namespace calculator {
+namespace calculator::cell {
 
-namespace cell {
-
-/*! \brief Interface for classes that calculate the integrated cell fission
- *         source.
+/*! \brief Interface for classes that calculate the cell-integrated fission source.
+ *
+ * This value is the scalar fission source for a single cell.
  *
  */
-
 template <int dim>
-class IntegratedFissionSourceI {
+class IntegratedFissionSourceI : public utility::HasDescription {
  public:
+  using CellPtr = domain::CellPtr<dim>;
+  using MomentPtr = system::moments::SphericalHarmonicI*;
   virtual ~IntegratedFissionSourceI() = default;
 
   /*! \brief Calculate and return the integrated cell fission source for a cell.
@@ -32,14 +31,10 @@ class IntegratedFissionSourceI {
    *
    * @return integrated cell fission source.
    */
-  virtual double CellValue(
-      domain::CellPtr<dim> cell_ptr,
-      system::moments::SphericalHarmonicI* system_moments_ptr) const = 0;
+  virtual auto CellValue(CellPtr cell_ptr, MomentPtr system_moments_ptr) const -> double = 0;
 };
 
-} // namespace cell
-
-} // namespace calculator
+} // namespace calculator::cell
 
 } // namespace bart
 
