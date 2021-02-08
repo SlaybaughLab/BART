@@ -70,6 +70,7 @@ TEST_F(IterationOuterFixedSourceIterationTest, Constructor) {
 
 /* Call to Iterate() should mediate the dependencies properly */
 TEST_F(IterationOuterFixedSourceIterationTest, Iterate) {
+  EXPECT_CALL(*convergence_checker_mock_obs_ptr_, Reset());
   EXPECT_CALL(*group_iterator_mock_obs_ptr_, Iterate(Ref(test_system))).Times(1);
   EXPECT_CALL(*convergence_status_instrument_ptr_, Read(_));
   EXPECT_CALL(*status_instrument_ptr_, Read(_));

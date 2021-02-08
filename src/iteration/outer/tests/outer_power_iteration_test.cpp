@@ -169,17 +169,12 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
         .WillOnce(Return(convergence_status));
   }
 
-  EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system)))
-      .Times(this->iterations_);
-
-  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(_))
-      .Times(this->iterations_);
-  EXPECT_CALL(*this->post_iteration_subroutine_obs_ptr_, Execute(Ref(this->test_system)))
-      .Times(this->iterations_);
-  EXPECT_CALL(*this->status_instrument_ptr_, Read(_))
-      .Times(AtLeast(this->iterations_));
-  EXPECT_CALL(*this->error_instrument_ptr_, Read(_))
-      .Times(this->iterations_ - 1);
+  EXPECT_CALL(*this->convergence_checker_obs_ptr_, Reset());
+  EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system))).Times(this->iterations_);
+  EXPECT_CALL(*this->convergence_instrument_ptr_, Read(_)).Times(this->iterations_);
+  EXPECT_CALL(*this->post_iteration_subroutine_obs_ptr_, Execute(Ref(this->test_system))).Times(this->iterations_);
+  EXPECT_CALL(*this->status_instrument_ptr_, Read(_)).Times(AtLeast(this->iterations_));
+  EXPECT_CALL(*this->error_instrument_ptr_, Read(_)).Times(this->iterations_ - 1);
 
   this->test_iterator->IterateToConvergence(this->test_system);
 }
