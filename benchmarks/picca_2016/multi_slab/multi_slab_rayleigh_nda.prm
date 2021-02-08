@@ -14,7 +14,7 @@ set number of materials                      = 2
 set finite element polynomial degree         = 1
 set k_effective updater type                 = rayleigh quotient
 
-set output file name base                    = multi_slab_rayleigh
+set output file name base                    = multi_slab_rayleigh_nda
 set do nda                                   = true
 
 subsection material ID map
