@@ -9,20 +9,17 @@ OuterIteration<ConvergenceType>::OuterIteration(std::unique_ptr<GroupIterator> g
                                                 std::unique_ptr<ConvergenceChecker> convergence_checker_ptr)
     : group_iterator_ptr_(std::move(group_iterator_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)) {
-
   AssertThrow(group_iterator_ptr_ != nullptr,
-              dealii::ExcMessage("GroupSolveIteration pointer passed to "
-                                 "OuterIteration constructor is null"))
+              dealii::ExcMessage("GroupSolveIteration pointer passed to OuterIteration constructor is null"))
 
   AssertThrow(convergence_checker_ptr_ != nullptr,
-              dealii::ExcMessage("Convergence checker pointer passed to "
-                                 "OuterIteration constructor is null"))
+              dealii::ExcMessage("Convergence checker pointer passed to OuterIteration constructor is null"))
 }
 
 template <typename ConvergenceType>
-void OuterIteration<ConvergenceType>::IterateToConvergence(
-    system::System &system) {
+void OuterIteration<ConvergenceType>::IterateToConvergence(system::System &system) {
   bool is_complete{ false };
+  this->convergence_checker_ptr_->Reset();
   do {
     is_complete = Iterate(system);
     if (post_iteration_subroutine_ptr_ != nullptr) {
@@ -34,8 +31,7 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(
 }
 
 template <typename ConvergenceType>
-void OuterIteration<ConvergenceType>::InnerIterationToConvergence(
-    system::System &system) {
+void OuterIteration<ConvergenceType>::InnerIterationToConvergence(system::System &system) {
   group_iterator_ptr_->Iterate(system);
 }
 
