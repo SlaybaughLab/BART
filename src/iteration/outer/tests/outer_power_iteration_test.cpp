@@ -18,6 +18,12 @@ using namespace bart;
 using ::testing::A, ::testing::AtLeast, ::testing::Expectation;
 using ::testing::Ref, ::testing::Return, ::testing::Sequence, ::testing::_;
 
+/* This fixture tests the operation of the OuterPowerIteration class. This is a mediator class so the tests will verify
+ * proper mediation between the dependencies and exposure of data to instruments.
+ *
+ * At the completion of SetUp() the test_iterator pointee object is set up with mock dependencies accessible via
+ * the provided observation pointers. Mock instrumentation is accessible via shared pointers.
+ * */
 class IterationOuterPowerIterationTest : public ::testing::Test {
  protected:
   using GroupIterator = iteration::group::GroupSolveIterationMock;
@@ -33,10 +39,12 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   std::unique_ptr<OuterPowerIteration> test_iterator;
 
   // Dependencies
-  std::shared_ptr<SourceUpdater> source_updater_ptr_;
-  std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_;
-  std::shared_ptr<ErrorInstrumentType> error_instrument_ptr_;
-  std::shared_ptr<StatusInstrumentType> status_instrument_ptr_;
+  std::shared_ptr<SourceUpdater> source_updater_ptr_{ std::make_shared<SourceUpdater>() };
+
+  // Mock instruments
+  std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_{ std::make_shared<ConvergenceInstrumentType>() };
+  std::shared_ptr<ErrorInstrumentType> error_instrument_ptr_{ std::make_shared<ErrorInstrumentType>() };
+  std::shared_ptr<StatusInstrumentType> status_instrument_ptr_{ std::make_shared<StatusInstrumentType>() };
 
   // Supporting objects
   system::System test_system;
@@ -48,25 +56,21 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   Subroutine* post_iteration_subroutine_obs_ptr_;
 
   // Test parameters
-  const int total_groups = 2;
-  const int total_angles = 3;
-  static constexpr int iterations_ = 4;
+  static constexpr int total_groups{ 2 };
+  static constexpr int total_angles{ 3 };
+  static constexpr int iterations_{ 4 };
 
   void SetUp() override;
 };
 
 void IterationOuterPowerIterationTest::SetUp() {
   // Dependencies
-  source_updater_ptr_ = std::make_shared<SourceUpdater>();
   auto group_iterator_ptr = std::make_unique<GroupIterator>();
   group_iterator_obs_ptr_ = group_iterator_ptr.get();
   auto convergenge_checker_ptr = std::make_unique<ConvergenceChecker>();
   convergence_checker_obs_ptr_ = convergenge_checker_ptr.get();
   auto k_effective_updater_ptr = std::make_unique<K_EffectiveUpdater>();
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
-  convergence_instrument_ptr_ = std::make_shared<ConvergenceInstrumentType>();
-  status_instrument_ptr_ = std::make_shared<StatusInstrumentType>();
-  error_instrument_ptr_ = std::make_shared<ErrorInstrumentType>();
   auto post_iteration_subroutine_ptr = std::make_unique<Subroutine>();
   post_iteration_subroutine_obs_ptr_ = post_iteration_subroutine_ptr.get();
 
@@ -83,16 +87,14 @@ void IterationOuterPowerIterationTest::SetUp() {
   test_iterator->AddPostIterationSubroutine(std::move(post_iteration_subroutine_ptr));
 
   using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
-  instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator).AddInstrument(
-      convergence_instrument_ptr_);
+  instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator).AddInstrument(convergence_instrument_ptr_);
   using StatusPort = iteration::outer::data_names::StatusPort;
-  instrumentation::GetPort<StatusPort>(*test_iterator).AddInstrument(
-      status_instrument_ptr_);
+  instrumentation::GetPort<StatusPort>(*test_iterator).AddInstrument(status_instrument_ptr_);
   using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
-  instrumentation::GetPort<IterationErrorPort>(*test_iterator)
-      .AddInstrument(error_instrument_ptr_);
+  instrumentation::GetPort<IterationErrorPort>(*test_iterator).AddInstrument(error_instrument_ptr_);
 }
 
+/* Constructor (called in SetUp()) should have stored the correct pointers in the test object */
 TEST_F(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_NE(this->test_iterator, nullptr);
   EXPECT_NE(this->test_iterator->group_iterator_ptr(), nullptr);
@@ -103,6 +105,7 @@ TEST_F(IterationOuterPowerIterationTest, Constructor) {
   EXPECT_EQ(this->source_updater_ptr_.use_count(), 2);
 }
 
+/* Constructor should throw an error if pointers passed to dependencies are null. */
 TEST_F(IterationOuterPowerIterationTest, ConstructorErrors) {
 
   for (int i = 0; i < 4; ++i) {
@@ -124,14 +127,15 @@ TEST_F(IterationOuterPowerIterationTest, ConstructorErrors) {
   }
 }
 
+/* A call to Iterate() should properly mediate the calls to the owned classes, including the group iteration class, and
+ * convergence-checker. */
 TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
 
   for (int group = 0; group < this->total_groups; ++group) {
     for (int angle = 0; angle < this->total_angles; ++angle) {
-      EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(
-          Ref(this->test_system),
-          bart::system::EnergyGroup(group),
-          quadrature::QuadraturePointIndex(angle)))
+      EXPECT_CALL(*this->source_updater_ptr_, UpdateFissionSource(Ref(this->test_system),
+                                                                  bart::system::EnergyGroup(group),
+                                                                  quadrature::QuadraturePointIndex(angle)))
           .Times(this->iterations_);
     }
   }
@@ -143,19 +147,17 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   std::vector<double> expected_errors;
 
   for (int i = 0; i < this->iterations_; ++i) {
-    k_effective_by_iteration.at(i + 1) = i * 1.5;
+    const double iteration_k_effective{i * 1.5 };
+    k_effective_by_iteration.at(i + 1) = iteration_k_effective;
 
-    EXPECT_CALL(*this->k_effective_updater_obs_ptr_,
-                CalculateK_Effective(Ref(this->test_system)))
-                .InSequence(k_effective_calls)
-                .WillOnce(Return(k_effective_by_iteration.at(i + 1)));
+    EXPECT_CALL(*this->k_effective_updater_obs_ptr_, CalculateK_Effective(Ref(this->test_system)))
+        .InSequence(k_effective_calls)
+        .WillOnce(Return(iteration_k_effective));
 
     convergence::Status convergence_status;
     convergence_status.is_complete = (i == (this->iterations_ - 1));
     if (i > 0) {
-      double expected_error =
-          (k_effective_by_iteration.at(i + 1) - k_effective_by_iteration.at(i))
-              / (k_effective_by_iteration.at(i + 1));
+      double expected_error = (iteration_k_effective - k_effective_by_iteration.at(i)) / (iteration_k_effective);
       expected_errors.push_back(expected_error);
       convergence_status.delta = expected_error;
     } else {
@@ -163,9 +165,8 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     }
 
     EXPECT_CALL(*this->convergence_checker_obs_ptr_,
-                CheckFinalConvergence(k_effective_by_iteration.at(i + 1),
-                                      k_effective_by_iteration.at(i)))
-            .WillOnce(Return(convergence_status));
+                CheckFinalConvergence(k_effective_by_iteration.at(i + 1), k_effective_by_iteration.at(i)))
+        .WillOnce(Return(convergence_status));
   }
 
   EXPECT_CALL(*this->group_iterator_obs_ptr_, Iterate(Ref(this->test_system)))
