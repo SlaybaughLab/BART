@@ -3,7 +3,7 @@
 #include <deal.II/base/tensor.h>
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "material/tests/mock_material.h"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"

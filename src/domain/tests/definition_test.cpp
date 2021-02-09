@@ -12,7 +12,7 @@
 
 #include "test_helpers/gmock_wrapper.h"
 #include "domain/mesh/tests/mesh_mock.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "problem/parameter_types.hpp"
 
 namespace {

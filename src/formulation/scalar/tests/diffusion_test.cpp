@@ -10,7 +10,7 @@
 #include <deal.II/grid/tria.h>
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "material/tests/mock_material.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"

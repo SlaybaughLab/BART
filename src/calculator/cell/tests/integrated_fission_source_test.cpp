@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "material/tests/mock_material.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
