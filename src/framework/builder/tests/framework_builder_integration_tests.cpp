@@ -13,7 +13,7 @@
 #include "convergence/moments/single_moment_checker_i.h"
 #include "convergence/moments/multi_moment_checker_i.h"
 #include "data/cross_sections.h"
-#include "domain/finite_element/finite_element_gaussian.h"
+#include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/definition.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"

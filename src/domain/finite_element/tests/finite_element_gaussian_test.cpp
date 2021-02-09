@@ -1,4 +1,4 @@
-#include "domain/finite_element/finite_element_gaussian.h"
+#include "domain/finite_element/finite_element_gaussian.hpp"
 
 #include <vector>
 

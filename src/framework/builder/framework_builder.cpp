@@ -23,7 +23,7 @@
 
 // Domain classes
 #include "domain/definition.h"
-#include "domain/finite_element/finite_element_gaussian.h"
+#include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/mesh/mesh_cartesian.h"
 
 // Formulation classes
