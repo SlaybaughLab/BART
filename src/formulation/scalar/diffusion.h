@@ -7,7 +7,7 @@
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "data/cross_sections.h"
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 #include "formulation/scalar/diffusion_i.h"
 
 namespace bart {

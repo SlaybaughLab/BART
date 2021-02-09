@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_FINITE_ELEMENT_MOCK_H
 #define BART_SRC_DOMAIN_FINITE_ELEMENT_MOCK_H
 
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 
 #include <deal.II/fe/fe_values.h>
 

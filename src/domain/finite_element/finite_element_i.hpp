@@ -15,11 +15,7 @@
  * 
  */
 
-namespace bart {
-
-namespace domain {
-
-namespace finite_element {
+namespace bart::domain::finite_element {
 
 template <int dim>
 class FiniteElementI {
@@ -158,10 +154,6 @@ class FiniteElementI {
   virtual dealii::FEFaceValues<dim> *neighbor_face_values() = 0;
 };
 
-} // namespace finite_element
-
-} // namespace domain
-
-} // namespace bart 
+} // namespace bart::domain::finite_element
 
 #endif //BART_SRC_DOMAIN_FINITE_ELEMENT_I_H

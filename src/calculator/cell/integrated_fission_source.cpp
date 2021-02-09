@@ -1,7 +1,7 @@
 #include "calculator/cell/integrated_fission_source.hpp"
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 
 namespace bart {

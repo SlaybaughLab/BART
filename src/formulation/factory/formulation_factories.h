@@ -19,7 +19,7 @@
 // Dependencies
 #include "data/cross_sections.h"
 #include "domain/definition_i.h"
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 #include "quadrature/quadrature_set_i.h"
 
 namespace bart {

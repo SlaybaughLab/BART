@@ -8,7 +8,7 @@
 #include "convergence/status.hpp"
 #include "convergence/final_i.h"
 #include "domain/definition_i.h"
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 #include "eigenvalue/k_effective/k_effective_updater_i.hpp"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"

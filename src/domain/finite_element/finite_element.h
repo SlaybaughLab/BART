@@ -5,7 +5,7 @@
 #include <deal.II/fe/fe_values.h>
 #include <system/system_types.h>
 
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 
 namespace bart {
 
