@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "domain/finite_element/finite_element.h"
+#include "domain/finite_element/finite_element.hpp"
 #include "problem/parameter_types.hpp"
 
 namespace bart {

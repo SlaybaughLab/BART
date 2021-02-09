@@ -1,4 +1,4 @@
-#include "domain/finite_element/finite_element.h"
+#include "domain/finite_element/finite_element.hpp"
 
 namespace bart {
 
