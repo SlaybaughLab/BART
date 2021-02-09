@@ -15,7 +15,7 @@ FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretizat
                                   int polynomial_degree)
     : polynomial_degree_(polynomial_degree) {
 
-  description_ = "(Default) deal.II Gaussian, " + std::to_string(dim) + "D, ";
+  std::string description{"deal.II Gaussian, " + std::to_string(dim) + "D, "};
 
   const auto update_flags = dealii::update_values | dealii::update_gradients |
                             dealii::update_quadrature_points |
@@ -46,11 +46,12 @@ FiniteElementGaussian<dim>::FiniteElementGaussian(DiscretizationType discretizat
         std::make_shared<dealii::FEFaceValues<dim>>(*finite_element_,
                                                     *face_quadrature_,
                                                     face_update_flags);
-    description_ += "Discontinuous, ";
+    description += "Discontinuous, ";
   } else {
-    description_ += "Continuous, ";
+    description += "Continuous, ";
   }
-  description_ += "Q = " + std::to_string(polynomial_degree);
+  description += "Q = " + std::to_string(polynomial_degree);
+  this->set_description(description, utility::DefaultImplementation(true));
 }
 
 template <int dim>

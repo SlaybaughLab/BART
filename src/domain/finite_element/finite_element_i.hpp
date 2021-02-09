@@ -6,24 +6,22 @@
 #include "domain/domain_types.h"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/system_types.h"
+#include "utility/has_description.h"
+
+namespace bart::domain::finite_element {
 
 /*! \brief Interface for a finite element object based on the dealii library.
  *
  * This object is responsible for returning finite element data such as: basis
  * function values at quadrature points, basis function values on faces, numbers
  * of quadrature points and dofs per cell.
- * 
+ *
  */
-
-namespace bart::domain::finite_element {
-
 template <int dim>
-class FiniteElementI {
+class FiniteElementI : public utility::HasDescription {
  public:
+  using CellPtr = domain::CellPtr<dim>;
   virtual ~FiniteElementI() = default;
-
-  // Description
-  virtual std::string description() const = 0;
 
   // Basic FE properties
   /*! \brief Gets polynomial degree */
@@ -43,7 +41,7 @@ class FiniteElementI {
    * \param to_set cell to set
    * \return bool indicating if the cell was changed.
    */
-  virtual bool SetCell(const domain::CellPtr<dim> &to_set) = 0;
+  virtual bool SetCell(const CellPtr &to_set) = 0;
 
   /*! \brief Sets the face and cell.
    *
@@ -51,8 +49,7 @@ class FiniteElementI {
    * \param face face number to set
    * \return indicating if the cell was changed.
    */
-  virtual bool SetFace(const domain::CellPtr<dim> &to_set,
-                       const domain::FaceIndex face) = 0;
+  virtual bool SetFace(const CellPtr &to_set, const domain::FaceIndex face) = 0;
 
   /*! \brief Get the value of shape functions.
    *
@@ -65,8 +62,7 @@ class FiniteElementI {
    * shape function.
    * \return double corresponding to the value.
    */
-  virtual double ShapeValue(const int cell_degree_of_freedom,
-                            const int cell_quadrature_point) const = 0;
+  virtual double ShapeValue(const int cell_degree_of_freedom, const int cell_quadrature_point) const = 0;
 
   /*! \brief Get the value of face shape functions.
    *
@@ -79,8 +75,7 @@ class FiniteElementI {
    * shape function.
    * \return double corresponding to the value.
    */
-  virtual double FaceShapeValue(const int cell_degree_of_freedom,
-                                const int face_quadrature_point) const = 0;
+  virtual double FaceShapeValue(const int cell_degree_of_freedom, const int face_quadrature_point) const = 0;
 
   /*! \brief Get the value of gradient of the shape function.
    *
@@ -93,9 +88,8 @@ class FiniteElementI {
    * shape function.
    * \return dealii::Tensor with the value of the gradient.
    */
-  virtual dealii::Tensor<1, dim> ShapeGradient(
-      const int cell_degree_of_freedom,
-      const int cell_quadrature_point) const = 0;
+  virtual dealii::Tensor<1, dim> ShapeGradient(const int cell_degree_of_freedom,
+                                               const int cell_quadrature_point) const = 0;
 
   /*! \brief Get the value of the Jacobian for the current cell.
    *
@@ -124,7 +118,7 @@ class FiniteElementI {
    * Returns the normal vector for the specified face.
    *
    */
-   virtual dealii::Tensor<1, dim> FaceNormal() const = 0;
+  virtual dealii::Tensor<1, dim> FaceNormal() const = 0;
 
   /*! \brief Get the value of a flux moment at the interior cell quadrature points.
    *
@@ -138,8 +132,7 @@ class FiniteElementI {
    * @param mpi_vector mpi vector to get the face values of.
    * @return a vector holding the value of the mpi vector at each face quadrature point.
    */
-   virtual std::vector<double> ValueAtFaceQuadrature(
-       const dealii::Vector<double>& values_at_dofs) const = 0;
+   virtual std::vector<double> ValueAtFaceQuadrature(const dealii::Vector<double>& values_at_dofs) const = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
