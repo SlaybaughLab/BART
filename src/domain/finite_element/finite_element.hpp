@@ -1,82 +1,71 @@
-#ifndef BART_DOMAIN_FINITE_ELEMENT_H_
-#define BART_DOMAIN_FINITE_ELEMENT_H_
+#ifndef BART_DOMAIN_FINITE_ELEMENT_HPP_
+#define BART_DOMAIN_FINITE_ELEMENT_HPP_
 
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/fe/fe_values.h>
-#include <system/system_types.h>
 
 #include "domain/finite_element/finite_element_i.hpp"
+#include "system/system_types.h"
 
-namespace bart {
+namespace bart::domain::finite_element {
 
-namespace domain {
-
-namespace finite_element {
-
+/*! \brief Base implementation of the FiniteElement class using Dealii.
+ *
+ * This class is almost entirley a wrapper for various Dealii objects and many calls are just passed through to the
+ * underlying classes.
+ *
+ * @tparam dim spatial dimension
+ */
 template<int dim>
 class FiniteElement : public FiniteElementI<dim> {
  public:
   virtual ~FiniteElement() = default;
 
   // Basic Finite Element data
-  dealii::FiniteElement<dim, dim> *finite_element() override {
-    return finite_element_.get(); };
+  [[nodiscard]] auto dofs_per_cell() const -> int override { return finite_element_->dofs_per_cell; }
+  [[nodiscard]] auto n_cell_quad_pts() const -> int override { return cell_quadrature_->size(); }
+  [[nodiscard]] auto n_face_quad_pts() const -> int override { return face_quadrature_->size(); }
 
-  int dofs_per_cell() const override { return finite_element_->dofs_per_cell; }
+  auto SetCell(const domain::CellPtr<dim> &to_set) -> bool override;
+  auto SetFace(const domain::CellPtr<dim> &to_set, const domain::FaceIndex face) -> bool override;
 
-  int n_cell_quad_pts() const override { return cell_quadrature_->size(); }
-
-  int n_face_quad_pts() const override { return face_quadrature_->size(); }
-
-  dealii::FEValues<dim> *values() override { return values_.get(); };
-
-  dealii::FEFaceValues<dim> *face_values() override {
-    return face_values_.get(); };
-
-  dealii::FEFaceValues<dim> *neighbor_face_values() override {
-    return neighbor_face_values_.get(); };
-
-  dealii::QGauss<dim> *cell_quadrature() { return cell_quadrature_.get(); };
-
-  dealii::QGauss<dim - 1> *face_quadrature() { return face_quadrature_.get(); };
-
-
-  bool SetCell(const domain::CellPtr<dim> &to_set) override;
-
-  bool SetFace(const domain::CellPtr<dim> &to_set,
-               const domain::FaceIndex face) override;
-
-  double ShapeValue(const int cell_degree_of_freedom,
-                    const int cell_quadrature_point) const override {
+  [[nodiscard]] auto ShapeValue(const int cell_degree_of_freedom,
+                                const int cell_quadrature_point) const -> double override {
     return values_->shape_value(cell_degree_of_freedom, cell_quadrature_point);
   }
 
-  double FaceShapeValue(const int cell_degree_of_freedom,
-                        const int face_quadrature_point) const override {
+  [[nodiscard]] auto FaceShapeValue(const int cell_degree_of_freedom,
+                                    const int face_quadrature_point) const -> double override {
     return face_values_->shape_value(cell_degree_of_freedom, face_quadrature_point);
   }
 
-  dealii::Tensor<1, dim> ShapeGradient(const int cell_degree_of_freedom,
-                                       const int cell_quadrature_point) const override {
+  [[nodiscard]] auto ShapeGradient(const int cell_degree_of_freedom,
+                                   const int cell_quadrature_point) const -> dealii::Tensor<1, dim> override {
     return values_->shape_grad(cell_degree_of_freedom, cell_quadrature_point);
   }
 
-  double Jacobian(const int cell_quadrature_point) const override {
+  [[nodiscard]] auto Jacobian(const int cell_quadrature_point) const -> double override {
     return values_->JxW(cell_quadrature_point);
   }
 
-  double FaceJacobian(const int face_quadrature_point) const override {
+  [[nodiscard]] auto FaceJacobian(const int face_quadrature_point) const -> double override {
     return face_values_->JxW(face_quadrature_point);
   }
 
-  dealii::Tensor<1, dim> FaceNormal() const override {
+  [[nodiscard]] auto FaceNormal() const -> dealii::Tensor<1, dim> override {
     return face_values_->normal_vector(0);
-  };
+  }
 
-  std::vector<double> ValueAtQuadrature(const system::moments::MomentVector& moment) const override;
+  [[nodiscard]] auto ValueAtQuadrature(const system::moments::MomentVector& moment) const -> std::vector<double> override;
+  [[nodiscard]] auto ValueAtFaceQuadrature(const dealii::Vector<double>& values_at_dofs) const -> std::vector<double> override;
 
-  std::vector<double> ValueAtFaceQuadrature(
-      const dealii::Vector<double>& values_at_dofs) const override;
+  // Dependencies
+  auto finite_element() -> dealii::FiniteElement<dim, dim>* override { return finite_element_.get(); };
+  auto values() -> dealii::FEValues<dim>* override { return values_.get(); };
+  auto face_values() -> dealii::FEFaceValues<dim>* override {return face_values_.get(); };
+  auto neighbor_face_values() -> dealii::FEFaceValues<dim>* override {return neighbor_face_values_.get(); };
+  auto cell_quadrature() -> dealii::QGauss<dim>* { return cell_quadrature_.get(); };
+  auto face_quadrature() -> dealii::QGauss<dim - 1>* { return face_quadrature_.get(); };
 
  protected:
   std::shared_ptr<dealii::FiniteElement<dim, dim>> finite_element_;
@@ -86,18 +75,13 @@ class FiniteElement : public FiniteElementI<dim> {
   std::shared_ptr<dealii::QGauss<dim>> cell_quadrature_;
   std::shared_ptr<dealii::QGauss<dim - 1>> face_quadrature_;
 
-  bool values_reinit_called_ = false;
-  bool face_values_reinit_called_ = false;
-  bool neighbor_face_values_reinit_called_ = false;
+  bool values_reinit_called_{ false };
+  bool face_values_reinit_called_{ false };
+  bool neighbor_face_values_reinit_called_{ false };
   using FiniteElementI<dim>::values;
   using FiniteElementI<dim>::face_values;
-
 };
 
-} // namespace finite_element
+} // namespace bart::domain::finite_element
 
-} // namespace domain
-
-} // namespace bart
-
-#endif // BART_DOMAIN_FINITE_ELEMENT_H_
+#endif // BART_DOMAIN_FINITE_ELEMENT_HPP_

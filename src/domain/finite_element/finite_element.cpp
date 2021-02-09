@@ -1,14 +1,10 @@
 #include "domain/finite_element/finite_element.hpp"
 
-namespace bart {
-
-namespace domain {
-
-namespace finite_element {
+namespace bart::domain::finite_element {
 
 template <int dim>
-bool FiniteElement<dim>::SetCell(const domain::CellPtr<dim> &to_set) {
-  bool already_set = false;
+auto FiniteElement<dim>::SetCell(const domain::CellPtr<dim> &to_set) -> bool {
+  bool already_set{ false };
 
   if (values_reinit_called_) {
     already_set = (values_->get_cell()->id() == to_set->id());
@@ -23,16 +19,13 @@ bool FiniteElement<dim>::SetCell(const domain::CellPtr<dim> &to_set) {
 }
 
 template <int dim>
-bool FiniteElement<dim>::SetFace(const domain::CellPtr<dim> &to_set,
-                                 const domain::FaceIndex face) {
-  bool already_set = false;
-  bool cell_already_set = false;
+auto FiniteElement<dim>::SetFace(const domain::CellPtr<dim> &to_set, const domain::FaceIndex face) -> bool{
+  bool already_set{ false };
+  bool cell_already_set{ false };
 
   if (face_values_reinit_called_) {
     cell_already_set = (face_values_->get_cell()->id() == to_set->id());
-    bool face_already_set =
-        (static_cast<int>(face_values_->get_face_index()) == face.get());
-
+    bool face_already_set = (static_cast<int>(face_values_->get_face_index()) == face.get());
     already_set = (cell_already_set && face_already_set);
   }
 
@@ -43,19 +36,18 @@ bool FiniteElement<dim>::SetFace(const domain::CellPtr<dim> &to_set,
 
   return !cell_already_set;
 }
+
 template<int dim>
-std::vector<double> FiniteElement<dim>::ValueAtQuadrature(const system::moments::MomentVector& moment) const {
-
+auto FiniteElement<dim>::ValueAtQuadrature(const system::moments::MomentVector& moment) const
+-> std::vector<double> {
   std::vector<double> return_vector(n_cell_quad_pts(), 0);
-
   values_->get_function_values(moment, return_vector);
-
   return return_vector;
 }
 
 template<int dim>
-std::vector<double> FiniteElement<dim>::ValueAtFaceQuadrature(
-    const dealii::Vector<double>& values_at_dofs) const {
+auto FiniteElement<dim>::ValueAtFaceQuadrature(const dealii::Vector<double>& values_at_dofs) const
+-> std::vector<double> {
   std::vector<double> return_vector(n_face_quad_pts(), 0);
   face_values_->get_function_values(values_at_dofs, return_vector);
   return return_vector;
@@ -65,8 +57,4 @@ template class FiniteElement<1>;
 template class FiniteElement<2>;
 template class FiniteElement<3>;
 
-} // namespace finite_element
-
-} // namespace domain
-
-} // namespace bart
+} // namespace bart::domain::finite_element
