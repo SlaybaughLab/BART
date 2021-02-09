@@ -17,7 +17,7 @@ class InitializeFixedTermsResetMoments : public InitializeFixedTerms {
       moment = 1.0;
     for (auto& [index, moment] : *system.previous_moments)
       moment = 1.0;
-    system.k_effective = std::nullopt;
+    system.k_effective = 1.0;
     InitializeFixedTerms::Initialize(system);
   }
 

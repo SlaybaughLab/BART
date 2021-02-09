@@ -90,7 +90,7 @@ TEST_F(InitializeFixedTermsResetMomentsTest, InitializeAndReset) {
 
   EXPECT_THAT(current_moments_map_, ContainerEq(reset_moments_map_));
   EXPECT_THAT(previous_moments_map_, ContainerEq(reset_moments_map_));
-  EXPECT_EQ(test_system_.k_effective, std::nullopt);
+  EXPECT_EQ(test_system_.k_effective, 1.0);
 }
 
 } // namespace
