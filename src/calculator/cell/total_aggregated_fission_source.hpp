@@ -6,6 +6,8 @@
 #include "calculator/cell/total_aggregated_fission_source_i.hpp"
 #include "calculator/cell/integrated_fission_source_i.hpp"
 #include "domain/domain_types.h"
+#include "utility/has_dependencies.h"
+#include "utility/has_description.h"
 
 namespace bart {
 
@@ -16,23 +18,23 @@ template <int dim> class DefinitionI;
 namespace calculator::cell {
 
 template <int dim>
-class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI {
+class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI, public utility::HasDescription,
+                                     public utility::HasDependencies {
  public:
+  using Domain = domain::DefinitionI<dim>;
+  using IntegratedFissionSource = IntegratedFissionSourceI<dim>;
   using SystemMoments = system::moments::SphericalHarmonicI;
 
-  TotalAggregatedFissionSource(std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr,
-                               std::shared_ptr<domain::DefinitionI<dim>> domain_ptr)
-      : cell_fission_source_ptr_(std::move(cell_fission_source_ptr)),
-        domain_ptr_(domain_ptr) {};
+  TotalAggregatedFissionSource(std::unique_ptr<IntegratedFissionSource>, std::shared_ptr<Domain>);
   virtual ~TotalAggregatedFissionSource() = default;
 
   [[nodiscard]] auto AggregatedFissionSource(SystemMoments*) const -> double override;
 
-  IntegratedFissionSourceI<dim>* cell_fission_source_ptr() const { return cell_fission_source_ptr_.get(); }
-
+  IntegratedFissionSource* cell_fission_source_ptr() const { return cell_fission_source_ptr_.get(); }
+  Domain* domain_ptr() const { return domain_ptr_.get(); }
  private:
-  std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr_;
-  std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_;
+  std::unique_ptr<IntegratedFissionSource> cell_fission_source_ptr_;
+  std::shared_ptr<Domain> domain_ptr_;
 };
 
 } // namespace calculator::cell

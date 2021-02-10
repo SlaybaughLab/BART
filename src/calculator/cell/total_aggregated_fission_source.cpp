@@ -9,6 +9,19 @@
 namespace bart::calculator::cell {
 
 template<int dim>
+TotalAggregatedFissionSource<dim>::TotalAggregatedFissionSource(
+    std::unique_ptr<IntegratedFissionSource> cell_fission_source_ptr,
+    std::shared_ptr<Domain> domain_ptr)
+    : cell_fission_source_ptr_(std::move(cell_fission_source_ptr)),
+      domain_ptr_(domain_ptr) {
+  this->set_description("Dealii aggregated fission source calculator", utility::DefaultImplementation(true));
+  std::string call_location{"TotalAggregatedFissionSource constructor"};
+  AssertPointerNotNull(cell_fission_source_ptr_.get(), "integrated fission source calculator", call_location);
+  AssertPointerNotNull(domain_ptr_.get(), "domain pointer", call_location);
+}
+
+
+template<int dim>
 auto TotalAggregatedFissionSource<dim>::AggregatedFissionSource(SystemMoments* system_moments_ptr) const -> double {
   auto cells = domain_ptr_->Cells();
   double fission_source{ 0 };
