@@ -6,25 +6,18 @@
 
 namespace bart {
 
-namespace system {
-namespace moments {
+namespace system::moments {
 class SphericalHarmonicI;
-} // namespace moments
-} // namespace system
+} // namespace system::moments
 
-namespace calculator {
-
-namespace cell {
+namespace calculator::cell {
 
 class TotalAggregatedFissionSourceMock : public TotalAggregatedFissionSourceI {
  public:
-  MOCK_CONST_METHOD1(AggregatedFissionSource, double(
-      system::moments::SphericalHarmonicI* system_moments_ptr));
+  MOCK_METHOD(double, AggregatedFissionSource, (system::moments::SphericalHarmonicI*), (const, override));
 };
 
-} // namespace cell
-
-} // namespace calculator
+} // namespace calculator::cell
 
 } // namespace bart
 
