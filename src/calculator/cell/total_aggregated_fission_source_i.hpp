@@ -8,10 +8,19 @@ class SphericalHarmonicI;
 } // namespace system::moments
 
 namespace calculator::cell {
-
+/*! \brief Interface for classes that calculate the total aggregated fission source for a domain.
+ *
+ * This is distinct from the integrated fission source over a cell, in that it returns the total for the whole domain.
+ *
+ */
 class TotalAggregatedFissionSourceI {
  public:
   virtual ~TotalAggregatedFissionSourceI() = default;
+  /*! \brief Calculate the aggregated fission source for the domain.
+   *
+   * @param system_moments_ptr system moments to be used to calculate the fission source.
+   * @return double value of the domain fission source.
+   */
   virtual auto AggregatedFissionSource(system::moments::SphericalHarmonicI* system_moments_ptr) const -> double = 0;
 };
 
