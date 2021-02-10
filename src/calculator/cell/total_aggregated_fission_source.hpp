@@ -1,11 +1,11 @@
 #ifndef BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_HPP_
 #define BART_SRC_CALCULATOR_CELL_TOTAL_AGGREGATED_FISSION_SOURCE_HPP_
 
-#include "domain/domain_types.h"
-
 #include <memory>
 
 #include "calculator/cell/total_aggregated_fission_source_i.hpp"
+#include "calculator/cell/integrated_fission_source_i.hpp"
+#include "domain/domain_types.h"
 
 namespace bart {
 
@@ -13,37 +13,29 @@ namespace domain {
 template <int dim> class DefinitionI;
 } // namespace domain
 
-namespace calculator {
-
-namespace cell {
-template <int dim> class IntegratedFissionSourceI;
+namespace calculator::cell {
 
 template <int dim>
 class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI {
  public:
-  TotalAggregatedFissionSource(
-      std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr,
-      std::shared_ptr<domain::DefinitionI<dim>> domain_ptr)
+  using SystemMoments = system::moments::SphericalHarmonicI;
+
+  TotalAggregatedFissionSource(std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr,
+                               std::shared_ptr<domain::DefinitionI<dim>> domain_ptr)
       : cell_fission_source_ptr_(std::move(cell_fission_source_ptr)),
-        domain_ptr_(domain_ptr)
-      {};
+        domain_ptr_(domain_ptr) {};
   virtual ~TotalAggregatedFissionSource() = default;
 
-  double AggregatedFissionSource(
-      system::moments::SphericalHarmonicI *system_moments_ptr) const override;
+  [[nodiscard]] auto AggregatedFissionSource(SystemMoments*) const -> double override;
 
-  IntegratedFissionSourceI<dim>* cell_fission_source_ptr() const {
-    return cell_fission_source_ptr_.get();
-  }
+  IntegratedFissionSourceI<dim>* cell_fission_source_ptr() const { return cell_fission_source_ptr_.get(); }
 
  private:
   std::unique_ptr<IntegratedFissionSourceI<dim>> cell_fission_source_ptr_;
   std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_;
 };
 
-} // namespace cell
-
-} // namespace calculator
+} // namespace calculator::cell
 
 } // namespace bart
 

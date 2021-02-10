@@ -3,28 +3,19 @@
 
 namespace bart {
 
-namespace system {
-
-namespace moments {
+namespace system::moments {
 class SphericalHarmonicI;
-} // namespace moments
+} // namespace system::moments
 
-} // namespace system
-
-namespace calculator {
-
-namespace cell {
+namespace calculator::cell {
 
 class TotalAggregatedFissionSourceI {
  public:
   virtual ~TotalAggregatedFissionSourceI() = default;
-  virtual double AggregatedFissionSource(
-      system::moments::SphericalHarmonicI* system_moments_ptr) const = 0;
+  virtual auto AggregatedFissionSource(system::moments::SphericalHarmonicI* system_moments_ptr) const -> double = 0;
 };
 
-} // namespace cell
-
-} // namespace calculator
+} // namespace calculator::cell
 
 } // namespace bart
 
