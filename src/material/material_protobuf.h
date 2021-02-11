@@ -15,7 +15,7 @@
 #include <google/protobuf/text_format.h>
 
 #include "material.pb.h"
-#include "../utility/utility_functions.h"
+#include "../utility/utility_functions.hpp"
 
 #include "../common/numbers.h"
 #include "material_base.h"

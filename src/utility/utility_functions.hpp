@@ -1,17 +1,16 @@
-#ifndef BART_SRC_UTILITY_UTILITY_FUNCTIONS_H_
-#define BART_SRC_UTILITY_UTILITY_FUNCTIONS_H_
+#ifndef BART_SRC_UTILITY_UTILITY_FUNCTIONS_HPP_
+#define BART_SRC_UTILITY_UTILITY_FUNCTIONS_HPP_
 
 #include <cmath>
 #include <vector>
 
-namespace butil {
+namespace bart::utility {
 
-//! Conducts a precise summation by reducing truncation errors.
-/*! Conduct a precise summation using the Neumaier variation of the Kahan
-  summation.
-*/
+/*! \brief Conducts a precise summation by reducing truncation errors.
+ * This precise summation is performed using the Neumaier variation of the Kahan summation.
+ */
 template <typename T>
-double PreciseSum(const T values) {
+auto PreciseSum(const T values) -> double {
   double sum = *values.begin();
   double correction = 0;
   for (auto cit = values.begin() + 1; cit < values.end(); ++cit) {
@@ -25,6 +24,6 @@ double PreciseSum(const T values) {
   return sum + correction;
 }
 
-} // namespace butil
+} // namespace bart::utility
 
-#endif // BART_SRC_UTILITY_UTILITY_FUNCTIONS_H_
+#endif // BART_SRC_UTILITY_UTILITY_FUNCTIONS_HPP_

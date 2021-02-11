@@ -295,8 +295,8 @@ void MaterialProtobuf::CheckValid(const Material& material,
   // ChiDoesNotSumToOne
   if (required_vector_props.count(Material::CHI) > 0) {
     // allow a maximum error from 1 of two units in the last place
-    AssertThrow(abs(butil::PreciseSum(vector_props.at(Material::CHI)) - 1) <= 2*std::numeric_limits<double>::epsilon(),
-                ChiDoesNotSumToOne(name, butil::PreciseSum(vector_props.at(Material::CHI))));
+    AssertThrow(abs(bart::utility::PreciseSum(vector_props.at(Material::CHI)) - 1) <= 2*std::numeric_limits<double>::epsilon(),
+                ChiDoesNotSumToOne(name, bart::utility::PreciseSum(vector_props.at(Material::CHI))));
   }
 }
 
