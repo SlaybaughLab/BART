@@ -5,8 +5,7 @@
 
 #include <google/protobuf/text_format.h>
 
-#include "gtest/gtest.h"
-
+#include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
 namespace {
