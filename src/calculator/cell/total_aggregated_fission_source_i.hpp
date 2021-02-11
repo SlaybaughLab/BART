@@ -7,6 +7,7 @@ namespace system::moments {
 class SphericalHarmonicI;
 } // namespace system::moments
 
+//! Calculators for various cell quantities.
 namespace calculator::cell {
 /*! \brief Interface for classes that calculate the total aggregated fission source for a domain.
  *
