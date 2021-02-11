@@ -8,29 +8,18 @@
 
 #include "utility/named_type.h"
 
-namespace bart {
-
-namespace calculator {
-
-namespace fourier {
+namespace bart::calculator::fourier {
 
 using Normalized = utility::NamedType<bool, struct NormalizedStruct>;
 
 class FourierTransformI {
  public:
+  using ComplexVector = std::vector<std::complex<double>>;
   virtual ~FourierTransformI() = default;
-  virtual std::vector<std::complex<double>> CalculateDFT(
-      const std::vector<std::complex<double>>& input,
-      Normalized) = 0;
-  virtual std::vector<std::complex<double>> CalculateDFT(
-      const dealii::Vector<double>& input,
-      Normalized) = 0;
+  virtual auto CalculateDFT(const ComplexVector& input, Normalized) -> ComplexVector = 0;
+  virtual auto CalculateDFT(const dealii::Vector<double>& input, Normalized) -> ComplexVector = 0;
 };
 
-} // namespace fourier
-
-} // namespace calculator
-
-} // namespace bart
+} // namespace bart::calculator::fourier
 
 #endif //BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_I_HPP_
