@@ -30,6 +30,7 @@ namespace bart::material {
  */
 class MaterialProtobuf : public MaterialI {
  public:
+  using MaterialI::DealiiMatrix;
   using MaterialI::MaterialIDMappedTo;
   /*!
     constructor using map of numerical IDs to Material objects
