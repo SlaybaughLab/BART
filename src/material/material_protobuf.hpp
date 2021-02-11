@@ -15,10 +15,8 @@
 #include <google/protobuf/text_format.h>
 
 #include "material.pb.h"
-#include "../utility/utility_functions.hpp"
-
-#include "../common/numbers.h"
-#include "material_i.hpp"
+#include "material/material_i.hpp"
+#include "utility/utility_functions.hpp"
 
 namespace bart::material {
 

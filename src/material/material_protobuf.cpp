@@ -1,5 +1,12 @@
 #include "material_protobuf.hpp"
 
+#include <deal.II/base/numbers.h>
+
+namespace {
+static constexpr double kFourPi = 4.*dealii::numbers::PI;//!< 4Pi
+static constexpr double kInvFourPi = 1./kFourPi;//!< 1/(4*Pi)
+} // namespace
+
 namespace bart::material {
 
 MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& materials,
@@ -161,18 +168,18 @@ void MaterialProtobuf::PopulateData() {
   for (const std::pair<int, std::vector<double>>& q_pair : q_) {
     q_per_ster_[q_pair.first] = q_pair.second;
     for (double& val : q_per_ster_.at(q_pair.first)) {
-      val *= bconst::kInvFourPi;
+      val *= kInvFourPi;
     }
   }
 
   for (const std::pair<int, dealii::FullMatrix<double>>& sigs_pair : sigs_) {
     sigs_per_ster_[sigs_pair.first] = sigs_pair.second;
-    sigs_per_ster_[sigs_pair.first] *= bconst::kInvFourPi;
+    sigs_per_ster_[sigs_pair.first] *= kInvFourPi;
   }
 
   for (const std::pair<int, dealii::FullMatrix<double>>& chi_nusigf_pair : chi_nusigf_) {
     chi_nusigf_per_ster_[chi_nusigf_pair.first] = chi_nusigf_pair.second;
-    chi_nusigf_per_ster_[chi_nusigf_pair.first] *= bconst::kInvFourPi;
+    chi_nusigf_per_ster_[chi_nusigf_pair.first] *= kInvFourPi;
   }
 }
 
