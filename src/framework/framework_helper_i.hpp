@@ -3,7 +3,7 @@
 
 #include "problem/parameters_i.h"
 #include "framework/builder/framework_builder_i.hpp"
-#include "material/material_protobuf.h"
+#include "material/material_protobuf.hpp"
 #include "system/system_helper_i.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 

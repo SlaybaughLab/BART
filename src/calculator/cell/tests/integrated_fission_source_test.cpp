@@ -4,7 +4,7 @@
 
 #include "data/cross_sections.h"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/mock_material.h"
+#include "material/tests/material_mock.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"

@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MATERIAL_MATERIAL_PROTOBUF_H_
-#define BART_SRC_MATERIAL_MATERIAL_PROTOBUF_H_
+#ifndef BART_SRC_MATERIAL_MATERIAL_PROTOBUF_HPP_
+#define BART_SRC_MATERIAL_MATERIAL_PROTOBUF_HPP_
 
 #include <fstream>
 #include <string>
@@ -18,7 +18,7 @@
 #include "../utility/utility_functions.hpp"
 
 #include "../common/numbers.h"
-#include "material_base.h"
+#include "material_i.hpp"
 
 //! This class reads in and pre-processes material properties.
 /*!

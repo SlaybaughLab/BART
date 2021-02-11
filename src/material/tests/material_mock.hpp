@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_H_
-#define BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_H_
+#ifndef BART_SRC_MATERIAL_TESTS_MATERIAL_MOCK_HPP_
+#define BART_SRC_MATERIAL_TESTS_MATERIAL_MOCK_HPP_
 
 #include <unordered_map>
 #include <vector>
@@ -7,7 +7,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include "../../test_helpers/gmock_wrapper.h"
 
-#include "../material_base.h"
+#include "../material_i.hpp"
 
 namespace btest {
 

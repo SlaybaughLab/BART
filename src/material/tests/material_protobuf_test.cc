@@ -1,4 +1,4 @@
-#include "material/material_protobuf.h"
+#include "material/material_protobuf.hpp"
 
 #include <sstream>
 #include <exception>

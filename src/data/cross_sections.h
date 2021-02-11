@@ -6,7 +6,7 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "../material/material_base.h"
+#include "../material/material_i.hpp"
 
 namespace bart {
 

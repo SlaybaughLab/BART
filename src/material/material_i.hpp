@@ -1,5 +1,5 @@
-#ifndef BART_SRC_MATERIAL_MATERIAL_BASE_H_
-#define BART_SRC_MATERIAL_MATERIAL_BASE_H_
+#ifndef BART_SRC_MATERIAL_MATERIAL_I_HPP_
+#define BART_SRC_MATERIAL_MATERIAL_I_HPP_
 
 #include <unordered_map>
 #include <vector>
@@ -59,4 +59,4 @@ class MaterialBase {
   
 };
 
-#endif // BART_SRC_MATERIAL_MATERIAL_BASE_H_
+#endif // BART_SRC_MATERIAL_MATERIAL_I_HPP_

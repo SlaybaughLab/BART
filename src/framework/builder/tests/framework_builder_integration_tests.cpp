@@ -59,7 +59,7 @@
 #include "framework/builder/tests/framework_validator_mock.hpp"
 #include "framework/tests/framework_mock.hpp"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
-#include "material/tests/mock_material.h"
+#include "material/tests/material_mock.hpp"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"

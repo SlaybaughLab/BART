@@ -1,4 +1,4 @@
-#include "material_protobuf.h"
+#include "material_protobuf.hpp"
 
 MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& materials,
                                    bool is_eigen_problem,

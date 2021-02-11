@@ -15,7 +15,7 @@
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
-#include "material/tests/mock_material.h"
+#include "material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 
 namespace  {
