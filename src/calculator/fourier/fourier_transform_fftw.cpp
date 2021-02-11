@@ -9,6 +9,7 @@ FourierTransformFFTW::FourierTransformFFTW(const int n_samples)
   input_ptr_ = reinterpret_cast<fftw::fftw_complex*>(input_.data());
   output_ptr_ = reinterpret_cast<fftw::fftw_complex*>(output_.data());
   plan_ = fftw::fftw_plan_dft_1d(n_samples_, input_ptr_, output_ptr_, FFTW_FORWARD, FFTW_ESTIMATE_PATIENT);
+  this->set_description("fourier transform calculator using FFTW", utility::DefaultImplementation(true));
 }
 
 FourierTransformFFTW::~FourierTransformFFTW() {

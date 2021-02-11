@@ -7,12 +7,13 @@
 #include <deal.II/lac/vector.h>
 
 #include "utility/named_type.h"
+#include "utility/has_description.h"
 
 namespace bart::calculator::fourier {
 
 using Normalized = utility::NamedType<bool, struct NormalizedStruct>;
 
-class FourierTransformI {
+class FourierTransformI : public utility::HasDescription {
  public:
   using ComplexVector = std::vector<std::complex<double>>;
   virtual ~FourierTransformI() = default;
