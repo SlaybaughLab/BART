@@ -6,16 +6,18 @@
 
 #include <deal.II/lac/full_matrix.h>
 
+//! Material properties
+namespace bart::material {
+
 //! Defines the interface for Material classes providing material properties
 /*!
   \author Joshua Rehak
   \date 2018/10/01
 */
-
-class MaterialBase {
+class MaterialI {
  public:
 
-  virtual ~MaterialBase() = default;
+  virtual ~MaterialI() = default;
   /*!
     returns an unordered_map from material ID to a
     boolean that is true if the material was labeled fissile
@@ -58,5 +60,7 @@ class MaterialBase {
   GetChiNuSigFPerSter() const = 0;
   
 };
+
+} // namespace bart::material
 
 #endif // BART_SRC_MATERIAL_MATERIAL_I_HPP_

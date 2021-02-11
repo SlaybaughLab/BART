@@ -20,6 +20,8 @@
 #include "../common/numbers.h"
 #include "material_i.hpp"
 
+namespace bart::material {
+
 //! This class reads in and pre-processes material properties.
 /*!
  \author Weixiong Zheng
@@ -28,8 +30,7 @@
 
  \todo Add functionality to perform eigenvalue decomposition.
  */
-
-class MaterialProtobuf : public MaterialBase {
+class MaterialProtobuf : public MaterialI {
  public:
   /*!
     constructor using map of numerical IDs to Material objects
@@ -379,5 +380,7 @@ class MaterialProtobuf : public MaterialBase {
     << std::setprecision(std::numeric_limits<double>::digits10 + 1)
     << arg2 << ". It must be normalized to 1.");
 };
+
+} // namespace bart::material
 
 #endif // BART_SRC_MATERIAL_MATERIAL_PROPERTIES_H_

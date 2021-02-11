@@ -15,7 +15,7 @@ namespace data {
 struct CrossSections {
   typedef int MaterialID;
   
-  CrossSections(MaterialBase &materials);
+  CrossSections(material::MaterialI &materials);
 
   //! Diffusion coefficient of all groups for all materials.
   const std::unordered_map<MaterialID, std::vector<double>> diffusion_coef;

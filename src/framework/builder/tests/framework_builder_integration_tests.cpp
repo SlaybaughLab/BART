@@ -92,7 +92,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   using FrameworkBuilder = framework::builder::FrameworkBuilder<dim>;
   using ProblemParameters = NiceMock<problem::ParametersMock>;
-  using Material = NiceMock<btest::MockMaterial>;
+  using Material = NiceMock<material::MaterialMock>;
 
   // Mock object types
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorMock;

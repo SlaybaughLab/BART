@@ -32,7 +32,7 @@ class FormulationFactoryTests : public ::testing::Test {
   using FiniteElementType = NiceMock<domain::finite_element::FiniteElementMock<dim>>;
   using DiffusionFormulationType = NiceMock<formulation::scalar::DiffusionMock<dim>>;
   using SAAFFormulationType = NiceMock<formulation::angular::SelfAdjointAngularFluxMock<dim>>;
-  using MaterialType = NiceMock<btest::MockMaterial>;
+  using MaterialType = NiceMock<material::MaterialMock>;
   using QuadratureSetType = NiceMock<quadrature::QuadratureSetMock<dim>>;
   using StamperType = NiceMock<formulation::StamperMock<dim>>;
 

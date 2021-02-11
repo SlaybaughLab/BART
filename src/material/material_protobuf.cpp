@@ -1,5 +1,7 @@
 #include "material_protobuf.hpp"
 
+namespace bart::material {
+
 MaterialProtobuf::MaterialProtobuf(const std::unordered_map<int, Material>& materials,
                                    bool is_eigen_problem,
                                    bool do_nda,
@@ -438,3 +440,5 @@ std::unordered_map<int, dealii::FullMatrix<double>> MaterialProtobuf::GetChiNuSi
 std::unordered_map<int, dealii::FullMatrix<double>> MaterialProtobuf::GetChiNuSigFPerSter() const {
   return chi_nusigf_per_ster_;
 }
+
+} // namespace bart::material

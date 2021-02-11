@@ -142,7 +142,7 @@ template <typename DimensionWrapper>
 auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -> void {
   using DomainSize = FrameworkParameters::DomainSize;
   using NumberOfCells = FrameworkParameters::NumberOfCells;
-  NiceMock<btest::MockMaterial> mock_material;
+  NiceMock<material::MaterialMock> mock_material;
 
   // Default framework parameters (for tests)
   default_parameters_.neutron_energy_groups = test_helpers::RandomInt(1, 4);

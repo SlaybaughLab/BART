@@ -4,7 +4,7 @@ namespace bart {
 
 namespace data {
 
-CrossSections::CrossSections(MaterialBase &materials)
+CrossSections::CrossSections(material::MaterialI &materials)
     : diffusion_coef(materials.GetDiffusionCoef()),
       sigma_t(materials.GetSigT()),
       inverse_sigma_t(materials.GetInvSigT()),

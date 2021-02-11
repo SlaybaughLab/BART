@@ -15,6 +15,7 @@ using namespace bart;
 
 class MaterialProtobufTest : public ::testing::Test {
  protected:
+  using MaterialProtobuf = material::MaterialProtobuf;
   MaterialProtobufTest();
 
   //! maps from material id to data for that material

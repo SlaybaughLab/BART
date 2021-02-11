@@ -9,9 +9,9 @@
 
 #include "../material_i.hpp"
 
-namespace btest {
+namespace bart::material {
 
-class MockMaterial : public MaterialBase {
+class MaterialMock : public MaterialI {
  public:
 
   using int_bool_map = std::unordered_map<int, bool>;
@@ -51,6 +51,6 @@ class MockMaterial : public MaterialBase {
   
 };
 
-} // namespace btest
+} // namespace bart::material
 
 #endif //BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_PROPERTIES_H_

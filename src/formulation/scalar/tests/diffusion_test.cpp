@@ -54,7 +54,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   SetUpDealii();
   // Make mock objects. Cross-sections is a struct that cannot be mocked, but
   // we can mock the material object it is based on.
-  NiceMock<btest::MockMaterial> mock_material;
+  NiceMock<material::MaterialMock> mock_material;
   fe_mock_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<2>>>();
 
   ON_CALL(*fe_mock_ptr, dofs_per_cell()).WillByDefault(Return(2));
