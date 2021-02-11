@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#include "calculator/fourier/fourier_transform_fftw.h"
+#include "calculator/fourier/fourier_transform_fftw.hpp"
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/instrument.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"

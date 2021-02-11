@@ -1,10 +1,10 @@
-#ifndef BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_FFTW_H_
-#define BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_FFTW_H_
+#ifndef BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_FFTW_HPP_
+#define BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_FFTW_HPP_
 
 #include <complex>
 #include <vector>
 
-#include "calculator/fourier/fourier_transform_i.h"
+#include "calculator/fourier/fourier_transform_i.hpp"
 #include "utility/named_type.h"
 
 namespace bart {
@@ -45,4 +45,4 @@ class FourierTransformFFTW : public FourierTransformI {
 
 } // namespace bart
 
-#endif //BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_FFTW_H_
+#endif //BART_SRC_CALCULATOR_FOURIER_FOURIER_TRANSFORM_FFTW_HPP_

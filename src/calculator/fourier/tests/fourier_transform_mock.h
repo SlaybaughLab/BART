@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CALCULATOR_FOURIER_TESTS_FOURIER_TRANSFORM_MOCK_H_
 #define BART_SRC_CALCULATOR_FOURIER_TESTS_FOURIER_TRANSFORM_MOCK_H_
 
-#include "calculator/fourier/fourier_transform_i.h"
+#include "calculator/fourier/fourier_transform_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {

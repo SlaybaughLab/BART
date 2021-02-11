@@ -1,4 +1,4 @@
-#include "calculator/fourier/fourier_transform_fftw.h"
+#include "calculator/fourier/fourier_transform_fftw.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 #include <cmath>
