@@ -16,49 +16,37 @@ namespace bart::material {
 */
 class MaterialI {
  public:
-
+  //! Dealii full matrix type
+  using DealiiMatrix = dealii::FullMatrix<double>;
+  //! Maps material ID (int) to another type
+  template <typename MappedType>
+  using MaterialIDMappedTo = std::unordered_map<int, MappedType>;
   virtual ~MaterialI() = default;
   /*!
     returns an unordered_map from material ID to a
     boolean that is true if the material was labeled fissile
   */
-  virtual std::unordered_map<int, bool> GetFissileIDMap() const = 0;
-
+  virtual auto GetFissileIDMap() const -> MaterialIDMappedTo<bool> = 0;
   //! Returns diffusion coefficient or 0 if not provided
-  virtual std::unordered_map<int, std::vector<double>>
-  GetDiffusionCoef() const = 0;
-  
+  virtual auto GetDiffusionCoef() const -> MaterialIDMappedTo<std::vector<double>> = 0;
   //! Returns all \f$\sigma_\mathrm{t}\f$ for all groups.
-  virtual std::unordered_map<int, std::vector<double>> GetSigT() const = 0;
-
+  virtual auto GetSigT() const -> MaterialIDMappedTo<std::vector<double>>  = 0;
   //! Returns all \f$1/\sigma_\mathrm{t}\f$ for all groups.
-  virtual std::unordered_map<int, std::vector<double>> GetInvSigT() const = 0;
-
+  virtual auto GetInvSigT() const -> MaterialIDMappedTo<std::vector<double>> = 0;
   //! Returns all fixed source value \f$Q\f$'s for all groups.
-  virtual std::unordered_map<int, std::vector<double>> GetQ() const = 0;
-
+  virtual auto GetQ() const -> MaterialIDMappedTo<std::vector<double>> = 0;
   //! Returns all \f$Q/(4\pi)\f$'s for all groups.
-  virtual std::unordered_map<int, std::vector<double>> GetQPerSter() const = 0;
-
+  virtual auto GetQPerSter() const -> MaterialIDMappedTo<std::vector<double>> = 0;
   //! Returns all \f$\nu\sigma_\mathrm{f}\f$'s.
-  virtual std::unordered_map<int, std::vector<double>> GetNuSigF() const = 0;
-
+  virtual auto GetNuSigF() const -> MaterialIDMappedTo<std::vector<double>> = 0;
   //! Returns all scattering transfer matrices.
-  virtual std::unordered_map<int, dealii::FullMatrix<double>>
-  GetSigS() const = 0;
-
+  virtual auto GetSigS() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
   //! Returns all scattering transfer matrices scaled by \f$4\pi\f$.
-  virtual std::unordered_map<int, dealii::FullMatrix<double>>
-  GetSigSPerSter() const = 0;
-
+  virtual auto GetSigSPerSter() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
   //! Returns \f$\chi\nu\sigma_\mathrm{f}\f$ for all fissile materials.
-  virtual std::unordered_map<int, dealii::FullMatrix<double>>
-  GetChiNuSigF() const = 0;
-
+  virtual auto GetChiNuSigF() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
   //! Returns \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for all fissile materials.
-  virtual std::unordered_map<int, dealii::FullMatrix<double>>
-  GetChiNuSigFPerSter() const = 0;
-  
+  virtual auto GetChiNuSigFPerSter() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
 };
 
 } // namespace bart::material
