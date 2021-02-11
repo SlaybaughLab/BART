@@ -43,7 +43,18 @@ class MaterialI {
   virtual auto GetSigS() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
   //! Returns all scattering transfer matrices scaled by \f$4\pi\f$.
   virtual auto GetSigSPerSter() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
-  //! Returns \f$\chi\nu\sigma_\mathrm{f}\f$ for all fissile materials.
+  //! Returns fission transfer matrix \f$\chi\nu\sigma_\mathrm{f}\f$ for all fissile materials.
+  /*! Returns the fission transfer matrix for all fissile materials. Entries
+      are given by:
+      \f[
+      \mathbf{F} = \begin{bmatrix}
+      \nu_0\sigma_{f,0}\chi_0 & \nu_0\sigma_{f,0}\chi_1 & \cdots & \nu_0\sigma_{f,0}\chi_G \\
+      \nu_1\sigma_{f,1}\chi_0 & \nu_1\sigma_{f,1}\chi_1 & \cdots & \nu_1\sigma_{f,1}\chi_G \\
+      \vdots & \vdots & \ddots & \vdots \\
+      \nu_G\sigma_{f,G}\chi_0 & \nu_G\sigma_{f,G}\chi_1 & \cdots & \nu_G\sigma_{f,G}\chi_G
+      \end{bmatrix}
+      \f]
+  */
   virtual auto GetChiNuSigF() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
   //! Returns \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for all fissile materials.
   virtual auto GetChiNuSigFPerSter() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
