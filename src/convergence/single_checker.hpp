@@ -3,41 +3,35 @@
 
 #include <optional>
 
-#include "deal.II/base/exceptions.h"
+#include <deal.II/base/exceptions.h>
 
 #include "convergence/single_checker_i.hpp"
 
-namespace bart {
+namespace bart::convergence {
 
-namespace convergence {
+/* This concept ensures that the type we are using for delta can be default constructed for the initial value of
+ * max_delta_, and copy assignable to ensure SetMaxDelta doesn't cause issues */
+template <typename T>
+concept ConstructableAndCopyable = std::is_default_constructible_v<T> && std::is_copy_assignable_v<T>;
 
-template <typename CompareType>
-class SingleChecker : public SingleCheckerI<CompareType> {
+template <typename CompareT, ConstructableAndCopyable DeltaT = double>
+class SingleChecker : public SingleCheckerI<CompareT, DeltaT> {
  public:
   virtual ~SingleChecker() = default;
 
   bool is_converged() const override { return is_converged_; };
-  void SetMaxDelta(const double to_set) override {
-    AssertThrow(to_set >= 0,
-        dealii::ExcMessage("Max delta value must be >= 0"));
-    max_delta_ = to_set; };
-  double max_delta() const override { return max_delta_; }
-  std::optional<double> delta() const { return delta_; };
-
+  void SetMaxDelta(const DeltaT& to_set) override { max_delta_ = to_set; };
+  DeltaT max_delta() const override { return max_delta_; }
+  std::optional<DeltaT> delta() const { return delta_; };
  protected:
   /*! Delta between moments from last convergence check */
-  std::optional<double> delta_ = std::nullopt;
-
+  std::optional<DeltaT> delta_{ std::nullopt };
   /*! Did last convergence check result in convergence */
-  bool is_converged_ = false;
-
+  bool is_converged_{ false };
   /*! Maximum delta for convergence */
-  double max_delta_ = 0;
-
+  DeltaT max_delta_{ DeltaT() };
 };
 
-} // namespace convergence
-
-} // namespace bart
+} // namespace bart::convergence
 
 #endif // BART_SRC_CONVERGENCE_SINGLE_CHECKER_HPP_
