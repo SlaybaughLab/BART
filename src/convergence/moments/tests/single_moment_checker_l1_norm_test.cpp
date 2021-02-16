@@ -26,7 +26,7 @@ auto SingleMomentCheckerL1NormTest::SetUp() -> void {
       moment[i] = random_vector.at(i);
   };
   set_up_moment(moment_one);
-  set_up_moment(moment_two);
+  moment_two = moment_one;
 }
 
 // Max Delta getter should return the correct value
@@ -57,7 +57,7 @@ TEST_F(SingleMomentCheckerL1NormTest, SameVector) {
 
 // Being slightly less than one max delta away should return true
 TEST_F(SingleMomentCheckerL1NormTest, OneThresholdAway) {
-  const double to_add = moment_one.l1_norm() * 0.99 * checker.max_delta();
+  double to_add = moment_one.l1_norm() * 0.99 * checker.max_delta();
   moment_two(2) += to_add;
 
   EXPECT_TRUE(checker.CheckIfConverged(moment_one, moment_two));

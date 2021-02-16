@@ -29,6 +29,12 @@ class SingleMomentCheckerL1Norm : public SingleMomentCheckerI {
     max_delta_ = max_delta;
   };
 
+  auto SetMaxDelta(const double& to_set) -> void override {
+    AssertThrow(to_set > 0, dealii::ExcMessage("Error in SingleParameterChecker::SetMaxDelta, value to set must be "
+                                               "greater than 0"))
+    SingleMomentCheckerI::SetMaxDelta(to_set);
+  }
+
   ~SingleMomentCheckerL1Norm() = default;
 
   bool CheckIfConverged(
