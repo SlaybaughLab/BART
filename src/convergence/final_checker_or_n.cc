@@ -3,7 +3,7 @@
 #include "system/moments/spherical_harmonic_types.h"
 #include "convergence/moments/single_moment_checker_i.h"
 #include "convergence/moments/multi_moment_checker_i.h"
-#include "convergence/parameters/single_parameter_checker.h"
+#include "convergence/parameters/single_parameter_checker.hpp"
 
 namespace bart {
 

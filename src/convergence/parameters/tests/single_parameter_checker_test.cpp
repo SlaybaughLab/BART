@@ -1,4 +1,4 @@
-#include "convergence/parameters/single_parameter_checker.h"
+#include "convergence/parameters/single_parameter_checker.hpp"
 
 #include <vector>
 

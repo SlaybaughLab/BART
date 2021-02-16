@@ -19,7 +19,7 @@
 #include "convergence/final_checker_or_n.h"
 #include "convergence/moments/single_moment_checker_l1_norm.h"
 #include "convergence/moments/multi_moment_checker_max.h"
-#include "convergence/parameters/single_parameter_checker.h"
+#include "convergence/parameters/single_parameter_checker.hpp"
 
 // Domain classes
 #include "domain/definition.h"
