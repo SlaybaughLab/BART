@@ -1,11 +1,11 @@
-#ifndef BART_SRC_CONVERGENCE_SINGLE_CHECKER_H_
-#define BART_SRC_CONVERGENCE_SINGLE_CHECKER_H_
+#ifndef BART_SRC_CONVERGENCE_SINGLE_CHECKER_HPP_
+#define BART_SRC_CONVERGENCE_SINGLE_CHECKER_HPP_
 
 #include <optional>
 
 #include "deal.II/base/exceptions.h"
 
-#include "convergence/single_checker_i.h"
+#include "convergence/single_checker_i.hpp"
 
 namespace bart {
 
@@ -40,4 +40,4 @@ class SingleChecker : public SingleCheckerI<CompareType> {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_SINGLE_CHECKER_H_
+#endif // BART_SRC_CONVERGENCE_SINGLE_CHECKER_HPP_

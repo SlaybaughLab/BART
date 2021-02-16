@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "convergence/tests/single_checker_test.h"
+#include "convergence/tests/single_checker_test.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 

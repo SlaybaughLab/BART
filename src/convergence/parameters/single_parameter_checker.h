@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-#include "convergence/single_checker.h"
+#include "convergence/single_checker.hpp"
 
 namespace bart {
 

@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 #define BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 
-#include "convergence/single_checker.h"
+#include "convergence/single_checker.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 
 namespace bart {

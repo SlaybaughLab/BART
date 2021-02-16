@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include "convergence/tests/single_checker_test.h"
+#include "convergence/tests/single_checker_test.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"

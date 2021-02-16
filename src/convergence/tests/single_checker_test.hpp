@@ -1,7 +1,7 @@
-#ifndef BART_SRC_CONVERGENCE_TESTS_SINGLE_CHECKER_TEST_H_
-#define BART_SRC_CONVERGENCE_TESTS_SINGLE_CHECKER_TEST_H_
+#ifndef BART_SRC_CONVERGENCE_TESTS_SINGLE_CHECKER_TEST_HPP_
+#define BART_SRC_CONVERGENCE_TESTS_SINGLE_CHECKER_TEST_HPP_
 
-#include "convergence/single_checker.h"
+#include "convergence/single_checker.hpp"
 
 #include <optional>
 
@@ -36,4 +36,4 @@ class SingleCheckerTest : public ::testing::Test {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_TESTS_SINGLE_CHECKER_TEST_H_
+#endif // BART_SRC_CONVERGENCE_TESTS_SINGLE_CHECKER_TEST_HPP_
