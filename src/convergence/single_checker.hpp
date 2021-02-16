@@ -19,10 +19,10 @@ class SingleChecker : public SingleCheckerI<CompareT, DeltaT> {
  public:
   virtual ~SingleChecker() = default;
 
-  bool is_converged() const override { return is_converged_; };
-  void SetMaxDelta(const DeltaT& to_set) override { max_delta_ = to_set; };
-  DeltaT max_delta() const override { return max_delta_; }
-  std::optional<DeltaT> delta() const { return delta_; };
+  [[nodiscard]] auto is_converged() const -> bool override { return is_converged_; };
+  auto SetMaxDelta(const DeltaT& to_set) -> void override { max_delta_ = to_set; };
+  [[nodiscard]] auto max_delta() const -> DeltaT override { return max_delta_; }
+  [[nodiscard]] auto delta() const -> std::optional<DeltaT> override { return delta_; };
  protected:
   /*! Delta between moments from last convergence check */
   std::optional<DeltaT> delta_{ std::nullopt };
