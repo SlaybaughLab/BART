@@ -5,11 +5,7 @@
 
 #include "convergence/single_checker.hpp"
 
-namespace bart {
-
-namespace convergence {
-
-namespace parameters {
+namespace bart::convergence::parameters {
 
 /*! \brief Checks for convergence of any parameter expressed as a double.
  *
@@ -24,27 +20,26 @@ namespace parameters {
  *
  */
 
-class SingleParameterChecker : public SingleChecker<double> {
+class SingleParameterChecker : public SingleChecker<double, double> {
  public:
-  explicit SingleParameterChecker(double max_delta = 1e-6) {
-    max_delta_ = max_delta;
+  explicit SingleParameterChecker(double max_delta = 1e-6) { SetMaxDelta(max_delta); }
+
+  auto SetMaxDelta(const double& to_set) -> void override {
+    AssertThrow(to_set > 0, dealii::ExcMessage("Error in SingleParameterChecker::SetMaxDelta, value to set must be "
+                                               "greater than 0"))
+    SingleChecker<double, double>::SetMaxDelta(to_set);
   }
 
-  bool CheckIfConverged(const double &current_iteration,
-                        const double &previous_iteration) override {
-    double diff = std::abs(current_iteration - previous_iteration);
+  [[nodiscard]] auto CheckIfConverged(const double &current_value, const double &previous_value) -> bool override {
+    double diff = std::abs(current_value - previous_value);
     this->delta_ = diff;
-    return (diff/std::abs(current_iteration) <= max_delta_);
+    return (diff/std::abs(current_value) <= max_delta_);
   }
 
  protected:
   using SingleChecker<double>::max_delta_;
 };
 
-} // namespace parameters
-
-} // namespace convergence
-
-} // namespace bart
+} // namespace bart::convergence::parameters
 
 #endif // BART_SRC_CONVERGENCE_PARAMETERS_SINGLE_PARAMETER_CHECKER_HPP_
