@@ -6,7 +6,7 @@ namespace convergence {
 
 namespace moments {
 
-bool SingleMomentCheckerL1Norm::CheckIfConverged(
+bool SingleMomentCheckerL1Norm::IsConverged(
     const system::moments::MomentVector &current_iteration,
     const system::moments::MomentVector &previous_iteration) {
   system::moments::MomentVector difference(current_iteration);

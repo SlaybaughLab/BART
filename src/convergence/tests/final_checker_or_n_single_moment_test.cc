@@ -35,7 +35,7 @@ class ConvergenceFinalCheckerOrNSingleMomentTest :
 
 void ConvergenceFinalCheckerOrNSingleMomentTest::SetUp() {
   checker_ptr = std::make_unique<NiceMock<moments::SingleMomentCheckerMock>>();
-  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+  ON_CALL(*checker_ptr, IsConverged(_,_))
       .WillByDefault(Return(true));
   ON_CALL(*checker_ptr, delta())
       .WillByDefault(Return(std::nullopt));
@@ -67,10 +67,10 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergence) {
 }
 
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
-  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .Times(5)
       .WillRepeatedly(Return(false));
-  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .After(bad_convergence)
       .WillOnce(Return(true));
 
@@ -87,13 +87,13 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BadConvergenceAfterGood) {
 
   auto delta = std::make_optional<double>(0.123);
 
-  Expectation good_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation good_convergence = EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .Times(5)
       .WillRepeatedly(Return(true));
   EXPECT_CALL(*checker_ptr, delta())
       .Times(5)
       .WillRepeatedly(::testing::DoDefault());
-  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .After(good_convergence)
       .WillOnce(Return(false));
   EXPECT_CALL(*checker_ptr, delta())
@@ -113,7 +113,7 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, MaxIterationsReached) {
 
   auto delta = std::make_optional<double>(0.123);
 
-  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+  ON_CALL(*checker_ptr, IsConverged(_,_))
       .WillByDefault(Return(false));
   ON_CALL(*checker_ptr, delta())
       .WillByDefault(Return(delta));

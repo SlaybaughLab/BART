@@ -28,10 +28,10 @@ class MultiMomentCheckerI {
    * \param previous_iteration all moments for previous iteration
    * \return bool indicating if convergence has been reached.
    */
-  virtual bool CheckIfConverged(const system::moments::MomentsMap &current_iteration,
+  virtual bool IsConverged(const system::moments::MomentsMap &current_iteration,
                                 const system::moments::MomentsMap &previous_iteration) = 0;
   
-  /*! \brief Returns status of previous call to CheckIfConverged
+  /*! \brief Returns status of previous call to IsConverged
    *
    * \return bool indicating if convergence is reached.
    */

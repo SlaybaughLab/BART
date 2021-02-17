@@ -9,7 +9,7 @@ namespace bart::convergence::moments {
 class SingleMomentCheckerMock : public SingleMomentCheckerI {
  public:
   using MomentVector = system::moments::MomentVector;
-  MOCK_METHOD(bool, CheckIfConverged, (const MomentVector&, const MomentVector&), (override));
+  MOCK_METHOD(bool, IsConverged, (const MomentVector&, const MomentVector&), (override));
   MOCK_METHOD(bool, is_converged, (), (const, override));
   MOCK_METHOD(void, SetMaxDelta, (const double&), (override));
   MOCK_METHOD(double, max_delta, (), (const, override));

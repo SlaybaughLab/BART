@@ -35,7 +35,7 @@ void FinalCheckerOrN<CompareType, CheckerType>::StatusDeltaAndIterate(
     CompareType &previous_iteration) {
 
   convergence_status_.is_complete =
-      checker_ptr_->CheckIfConverged(current_iteration, previous_iteration);
+      checker_ptr_->IsConverged(current_iteration, previous_iteration);
 
   convergence_status_.delta = checker_ptr_->delta();
 

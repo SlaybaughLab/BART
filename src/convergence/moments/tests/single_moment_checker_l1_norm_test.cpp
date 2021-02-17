@@ -51,7 +51,7 @@ TEST_F(SingleMomentCheckerL1NormTest, SetterBadValue) {
 
 // The same vector should return true
 TEST_F(SingleMomentCheckerL1NormTest, SameVector) {
-  EXPECT_TRUE(checker.CheckIfConverged(moment_one, moment_one));
+  EXPECT_TRUE(checker.IsConverged(moment_one, moment_one));
   EXPECT_TRUE(checker.is_converged());
 }
 
@@ -60,8 +60,8 @@ TEST_F(SingleMomentCheckerL1NormTest, OneThresholdAway) {
   double to_add = moment_one.l1_norm() * 0.99 * checker.max_delta();
   moment_two(2) += to_add;
 
-  EXPECT_TRUE(checker.CheckIfConverged(moment_one, moment_two));
-  EXPECT_TRUE(checker.CheckIfConverged(moment_two, moment_one));
+  EXPECT_TRUE(checker.IsConverged(moment_one, moment_two));
+  EXPECT_TRUE(checker.IsConverged(moment_two, moment_one));
   EXPECT_TRUE(checker.is_converged());
   EXPECT_NEAR(0.99 * checker.max_delta(), checker.delta().value(), 1e-6);
 }
@@ -71,8 +71,8 @@ TEST_F(SingleMomentCheckerL1NormTest, TwoThresholdAway) {
   const double to_add = moment_one.l1_norm() * 2 * checker.max_delta();
   moment_two(2) += to_add;
 
-  EXPECT_FALSE(checker.CheckIfConverged(moment_one, moment_two));
-  EXPECT_FALSE(checker.CheckIfConverged(moment_two, moment_one));
+  EXPECT_FALSE(checker.IsConverged(moment_one, moment_two));
+  EXPECT_FALSE(checker.IsConverged(moment_two, moment_one));
   EXPECT_FALSE(checker.is_converged());
   EXPECT_NEAR(2 * checker.max_delta(), checker.delta().value(), 1e-6);
 }
@@ -86,8 +86,8 @@ TEST_F(SingleMomentCheckerL1NormTest, SetMaxDelta) {
   const double to_add = moment_one.l1_norm() * 0.99 * to_set;
   moment_two(2) += to_add;
 
-  EXPECT_TRUE(checker.CheckIfConverged(moment_one, moment_two));
-  EXPECT_TRUE(checker.CheckIfConverged(moment_two, moment_one));
+  EXPECT_TRUE(checker.IsConverged(moment_one, moment_two));
+  EXPECT_TRUE(checker.IsConverged(moment_two, moment_one));
 }
 
 } // namespace

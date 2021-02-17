@@ -18,7 +18,7 @@ class MultiMomentCheckerMax : public MultiMomentChecker {
       : MultiMomentChecker(std::move(checker)) {}
   ~MultiMomentCheckerMax() = default;
 
-  bool CheckIfConverged(const system::moments::MomentsMap &current_iteration,
+  bool IsConverged(const system::moments::MomentsMap &current_iteration,
                         const system::moments::MomentsMap &previous_iteration) override;
 };
 

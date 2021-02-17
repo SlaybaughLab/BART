@@ -35,7 +35,7 @@ class ConvergenceFinalCheckerOrNMultiMomentTest :
 
 void ConvergenceFinalCheckerOrNMultiMomentTest::SetUp() {
   checker_ptr = std::make_unique<NiceMock<moments::MultiMomentCheckerMock>>();
-  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+  ON_CALL(*checker_ptr, IsConverged(_,_))
       .WillByDefault(Return(true));
   ON_CALL(*checker_ptr, delta())
       .WillByDefault(Return(std::nullopt));
@@ -72,10 +72,10 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergence) {
 }
 
 TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergenceAfterBad) {
-  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .Times(5)
       .WillRepeatedly(Return(false));
-  EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .After(bad_convergence)
       .WillOnce(Return(true));
 
@@ -95,7 +95,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, BadConvergenceAfterGood) {
   auto delta = std::make_optional<double>(0.123);
   auto failed_index = std::make_optional<int>(5);
 
-  Expectation good_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation good_convergence = EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .Times(5)
       .WillRepeatedly(Return(true));
   EXPECT_CALL(*checker_ptr, delta())
@@ -104,7 +104,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, BadConvergenceAfterGood) {
   EXPECT_CALL(*checker_ptr, failed_index())
       .Times(5)
       .WillRepeatedly(::testing::DoDefault());
-  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, CheckIfConverged(_,_))
+  Expectation bad_convergence = EXPECT_CALL(*checker_ptr, IsConverged(_,_))
       .After(good_convergence)
       .WillOnce(Return(false));
   EXPECT_CALL(*checker_ptr, delta())
@@ -129,7 +129,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, MaxIterationsReached) {
   auto delta = std::make_optional<double>(0.123);
   auto failed_index = std::make_optional<int>(5);
 
-  ON_CALL(*checker_ptr, CheckIfConverged(_,_))
+  ON_CALL(*checker_ptr, IsConverged(_,_))
       .WillByDefault(Return(false));
   ON_CALL(*checker_ptr, delta())
       .WillByDefault(Return(delta));

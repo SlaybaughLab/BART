@@ -37,7 +37,7 @@ class SingleMomentCheckerL1Norm : public SingleMomentCheckerI {
 
   ~SingleMomentCheckerL1Norm() = default;
 
-  bool CheckIfConverged(
+  bool IsConverged(
       const system::moments::MomentVector &current_iteration,
       const system::moments::MomentVector &previous_iteration) override;
 };

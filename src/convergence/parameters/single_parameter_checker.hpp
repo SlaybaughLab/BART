@@ -30,7 +30,7 @@ class SingleParameterChecker : public ConvergenceChecker<double, double> {
     ConvergenceChecker<double, double>::SetMaxDelta(to_set);
   }
 
-  [[nodiscard]] auto CheckIfConverged(const double &current_value, const double &previous_value) -> bool override {
+  [[nodiscard]] auto IsConverged(const double &current_value, const double &previous_value) -> bool override {
     double diff = std::abs(current_value - previous_value);
     this->delta_ = diff;
     return (diff/std::abs(current_value) <= max_delta_);

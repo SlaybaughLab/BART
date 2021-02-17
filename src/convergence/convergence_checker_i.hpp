@@ -19,8 +19,8 @@ class ConvergenceCheckerI {
  public:
   virtual ~ConvergenceCheckerI() = default;
   /*! \brief Checks for convergence of two provided values */
-  virtual auto CheckIfConverged(const CompareT& current_iteration, const CompareT& previous_iteration) -> bool = 0;
-  /*! \brief Returns status of convergence (from last call to CheckIfConverged */
+  virtual auto IsConverged(const CompareT& current_iteration, const CompareT& previous_iteration) -> bool = 0;
+  /*! \brief Returns status of convergence (from last call to IsConverged */
   virtual auto is_converged() const -> bool = 0;
   /*! \brief Set the threshold value for convergence check */
   virtual auto SetMaxDelta(const DeltaT& to_set) -> void = 0;

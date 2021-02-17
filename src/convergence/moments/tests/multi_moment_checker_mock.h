@@ -15,7 +15,7 @@ namespace moments {
 
 class MultiMomentCheckerMock : public MultiMomentCheckerI {
  public:
-  MOCK_METHOD2(CheckIfConverged, bool(const system::moments::MomentsMap&,
+  MOCK_METHOD2(IsConverged, bool(const system::moments::MomentsMap&,
       const system::moments::MomentsMap&));
   MOCK_CONST_METHOD0(is_converged, bool());
   MOCK_CONST_METHOD0(failed_index, std::optional<int>());

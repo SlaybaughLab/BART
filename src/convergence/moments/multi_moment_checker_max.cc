@@ -8,7 +8,7 @@ namespace convergence {
 
 namespace moments {
 
-bool MultiMomentCheckerMax::CheckIfConverged(
+bool MultiMomentCheckerMax::IsConverged(
     const system::moments::MomentsMap &current_iteration,
     const system::moments::MomentsMap &previous_iteration) {
   AssertThrow(current_iteration.size() > 0,
@@ -28,7 +28,7 @@ bool MultiMomentCheckerMax::CheckIfConverged(
       try {
         auto current_moment = current_iteration.at(index);
 
-        if (!checker_->CheckIfConverged(current_moment, previous_moment)) {
+        if (!checker_->IsConverged(current_moment, previous_moment)) {
           is_converged_ = false;
 
           double delta = checker_->delta().value_or(0);

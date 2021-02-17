@@ -44,8 +44,8 @@ TEST_F(ConvergenceSingleParameterCheckerTest, SetterBadValue) {
 // Checking the same value should return converged
 TEST_F(ConvergenceSingleParameterCheckerTest, SameValue) {
   for (auto const val : test_values) {
-    EXPECT_TRUE(test_checker.CheckIfConverged(val, val));
-    EXPECT_TRUE(test_checker.CheckIfConverged(-val, -val));
+    EXPECT_TRUE(test_checker.IsConverged(val, val));
+    EXPECT_TRUE(test_checker.IsConverged(-val, -val));
   }
 }
 
@@ -55,10 +55,10 @@ TEST_F(ConvergenceSingleParameterCheckerTest, OneThreshold) {
     const auto val_one_more = val + 0.99*test_checker.max_delta()*val;
     const auto val_one_less = val - 0.99*test_checker.max_delta()*val;
 
-    EXPECT_TRUE(test_checker.CheckIfConverged(val, val_one_more));
-    EXPECT_TRUE(test_checker.CheckIfConverged(-val, -val_one_more));
-    EXPECT_TRUE(test_checker.CheckIfConverged(val, val_one_less));
-    EXPECT_TRUE(test_checker.CheckIfConverged(-val, -val_one_less));
+    EXPECT_TRUE(test_checker.IsConverged(val, val_one_more));
+    EXPECT_TRUE(test_checker.IsConverged(-val, -val_one_more));
+    EXPECT_TRUE(test_checker.IsConverged(val, val_one_less));
+    EXPECT_TRUE(test_checker.IsConverged(-val, -val_one_less));
   }
 }
 
@@ -70,10 +70,10 @@ TEST_F(ConvergenceSingleParameterCheckerTest, MoreThanOneThreshold) {
       auto val_more = val + multiple*test_checker.max_delta()*val;
       auto val_less = val - multiple*test_checker.max_delta()*val;
 
-      EXPECT_FALSE(test_checker.CheckIfConverged(val, val_more));
-      EXPECT_FALSE(test_checker.CheckIfConverged(-val, -val_more));
-      EXPECT_FALSE(test_checker.CheckIfConverged(val, val_less));
-      EXPECT_FALSE(test_checker.CheckIfConverged(-val, -val_less));
+      EXPECT_FALSE(test_checker.IsConverged(val, val_more));
+      EXPECT_FALSE(test_checker.IsConverged(-val, -val_more));
+      EXPECT_FALSE(test_checker.IsConverged(val, val_less));
+      EXPECT_FALSE(test_checker.IsConverged(-val, -val_less));
     }
   }
 }
