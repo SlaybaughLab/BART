@@ -165,7 +165,7 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     }
 
     EXPECT_CALL(*this->convergence_checker_obs_ptr_,
-                CheckFinalConvergence(k_effective_by_iteration.at(i + 1), k_effective_by_iteration.at(i)))
+                ConvergenceStatus(k_effective_by_iteration.at(i + 1), k_effective_by_iteration.at(i)))
         .WillOnce(Return(convergence_status));
   }
 

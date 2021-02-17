@@ -62,7 +62,7 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, Constructor) {
 TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergence) {
   FinalSingleMomentChecker test_checker(std::move(checker_ptr));
   Status good_convergence = {1, 100, true, std::nullopt, std::nullopt};
-  auto result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+  auto result = test_checker.ConvergenceStatus(moment_one, moment_two);
   EXPECT_TRUE(CompareStatus(result, good_convergence));
 }
 
@@ -78,7 +78,7 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, GoodConvergenceAfterBad) {
   Status result, good_convergence = {6, 100, true, std::nullopt, std::nullopt};
 
   for (int i = 0; i < 6; ++i)
-    result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+    result = test_checker.ConvergenceStatus(moment_one, moment_two);
 
   EXPECT_TRUE(CompareStatus(result, good_convergence));
 }
@@ -104,7 +104,7 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, BadConvergenceAfterGood) {
   Status result, expected = {6, 100, false, std::nullopt, delta};
 
   for (int i = 0; i < 6; ++i)
-    result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+    result = test_checker.ConvergenceStatus(moment_one, moment_two);
 
   EXPECT_TRUE(CompareStatus(result, expected));
 }
@@ -123,7 +123,7 @@ TEST_F(ConvergenceFinalCheckerOrNSingleMomentTest, MaxIterationsReached) {
 
   test_checker.SetMaxIterations(10).SetIteration(9);
 
-  result = test_checker.CheckFinalConvergence(moment_one, moment_two);
+  result = test_checker.ConvergenceStatus(moment_one, moment_two);
 
   EXPECT_TRUE(CompareStatus(result, expected));
 

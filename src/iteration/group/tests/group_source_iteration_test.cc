@@ -398,7 +398,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   EXPECT_CALL(*this->moments_obs_ptr_, moments())
       .WillOnce(ReturnRef(current_moments));
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_,
-              CheckFinalConvergence(Ref(current_moments), _))
+              ConvergenceStatus(Ref(current_moments), _))
               .WillOnce(Return(moment_map_status));
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_, Reset())
       .Times(AtLeast(1));
@@ -411,7 +411,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       .Times(AtLeast(1))
       .WillRepeatedly(ResetIterations(this));
 
-  EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_, _))
+  EXPECT_CALL(*this->convergence_checker_obs_ptr_, ConvergenceStatus(_, _))
       .Times(AtLeast(1))
       .WillRepeatedly(ReturnConvergence(this));
 

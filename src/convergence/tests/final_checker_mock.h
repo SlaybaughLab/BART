@@ -14,7 +14,7 @@ template <typename CompareType>
 class FinalCheckerMock : public IterationCompletionCheckerI<CompareType> {
  public:
   using typename IterationCompletionCheckerI<CompareType>::IterationNumber;
-  MOCK_METHOD(Status, CheckFinalConvergence, (CompareType& current_iteration,
+  MOCK_METHOD(Status, ConvergenceStatus, (CompareType& current_iteration,
       CompareType& previous_iteration), (override));
   MOCK_METHOD(Status, convergence_status, (), (override, const));
   MOCK_METHOD(bool, convergence_is_complete, (), (override, const));

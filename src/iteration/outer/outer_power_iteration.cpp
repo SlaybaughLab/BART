@@ -32,7 +32,7 @@ convergence::Status OuterPowerIteration::CheckConvergence(system::System &system
   double k_effective_last = system.k_effective.value_or(0.0);
   system.k_effective = k_effective_updater_ptr_->CalculateK_Effective(system);
 
-  return convergence_checker_ptr_->CheckFinalConvergence(
+  return convergence_checker_ptr_->ConvergenceStatus(
       system.k_effective.value(), k_effective_last);
 }
 void OuterPowerIteration::UpdateSystem(system::System &system, const int group,

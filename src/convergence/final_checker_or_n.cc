@@ -10,7 +10,7 @@ namespace bart {
 namespace convergence {
 
 template <typename CompareType, typename CheckerType>
-Status FinalCheckerOrN<CompareType, CheckerType>::CheckFinalConvergence(
+Status FinalCheckerOrN<CompareType, CheckerType>::ConvergenceStatus(
     CompareType& current_iteration,
     CompareType& previous_iteration) {
 
@@ -20,7 +20,7 @@ Status FinalCheckerOrN<CompareType, CheckerType>::CheckFinalConvergence(
 
 template <>
 Status FinalCheckerOrN<system::moments::MomentsMap ,
-                       moments::MultiMomentCheckerI>::CheckFinalConvergence(
+                       moments::MultiMomentCheckerI>::ConvergenceStatus(
     system::moments::MomentsMap & current_iteration,
     system::moments::MomentsMap & previous_iteration) {
 

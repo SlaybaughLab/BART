@@ -29,7 +29,7 @@ class FinalCheckerOrN : public IterationCompletionChecker<CompareType>{
       : checker_ptr_(std::move(checker_ptr)) {}
   ~FinalCheckerOrN() = default;
 
-  Status CheckFinalConvergence(CompareType& current_iteration,
+  Status ConvergenceStatus(CompareType& current_iteration,
                                CompareType& previous_iteration) override;
   CheckerType* checker_ptr() const { return checker_ptr_.get(); }
 

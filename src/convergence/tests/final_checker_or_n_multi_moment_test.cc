@@ -64,7 +64,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergence) {
   Status good_convergence{.iteration_number = 1, .max_iterations = 100, .is_complete = true,
                           .failed_index = std::nullopt, .delta = std::nullopt};
 
-  auto result = test_checker.CheckFinalConvergence(moment_map_one, moment_map_two);
+  auto result = test_checker.ConvergenceStatus(moment_map_one, moment_map_two);
   EXPECT_TRUE(CompareStatus(result, good_convergence));
   EXPECT_TRUE(CompareStatus(test_checker.convergence_status(),
                             good_convergence));
@@ -84,7 +84,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, GoodConvergenceAfterBad) {
                                   .failed_index{std::nullopt}, .delta{std::nullopt}};
 
   for (int i = 0; i < 6; ++i)
-    result = test_checker.CheckFinalConvergence(moment_map_one, moment_map_two);
+    result = test_checker.ConvergenceStatus(moment_map_one, moment_map_two);
 
   EXPECT_TRUE(CompareStatus(result, good_convergence));
   EXPECT_TRUE(test_checker.convergence_is_complete());
@@ -118,7 +118,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, BadConvergenceAfterGood) {
   Status result, expected = {6, 100, false, failed_index, delta};
 
   for (int i = 0; i < 6; ++i)
-    result = test_checker.CheckFinalConvergence(moment_map_one, moment_map_two);
+    result = test_checker.ConvergenceStatus(moment_map_one, moment_map_two);
 
   EXPECT_TRUE(CompareStatus(result, expected));
   EXPECT_FALSE(test_checker.convergence_is_complete());
@@ -141,7 +141,7 @@ TEST_F(ConvergenceFinalCheckerOrNMultiMomentTest, MaxIterationsReached) {
 
   test_checker.SetMaxIterations(10).SetIteration(9);
 
-  result = test_checker.CheckFinalConvergence(moment_map_one, moment_map_two);
+  result = test_checker.ConvergenceStatus(moment_map_one, moment_map_two);
 
   EXPECT_TRUE(CompareStatus(result, expected));
   EXPECT_TRUE(test_checker.convergence_is_complete());
