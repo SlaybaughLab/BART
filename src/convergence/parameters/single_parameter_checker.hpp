@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-#include "convergence/single_checker.hpp"
+#include "convergence/convergence_checker.hpp"
 
 namespace bart::convergence::parameters {
 
@@ -20,14 +20,14 @@ namespace bart::convergence::parameters {
  *
  */
 
-class SingleParameterChecker : public SingleChecker<double, double> {
+class SingleParameterChecker : public ConvergenceChecker<double, double> {
  public:
   explicit SingleParameterChecker(double max_delta = 1e-6) { SetMaxDelta(max_delta); }
 
   auto SetMaxDelta(const double& to_set) -> void override {
     AssertThrow(to_set > 0, dealii::ExcMessage("Error in SingleParameterChecker::SetMaxDelta, value to set must be "
                                                "greater than 0"))
-    SingleChecker<double, double>::SetMaxDelta(to_set);
+    ConvergenceChecker<double, double>::SetMaxDelta(to_set);
   }
 
   [[nodiscard]] auto CheckIfConverged(const double &current_value, const double &previous_value) -> bool override {
@@ -37,7 +37,7 @@ class SingleParameterChecker : public SingleChecker<double, double> {
   }
 
  protected:
-  using SingleChecker<double>::max_delta_;
+  using ConvergenceChecker<double>::max_delta_;
 };
 
 } // namespace bart::convergence::parameters

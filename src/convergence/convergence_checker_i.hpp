@@ -1,8 +1,9 @@
-#ifndef BART_CONVERGENCE_SINGLE_CHECKER_I_H_
-#define BART_CONVERGENCE_SINGLE_CHECKER_I_H_
+#ifndef BART_SRC_CONVERGENCE_CONVERGENCE_CHECKER_I_HPP_
+#define BART_SRC_CONVERGENCE_CONVERGENCE_CHECKER_I_HPP_
 
 #include <optional>
 
+//! Tools for checking the convergence of variables
 namespace bart::convergence {
 
 /*! \brief Checks for convergence between two provided values.
@@ -14,9 +15,9 @@ namespace bart::convergence {
  */
 
 template <typename CompareT, typename DeltaT>
-class SingleCheckerI {
+class ConvergenceCheckerI {
  public:
-  virtual ~SingleCheckerI() = default;
+  virtual ~ConvergenceCheckerI() = default;
   /*! \brief Checks for convergence of two provided values */
   virtual auto CheckIfConverged(const CompareT& current_iteration, const CompareT& previous_iteration) -> bool = 0;
   /*! \brief Returns status of convergence (from last call to CheckIfConverged */
@@ -32,4 +33,4 @@ class SingleCheckerI {
 
 } // namespace bart::convergence
 
-#endif // BART_CONVERGENCE_SINGLE_CHECKER_I_HPP_
+#endif // BART_SRC_CONVERGENCE_CONVERGENCE_CHECKER_I_HPP_

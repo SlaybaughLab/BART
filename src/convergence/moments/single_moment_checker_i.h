@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 #define BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_CHECKER_I_H_
 
-#include "convergence/single_checker.hpp"
+#include "convergence/convergence_checker.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 
 namespace bart {
@@ -15,14 +15,14 @@ namespace moments {
  * (generally using norms) and comparing them to a maximum allowed delta.
  */
 
-class SingleMomentCheckerI : public SingleChecker<system::moments::MomentVector> {
+class SingleMomentCheckerI : public ConvergenceChecker<system::moments::MomentVector> {
  public:
   virtual ~SingleMomentCheckerI() = default;
 
  protected:
-  using SingleChecker<system::moments::MomentVector>::max_delta_;
-  using SingleChecker<system::moments::MomentVector>::delta_;
-  using SingleChecker<system::moments::MomentVector>::is_converged_;
+  using ConvergenceChecker<system::moments::MomentVector>::max_delta_;
+  using ConvergenceChecker<system::moments::MomentVector>::delta_;
+  using ConvergenceChecker<system::moments::MomentVector>::is_converged_;
 };
 
 } // namespace moments
