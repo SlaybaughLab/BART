@@ -6,7 +6,7 @@
 
 #include "data/cross_sections.h"
 #include "convergence/status.hpp"
-#include "convergence/final_i.h"
+#include "convergence/iteration_completion_checker_i.hpp"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "eigenvalue/k_effective/k_effective_updater_i.hpp"
@@ -56,10 +56,10 @@ class FrameworkBuilderI {
   using Initializer = iteration::initializer::InitializerI;
   using KEffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
-  using MomentConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
+  using MomentConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<const system::moments::MomentsMap>;
   using OuterIteration = iteration::outer::OuterIterationI;
-  using ParameterConvergenceChecker = convergence::FinalI<double>;
+  using ParameterConvergenceChecker = convergence::IterationCompletionCheckerI<double>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;
   using SAAFFormulation = typename formulation::angular::SelfAdjointAngularFluxI<dim>;
   using SphericalHarmonicMoments = system::moments::SphericalHarmonicI;

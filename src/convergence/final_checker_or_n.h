@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "convergence/final.h"
+#include "convergence/iteration_completion_checker.hpp"
 #include "convergence/status.hpp"
 
 namespace bart {
@@ -18,7 +18,7 @@ namespace convergence {
  */
 
 template <typename CompareType, typename CheckerType>
-class FinalCheckerOrN : public Final<CompareType>{
+class FinalCheckerOrN : public IterationCompletionChecker<CompareType>{
  public:
   /*! \brief Constructor.
    *
@@ -45,7 +45,7 @@ class FinalCheckerOrN : public Final<CompareType>{
   void StatusDeltaAndIterate(CompareType& current_iteration,
                              CompareType& previous_iteration);
 
-  using Final<CompareType>::convergence_status_;
+  using IterationCompletionChecker<CompareType>::convergence_status_;
   std::unique_ptr<CheckerType> checker_ptr_;
 };
 

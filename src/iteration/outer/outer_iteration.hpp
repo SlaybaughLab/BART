@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "convergence/final_i.h"
+#include "convergence/iteration_completion_checker_i.hpp"
 #include "instrumentation/port.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "iteration/outer/outer_iteration_i.hpp"
@@ -31,7 +31,7 @@ class OuterIteration : public OuterIterationI,
                        public data_names::SolutionMomentsPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
-  using ConvergenceChecker = convergence::FinalI<ConvergenceType>;
+  using ConvergenceChecker = convergence::IterationCompletionCheckerI<ConvergenceType>;
   using Subroutine = iteration::subroutine::SubroutineI;
 
   OuterIteration(std::unique_ptr<GroupIterator> group_iterator_ptr,

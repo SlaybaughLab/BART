@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_TESTS_FINAL_CHECKER_MOCK_H_
 #define BART_SRC_CONVERGENCE_TESTS_FINAL_CHECKER_MOCK_H_
 
-#include "convergence/final_i.h"
+#include "convergence/iteration_completion_checker_i.hpp"
 #include "convergence/status.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
@@ -11,9 +11,9 @@ namespace bart {
 namespace convergence {
 
 template <typename CompareType>
-class FinalCheckerMock : public FinalI<CompareType> {
+class FinalCheckerMock : public IterationCompletionCheckerI<CompareType> {
  public:
-  using typename FinalI<CompareType>::IterationNumber;
+  using typename IterationCompletionCheckerI<CompareType>::IterationNumber;
   MOCK_METHOD(Status, CheckFinalConvergence, (CompareType& current_iteration,
       CompareType& previous_iteration), (override));
   MOCK_METHOD(Status, convergence_status, (), (override, const));

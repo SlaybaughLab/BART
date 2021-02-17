@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "convergence/reporter/mpi_i.h"
-#include "convergence/final_i.h"
+#include "convergence/iteration_completion_checker_i.hpp"
 #include "data/cross_sections.h"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"

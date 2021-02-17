@@ -1,13 +1,11 @@
-#ifndef BART_SRC_CONVERGENCE_FINAL_I_H_
-#define BART_SRC_CONVERGENCE_FINAL_I_H_
+#ifndef BART_SRC_CONVERGENCE_ITERATION_COMPLETION_CHECKER_I_HPP_
+#define BART_SRC_CONVERGENCE_ITERATION_COMPLETION_CHECKER_I_HPP_
 
 #include <optional>
 
 #include "convergence/status.hpp"
 
-namespace bart {
-
-namespace convergence {
+namespace bart::convergence {
 
 /*! \brief Interface for classes that determines the status of final
  * convergence.
@@ -19,14 +17,13 @@ namespace convergence {
  * to determine final convergence. (i.e. fluxes, integers, etc).
  *
  */
-
 template <typename CompareType>
-class FinalI {
+class IterationCompletionCheckerI {
  public:
   //! Typedef for value used for indexing iterations
   using IterationNumber = int;
 
-  virtual ~FinalI() = default;
+  virtual ~IterationCompletionCheckerI() = default;
 
   /*! \brief Check for final convergence of the system.
    * In the general case, a side effect is that this is what will increment the
@@ -34,53 +31,51 @@ class FinalI {
    * \return a convergence::Status struct that contains the status of the
    * system convergence
    */
-  virtual Status CheckFinalConvergence(CompareType& current_iteration,
-                                       CompareType& previous_iteration) = 0;
+  virtual auto CheckFinalConvergence(CompareType& current_iteration, CompareType& previous_iteration) -> Status = 0;
 
   /*! \brief Get status of system convergence
    *
    * \return a convergence::Status struct that contains the status of system
    * convergence.
    */
-  virtual Status convergence_status() const = 0;
+  virtual auto convergence_status() const -> Status = 0;
 
   /*! \brief Returns status of system completion.
    *
    * \return bool indicating status of system completion
    */
-  virtual bool   convergence_is_complete() const = 0;
+  virtual auto convergence_is_complete() const -> bool = 0;
 
   /*! \brief Returns the set maximum iterations
    *
    * \return IterationNumber indicating maximum iterations.
    */
-  virtual IterationNumber max_iterations() const = 0;
+  virtual auto max_iterations() const -> IterationNumber = 0;
 
   /*! \brief Returns the current iteration.
    *
    * \return IterationNumber indicating current iteration.
    */
-  virtual IterationNumber iteration() const = 0;
+  virtual auto iteration() const -> IterationNumber = 0;
 
   /*! \brief Sets the maximum iteration.
    *
    * \param to_set value to set as maximum iterations.
    * \return reference to this object.
    */
-  virtual FinalI& SetMaxIterations(IterationNumber to_set) = 0;
+  virtual auto SetMaxIterations(IterationNumber to_set) -> IterationCompletionCheckerI& = 0;
 
   /*! \brief Set the current iteration.
    *
    * \param to_set value to set as the current iteration.
    * \return reference to this object.
    */
-  virtual FinalI& SetIteration(IterationNumber to_set) = 0;
+  virtual auto SetIteration(IterationNumber to_set) -> IterationCompletionCheckerI& = 0;
 
-  virtual void Reset() = 0;
+  /*! \brief Resets the iterative convergence checker */
+  virtual auto Reset() -> void = 0;
 };
 
-} // namespace convergence
+} // namespace bart::convergence
 
-} // namespace bart
-
-#endif // BART_SRC_CONVERGENCE_FINAL_I_H_
+#endif // BART_SRC_CONVERGENCE_ITERATION_COMPLETION_CHECKER_I_HPP_

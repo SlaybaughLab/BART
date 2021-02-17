@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CONVERGENCE_MOMENTS_TESTS_H_
 #define BART_SRC_CONVERGENCE_MOMENTS_TESTS_H_
 
-#include "convergence/final.h"
+#include "convergence/iteration_completion_checker.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -41,7 +41,7 @@ inline ::testing::AssertionResult CompareStatus(const Status lhs, const Status r
 template <typename CompareType>
 class ConvergenceFinalTest : public ::testing::Test {
   protected:
-  void TestBaseMethods(bart::convergence::Final<CompareType>* test_checker) {
+  void TestBaseMethods(bart::convergence::IterationCompletionChecker<CompareType>* test_checker) {
     EXPECT_EQ(test_checker->max_iterations(), 100);
     test_checker->SetMaxIterations(50);
     EXPECT_EQ(test_checker->max_iterations(), 50);
