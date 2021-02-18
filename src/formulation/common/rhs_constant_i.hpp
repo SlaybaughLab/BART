@@ -13,7 +13,7 @@ class RHSConstantI {
   using CellPtr = domain::CellPtr<dim>;
   using Vector = dealii::Vector<double>;
   virtual ~RHSConstantI() = default;
-  virtual auto FillCellConstantTerm(Vector& to_fill, const CellPtr&, const Vector& constant_vector) -> void = 0;
+  virtual auto FillCellConstantTerm(Vector& to_fill, const CellPtr&, const Vector& constant_vector) const -> void = 0;
 };
 
 } // namespace bart::formulation::common

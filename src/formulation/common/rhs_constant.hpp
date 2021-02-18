@@ -19,7 +19,7 @@ class RHSConstant : public RHSConstantI<dim>, public utility::HasDependencies {
     this->AssertPointerNotNull(finite_element_ptr_.get(), "finite element", "RHSConstant constructor");
   }
 
-  auto FillCellConstantTerm(Vector& to_fill, const CellPtr&, const Vector& constant_vector) -> void override;
+  auto FillCellConstantTerm(Vector& to_fill, const CellPtr&, const Vector& constant_vector) const -> void override;
 
   auto finite_element_ptr() -> FiniteElement* { return finite_element_ptr_.get(); };
  private:
