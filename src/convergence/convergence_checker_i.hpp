@@ -14,7 +14,7 @@ namespace bart::convergence {
  * \tparam DeltaT type of delta that will be used to determine comparison, default double.
  */
 
-template <typename CompareT, typename DeltaT>
+template <typename CompareT, typename DeltaT = double>
 class ConvergenceCheckerI {
  public:
   virtual ~ConvergenceCheckerI() = default;
