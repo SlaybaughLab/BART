@@ -29,6 +29,7 @@ class DiffusionMock : public DiffusionI<dim> {
       const system::moments::MomentVector&, const system::moments::MomentsMap&), (const, override));
   MOCK_METHOD(void, FillCellScatteringSource, (Vector&, const CellPtr&, GroupNumber,
       const system::moments::MomentsMap&), (const, override));
+  MOCK_METHOD(void, FillCellConstantTerm, (Vector&, const CellPtr&, const Vector&), (const, override));
   MOCK_METHOD(bool, is_initialized, (), (const, override));
 };
 

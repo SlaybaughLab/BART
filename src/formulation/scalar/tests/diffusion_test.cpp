@@ -120,7 +120,7 @@ TEST_F(FormulationCFEMDiffusionTest, ConstructorTest) {
 
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr,cross_sections_ptr);
 
-  EXPECT_EQ(fe_mock_ptr.use_count(), 3);
+  EXPECT_EQ(fe_mock_ptr.use_count(), 2);
   EXPECT_EQ(cross_sections_ptr.use_count(), 2);
   EXPECT_FALSE(test_diffusion.is_initialized());
 }
@@ -169,8 +169,6 @@ TEST_F(FormulationCFEMDiffusionTest, FillCellConstantTermTest) {
   std::vector<double> constant_vector_at_quadrature{ 7, 9 };
 
   formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr, cross_sections_ptr);
-  EXPECT_CALL(*fe_mock_ptr, dofs_per_cell()).WillOnce(DoDefault());
-  EXPECT_CALL(*fe_mock_ptr, n_cell_quad_pts()).WillOnce(DoDefault());
   EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_)).Times(1);
   EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(Ref(constant_vector_at_dofs)))
       .WillOnce(Return(constant_vector_at_quadrature));

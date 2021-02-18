@@ -35,6 +35,8 @@ class Diffusion : public DiffusionI<dim>, public utility::HasDependencies {
 
   auto Precalculate(const CellPtr& cell_ptr) -> void override;
 
+  auto FillCellConstantTerm(Vector &to_fill, const CellPtr &ptr, const Vector &constant_vector) const -> void override;
+
   auto FillCellStreamingTerm(Matrix& to_fill, const CellPtr&, GroupNumber) const -> void override;
 
   auto FillCellCollisionTerm(Matrix& to_fill, const CellPtr&, GroupNumber) const -> void override;

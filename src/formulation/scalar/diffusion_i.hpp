@@ -41,7 +41,7 @@ namespace bart::formulation::scalar {
  * @tparam dim spatial dimension
  */
 template <int dim>
-class DiffusionI : public utility::HasDescription {
+class DiffusionI : public common::RHSConstantI<dim>, public utility::HasDescription {
  public:
   //! Types of boundaries for the diffusion equation
   enum class BoundaryType {

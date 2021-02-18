@@ -38,6 +38,21 @@ auto Diffusion<dim>::Precalculate(const CellPtr& cell_ptr) -> void {
   is_initialized_ = true;
 }
 
+template<int dim>
+void Diffusion<dim>::FillCellConstantTerm(Vector &to_fill,
+                                          const CellPtr &cell_ptr,
+                                          const Vector &constant_vector) const {
+  finite_element_->SetCell(cell_ptr);
+  const auto constant_vector_at_quadrature{ this->finite_element_->ValueAtQuadrature(constant_vector) };
+
+  for (int q = 0; q < cell_quadrature_points_; ++q) {
+    const double constant{ finite_element_->Jacobian(q) * constant_vector_at_quadrature.at(q) };
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      to_fill(i) +=  constant * finite_element_->ShapeValue(i, q);
+    }
+  }
+}
+
 template <int dim>
 auto Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill, const CellPtr& cell_ptr,
                                            const GroupNumber group) const -> void {
