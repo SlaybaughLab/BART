@@ -11,13 +11,19 @@ IterationCompletionChecker<CompareType>::IterationCompletionChecker(
 template<typename CompareType>
 auto IterationCompletionChecker<CompareType>::ConvergenceStatus(CompareType &current_iteration,
                                                                 CompareType &previous_iteration) -> Status {
+  // Get convergence status
   convergence_status_.is_complete = convergence_checker_ptr_->IsConverged(current_iteration, previous_iteration);
   convergence_status_.delta = convergence_checker_ptr_->delta();
+  if (!convergence_status_.is_complete) {
+    convergence_status_.failed_index = convergence_checker_ptr_->failed_index();
+  } else {
+    convergence_status_.failed_index = std::nullopt;
+  }
+  // Increment iteration number
   ++convergence_status_.iteration_number;
-
+  // Check if max iterations have been reached
   if (convergence_status_.iteration_number == convergence_status_.max_iterations)
     convergence_status_.is_complete = true;
-
   return convergence_status_;
 }
 

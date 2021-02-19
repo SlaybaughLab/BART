@@ -79,6 +79,7 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, BadConvergenceAfterNSteps)
   double bad_previous_value{test_helpers::RandomDouble(100, 200) };
   double bad_current_value{bad_previous_value + 1 };
   const double bad_delta{test_helpers::RandomDouble(-100, 100) };
+  const int bad_index{ test_helpers::RandomInt(0, 100) };
 
   for (auto n = 0; n < n_good_steps; ++n) {
     Expectation good_step = EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_,
@@ -95,12 +96,16 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, BadConvergenceAfterNSteps)
   EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_, delta())
       .After(bad_convergence)
       .WillOnce(Return(bad_delta));
+  EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_, failed_index())
+      .After(bad_convergence)
+      .WillOnce(Return(bad_index));
 
   convergence::Status result;
   const convergence::Status expected_status{ .iteration_number = n_good_steps + 1,
                                              .max_iterations = result.max_iterations, // Ensures set to the default
                                              .is_complete = false,
-                                             .delta = bad_delta};
+                                             .failed_index = bad_index,
+                                             .delta = bad_delta };
   for (auto n = 0; n < n_good_steps; ++n) {
     result = this->test_completion_checker_ptr_->ConvergenceStatus(good_current_values.at(n),
                                                                    good_previous_values.at(n));
@@ -124,6 +129,9 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, GoodConvergenceAfterNSteps
     EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_, delta())
         .After(bad_convergence)
         .WillOnce(Return(test_helpers::RandomDouble(-100, 100)));
+    EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_, failed_index())
+        .After(bad_convergence)
+        .WillOnce(Return(test_helpers::RandomInt(0, 100)));
   }
 
   Expectation good_convergence = EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_,
@@ -137,7 +145,8 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, GoodConvergenceAfterNSteps
   const convergence::Status expected_status{ .iteration_number = n_bad_steps + 1,
       .max_iterations = result.max_iterations, // Ensures set to the default
       .is_complete = true,
-      .delta = good_delta};
+      .failed_index = std::nullopt,
+      .delta = good_delta };
   for (auto n = 0; n < n_bad_steps; ++n) {
     result = this->test_completion_checker_ptr_->ConvergenceStatus(bad_current_values.at(n),
                                                                    bad_previous_values.at(n));
@@ -151,16 +160,20 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, ReportConvergenceAfterMaxS
   auto bad_previous_values { test_helpers::RandomVector(max_iterations, -100, 100) };
   auto bad_current_values { test_helpers::RandomVector(max_iterations, -100, 100) };
   std::vector<double> delta;
+  std::vector<int> failed_indices;
 
   for (auto n = 0; n < max_iterations; ++n) {
     Expectation step = EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_,
                                    IsConverged(bad_current_values.at(n), bad_previous_values.at(n)))
         .WillOnce(Return(false));
     const double delta_value{ test_helpers::RandomDouble(-100, 100) };
+    const int failed_index{ test_helpers::RandomInt(0, 100) };
     delta.push_back(delta_value);
+    failed_indices.push_back(failed_index);
     EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_, delta())
-        .After(step)
-        .WillOnce(Return(delta_value));
+        .After(step).WillOnce(Return(delta_value));
+    EXPECT_CALL(*this->convergence_checker_mock_obs_ptr_, failed_index())
+        .After(step).WillOnce(Return(failed_index));
   }
   this->test_completion_checker_ptr_->SetMaxIterations(max_iterations);
   convergence::Status result;
@@ -174,6 +187,8 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, ReportConvergenceAfterMaxS
   EXPECT_EQ(result.iteration_number, max_iterations);
   EXPECT_TRUE(result.is_complete);
   EXPECT_NE(std::find(delta.cbegin(), delta.cend(), result.delta), delta.end());
+  EXPECT_TRUE(result.failed_index.has_value());
+  EXPECT_NE(std::find(failed_indices.cbegin(), failed_indices.cend(), result.failed_index), failed_indices.end());
 }
 
 
