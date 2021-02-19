@@ -21,11 +21,11 @@ namespace moments {
  * Convergence is achieved if \f$\Delta_i \leq \Delta_{\text{max}}\f$.
  * */
 
-class SingleMomentCheckerL1Norm : public SingleMomentCheckerI {
+class ConvergenceCheckerL1Norm : public SingleMomentCheckerI {
  public:
   /*! \brief Default constructor, setting max delta to \f$10^{-6}\f$. */
 
-  explicit SingleMomentCheckerL1Norm(const double max_delta = 1e-6) {
+  explicit ConvergenceCheckerL1Norm(const double max_delta = 1e-6) {
     max_delta_ = max_delta;
   };
 
@@ -35,7 +35,7 @@ class SingleMomentCheckerL1Norm : public SingleMomentCheckerI {
     SingleMomentCheckerI::SetMaxDelta(to_set);
   }
 
-  ~SingleMomentCheckerL1Norm() = default;
+  ~ConvergenceCheckerL1Norm() = default;
 
   bool IsConverged(
       const system::moments::MomentVector &current_iteration,

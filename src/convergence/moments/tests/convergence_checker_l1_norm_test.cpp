@@ -1,4 +1,4 @@
-#include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "convergence/moments/convergence_checker_l1_norm.hpp"
 
 #include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/test_helper_functions.h"
@@ -13,7 +13,7 @@ class SingleMomentCheckerL1NormTest : public ::testing::Test {
   using MomentVector = bart::system::moments::MomentVector;
   static constexpr double max_delta{ 1e-6 };
   static constexpr MomentVector::size_type moment_size{ 5 };
-  bart::convergence::moments::SingleMomentCheckerL1Norm checker{ max_delta };
+  bart::convergence::moments::ConvergenceCheckerL1Norm checker{max_delta };
   bart::system::moments::MomentVector moment_one, moment_two;
   auto SetUp() -> void override;
 };

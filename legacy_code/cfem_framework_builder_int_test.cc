@@ -27,7 +27,7 @@
 #include "iteration/updater/angular_fixed_updater.h"
 #include "convergence/final_checker_or_n.h"
 #include "convergence/parameters/single_parameter_checker.h"
-#include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "convergence/moments/convergence_checker_l1_norm.hpp"
 #include "solver/group/single_group_solver.h"
 #include "quadrature/quadrature_set.h"
 #include "quadrature/tests/quadrature_set_mock.h"
