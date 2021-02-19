@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 
-#include "convergence/moments/single_moment_checker_i.h"
 #include "system/moments/spherical_harmonic_types.h"
 
 namespace bart {
