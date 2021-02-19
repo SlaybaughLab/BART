@@ -26,9 +26,10 @@ class ConvergenceCheckerI {
   virtual auto SetMaxDelta(const DeltaT& to_set) -> void = 0;
   /*! \brief Get the threshold value for convergence check */
   virtual auto max_delta() const -> DeltaT = 0;
-  /*! \brief Get the delta value from the last convergence check. May be empty
-   * if convergence has not be checked. */
+  /*! \brief Get the delta value from the last convergence check. May be empty if convergence has not be checked. */
   virtual auto delta() const -> std::optional<DeltaT> = 0;
+  /*! \brief Get the failed index from the last convergence check. May be empty if not applicable. */
+  virtual auto failed_index() const -> std::optional<int> = 0;
 };
 
 } // namespace bart::convergence

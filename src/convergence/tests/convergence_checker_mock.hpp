@@ -15,6 +15,7 @@ class ConvergenceCheckerMock : public ConvergenceCheckerI<CompareT, DeltaT> {
   MOCK_METHOD(void, SetMaxDelta, (const DeltaT& to_set), (override));
   MOCK_METHOD(DeltaT, max_delta, (), (const override));
   MOCK_METHOD(std::optional<DeltaT>, delta, (), (const override));
+  MOCK_METHOD(std::optional<int>, failed_index, (), (const, override));
 };
 
 } // namespace bart::convergence

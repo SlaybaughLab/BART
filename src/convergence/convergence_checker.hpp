@@ -32,9 +32,12 @@ class ConvergenceChecker : public ConvergenceCheckerI<CompareT, DeltaT> {
   auto SetMaxDelta(const DeltaT& to_set) -> void override { max_delta_ = to_set; };
   [[nodiscard]] auto max_delta() const -> DeltaT override { return max_delta_; }
   [[nodiscard]] auto delta() const -> std::optional<DeltaT> override { return delta_; };
+  [[nodiscard]] auto failed_index() const -> std::optional<int> override { return failed_index_; };
  protected:
-  /*! Delta between moments from last convergence check */
+  /*! Delta between values from last convergence check */
   std::optional<DeltaT> delta_{ std::nullopt };
+  /*! Failed index from last convergence check */
+  std::optional<int> failed_index_{ std::nullopt };
   /*! Did last convergence check result in convergence */
   bool is_converged_{ false };
   /*! Maximum delta for convergence */
