@@ -2,22 +2,14 @@
 
 #include <stdexcept>
 
-namespace bart {
+namespace bart::convergence::moments {
 
-namespace convergence {
-
-namespace moments {
-
-bool MultiMomentCheckerMax::IsConverged(
-    const system::moments::MomentsMap &current_iteration,
-    const system::moments::MomentsMap &previous_iteration) {
-  AssertThrow(current_iteration.size() > 0,
-              dealii::ExcMessage("Current iteration moments map is empty"));
-  AssertThrow(previous_iteration.size() > 0,
-              dealii::ExcMessage("Previous iteration moments map is empty"));
+auto MultiMomentCheckerMax::IsConverged(const MomentsMap &current_iteration,
+                                        const MomentsMap &previous_iteration) -> bool {
+  AssertThrow(current_iteration.size() > 0, dealii::ExcMessage("Current iteration moments map is empty"));
+  AssertThrow(previous_iteration.size() > 0, dealii::ExcMessage("Previous iteration moments map is empty"));
   AssertThrow(previous_iteration.size() == current_iteration.size(),
-              dealii::ExcMessage("Current and previous iterations must be the"
-                                 "same size"));
+              dealii::ExcMessage("Current and previous iterations must be the same size"));
   is_converged_ = true;
 
   for (auto &previous_pair : previous_iteration) {
@@ -54,10 +46,4 @@ bool MultiMomentCheckerMax::IsConverged(
   return is_converged_;
 }
 
-
-
-} // namespace moments
-
-} // namespace convergence
-
-} // namespace bart
+} // namespace bart::convergence::moments

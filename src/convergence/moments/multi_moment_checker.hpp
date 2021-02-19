@@ -1,22 +1,17 @@
-#ifndef BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_H_
-#define BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_H
+#ifndef BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_HPP_
+#define BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_HPP_
 
-#include "convergence/convergence_checker_i.hpp"
+#include "convergence/convergence_checker.hpp"
 #include "system/moments/spherical_harmonic_types.h"
-#include "convergence/moments/multi_moment_checker_i.h"
 #include "utility/uncopyable.h"
 
-namespace bart {
+namespace bart::convergence::moments {
 
-namespace convergence {
-
-namespace moments {
 
 /*! \brief Implementation of most getting and setting base class funtions for
  * convergence::moments::MultiMomentCheckerI objects.
  */
-
-class MultiMomentChecker : public MultiMomentCheckerI, private utility::Uncopyable {
+class MultiMomentChecker : public ConvergenceChecker<system::moments::MomentsMap>, private utility::Uncopyable {
  public:
   using SingleMomentChecker = convergence::ConvergenceCheckerI<system::moments::MomentVector>;
   /*! \brief Constructor, taking a SingleChecker that will be used to compare
@@ -27,20 +22,16 @@ class MultiMomentChecker : public MultiMomentCheckerI, private utility::Uncopyab
   explicit MultiMomentChecker(std::unique_ptr<SingleMomentChecker> checker) : checker_(std::move(checker)) {};
 
   virtual ~MultiMomentChecker() = default;
-  bool is_converged() const override { return is_converged_; }
-  std::optional<int> failed_index() const override { return failed_index_; };
-  std::optional<double> delta() const override { return delta_; };
+  auto is_converged() const -> bool override { return is_converged_; }
+  auto failed_index() const -> std::optional<int> override { return failed_index_; };
+  auto delta() const -> std::optional<double> override { return delta_; };
  protected:
-  std::unique_ptr<SingleMomentChecker> checker_;
-  bool is_converged_ = false;
-  std::optional<int> failed_index_ = std::nullopt;
-  std::optional<double> delta_ = std::nullopt;
+  std::unique_ptr<SingleMomentChecker> checker_{ nullptr };
+  bool is_converged_{ false };
+  std::optional<int> failed_index_{ std::nullopt };
+  std::optional<double> delta_{ std::nullopt };
 };
 
-} // namespace moments
+} // namespace bart::convergence::moments
 
-} // namespace convergence
-
-} // namespace bart
-
-#endif // BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_H_
+#endif // BART_SRC_CONVERGENCE_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_HPP_
