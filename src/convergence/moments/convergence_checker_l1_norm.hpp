@@ -1,13 +1,11 @@
 #ifndef BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_L1_NORM_H_
 #define BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_L1_NORM_H_
 
-#include "convergence/moments/single_moment_checker_i.h"
+#include "convergence/convergence_checker.hpp"
 
-namespace bart {
+#include <deal.II/lac/vector.h>
 
-namespace convergence {
-
-namespace moments {
+namespace bart::convergence::moments {
 
 /*! \brief Checks for convergence between flux moments using the percentage
  * change in the L1 norm, compared to the current iteration (\f$i\f$):
@@ -21,31 +19,15 @@ namespace moments {
  * Convergence is achieved if \f$\Delta_i \leq \Delta_{\text{max}}\f$.
  * */
 
-class ConvergenceCheckerL1Norm : public SingleMomentCheckerI {
+class ConvergenceCheckerL1Norm : public ConvergenceChecker<dealii::Vector<double>> {
  public:
+  using Vector = dealii::Vector<double>;
   /*! \brief Default constructor, setting max delta to \f$10^{-6}\f$. */
-
-  explicit ConvergenceCheckerL1Norm(const double max_delta = 1e-6) {
-    max_delta_ = max_delta;
-  };
-
-  auto SetMaxDelta(const double& to_set) -> void override {
-    AssertThrow(to_set > 0, dealii::ExcMessage("Error in SingleParameterChecker::SetMaxDelta, value to set must be "
-                                               "greater than 0"))
-    SingleMomentCheckerI::SetMaxDelta(to_set);
-  }
-
-  ~ConvergenceCheckerL1Norm() = default;
-
-  bool IsConverged(
-      const system::moments::MomentVector &current_iteration,
-      const system::moments::MomentVector &previous_iteration) override;
+  explicit ConvergenceCheckerL1Norm(const double max_delta = 1e-6);
+  auto SetMaxDelta(const double& to_set) -> void override;
+  auto IsConverged(const Vector& current_iteration, const Vector& previous_iteration) -> bool override;
 };
 
-} // namespace moments
-  
-} // namespace convergence
-
-} // namespace bart
+} // namespace bart::convergence::moments
 
 #endif // BART_SRC_CONVERGENCE_MOMENTS_SINGLE_MOMENT_L1_NORM_H_

@@ -1,6 +1,7 @@
 #include "convergence/moments/convergence_checker_l1_norm.hpp"
 
-#include "system/moments/spherical_harmonic_types.h"
+#include <deal.II/lac/vector.h>
+
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -10,19 +11,19 @@ using namespace bart;
 
 class SingleMomentCheckerL1NormTest : public ::testing::Test {
  public:
-  using MomentVector = bart::system::moments::MomentVector;
+  using Vector = dealii::Vector<double>;
   static constexpr double max_delta{ 1e-6 };
-  static constexpr MomentVector::size_type moment_size{ 5 };
-  bart::convergence::moments::ConvergenceCheckerL1Norm checker{max_delta };
-  bart::system::moments::MomentVector moment_one, moment_two;
+  static constexpr Vector::size_type moment_size{5 };
+  bart::convergence::moments::ConvergenceCheckerL1Norm checker{ max_delta };
+  Vector moment_one, moment_two;
   auto SetUp() -> void override;
 };
 
 auto SingleMomentCheckerL1NormTest::SetUp() -> void {
-  auto set_up_moment = [=](MomentVector& moment) {
+  auto set_up_moment = [=](Vector& moment) {
     moment.reinit(moment_size);
     const auto random_vector{ test_helpers::RandomVector(5, 0, 2) };
-    for (MomentVector::size_type i = 0; i < moment_size; ++i)
+    for (Vector::size_type i = 0; i < moment_size; ++i)
       moment[i] = random_vector.at(i);
   };
   set_up_moment(moment_one);
