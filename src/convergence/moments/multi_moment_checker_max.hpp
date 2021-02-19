@@ -1,9 +1,9 @@
-#ifndef BART_SRC_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_MAX_H_
-#define BART_SRC_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_MAX_H_
+#ifndef BART_SRC_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_MAX_HPP_
+#define BART_SRC_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_MAX_HPP_
 
 #include <memory>
 
-#include "convergence/moments/multi_moment_checker.h"
+#include "convergence/moments/multi_moment_checker.hpp"
 
 namespace bart {
 
@@ -26,4 +26,4 @@ class MultiMomentCheckerMax : public MultiMomentChecker {
 
 } // namespace bart
 
-#endif // BART_SRC_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_MAX_H_
+#endif // BART_SRC_CONVERGENCE_MOMENTS_MULTI_MOMENT_CHECKER_MAX_HPP_

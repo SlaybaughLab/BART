@@ -2,7 +2,7 @@
 #include "framework/framework_helper.hpp"
 
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
-#include "convergence/tests/final_checker_mock.h"
+#include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
@@ -68,10 +68,10 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using InitializerMock = iteration::initializer::InitializerMock;
   using KEffectiveUpdaterMock = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
-  using MomentConvergenceCheckerMock = convergence::FinalCheckerMock<system::moments::MomentVector>;
-  using MomentMapConvergenceCheckerMock = convergence::FinalCheckerMock<const system::moments::MomentsMap>;
+  using MomentConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
+  using MomentMapConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<const system::moments::MomentsMap>;
   using OuterIterationMock = iteration::outer::OuterIterationMock;
-  using ParameterConvergenceCheckerMock = convergence::FinalCheckerMock<double>;
+  using ParameterConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<double>;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;
   using StamperMock = typename formulation::StamperMock<dim>;
   using SAAFFormulationMock = typename formulation::angular::SelfAdjointAngularFluxMock<dim>;

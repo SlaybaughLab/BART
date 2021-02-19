@@ -1,4 +1,4 @@
-#include "convergence/moments/multi_moment_checker_max.h"
+#include "convergence/moments/multi_moment_checker_max.hpp"
 
 #include <memory>
 #include <optional>
