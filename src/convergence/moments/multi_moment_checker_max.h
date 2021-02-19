@@ -3,7 +3,6 @@
 
 #include <memory>
 
-#include "convergence/moments/single_moment_checker_i.h"
 #include "convergence/moments/multi_moment_checker.h"
 
 namespace bart {
@@ -14,12 +13,11 @@ namespace moments {
 
 class MultiMomentCheckerMax : public MultiMomentChecker {
  public:
-  MultiMomentCheckerMax(std::unique_ptr<SingleMomentCheckerI> checker)
-      : MultiMomentChecker(std::move(checker)) {}
-  ~MultiMomentCheckerMax() = default;
+  using MultiMomentChecker::SingleMomentChecker;
+  MultiMomentCheckerMax(std::unique_ptr<SingleMomentChecker> checker) : MultiMomentChecker(std::move(checker)) {}
 
   bool IsConverged(const system::moments::MomentsMap &current_iteration,
-                        const system::moments::MomentsMap &previous_iteration) override;
+                   const system::moments::MomentsMap &previous_iteration) override;
 };
 
 } // namespace moments

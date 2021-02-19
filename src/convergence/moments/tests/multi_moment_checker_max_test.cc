@@ -3,7 +3,7 @@
 #include <memory>
 #include <optional>
 
-#include "convergence/moments/tests/single_moment_checker_mock.h"
+#include "convergence/tests/convergence_checker_mock.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
@@ -17,10 +17,8 @@ using ::testing::Sequence, ::testing::Expectation;
 
 class MultiMomentCheckerMaxTest : public ::testing::Test {
  protected:
-  using MultiMomentCheckerMax =
-      bart::convergence::moments::MultiMomentCheckerMax;
-  using SingleMomentCheckerMock =
-      bart::convergence::moments::SingleMomentCheckerMock;
+  using MultiMomentCheckerMax = bart::convergence::moments::MultiMomentCheckerMax;
+  using SingleMomentCheckerMock = convergence::ConvergenceCheckerMock<system::moments::MomentVector>;
 
   bart::system::moments::MomentsMap moments_map_one;
   bart::system::moments::MomentsMap moments_map_two;
@@ -46,8 +44,7 @@ void MultiMomentCheckerMaxTest::SetUp() {
     }
   }
 
-  checker_ptr =
-      std::make_unique<::testing::NiceMock<SingleMomentCheckerMock>>();
+  checker_ptr = std::make_unique<::testing::NiceMock<SingleMomentCheckerMock>>();
 
   // Single checker mock will by default return true about status of convergence
   ON_CALL(*checker_ptr, IsConverged(_,_))
