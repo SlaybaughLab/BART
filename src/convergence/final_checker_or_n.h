@@ -18,7 +18,7 @@ namespace convergence {
  */
 
 template <typename CompareType, typename CheckerType>
-class FinalCheckerOrN : public IterationCompletionChecker<CompareType>{
+class [[deprecated]] FinalCheckerOrN : public IterationCompletionChecker<CompareType>{
  public:
   /*! \brief Constructor.
    *
