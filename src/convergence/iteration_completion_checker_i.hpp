@@ -31,7 +31,8 @@ class IterationCompletionCheckerI {
    * \return a convergence::Status struct that contains the status of the
    * system convergence
    */
-  virtual auto ConvergenceStatus(CompareType& current_iteration, CompareType& previous_iteration) -> Status = 0;
+  virtual auto ConvergenceStatus(const CompareType& current_iteration,
+                                 const CompareType& previous_iteration) -> Status = 0;
 
   /*! \brief Get status of system convergence
    *

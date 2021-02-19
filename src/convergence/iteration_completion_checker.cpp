@@ -9,8 +9,8 @@ IterationCompletionChecker<CompareType>::IterationCompletionChecker(
     : convergence_checker_ptr_(std::move(convergence_checker_ptr)) {}
 
 template<typename CompareType>
-auto IterationCompletionChecker<CompareType>::ConvergenceStatus(CompareType &current_iteration,
-                                                                CompareType &previous_iteration) -> Status {
+auto IterationCompletionChecker<CompareType>::ConvergenceStatus(const CompareType &current_iteration,
+                                                                const CompareType &previous_iteration) -> Status {
   // Get convergence status
   convergence_status_.is_complete = convergence_checker_ptr_->IsConverged(current_iteration, previous_iteration);
   convergence_status_.delta = convergence_checker_ptr_->delta();
@@ -51,9 +51,7 @@ auto IterationCompletionChecker<CompareType>::Reset() -> void {
 }
 
 template class IterationCompletionChecker<system::moments::MomentVector>;
-template class IterationCompletionChecker<const system::moments::MomentVector>;
 template class IterationCompletionChecker<system::moments::MomentsMap>;
-template class IterationCompletionChecker<const system::moments::MomentsMap>;
 template class IterationCompletionChecker<double>;
 
 } // namespace bart::convergence

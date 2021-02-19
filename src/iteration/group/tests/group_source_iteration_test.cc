@@ -42,7 +42,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerMock<const system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerMock<system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
@@ -121,7 +121,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
   using ConvergenceChecker = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
-  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerMock<const bart::system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerMock<bart::system::moments::MomentsMap>;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
 

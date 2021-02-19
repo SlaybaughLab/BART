@@ -761,19 +761,10 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentMapConvergenceChecker) {
   const double max_delta = 1e-4;
   const int max_iterations = 73;
 
-  auto convergence_ptr =
-      this->test_builder_ptr_->BuildMomentMapConvergenceChecker(
-          max_delta,
-          max_iterations);
-
-//  using ExpectedType =
-//  convergence::FinalCheckerOrN<const system::moments::MomentsMap,
-//                               convergence::moments::MultiMomentCheckerI>;
-//
-//  ASSERT_THAT(convergence_ptr.get(),
-//              WhenDynamicCastTo<ExpectedType*>(NotNull()));
-//  EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
-//
+  auto convergence_ptr = this->test_builder_ptr_->BuildMomentMapConvergenceChecker(max_delta, max_iterations);
+  using ExpectedType = convergence::IterationCompletionChecker<system::moments::MomentsMap>;
+  ASSERT_THAT(convergence_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 }
 
 

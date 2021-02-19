@@ -33,7 +33,7 @@ class GroupSolveIteration
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<const system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;

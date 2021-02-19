@@ -10,7 +10,7 @@ template <typename CompareType>
 class IterationCompletionCheckerMock : public IterationCompletionCheckerI<CompareType> {
  public:
   using typename IterationCompletionCheckerI<CompareType>::IterationNumber;
-  MOCK_METHOD(Status, ConvergenceStatus, (CompareType& current_iteration, CompareType& previous_iteration), (override));
+  MOCK_METHOD(Status, ConvergenceStatus, (const CompareType&, const CompareType&), (override));
   MOCK_METHOD(Status, convergence_status, (), (const, override));
   MOCK_METHOD(bool, convergence_is_complete, (), (const, override));
   MOCK_METHOD(IterationNumber, max_iterations, (), (const, override));

@@ -69,7 +69,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using KEffectiveUpdaterMock = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
-  using MomentMapConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<const system::moments::MomentsMap>;
+  using MomentMapConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentsMap>;
   using OuterIterationMock = iteration::outer::OuterIterationMock;
   using ParameterConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<double>;
   using QuadratureSetMock = typename quadrature::QuadratureSetMock<dim>;

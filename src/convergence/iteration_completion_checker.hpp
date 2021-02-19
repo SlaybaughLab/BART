@@ -28,7 +28,8 @@ class IterationCompletionChecker : public IterationCompletionCheckerI<CompareTyp
   IterationCompletionChecker(std::unique_ptr<ConvergenceChecker>);
   virtual ~IterationCompletionChecker() = default;
 
-  [[nodiscard]] auto ConvergenceStatus(CompareType &current_iteration, CompareType &previous_iteration) -> Status override;
+  [[nodiscard]] auto ConvergenceStatus(const CompareType &current_iteration,
+                                       const CompareType &previous_iteration) -> Status override;
   [[nodiscard]] auto convergence_status() const -> Status override { return convergence_status_; };
   [[nodiscard]] auto convergence_is_complete() const -> bool override { return convergence_status_.is_complete; };
   [[nodiscard]] auto max_iterations() const -> IterationNumber override { return convergence_status_.max_iterations; };

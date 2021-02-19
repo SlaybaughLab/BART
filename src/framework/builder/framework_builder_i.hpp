@@ -57,7 +57,7 @@ class FrameworkBuilderI {
   using KEffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<const system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentsMap>;
   using OuterIteration = iteration::outer::OuterIterationI;
   using ParameterConvergenceChecker = convergence::IterationCompletionCheckerI<double>;
   using QuadratureSet = typename quadrature::QuadratureSetI<dim>;

@@ -467,19 +467,15 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
     double max_delta, int max_iterations)
 -> std::unique_ptr<MomentMapConvergenceChecker> {
   ReportBuildingComponant("Moment map convergence checker");
-//
-//  using SingleCheckerType = convergence::moments::ConvergenceCheckerL1Norm;
-//  using CheckerType = convergence::moments::MultiMomentCheckerMax;
-//  using FinalCheckerType = convergence::FinalCheckerOrN<
-//      const system::moments::MomentsMap,
-//      convergence::moments::MultiMomentCheckerI>;
-//  auto checker_ptr = std::make_unique<CheckerType>(
-//      std::make_unique<SingleCheckerType>(max_delta));
-//  auto return_ptr = std::make_unique<FinalCheckerType>(
-//      std::move(checker_ptr));
-//  return_ptr->SetMaxIterations(max_iterations);
-//  return return_ptr;
-  return nullptr;
+
+  using SingleCheckerType = convergence::moments::ConvergenceCheckerL1Norm;
+  using CheckerType = convergence::moments::MultiMomentCheckerMax;
+  using FinalCheckerType = convergence::IterationCompletionChecker<system::moments::MomentsMap>;
+
+  auto return_ptr = std::make_unique<FinalCheckerType>(
+      std::make_unique<CheckerType>(std::make_unique<SingleCheckerType>(max_delta)));
+  return_ptr->SetMaxIterations(max_iterations);
+  return return_ptr;
 }
 template <int dim>
 auto FrameworkBuilder<dim>::BuildOuterIteration(
