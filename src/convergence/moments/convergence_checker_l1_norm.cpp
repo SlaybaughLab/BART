@@ -17,7 +17,7 @@ bool ConvergenceCheckerL1Norm::IsConverged(const Vector& current_iteration, cons
 auto ConvergenceCheckerL1Norm::SetMaxDelta(const double &to_set) -> void {
   AssertThrow(to_set > 0, dealii::ExcMessage("Error in ConvergenceCheckerL1Norm::SetMaxDelta, value to set must be "
                                              "greater than 0"))
-  this->SetMaxDelta(to_set);
+  this->max_delta_ = to_set;
 }
 
 } // namespace bart::convergence::moments
