@@ -24,6 +24,7 @@ auto ConvergenceSingleParameterCheckerTest::SetUp() -> void {
 // Getter should return the correct value
 TEST_F(ConvergenceSingleParameterCheckerTest, Getters) {
   EXPECT_EQ(test_checker.max_delta(), this->max_delta);
+  EXPECT_EQ(test_checker.failed_index(), std::nullopt);
 }
 
 // Max delta setter should set the correct value
@@ -46,6 +47,7 @@ TEST_F(ConvergenceSingleParameterCheckerTest, SameValue) {
   for (auto const val : test_values) {
     EXPECT_TRUE(test_checker.IsConverged(val, val));
     EXPECT_TRUE(test_checker.IsConverged(-val, -val));
+    EXPECT_EQ(test_checker.failed_index(), std::nullopt);
   }
 }
 
@@ -59,6 +61,7 @@ TEST_F(ConvergenceSingleParameterCheckerTest, OneThreshold) {
     EXPECT_TRUE(test_checker.IsConverged(-val, -val_one_more));
     EXPECT_TRUE(test_checker.IsConverged(val, val_one_less));
     EXPECT_TRUE(test_checker.IsConverged(-val, -val_one_less));
+    EXPECT_EQ(test_checker.failed_index(), std::nullopt);
   }
 }
 
@@ -74,6 +77,7 @@ TEST_F(ConvergenceSingleParameterCheckerTest, MoreThanOneThreshold) {
       EXPECT_FALSE(test_checker.IsConverged(-val, -val_more));
       EXPECT_FALSE(test_checker.IsConverged(val, val_less));
       EXPECT_FALSE(test_checker.IsConverged(-val, -val_less));
+      EXPECT_EQ(test_checker.failed_index(), std::nullopt);
     }
   }
 }

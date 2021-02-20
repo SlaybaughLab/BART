@@ -112,6 +112,10 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, BadConvergenceAfterNSteps)
   }
   result = this->test_completion_checker_ptr_->ConvergenceStatus(bad_current_value, bad_previous_value);
   EXPECT_EQ(result, expected_status);
+
+  this->test_completion_checker_ptr_->Reset();
+  const convergence::Status default_status;
+  EXPECT_EQ(this->test_completion_checker_ptr_->convergence_status(), default_status);
 }
 
 TYPED_TEST(ConvergenceIterationCompletionCheckerTest, GoodConvergenceAfterNSteps) {
@@ -189,6 +193,10 @@ TYPED_TEST(ConvergenceIterationCompletionCheckerTest, ReportConvergenceAfterMaxS
   EXPECT_NE(std::find(delta.cbegin(), delta.cend(), result.delta), delta.end());
   EXPECT_TRUE(result.failed_index.has_value());
   EXPECT_NE(std::find(failed_indices.cbegin(), failed_indices.cend(), result.failed_index), failed_indices.end());
+
+  this->test_completion_checker_ptr_->Reset();
+  const convergence::Status default_status{ .max_iterations = max_iterations };
+  EXPECT_EQ(this->test_completion_checker_ptr_->convergence_status(), default_status);
 }
 
 
