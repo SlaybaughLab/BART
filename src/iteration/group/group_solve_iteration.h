@@ -1,7 +1,7 @@
 #ifndef BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_H_
 #define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_H_
 
-#include "convergence/final_i.h"
+#include "convergence/iteration_completion_checker_i.hpp"
 #include "instrumentation/port.hpp"
 #include "iteration/group/group_solve_iteration_i.h"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
@@ -32,8 +32,8 @@ class GroupSolveIteration
       public data_ports::StatusPort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
-  using ConvergenceChecker = convergence::FinalI<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::FinalI<const system::moments::MomentsMap>;
+  using ConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;

@@ -7,7 +7,7 @@
 
 #include "calculator/cell/integrated_fission_source.h"
 #include "calculator/cell/total_aggregated_fission_source.h"
-#include "convergence/moments/single_moment_checker_l1_norm.h"
+#include "convergence/moments/convergence_checker_l1_norm.hpp"
 #include "convergence/reporter/mpi_noisy.h"
 #include "domain/definition.h"
 #include "domain/finite_element/finite_element_gaussian.h"

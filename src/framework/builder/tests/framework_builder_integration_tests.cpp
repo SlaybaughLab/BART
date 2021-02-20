@@ -8,12 +8,10 @@
 
 // Instantiated concerete classes
 #include "calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp"
-#include "convergence/final_checker_or_n.h"
-#include "convergence/parameters/single_parameter_checker.h"
-#include "convergence/moments/single_moment_checker_i.h"
-#include "convergence/moments/multi_moment_checker_i.h"
+#include "convergence/parameters/single_parameter_checker.hpp"
+#include "convergence/iteration_completion_checker.hpp"
 #include "data/cross_sections.h"
-#include "domain/finite_element/finite_element_gaussian.h"
+#include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/definition.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
@@ -44,9 +42,10 @@
 #include "system/system_helper.hpp"
 
 // Mock objects
-#include "convergence/tests/final_checker_mock.h"
+#include "convergence/tests/convergence_checker_mock.hpp"
+#include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "domain/tests/definition_mock.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
@@ -59,7 +58,7 @@
 #include "framework/builder/tests/framework_validator_mock.hpp"
 #include "framework/tests/framework_mock.hpp"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
-#include "material/tests/mock_material.h"
+#include "material/tests/material_mock.hpp"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
@@ -92,7 +91,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   using FrameworkBuilder = framework::builder::FrameworkBuilder<dim>;
   using ProblemParameters = NiceMock<problem::ParametersMock>;
-  using Material = NiceMock<btest::MockMaterial>;
+  using Material = NiceMock<material::MaterialMock>;
 
   // Mock object types
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorMock;
@@ -107,8 +106,8 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using GroupSolveIterationType = iteration::group::GroupSolveIterationMock;
   using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
-  using MomentConvergenceCheckerType = convergence::FinalCheckerMock<bart::system::moments::MomentVector>;
-  using ParameterConvergenceCheckerType = convergence::FinalCheckerMock<double>;
+  using MomentConvergenceCheckerType = convergence::IterationCompletionCheckerMock<bart::system::moments::MomentVector>;
+  using ParameterConvergenceCheckerType = convergence::IterationCompletionCheckerMock<double>;
   using QuadratureSetType = quadrature::QuadratureSetMock<dim>;
   using SAAFFormulationType = formulation::angular::SelfAdjointAngularFluxMock<dim>;
   using ScatteringSourceUpdaterType = formulation::updater::ScatteringSourceUpdaterMock;
@@ -733,12 +732,11 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildConvergenceChecker) {
           max_delta,
           max_iterations);
 
-  using ParameterConvergenceChecker = convergence::FinalCheckerOrN<double, convergence::parameters::SingleParameterChecker>;
+  using ParameterConvergenceChecker = convergence::IterationCompletionChecker<double>;
 
 
   ASSERT_NE(convergence_ptr, nullptr);
-  EXPECT_NE(nullptr,
-            dynamic_cast<ParameterConvergenceChecker*>(convergence_ptr.get()));
+  EXPECT_NE(nullptr, dynamic_cast<ParameterConvergenceChecker*>(convergence_ptr.get()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
 }
@@ -752,12 +750,9 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentConvergenceChecker) {
           max_delta,
           max_iterations);
 
-  using ExpectedType =
-  convergence::FinalCheckerOrN<system::moments::MomentVector,
-                               convergence::moments::SingleMomentCheckerI>;
+  using ExpectedType = convergence::IterationCompletionChecker<system::moments::MomentVector>;
 
-  EXPECT_THAT(convergence_ptr.get(),
-              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  EXPECT_THAT(convergence_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
 
 }
@@ -766,19 +761,10 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildMomentMapConvergenceChecker) {
   const double max_delta = 1e-4;
   const int max_iterations = 73;
 
-  auto convergence_ptr =
-      this->test_builder_ptr_->BuildMomentMapConvergenceChecker(
-          max_delta,
-          max_iterations);
-
-  using ExpectedType =
-  convergence::FinalCheckerOrN<const system::moments::MomentsMap,
-                               convergence::moments::MultiMomentCheckerI>;
-
-  ASSERT_THAT(convergence_ptr.get(),
-              WhenDynamicCastTo<ExpectedType*>(NotNull()));
+  auto convergence_ptr = this->test_builder_ptr_->BuildMomentMapConvergenceChecker(max_delta, max_iterations);
+  using ExpectedType = convergence::IterationCompletionChecker<system::moments::MomentsMap>;
+  ASSERT_THAT(convergence_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
   EXPECT_EQ(convergence_ptr->max_iterations(), max_iterations);
-
 }
 
 

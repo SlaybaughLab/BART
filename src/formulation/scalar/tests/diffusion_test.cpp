@@ -10,8 +10,8 @@
 #include <deal.II/grid/tria.h>
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
-#include "material/tests/mock_material.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
+#include "material/tests/material_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/test_assertions.hpp"
@@ -54,7 +54,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   SetUpDealii();
   // Make mock objects. Cross-sections is a struct that cannot be mocked, but
   // we can mock the material object it is based on.
-  NiceMock<btest::MockMaterial> mock_material;
+  NiceMock<material::MaterialMock> mock_material;
   fe_mock_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<2>>>();
 
   ON_CALL(*fe_mock_ptr, dofs_per_cell()).WillByDefault(Return(2));

@@ -99,7 +99,7 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
     }
     if (moment_map_convergence_checker_ptr_ != nullptr) {
       all_group_convergence_status =
-          moment_map_convergence_checker_ptr_->CheckFinalConvergence(
+          moment_map_convergence_checker_ptr_->ConvergenceStatus(
               system.current_moments->moments(), previous_moments_map);
       data_ports::StatusPort::Expose("....All group convergence: ");
       data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
@@ -123,7 +123,7 @@ template <int dim>
 convergence::Status GroupSolveIteration<dim>::CheckConvergence(
     system::moments::MomentVector &current_iteration,
     system::moments::MomentVector &previous_iteration) {
-  return convergence_checker_ptr_->CheckFinalConvergence(current_iteration,
+  return convergence_checker_ptr_->ConvergenceStatus(current_iteration,
                                                          previous_iteration);
 }
 

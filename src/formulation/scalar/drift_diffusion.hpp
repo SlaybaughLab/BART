@@ -8,7 +8,7 @@
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "calculator/drift_diffusion/drift_diffusion_vector_calculator_i.hpp"
 #include "data/cross_sections.h"
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 #include "utility/has_dependencies.h"
 
 namespace bart::formulation::scalar {

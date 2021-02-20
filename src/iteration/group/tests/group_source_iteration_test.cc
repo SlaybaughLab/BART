@@ -11,7 +11,7 @@
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
-#include "convergence/tests/final_checker_mock.h"
+#include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "instrumentation/tests/instrument_mock.h"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
@@ -41,8 +41,8 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using EnergyGroupToAngularSolutionPtrMap = bart::system::solution::EnergyGroupToAngularSolutionPtrMap;
   using TestGroupIterator = iteration::group::GroupSourceIteration<dim>;
   using GroupSolver = solver::group::SingleGroupSolverMock;
-  using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
-  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<const system::moments::MomentsMap>;
+  using ConvergenceChecker = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerMock<system::moments::MomentsMap>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
   using GroupSolution = system::solution::MPIGroupAngularSolutionMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
@@ -119,9 +119,9 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
   using GroupSolver = solver::group::SingleGroupSolverMock;
-  using ConvergenceChecker = convergence::FinalCheckerMock<system::moments::MomentVector>;
+  using ConvergenceChecker = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsMock;
-  using MomentMapConvergenceChecker = convergence::FinalCheckerMock<const bart::system::moments::MomentsMap>;
+  using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerMock<bart::system::moments::MomentsMap>;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
 
@@ -154,7 +154,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrows) {
     auto group_solver_ptr = (i == 0) ? nullptr :
         std::make_unique<solver::group::SingleGroupSolverMock>();
     auto convergence_checker_ptr = (i == 1) ? nullptr :
-        std::make_unique<convergence::FinalCheckerMock<system::moments::MomentVector>>();
+        std::make_unique<convergence::IterationCompletionCheckerMock<system::moments::MomentVector>>();
     auto moment_calculator_ptr = (i == 2) ? nullptr :
         std::make_unique<quadrature::calculators::SphericalHarmonicMomentsMock>();
     auto group_solution_ptr = (i == 3) ? nullptr :
@@ -177,7 +177,7 @@ TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrowNoBoundaryUpdater)
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
 
   auto group_solver_ptr = std::make_unique<solver::group::SingleGroupSolverMock>();
-  auto convergence_checker_ptr = std::make_unique<convergence::FinalCheckerMock<system::moments::MomentVector>>();
+  auto convergence_checker_ptr = std::make_unique<convergence::IterationCompletionCheckerMock<system::moments::MomentVector>>();
   auto moment_calculator_ptr = std::make_unique<quadrature::calculators::SphericalHarmonicMomentsMock>();
   auto group_solution_ptr = this->group_solution_ptr_;
   auto source_updater_ptr = this->source_updater_ptr_;
@@ -398,7 +398,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   EXPECT_CALL(*this->moments_obs_ptr_, moments())
       .WillOnce(ReturnRef(current_moments));
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_,
-              CheckFinalConvergence(Ref(current_moments), _))
+              ConvergenceStatus(Ref(current_moments), _))
               .WillOnce(Return(moment_map_status));
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_, Reset())
       .Times(AtLeast(1));
@@ -411,7 +411,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       .Times(AtLeast(1))
       .WillRepeatedly(ResetIterations(this));
 
-  EXPECT_CALL(*this->convergence_checker_obs_ptr_, CheckFinalConvergence(_, _))
+  EXPECT_CALL(*this->convergence_checker_obs_ptr_, ConvergenceStatus(_, _))
       .Times(AtLeast(1))
       .WillRepeatedly(ReturnConvergence(this));
 

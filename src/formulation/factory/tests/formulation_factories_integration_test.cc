@@ -11,11 +11,11 @@
 // Dependencies and mocks
 #include "data/cross_sections.h"
 #include "domain/tests/definition_mock.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
-#include "material/tests/mock_material.h"
+#include "material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 
 namespace  {
@@ -32,7 +32,7 @@ class FormulationFactoryTests : public ::testing::Test {
   using FiniteElementType = NiceMock<domain::finite_element::FiniteElementMock<dim>>;
   using DiffusionFormulationType = NiceMock<formulation::scalar::DiffusionMock<dim>>;
   using SAAFFormulationType = NiceMock<formulation::angular::SelfAdjointAngularFluxMock<dim>>;
-  using MaterialType = NiceMock<btest::MockMaterial>;
+  using MaterialType = NiceMock<material::MaterialMock>;
   using QuadratureSetType = NiceMock<quadrature::QuadratureSetMock<dim>>;
   using StamperType = NiceMock<formulation::StamperMock<dim>>;
 

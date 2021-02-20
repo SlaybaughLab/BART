@@ -2,7 +2,7 @@
 #define BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_H_
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/finite_element_i.h"
+#include "domain/finite_element/finite_element_i.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "quadrature/quadrature_set_i.h"
 

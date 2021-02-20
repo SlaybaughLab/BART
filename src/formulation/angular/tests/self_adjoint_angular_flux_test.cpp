@@ -3,8 +3,8 @@
 #include <deal.II/base/tensor.h>
 
 #include "data/cross_sections.h"
-#include "domain/finite_element/tests/finite_element_mock.h"
-#include "material/tests/mock_material.h"
+#include "domain/finite_element/tests/finite_element_mock.hpp"
+#include "material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "quadrature/utility/quadrature_utilities.h"
@@ -46,7 +46,7 @@ class FormulationAngularSelfAdjointAngularFluxTest : public ::testing::Test ,
   typename dealii::DoFHandler<dim>::active_cell_iterator cell_ptr_;
   using FiniteElementType = typename domain::finite_element::FiniteElementMock<dim>;
   using QuadratureSetType = typename quadrature::QuadratureSetMock<dim>;
-  using MaterialType = btest::MockMaterial;
+  using MaterialType = material::MaterialMock;
 
   // Mock dependencies and supporting objects
   std::shared_ptr<FiniteElementType> mock_finite_element_ptr_;

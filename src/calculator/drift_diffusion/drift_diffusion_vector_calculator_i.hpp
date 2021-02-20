@@ -3,6 +3,7 @@
 
 #include <deal.II/base/tensor.h>
 
+//! Calculators for the drift-diffusion term used by the drift-diffusion formulation.
 namespace bart::calculator::drift_diffusion {
 
 /*! \brief Interface for classes that calculate the drift-diffusion vector.

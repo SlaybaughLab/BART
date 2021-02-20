@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <optional>
-#include "calculator/cell/total_aggregated_fission_source_i.h"
+#include "calculator/cell/total_aggregated_fission_source_i.hpp"
 #include "eigenvalue/k_effective/updater_via_fission_source_i.h"
 
 namespace bart {

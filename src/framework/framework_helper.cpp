@@ -5,7 +5,7 @@
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
 #include "instrumentation/converter/convert_to_string/convergence_to_string.h"
-#include "material/material_protobuf.h"
+#include "material/material_protobuf.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
@@ -76,11 +76,11 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     return_parameters.eigen_solver_type = eigen_solver_type;
   }
 
-  MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
-                             is_eigenvalue_solve,
-                             false,
-                             return_parameters.neutron_energy_groups,
-                             problem_parameters.NumberOfMaterials());
+  material::MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
+                                       is_eigenvalue_solve,
+                                       false,
+                                       return_parameters.neutron_energy_groups,
+                                       problem_parameters.NumberOfMaterials());
 
   return_parameters.cross_sections_ = std::make_shared<data::CrossSections>(materials);
 

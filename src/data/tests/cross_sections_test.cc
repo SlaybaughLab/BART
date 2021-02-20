@@ -7,7 +7,7 @@
 #include <deal.II/lac/full_matrix.h>
 
 #include "../../problem/parameters_dealii_handler.h"
-#include "../../material/tests/mock_material.h"
+#include "../../material/tests/material_mock.hpp"
 #include "../../test_helpers/bart_test_helper.h"
 #include "../../test_helpers/gmock_wrapper.h"
 #include "../../test_helpers/test_helper_functions.h"
@@ -20,7 +20,7 @@ class CrossSectionsTest : public ::testing::Test {
  protected:
   using id_vector_map = std::unordered_map<int, std::vector<double>>;
   using id_matrix_map = std::unordered_map<int, dealii::FullMatrix<double>>;
-  ::testing::NiceMock<btest::MockMaterial> mock_material_properties;
+  ::testing::NiceMock<material::MaterialMock> mock_material_properties;
 };
 
 class CrossSectionsTestConstructor : public CrossSectionsTest {

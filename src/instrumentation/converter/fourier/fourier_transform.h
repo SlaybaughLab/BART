@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "calculator/fourier/fourier_transform_i.h"
+#include "calculator/fourier/fourier_transform_i.hpp"
 #include "instrumentation/converter/converter_i.h"
 #include "utility/has_dependencies.h"
 

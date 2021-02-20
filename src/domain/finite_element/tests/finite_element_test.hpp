@@ -1,7 +1,7 @@
 #ifndef BART_SRC_DOMAIN_TESTS_FINITE_ELEMENT_TEST_H_
 #define BART_SRC_DOMAIN_TESTS_FINITE_ELEMENT_TEST_H_
 
-#include "domain/finite_element/finite_element.h"
+#include "domain/finite_element/finite_element.hpp"
 
 #include "test_helpers/test_assertions.hpp"
 #include "test_helpers/gmock_wrapper.h"
