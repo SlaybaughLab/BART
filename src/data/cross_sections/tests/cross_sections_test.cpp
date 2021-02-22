@@ -12,6 +12,8 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 
+#include "data/cross_sections/tests/cross_sections_mock.hpp"
+
 namespace {
 
 using namespace bart;
