@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_H_
 #define BART_SRC_FORMULATION_ANGULAR_SELF_ADJOINT_ANGULAR_FLUX_H_
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/cross_sections.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "quadrature/quadrature_set_i.h"
@@ -20,7 +20,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   SelfAdjointAngularFlux(
       std::shared_ptr<domain::finite_element::FiniteElementI<dim>>,
-      std::shared_ptr<data::CrossSections>,
+      std::shared_ptr<data::cross_sections::CrossSections>,
       std::shared_ptr<quadrature::QuadratureSetI<dim>>);
 
   void Initialize(const domain::CellPtr<dim>&) override;
@@ -84,7 +84,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   // Dependency getters
   domain::finite_element::FiniteElementI<dim>* finite_element_ptr() const {
     return finite_element_ptr_.get(); }
-  data::CrossSections* cross_sections_ptr() const {
+  data::cross_sections::CrossSections* cross_sections_ptr() const {
     return cross_sections_ptr_.get(); }
   quadrature::QuadratureSetI<dim>* quadrature_set_ptr() const {
     return quadrature_set_ptr_.get(); }
@@ -124,7 +124,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   // Dependencies
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr_;
-  std::shared_ptr<data::CrossSections> cross_sections_ptr_;
+  std::shared_ptr<data::cross_sections::CrossSections> cross_sections_ptr_;
   std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr_;
   // Geometric properties
   const int cell_degrees_of_freedom_ = 0; //!< Degrees of freedom per cell

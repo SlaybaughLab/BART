@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/cross_sections.hpp"
 #include "convergence/status.hpp"
 #include "convergence/iteration_completion_checker_i.hpp"
 #include "domain/definition_i.h"
@@ -45,7 +45,7 @@ class FrameworkBuilderI {
  public:
   // Classes built by member functions
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
-  using CrossSections = data::CrossSections;
+  using CrossSections = data::cross_sections::CrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
   using Domain = typename domain::DefinitionI<dim>;
@@ -103,12 +103,12 @@ class FrameworkBuilderI {
       const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> = 0;
   virtual auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<data::cross_sections::CrossSections>&,
       const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
   virtual auto BuildDriftDiffusionFormulation(
       const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
+      const std::shared_ptr<data::cross_sections::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,
@@ -159,7 +159,7 @@ class FrameworkBuilderI {
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;
   virtual auto BuildSAAFFormulation(const std::shared_ptr<FiniteElement>&,
-                                    const std::shared_ptr<data::CrossSections>&,
+                                    const std::shared_ptr<data::cross_sections::CrossSections>&,
                                     const std::shared_ptr<QuadratureSet>&,
                                     const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
   virtual auto BuildSingleGroupSolver(const int max_iterations,

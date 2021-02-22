@@ -6,11 +6,9 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "../material/material_i.hpp"
+#include "material/material_i.hpp"
 
-namespace bart {
-
-namespace data {
+namespace bart::data::cross_sections {
 
 struct CrossSections {
   typedef int MaterialID;
@@ -49,10 +47,8 @@ struct CrossSections {
   //! \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for fissile materials.
   const std::unordered_map<MaterialID, dealii::FullMatrix<double>> fiss_transfer_per_ster;
   
-}; 
-  
-} // namespace data
+};
 
-} // namespace bart 
+} // namespace bart::data::cross_sections
 
 #endif // BART_SRC_DATA_CROSS_SECTIONS_H_

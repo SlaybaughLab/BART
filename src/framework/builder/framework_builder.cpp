@@ -96,7 +96,7 @@ auto FrameworkBuilder<dim>::BuildAngularFluxIntegrator(const std::shared_ptr<Qua
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<FiniteElement>& finite_element_ptr,
-                                                      const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+                                                      const std::shared_ptr<data::cross_sections::CrossSections>& cross_sections_ptr,
                                                       const DiffusionFormulationImpl implementation)
 -> std::unique_ptr<DiffusionFormulation> {
   ReportBuildingComponant("Diffusion formulation");
@@ -115,7 +115,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildDriftDiffusionFormulation(
     const std::shared_ptr<AngularFluxIntegrator>& angular_flux_integrator_ptr,
     const std::shared_ptr<FiniteElement>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
+    const std::shared_ptr<data::cross_sections::CrossSections>& cross_sections_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
   auto drift_diffusion_vector_calculator_ptr = Shared(calculator::drift_diffusion::DriftDiffusionVectorCalculatorIFactory<dim>::get()
       .GetConstructor(calculator::drift_diffusion::DriftDiffusionVectorCalculatorName::kDefaultImplementation)());
   return formulation::scalar::DriftDiffusion<dim>::Factory::get()
@@ -607,7 +607,7 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildSAAFFormulation(
     const std::shared_ptr<FiniteElement>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<data::cross_sections::CrossSections>& cross_sections_ptr,
     const std::shared_ptr<QuadratureSet>& quadrature_set_ptr,
     const formulation::SAAFFormulationImpl implementation) -> std::unique_ptr<SAAFFormulation> {
   ReportBuildingComponant("Building SAAF Formulation");

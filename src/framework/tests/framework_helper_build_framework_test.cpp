@@ -146,7 +146,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
 
   // Default framework parameters (for tests)
   default_parameters_.neutron_energy_groups = test_helpers::RandomInt(1, 4);
-  default_parameters_.cross_sections_ = std::make_shared<data::CrossSections>(mock_material);
+  default_parameters_.cross_sections_ = std::make_shared<data::cross_sections::CrossSections>(mock_material);
   default_parameters_.material_mapping = "1 1";
   default_parameters_.domain_size = DomainSize(test_helpers::RandomVector(dim, 0, 100));
   default_parameters_.uniform_refinements = test_helpers::RandomInt(1, 4);

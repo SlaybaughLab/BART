@@ -9,7 +9,7 @@
 #include "formulation/updater/saaf_updater.h"
 
 // Dependencies and mocks
-#include "data/cross_sections.h"
+#include "data/cross_sections/cross_sections.hpp"
 #include "domain/tests/definition_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
@@ -41,7 +41,7 @@ class FormulationFactoryTests : public ::testing::Test {
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_ptr_;
   std::unique_ptr<SAAFFormulationType> saaf_formulation_ptr_;
   std::shared_ptr<MaterialType> material_ptr_;
-  std::shared_ptr<data::CrossSections> cross_section_ptr_;
+  std::shared_ptr<data::cross_sections::CrossSections> cross_section_ptr_;
   std::shared_ptr<QuadratureSetType> quadrature_ptr_;
   std::unique_ptr<StamperType> stamper_ptr_;
 
@@ -56,7 +56,7 @@ void FormulationFactoryTests<DimensionWrapper>::SetUp() {
       std::make_unique<DiffusionFormulationType>());
   saaf_formulation_ptr_ = std::move(std::make_unique<SAAFFormulationType>());
   material_ptr_ = std::make_shared<MaterialType>();
-  cross_section_ptr_ = std::make_shared<data::CrossSections>(*material_ptr_);
+  cross_section_ptr_ = std::make_shared<data::cross_sections::CrossSections>(*material_ptr_);
   quadrature_ptr_ = std::make_shared<QuadratureSetType>();
   stamper_ptr_ = std::move(std::make_unique<StamperType>());
 }

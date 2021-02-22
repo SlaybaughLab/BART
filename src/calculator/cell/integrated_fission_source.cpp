@@ -1,6 +1,6 @@
 #include "calculator/cell/integrated_fission_source.hpp"
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/cross_sections.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 
@@ -19,7 +19,7 @@ auto GetCellQuadraturePoints(domain::finite_element::FiniteElementI<dim>* finite
 
 template<int dim>
 IntegratedFissionSource<dim>::IntegratedFissionSource(std::shared_ptr<FiniteElement> finite_element_ptr,
-                                                      std::shared_ptr<data::CrossSections> cross_sections_ptr)
+                                                      std::shared_ptr<data::cross_sections::CrossSections> cross_sections_ptr)
     : finite_element_ptr_(finite_element_ptr),
       cross_sections_ptr_(cross_sections_ptr),
       cell_quadrature_points_(GetCellQuadraturePoints(finite_element_ptr.get())) {

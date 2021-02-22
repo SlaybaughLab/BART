@@ -73,14 +73,14 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
 
   [[nodiscard]] auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<data::cross_sections::CrossSections>&,
       const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault)
   -> std::unique_ptr<DiffusionFormulation> override;
 
   [[nodiscard]] auto BuildDriftDiffusionFormulation(
       const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> override;
+      const std::shared_ptr<data::cross_sections::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> override;
 
   [[nodiscard]] auto BuildDomain(const FrameworkParameters::DomainSize,
                                  const FrameworkParameters::NumberOfCells,
@@ -141,7 +141,7 @@ class FrameworkBuilder : public data_port::StatusDataPort, public FrameworkBuild
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> override;
   [[nodiscard]] auto BuildSAAFFormulation(
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<data::cross_sections::CrossSections>&,
       const std::shared_ptr<QuadratureSet>&,
       const formulation::SAAFFormulationImpl implementation = formulation::SAAFFormulationImpl::kDefault)
   -> std::unique_ptr<SAAFFormulation> override;

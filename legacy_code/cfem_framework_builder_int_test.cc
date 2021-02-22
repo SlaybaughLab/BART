@@ -9,7 +9,7 @@
 
 #include "convergence/reporter/mpi_noisy.h"
 #include "formulation/cfem_diffusion_stamper.h"
-#include "data/cross_sections.h"
+#include "data/cross_sections/cross_sections.hpp"
 #include "material/tests/mock_material.h"
 #include "problem/tests/parameters_mock.h"
 #include "domain/definition.h"

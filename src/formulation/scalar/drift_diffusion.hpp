@@ -7,7 +7,7 @@
 
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "calculator/drift_diffusion/drift_diffusion_vector_calculator_i.hpp"
-#include "data/cross_sections.h"
+#include "data/cross_sections/cross_sections.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "utility/has_dependencies.h"
 
@@ -19,7 +19,7 @@ template <int dim>
 class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependencies {
  public:
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
-  using CrossSections = data::CrossSections;
+  using CrossSections = data::cross_sections::CrossSections;
   using DriftDiffusionCalculator = typename calculator::drift_diffusion::DriftDiffusionVectorCalculatorI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using typename DriftDiffusionI<dim>::Matrix;

@@ -8,7 +8,7 @@ namespace scalar {
 
 template<int dim>
 Diffusion<dim>::Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-                          std::shared_ptr<data::CrossSections> cross_sections)
+                          std::shared_ptr<data::cross_sections::CrossSections> cross_sections)
     : finite_element_(finite_element),
       cross_sections_(cross_sections),
       cell_degrees_of_freedom_(finite_element->dofs_per_cell()),

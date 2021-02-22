@@ -1,8 +1,7 @@
-#include "cross_sections.h"
+#include "cross_sections.hpp"
 
-namespace bart {
+namespace bart::data::cross_sections {
 
-namespace data {
 
 CrossSections::CrossSections(material::MaterialI &materials)
     : diffusion_coef(materials.GetDiffusionCoef()),
@@ -18,6 +17,4 @@ CrossSections::CrossSections(material::MaterialI &materials)
       fiss_transfer_per_ster(materials.GetChiNuSigFPerSter())
 {}
 
-} // namespace data
-
-} // namespace bart 
+} // namespace bart::data::cross_sections
