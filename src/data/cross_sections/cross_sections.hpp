@@ -1,5 +1,7 @@
-#ifndef BART_SRC_DATA_CROSS_SECTIONS_H_
-#define BART_SRC_DATA_CROSS_SECTIONS_H_
+#ifndef BART_SRC_DATA_CROSS_SECTIONS_CROSS_SECTIONS_HPP_
+#define BART_SRC_DATA_CROSS_SECTIONS_CROSS_SECTIONS_HPP_
+
+#include "cross_sections_i.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -10,45 +12,43 @@
 
 namespace bart::data::cross_sections {
 
-struct CrossSections {
-  typedef int MaterialID;
+/*! \brief Cross-sections generated from a material.
+ *
+ * This is the default implementation of cross-sections that parses a MaterialI object for data.
+ *
+ */
+class CrossSections: public CrossSectionsI {
+ public:
+  using CrossSectionsI::DealiiMatrix;
+  using CrossSectionsI::MaterialIDMappedTo;
   
   CrossSections(material::MaterialI &materials);
 
-  //! Diffusion coefficient of all groups for all materials.
-  const std::unordered_map<MaterialID, std::vector<double>> diffusion_coef;
-
-  //! \f$\sigma_\mathrm{t}\f$ of all groups for all materials.
-  const std::unordered_map<MaterialID, std::vector<double>> sigma_t;
-
-  //! \f$1/\sigma_\mathrm{t}\f$ of all groups for all materials.
-  const std::unordered_map<MaterialID, std::vector<double>> inverse_sigma_t;
-
-  //! Scattering matrices for all materials (i.e. \f$\sigma_\mathrm{s,g'\to g}\f$).
-  const std::unordered_map<MaterialID, dealii::FullMatrix<double>> sigma_s;
-
-  //! \f$\sigma_\mathrm{s,g'\to g}/(4\pi)\f$
-  const std::unordered_map<MaterialID, dealii::FullMatrix<double>> sigma_s_per_ster;
-
-  //! \f$Q\f$ values of all groups for all materials.
-  const std::unordered_map<MaterialID, std::vector<double>> q;
-
-  //! \f$Q/(4\pi)\f$ values of all groups for all materials.
-  const std::unordered_map<MaterialID, std::vector<double>> q_per_ster;
-
-  const std::unordered_map<MaterialID, bool> is_material_fissile;
-
-  //! \f$\nu\sigma_\mathrm{f}\f$ of all groups for all fissile materials.
-  const std::unordered_map<MaterialID, std::vector<double>> nu_sigma_f;
-
-  //! \f$\chi\nu\sigma_\mathrm{f}\f$ of all incident and outgoing groups for fissile materials.
-  const std::unordered_map<MaterialID, dealii::FullMatrix<double>> fiss_transfer;
-
-  //! \f$\chi\nu\sigma_\mathrm{f}/(4\pi)\f$ for fissile materials.
-  const std::unordered_map<MaterialID, dealii::FullMatrix<double>> fiss_transfer_per_ster;
-  
+  auto diffusion_coef() const -> MaterialIDMappedTo<std::vector<double>> override { return diffusion_coef_; }
+  auto sigma_t() const -> MaterialIDMappedTo<std::vector<double>> override { return sigma_t_; }
+  auto inverse_sigma_t() const -> MaterialIDMappedTo<std::vector<double>> override { return inverse_sigma_t_; }
+  auto sigma_s() const -> MaterialIDMappedTo<DealiiMatrix> override { return sigma_s_; }
+  auto sigma_s_per_ster() const -> MaterialIDMappedTo<DealiiMatrix> override { return sigma_s_per_ster_; }
+  auto q() const -> MaterialIDMappedTo<std::vector<double>> override { return q_; }
+  auto q_per_ster() const -> MaterialIDMappedTo<std::vector<double>> override { return q_per_ster_; }
+  auto is_material_fissile() const -> MaterialIDMappedTo<bool> override { return is_material_fissile_; }
+  auto nu_sigma_f() const -> MaterialIDMappedTo<std::vector<double>> override { return nu_sigma_f_; }
+  auto fiss_transfer() const -> MaterialIDMappedTo<DealiiMatrix> override { return fiss_transfer_; }
+  auto fiss_transfer_per_ster() const -> MaterialIDMappedTo<DealiiMatrix> override { return fiss_transfer_per_ster_; }
+ private:
+  const MaterialIDMappedTo<std::vector<double>> diffusion_coef_;
+  const MaterialIDMappedTo<std::vector<double>> sigma_t_;
+  const MaterialIDMappedTo<std::vector<double>> inverse_sigma_t_;
+  const MaterialIDMappedTo<DealiiMatrix> sigma_s_;
+  const MaterialIDMappedTo<DealiiMatrix> sigma_s_per_ster_;
+  const MaterialIDMappedTo<std::vector<double>> q_;
+  const MaterialIDMappedTo<std::vector<double>> q_per_ster_;
+  const MaterialIDMappedTo<bool> is_material_fissile_;
+  const MaterialIDMappedTo<std::vector<double>> nu_sigma_f_;
+  const MaterialIDMappedTo<DealiiMatrix> fiss_transfer_;
+  const MaterialIDMappedTo<DealiiMatrix> fiss_transfer_per_ster_;
 };
 
 } // namespace bart::data::cross_sections
 
-#endif // BART_SRC_DATA_CROSS_SECTIONS_H_
+#endif // BART_SRC_DATA_CROSS_SECTIONS_CROSS_SECTIONS_HPP_
