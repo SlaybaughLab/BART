@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DATA_CROSS_SECTIONS_CROSS_SECTIONS_HPP_
-#define BART_SRC_DATA_CROSS_SECTIONS_CROSS_SECTIONS_HPP_
+#ifndef BART_SRC_DATA_CROSS_SECTIONS_MATERIAL_CROSS_SECTIONS_HPP_
+#define BART_SRC_DATA_CROSS_SECTIONS_MATERIAL_CROSS_SECTIONS_HPP_
 
 #include "cross_sections_i.hpp"
 
@@ -17,12 +17,12 @@ namespace bart::data::cross_sections {
  * This is the default implementation of cross-sections that parses a MaterialI object for data.
  *
  */
-class CrossSections: public CrossSectionsI {
+class MaterialCrossSections: public CrossSectionsI {
  public:
   using CrossSectionsI::DealiiMatrix;
   using CrossSectionsI::MaterialIDMappedTo;
   
-  CrossSections(material::MaterialI &materials);
+  MaterialCrossSections(material::MaterialI &materials);
 
   auto diffusion_coef() const -> MaterialIDMappedTo<std::vector<double>> override { return diffusion_coef_; }
   auto sigma_t() const -> MaterialIDMappedTo<std::vector<double>> override { return sigma_t_; }
@@ -51,4 +51,4 @@ class CrossSections: public CrossSectionsI {
 
 } // namespace bart::data::cross_sections
 
-#endif // BART_SRC_DATA_CROSS_SECTIONS_CROSS_SECTIONS_HPP_
+#endif // BART_SRC_DATA_CROSS_SECTIONS_MATERIAL_CROSS_SECTIONS_HPP_

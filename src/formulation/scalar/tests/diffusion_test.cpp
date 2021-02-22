@@ -9,7 +9,7 @@
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/tria.h>
 
-#include "data/cross_sections/cross_sections.hpp"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "material/tests/material_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
@@ -37,7 +37,7 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
         fe_(1) {};
   using Matrix = dealii::FullMatrix<double>;
   std::shared_ptr<domain::finite_element::FiniteElementMock<2>> fe_mock_ptr;
-  std::shared_ptr<data::cross_sections::CrossSections> cross_sections_ptr;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr;
 
   dealii::DoFHandler<2>::active_cell_iterator cell_ptr_;
   dealii::Triangulation<2> triangulation_;
@@ -95,7 +95,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   ON_CALL(mock_material, GetFissileIDMap()).WillByDefault(Return(fissile_id));
   ON_CALL(mock_material, GetChiNuSigF()).WillByDefault(Return(sigma_s));
 
-  cross_sections_ptr = std::make_shared<data::cross_sections::CrossSections>(mock_material);
+  cross_sections_ptr = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material);
 }
 
 // Set up a simple deal.ii problem so that the cell points to something, this

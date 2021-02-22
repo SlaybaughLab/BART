@@ -1,8 +1,8 @@
-#include "cross_sections.hpp"
+#include "material_cross_sections.hpp"
 
 namespace bart::data::cross_sections {
 
-CrossSections::CrossSections(material::MaterialI &materials)
+MaterialCrossSections::MaterialCrossSections(material::MaterialI &materials)
     : diffusion_coef_(materials.GetDiffusionCoef()),
       sigma_t_(materials.GetSigT()),
       inverse_sigma_t_(materials.GetInvSigT()),

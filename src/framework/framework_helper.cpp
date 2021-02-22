@@ -82,7 +82,7 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
                                        return_parameters.neutron_energy_groups,
                                        problem_parameters.NumberOfMaterials());
 
-  return_parameters.cross_sections_ = std::make_shared<data::cross_sections::CrossSections>(materials);
+  return_parameters.cross_sections_ = std::make_shared<data::cross_sections::MaterialCrossSections>(materials);
 
   return return_parameters;
 }

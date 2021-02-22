@@ -1,4 +1,4 @@
-#include "data/cross_sections/cross_sections.hpp"
+#include "data/cross_sections/material_cross_sections.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -56,7 +56,7 @@ void CrossSectionsTestConstructor::SetUp() {
 }
 
 TEST_F(CrossSectionsTestConstructor, CrossSectionsConstructor) {
-  bart::data::cross_sections::CrossSections test_xsections(mock_material_properties);
+  bart::data::cross_sections::MaterialCrossSections test_xsections(mock_material_properties);
   EXPECT_EQ(test_xsections.diffusion_coef(), diffusion_coef_map);
   EXPECT_EQ(test_xsections.sigma_t(), sigma_t_map);
   EXPECT_EQ(test_xsections.inverse_sigma_t(), sigma_t_inv_map);

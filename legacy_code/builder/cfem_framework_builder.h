@@ -6,7 +6,7 @@
 
 #include "convergence/reporter/mpi_i.h"
 #include "convergence/iteration_completion_checker_i.hpp"
-#include "data/cross_sections/cross_sections.hpp"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/definition_i.h"
 #include "domain/finite_element/finite_element_i.h"
 #include "problem/parameters_i.h"

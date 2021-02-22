@@ -10,7 +10,7 @@
 #include "calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp"
 #include "convergence/parameters/single_parameter_checker.hpp"
 #include "convergence/iteration_completion_checker.hpp"
-#include "data/cross_sections/cross_sections.hpp"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/definition.h"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
@@ -127,7 +127,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   // Various mock objects to be used
   std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_sptr_ { nullptr };
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
-  std::shared_ptr<data::cross_sections::CrossSections> cross_sections_sptr_;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_uptr_;
   std::shared_ptr<DomainType> domain_sptr_;
@@ -179,7 +179,7 @@ template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   angular_flux_integrator_sptr_ = std::make_shared<AngularFluxIntegrator>();
   boundary_conditions_updater_sptr_ = std::make_shared<BoundaryConditionsUpdaterType>();
-  cross_sections_sptr_ = std::make_shared<data::cross_sections::CrossSections>(mock_material);
+  cross_sections_sptr_ = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material);
   diffusion_formulation_uptr_ = std::move(std::make_unique<DiffusionFormulationType>());
   drift_diffusion_formulation_uptr_ = std::move(std::make_unique<DriftDiffusionFormulation>());
   domain_sptr_ = std::make_shared<DomainType>();
@@ -273,7 +273,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   auto finite_element_ptr =
       std::make_shared<domain::finite_element::FiniteElementMock<dim>>();
   auto cross_sections_ptr =
-      std::make_shared<data::cross_sections::CrossSections>(this->mock_material);
+      std::make_shared<data::cross_sections::MaterialCrossSections>(this->mock_material);
 
   EXPECT_CALL(*finite_element_ptr, dofs_per_cell());
   EXPECT_CALL(*finite_element_ptr, n_cell_quad_pts());
@@ -775,7 +775,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
   auto finite_element_ptr =
       std::make_shared<domain::finite_element::FiniteElementMock<dim>>();
   auto cross_sections_ptr =
-      std::make_shared<data::cross_sections::CrossSections>(this->mock_material);
+      std::make_shared<data::cross_sections::MaterialCrossSections>(this->mock_material);
   auto quadrature_set_ptr =
       std::make_shared<quadrature::QuadratureSetMock<dim>>();
 

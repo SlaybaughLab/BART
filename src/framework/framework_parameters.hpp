@@ -3,7 +3,7 @@
 
 #include "eigenvalue/k_effective/factory.hpp"
 #include "problem/parameter_types.hpp"
-#include "data/cross_sections/cross_sections.hpp"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "utility/named_type.h"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "quadrature/quadrature_set_i.h"
@@ -62,7 +62,7 @@ struct FrameworkParameters {
 
   // Optional shared framework parts
   template <typename Part> using OptionalSharedPart = std::optional<std::shared_ptr<Part>>;
-  OptionalSharedPart<data::cross_sections::CrossSections> cross_sections_ { std::nullopt };
+  OptionalSharedPart<data::cross_sections::MaterialCrossSections> cross_sections_ {std::nullopt };
 
   // Acceleration methods
   bool use_nda_{ false };
