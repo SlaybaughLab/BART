@@ -11,8 +11,8 @@ namespace bart::data::material {
 
 //! Defines the interface for Material classes providing material properties
 /*!
-  \author Joshua Rehak
-  \date 2018/10/01
+ * The material properties are used almost exclusively to get cross-sections, but other types of data can be stored
+ * if needed.
 */
 class MaterialI {
  public:

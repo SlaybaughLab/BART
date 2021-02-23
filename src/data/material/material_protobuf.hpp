@@ -20,7 +20,7 @@
 
 namespace bart::data::material {
 
-//! This class reads in and pre-processes material properties.
+//! This class reads in and pre-processes material properties from a protocol buffer file.
 /*!
  \author Weixiong Zheng
  \date 2017/04~06
