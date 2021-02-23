@@ -3,6 +3,7 @@
 #include <deal.II/lac/petsc_full_matrix.h>
 
 #include "test_helpers/gmock_wrapper.h"
+#include "solver/eigenvalue/tests/spectral_radius_mock.hpp"
 
 namespace  {
 
