@@ -7,7 +7,7 @@ namespace bart::solver::eigenvalue {
 
 class KrylovSchurEigenvalueSolver : public SpectralRadiusI {
  public:
-  auto SpectralRadius(const MatrixBase *base) -> std::pair<double, std::vector<double>> override;
+  auto SpectralRadius(const MatrixBase& base) -> std::pair<double, std::vector<double>> override;
 };
 
 } // namespace bart::solver::eigenvalue

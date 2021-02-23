@@ -32,7 +32,7 @@ TEST_F(SolverEigenvalueKrylovSchurEigenvalueSolverTest, Dummy) {
   std::vector<double> expected_eigenvector{ 2.0/3.0, 1.0/3.0, 2.0/3.0};
   const double expected_spectral_radius{ 8 };
   solver::eigenvalue::KrylovSchurEigenvalueSolver solver;
-  const auto [spectral_radius, eigenvector] = solver.SpectralRadius(&test_matrix_);
+  const auto [spectral_radius, eigenvector] = solver.SpectralRadius(test_matrix_);
   EXPECT_NEAR(spectral_radius, expected_spectral_radius, 1e-6);
   ASSERT_EQ(eigenvector.size(), 3);
   for (int i = 0; i < 3; ++i) {

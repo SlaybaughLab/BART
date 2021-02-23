@@ -13,7 +13,7 @@ class SpectralRadiusI {
    *
    * @return pair containing the spectral radius and eigenvector.
    */
-  virtual auto SpectralRadius(const MatrixBase*) -> std::pair<double, std::vector<double>> = 0;
+  virtual auto SpectralRadius(const MatrixBase&) -> std::pair<double, std::vector<double>> = 0;
 };
 
 } // namespace bart::solver::eigenvalue

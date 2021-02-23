@@ -6,16 +6,16 @@
 
 namespace bart::solver::eigenvalue {
 
-std::pair<double,
-          std::vector<double>> KrylovSchurEigenvalueSolver::SpectralRadius(const SpectralRadiusI::MatrixBase *base) {
+auto KrylovSchurEigenvalueSolver::SpectralRadius(const SpectralRadiusI::MatrixBase& base)
+-> std::pair<double, std::vector<double>> {
   dealii::SolverControl solver_control(1000, 1e-6);
   dealii::SLEPcWrappers::SolverKrylovSchur solver(solver_control);
 
   std::vector<double> eigenvalue(1);
   std::vector<dealii::PETScWrappers::MPI::Vector> eigenvector(1);
-  eigenvector.at(0).reinit(MPI_COMM_WORLD, base->m(), base->m());
+  eigenvector.at(0).reinit(MPI_COMM_WORLD, base.m(), base.m());
 
-  solver.solve(*base, eigenvalue, eigenvector);
+  solver.solve(base, eigenvalue, eigenvector);
 
   std::vector<double> return_eigenvector(eigenvector.at(0).size());
   for (int i = 0; i < return_eigenvector.size(); ++i)

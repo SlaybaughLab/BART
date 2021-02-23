@@ -10,7 +10,7 @@ namespace bart::solver::eigenvalue {
 class SpectralRadiusMock : public SpectralRadiusI {
  public:
   using SpectralRadiusI::MatrixBase;
-  MOCK_METHOD((std::pair<double, std::vector<double>>), SpectralRadius, (const MatrixBase *base), (override));
+  MOCK_METHOD((std::pair<double, std::vector<double>>), SpectralRadius, (const MatrixBase&), (override));
 };
 
 
