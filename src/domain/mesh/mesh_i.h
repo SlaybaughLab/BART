@@ -8,7 +8,7 @@
 namespace bart {
 
 namespace domain {
-
+//! Classes providing a spatial mesh
 namespace mesh {
 
 /* \brief Provides a dealii Mesh */

@@ -5,6 +5,7 @@
 
 #include "convergence/convergence_checker.hpp"
 
+//! Convergence checkers for scalar problem parameters
 namespace bart::convergence::parameters {
 
 /*! \brief Checks for convergence of any parameter expressed as a double.

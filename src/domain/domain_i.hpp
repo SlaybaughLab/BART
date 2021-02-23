@@ -13,6 +13,7 @@
 #include "system/system_types.h"
 #include "utility/has_description.h"
 
+//! Components of the finite-element domain
 namespace bart::domain {
 
 /*! \brief Defines a domain that couples a cartesian mesh with a finite element basis.

@@ -8,6 +8,7 @@
 #include "system/system_types.h"
 #include "utility/has_description.h"
 
+//! Classes that provide a finite-element basis
 namespace bart::domain::finite_element {
 
 /*! \brief Interface for a finite element object based on the dealii library.

@@ -5,6 +5,7 @@
 
 #include <deal.II/lac/vector.h>
 
+//! Convergence checkers for problem vector moments
 namespace bart::convergence::moments {
 
 /*! \brief Checks for convergence between flux moments using the percentage
