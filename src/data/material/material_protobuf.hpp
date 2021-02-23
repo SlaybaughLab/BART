@@ -18,7 +18,7 @@
 #include "data/material/material_i.hpp"
 #include "utility/utility_functions.hpp"
 
-namespace bart::material {
+namespace bart::data::material {
 
 //! This class reads in and pre-processes material properties.
 /*!
@@ -222,6 +222,6 @@ class MaterialProtobuf : public MaterialI {
       << arg2 << ". It must be normalized to 1.");
 };
 
-} // namespace bart::material
+} // namespace bart::data::material
 
 #endif // BART_SRC_MATERIAL_MATERIAL_PROTOBUF_HPP_

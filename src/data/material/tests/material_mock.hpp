@@ -9,7 +9,7 @@
 #include "data/material/material_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
-namespace bart::material {
+namespace bart::data::material {
 
 class MaterialMock : public MaterialI {
  public:
@@ -30,6 +30,6 @@ class MaterialMock : public MaterialI {
   MOCK_METHOD(int_matrix_map, GetChiNuSigFPerSter, (), (const, override));
 };
 
-} // namespace bart::material
+} // namespace bart::data::material
 
 #endif //BART_SRC_MATERIAL_TESTS_MOCK_MATERIAL_PROPERTIES_H_

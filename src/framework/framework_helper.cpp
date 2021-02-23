@@ -76,7 +76,7 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     return_parameters.eigen_solver_type = eigen_solver_type;
   }
 
-  material::MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
+  data::material::MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
                                        is_eigenvalue_solve,
                                        false,
                                        return_parameters.neutron_energy_groups,

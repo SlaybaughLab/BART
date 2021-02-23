@@ -2,7 +2,7 @@
 
 namespace bart::data::cross_sections {
 
-MaterialCrossSections::MaterialCrossSections(material::MaterialI &materials)
+MaterialCrossSections::MaterialCrossSections(data::material::MaterialI &materials)
     : diffusion_coef_(materials.GetDiffusionCoef()),
       sigma_t_(materials.GetSigT()),
       inverse_sigma_t_(materials.GetInvSigT()),

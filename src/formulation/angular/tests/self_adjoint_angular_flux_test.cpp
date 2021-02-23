@@ -46,7 +46,7 @@ class FormulationAngularSelfAdjointAngularFluxTest : public ::testing::Test ,
   typename dealii::DoFHandler<dim>::active_cell_iterator cell_ptr_;
   using FiniteElementType = typename domain::finite_element::FiniteElementMock<dim>;
   using QuadratureSetType = typename quadrature::QuadratureSetMock<dim>;
-  using MaterialType = material::MaterialMock;
+  using MaterialType = data::material::MaterialMock;
 
   // Mock dependencies and supporting objects
   std::shared_ptr<FiniteElementType> mock_finite_element_ptr_;

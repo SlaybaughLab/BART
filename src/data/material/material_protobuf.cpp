@@ -7,7 +7,7 @@ constexpr double kFourPi = 4.*dealii::numbers::PI;//!< 4Pi
 constexpr double kInvFourPi = 1./kFourPi;//!< 1/(4*Pi)
 } // namespace
 
-namespace bart::material {
+namespace bart::data::material {
 
 MaterialProtobuf::MaterialProtobuf(const MaterialIDMappedTo<Material>& materials, bool is_eigen_problem,
                                    bool do_nda, int number_of_groups, int number_of_materials)
@@ -370,4 +370,4 @@ auto MaterialProtobuf::GetSigSPerSter() const -> MaterialIDMappedTo<DealiiMatrix
 auto MaterialProtobuf::GetChiNuSigF() const -> MaterialIDMappedTo<DealiiMatrix> { return chi_nusigf_; }
 auto MaterialProtobuf::GetChiNuSigFPerSter() const -> MaterialIDMappedTo<DealiiMatrix> { return chi_nusigf_per_ster_; }
 
-} // namespace bart::material
+} // namespace bart::data::material

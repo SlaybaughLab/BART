@@ -22,7 +22,7 @@ class CrossSectionsTest : public ::testing::Test {
  protected:
   using id_vector_map = std::unordered_map<int, std::vector<double>>;
   using id_matrix_map = std::unordered_map<int, dealii::FullMatrix<double>>;
-  ::testing::NiceMock<material::MaterialMock> mock_material_properties;
+  ::testing::NiceMock<data::material::MaterialMock> mock_material_properties;
 };
 
 class CrossSectionsTestConstructor : public CrossSectionsTest {

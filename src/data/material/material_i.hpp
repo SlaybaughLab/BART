@@ -6,8 +6,8 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-//! Material properties
-namespace bart::material {
+//! Material data
+namespace bart::data::material {
 
 //! Defines the interface for Material classes providing material properties
 /*!
@@ -60,6 +60,6 @@ class MaterialI {
   virtual auto GetChiNuSigFPerSter() const -> MaterialIDMappedTo<DealiiMatrix> = 0;
 };
 
-} // namespace bart::material
+} // namespace bart::data::material
 
 #endif // BART_SRC_MATERIAL_MATERIAL_I_HPP_

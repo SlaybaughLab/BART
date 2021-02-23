@@ -32,7 +32,7 @@ class DriftDiffusionFormulationTest : public ::testing::Test {
   using DriftDiffusionCalculator = NiceMock<typename calculator::drift_diffusion::DriftDiffusionVectorCalculatorMock<dim>>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusion<dim>;
   using FiniteElement = NiceMock<typename domain::finite_element::FiniteElementMock<dim>>;
-  using Material = NiceMock<material::MaterialMock>;
+  using Material = NiceMock<data::material::MaterialMock>;
 
   DriftDiffusionFormulationTest() : dof_handler_(triangulation_), finite_element_(1) {};
 

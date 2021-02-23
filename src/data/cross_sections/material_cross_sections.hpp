@@ -22,7 +22,7 @@ class MaterialCrossSections: public CrossSectionsI {
   using CrossSectionsI::DealiiMatrix;
   using CrossSectionsI::MaterialIDMappedTo;
   
-  MaterialCrossSections(material::MaterialI &materials);
+  MaterialCrossSections(data::material::MaterialI &materials);
 
   auto diffusion_coef() const -> MaterialIDMappedTo<std::vector<double>> override { return diffusion_coef_; }
   auto sigma_t() const -> MaterialIDMappedTo<std::vector<double>> override { return sigma_t_; }

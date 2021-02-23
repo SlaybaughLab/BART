@@ -29,7 +29,7 @@ class CalcCellIntegratedFissionSourceTest : public ::testing::Test,
   std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr_;
   std::shared_ptr<SphericalHarmonicType > spherical_harmonic_ptr_;
 
-  NiceMock<material::MaterialMock> mock_material_;
+  NiceMock<data::material::MaterialMock> mock_material_;
 
   // test parameters
   static constexpr int quadrature_points_{ 4 };
