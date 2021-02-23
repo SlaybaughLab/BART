@@ -5,7 +5,7 @@
 
 #include <deal.II/numerics/data_out.h>
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "results/output.h"
 
 namespace bart {

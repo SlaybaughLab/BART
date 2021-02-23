@@ -24,7 +24,7 @@
 #include "iteration/outer/tests/outer_iteration_mock.hpp"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.h"
 #include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"

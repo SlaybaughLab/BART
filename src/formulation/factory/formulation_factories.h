@@ -18,7 +18,7 @@
 
 // Dependencies
 #include "data/cross_sections/material_cross_sections.hpp"
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "quadrature/quadrature_set_i.h"
 

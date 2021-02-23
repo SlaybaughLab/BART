@@ -10,7 +10,7 @@
 
 // Dependencies and mocks
 #include "data/cross_sections/material_cross_sections.hpp"
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.h"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"

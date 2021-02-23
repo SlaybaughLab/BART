@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DOMAIN_DEFINITION_H_
-#define BART_SRC_DOMAIN_DEFINITION_H_
+#ifndef BART_SRC_DOMAIN_DOMAIN_HPP_
+#define BART_SRC_DOMAIN_DOMAIN_HPP_
 
 #include <memory>
 #include <vector>
@@ -10,7 +10,7 @@
 #include <deal.II/lac/affine_constraints.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "domain/mesh/mesh_i.h"
 #include "problem/parameter_types.hpp"
@@ -149,4 +149,4 @@ class Definition : public DefinitionI<dim> {
 
 } // namespace bart
 
-#endif // BART_SRC_DOMAIN_DEFINITION_H_
+#endif // BART_SRC_DOMAIN_DOMAIN_HPP_

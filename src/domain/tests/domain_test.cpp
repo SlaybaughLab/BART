@@ -1,4 +1,4 @@
-#include "domain/definition.h"
+#include "domain/domain.hpp"
 
 #include <cmath>
 #include <functional>

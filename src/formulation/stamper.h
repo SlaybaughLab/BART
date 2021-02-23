@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "formulation/stamper_i.h"
 
 namespace bart {

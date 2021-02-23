@@ -1,7 +1,7 @@
 #ifndef BART_SRC_SYSTEM_SYSTEM_HELPER_I_HPP_
 #define BART_SRC_SYSTEM_SYSTEM_HELPER_I_HPP_
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "system/solution/mpi_group_angular_solution_i.h"
 #include "system/solution/solution_types.h"
 #include "system/system.hpp"

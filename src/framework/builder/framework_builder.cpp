@@ -22,7 +22,7 @@
 #include "convergence/parameters/single_parameter_checker.hpp"
 
 // Domain classes
-#include "domain/definition.h"
+#include "domain/domain.hpp"
 #include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/mesh/mesh_cartesian.h"
 

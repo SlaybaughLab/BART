@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DOMAIN_DEFINITION_I_H_
-#define BART_SRC_DOMAIN_DEFINITION_I_H_
+#ifndef BART_SRC_DOMAIN_DOMAIN_I_HPP_
+#define BART_SRC_DOMAIN_DOMAIN_I_HPP_
 
 #include <vector>
 
@@ -99,4 +99,4 @@ class DefinitionI : public utility::HasDescription {
 
 } // namespace bart
 
-#endif // BART_SRC_DOMAIN_DEFINITION_I_H_
+#endif // BART_SRC_DOMAIN_DOMAIN_I_HPP_

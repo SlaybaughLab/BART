@@ -1,12 +1,12 @@
-#ifndef BART_SRC_DOMAIN_TESTS_DEFINITION_MOCK_H_
-#define BART_SRC_DOMAIN_TESTS_DEFINITION_MOCK_H_
+#ifndef BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_H_
+#define BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_H_
 
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/vector.h>
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "problem/parameter_types.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
@@ -41,4 +41,4 @@ class DefinitionMock : public DefinitionI<dim> {
 
 } // namespace bart
 
-#endif // BART_SRC_DOMAIN_TESTS_DEFINITION_MOCK_H_
+#endif // BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_H_

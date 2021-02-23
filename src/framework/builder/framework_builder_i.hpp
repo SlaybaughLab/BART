@@ -7,7 +7,7 @@
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "convergence/status.hpp"
 #include "convergence/iteration_completion_checker_i.hpp"
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "eigenvalue/k_effective/k_effective_updater_i.hpp"
 #include "framework/framework_i.hpp"
