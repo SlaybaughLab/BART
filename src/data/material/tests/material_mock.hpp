@@ -6,7 +6,7 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "material/material_i.hpp"
+#include "data/material/material_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart::material {

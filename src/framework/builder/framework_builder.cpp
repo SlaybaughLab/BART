@@ -45,7 +45,7 @@
 #include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
 
 // Material classes
-#include "material/material_protobuf.hpp"
+#include "data/material/material_protobuf.hpp"
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"

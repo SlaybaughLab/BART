@@ -5,7 +5,7 @@
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
 #include "instrumentation/converter/convert_to_string/convergence_to_string.h"
-#include "material/material_protobuf.hpp"
+#include "data/material/material_protobuf.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"

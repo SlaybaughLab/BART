@@ -4,7 +4,7 @@
 
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "quadrature/utility/quadrature_utilities.h"

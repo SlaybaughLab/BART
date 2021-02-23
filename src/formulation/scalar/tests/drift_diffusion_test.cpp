@@ -9,7 +9,7 @@
 #include "calculator/drift_diffusion/tests/drift_diffusion_vector_calculator_mock.hpp"
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"
 #include "test_helpers/test_helper_functions.h"

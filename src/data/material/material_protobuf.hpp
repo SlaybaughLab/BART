@@ -15,7 +15,7 @@
 #include <google/protobuf/text_format.h>
 
 #include "material.pb.h"
-#include "material/material_i.hpp"
+#include "data/material/material_i.hpp"
 #include "utility/utility_functions.hpp"
 
 namespace bart::material {

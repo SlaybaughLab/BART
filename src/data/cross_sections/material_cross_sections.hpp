@@ -8,7 +8,7 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "material/material_i.hpp"
+#include "data/material/material_i.hpp"
 
 namespace bart::data::cross_sections {
 
