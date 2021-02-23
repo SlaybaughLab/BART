@@ -19,10 +19,10 @@ class SystemHelperI {
                                                        const int total_groups,
                                                        const int total_angles) const -> void = 0;
   virtual auto SetUpMPIAngularSolution(system::solution::MPIGroupAngularSolutionI &to_initialize,
-                                       const domain::DefinitionI<dim> &domain_definition,
+                                       const domain::DomainI<dim> &domain_definition,
                                        const double value_to_set) const -> void = 0;
   virtual auto SetUpSystemTerms(system::System& system_to_setup,
-                                const domain::DefinitionI<dim>& domain_definition) const -> void = 0;
+                                const domain::DomainI<dim>& domain_definition) const -> void = 0;
   virtual auto SetUpSystemMoments(system::System& system_to_setup, const std::size_t solution_size) const -> void = 0;
 };
 

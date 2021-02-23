@@ -75,7 +75,7 @@ std::unique_ptr<formulation::updater::SAAFUpdater<dim>> MakeSAAFUpdater(
 
 template <int dim>
 std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<dim>>& definition_ptr,
+    const std::shared_ptr<domain::DomainI<dim>>& definition_ptr,
     const StamperImpl implementation) {
   std::unique_ptr<formulation::StamperI<dim>> return_ptr = nullptr;
 
@@ -141,13 +141,13 @@ template std::unique_ptr<formulation::updater::SAAFUpdater<3>> MakeSAAFUpdater<3
     const std::shared_ptr<quadrature::QuadratureSetI<3>>&);
 
 template std::unique_ptr<formulation::StamperI<1>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<1>>&,
+    const std::shared_ptr<domain::DomainI<1>>&,
     const StamperImpl implementation);
 template std::unique_ptr<formulation::StamperI<2>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<2>>&,
+    const std::shared_ptr<domain::DomainI<2>>&,
     const StamperImpl implementation);
 template std::unique_ptr<formulation::StamperI<3>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<3>>&,
+    const std::shared_ptr<domain::DomainI<3>>&,
     const StamperImpl implementation);
 
 } // namespace factory

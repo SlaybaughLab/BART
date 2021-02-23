@@ -98,7 +98,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using DomainType = domain::DefinitionMock<dim>;
+  using DomainType = domain::DomainMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
   using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterMock;
   using FrameworkMock = framework::FrameworkMock;
@@ -441,7 +441,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainParametersTest) {
                                                               finite_element_ptr,
                                                               "1 1 2 2");
 
-  using ExpectedType = domain::Definition<this->dim>;
+  using ExpectedType = domain::Domain<this->dim>;
 
   ASSERT_THAT(test_domain_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
@@ -795,7 +795,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
   constexpr int dim = this->dim;
 
-  auto domain_ptr = std::make_shared<domain::DefinitionMock<dim>>();
+  auto domain_ptr = std::make_shared<domain::DomainMock<dim>>();
 
   using ExpectedType = formulation::Stamper<dim>;
   auto stamper_ptr = this->test_builder_ptr_->BuildStamper(domain_ptr);
@@ -817,7 +817,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSystem) {
   constexpr int dim = this->dim;
   using VariableLinearTerms = system::terms::VariableLinearTerms;
 
-  domain::DefinitionMock<dim> mock_domain;
+  domain::DomainMock<dim> mock_domain;
   const int total_groups = 2, total_angles = 3;
   const std::size_t solution_size = 10;
   const bool is_eigenvalue_problem = true, need_rhs_boundary_condition = false;

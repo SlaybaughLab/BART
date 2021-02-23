@@ -9,7 +9,7 @@ namespace results {
 
 template <int dim>
 OutputDealiiVtu<dim>::OutputDealiiVtu(
-    const std::shared_ptr<domain::DefinitionI<dim>> &domain_ptr)
+    const std::shared_ptr<domain::DomainI<dim>> &domain_ptr)
     : domain_ptr_(domain_ptr) {}
 
 template <int dim>

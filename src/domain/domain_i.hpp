@@ -36,20 +36,20 @@ namespace bart::domain {
  * \date 2019/02
  */
 template <int dim>
-class DefinitionI : public utility::HasDescription {
+class DomainI : public utility::HasDescription {
  public:
   using CellRange = std::vector<domain::CellPtr<dim>>;
 
-  virtual ~DefinitionI() = default;
+  virtual ~DomainI() = default;
 
   /*! Set up the DOF handler, to access sparsity patterns, etc */
-  virtual auto SetUpDOF() -> DefinitionI<dim>& = 0;
+  virtual auto SetUpDOF() -> DomainI<dim>& = 0;
 
   /*! \brief Fills triangulation with mesh defined in MeshI object
    * Creates mesh shape, sets up boundary ids and material ids. Requires that
    * the mesh has a material mapping setup.
    */
-  virtual auto SetUpMesh() -> DefinitionI<dim>& = 0;
+  virtual auto SetUpMesh() -> DomainI<dim>& = 0;
 
   /*! \brief Fills triangulation with mesh defined in MeshI object.
    *
@@ -58,7 +58,7 @@ class DefinitionI : public utility::HasDescription {
    *
    * @param global_refinements number of global refinements to perform
    */
-  virtual auto SetUpMesh(const int global_refinements) -> DefinitionI<dim>& = 0;
+  virtual auto SetUpMesh(const int global_refinements) -> DomainI<dim>& = 0;
 
   /*! Get a matrix suitible for a cell matrix.
    *

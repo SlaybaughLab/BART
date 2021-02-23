@@ -28,7 +28,7 @@ template <typename DimensionWrapper>
 class FormulationFactoryTests : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DefinitionType = NiceMock<domain::DefinitionMock<dim>>;
+  using DefinitionType = NiceMock<domain::DomainMock<dim>>;
   using FiniteElementType = NiceMock<domain::finite_element::FiniteElementMock<dim>>;
   using DiffusionFormulationType = NiceMock<formulation::scalar::DiffusionMock<dim>>;
   using SAAFFormulationType = NiceMock<formulation::angular::SelfAdjointAngularFluxMock<dim>>;

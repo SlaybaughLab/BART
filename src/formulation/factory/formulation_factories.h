@@ -54,7 +54,7 @@ std::unique_ptr<formulation::updater::SAAFUpdater<dim>> MakeSAAFUpdater(
 
 template <int dim>
 std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<dim>>&,
+    const std::shared_ptr<domain::DomainI<dim>>&,
     const StamperImpl implementation = StamperImpl::kDefault);
 
 

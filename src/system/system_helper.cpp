@@ -57,7 +57,7 @@ auto SystemHelper<dim>::SetUpEnergyGroupToAngularSolutionPtrMap(solution::Energy
 
 template<int dim>
 auto SystemHelper<dim>::SetUpMPIAngularSolution(solution::MPIGroupAngularSolutionI &to_initialize,
-                                                const domain::DefinitionI<dim> &domain_definition,
+                                                const domain::DomainI<dim> &domain_definition,
                                                 const double value_to_set) const -> void {
   auto& solution_map = to_initialize.solutions();
   AssertThrow(static_cast<int>(solution_map.size()) == to_initialize.total_angles(),
@@ -92,7 +92,7 @@ auto SystemHelper<dim>::SetUpSystemMoments(System &system_to_setup, std::size_t 
 
 template<int dim>
 auto SystemHelper<dim>::SetUpSystemTerms(System &system_to_setup,
-                                         const domain::DefinitionI<dim> &domain_definition) const -> void {
+                                         const domain::DomainI<dim> &domain_definition) const -> void {
   const auto variable_terms = system_to_setup.right_hand_side_ptr_->GetVariableTerms();
   const int total_groups = system_to_setup.total_groups;
   const int total_angles = system_to_setup.total_angles;

@@ -48,7 +48,7 @@ class FrameworkBuilderI {
   using CrossSections = data::cross_sections::MaterialCrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
-  using Domain = typename domain::DefinitionI<dim>;
+  using Domain = typename domain::DomainI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;

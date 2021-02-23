@@ -21,7 +21,7 @@ class TotalAggregatedFissionSourceTest : public ::testing::Test,
   static constexpr int dim = DimensionWrapper::value;
 
   using TestAggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
-  using DomainMock = domain::DefinitionMock<dim>;
+  using DomainMock = domain::DomainMock<dim>;
   using IntegratedFissionSourceMock = calculator::cell::IntegratedFissionSourceMock<dim>;
   using MomentsMock = system::moments::SphericalHarmonicMock;
 
@@ -53,7 +53,7 @@ TYPED_TEST_CASE(TotalAggregatedFissionSourceTest, bart::testing::AllDimensions);
 TYPED_TEST(TotalAggregatedFissionSourceTest, Constructor) {
   constexpr int dim = this->dim;
   using TestAggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
-  using DomainMock = domain::DefinitionMock<dim>;
+  using DomainMock = domain::DomainMock<dim>;
   using IntegratedFissionSourceMock = calculator::cell::IntegratedFissionSourceMock<dim>;
 
   EXPECT_NO_THROW({
@@ -66,7 +66,7 @@ TYPED_TEST(TotalAggregatedFissionSourceTest, Constructor) {
 TYPED_TEST(TotalAggregatedFissionSourceTest, ConstructorBadDependencies) {
   constexpr int dim = this->dim;
   using TestAggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
-  using DomainMock = domain::DefinitionMock<dim>;
+  using DomainMock = domain::DomainMock<dim>;
   using IntegratedFissionSourceMock = calculator::cell::IntegratedFissionSourceMock<dim>;
 
   EXPECT_ANY_THROW({

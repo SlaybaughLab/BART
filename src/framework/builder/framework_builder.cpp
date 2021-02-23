@@ -136,7 +136,7 @@ auto FrameworkBuilder<dim>::BuildDomain(FrameworkParameters::DomainSize domain_s
     ReportBuildSuccess(mesh_ptr->description());
 
     ReportBuildingComponant("Domain");
-    return_ptr = std::move(std::make_unique<domain::Definition<dim>>(std::move(mesh_ptr), finite_element_ptr));
+    return_ptr = std::move(std::make_unique<domain::Domain<dim>>(std::move(mesh_ptr), finite_element_ptr));
     ReportBuildSuccess(return_ptr->description());
   } catch (...) {
     ReportBuildError();

@@ -17,7 +17,7 @@ template <typename DimensionWrapper>
 class FormulationStamperTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DomainDefinitionType = domain::DefinitionMock<dim>;
+  using DomainDefinitionType = domain::DomainMock<dim>;
 
   std::shared_ptr<DomainDefinitionType> domain_ptr_;
 
@@ -59,7 +59,7 @@ class FormulationStamperTestDealiiDomain
       public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DomainDefinitionType = domain::DefinitionMock<dim>;
+  using DomainDefinitionType = domain::DomainMock<dim>;
   using StamperType = formulation::Stamper<dim>;
 
   // Test object

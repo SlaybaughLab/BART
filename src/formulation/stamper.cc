@@ -5,7 +5,7 @@ namespace bart {
 namespace formulation {
 
 template<int dim>
-Stamper<dim>::Stamper(std::shared_ptr<domain::DefinitionI<dim>> domain_ptr)
+Stamper<dim>::Stamper(std::shared_ptr<domain::DomainI<dim>> domain_ptr)
     : domain_ptr_(domain_ptr) {
   AssertThrow(domain_ptr_ != nullptr,
       dealii::ExcMessage("Error in constructor of formulation::Stamper, "

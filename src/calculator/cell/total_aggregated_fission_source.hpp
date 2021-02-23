@@ -12,7 +12,7 @@
 namespace bart {
 
 namespace domain {
-template <int dim> class DefinitionI;
+template <int dim> class DomainI;
 } // namespace domain
 
 namespace calculator::cell {
@@ -35,7 +35,7 @@ template <int dim>
 class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI, public utility::HasDescription,
                                      public utility::HasDependencies {
  public:
-  using Domain = domain::DefinitionI<dim>;
+  using Domain = domain::DomainI<dim>;
   using IntegratedFissionSource = IntegratedFissionSourceI<dim>;
   using SystemMoments = system::moments::SphericalHarmonicI;
 

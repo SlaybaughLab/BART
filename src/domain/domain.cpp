@@ -14,9 +14,9 @@ auto MeshSmoothing = typename dealii::Triangulation<dim>::MeshSmoothing(
 } // namespace
 
 template <int dim>
-Definition<dim>::Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
-                            std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-                            problem::DiscretizationType discretization)
+Domain<dim>::Domain(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
+                    std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+                    problem::DiscretizationType discretization)
     : mesh_(std::move(mesh)),                     
       finite_element_(finite_element),
       triangulation_(MPI_COMM_WORLD, MeshSmoothing<dim>),
@@ -35,7 +35,7 @@ Definition<dim>::Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
 }
 
 template <>
-Definition<1>::Definition(
+Domain<1>::Domain(
     std::unique_ptr<domain::mesh::MeshI<1>> mesh,
     std::shared_ptr<domain::finite_element::FiniteElementI<1>> finite_element,
     problem::DiscretizationType discretization)
@@ -56,7 +56,7 @@ Definition<1>::Definition(
 }
 
 template <int dim>
-Definition<dim>& Definition<dim>::SetUpDOF() {
+Domain<dim>& Domain<dim>::SetUpDOF() {
   // Setup dof Handler
   dof_handler_.distribute_dofs(*(finite_element_->finite_element()));
   // Populate dof IndexSets
@@ -92,7 +92,7 @@ Definition<dim>& Definition<dim>::SetUpDOF() {
 }
 
 template <>
-Definition<1>& Definition<1>::SetUpDOF() {
+Domain<1>& Domain<1>::SetUpDOF() {
   const auto n_mpi_processes{ dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) };
   const auto this_process{ dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) };
 
@@ -124,10 +124,10 @@ Definition<1>& Definition<1>::SetUpDOF() {
 }
 
 template <int dim>
-Definition<dim>& Definition<dim>::SetUpMesh() {return SetUpMesh(0); }
+Domain<dim>& Domain<dim>::SetUpMesh() {return SetUpMesh(0); }
 
 template<int dim>
-Definition<dim>& Definition<dim>::SetUpMesh(const int global_refinements) {
+Domain<dim>& Domain<dim>::SetUpMesh(const int global_refinements) {
   AssertThrow(mesh_->has_material_mapping(), dealii::ExcMessage("Mesh object must have initialized material mapping"));
   mesh_->FillTriangulation(triangulation_);
   mesh_->FillBoundaryID(triangulation_);
@@ -137,14 +137,14 @@ Definition<dim>& Definition<dim>::SetUpMesh(const int global_refinements) {
 }
 
 template<int dim>
-auto Definition<dim>::GetCellMatrix() const -> dealii::FullMatrix<double> {
+auto Domain<dim>::GetCellMatrix() const -> dealii::FullMatrix<double> {
   const int cell_dofs{ finite_element_->dofs_per_cell() };
   return dealii::FullMatrix<double>(cell_dofs, cell_dofs);
 //  dealii::FullMatrix<double> full_matrix(cell_dofs, cell_dofs);
 //  return full_matrix;
 }
 template<int dim>
-auto Definition<dim>::GetCellVector() const -> dealii::Vector<double> {
+auto Domain<dim>::GetCellVector() const -> dealii::Vector<double> {
   return dealii::Vector<double>(finite_element_->dofs_per_cell());
 //  int cell_dofs = finite_element_->dofs_per_cell();
 //  dealii::Vector<double> vector(cell_dofs);
@@ -152,28 +152,28 @@ auto Definition<dim>::GetCellVector() const -> dealii::Vector<double> {
 }
 
 template<int dim>
-std::shared_ptr<system::MPISparseMatrix> Definition<dim>::MakeSystemMatrix() const {
+std::shared_ptr<system::MPISparseMatrix> Domain<dim>::MakeSystemMatrix() const {
   auto system_matrix_ptr = std::make_shared<system::MPISparseMatrix>();
   system_matrix_ptr->reinit(locally_owned_dofs_, locally_owned_dofs_, dynamic_sparsity_pattern_, MPI_COMM_WORLD);
   return system_matrix_ptr;
 }
 
 template<int dim>
-std::shared_ptr<system::MPIVector> Definition<dim>::MakeSystemVector() const {
+std::shared_ptr<system::MPIVector> Domain<dim>::MakeSystemVector() const {
   auto system_vector_ptr = std::make_shared<system::MPIVector>();
   system_vector_ptr->reinit(locally_owned_dofs_, MPI_COMM_WORLD);
   return system_vector_ptr;
 }
 
 template <int dim>
-int Definition<dim>::total_degrees_of_freedom() const {
+int Domain<dim>::total_degrees_of_freedom() const {
   if (total_degrees_of_freedom_ == 0)
     total_degrees_of_freedom_ = dof_handler_.n_dofs();
   return total_degrees_of_freedom_;
 }
 
-template class Definition<1>;
-template class Definition<2>;
-template class Definition<3>;
+template class Domain<1>;
+template class Domain<2>;
+template class Domain<3>;
 
 } // namespace bart::domain

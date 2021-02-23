@@ -51,7 +51,7 @@ template struct TriangulationType<3>;
  * \date 2019/02
  */
 template <int dim>
-class Definition : public DefinitionI<dim>, public utility::HasDependencies {
+class Domain : public DomainI<dim>, public utility::HasDependencies {
  public:
   typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
   
@@ -59,14 +59,14 @@ class Definition : public DefinitionI<dim>, public utility::HasDependencies {
    * Takes ownership of injected dependencies (MeshI and FiniteElementI) and
    * sets the type of discretization (default: continuous FEM).
    */
-  Definition(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
-             std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-             problem::DiscretizationType discretization = problem::DiscretizationType::kContinuousFEM);
-  ~Definition() = default;
+  Domain(std::unique_ptr<domain::mesh::MeshI<dim>> mesh,
+         std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
+         problem::DiscretizationType discretization = problem::DiscretizationType::kContinuousFEM);
+  ~Domain() = default;
 
-  auto SetUpDOF() -> Definition<dim>& override;
-  auto SetUpMesh() -> Definition<dim>& override;
-  auto SetUpMesh(const int global_refinements) -> Definition<dim>& override;
+  auto SetUpDOF() -> Domain<dim>& override;
+  auto SetUpMesh() -> Domain<dim>& override;
+  auto SetUpMesh(const int global_refinements) -> Domain<dim>& override;
 
   auto GetCellMatrix() const -> dealii::FullMatrix<double> override;
   auto GetCellVector() const -> dealii::Vector<double> override;

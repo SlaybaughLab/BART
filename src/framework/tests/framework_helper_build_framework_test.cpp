@@ -56,7 +56,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   // Mock types
   using AngularFluxIntegratorMock = quadrature::calculators::AngularFluxIntegratorMock;
   using DiffusionFormulationMock = typename formulation::scalar::DiffusionMock<dim>;
-  using DomainMock = typename domain::DefinitionMock<dim>;
+  using DomainMock = typename domain::DomainMock<dim>;
   using DriftDiffusionFormulationMock = typename formulation::scalar::DriftDiffusionMock<dim>;
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
