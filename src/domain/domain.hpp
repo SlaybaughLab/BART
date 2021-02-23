@@ -15,10 +15,10 @@
 #include "domain/mesh/mesh_i.h"
 #include "problem/parameter_types.hpp"
 #include "system/system_types.h"
+#include "utility/has_dependencies.h"
 
-namespace bart {
+namespace bart::domain {
 
-namespace domain {
 
 /*! This struct provides the type of the triangulation to use. For 2D and 3D we
  * will use the built-in distributed triangulation, which handles distribution
@@ -26,16 +26,8 @@ namespace domain {
  * normal triangulation and use a separate function to distribute it. This is
  * a product of the way dealii is coded.
  */
-template <int dim>
-struct TriangulationType {
-  using type = dealii::parallel::distributed::Triangulation<dim>;
-};
-
-template <>
-struct TriangulationType<1> {
-  using type = dealii::Triangulation<1>;
-};
-
+template <int dim> struct TriangulationType { using type = dealii::parallel::distributed::Triangulation<dim>; };
+template <> struct TriangulationType<1> { using type = dealii::Triangulation<1>; };
 template struct TriangulationType<2>;
 template struct TriangulationType<3>;
 
@@ -59,7 +51,7 @@ template struct TriangulationType<3>;
  * \date 2019/02
  */
 template <int dim>
-class Definition : public DefinitionI<dim> {
+class Definition : public DefinitionI<dim>, public utility::HasDependencies {
  public:
   typedef std::vector<typename dealii::DoFHandler<dim>::active_cell_iterator> CellRange;
   
@@ -72,40 +64,21 @@ class Definition : public DefinitionI<dim> {
              problem::DiscretizationType discretization = problem::DiscretizationType::kContinuousFEM);
   ~Definition() = default;
 
-  Definition<dim>& SetUpDOF() override;
-  Definition<dim>& SetUpMesh() override;
-  Definition<dim>& SetUpMesh(const int global_refinements) override;
+  auto SetUpDOF() -> Definition<dim>& override;
+  auto SetUpMesh() -> Definition<dim>& override;
+  auto SetUpMesh(const int global_refinements) -> Definition<dim>& override;
 
-  dealii::FullMatrix<double> GetCellMatrix() const override {
-    int cell_dofs = finite_element_->dofs_per_cell();
-    dealii::FullMatrix<double> full_matrix(cell_dofs, cell_dofs);
-    return full_matrix;
-  }
+  auto GetCellMatrix() const -> dealii::FullMatrix<double> override;
+  auto GetCellVector() const -> dealii::Vector<double> override;
+  auto MakeSystemMatrix() const -> std::shared_ptr<system::MPISparseMatrix> override;
+  auto MakeSystemVector() const -> std::shared_ptr<system::MPIVector> override;
 
-  dealii::Vector<double> GetCellVector() const override {
-    int cell_dofs = finite_element_->dofs_per_cell();
-    dealii::Vector<double> vector(cell_dofs);
-    return vector;
-  }
+  auto Cells() const -> CellRange override { return local_cells_; };
+  auto discretization_type() const -> problem::DiscretizationType override { return discretization_type_; }
+  auto total_degrees_of_freedom() const -> int override ;
+  auto dof_handler() const -> const dealii::DoFHandler<dim>& override { return dof_handler_; }
+  auto locally_owned_dofs() const -> dealii::IndexSet override { return locally_owned_dofs_; }
 
-  std::shared_ptr<system::MPISparseMatrix> MakeSystemMatrix() const override;
-
-  std::shared_ptr<system::MPIVector> MakeSystemVector() const override;
-
-  CellRange Cells() const override { return local_cells_; };
-
-  problem::DiscretizationType discretization_type() const override {
-    return discretization_type_; }
-
-  int total_degrees_of_freedom() const override ;
-
-  dealii::IndexSet locally_owned_dofs() const override {
-    return locally_owned_dofs_; }
-
-
-  const dealii::DoFHandler<dim>& dof_handler() const override {
-    return dof_handler_; }
-  
  private:
 
   //! Internal owned mesh object.
@@ -121,7 +94,7 @@ class Definition : public DefinitionI<dim> {
   dealii::DoFHandler<dim> dof_handler_;
 
   //! Total degrees of freedom
-  mutable int total_degrees_of_freedom_ = 0;
+  mutable int total_degrees_of_freedom_{ 0 };
 
   //! Index of locally owned dofs owned by the current processor
   dealii::IndexSet locally_owned_dofs_;
@@ -145,8 +118,6 @@ class Definition : public DefinitionI<dim> {
   const problem::DiscretizationType discretization_type_;
 };
 
-} // namespace domain
-
-} // namespace bart
+} // namespace bart::domain
 
 #endif // BART_SRC_DOMAIN_DOMAIN_HPP_

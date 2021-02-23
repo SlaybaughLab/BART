@@ -13,9 +13,7 @@
 #include "system/system_types.h"
 #include "utility/has_description.h"
 
-namespace bart {
-
-namespace domain {
+namespace bart::domain {
 
 /*! \brief Defines a domain that couples a cartesian mesh with a finite element basis.
  *
@@ -45,13 +43,13 @@ class DefinitionI : public utility::HasDescription {
   virtual ~DefinitionI() = default;
 
   /*! Set up the DOF handler, to access sparsity patterns, etc */
-  virtual DefinitionI<dim>& SetUpDOF() = 0;
+  virtual auto SetUpDOF() -> DefinitionI<dim>& = 0;
 
   /*! \brief Fills triangulation with mesh defined in MeshI object
    * Creates mesh shape, sets up boundary ids and material ids. Requires that
    * the mesh has a material mapping setup.
    */
-  virtual DefinitionI<dim>& SetUpMesh() = 0;
+  virtual auto SetUpMesh() -> DefinitionI<dim>& = 0;
 
   /*! \brief Fills triangulation with mesh defined in MeshI object.
    *
@@ -60,43 +58,41 @@ class DefinitionI : public utility::HasDescription {
    *
    * @param global_refinements number of global refinements to perform
    */
-  virtual DefinitionI<dim>& SetUpMesh(const int global_refinements) = 0;
+  virtual auto SetUpMesh(const int global_refinements) -> DefinitionI<dim>& = 0;
 
   /*! Get a matrix suitible for a cell matrix.
    *
    * \return a dealii FullMatrix<double> of appropriate size.
    */
-  virtual dealii::FullMatrix<double> GetCellMatrix() const = 0;
+  virtual auto GetCellMatrix() const -> dealii::FullMatrix<double> = 0;
   /*! Get a matrix suitible for a cell rhs.
    *
    * \return a dealii Vector<double> of appropriate size.
    */
-  virtual dealii::Vector<double> GetCellVector() const = 0;
+  virtual auto GetCellVector() const -> dealii::Vector<double> = 0;
 
   /*! Get an MPI matrix suitable for the system */
-  virtual std::shared_ptr<bart::system::MPISparseMatrix> MakeSystemMatrix() const = 0;
+  virtual auto MakeSystemMatrix() const -> std::shared_ptr<bart::system::MPISparseMatrix> = 0;
 
   /*! Get an MPI vector suitable for the system */
-  virtual std::shared_ptr<bart::system::MPIVector> MakeSystemVector() const = 0;
+  virtual auto MakeSystemVector() const -> std::shared_ptr<bart::system::MPIVector> = 0;
 
   /*! Get a range of all cells to allow iterating over them */
-  virtual CellRange Cells() const = 0;
+  virtual auto Cells() const -> CellRange = 0;
 
   /*! Get discretization type */
-  virtual problem::DiscretizationType discretization_type() const = 0;
+  virtual auto discretization_type() const -> problem::DiscretizationType = 0;
 
   /*! Get locally owned degrees of freedom */
-  virtual dealii::IndexSet locally_owned_dofs() const = 0;
+  virtual auto locally_owned_dofs() const -> dealii::IndexSet = 0;
 
   /*! Get internal DOF object */
-  virtual const dealii::DoFHandler<dim>& dof_handler() const = 0;
+  virtual auto dof_handler() const -> const dealii::DoFHandler<dim>& = 0;
 
   /*! Get total degrees of freedom */
-  virtual int total_degrees_of_freedom() const = 0;
+  virtual auto total_degrees_of_freedom() const -> int = 0;
 };
 
-} // namespace domain
-
-} // namespace bart
+} // namespace bart::domain
 
 #endif // BART_SRC_DOMAIN_DOMAIN_I_HPP_
