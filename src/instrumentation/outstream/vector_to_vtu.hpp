@@ -4,7 +4,7 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/numerics/data_out.h>
 
-#include "domain/definition_i.h"
+#include "domain/domain.hpp"
 #include "instrumentation/outstream/outstream_i.h"
 #include "instrumentation/outstream/factory.hpp"
 
@@ -14,7 +14,7 @@ template <int dim>
 class VectorToVTU : public OutstreamI<dealii::Vector<double>> {
  public:
   using Vector = dealii::Vector<double>;
-  using Definition = domain::DefinitionI<dim>;
+  using Definition = domain::DomainI<dim>;
   using Factory = OutstreamIFactory<Vector, std::shared_ptr<Definition>, std::string, std::string, std::string>;
   VectorToVTU(std::shared_ptr<Definition>, std::string data_name, std::string directory, std::string filename_base);
   auto Output(const Vector& to_output) -> VectorToVTU& override;

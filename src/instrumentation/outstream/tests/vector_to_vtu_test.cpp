@@ -1,6 +1,6 @@
 #include "instrumentation/outstream/vector_to_vtu.hpp"
 
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 
@@ -13,7 +13,7 @@ class InstrumentationOutstreamVectorToVtuTest : public ::testing::Test,
                                                 public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using Domain = domain::DefinitionMock<dim>;
+  using Domain = domain::DomainMock<dim>;
 
   std::shared_ptr<Domain> domain_ptr_{ nullptr };
   const std::string data_name{ "data_vector" };
