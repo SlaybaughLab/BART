@@ -7,19 +7,12 @@
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 
-namespace bart {
-
-namespace domain {
-
-namespace finite_element {
-
-namespace testing {
+namespace bart::domain::finite_element::testing {
 
 template <int dim>
 class FiniteElementBaseClassTest : public ::testing::Test {
  public:
-  FiniteElementBaseClassTest()
-      : dof_handler_(triangulation_) {}
+  FiniteElementBaseClassTest() : dof_handler_(triangulation_) {}
   virtual ~FiniteElementBaseClassTest() = default;
  protected:
   dealii::Triangulation<dim> triangulation_;
@@ -36,18 +29,14 @@ class FiniteElementBaseClassTest : public ::testing::Test {
 };
 
 template <int dim>
-void FiniteElementBaseClassTest<dim>::TestSetCell(
-    FiniteElement<dim> *test_fe) {
-
+void FiniteElementBaseClassTest<dim>::TestSetCell(FiniteElement<dim> *test_fe) {
   dof_handler_.distribute_dofs(*test_fe->finite_element());
 
   auto cell = dof_handler_.begin_active();
   auto cell_id = cell->id();
 
   EXPECT_NO_THROW(test_fe->SetCell(cell));
-
   test_fe->values()->reinit(cell);
-
   EXPECT_FALSE(test_fe->SetCell(cell)); // Shouldn't change anything
   EXPECT_EQ(cell_id, test_fe->values()->get_cell()->id()); // Cell didn't change
 
@@ -59,12 +48,10 @@ void FiniteElementBaseClassTest<dim>::TestSetCell(
   // Check changed
   EXPECT_NE(cell_id, test_fe->values()->get_cell()->id());
   EXPECT_EQ(next_cell_id, test_fe->values()->get_cell()->id());
-
 }
 
 template <int dim>
-void FiniteElementBaseClassTest<dim>::TestSetCellAndFace(
-    FiniteElement<dim> *test_fe) {
+void FiniteElementBaseClassTest<dim>::TestSetCellAndFace(FiniteElement<dim> *test_fe) {
   dof_handler_.distribute_dofs(*test_fe->finite_element());
 
   auto cell = dof_handler_.begin_active();
@@ -93,8 +80,7 @@ void FiniteElementBaseClassTest<dim>::TestSetCellAndFace(
 }
 
 template <int dim>
-void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
-    FiniteElement<dim> *test_fe) {
+void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(FiniteElement<dim> *test_fe) {
 
   dof_handler_.distribute_dofs(*test_fe->finite_element());
 
@@ -105,7 +91,7 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
   int n_dofs = dof_handler_.n_dofs();
 
   std::vector<double> moment_values(n_dofs, 0.5);
-  system::moments::MomentVector test_moment(moment_values.begin(), moment_values.end());
+  dealii::Vector<double> test_moment(moment_values.begin(), moment_values.end());
 
   std::vector<double> expected_vector(test_fe->n_cell_quad_pts(), 0.5);
 
@@ -115,8 +101,7 @@ void FiniteElementBaseClassTest<dim>::TestValueAtQuadrature(
 }
 
 template <int dim>
-void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(
-    FiniteElement<dim> *test_fe) {
+void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(FiniteElement<dim> *test_fe) {
 
   dof_handler_.distribute_dofs(*test_fe->finite_element());
 
@@ -133,13 +118,6 @@ void FiniteElementBaseClassTest<dim>::TestValueAtFaceQuadrature(
   EXPECT_TRUE(bart::test_helpers::AreEqual(expected_vector, result_vector));
 }
 
-
-} // namespace testing
-
-} // namespace finite_element
-
-} // namespace domain
-
-} // namespace bart
+} // namespace bart::domain::finite_element::testing
 
 #endif // BART_SRC_DOMAIN_TESTS_FINITE_ELEMENT_TEST_H_

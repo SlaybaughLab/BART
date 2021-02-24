@@ -12,6 +12,7 @@ namespace bart::domain::finite_element {
 template <int dim>
 class FiniteElementMock : public FiniteElementI<dim> {
  public:
+  using typename FiniteElementI<dim>::DealiiVector;
   MOCK_METHOD(int, polynomial_degree, (), (const, override));
   MOCK_METHOD(int, dofs_per_cell, (), (const, override));
   MOCK_METHOD(int, n_cell_quad_pts, (), (const, override));
@@ -24,8 +25,8 @@ class FiniteElementMock : public FiniteElementI<dim> {
   MOCK_METHOD(double, Jacobian, (const int), (const, override));
   MOCK_METHOD(double, FaceJacobian, (const int), (const, override));
   MOCK_METHOD((dealii::Tensor<1, dim>), FaceNormal, (), (const, override));
-  MOCK_METHOD(std::vector<double>, ValueAtQuadrature, (const system::moments::MomentVector&), (const, override));
-  MOCK_METHOD(std::vector<double>, ValueAtFaceQuadrature, (const dealii::Vector<double>&), (const, override));
+  MOCK_METHOD(std::vector<double>, ValueAtQuadrature, (const DealiiVector&), (const, override));
+  MOCK_METHOD(std::vector<double>, ValueAtFaceQuadrature, (const DealiiVector&), (const, override));
   MOCK_METHOD((dealii::FiniteElement<dim, dim>*), finite_element, (), (override));
   MOCK_METHOD(dealii::FEValues<dim>*, values, (), (override));
   MOCK_METHOD(dealii::FEFaceValues<dim>*, face_values, (), (override));

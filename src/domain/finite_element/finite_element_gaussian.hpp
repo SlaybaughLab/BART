@@ -19,10 +19,10 @@ template <int dim>
 class FiniteElementGaussian : public FiniteElement<dim> {
  public:
   using DiscretizationType = problem::DiscretizationType;
-  FiniteElementGaussian(DiscretizationType discretization,int polynomial_degree);
+  FiniteElementGaussian(DiscretizationType discretization, int polynomial_degree);
   ~FiniteElementGaussian() = default;
 
-  auto polynomial_degree() const -> int override { return polynomial_degree_; };
+  [[nodiscard]] auto polynomial_degree() const -> int override { return polynomial_degree_; };
  private:
   const int polynomial_degree_;
   using FiniteElement<dim>::finite_element_;
