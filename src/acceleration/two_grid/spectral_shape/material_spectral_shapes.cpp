@@ -1,8 +1,8 @@
-#include "calculator/two_grid/material_spectral_shapes.hpp"
+#include "material_spectral_shapes.hpp"
 
 #include <deal.II/lac/full_matrix.h>
 
-namespace bart::calculator::two_grid {
+namespace bart::acceleration::two_grid::spectral_shape {
 
 MaterialSpectralShapes::MaterialSpectralShapes(std::unique_ptr<SpectralShapeCalculator> spectral_shape_calculator_ptr)
     : spectral_shape_calculator_ptr_(std::move(spectral_shape_calculator_ptr)) {
@@ -27,4 +27,4 @@ void MaterialSpectralShapes::CalculateMaterialSpectralShapes(std::shared_ptr<Cro
   }
 }
 
-} // namespace bart::calculator::two_grid
+} // namespace bart::acceleration::two_grid::spectral_shape

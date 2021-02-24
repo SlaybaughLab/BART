@@ -3,7 +3,7 @@
 
 #include "data/cross_sections/cross_sections_i.hpp"
 
-namespace bart::calculator::two_grid {
+namespace bart::acceleration::two_grid::spectral_shape {
 
 /*! \brief Interface for classes that calculates and stores the spectral shape functions for all materials. */
 class MaterialSpectralShapesI {
@@ -14,6 +14,6 @@ class MaterialSpectralShapesI {
   virtual auto material_spectral_shapes() const -> std::unordered_map<int, std::vector<double>> = 0;
 };
 
-} // namespace bart::calculator::two_grid
+} // namespace bart::acceleration::two_grid::spectral_shape
 
 #endif //BART_SRC_CALCULATOR_TWO_GRID_MATERIAL_SPECTRAL_SHAPES_I_HPP_

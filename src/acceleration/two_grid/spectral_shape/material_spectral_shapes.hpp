@@ -3,15 +3,15 @@
 
 #include <memory>
 
-#include "calculator/two_grid/material_spectral_shapes_i.hpp"
-#include "calculator/two_grid/spectral_shape_i.hpp"
+#include "material_spectral_shapes_i.hpp"
+#include "spectral_shape_i.hpp"
 #include "utility/has_dependencies.h"
 
-namespace bart::calculator::two_grid {
+namespace bart::acceleration::two_grid::spectral_shape {
 
 class MaterialSpectralShapes : public MaterialSpectralShapesI, public utility::HasDependencies {
  public:
-  using SpectralShapeCalculator = calculator::two_grid::SpectralShapeI;
+  using SpectralShapeCalculator = acceleration::two_grid::spectral_shape::SpectralShapeI;
   explicit MaterialSpectralShapes(std::unique_ptr<SpectralShapeCalculator>);
 
   auto CalculateMaterialSpectralShapes(std::shared_ptr<CrossSections> ptr) -> void override;
@@ -25,6 +25,6 @@ class MaterialSpectralShapes : public MaterialSpectralShapesI, public utility::H
   std::unordered_map<int, std::vector<double>> material_spectral_shapes_;
 };
 
-} // namespace bart::calculator::two_grid
+} // namespace bart::acceleration::two_grid::spectral_shape
 
 #endif //BART_SRC_CALCULATOR_TWO_GRID_MATERIAL_SPECTRAL_SHAPES_HPP_

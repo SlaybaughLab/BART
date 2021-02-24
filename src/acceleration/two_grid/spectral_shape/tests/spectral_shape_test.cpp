@@ -1,4 +1,4 @@
-#include "calculator/two_grid/spectral_shape.hpp"
+#include "acceleration/two_grid/spectral_shape/spectral_shape.hpp"
 
 #include <deal.II/lac/petsc_full_matrix.h>
 #include <numeric>
@@ -18,7 +18,7 @@ class CalculatorTwoGridSpectralShapeTest : public ::testing::Test {
   using PETScFullMatrix = dealii::PETScWrappers::FullMatrix;
   using EigenvalueSolver = solver::eigenvalue::SpectralRadiusMock;
   using MatrixValues = std::vector<std::vector<double>>;
-  using TestClass = calculator::two_grid::SpectralShape;
+  using TestClass = acceleration::two_grid::spectral_shape::SpectralShape;
 
   // Test object
   std::unique_ptr<TestClass> test_class_{ nullptr };

@@ -1,12 +1,12 @@
-#include "calculator/two_grid/material_spectral_shapes.hpp"
+#include "acceleration/two_grid/spectral_shape/material_spectral_shapes.hpp"
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "calculator/two_grid/tests/spectral_shape_mock.hpp"
+#include "spectral_shape_mock.hpp"
 #include "data/cross_sections/tests/cross_sections_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
-#include "calculator/two_grid/tests/material_spectral_shapes_mock.hpp"
+#include "material_spectral_shapes_mock.hpp"
 
 namespace  {
 
@@ -17,8 +17,8 @@ class CalculatorTwoGridMaterialSpectralShapes : public ::testing::Test {
  public:
   using CrossSections = NiceMock<data::cross_sections::CrossSectionsMock>;
   using DealiiMatrix = dealii::FullMatrix<double>;
-  using SpectralShapeMock = NiceMock<calculator::two_grid::SpectralShapeMock>;
-  using MaterialSpectralShapes = calculator::two_grid::MaterialSpectralShapes;
+  using SpectralShapeMock = NiceMock<acceleration::two_grid::spectral_shape::SpectralShapeMock>;
+  using MaterialSpectralShapes = acceleration::two_grid::spectral_shape::MaterialSpectralShapes;
   // Test object
   std::unique_ptr<MaterialSpectralShapes> test_calculator_{ nullptr };
 

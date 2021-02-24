@@ -1,11 +1,11 @@
 #ifndef BART_SRC_CALCULATOR_TWO_GRID_SPECTRAL_SHAPE_HPP_
 #define BART_SRC_CALCULATOR_TWO_GRID_SPECTRAL_SHAPE_HPP_
 
-#include "calculator/two_grid/spectral_shape_i.hpp"
+#include "spectral_shape_i.hpp"
 #include "solver/eigenvalue/spectral_radius_i.hpp"
 #include "utility/has_dependencies.h"
 
-namespace bart::calculator::two_grid {
+namespace bart::acceleration::two_grid::spectral_shape {
 
 class SpectralShape : public SpectralShapeI, public utility::HasDependencies {
  public:
@@ -19,6 +19,6 @@ class SpectralShape : public SpectralShapeI, public utility::HasDependencies {
   std::unique_ptr<EigenvalueSolver> eigenvalue_solver_ptr_{ nullptr };
 };
 
-} // namespace bart::calculator::two_grid
+} // namespace bart::acceleration::two_grid::spectral_shape
 
 #endif //BART_SRC_CALCULATOR_TWO_GRID_SPECTRAL_SHAPE_HPP_

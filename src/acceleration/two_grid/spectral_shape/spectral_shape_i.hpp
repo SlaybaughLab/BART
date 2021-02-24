@@ -6,7 +6,7 @@
 #include "utility/has_description.h"
 
 //! Calculators for the two-grid acceleration method <a href="https://doi.org/10.13182/NSE115-253">Adams and Morel (2017)</a>
-namespace bart::calculator::two_grid {
+namespace bart::acceleration::two_grid::spectral_shape {
 
 /*! \brief Interface for classes that calculate the spectral shape function for the two-grid acceleration method.
  *
@@ -38,6 +38,6 @@ class SpectralShapeI : public utility::HasDescription {
                                       const DealiiMatrix& sigma_s) -> std::vector<double> = 0;
 };
 
-} // namespace bart::calculator::two_grid
+} // namespace bart::acceleration::two_grid::spectral_shape
 
 #endif //BART_SRC_CALCULATOR_TWO_GRID_SPECTRAL_SHAPE_I_HPP_

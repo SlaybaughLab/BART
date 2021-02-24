@@ -1,11 +1,11 @@
-#include "calculator/two_grid/spectral_shape.hpp"
+#include "spectral_shape.hpp"
 
 #include <algorithm>
 #include <numeric>
 
 #include <deal.II/lac/petsc_full_matrix.h>
 
-namespace bart::calculator::two_grid {
+namespace bart::acceleration::two_grid::spectral_shape {
 
 namespace  {
 using DealiiMatrix = dealii::FullMatrix<double>;
@@ -59,4 +59,4 @@ auto SpectralShape::CalculateSpectralShape(const DealiiMatrix& sigma_t,
   return eigenvector;
 }
 
-} // namespace bart::calculator::two_grid
+} // namespace bart::acceleration::two_grid::spectral_shape
