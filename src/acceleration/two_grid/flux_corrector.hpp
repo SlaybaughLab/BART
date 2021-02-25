@@ -5,6 +5,7 @@
 
 #include "acceleration/two_grid/flux_corrector_i.hpp"
 
+//! Calculators for the two-grid acceleration method <a href="https://doi.org/10.13182/NSE115-253">Adams and Morel (2017)</a>
 namespace bart::acceleration::two_grid {
 
 class FluxCorrector : public FluxCorrectorI {

@@ -5,7 +5,7 @@
 
 #include "utility/has_description.h"
 
-//! Calculators for the two-grid acceleration method <a href="https://doi.org/10.13182/NSE115-253">Adams and Morel (2017)</a>
+//! Classes for calculating the two-grid spectral shape function
 namespace bart::acceleration::two_grid::spectral_shape {
 
 /*! \brief Interface for classes that calculate the spectral shape function for the two-grid acceleration method.
