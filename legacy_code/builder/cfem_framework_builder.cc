@@ -11,7 +11,7 @@
 #include "convergence/reporter/mpi_noisy.h"
 #include "domain/domain.hpp"
 #include "domain/finite_element/finite_element_gaussian.h"
-#include "domain/mesh/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.hpp"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/cfem_diffusion_stamper.h"
 #include "formulation/scalar/diffusion.h"

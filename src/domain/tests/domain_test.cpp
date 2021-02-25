@@ -11,7 +11,7 @@
 #include <deal.II/grid/grid_generator.h>
 
 #include "test_helpers/gmock_wrapper.h"
-#include "domain/mesh/tests/mesh_mock.h"
+#include "domain/mesh/tests/mesh_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "problem/parameter_types.hpp"
 

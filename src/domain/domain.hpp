@@ -12,7 +12,7 @@
 
 #include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
-#include "domain/mesh/mesh_i.h"
+#include "domain/mesh/mesh_i.hpp"
 #include "problem/parameter_types.hpp"
 #include "system/system_types.h"
 #include "utility/has_dependencies.h"

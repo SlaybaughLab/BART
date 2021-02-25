@@ -24,7 +24,7 @@
 // Domain classes
 #include "domain/domain.hpp"
 #include "domain/finite_element/finite_element_gaussian.hpp"
-#include "domain/mesh/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.hpp"
 
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"

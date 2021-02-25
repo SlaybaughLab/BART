@@ -1,5 +1,5 @@
 #include "domain/mesh/factory.hpp"
-#include "domain/mesh/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
