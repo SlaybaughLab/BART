@@ -21,7 +21,7 @@ struct FrameworkParameters {
   using AngularFluxStorage = system::solution::EnergyGroupToAngularSolutionPtrMap;
   using AngularQuadratureOrder = quadrature::Order;
   using DomainSize = utility::NamedType<std::vector<double>, struct DomainSizeStruct>;
-  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
+  using K_EffectiveUpdaterName = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName;
   using NumberOfCells = utility::NamedType<std::vector<int>, struct NumberOfCellsStruct>;
   using PolynomialDegree = utility::NamedType<int, struct PolynomialDegreeStruct>;
   using SpatialDimension = utility::NamedType<int, struct SpatialDimensionStruct>;

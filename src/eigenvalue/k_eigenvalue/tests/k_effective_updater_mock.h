@@ -9,7 +9,7 @@ namespace bart {
 
 namespace eigenvalue {
 
-namespace k_effective {
+namespace k_eigenvalue {
 
 class K_EffectiveUpdaterMock : public K_EffectiveUpdaterI {
  public:
@@ -17,7 +17,7 @@ class K_EffectiveUpdaterMock : public K_EffectiveUpdaterI {
   MOCK_METHOD1(CalculateK_Effective, double(system::System& system));
 };
 
-} // namespace k_effective
+} // namespace k_eigenvalue
 
 } // namespace eigenvalue
 

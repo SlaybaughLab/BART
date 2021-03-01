@@ -104,7 +104,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using FrameworkMock = framework::FrameworkMock;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationMock;
-  using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterMock;
+  using KEffectiveUpdaterType = eigenvalue::k_eigenvalue::K_EffectiveUpdaterMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerType = convergence::IterationCompletionCheckerMock<bart::system::moments::MomentVector>;
   using ParameterConvergenceCheckerType = convergence::IterationCompletionCheckerMock<double>;
@@ -575,7 +575,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParameter
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
-  using ExpectedType = eigenvalue::k_effective::UpdaterViaFissionSource;
+  using ExpectedType = eigenvalue::k_eigenvalue::UpdaterViaFissionSource;
   EXPECT_CALL(*this->finite_element_sptr_, n_cell_quad_pts())
       .WillOnce(Return(10));
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater(
@@ -587,7 +587,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdaterRayleighQuotient) {
-  using ExpectedType = eigenvalue::k_effective::UpdaterViaRayleighQuotient;
+  using ExpectedType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
 
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater();
   EXPECT_THAT(k_effective_updater_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));

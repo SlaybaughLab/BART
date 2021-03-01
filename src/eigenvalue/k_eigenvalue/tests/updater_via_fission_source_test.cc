@@ -33,7 +33,7 @@ void EigKEffUpdaterViaFissionSourceTest::SetUp() {
 }
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, Constructor) {
-  eigenvalue::k_effective::UpdaterViaFissionSource
+  eigenvalue::k_eigenvalue::UpdaterViaFissionSource
       test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.0, 5.0);
 
   EXPECT_EQ(test_k_eff_updater.k_effective(), std::nullopt);
@@ -55,14 +55,14 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, BadConstructor) {
 
   for (auto const keff : bad_keff) {
     for (auto const fission_source : bad_fission_sources) {
-      EXPECT_ANY_THROW({eigenvalue::k_effective::UpdaterViaFissionSource
+      EXPECT_ANY_THROW({eigenvalue::k_eigenvalue::UpdaterViaFissionSource
             test_k_eff_updater(std::move(fission_source_mock_ptr_), keff, fission_source);});
     }
   }
 }
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, BadFissionSources) {
-  eigenvalue::k_effective::UpdaterViaFissionSource
+  eigenvalue::k_eigenvalue::UpdaterViaFissionSource
       test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.0, 5.0);
   auto fission_source_obs_ptr_ =
       dynamic_cast<TotalAggregatedFissionSourceType*>(
@@ -82,7 +82,7 @@ TEST_F(EigKEffUpdaterViaFissionSourceTest, BadFissionSources) {
 }
 
 TEST_F(EigKEffUpdaterViaFissionSourceTest, CalculateKEff) {
-  eigenvalue::k_effective::UpdaterViaFissionSource
+  eigenvalue::k_eigenvalue::UpdaterViaFissionSource
       test_k_eff_updater(std::move(fission_source_mock_ptr_), 1.5, 5.0);
   auto fission_source_obs_ptr_ =
       dynamic_cast<TotalAggregatedFissionSourceType*>(

@@ -284,7 +284,7 @@ auto FrameworkHelper<dim>::BuildFramework(
   std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
 
   if (parameters.eigen_solver_type.has_value()){
-    if (parameters.k_effective_updater == eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
+    if (parameters.k_effective_updater == eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
       outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
                                                         builder.BuildParameterConvergenceChecker(1e-6, 1000),
                                                         builder.BuildKEffectiveUpdater(),

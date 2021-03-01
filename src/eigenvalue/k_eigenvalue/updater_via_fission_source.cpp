@@ -4,7 +4,7 @@ namespace bart {
 
 namespace eigenvalue {
 
-namespace k_effective {
+namespace k_eigenvalue {
 
 UpdaterViaFissionSource::UpdaterViaFissionSource(
     std::unique_ptr<FissionSourceCalculator> fission_source_calculator,
@@ -38,7 +38,7 @@ double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {
   return k_effective_.value();
 }
 
-} // namespace k_effective
+} // namespace k_eigenvalue
 
 } // namespace eigenvalue
 

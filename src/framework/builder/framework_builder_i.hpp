@@ -54,7 +54,7 @@ class FrameworkBuilderI {
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIteration = iteration::group::GroupSolveIterationI;
   using Initializer = iteration::initializer::InitializerI;
-  using KEffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
+  using KEffectiveUpdater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
   using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentsMap>;

@@ -14,7 +14,7 @@ namespace outer {
 class OuterPowerIteration : public OuterIteration<double> {
  public:
   using ConvergenceChecker = convergence::IterationCompletionCheckerI<double>;
-  using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
+  using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterI;
   using SourceUpdaterType = formulation::updater::FissionSourceUpdaterI;
 
   OuterPowerIteration(

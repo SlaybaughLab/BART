@@ -58,7 +58,7 @@ auto K_EffectiveUpdaterViaRayleighQuotientTest::SetUp() -> void {
 }
 
 TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, Calculate) {
-  eigenvalue::k_effective::UpdaterViaRayleighQuotient test_updater;
+  eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
   EXPECT_FALSE(test_updater.k_effective().has_value());
 
   for (int group = 0; group < total_groups_; ++group) {
@@ -74,7 +74,7 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, Calculate) {
 }
 
 TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroCurrentFlux) {
-  eigenvalue::k_effective::UpdaterViaRayleighQuotient test_updater;
+  eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
   EXPECT_FALSE(test_updater.k_effective().has_value());
 
   Vector zero_flux(vector_size_);
@@ -92,7 +92,7 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroCurrentFlux) {
 }
 
 TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroPreviousFlux) {
-  eigenvalue::k_effective::UpdaterViaRayleighQuotient test_updater;
+  eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
   EXPECT_FALSE(test_updater.k_effective().has_value());
 
   Vector zero_flux(vector_size_);

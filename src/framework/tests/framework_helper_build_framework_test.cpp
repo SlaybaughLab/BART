@@ -66,7 +66,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationMock = iteration::group::GroupSolveIterationMock;
   using InitializerMock = iteration::initializer::InitializerMock;
-  using KEffectiveUpdaterMock = eigenvalue::k_effective::K_EffectiveUpdaterMock;
+  using KEffectiveUpdaterMock = eigenvalue::k_eigenvalue::K_EffectiveUpdaterMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentsMap>;
@@ -414,7 +414,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
   EXPECT_CALL(mock_builder, BuildParameterConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
   if (is_eigenvalue_solve) {
-    if (parameters.k_effective_updater == eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
+    if (parameters.k_effective_updater == eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
       EXPECT_CALL(mock_builder, BuildKEffectiveUpdater()).WillOnce(DoDefault());
     } else {
       EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
@@ -560,7 +560,7 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEige
   parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
   parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
   parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
-  parameters.k_effective_updater = eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
+  parameters.k_effective_updater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
   parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
   this->RunTest(parameters);
 }

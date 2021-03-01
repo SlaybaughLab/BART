@@ -10,7 +10,7 @@ namespace bart {
 
 namespace eigenvalue {
 
-namespace k_effective {
+namespace k_eigenvalue {
 
 /*! \brief Calculates an updated k eigenvalue using fission source.
  *
@@ -69,7 +69,7 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
 
 };
 
-} // namespace k_effective
+} // namespace k_eigenvalue
 
 } // namespace eigenvalue
 

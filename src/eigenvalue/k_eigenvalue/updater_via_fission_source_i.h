@@ -7,7 +7,7 @@ namespace bart {
 
 namespace eigenvalue {
 
-namespace k_effective {
+namespace k_eigenvalue {
 
 class UpdaterViaFissionSourceI : public K_EffectiveUpdaterI {
  public:
@@ -17,7 +17,7 @@ class UpdaterViaFissionSourceI : public K_EffectiveUpdaterI {
   virtual std::optional<double> current_fission_source() const = 0;
 };
 
-} // namespace k_effective
+} // namespace k_eigenvalue
 
 } // namespace eigenvalue
 

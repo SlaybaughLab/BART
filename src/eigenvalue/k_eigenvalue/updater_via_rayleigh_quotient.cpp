@@ -1,6 +1,6 @@
 #include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 
-namespace bart::eigenvalue::k_effective {
+namespace bart::eigenvalue::k_eigenvalue {
 
 double UpdaterViaRayleighQuotient::CalculateK_Effective(system::System& system) {
   double calculated_k_effective{ 0 };
@@ -24,4 +24,4 @@ double UpdaterViaRayleighQuotient::CalculateK_Effective(system::System& system) 
   return calculated_k_effective;
 }
 
-} // namespace bart::eigenvalue::k_effective
+} // namespace bart::eigenvalue::k_eigenvalue

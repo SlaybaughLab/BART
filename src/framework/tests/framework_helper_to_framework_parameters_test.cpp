@@ -15,7 +15,7 @@ class FrameworkHelperToFrameworkParametersTest : public ::testing::Test {
   static constexpr int dim{ 2 }; // dimension to run the tests in (should be arbitrary)
   using FrameworkHelper = typename framework::FrameworkHelper<dim>;
   using SystemHelperMock = const typename system::SystemHelperMock<dim>;
-  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
+  using K_EffectiveUpdaterName = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName;
 
   // Test object
   std::unique_ptr<FrameworkHelper> test_helper_ptr_{ nullptr };
@@ -186,7 +186,7 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, SAAFWithLevelSymmetric) {
 
 TEST_F(FrameworkHelperToFrameworkParametersTest, KEffectiveUpdaterRayleighQuotient) {
   auto test_parameters{ default_parameters_ };
-  test_parameters.k_effective_updater = eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
+  test_parameters.k_effective_updater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
 
   SetExpectations(test_parameters);
   auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);

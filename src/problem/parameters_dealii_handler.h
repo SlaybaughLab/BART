@@ -23,7 +23,7 @@ namespace problem {
 
 class ParametersDealiiHandler : public ParametersI {
  public:
-  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
+  using K_EffectiveUpdaterName = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName;
   struct KeyWords {
     /*!
      * \brief Data struct to contain keywords for input files

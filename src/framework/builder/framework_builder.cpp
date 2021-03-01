@@ -378,7 +378,7 @@ auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpda
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> {
-  using ReturnType = eigenvalue::k_effective::UpdaterViaRayleighQuotient;
+  using ReturnType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr{ nullptr };
   return_ptr = std::move(std::make_unique<ReturnType>());
@@ -394,7 +394,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
 -> std::unique_ptr<KEffectiveUpdater> {
   using AggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
   using IntegratedFissionSource = calculator::cell::IntegratedFissionSource<dim>;
-  using ReturnType = eigenvalue::k_effective::UpdaterViaFissionSource;
+  using ReturnType = eigenvalue::k_eigenvalue::UpdaterViaFissionSource;
 
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr = nullptr;
