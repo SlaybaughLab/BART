@@ -1,6 +1,6 @@
 #include "acceleration/two_grid/spectral_shape/domain_spectral_shapes.hpp"
 
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/test_helper_functions.h"

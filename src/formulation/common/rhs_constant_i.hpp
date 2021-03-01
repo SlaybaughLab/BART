@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FORMULATION_COMMON_RHS_CONSTANT_I_HPP_
 #define BART_SRC_FORMULATION_COMMON_RHS_CONSTANT_I_HPP_
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 
 #include <deal.II/lac/vector.h>
 
