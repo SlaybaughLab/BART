@@ -1,4 +1,4 @@
-#include "eigenvalue/k_effective/updater_via_fission_source.h"
+#include "eigenvalue/k_eigenvalue/updater_via_fission_source.h"
 
 namespace bart {
 

@@ -41,8 +41,8 @@
 // KEffective Updater Classes
 #include "calculator/cell/total_aggregated_fission_source.hpp"
 #include "calculator/cell/integrated_fission_source.hpp"
-#include "eigenvalue/k_effective/updater_via_fission_source.h"
-#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/updater_via_fission_source.h"
+#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 
 // Material classes
 #include "data/material/material_protobuf.hpp"

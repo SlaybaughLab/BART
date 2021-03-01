@@ -1,9 +1,9 @@
-#include <eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp>
+#include <eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp>
 #include "framework/framework_helper.hpp"
 
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
-#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_effective_updater_mock.h"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"

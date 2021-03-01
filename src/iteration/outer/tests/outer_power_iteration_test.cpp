@@ -5,7 +5,7 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
-#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_effective_updater_mock.h"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"

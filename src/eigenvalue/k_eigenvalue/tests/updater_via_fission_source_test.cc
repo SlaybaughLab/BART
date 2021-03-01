@@ -1,5 +1,5 @@
 #include <calculator/cell/tests/integrated_fission_source_mock.hpp>
-#include "eigenvalue/k_effective/updater_via_fission_source.h"
+#include "eigenvalue/k_eigenvalue/updater_via_fission_source.h"
 
 #include "calculator/cell/tests/total_aggregated_fission_source_mock.hpp"
 #include "system/system.hpp"

@@ -1,7 +1,7 @@
-#ifndef BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
-#define BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
+#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
+#define BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
 
-#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
 
 namespace bart::eigenvalue::k_effective {
 
@@ -17,4 +17,4 @@ class UpdaterViaRayleighQuotient : public K_EffectiveUpdaterI {
 
 } // namespace bart::eigenvalue::k_effective
 
-#endif //BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
+#endif //BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_

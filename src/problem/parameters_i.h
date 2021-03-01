@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "eigenvalue/k_effective/factory.hpp"
+#include "eigenvalue/k_eigenvalue/factory.hpp"
 #include "parameter_types.hpp"
 
 

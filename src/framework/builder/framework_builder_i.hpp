@@ -9,7 +9,7 @@
 #include "convergence/iteration_completion_checker_i.hpp"
 #include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
-#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"

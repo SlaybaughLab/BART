@@ -1,7 +1,7 @@
-#ifndef BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_I_H_
-#define BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_I_H_
+#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_I_H_
+#define BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_I_H_
 
-#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
 
 namespace bart {
 
@@ -23,4 +23,4 @@ class UpdaterViaFissionSourceI : public K_EffectiveUpdaterI {
 
 } // namespace bart
 
-#endif // BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_I_H_
+#endif // BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_I_H_

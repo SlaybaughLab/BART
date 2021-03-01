@@ -1,10 +1,10 @@
-#ifndef BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_H_
-#define BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_H_
+#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_H_
+#define BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_H_
 
 #include <memory>
 #include <optional>
 #include "calculator/cell/total_aggregated_fission_source_i.hpp"
-#include "eigenvalue/k_effective/updater_via_fission_source_i.h"
+#include "eigenvalue/k_eigenvalue/updater_via_fission_source_i.h"
 
 namespace bart {
 
@@ -75,4 +75,4 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
 
 } // namespace bart
 
-#endif // BART_SRC_EIGENVALUE_K_EFFECTIVE_UPDATER_VIA_FISSION_SOURCE_H_
+#endif // BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_H_

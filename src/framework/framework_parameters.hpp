@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_FRAMEWORK_PARAMETERS_HPP_
 #define BART_SRC_FRAMEWORK_FRAMEWORK_PARAMETERS_HPP_
 
-#include "eigenvalue/k_effective/factory.hpp"
+#include "eigenvalue/k_eigenvalue/factory.hpp"
 #include "problem/parameter_types.hpp"
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "utility/named_type.h"

@@ -1,5 +1,5 @@
-#ifndef BART_SRC_EIGENVALUE_K_EFFECTIVE_FACTORY_HPP_
-#define BART_SRC_EIGENVALUE_K_EFFECTIVE_FACTORY_HPP_
+#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_FACTORY_HPP_
+#define BART_SRC_EIGENVALUE_K_EIGENVALUE_FACTORY_HPP_
 
 namespace bart::eigenvalue::k_effective {
 
@@ -10,4 +10,4 @@ enum class K_EffectiveUpdaterName {
 
 } // namespace bart::eigenvalue::k_effective
 
-#endif //BART_SRC_EIGENVALUE_K_EFFECTIVE_FACTORY_HPP_
+#endif //BART_SRC_EIGENVALUE_K_EIGENVALUE_FACTORY_HPP_

@@ -1,7 +1,7 @@
-#ifndef BART_SRC_EIGENVALUE_K_EFFECTIVE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
-#define BART_SRC_EIGENVALUE_K_EFFECTIVE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
+#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
+#define BART_SRC_EIGENVALUE_K_EIGENVALUE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
 
-#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -23,4 +23,4 @@ class K_EffectiveUpdaterMock : public K_EffectiveUpdaterI {
 
 } // namespace bart
 
-#endif //BART_SRC_EIGENVALUE_K_EFFECTIVE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
+#endif //BART_SRC_EIGENVALUE_K_EIGENVALUE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_

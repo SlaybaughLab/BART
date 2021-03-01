@@ -1,4 +1,4 @@
-#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 
 namespace bart::eigenvalue::k_effective {
 

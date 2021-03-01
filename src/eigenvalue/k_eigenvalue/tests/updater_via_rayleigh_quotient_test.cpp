@@ -1,4 +1,4 @@
-#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 
 #include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
