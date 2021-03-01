@@ -30,10 +30,8 @@ class DomainFiniteElementGaussianTest : public ::testing::Test {
  protected:
   static constexpr int dim = DimensionWrapper::value;
   std::array<int, 4> dofs_per_cell_{1, 3, 9, 27};
-  std::array<problem::DiscretizationType, 2> discretization_types {
-    problem::DiscretizationType::kContinuousFEM,
-    problem::DiscretizationType::kDiscontinuousFEM
-  };
+  std::array<problem::DiscretizationType, 2> discretization_types {problem::DiscretizationType::kContinuousFEM,
+                                                                   problem::DiscretizationType::kDiscontinuousFEM};
 };
 
 TYPED_TEST_CASE(DomainFiniteElementGaussianTest, bart::testing::AllDimensions);
@@ -51,27 +49,18 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorObjects) {
 
     // Verify correct objects were instantiated
     ASSERT_NE(nullptr, dynamic_cast<dealii::FEValues<dim> *>(test_fe.values()));
-    ASSERT_NE(nullptr,
-              dynamic_cast<dealii::FEFaceValues<dim> *>(test_fe.face_values()));
-    ASSERT_NE(nullptr,
-              dynamic_cast<dealii::QGauss<dim> *>(test_fe.cell_quadrature()));
-    ASSERT_NE(nullptr,
-              dynamic_cast<dealii::QGauss<dim - 1> *>(test_fe.face_quadrature()));
+    ASSERT_NE(nullptr, dynamic_cast<dealii::FEFaceValues<dim> *>(test_fe.face_values()));
+    ASSERT_NE(nullptr, dynamic_cast<dealii::QGauss<dim> *>(test_fe.cell_quadrature()));
+    ASSERT_NE(nullptr, dynamic_cast<dealii::QGauss<dim - 1> *>(test_fe.face_quadrature()));
 
     // Neighbor values are only for discontinuous so this should be a null object
     if (discretization_type == problem::DiscretizationType::kDiscontinuousFEM) {
-      ASSERT_NE(nullptr,
-                dynamic_cast<dealii::FE_DGQ<dim>*>(test_fe.finite_element()));
-      ASSERT_NE(nullptr,
-                dynamic_cast<dealii::FEFaceValues<dim> *>(
-                    test_fe.neighbor_face_values()));
+      ASSERT_NE(nullptr, dynamic_cast<dealii::FE_DGQ<dim>*>(test_fe.finite_element()));
+      ASSERT_NE(nullptr, dynamic_cast<dealii::FEFaceValues<dim>*>(test_fe.neighbor_face_values()));
       expected_description += "Discontinuous, ";
     } else {
-      ASSERT_NE(nullptr,
-                dynamic_cast<dealii::FE_Q<dim> *>(test_fe.finite_element()));
-      ASSERT_EQ(nullptr,
-                dynamic_cast<dealii::FEFaceValues<dim> *>(
-                    test_fe.neighbor_face_values()));
+      ASSERT_NE(nullptr, dynamic_cast<dealii::FE_Q<dim> *>(test_fe.finite_element()));
+      ASSERT_EQ(nullptr, dynamic_cast<dealii::FEFaceValues<dim> *>(test_fe.neighbor_face_values()));
       expected_description += "Continuous, ";
     }
     expected_description += "Q = 2";
@@ -84,8 +73,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorValues) {
   /* Spatial dimension of the problem, this will be used to determine many of
    * the expected values for tests */
   constexpr int dim = this->dim;
-  domain::finite_element::FiniteElementGaussian<dim> test_fe{
-      problem::DiscretizationType::kContinuousFEM, 2};
+  domain::finite_element::FiniteElementGaussian<dim> test_fe{ problem::DiscretizationType::kContinuousFEM, 2 };
 
   // Verify correct values returned
   ASSERT_EQ(test_fe.polynomial_degree(), 2);
@@ -96,9 +84,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorValues) {
 
 TYPED_TEST(DomainFiniteElementGaussianTest, ConstructorNone) {
   constexpr int dim = this->dim;
-  ASSERT_ANY_THROW({
-    domain::finite_element::FiniteElementGaussian<dim> test_fe(problem::DiscretizationType::kNone, 2);
-                   });
+  ASSERT_ANY_THROW({ domain::finite_element::FiniteElementGaussian<dim>(problem::DiscretizationType::kNone, 2); });
 }
 
 TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
@@ -108,8 +94,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
    * associate it with and check that the functions are forwarding the right
    * values */
   constexpr int dim = this->dim;
-  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{
-      problem::DiscretizationType::kContinuousFEM, 2};
+  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{ problem::DiscretizationType::kContinuousFEM, 2 };
 
   // Triangulation and DOF handler to link to our values
   dealii::Triangulation<dim> triangulation;
@@ -126,12 +111,9 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
 
   for (int i = 0; i < cell_dofs; ++i) {
     for (int q = 0; q < cell_quad_points; ++q) {
-      EXPECT_DOUBLE_EQ(test_fe.values()->shape_value(i, q),
-                       test_fe.ShapeValue(i, q));
-      EXPECT_TRUE(test_fe.values()->shape_grad(i, q)
-                      == test_fe.ShapeGradient(i, q));
-      EXPECT_DOUBLE_EQ(test_fe.values()->JxW(q),
-                       test_fe.Jacobian(q));
+      EXPECT_DOUBLE_EQ(test_fe.values()->shape_value(i, q), test_fe.ShapeValue(i, q));
+      EXPECT_TRUE(test_fe.values()->shape_grad(i, q) == test_fe.ShapeGradient(i, q));
+      EXPECT_DOUBLE_EQ(test_fe.values()->JxW(q), test_fe.Jacobian(q));
     }
   }
 
@@ -140,10 +122,8 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
   int face_quad_points = test_fe.n_face_quad_pts();
   for (int i = 0; i < cell_dofs; ++i) {
     for (int q = 0; q < face_quad_points; ++q) {
-      EXPECT_DOUBLE_EQ(test_fe.face_values()->shape_value(i, q),
-                       test_fe.FaceShapeValue(i, q));
-      EXPECT_DOUBLE_EQ(test_fe.face_values()->JxW(q),
-                       test_fe.FaceJacobian(q));
+      EXPECT_DOUBLE_EQ(test_fe.face_values()->shape_value(i, q), test_fe.FaceShapeValue(i, q));
+      EXPECT_DOUBLE_EQ(test_fe.face_values()->JxW(q), test_fe.FaceJacobian(q));
     }
   }
 
@@ -151,8 +131,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, ValueTest) {
 
 TYPED_TEST(DomainFiniteElementGaussianTest, FaceNormalTest) {
   constexpr int dim = this->dim;
-  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{
-      problem::DiscretizationType::kContinuousFEM, 2};
+  bart::domain::finite_element::FiniteElementGaussian<dim> test_fe{ problem::DiscretizationType::kContinuousFEM, 2 };
 
   // Triangulation and DOF handler to link to our values
   dealii::Triangulation<dim> triangulation;
@@ -164,8 +143,7 @@ TYPED_TEST(DomainFiniteElementGaussianTest, FaceNormalTest) {
 
   test_fe.SetFace(dof_handler.begin_active(), domain::FaceIndex(0));
 
-  EXPECT_EQ(test_fe.face_values()->normal_vector(0),
-            test_fe.FaceNormal());
+  EXPECT_EQ(test_fe.face_values()->normal_vector(0), test_fe.FaceNormal());
 }
 
 // BASE CLASS TESTS ============================================================
@@ -174,13 +152,10 @@ class DomainFiniteElementGaussianBaseMethodsTest :
     public domain::finite_element::testing::FiniteElementBaseClassTest<DimensionWrapper::value> {
  protected:
   static constexpr int dim = DimensionWrapper::value;
-  void SetUp() override {
-    domain::finite_element::testing::FiniteElementBaseClassTest<dim>::SetUp();
-  }
+  void SetUp() override {domain::finite_element::testing::FiniteElementBaseClassTest<dim>::SetUp();}
 };
 
-TYPED_TEST_CASE(DomainFiniteElementGaussianBaseMethodsTest,
-                bart::testing::AllDimensions);
+TYPED_TEST_CASE(DomainFiniteElementGaussianBaseMethodsTest, bart::testing::AllDimensions);
 
 TYPED_TEST(DomainFiniteElementGaussianBaseMethodsTest, BaseSetCell) {
   bart::domain::finite_element::FiniteElementGaussian<this->dim> test_fe{

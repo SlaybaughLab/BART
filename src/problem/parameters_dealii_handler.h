@@ -23,7 +23,7 @@ namespace problem {
 
 class ParametersDealiiHandler : public ParametersI {
  public:
-  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
+  using K_EffectiveUpdaterName = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName;
   struct KeyWords {
     /*!
      * \brief Data struct to contain keywords for input files
@@ -285,7 +285,7 @@ class ParametersDealiiHandler : public ParametersI {
         }; /*!< Maps eigen solver type to strings used in parsed input files. */
 
   const std::unordered_map<std::string, K_EffectiveUpdaterName> kK_EffectiveUpdaterNameMap_ {
-      {"fission source", K_EffectiveUpdaterName::kUpdaterViaFissionSource},
+      {"fission source", K_EffectiveUpdaterName::kCalculatorViaFissionSource},
       {"rayleigh quotient", K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient}
   };
 

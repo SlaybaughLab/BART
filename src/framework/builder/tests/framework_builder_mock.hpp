@@ -53,11 +53,11 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
   MOCK_METHOD(std::unique_ptr<AngularFluxIntegrator>, BuildAngularFluxIntegrator,
               (const std::shared_ptr<QuadratureSet>), (override));
   MOCK_METHOD(std::unique_ptr<DiffusionFormulation>, BuildDiffusionFormulation,
-      (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::CrossSections>&,
+      (const std::shared_ptr<FiniteElement>&, const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
       const DiffusionFormulationImpl), (override));
   MOCK_METHOD(std::unique_ptr<DriftDiffusionFormulation>, BuildDriftDiffusionFormulation,
   (const std::shared_ptr<AngularFluxIntegrator>&, const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&), (override));
+      const std::shared_ptr<data::cross_sections::MaterialCrossSections>&), (override));
   MOCK_METHOD(std::unique_ptr<Domain>, BuildDomain, (const FrameworkParameters::DomainSize,
       const FrameworkParameters::NumberOfCells, const std::shared_ptr<FiniteElement>&,
       const std::string material_mapping), (override));
@@ -89,7 +89,7 @@ class FrameworkBuilderMock : public FrameworkBuilderI<dim>     {
   MOCK_METHOD(std::shared_ptr<QuadratureSet>, BuildQuadratureSet, (const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder), (override));
   MOCK_METHOD(std::unique_ptr<SAAFFormulation>, BuildSAAFFormulation, (const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&, const std::shared_ptr<QuadratureSet>&,
+      const std::shared_ptr<data::cross_sections::MaterialCrossSections>&, const std::shared_ptr<QuadratureSet>&,
       const formulation::SAAFFormulationImpl), (override));
   MOCK_METHOD(std::unique_ptr<SingleGroupSolver>, BuildSingleGroupSolver,(const int, const double), (override));
   MOCK_METHOD(std::unique_ptr<Stamper>, BuildStamper, (const std::shared_ptr<Domain>&), (override));

@@ -15,7 +15,7 @@ class FrameworkHelperToFrameworkParametersTest : public ::testing::Test {
   static constexpr int dim{ 2 }; // dimension to run the tests in (should be arbitrary)
   using FrameworkHelper = typename framework::FrameworkHelper<dim>;
   using SystemHelperMock = const typename system::SystemHelperMock<dim>;
-  using K_EffectiveUpdaterName = eigenvalue::k_effective::K_EffectiveUpdaterName;
+  using K_EffectiveUpdaterName = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName;
 
   // Test object
   std::unique_ptr<FrameworkHelper> test_helper_ptr_{ nullptr };
@@ -49,7 +49,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetUp() -> void {
   default_parameters_.reflective_boundaries = {problem::Boundary::kYMax};
   default_parameters_.material_mapping = parsed_material_mapping_;
   default_parameters_.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
-  default_parameters_.k_effective_updater = K_EffectiveUpdaterName::kUpdaterViaFissionSource;
+  default_parameters_.k_effective_updater = K_EffectiveUpdaterName::kCalculatorViaFissionSource;
   default_parameters_.group_solver_type = problem::InGroupSolverType::kSourceIteration;
   default_parameters_.angular_quadrature_type = problem::AngularQuadType::kGaussLegendre;
   default_parameters_.angular_quadrature_order = quadrature::Order(test_helpers::RandomInt(1, 5));
@@ -186,7 +186,7 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, SAAFWithLevelSymmetric) {
 
 TEST_F(FrameworkHelperToFrameworkParametersTest, KEffectiveUpdaterRayleighQuotient) {
   auto test_parameters{ default_parameters_ };
-  test_parameters.k_effective_updater = eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
+  test_parameters.k_effective_updater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
 
   SetExpectations(test_parameters);
   auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);

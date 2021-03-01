@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "eigenvalue/k_effective/factory.hpp"
+#include "eigenvalue/k_eigenvalue/factory.hpp"
 #include "parameter_types.hpp"
 
 
@@ -106,7 +106,7 @@ class ParametersI {
   /*! \brief Gets solver type for eigen iterations */
   virtual EigenSolverType            EigenSolver()                    const = 0;
   /*! \brief Get type of k-effective updater */
-  virtual auto K_EffectiveUpdaterType() const -> eigenvalue::k_effective::K_EffectiveUpdaterName = 0;
+  virtual auto K_EffectiveUpdaterType() const -> eigenvalue::k_eigenvalue::K_EffectiveUpdaterName = 0;
   /*! \brief Gets solver type for in-group solves */
   virtual InGroupSolverType          InGroupSolver()                  const = 0;
   /*! \brief Gets solver type for linear solves */

@@ -38,16 +38,14 @@ auto FiniteElement<dim>::SetFace(const domain::CellPtr<dim> &to_set, const domai
 }
 
 template<int dim>
-auto FiniteElement<dim>::ValueAtQuadrature(const system::moments::MomentVector& moment) const
--> std::vector<double> {
+auto FiniteElement<dim>::ValueAtQuadrature(const DealiiVector& values_at_dofs) const -> std::vector<double> {
   std::vector<double> return_vector(n_cell_quad_pts(), 0);
-  values_->get_function_values(moment, return_vector);
+  values_->get_function_values(values_at_dofs, return_vector);
   return return_vector;
 }
 
 template<int dim>
-auto FiniteElement<dim>::ValueAtFaceQuadrature(const dealii::Vector<double>& values_at_dofs) const
--> std::vector<double> {
+auto FiniteElement<dim>::ValueAtFaceQuadrature(const DealiiVector& values_at_dofs) const -> std::vector<double> {
   std::vector<double> return_vector(n_face_quad_pts(), 0);
   face_values_->get_function_values(values_at_dofs, return_vector);
   return return_vector;

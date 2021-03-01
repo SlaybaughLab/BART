@@ -13,8 +13,8 @@ class SystemHelperMock : public SystemHelperI<dim> {
   MOCK_METHOD(void, SetUpEnergyGroupToAngularSolutionPtrMap, (solution::EnergyGroupToAngularSolutionPtrMap&,
       const int, const int), (const, override));
   MOCK_METHOD(void, SetUpMPIAngularSolution, (system::solution::MPIGroupAngularSolutionI&,
-      const domain::DefinitionI<dim> &, const double), (const, override));
-  MOCK_METHOD(void, SetUpSystemTerms, (system::System&, const domain::DefinitionI<dim>&), (const, override));
+      const domain::DomainI<dim> &, const double), (const, override));
+  MOCK_METHOD(void, SetUpSystemTerms, (system::System&, const domain::DomainI<dim>&), (const, override));
   MOCK_METHOD(void, SetUpSystemMoments, (system::System&, const std::size_t), (const, override));
 };
 

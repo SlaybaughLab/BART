@@ -2,9 +2,9 @@
 
 #include <deal.II/base/tensor.h>
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "quadrature/utility/quadrature_utilities.h"
@@ -46,12 +46,12 @@ class FormulationAngularSelfAdjointAngularFluxTest : public ::testing::Test ,
   typename dealii::DoFHandler<dim>::active_cell_iterator cell_ptr_;
   using FiniteElementType = typename domain::finite_element::FiniteElementMock<dim>;
   using QuadratureSetType = typename quadrature::QuadratureSetMock<dim>;
-  using MaterialType = material::MaterialMock;
+  using MaterialType = data::material::MaterialMock;
 
   // Mock dependencies and supporting objects
   std::shared_ptr<FiniteElementType> mock_finite_element_ptr_;
   std::shared_ptr<QuadratureSetType> mock_quadrature_set_ptr_;
-  std::shared_ptr<data::CrossSections> cross_section_ptr_;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_section_ptr_;
   NiceMock<MaterialType> mock_material_;
 
   // Other test objects
@@ -173,7 +173,7 @@ void FormulationAngularSelfAdjointAngularFluxTest<DimensionWrapper>::SetUp() {
 
 
   // Instantiate cross-section object
-  cross_section_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
+  cross_section_ptr_ = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material_);
 
   // Find an active, locally owned cell and set the material ID
   for (auto cell = this->dof_handler_.begin_active(); cell != this->dof_handler_.end(); ++cell) {

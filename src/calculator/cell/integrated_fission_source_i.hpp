@@ -1,7 +1,7 @@
 #ifndef BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_I_HPP_
 #define BART_SRC_CALCULATOR_CELL_INTEGRATED_FISSION_SOURCE_I_HPP_
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "utility/has_description.h"
 
 namespace bart {

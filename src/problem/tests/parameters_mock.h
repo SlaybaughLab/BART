@@ -73,7 +73,7 @@ class ParametersMock : public ParametersI {
 
   MOCK_METHOD(EigenSolverType, EigenSolver, (), (const));
 
-  MOCK_METHOD(eigenvalue::k_effective::K_EffectiveUpdaterName, K_EffectiveUpdaterType, (), (const));
+  MOCK_METHOD(eigenvalue::k_eigenvalue::K_EffectiveUpdaterName, K_EffectiveUpdaterType, (), (const));
 
   MOCK_METHOD(InGroupSolverType, InGroupSolver, (), (const));
 

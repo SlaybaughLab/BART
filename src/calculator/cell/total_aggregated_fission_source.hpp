@@ -5,14 +5,14 @@
 
 #include "calculator/cell/total_aggregated_fission_source_i.hpp"
 #include "calculator/cell/integrated_fission_source_i.hpp"
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "utility/has_dependencies.h"
 #include "utility/has_description.h"
 
 namespace bart {
 
 namespace domain {
-template <int dim> class DefinitionI;
+template <int dim> class DomainI;
 } // namespace domain
 
 namespace calculator::cell {
@@ -35,7 +35,7 @@ template <int dim>
 class TotalAggregatedFissionSource : public TotalAggregatedFissionSourceI, public utility::HasDescription,
                                      public utility::HasDependencies {
  public:
-  using Domain = domain::DefinitionI<dim>;
+  using Domain = domain::DomainI<dim>;
   using IntegratedFissionSource = IntegratedFissionSourceI<dim>;
   using SystemMoments = system::moments::SphericalHarmonicI;
 

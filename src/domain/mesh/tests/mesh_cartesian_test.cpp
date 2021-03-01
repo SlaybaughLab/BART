@@ -1,4 +1,4 @@
-#include "domain/mesh/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.hpp"
 
 #include <sstream>
 #include <algorithm>
@@ -35,24 +35,15 @@ TYPED_TEST(DomainMeshCartesianTest, DescriptionTest) {
 
   domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
 
-  std::string expected_description = "(Default) deal.II Cartesian Mesh, "
-      + std::to_string(dim) + "D, Size: {";
+  std::string expected_description = "(default) deal.II Cartesian Mesh, " + std::to_string(dim) + "D, Size: {";
 
-  auto int_comma_fold = [](std::string a, int b) {
-    return std::move(a) + ", " + std::to_string(b);
-  };
-  auto double_comma_fold = [](std::string a, double b) {
-    return std::move(a) + ", " + std::to_string(b);
-  };
+  auto int_comma_fold = [](std::string a, int b) { return std::move(a) + ", " + std::to_string(b); };
+  auto double_comma_fold = [](std::string a, double b) { return std::move(a) + ", " + std::to_string(b); };
 
-  std::string size_string = std::accumulate(std::next(spatial_max.begin()),
-                                            spatial_max.end(),
-                                            std::to_string(spatial_max.at(0)),
-                                            double_comma_fold);
-  std::string n_cells_string = std::accumulate(std::next(n_cells.begin()),
-                                               n_cells.end(),
-                                               std::to_string(n_cells.at(0)),
-                                               int_comma_fold);
+  std::string size_string = std::accumulate(std::next(spatial_max.begin()), spatial_max.end(),
+                                            std::to_string(spatial_max.at(0)), double_comma_fold);
+  std::string n_cells_string = std::accumulate(std::next(n_cells.begin()), n_cells.end(),
+                                               std::to_string(n_cells.at(0)), int_comma_fold);
   expected_description += size_string + "}, N_cells: {" + n_cells_string + "}";
 
   EXPECT_EQ(expected_description, test_mesh.description());
@@ -65,8 +56,7 @@ TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
   std::vector<double> n_cells_double{test_helpers::RandomVector(dim, 1, 20)};
   std::vector<int> n_cells{n_cells_double.begin(), n_cells_double.end()};
 
-  int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1,
-                                      std::multiplies<int>());
+  int n_total_cells = std::accumulate(n_cells.begin(), n_cells.end(), 1, std::multiplies<int>());
 
   domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells);
   dealii::Triangulation<dim> test_triangulation;
@@ -81,8 +71,7 @@ TYPED_TEST(DomainMeshCartesianTest, FillTriangulationTest) {
   EXPECT_FALSE(test_mesh.has_material_mapping());
   for (auto const &cell : test_triangulation.active_cell_iterators()) {
     for (int i = 0; i < dim; ++i) {
-      EXPECT_THAT(cell->extent_in_direction(i),
-                  ::testing::DoubleNear(spatial_max[i]/n_cells[i], 1e-10));
+      EXPECT_THAT(cell->extent_in_direction(i), ::testing::DoubleNear(spatial_max[i]/n_cells[i], 1e-10));
     }
   }
 }
@@ -202,8 +191,7 @@ TYPED_TEST(DomainMeshCartesianTest, SingleMaterialMapping) {
   constexpr int dim = this->dim;
   std::vector<double> spatial_max{test_helpers::RandomVector(dim, 5, 20)};
   std::vector<double> n_cells_double{test_helpers::RandomVector(dim, 5, 20)};
-  std::vector<int> n_cells{n_cells_double.cbegin(),
-                           n_cells_double.cend()};
+  std::vector<int> n_cells{n_cells_double.cbegin(), n_cells_double.cend()};
 
   std::string material_mapping{'1'};
   domain::mesh::MeshCartesian<dim> test_mesh(spatial_max, n_cells, material_mapping);

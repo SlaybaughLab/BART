@@ -4,7 +4,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "formulation/formulation_types.h"
 #include "quadrature/quadrature_point_i.h"
 #include "system/system_types.h"

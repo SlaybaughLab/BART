@@ -7,9 +7,9 @@
 
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "calculator/drift_diffusion/tests/drift_diffusion_vector_calculator_mock.hpp"
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"
 #include "test_helpers/test_helper_functions.h"
@@ -27,12 +27,12 @@ class DriftDiffusionFormulationTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
   using CellPtr = typename domain::CellPtr<dim>;
-  using CrossSections = data::CrossSections;
+  using CrossSections = data::cross_sections::MaterialCrossSections;
   using AngularFluxIntegrator = NiceMock<quadrature::calculators::AngularFluxIntegratorMock>;
   using DriftDiffusionCalculator = NiceMock<typename calculator::drift_diffusion::DriftDiffusionVectorCalculatorMock<dim>>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusion<dim>;
   using FiniteElement = NiceMock<typename domain::finite_element::FiniteElementMock<dim>>;
-  using Material = NiceMock<material::MaterialMock>;
+  using Material = NiceMock<data::material::MaterialMock>;
 
   DriftDiffusionFormulationTest() : dof_handler_(triangulation_), finite_element_(1) {};
 

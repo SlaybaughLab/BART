@@ -5,7 +5,6 @@
 #include <deal.II/fe/fe_values.h>
 
 #include "domain/finite_element/finite_element_i.hpp"
-#include "system/system_types.h"
 
 namespace bart::domain::finite_element {
 
@@ -19,6 +18,7 @@ namespace bart::domain::finite_element {
 template<int dim>
 class FiniteElement : public FiniteElementI<dim> {
  public:
+  using typename FiniteElementI<dim>::DealiiVector, typename FiniteElementI<dim>::Tensor;
   virtual ~FiniteElement() = default;
 
   // Basic Finite Element data
@@ -40,7 +40,7 @@ class FiniteElement : public FiniteElementI<dim> {
   }
 
   [[nodiscard]] auto ShapeGradient(const int cell_degree_of_freedom,
-                                   const int cell_quadrature_point) const -> dealii::Tensor<1, dim> override {
+                                   const int cell_quadrature_point) const -> Tensor override {
     return values_->shape_grad(cell_degree_of_freedom, cell_quadrature_point);
   }
 
@@ -52,12 +52,12 @@ class FiniteElement : public FiniteElementI<dim> {
     return face_values_->JxW(face_quadrature_point);
   }
 
-  [[nodiscard]] auto FaceNormal() const -> dealii::Tensor<1, dim> override {
+  [[nodiscard]] auto FaceNormal() const -> Tensor override {
     return face_values_->normal_vector(0);
   }
 
-  [[nodiscard]] auto ValueAtQuadrature(const system::moments::MomentVector& moment) const -> std::vector<double> override;
-  [[nodiscard]] auto ValueAtFaceQuadrature(const dealii::Vector<double>& values_at_dofs) const -> std::vector<double> override;
+  [[nodiscard]] auto ValueAtQuadrature(const DealiiVector& values_at_dofs) const -> std::vector<double> override;
+  [[nodiscard]] auto ValueAtFaceQuadrature(const DealiiVector& values_at_dofs) const -> std::vector<double> override;
 
   // Dependencies
   auto finite_element() -> dealii::FiniteElement<dim, dim>* override { return finite_element_.get(); };

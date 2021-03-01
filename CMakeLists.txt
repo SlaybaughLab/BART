@@ -147,5 +147,5 @@ add_dependencies(bart_test copy_ctest_output_files)
 
 # Create copies of material protocol buffer data
 add_custom_target(copy_protoc_files ALL)
-file(COPY "./src/material/tests/data/" DESTINATION "./test_data/material")
+file(COPY "src/data/material/tests/data/" DESTINATION "./test_data/material")
 add_dependencies(bart_test copy_protoc_files)

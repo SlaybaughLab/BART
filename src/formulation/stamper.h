@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "formulation/stamper_i.h"
 
 namespace bart {
@@ -29,7 +29,7 @@ class Stamper : public StamperI<dim> {
    * iterate over. The matrices and vectors passed in this classes functions
    * should be seperately initialized using this domain.
    */
-  explicit Stamper(std::shared_ptr<domain::DefinitionI<dim>>);
+  explicit Stamper(std::shared_ptr<domain::DomainI<dim>>);
   virtual ~Stamper() = default;
 
   void StampMatrix(
@@ -59,9 +59,9 @@ class Stamper : public StamperI<dim> {
   override;
 
   /*! \brief Access domain definition dependency */
-  domain::DefinitionI<dim>* domain_ptr() const { return domain_ptr_.get(); }
+  domain::DomainI<dim>* domain_ptr() const { return domain_ptr_.get(); }
  private:
-  std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_;
+  std::shared_ptr<domain::DomainI<dim>> domain_ptr_;
 };
 
 } // namespace formulation

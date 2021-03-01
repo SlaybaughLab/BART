@@ -6,7 +6,7 @@
 #include <deal.II/lac/full_matrix.h>
 
 #include "system/moments/spherical_harmonic_types.h"
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "formulation/scalar/diffusion_i.h"
 
@@ -29,7 +29,7 @@ class Diffusion : public DiffusionI<dim> {
 
 
   Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-            std::shared_ptr<data::CrossSections> cross_sections);
+            std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections);
 
   /*! \brief Precalculate matrices.
    *
@@ -90,7 +90,7 @@ class Diffusion : public DiffusionI<dim> {
   //! Finite element object to provide shape function values
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_;
   //! Cross-sections object for cross-section data
-  std::shared_ptr<data::CrossSections> cross_sections_;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_;
 
   //Precalculated matrices
   std::vector<Matrix> shape_squared_;

@@ -5,7 +5,7 @@
 
 #include <deal.II/numerics/data_out.h>
 
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "results/output.h"
 
 namespace bart {
@@ -15,18 +15,18 @@ namespace results {
 template <int dim>
 class OutputDealiiVtu : public Output {
  public:
-  OutputDealiiVtu(const std::shared_ptr<domain::DefinitionI<dim>> &domain_ptr);
+  OutputDealiiVtu(const std::shared_ptr<domain::DomainI<dim>> &domain_ptr);
 
   void AddData(system::System &to_output) override;
   void WriteData(std::ostream &output_stream) const override;
   void WriteMasterFile(std::ostream &output_stream,
                        std::vector<std::string> filenames) const override;
 
-  domain::DefinitionI<dim>* domain_ptr() const { return domain_ptr_.get(); };
+  domain::DomainI<dim>* domain_ptr() const { return domain_ptr_.get(); };
 
  private:
   dealii::DataOut<dim> data_out_;
-  std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_ = nullptr;
+  std::shared_ptr<domain::DomainI<dim>> domain_ptr_ = nullptr;
 };
 
 } // namespace result

@@ -1,9 +1,9 @@
-#include <eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp>
+#include <eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp>
 #include "framework/framework_helper.hpp"
 
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
-#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
@@ -24,8 +24,8 @@
 #include "iteration/outer/tests/outer_iteration_mock.hpp"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "domain/tests/definition_mock.h"
-#include "material/tests/material_mock.hpp"
+#include "domain/tests/domain_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -56,7 +56,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   // Mock types
   using AngularFluxIntegratorMock = quadrature::calculators::AngularFluxIntegratorMock;
   using DiffusionFormulationMock = typename formulation::scalar::DiffusionMock<dim>;
-  using DomainMock = typename domain::DefinitionMock<dim>;
+  using DomainMock = typename domain::DomainMock<dim>;
   using DriftDiffusionFormulationMock = typename formulation::scalar::DriftDiffusionMock<dim>;
   using FiniteElementMock = typename domain::finite_element::FiniteElementMock<dim>;
   using FrameworkBuidler = framework::builder::FrameworkBuilderMock<dim>;
@@ -66,7 +66,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationMock = iteration::group::GroupSolveIterationMock;
   using InitializerMock = iteration::initializer::InitializerMock;
-  using KEffectiveUpdaterMock = eigenvalue::k_effective::K_EffectiveUpdaterMock;
+  using KEffectiveUpdaterMock = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentsMap>;
@@ -142,11 +142,11 @@ template <typename DimensionWrapper>
 auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() -> void {
   using DomainSize = FrameworkParameters::DomainSize;
   using NumberOfCells = FrameworkParameters::NumberOfCells;
-  NiceMock<material::MaterialMock> mock_material;
+  NiceMock<data::material::MaterialMock> mock_material;
 
   // Default framework parameters (for tests)
   default_parameters_.neutron_energy_groups = test_helpers::RandomInt(1, 4);
-  default_parameters_.cross_sections_ = std::make_shared<data::CrossSections>(mock_material);
+  default_parameters_.cross_sections_ = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material);
   default_parameters_.material_mapping = "1 1";
   default_parameters_.domain_size = DomainSize(test_helpers::RandomVector(dim, 0, 100));
   default_parameters_.uniform_refinements = test_helpers::RandomInt(1, 4);
@@ -414,7 +414,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
   EXPECT_CALL(mock_builder, BuildParameterConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
   if (is_eigenvalue_solve) {
-    if (parameters.k_effective_updater == eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
+    if (parameters.k_effective_updater == eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
       EXPECT_CALL(mock_builder, BuildKEffectiveUpdater()).WillOnce(DoDefault());
     } else {
       EXPECT_CALL(mock_builder, BuildKEffectiveUpdater(Pointee(Ref(*finite_element_obs_ptr_)),
@@ -560,7 +560,7 @@ TYPED_TEST(FrameworkHelperBuildFrameworkIntegrationTests, BuildFrameworkSAAFEige
   parameters.equation_type = problem::EquationType::kSelfAdjointAngularFlux;
   parameters.angular_quadrature_type = problem::AngularQuadType::kLevelSymmetricGaussian;
   parameters.angular_quadrature_order = Order(test_helpers::RandomInt(5, 10));
-  parameters.k_effective_updater = eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
+  parameters.k_effective_updater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
   parameters.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
   this->RunTest(parameters);
 }

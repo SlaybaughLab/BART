@@ -5,7 +5,7 @@
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
 #include "instrumentation/converter/convert_to_string/convergence_to_string.h"
-#include "material/material_protobuf.hpp"
+#include "data/material/material_protobuf.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
@@ -76,13 +76,13 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     return_parameters.eigen_solver_type = eigen_solver_type;
   }
 
-  material::MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
+  data::material::MaterialProtobuf materials(problem_parameters.MaterialFilenames(),
                                        is_eigenvalue_solve,
                                        false,
                                        return_parameters.neutron_energy_groups,
                                        problem_parameters.NumberOfMaterials());
 
-  return_parameters.cross_sections_ = std::make_shared<data::CrossSections>(materials);
+  return_parameters.cross_sections_ = std::make_shared<data::cross_sections::MaterialCrossSections>(materials);
 
   return return_parameters;
 }
@@ -284,7 +284,7 @@ auto FrameworkHelper<dim>::BuildFramework(
   std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
 
   if (parameters.eigen_solver_type.has_value()){
-    if (parameters.k_effective_updater == eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
+    if (parameters.k_effective_updater == eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient) {
       outer_iteration_ptr = builder.BuildOuterIteration(std::move(group_iteration_ptr),
                                                         builder.BuildParameterConvergenceChecker(1e-6, 1000),
                                                         builder.BuildKEffectiveUpdater(),

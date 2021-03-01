@@ -12,7 +12,7 @@ namespace angular {
 template <int dim>
 SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
     std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr,
-    std::shared_ptr<data::CrossSections> cross_sections_ptr,
+    std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr,
     std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr)
     : finite_element_ptr_(finite_element_ptr),
       cross_sections_ptr_(cross_sections_ptr),
@@ -150,7 +150,7 @@ void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 
   const int material_id = cell_ptr->material_id();
   const double sigma_t =
-      cross_sections_ptr_->sigma_t.at(material_id).at(group_number.get());
+      cross_sections_ptr_->sigma_t().at(material_id).at(group_number.get());
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     const double jacobian = finite_element_ptr_->Jacobian(q);
@@ -178,7 +178,7 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
   const int material_id = cell_ptr->material_id();
   const int group = group_number.get();
 
-  if (cross_sections_ptr_->is_material_fissile.at(material_id)) {
+  if (cross_sections_ptr_->is_material_fissile().at(material_id)) {
 
     /* The scattering source is determined as the common values in both of the
      * scattering source terms in SAAF, specifically scalar flux times the
@@ -201,7 +201,7 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
         }
 
         const auto fission_xfer_per_ster =
-            cross_sections_ptr_->fiss_transfer_per_ster.at(material_id)(group_in,
+            cross_sections_ptr_->fiss_transfer_per_ster().at(material_id)(group_in,
                                                                         group);
 
         for (int q = 0; q < cell_quadrature_points_; ++q) {
@@ -228,7 +228,7 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
   const int material_id = cell_ptr->material_id();
   try {
     q_per_ster =
-        cross_sections_ptr_->q_per_ster.at(material_id).at(group_number.get());
+        cross_sections_ptr_->q_per_ster().at(material_id).at(group_number.get());
   } catch (std::out_of_range&) {
     return;
   }
@@ -275,7 +275,7 @@ void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
       }
 
       const auto sigma_s_per_ster =
-          cross_sections_ptr_->sigma_s_per_ster.at(material_id)(group, group_in);
+          cross_sections_ptr_->sigma_s_per_ster().at(material_id)(group, group_in);
 
       for (int q = 0; q < cell_quadrature_points_; ++q){
         scattering_source.at(q) += sigma_s_per_ster * scalar_flux.at(q);
@@ -298,7 +298,7 @@ void SelfAdjointAngularFlux<dim>::FillCellStreamingTerm(
 
   const int material_id = cell_ptr->material_id();
   const double inverse_sigma_t =
-      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
+      cross_sections_ptr_->inverse_sigma_t().at(material_id).at(group_number.get());
   const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
       quadrature_point);
 
@@ -392,7 +392,7 @@ void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
     const bart::system::EnergyGroup group_number,
     std::vector<double> source) {
   const double inverse_sigma_t =
-      cross_sections_ptr_->inverse_sigma_t.at(material_id).at(group_number.get());
+      cross_sections_ptr_->inverse_sigma_t().at(material_id).at(group_number.get());
   const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
       quadrature_point);
 

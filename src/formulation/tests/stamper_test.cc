@@ -1,6 +1,6 @@
 #include "formulation/stamper.h"
 
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"
@@ -17,7 +17,7 @@ template <typename DimensionWrapper>
 class FormulationStamperTest : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DomainDefinitionType = domain::DefinitionMock<dim>;
+  using DomainDefinitionType = domain::DomainMock<dim>;
 
   std::shared_ptr<DomainDefinitionType> domain_ptr_;
 
@@ -59,7 +59,7 @@ class FormulationStamperTestDealiiDomain
       public bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DomainDefinitionType = domain::DefinitionMock<dim>;
+  using DomainDefinitionType = domain::DomainMock<dim>;
   using StamperType = formulation::Stamper<dim>;
 
   // Test object

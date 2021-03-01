@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -26,10 +26,10 @@ class CalcCellIntegratedFissionSourceTest : public ::testing::Test,
 
   // Supporting objects and mocks
   std::shared_ptr<NiceMock<FiniteElementType>> finite_element_ptr_;
-  std::shared_ptr<data::CrossSections> cross_sections_ptr_;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr_;
   std::shared_ptr<SphericalHarmonicType > spherical_harmonic_ptr_;
 
-  NiceMock<material::MaterialMock> mock_material_;
+  NiceMock<data::material::MaterialMock> mock_material_;
 
   // test parameters
   static constexpr int quadrature_points_{ 4 };
@@ -46,7 +46,7 @@ void CalcCellIntegratedFissionSourceTest<DimensionWrapper>::SetUp() {
   ON_CALL(mock_material_, GetNuSigF()).WillByDefault(Return(nu_sigma_f));
 
   finite_element_ptr_ = std::make_shared<NiceMock<FiniteElementType>>();
-  cross_sections_ptr_ = std::make_shared<data::CrossSections>(mock_material_);
+  cross_sections_ptr_ = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material_);
   spherical_harmonic_ptr_ = std::make_shared<SphericalHarmonicType>();
 
   ON_CALL(*finite_element_ptr_, n_cell_quad_pts()).WillByDefault(Return(this->quadrature_points_));

@@ -9,9 +9,9 @@
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/tria.h>
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/test_assertions.hpp"
@@ -37,7 +37,7 @@ class FormulationCFEMDiffusionTest : public ::testing::Test {
         fe_(1) {};
   using Matrix = dealii::FullMatrix<double>;
   std::shared_ptr<domain::finite_element::FiniteElementMock<2>> fe_mock_ptr;
-  std::shared_ptr<data::CrossSections> cross_sections_ptr;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr;
 
   dealii::DoFHandler<2>::active_cell_iterator cell_ptr_;
   dealii::Triangulation<2> triangulation_;
@@ -54,7 +54,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   SetUpDealii();
   // Make mock objects. Cross-sections is a struct that cannot be mocked, but
   // we can mock the material object it is based on.
-  NiceMock<material::MaterialMock> mock_material;
+  NiceMock<data::material::MaterialMock> mock_material;
   fe_mock_ptr = std::make_shared<NiceMock<domain::finite_element::FiniteElementMock<2>>>();
 
   ON_CALL(*fe_mock_ptr, dofs_per_cell()).WillByDefault(Return(2));
@@ -95,7 +95,7 @@ void FormulationCFEMDiffusionTest::SetUp() {
   ON_CALL(mock_material, GetFissileIDMap()).WillByDefault(Return(fissile_id));
   ON_CALL(mock_material, GetChiNuSigF()).WillByDefault(Return(sigma_s));
 
-  cross_sections_ptr = std::make_shared<data::CrossSections>(mock_material);
+  cross_sections_ptr = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material);
 }
 
 // Set up a simple deal.ii problem so that the cell points to something, this

@@ -95,7 +95,7 @@ auto DriftDiffusion<dim>::FillCellDriftDiffusionTerm(Matrix &to_fill,
   AssertThrow(static_cast<int>(to_fill.n()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong n()"))
   finite_element_ptr_->SetCell(cell_ptr);
   const auto material_id{ cell_ptr->material_id() };
-  const double diffusion_coeff{ cross_sections_ptr_->diffusion_coef.at(material_id).at(group.get()) };
+  const double diffusion_coeff{ cross_sections_ptr_->diffusion_coef().at(material_id).at(group.get()) };
   const auto scalar_flux_at_q{ finite_element_ptr_->ValueAtQuadrature(group_scalar_flux) };
 
   std::array<std::vector<double>, dim> current_components_at_q;

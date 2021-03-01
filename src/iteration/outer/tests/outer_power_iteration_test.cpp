@@ -5,7 +5,7 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
-#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -30,7 +30,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using ConvergenceChecker = convergence::IterationCompletionCheckerMock<double>;
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using ErrorInstrumentType = instrumentation::InstrumentMock<std::pair<int, double>>;
-  using K_EffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterMock;
+  using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
@@ -112,7 +112,7 @@ TEST_F(IterationOuterPowerIterationTest, ConstructorErrors) {
     auto convergence_checker_ptr = (i == 0) ? nullptr :
         std::make_unique<convergence::IterationCompletionCheckerMock<double>>();
     auto k_effective_updater_ptr = (i == 1) ? nullptr :
-        std::make_unique<eigenvalue::k_effective::K_EffectiveUpdaterMock>();
+        std::make_unique<eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock>();
     auto source_updater_ptr = (i == 2) ? nullptr : this->source_updater_ptr_;
     auto group_iterator_ptr = (i == 3) ? nullptr :
         std::make_unique<iteration::group::GroupSolveIterationMock>();
@@ -150,7 +150,7 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     const double iteration_k_effective{i * 1.5 };
     k_effective_by_iteration.at(i + 1) = iteration_k_effective;
 
-    EXPECT_CALL(*this->k_effective_updater_obs_ptr_, CalculateK_Effective(Ref(this->test_system)))
+    EXPECT_CALL(*this->k_effective_updater_obs_ptr_, CalculateK_Eigenvalue(Ref(this->test_system)))
         .InSequence(k_effective_calls)
         .WillOnce(Return(iteration_k_effective));
 

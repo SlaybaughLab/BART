@@ -131,7 +131,7 @@ TEST_F(ParametersDealiiHandlerTest, SolverParametersDefault) {
             bart::problem::MultiGroupSolverType::kGaussSeidel)
       << "Default multi-group solver";
   ASSERT_EQ(test_parameters.K_EffectiveUpdaterType(),
-            bart::eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaFissionSource);
+            bart::eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kCalculatorViaFissionSource);
 }
 
 TEST_F(ParametersDealiiHandlerTest, AngularQuadParametersDefault) {
@@ -304,7 +304,7 @@ TEST_F(ParametersDealiiHandlerTest, SolverParametersParsed) {
             bart::problem::EigenSolverType::kNone)
       << "Parsed eigenvalue solver";
   ASSERT_EQ(test_parameters.K_EffectiveUpdaterType(),
-            bart::eigenvalue::k_effective::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient);
+            bart::eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient);
   ASSERT_EQ(test_parameters.InGroupSolver(),
             bart::problem::InGroupSolverType::kNone)
       << "Parsed in-group solver";

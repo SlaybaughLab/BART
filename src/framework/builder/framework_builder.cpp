@@ -22,9 +22,9 @@
 #include "convergence/parameters/single_parameter_checker.hpp"
 
 // Domain classes
-#include "domain/definition.h"
+#include "domain/domain.hpp"
 #include "domain/finite_element/finite_element_gaussian.hpp"
-#include "domain/mesh/mesh_cartesian.h"
+#include "domain/mesh/mesh_cartesian.hpp"
 
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"
@@ -41,11 +41,11 @@
 // KEffective Updater Classes
 #include "calculator/cell/total_aggregated_fission_source.hpp"
 #include "calculator/cell/integrated_fission_source.hpp"
-#include "eigenvalue/k_effective/updater_via_fission_source.h"
-#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
+#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 
 // Material classes
-#include "material/material_protobuf.hpp"
+#include "data/material/material_protobuf.hpp"
 
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
@@ -96,7 +96,7 @@ auto FrameworkBuilder<dim>::BuildAngularFluxIntegrator(const std::shared_ptr<Qua
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildDiffusionFormulation(const std::shared_ptr<FiniteElement>& finite_element_ptr,
-                                                      const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+                                                      const std::shared_ptr<data::cross_sections::MaterialCrossSections>& cross_sections_ptr,
                                                       const DiffusionFormulationImpl implementation)
 -> std::unique_ptr<DiffusionFormulation> {
   ReportBuildingComponant("Diffusion formulation");
@@ -115,7 +115,7 @@ template<int dim>
 auto FrameworkBuilder<dim>::BuildDriftDiffusionFormulation(
     const std::shared_ptr<AngularFluxIntegrator>& angular_flux_integrator_ptr,
     const std::shared_ptr<FiniteElement>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>& cross_sections_ptr) -> std::unique_ptr<DriftDiffusionFormulation> {
   auto drift_diffusion_vector_calculator_ptr = Shared(calculator::drift_diffusion::DriftDiffusionVectorCalculatorIFactory<dim>::get()
       .GetConstructor(calculator::drift_diffusion::DriftDiffusionVectorCalculatorName::kDefaultImplementation)());
   return formulation::scalar::DriftDiffusion<dim>::Factory::get()
@@ -136,7 +136,7 @@ auto FrameworkBuilder<dim>::BuildDomain(FrameworkParameters::DomainSize domain_s
     ReportBuildSuccess(mesh_ptr->description());
 
     ReportBuildingComponant("Domain");
-    return_ptr = std::move(std::make_unique<domain::Definition<dim>>(std::move(mesh_ptr), finite_element_ptr));
+    return_ptr = std::move(std::make_unique<domain::Domain<dim>>(std::move(mesh_ptr), finite_element_ptr));
     ReportBuildSuccess(return_ptr->description());
   } catch (...) {
     ReportBuildError();
@@ -378,7 +378,7 @@ auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpda
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> {
-  using ReturnType = eigenvalue::k_effective::UpdaterViaRayleighQuotient;
+  using ReturnType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr{ nullptr };
   return_ptr = std::move(std::make_unique<ReturnType>());
@@ -394,7 +394,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
 -> std::unique_ptr<KEffectiveUpdater> {
   using AggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
   using IntegratedFissionSource = calculator::cell::IntegratedFissionSource<dim>;
-  using ReturnType = eigenvalue::k_effective::UpdaterViaFissionSource;
+  using ReturnType = eigenvalue::k_eigenvalue::CalculatorViaFissionSource;
 
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr = nullptr;
@@ -607,7 +607,7 @@ auto FrameworkBuilder<dim>::BuildQuadratureSet(
 template <int dim>
 auto FrameworkBuilder<dim>::BuildSAAFFormulation(
     const std::shared_ptr<FiniteElement>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>& cross_sections_ptr,
     const std::shared_ptr<QuadratureSet>& quadrature_set_ptr,
     const formulation::SAAFFormulationImpl implementation) -> std::unique_ptr<SAAFFormulation> {
   ReportBuildingComponant("Building SAAF Formulation");

@@ -3,11 +3,10 @@
 
 #include <deal.II/fe/fe_values.h>
 
-#include "domain/domain_types.h"
-#include "system/moments/spherical_harmonic_types.h"
-#include "system/system_types.h"
+#include "domain/domain_types.hpp"
 #include "utility/has_description.h"
 
+//! Classes that provide a finite-element basis
 namespace bart::domain::finite_element {
 
 /*! \brief Interface for a finite element object based on the dealii library.
@@ -21,17 +20,19 @@ template <int dim>
 class FiniteElementI : public utility::HasDescription {
  public:
   using CellPtr = domain::CellPtr<dim>;
+  using DealiiVector = dealii::Vector<double>;
+  using Tensor = dealii::Tensor<1, dim>;
   virtual ~FiniteElementI() = default;
 
   // Basic FE properties
   /*! \brief Gets polynomial degree */
-  virtual int polynomial_degree() const = 0;
+  virtual auto polynomial_degree() const -> int = 0;
   /*! \brief Gets degrees of freedom per cell */
-  virtual int dofs_per_cell() const = 0;
+  virtual auto dofs_per_cell() const -> int = 0;
   /*! \brief Gets number of quadrature points per cell */
-  virtual int n_cell_quad_pts() const = 0;
+  virtual auto n_cell_quad_pts() const -> int = 0;
   /*! \brief Gets number of quadrature points per face */
-  virtual int n_face_quad_pts() const = 0;
+  virtual auto n_face_quad_pts() const -> int = 0;
 
   // Various methods to access the underlying finite element object
   /*! \brief Sets the cell for finite element values.
@@ -41,7 +42,7 @@ class FiniteElementI : public utility::HasDescription {
    * \param to_set cell to set
    * \return bool indicating if the cell was changed.
    */
-  virtual bool SetCell(const CellPtr &to_set) = 0;
+  virtual auto SetCell(const CellPtr &to_set) -> bool = 0;
 
   /*! \brief Sets the face and cell.
    *
@@ -49,7 +50,7 @@ class FiniteElementI : public utility::HasDescription {
    * \param face face number to set
    * \return indicating if the cell was changed.
    */
-  virtual bool SetFace(const CellPtr &to_set, const domain::FaceIndex face) = 0;
+  virtual auto SetFace(const CellPtr &to_set, const domain::FaceIndex face) -> bool = 0;
 
   /*! \brief Get the value of shape functions.
    *
@@ -62,7 +63,7 @@ class FiniteElementI : public utility::HasDescription {
    * shape function.
    * \return double corresponding to the value.
    */
-  virtual double ShapeValue(const int cell_degree_of_freedom, const int cell_quadrature_point) const = 0;
+  virtual auto ShapeValue(const int cell_degree_of_freedom, const int cell_quadrature_point) const -> double = 0;
 
   /*! \brief Get the value of face shape functions.
    *
@@ -75,7 +76,7 @@ class FiniteElementI : public utility::HasDescription {
    * shape function.
    * \return double corresponding to the value.
    */
-  virtual double FaceShapeValue(const int cell_degree_of_freedom, const int face_quadrature_point) const = 0;
+  virtual auto FaceShapeValue(const int cell_degree_of_freedom, const int face_quadrature_point) const -> double = 0;
 
   /*! \brief Get the value of gradient of the shape function.
    *
@@ -88,8 +89,7 @@ class FiniteElementI : public utility::HasDescription {
    * shape function.
    * \return dealii::Tensor with the value of the gradient.
    */
-  virtual dealii::Tensor<1, dim> ShapeGradient(const int cell_degree_of_freedom,
-                                               const int cell_quadrature_point) const = 0;
+  virtual auto ShapeGradient(const int cell_degree_of_freedom, const int cell_quadrature_point) const -> Tensor = 0;
 
   /*! \brief Get the value of the Jacobian for the current cell.
    *
@@ -100,7 +100,7 @@ class FiniteElementI : public utility::HasDescription {
    * Jacobian function.
    * \return double corresponding to the value.
    */
-  virtual double Jacobian(const int cell_quadrature_point) const = 0;
+  virtual auto Jacobian(const int cell_quadrature_point) const -> double = 0;
 
   /*! \brief Get the value of the Jacobian for the current face.
  *
@@ -111,40 +111,40 @@ class FiniteElementI : public utility::HasDescription {
  * Jacobian function.
  * \return double corresponding to the value.
  */
-  virtual double FaceJacobian(const int face_quadrature_point) const = 0;
+  virtual auto FaceJacobian(const int face_quadrature_point) const -> double = 0;
 
   /*! \brief Get the value of the face normal for the current face.
    *
    * Returns the normal vector for the specified face.
    *
    */
-  virtual dealii::Tensor<1, dim> FaceNormal() const = 0;
+  virtual auto FaceNormal() const -> Tensor = 0;
 
-  /*! \brief Get the value of a flux moment at the interior cell quadrature points.
+  /*! \brief Get the value of a vector at the interior cell quadrature points.
    *
-   * \param moment flux moment to get the value of.
-   * \return a vector holding the value of the moment at each quadrature point.
+   * \param vector_at_dofs vector value at dofs
+   * \return a vector holding the value of the vector at each quadrature point.
    */
-  virtual std::vector<double> ValueAtQuadrature(const system::moments::MomentVector& moment) const = 0;
+  virtual auto ValueAtQuadrature(const DealiiVector& vector_at_dofs) const -> std::vector<double> = 0;
 
   /*! \brief Get the value of an MPI Vector at the cell face quadrature points.
    *
    * @param mpi_vector mpi vector to get the face values of.
    * @return a vector holding the value of the mpi vector at each face quadrature point.
    */
-   virtual std::vector<double> ValueAtFaceQuadrature(const dealii::Vector<double>& values_at_dofs) const = 0;
+   virtual auto ValueAtFaceQuadrature(const DealiiVector& values_at_dofs) const -> std::vector<double> = 0;
 
   // DealII Finite element object access. These methods access the underlying
   // finite element objects.
   /*! \brief Gets pointer to the underlying finite element object */
-  virtual dealii::FiniteElement<dim, dim> *finite_element() = 0;
+  virtual auto finite_element() -> dealii::FiniteElement<dim, dim>* = 0;
   /*! \brief Gets pointer to the underlying finite element values object */
-  virtual dealii::FEValues<dim> *values() = 0;
+  virtual auto values() -> dealii::FEValues<dim>* = 0;
   /*! \brief Gets pointer to underlying finite element faces values object */
-  virtual dealii::FEFaceValues<dim> *face_values() = 0;
+  virtual auto face_values() -> dealii::FEFaceValues<dim>* = 0;
   /*! \brief Gets pointer to second face values object.
    * This is often used if you need to get face values for a neighbor cell. */
-  virtual dealii::FEFaceValues<dim> *neighbor_face_values() = 0;
+  virtual auto neighbor_face_values() -> dealii::FEFaceValues<dim>* = 0;
 };
 
 } // namespace bart::domain::finite_element

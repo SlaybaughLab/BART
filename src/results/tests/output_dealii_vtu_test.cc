@@ -5,7 +5,7 @@
 
 #include <deal.II/numerics/data_out.h>
 
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "results/tests/output_test.h"
 #include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
@@ -24,7 +24,7 @@ class ResultsOutputDealiiVtuTest
       public ::bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  std::shared_ptr<domain::DefinitionI<dim>> domain_ptr_;
+  std::shared_ptr<domain::DomainI<dim>> domain_ptr_;
   std::unique_ptr<results::OutputDealiiVtu<dim>> test_output_;
 
   dealii::DataOut<dim> test_data_out_;
@@ -43,7 +43,7 @@ class ResultsOutputDealiiVtuTest
 template<typename DimensionWrapper>
 void ResultsOutputDealiiVtuTest<DimensionWrapper>::SetUp() {
   // Dependencies
-  domain_ptr_ = std::make_shared<domain::DefinitionMock<dim>>();
+  domain_ptr_ = std::make_shared<domain::DomainMock<dim>>();
 
   test_output_ = std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr_);
 
@@ -80,7 +80,7 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, Constructor) {
   auto domain_ptr = this->test_output_->domain_ptr();
 
   ASSERT_NE(domain_ptr, nullptr);
-  EXPECT_NE(nullptr, dynamic_cast<domain::DefinitionMock<dim> *>(domain_ptr));
+  EXPECT_NE(nullptr, dynamic_cast<domain::DomainMock<dim> *>(domain_ptr));
 }
 
 TYPED_TEST(ResultsOutputDealiiVtuTest, BaseClassTests) {
@@ -107,7 +107,7 @@ TYPED_TEST(ResultsOutputDealiiVtuTest, AddWriteDataTestMPI) {
       .WillOnce(ReturnRef(this->group_1_moment));
 
   // Check that dof_handler is called to attach to data
-  auto mock_domain_ptr = dynamic_cast<domain::DefinitionMock<dim> *>(
+  auto mock_domain_ptr = dynamic_cast<domain::DomainMock<dim> *>(
       this->test_output_->domain_ptr());
   ASSERT_NE(nullptr, mock_domain_ptr);
 

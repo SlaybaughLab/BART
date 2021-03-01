@@ -1,7 +1,7 @@
 #include "system/system_helper.hpp"
 #include "system/tests/system_helper_mock.hpp"
 
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/solution/mpi_group_angular_solution.h"
 
@@ -33,7 +33,7 @@ class SystemHelperTestsSetUpMPIAngularSolution : public ::testing::Test,
   static constexpr int dim = DimensionWrapper::value;
   system::SystemHelper<dim> test_helper_;
   bart::system::solution::MPIGroupAngularSolutionMock mock_solution;
-  domain::DefinitionMock<dim> mock_definition;
+  domain::DomainMock<dim> mock_definition;
 
   const int total_angles_ = 3;
   std::map<bart::system::AngleIndex, bart::system::MPIVector> solution_map_;
@@ -212,13 +212,13 @@ class SystemHelperSetUpSystemTermsTests : public ::testing::Test,
                                           bart::testing::DealiiTestDomain<DimensionWrapper::value> {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DomainType = domain::DefinitionMock<dim>;
+  using DomainType = domain::DomainMock<dim>;
   using RhsTermType = bart::system::terms::LinearTermMock;
   using LhsTermType = bart::system::terms::BilinearTermMock;
   using VariableLinearTerms = bart::system::terms::VariableLinearTerms;
 
   bart::system::System test_system_;
-  std::shared_ptr<domain::DefinitionI<dim>> definition_ptr;
+  std::shared_ptr<domain::DomainI<dim>> definition_ptr;
   DomainType* domain_mock_obs_ptr_;
   RhsTermType* rhs_mock_obs_ptr_;
   LhsTermType* lhs_mock_obs_ptr_;

@@ -3,7 +3,7 @@
 #include <deal.II/base/utilities.h>
 
 #include "system/moments/spherical_harmonic_i.h"
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "calculator/cell/integrated_fission_source_i.hpp"
 
 namespace bart::calculator::cell {

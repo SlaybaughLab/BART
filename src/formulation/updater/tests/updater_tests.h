@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "formulation/formulation_types.h"
 #include "formulation/tests/stamper_mock.h"
 #include "system/terms/tests/bilinear_term_mock.h"

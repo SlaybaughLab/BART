@@ -13,7 +13,7 @@ namespace factory {
 template <int dim>
 std::unique_ptr<formulation::scalar::DiffusionI<dim>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>& cross_sections_ptr,
     const DiffusionFormulationImpl implementation) {
   std::unique_ptr<formulation::scalar::DiffusionI<dim>> return_ptr = nullptr;
 
@@ -43,7 +43,7 @@ std::unique_ptr<updater::DiffusionUpdater<dim>> MakeDiffusionUpdater(
 template <int dim>
 std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>& finite_element_ptr,
-    const std::shared_ptr<data::CrossSections>& cross_sections_ptr,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>& cross_sections_ptr,
     const std::shared_ptr<quadrature::QuadratureSetI<dim>>& quadrature_set_ptr,
     const SAAFFormulationImpl implementation) {
   std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> return_ptr = nullptr;
@@ -75,7 +75,7 @@ std::unique_ptr<formulation::updater::SAAFUpdater<dim>> MakeSAAFUpdater(
 
 template <int dim>
 std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<dim>>& definition_ptr,
+    const std::shared_ptr<domain::DomainI<dim>>& definition_ptr,
     const StamperImpl implementation) {
   std::unique_ptr<formulation::StamperI<dim>> return_ptr = nullptr;
 
@@ -89,15 +89,15 @@ std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
 
 template std::unique_ptr<formulation::scalar::DiffusionI<1>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<1>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const DiffusionFormulationImpl);
 template std::unique_ptr<formulation::scalar::DiffusionI<2>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<2>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const DiffusionFormulationImpl);
 template std::unique_ptr<formulation::scalar::DiffusionI<3>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<3>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const DiffusionFormulationImpl);
 
 template std::unique_ptr<updater::DiffusionUpdater<1>> MakeDiffusionUpdater<1>(
@@ -112,17 +112,17 @@ template std::unique_ptr<updater::DiffusionUpdater<3>> MakeDiffusionUpdater<3>(
 
 template std::unique_ptr<angular::SelfAdjointAngularFluxI<1>> MakeSAAFFormulationPtr<1>(
     const std::shared_ptr<domain::finite_element::FiniteElementI<1>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<1>>&,
     const SAAFFormulationImpl);
 template std::unique_ptr<angular::SelfAdjointAngularFluxI<2>> MakeSAAFFormulationPtr<2>(
     const std::shared_ptr<domain::finite_element::FiniteElementI<2>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<2>>&,
     const SAAFFormulationImpl);
 template std::unique_ptr<angular::SelfAdjointAngularFluxI<3>> MakeSAAFFormulationPtr<3>(
     const std::shared_ptr<domain::finite_element::FiniteElementI<3>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<3>>&,
     const SAAFFormulationImpl);
 
@@ -141,13 +141,13 @@ template std::unique_ptr<formulation::updater::SAAFUpdater<3>> MakeSAAFUpdater<3
     const std::shared_ptr<quadrature::QuadratureSetI<3>>&);
 
 template std::unique_ptr<formulation::StamperI<1>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<1>>&,
+    const std::shared_ptr<domain::DomainI<1>>&,
     const StamperImpl implementation);
 template std::unique_ptr<formulation::StamperI<2>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<2>>&,
+    const std::shared_ptr<domain::DomainI<2>>&,
     const StamperImpl implementation);
 template std::unique_ptr<formulation::StamperI<3>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<3>>&,
+    const std::shared_ptr<domain::DomainI<3>>&,
     const StamperImpl implementation);
 
 } // namespace factory

@@ -17,8 +17,8 @@
 #include "formulation/updater/diffusion_updater.hpp"
 
 // Dependencies
-#include "data/cross_sections.h"
-#include "domain/definition_i.h"
+#include "data/cross_sections/material_cross_sections.hpp"
+#include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "quadrature/quadrature_set_i.h"
 
@@ -31,7 +31,7 @@ namespace factory {
 template <int dim>
 std::unique_ptr<formulation::scalar::DiffusionI<dim>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault);
 
 template <int dim>
@@ -42,7 +42,7 @@ std::unique_ptr<updater::DiffusionUpdater<dim>> MakeDiffusionUpdater(
 template <int dim>
 std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>&,
-    const std::shared_ptr<data::CrossSections>&,
+    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
     const std::shared_ptr<quadrature::QuadratureSetI<dim>>&,
     const SAAFFormulationImpl implementation = SAAFFormulationImpl::kDefault);
 
@@ -54,7 +54,7 @@ std::unique_ptr<formulation::updater::SAAFUpdater<dim>> MakeSAAFUpdater(
 
 template <int dim>
 std::unique_ptr<formulation::StamperI<dim>> MakeStamperPtr(
-    const std::shared_ptr<domain::DefinitionI<dim>>&,
+    const std::shared_ptr<domain::DomainI<dim>>&,
     const StamperImpl implementation = StamperImpl::kDefault);
 
 

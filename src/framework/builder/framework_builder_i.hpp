@@ -4,12 +4,12 @@
 #include <memory>
 #include <string>
 
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "convergence/status.hpp"
 #include "convergence/iteration_completion_checker_i.hpp"
-#include "domain/definition_i.h"
+#include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
-#include "eigenvalue/k_effective/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
@@ -45,16 +45,16 @@ class FrameworkBuilderI {
  public:
   // Classes built by member functions
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
-  using CrossSections = data::CrossSections;
+  using CrossSections = data::cross_sections::MaterialCrossSections;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
-  using Domain = typename domain::DefinitionI<dim>;
+  using Domain = typename domain::DomainI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using FrameworkI = framework::FrameworkI;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIteration = iteration::group::GroupSolveIterationI;
   using Initializer = iteration::initializer::InitializerI;
-  using KEffectiveUpdater = eigenvalue::k_effective::K_EffectiveUpdaterI;
+  using KEffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
   using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentsMap>;
@@ -103,12 +103,12 @@ class FrameworkBuilderI {
       const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> = 0;
   virtual auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&,
+      const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
       const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
   virtual auto BuildDriftDiffusionFormulation(
       const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::CrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
+      const std::shared_ptr<data::cross_sections::MaterialCrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,
@@ -159,7 +159,7 @@ class FrameworkBuilderI {
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;
   virtual auto BuildSAAFFormulation(const std::shared_ptr<FiniteElement>&,
-                                    const std::shared_ptr<data::CrossSections>&,
+                                    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
                                     const std::shared_ptr<QuadratureSet>&,
                                     const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
   virtual auto BuildSingleGroupSolver(const int max_iterations,

@@ -10,11 +10,11 @@
 #include "calculator/drift_diffusion/drift_diffusion_vector_calculator.hpp"
 #include "convergence/parameters/single_parameter_checker.hpp"
 #include "convergence/iteration_completion_checker.hpp"
-#include "data/cross_sections.h"
+#include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/finite_element_gaussian.hpp"
-#include "domain/definition.h"
-#include "eigenvalue/k_effective/updater_via_fission_source.h"
-#include "eigenvalue/k_effective/updater_via_rayleigh_quotient.hpp"
+#include "domain/domain.hpp"
+#include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
+#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
@@ -44,9 +44,9 @@
 // Mock objects
 #include "convergence/tests/convergence_checker_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
-#include "domain/tests/definition_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
@@ -58,7 +58,7 @@
 #include "framework/builder/tests/framework_validator_mock.hpp"
 #include "framework/tests/framework_mock.hpp"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "problem/tests/parameters_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
@@ -91,20 +91,20 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
 
   using FrameworkBuilder = framework::builder::FrameworkBuilder<dim>;
   using ProblemParameters = NiceMock<problem::ParametersMock>;
-  using Material = NiceMock<material::MaterialMock>;
+  using Material = NiceMock<data::material::MaterialMock>;
 
   // Mock object types
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorMock;
   using BoundaryConditionsUpdaterType = formulation::updater::BoundaryConditionsUpdaterMock;
   using DiffusionFormulationType = formulation::scalar::DiffusionMock<dim>;
   using DriftDiffusionFormulation = formulation::scalar::DriftDiffusionMock<dim>;
-  using DomainType = domain::DefinitionMock<dim>;
+  using DomainType = domain::DomainMock<dim>;
   using FiniteElementType = domain::finite_element::FiniteElementMock<dim>;
   using FissionSourceUpdaterType = formulation::updater::FissionSourceUpdaterMock;
   using FrameworkMock = framework::FrameworkMock;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationMock;
-  using KEffectiveUpdaterType = eigenvalue::k_effective::K_EffectiveUpdaterMock;
+  using KEffectiveUpdaterType = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerType = convergence::IterationCompletionCheckerMock<bart::system::moments::MomentVector>;
   using ParameterConvergenceCheckerType = convergence::IterationCompletionCheckerMock<double>;
@@ -127,7 +127,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   // Various mock objects to be used
   std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_sptr_ { nullptr };
   std::shared_ptr<BoundaryConditionsUpdaterType> boundary_conditions_updater_sptr_;
-  std::shared_ptr<data::CrossSections> cross_sections_sptr_;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_sptr_;
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_uptr_;
   std::unique_ptr<DriftDiffusionFormulation> drift_diffusion_formulation_uptr_;
   std::shared_ptr<DomainType> domain_sptr_;
@@ -179,7 +179,7 @@ template <typename DimensionWrapper>
 void FrameworkBuilderIntegrationTest<DimensionWrapper>::SetUp() {
   angular_flux_integrator_sptr_ = std::make_shared<AngularFluxIntegrator>();
   boundary_conditions_updater_sptr_ = std::make_shared<BoundaryConditionsUpdaterType>();
-  cross_sections_sptr_ = std::make_shared<data::CrossSections>(mock_material);
+  cross_sections_sptr_ = std::make_shared<data::cross_sections::MaterialCrossSections>(mock_material);
   diffusion_formulation_uptr_ = std::move(std::make_unique<DiffusionFormulationType>());
   drift_diffusion_formulation_uptr_ = std::move(std::make_unique<DriftDiffusionFormulation>());
   domain_sptr_ = std::make_shared<DomainType>();
@@ -273,7 +273,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDiffusionFormulationTest) {
   auto finite_element_ptr =
       std::make_shared<domain::finite_element::FiniteElementMock<dim>>();
   auto cross_sections_ptr =
-      std::make_shared<data::CrossSections>(this->mock_material);
+      std::make_shared<data::cross_sections::MaterialCrossSections>(this->mock_material);
 
   EXPECT_CALL(*finite_element_ptr, dofs_per_cell());
   EXPECT_CALL(*finite_element_ptr, n_cell_quad_pts());
@@ -441,7 +441,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildDomainParametersTest) {
                                                               finite_element_ptr,
                                                               "1 1 2 2");
 
-  using ExpectedType = domain::Definition<this->dim>;
+  using ExpectedType = domain::Domain<this->dim>;
 
   ASSERT_THAT(test_domain_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
 }
@@ -575,7 +575,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParameter
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
-  using ExpectedType = eigenvalue::k_effective::UpdaterViaFissionSource;
+  using ExpectedType = eigenvalue::k_eigenvalue::CalculatorViaFissionSource;
   EXPECT_CALL(*this->finite_element_sptr_, n_cell_quad_pts())
       .WillOnce(Return(10));
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater(
@@ -587,7 +587,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdaterRayleighQuotient) {
-  using ExpectedType = eigenvalue::k_effective::UpdaterViaRayleighQuotient;
+  using ExpectedType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
 
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater();
   EXPECT_THAT(k_effective_updater_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));
@@ -775,7 +775,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
   auto finite_element_ptr =
       std::make_shared<domain::finite_element::FiniteElementMock<dim>>();
   auto cross_sections_ptr =
-      std::make_shared<data::CrossSections>(this->mock_material);
+      std::make_shared<data::cross_sections::MaterialCrossSections>(this->mock_material);
   auto quadrature_set_ptr =
       std::make_shared<quadrature::QuadratureSetMock<dim>>();
 
@@ -795,7 +795,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSAAFFormulationTest) {
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildStamper) {
   constexpr int dim = this->dim;
 
-  auto domain_ptr = std::make_shared<domain::DefinitionMock<dim>>();
+  auto domain_ptr = std::make_shared<domain::DomainMock<dim>>();
 
   using ExpectedType = formulation::Stamper<dim>;
   auto stamper_ptr = this->test_builder_ptr_->BuildStamper(domain_ptr);
@@ -817,7 +817,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildSystem) {
   constexpr int dim = this->dim;
   using VariableLinearTerms = system::terms::VariableLinearTerms;
 
-  domain::DefinitionMock<dim> mock_domain;
+  domain::DomainMock<dim> mock_domain;
   const int total_groups = 2, total_angles = 3;
   const std::size_t solution_size = 10;
   const bool is_eigenvalue_problem = true, need_rhs_boundary_condition = false;

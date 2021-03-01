@@ -8,7 +8,7 @@ namespace scalar {
 
 template<int dim>
 Diffusion<dim>::Diffusion(std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element,
-                          std::shared_ptr<data::CrossSections> cross_sections)
+                          std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections)
     : finite_element_(finite_element),
       cross_sections_(cross_sections),
       cell_degrees_of_freedom_(finite_element->dofs_per_cell()),
@@ -54,7 +54,7 @@ void Diffusion<dim>::FillCellStreamingTerm(Matrix& to_fill,
   int material_id = cell_ptr->material_id();
 
   const double diffusion_coef =
-      cross_sections_->diffusion_coef.at(material_id)[group];
+      cross_sections_->diffusion_coef().at(material_id)[group];
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
     double jacobian = finite_element_->Jacobian(q);
@@ -75,8 +75,8 @@ void Diffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
   finite_element_->SetCell(cell_ptr);
   int material_id = cell_ptr->material_id();
 
-  const double sigma_t = cross_sections_->sigma_t.at(material_id)[group];
-  const double sigma_s = cross_sections_->sigma_s.at(material_id)(group, group);
+  const double sigma_t = cross_sections_->sigma_t().at(material_id)[group];
+  const double sigma_s = cross_sections_->sigma_s().at(material_id)(group, group);
   double sigma_r = sigma_t - sigma_s;
 
   for (int q = 0; q < cell_quadrature_points_; ++q) {
@@ -120,7 +120,7 @@ void Diffusion<dim>::FillCellFixedSource(Vector& to_fill,
   int material_id = cell_ptr->material_id();
   double q = 0;
   try {
-    q = cross_sections_->q.at(material_id).at(group);
+    q = cross_sections_->q().at(material_id).at(group);
   } catch (std::exception&) {
     return;
   }
@@ -144,7 +144,7 @@ void Diffusion<dim>::FillCellFissionSource(
     const system::moments::MomentsMap& group_moments) const {
 
   int material_id = cell_ptr->material_id();
-  if (cross_sections_->is_material_fissile.at(material_id)) {
+  if (cross_sections_->is_material_fissile().at(material_id)) {
     finite_element_->SetCell(cell_ptr);
 
 
@@ -166,7 +166,7 @@ void Diffusion<dim>::FillCellFissionSource(
         }
 
         auto fission_transfer =
-            cross_sections_->fiss_transfer.at(material_id)(group_in, group);
+            cross_sections_->fiss_transfer().at(material_id)(group_in, group);
 
         for (int q = 0; q < cell_quadrature_points_; ++q)
           fission_source_at_quad_points[q] +=
@@ -212,7 +212,7 @@ void Diffusion<dim>::FillCellScatteringSource(
             finite_element_->ValueAtQuadrature(moment);
 
       const auto sigma_s =
-          cross_sections_->sigma_s.at(material_id)(group, group_in);
+          cross_sections_->sigma_s().at(material_id)(group, group_in);
 
       for (int q = 0; q < cell_quadrature_points_; ++q)
         scattering_source_at_quad_points[q] +=

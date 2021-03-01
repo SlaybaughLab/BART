@@ -9,13 +9,13 @@
 #include "formulation/updater/saaf_updater.h"
 
 // Dependencies and mocks
-#include "data/cross_sections.h"
-#include "domain/tests/definition_mock.h"
+#include "data/cross_sections/material_cross_sections.hpp"
+#include "domain/tests/domain_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/tests/stamper_mock.h"
-#include "material/tests/material_mock.hpp"
+#include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
 
 namespace  {
@@ -28,11 +28,11 @@ template <typename DimensionWrapper>
 class FormulationFactoryTests : public ::testing::Test {
  public:
   static constexpr int dim = DimensionWrapper::value;
-  using DefinitionType = NiceMock<domain::DefinitionMock<dim>>;
+  using DefinitionType = NiceMock<domain::DomainMock<dim>>;
   using FiniteElementType = NiceMock<domain::finite_element::FiniteElementMock<dim>>;
   using DiffusionFormulationType = NiceMock<formulation::scalar::DiffusionMock<dim>>;
   using SAAFFormulationType = NiceMock<formulation::angular::SelfAdjointAngularFluxMock<dim>>;
-  using MaterialType = NiceMock<material::MaterialMock>;
+  using MaterialType = NiceMock<data::material::MaterialMock>;
   using QuadratureSetType = NiceMock<quadrature::QuadratureSetMock<dim>>;
   using StamperType = NiceMock<formulation::StamperMock<dim>>;
 
@@ -41,7 +41,7 @@ class FormulationFactoryTests : public ::testing::Test {
   std::unique_ptr<DiffusionFormulationType> diffusion_formulation_ptr_;
   std::unique_ptr<SAAFFormulationType> saaf_formulation_ptr_;
   std::shared_ptr<MaterialType> material_ptr_;
-  std::shared_ptr<data::CrossSections> cross_section_ptr_;
+  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_section_ptr_;
   std::shared_ptr<QuadratureSetType> quadrature_ptr_;
   std::unique_ptr<StamperType> stamper_ptr_;
 
@@ -56,7 +56,7 @@ void FormulationFactoryTests<DimensionWrapper>::SetUp() {
       std::make_unique<DiffusionFormulationType>());
   saaf_formulation_ptr_ = std::move(std::make_unique<SAAFFormulationType>());
   material_ptr_ = std::make_shared<MaterialType>();
-  cross_section_ptr_ = std::make_shared<data::CrossSections>(*material_ptr_);
+  cross_section_ptr_ = std::make_shared<data::cross_sections::MaterialCrossSections>(*material_ptr_);
   quadrature_ptr_ = std::make_shared<QuadratureSetType>();
   stamper_ptr_ = std::move(std::make_unique<StamperType>());
 }
