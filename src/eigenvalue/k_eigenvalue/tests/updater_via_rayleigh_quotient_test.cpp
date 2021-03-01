@@ -59,7 +59,7 @@ auto K_EffectiveUpdaterViaRayleighQuotientTest::SetUp() -> void {
 
 TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, Calculate) {
   eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
-  EXPECT_FALSE(test_updater.k_effective().has_value());
+  EXPECT_FALSE(test_updater.k_eigenvalue().has_value());
 
   for (int group = 0; group < total_groups_; ++group) {
     std::array<int, 3> index{ group, 0, 0 };
@@ -67,15 +67,15 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, Calculate) {
     EXPECT_CALL(*previous_moments_obs_ptr_, GetMoment(index)).WillOnce(DoDefault());
   }
 
-  auto calculated_k_effective = test_updater.CalculateK_Effective(test_system_);
+  auto calculated_k_effective = test_updater.CalculateK_Eigenvalue(test_system_);
   EXPECT_NEAR(calculated_k_effective, expected_k_effective_, 1e-8);
-  ASSERT_TRUE(test_updater.k_effective().has_value());
-  EXPECT_EQ(calculated_k_effective, test_updater.k_effective().value());
+  ASSERT_TRUE(test_updater.k_eigenvalue().has_value());
+  EXPECT_EQ(calculated_k_effective, test_updater.k_eigenvalue().value());
 }
 
 TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroCurrentFlux) {
   eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
-  EXPECT_FALSE(test_updater.k_effective().has_value());
+  EXPECT_FALSE(test_updater.k_eigenvalue().has_value());
 
   Vector zero_flux(vector_size_);
 
@@ -85,15 +85,15 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroCurrentFlux) {
     EXPECT_CALL(*previous_moments_obs_ptr_, GetMoment(index)).WillOnce(DoDefault());
   }
 
-  auto calculated_k_effective = test_updater.CalculateK_Effective(test_system_);
+  auto calculated_k_effective = test_updater.CalculateK_Eigenvalue(test_system_);
   EXPECT_NEAR(calculated_k_effective, 0, 1e-8);
-  ASSERT_TRUE(test_updater.k_effective().has_value());
-  EXPECT_EQ(calculated_k_effective, test_updater.k_effective().value());
+  ASSERT_TRUE(test_updater.k_eigenvalue().has_value());
+  EXPECT_EQ(calculated_k_effective, test_updater.k_eigenvalue().value());
 }
 
 TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroPreviousFlux) {
   eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
-  EXPECT_FALSE(test_updater.k_effective().has_value());
+  EXPECT_FALSE(test_updater.k_eigenvalue().has_value());
 
   Vector zero_flux(vector_size_);
 
@@ -103,10 +103,10 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroPreviousFlux) {
     EXPECT_CALL(*previous_moments_obs_ptr_, GetMoment(index)).WillOnce(ReturnRef(zero_flux));
   }
 
-  auto calculated_k_effective = test_updater.CalculateK_Effective(test_system_);
+  auto calculated_k_effective = test_updater.CalculateK_Eigenvalue(test_system_);
   EXPECT_NEAR(calculated_k_effective, initial_k_effective_, 1e-8);
-  ASSERT_TRUE(test_updater.k_effective().has_value());
-  EXPECT_EQ(calculated_k_effective, test_updater.k_effective().value());
+  ASSERT_TRUE(test_updater.k_eigenvalue().has_value());
+  EXPECT_EQ(calculated_k_effective, test_updater.k_eigenvalue().value());
 }
 
 } // namespace

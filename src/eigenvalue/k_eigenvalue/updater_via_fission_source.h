@@ -37,13 +37,13 @@ class UpdaterViaFissionSource : public UpdaterViaFissionSourceI {
       double initial_k_effective,
       double initial_fission_source);
 
-  double CalculateK_Effective(system::System& system) override;
+  double CalculateK_Eigenvalue(system::System& system) override;
   /*! \brief Returns the last calculated k_effective */
-  std::optional<double> k_effective() const override {
+  std::optional<double> k_eigenvalue() const override {
     return k_effective_; }
 
   /*! \brief Returns initial k_effective guess */
-  double initial_k_effective() const {
+  double initial_k_eigenvalue() const {
     return initial_k_effective_;
   }
 

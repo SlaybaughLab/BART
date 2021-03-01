@@ -1,7 +1,7 @@
 #ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
 #define BART_SRC_EIGENVALUE_K_EIGENVALUE_TESTS_K_EFFECTIVE_UPDATER_MOCK_H_
 
-#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -11,10 +11,10 @@ namespace eigenvalue {
 
 namespace k_eigenvalue {
 
-class K_EffectiveUpdaterMock : public K_EffectiveUpdaterI {
+class K_EffectiveUpdaterMock : public K_EigenvalueCalculatorI {
  public:
-  MOCK_CONST_METHOD0(k_effective, std::optional<double>());
-  MOCK_METHOD1(CalculateK_Effective, double(system::System& system));
+  MOCK_CONST_METHOD0(k_eigenvalue, std::optional<double>());
+  MOCK_METHOD1(CalculateK_Eigenvalue, double(system::System& system));
 };
 
 } // namespace k_eigenvalue

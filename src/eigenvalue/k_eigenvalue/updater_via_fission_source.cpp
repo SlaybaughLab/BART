@@ -22,14 +22,14 @@ UpdaterViaFissionSource::UpdaterViaFissionSource(
   this->set_description("k-effective updater via fission source.");
 }
 
-double UpdaterViaFissionSource::CalculateK_Effective(system::System &system) {
+double UpdaterViaFissionSource::CalculateK_Eigenvalue(system::System &system) {
 
   current_fission_source_ =
       fission_source_calculator_->AggregatedFissionSource(
           system.current_moments.get());
 
   AssertThrow(current_fission_source_ > 0,
-              dealii::ExcMessage("Error in CalculateK_Effective, fission source"
+              dealii::ExcMessage("Error in CalculateK_Eigenvalue, fission source"
                                  "is 0"));
 
   k_effective_ = initial_k_effective_ *

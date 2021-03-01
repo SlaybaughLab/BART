@@ -1,7 +1,7 @@
 #ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_I_H_
 #define BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_FISSION_SOURCE_I_H_
 
-#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 
 namespace bart {
 
@@ -9,7 +9,7 @@ namespace eigenvalue {
 
 namespace k_eigenvalue {
 
-class UpdaterViaFissionSourceI : public K_EffectiveUpdaterI {
+class UpdaterViaFissionSourceI : public K_EigenvalueCalculatorI {
  public:
   virtual ~UpdaterViaFissionSourceI() = default;
 

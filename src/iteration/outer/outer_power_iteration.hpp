@@ -2,7 +2,7 @@
 #define BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 
 #include "formulation/updater/fission_source_updater_i.h"
-#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 
 namespace bart {
@@ -14,7 +14,7 @@ namespace outer {
 class OuterPowerIteration : public OuterIteration<double> {
  public:
   using ConvergenceChecker = convergence::IterationCompletionCheckerI<double>;
-  using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterI;
+  using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorI;
   using SourceUpdaterType = formulation::updater::FissionSourceUpdaterI;
 
   OuterPowerIteration(

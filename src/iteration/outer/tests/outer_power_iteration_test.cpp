@@ -150,7 +150,7 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
     const double iteration_k_effective{i * 1.5 };
     k_effective_by_iteration.at(i + 1) = iteration_k_effective;
 
-    EXPECT_CALL(*this->k_effective_updater_obs_ptr_, CalculateK_Effective(Ref(this->test_system)))
+    EXPECT_CALL(*this->k_effective_updater_obs_ptr_, CalculateK_Eigenvalue(Ref(this->test_system)))
         .InSequence(k_effective_calls)
         .WillOnce(Return(iteration_k_effective));
 

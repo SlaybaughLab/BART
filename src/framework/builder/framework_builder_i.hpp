@@ -9,7 +9,7 @@
 #include "convergence/iteration_completion_checker_i.hpp"
 #include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
-#include "eigenvalue/k_eigenvalue/k_effective_updater_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
@@ -54,7 +54,7 @@ class FrameworkBuilderI {
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using GroupSolveIteration = iteration::group::GroupSolveIterationI;
   using Initializer = iteration::initializer::InitializerI;
-  using KEffectiveUpdater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterI;
+  using KEffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorI;
   using MomentCalculator = quadrature::calculators::SphericalHarmonicMomentsI;
   using MomentConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
   using MomentMapConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentsMap>;

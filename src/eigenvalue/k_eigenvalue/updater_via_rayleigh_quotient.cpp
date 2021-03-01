@@ -2,7 +2,7 @@
 
 namespace bart::eigenvalue::k_eigenvalue {
 
-double UpdaterViaRayleighQuotient::CalculateK_Effective(system::System& system) {
+double UpdaterViaRayleighQuotient::CalculateK_Eigenvalue(system::System& system) {
   double calculated_k_effective{ 0 };
 
   dealii::Vector<double> current_flux = system.current_moments->GetMoment(std::array{0, 0, 0});
