@@ -1,7 +1,7 @@
 #include "system/system_helper.hpp"
 #include "system/tests/system_helper_mock.hpp"
 
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "system/solution/mpi_group_angular_solution.h"
 

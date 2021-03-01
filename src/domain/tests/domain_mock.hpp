@@ -1,5 +1,5 @@
-#ifndef BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_H_
-#define BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_H_
+#ifndef BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_HPP_
+#define BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_HPP_
 
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
@@ -33,4 +33,4 @@ class DomainMock : public DomainI<dim> {
 
 } // namespace bart::domain
 
-#endif // BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_H_
+#endif // BART_SRC_DOMAIN_TESTS_DOMAIN_MOCK_HPP_

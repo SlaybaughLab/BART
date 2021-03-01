@@ -5,7 +5,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <quadrature/quadrature_types.h>
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "formulation/formulation_types.h"
 #include "system/system_types.h"
 

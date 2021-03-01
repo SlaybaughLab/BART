@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "formulation/formulation_types.h"
 #include "system/system_types.h"
 #include "utility/has_description.h"

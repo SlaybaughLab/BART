@@ -44,7 +44,7 @@
 // Mock objects
 #include "convergence/tests/convergence_checker_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "eigenvalue/k_effective/tests/k_effective_updater_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"

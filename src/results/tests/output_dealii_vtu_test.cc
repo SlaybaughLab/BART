@@ -5,7 +5,7 @@
 
 #include <deal.II/numerics/data_out.h>
 
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "results/tests/output_test.h"
 #include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"

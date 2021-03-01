@@ -5,7 +5,7 @@
 
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "calculator/cell/integrated_fission_source_i.hpp"
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "utility/has_dependencies.h"
 
 namespace bart {

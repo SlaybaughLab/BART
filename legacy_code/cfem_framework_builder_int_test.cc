@@ -15,7 +15,7 @@
 #include "domain/domain.hpp"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/finite_element/tests/finite_element_mock.h"
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "formulation/tests/cfem_stamper_mock.h"
 #include "formulation/tests/angular_stamper_mock.h"

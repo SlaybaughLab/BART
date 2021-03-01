@@ -8,7 +8,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/vector.h>
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "problem/parameter_types.hpp"
 #include "system/system_types.h"
 #include "utility/has_description.h"

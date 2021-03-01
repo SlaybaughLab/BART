@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "calculator/cell/tests/integrated_fission_source_mock.hpp"
 #include "test_helpers/dealii_test_domain.h"

@@ -3,7 +3,7 @@
 
 #include <deal.II/fe/fe_values.h>
 
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "utility/has_description.h"
 
 //! Classes that provide a finite-element basis

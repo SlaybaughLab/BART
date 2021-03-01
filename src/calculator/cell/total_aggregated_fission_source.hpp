@@ -5,7 +5,7 @@
 
 #include "calculator/cell/total_aggregated_fission_source_i.hpp"
 #include "calculator/cell/integrated_fission_source_i.hpp"
-#include "domain/domain_types.h"
+#include "domain/domain_types.hpp"
 #include "utility/has_dependencies.h"
 #include "utility/has_description.h"
 
