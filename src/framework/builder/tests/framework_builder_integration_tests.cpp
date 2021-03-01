@@ -46,7 +46,7 @@
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "domain/tests/domain_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
-#include "eigenvalue/k_eigenvalue/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/scalar/tests/diffusion_mock.h"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
@@ -104,7 +104,7 @@ class FrameworkBuilderIntegrationTest : public ::testing::Test {
   using FrameworkMock = framework::FrameworkMock;
   using GroupSolutionType = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationType = iteration::group::GroupSolveIterationMock;
-  using KEffectiveUpdaterType = eigenvalue::k_eigenvalue::K_EffectiveUpdaterMock;
+  using KEffectiveUpdaterType = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using MomentCalculatorType = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerType = convergence::IterationCompletionCheckerMock<bart::system::moments::MomentVector>;
   using ParameterConvergenceCheckerType = convergence::IterationCompletionCheckerMock<double>;

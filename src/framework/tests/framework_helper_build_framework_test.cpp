@@ -3,7 +3,7 @@
 
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
-#include "eigenvalue/k_eigenvalue/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "formulation/tests/stamper_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
@@ -66,7 +66,7 @@ class FrameworkHelperBuildFrameworkIntegrationTests : public ::testing::Test {
   using GroupSolutionMock = system::solution::MPIGroupAngularSolutionMock;
   using GroupSolveIterationMock = iteration::group::GroupSolveIterationMock;
   using InitializerMock = iteration::initializer::InitializerMock;
-  using KEffectiveUpdaterMock = eigenvalue::k_eigenvalue::K_EffectiveUpdaterMock;
+  using KEffectiveUpdaterMock = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using MomentCalculatorMock = quadrature::calculators::SphericalHarmonicMomentsMock;
   using MomentConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentVector>;
   using MomentMapConvergenceCheckerMock = convergence::IterationCompletionCheckerMock<system::moments::MomentsMap>;

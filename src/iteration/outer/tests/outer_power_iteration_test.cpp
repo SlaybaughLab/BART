@@ -5,7 +5,7 @@
 #include "instrumentation/tests/instrument_mock.h"
 #include "iteration/group/tests/group_solve_iteration_mock.h"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
-#include "eigenvalue/k_eigenvalue/tests/k_effective_updater_mock.h"
+#include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -30,7 +30,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using ConvergenceChecker = convergence::IterationCompletionCheckerMock<double>;
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using ErrorInstrumentType = instrumentation::InstrumentMock<std::pair<int, double>>;
-  using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterMock;
+  using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
@@ -112,7 +112,7 @@ TEST_F(IterationOuterPowerIterationTest, ConstructorErrors) {
     auto convergence_checker_ptr = (i == 0) ? nullptr :
         std::make_unique<convergence::IterationCompletionCheckerMock<double>>();
     auto k_effective_updater_ptr = (i == 1) ? nullptr :
-        std::make_unique<eigenvalue::k_eigenvalue::K_EffectiveUpdaterMock>();
+        std::make_unique<eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock>();
     auto source_updater_ptr = (i == 2) ? nullptr : this->source_updater_ptr_;
     auto group_iterator_ptr = (i == 3) ? nullptr :
         std::make_unique<iteration::group::GroupSolveIterationMock>();
