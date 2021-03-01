@@ -49,7 +49,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetUp() -> void {
   default_parameters_.reflective_boundaries = {problem::Boundary::kYMax};
   default_parameters_.material_mapping = parsed_material_mapping_;
   default_parameters_.eigen_solver_type = problem::EigenSolverType::kPowerIteration;
-  default_parameters_.k_effective_updater = K_EffectiveUpdaterName::kUpdaterViaFissionSource;
+  default_parameters_.k_effective_updater = K_EffectiveUpdaterName::kCalculatorViaFissionSource;
   default_parameters_.group_solver_type = problem::InGroupSolverType::kSourceIteration;
   default_parameters_.angular_quadrature_type = problem::AngularQuadType::kGaussLegendre;
   default_parameters_.angular_quadrature_order = quadrature::Order(test_helpers::RandomInt(1, 5));

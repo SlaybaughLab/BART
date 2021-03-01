@@ -13,7 +13,7 @@
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/domain.hpp"
-#include "eigenvalue/k_eigenvalue/updater_via_fission_source.h"
+#include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
 #include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/scalar/drift_diffusion.hpp"
@@ -575,7 +575,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildFiniteElementFrameworkParameter
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
-  using ExpectedType = eigenvalue::k_eigenvalue::UpdaterViaFissionSource;
+  using ExpectedType = eigenvalue::k_eigenvalue::CalculatorViaFissionSource;
   EXPECT_CALL(*this->finite_element_sptr_, n_cell_quad_pts())
       .WillOnce(Return(10));
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater(

@@ -41,7 +41,7 @@
 // KEffective Updater Classes
 #include "calculator/cell/total_aggregated_fission_source.hpp"
 #include "calculator/cell/integrated_fission_source.hpp"
-#include "eigenvalue/k_eigenvalue/updater_via_fission_source.h"
+#include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
 #include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
 
 // Material classes
@@ -394,7 +394,7 @@ auto FrameworkBuilder<dim>::BuildKEffectiveUpdater(
 -> std::unique_ptr<KEffectiveUpdater> {
   using AggregatedFissionSource = calculator::cell::TotalAggregatedFissionSource<dim>;
   using IntegratedFissionSource = calculator::cell::IntegratedFissionSource<dim>;
-  using ReturnType = eigenvalue::k_eigenvalue::UpdaterViaFissionSource;
+  using ReturnType = eigenvalue::k_eigenvalue::CalculatorViaFissionSource;
 
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr = nullptr;

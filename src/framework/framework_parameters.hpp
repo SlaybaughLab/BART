@@ -40,7 +40,7 @@ struct FrameworkParameters {
 
   // Solver structure
   std::optional<problem::EigenSolverType> eigen_solver_type{std::nullopt};
-  K_EffectiveUpdaterName                  k_effective_updater{ K_EffectiveUpdaterName::kUpdaterViaFissionSource };
+  K_EffectiveUpdaterName                  k_effective_updater{ K_EffectiveUpdaterName::kCalculatorViaFissionSource };
   problem::InGroupSolverType              group_solver_type{problem::InGroupSolverType::kSourceIteration};
 
   // Angular quadrature parameters
