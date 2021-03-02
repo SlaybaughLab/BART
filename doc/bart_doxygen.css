@@ -2,6 +2,6 @@ a.el {
     font-family: monospace;
 }
 
-.memname td, .paramtype, .paramname, .memItemLeft, .memItemRight{
+.memname td, .paramtype, .paramname, .memItemLeft, .memItemRight, .memtitle {
     font-family: monospace;
 }
