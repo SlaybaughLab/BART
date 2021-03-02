@@ -1,8 +1,8 @@
-#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/calculator_via_rayleigh_quotient.hpp"
 
 namespace bart::eigenvalue::k_eigenvalue {
 
-double UpdaterViaRayleighQuotient::CalculateK_Eigenvalue(system::System& system) {
+double CalculatorViaRayleighQuotient::CalculateK_Eigenvalue(system::System& system) {
   const double current_k_effective{ system.k_effective.value_or(1.0) };
   double calculated_k_effective{ current_k_effective };
 

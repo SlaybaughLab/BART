@@ -1,5 +1,5 @@
-#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
-#define BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
+#ifndef BART_SRC_EIGENVALUE_K_EIGENVALUE_CALCULATOR_VIA_RAYLEIGH_QUOTIENT_HPP_
+#define BART_SRC_EIGENVALUE_K_EIGENVALUE_CALCULATOR_VIA_RAYLEIGH_QUOTIENT_HPP_
 
 #include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 
@@ -12,9 +12,9 @@ namespace bart::eigenvalue::k_eigenvalue {
  * \f]
  *
  */
-class UpdaterViaRayleighQuotient : public K_EigenvalueCalculatorI {
+class CalculatorViaRayleighQuotient : public K_EigenvalueCalculatorI {
  public:
-  UpdaterViaRayleighQuotient() { this->set_description("k-effective updater via Rayleigh quotient. "); };
+  CalculatorViaRayleighQuotient() { this->set_description("k-effective updater via Rayleigh quotient. "); };
   [[nodiscard]] auto CalculateK_Eigenvalue(system::System &system) -> double override;
   [[nodiscard]] auto k_eigenvalue() const -> std::optional<double> override { return last_calculated_k_effective_; };
  private:
@@ -23,4 +23,4 @@ class UpdaterViaRayleighQuotient : public K_EigenvalueCalculatorI {
 
 } // namespace bart::eigenvalue::k_eigenvalue
 
-#endif //BART_SRC_EIGENVALUE_K_EIGENVALUE_UPDATER_VIA_RAYLEIGH_QUOTIENT_HPP_
+#endif //BART_SRC_EIGENVALUE_K_EIGENVALUE_CALCULATOR_VIA_RAYLEIGH_QUOTIENT_HPP_

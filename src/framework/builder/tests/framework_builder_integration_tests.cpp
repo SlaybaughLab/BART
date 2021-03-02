@@ -14,7 +14,7 @@
 #include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/domain.hpp"
 #include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
-#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/calculator_via_rayleigh_quotient.hpp"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
@@ -587,7 +587,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdaterRayleighQuotient) {
-  using ExpectedType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
+  using ExpectedType = eigenvalue::k_eigenvalue::CalculatorViaRayleighQuotient;
 
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater();
   EXPECT_THAT(k_effective_updater_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));

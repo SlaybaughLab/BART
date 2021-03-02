@@ -286,7 +286,7 @@ class ParametersDealiiHandler : public ParametersI {
 
   const std::unordered_map<std::string, K_EffectiveUpdaterName> kK_EffectiveUpdaterNameMap_ {
       {"fission source", K_EffectiveUpdaterName::kCalculatorViaFissionSource},
-      {"rayleigh quotient", K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient}
+      {"rayleigh quotient", K_EffectiveUpdaterName::kCalculatorViaRayleighQuotient}
   };
 
   const std::unordered_map<std::string, FuelPinTriangulationType>

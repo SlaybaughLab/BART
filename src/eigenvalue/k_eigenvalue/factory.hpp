@@ -5,7 +5,7 @@ namespace bart::eigenvalue::k_eigenvalue {
 
 enum class K_EffectiveUpdaterName {
   kCalculatorViaFissionSource = 0,
-  kUpdaterViaRayleighQuotient = 1
+  kCalculatorViaRayleighQuotient = 1
 };
 
 } // namespace bart::eigenvalue::k_eigenvalue
