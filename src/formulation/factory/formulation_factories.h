@@ -10,7 +10,7 @@
 #include "formulation/scalar/diffusion_i.h"
 
 // Stamper
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 
 // Updaters
 #include "formulation/updater/saaf_updater.h"

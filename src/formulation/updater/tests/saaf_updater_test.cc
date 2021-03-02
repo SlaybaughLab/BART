@@ -2,7 +2,7 @@
 
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
-#include "formulation/tests/stamper_mock.h"
+#include "formulation/tests/stamper_mock.hpp"
 #include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"

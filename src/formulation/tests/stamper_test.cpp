@@ -1,4 +1,4 @@
-#include "formulation/stamper.h"
+#include "formulation/stamper.hpp"
 
 #include "domain/tests/domain_mock.hpp"
 #include "test_helpers/dealii_test_domain.h"

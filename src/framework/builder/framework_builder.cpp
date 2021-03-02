@@ -30,7 +30,7 @@
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/scalar/diffusion.h"
 #include "formulation/scalar/drift_diffusion.hpp"
-#include "formulation/stamper.h"
+#include "formulation/stamper.hpp"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
 #include "formulation/updater/drift_diffusion_updater.hpp"

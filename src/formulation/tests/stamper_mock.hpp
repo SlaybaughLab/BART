@@ -1,7 +1,7 @@
-#ifndef BART_SRC_FORMULATION_TESTS_STAMPER_MOCK_H_
-#define BART_SRC_FORMULATION_TESTS_STAMPER_MOCK_H_
+#ifndef BART_SRC_FORMULATION_TESTS_STAMPER_MOCK_HPP_
+#define BART_SRC_FORMULATION_TESTS_STAMPER_MOCK_HPP_
 
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
@@ -43,4 +43,4 @@ class StamperMock : public StamperI<dim> {
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_TESTS_STAMPER_MOCK_H_
+#endif //BART_SRC_FORMULATION_TESTS_STAMPER_MOCK_HPP_

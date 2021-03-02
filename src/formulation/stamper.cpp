@@ -1,4 +1,4 @@
-#include "formulation/stamper.h"
+#include "formulation/stamper.hpp"
 
 namespace bart {
 

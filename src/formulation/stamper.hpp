@@ -1,10 +1,10 @@
-#ifndef BART_SRC_FORMULATION_STAMPER_H_
-#define BART_SRC_FORMULATION_STAMPER_H_
+#ifndef BART_SRC_FORMULATION_STAMPER_HPP_
+#define BART_SRC_FORMULATION_STAMPER_HPP_
 
 #include <memory>
 
 #include "domain/domain_i.hpp"
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 
 namespace bart {
 
@@ -68,4 +68,4 @@ class Stamper : public StamperI<dim> {
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_STAMPER_H_
+#endif //BART_SRC_FORMULATION_STAMPER_HPP_

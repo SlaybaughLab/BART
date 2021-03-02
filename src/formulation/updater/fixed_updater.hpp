@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FORMULATION_UPDATER_FIXED_UPDATER_HPP_
 #define BART_SRC_FORMULATION_UPDATER_FIXED_UPDATER_HPP_
 
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 #include "formulation/updater/fixed_updater_i.h"
 
 namespace bart::formulation::updater {

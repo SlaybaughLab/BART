@@ -19,7 +19,7 @@
 #include "formulation/updater/fission_source_updater_i.h"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/instrument_i.h"
 #include "iteration/initializer/initializer_i.h"

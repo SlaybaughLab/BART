@@ -1,7 +1,7 @@
 #include "formulation/updater/diffusion_updater.hpp"
 
 #include "formulation/scalar/tests/diffusion_mock.h"
-#include "formulation/tests/stamper_mock.h"
+#include "formulation/tests/stamper_mock.hpp"
 #include "formulation/updater/tests/updater_tests.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_assertions.hpp"

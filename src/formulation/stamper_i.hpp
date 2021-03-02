@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_STAMPER_I_H_
-#define BART_SRC_FORMULATION_STAMPER_I_H_
+#ifndef BART_SRC_FORMULATION_STAMPER_I_HPP_
+#define BART_SRC_FORMULATION_STAMPER_I_HPP_
 
 #include <functional>
 
@@ -48,4 +48,4 @@ class StamperI : public utility::HasDescription {
 
 } // namespace bart
 
-#endif // BART_SRC_FORMULATION_STAMPER_I_H_
+#endif // BART_SRC_FORMULATION_STAMPER_I_HPP_
