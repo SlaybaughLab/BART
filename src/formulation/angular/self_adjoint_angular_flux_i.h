@@ -5,7 +5,7 @@
 #include <deal.II/dofs/dof_accessor.h>
 
 #include "domain/domain_types.hpp"
-#include "formulation/formulation_types.h"
+#include "formulation/formulation_types.hpp"
 #include "quadrature/quadrature_point_i.h"
 #include "system/system_types.h"
 #include "system/moments/spherical_harmonic_types.h"

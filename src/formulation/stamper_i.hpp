@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "domain/domain_types.hpp"
-#include "formulation/formulation_types.h"
+#include "formulation/formulation_types.hpp"
 #include "system/system_types.h"
 #include "utility/has_description.h"
 

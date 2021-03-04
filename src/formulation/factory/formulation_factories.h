@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "formulation/formulation_types.h"
+#include "formulation/formulation_types.hpp"
 
 // Formulations
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
