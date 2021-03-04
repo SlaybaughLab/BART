@@ -5,7 +5,7 @@
 // Built by factory
 #include "formulation/stamper.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
-#include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/diffusion.hpp"
 #include "formulation/updater/saaf_updater.h"
 
 // Dependencies and mocks
@@ -13,7 +13,7 @@
 #include "domain/tests/domain_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
-#include "formulation/scalar/tests/diffusion_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.hpp"
 #include "formulation/tests/stamper_mock.hpp"
 #include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"

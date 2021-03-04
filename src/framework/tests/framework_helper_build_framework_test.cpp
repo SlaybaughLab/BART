@@ -10,7 +10,7 @@
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "formulation/updater/tests/fixed_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
-#include "formulation/scalar/tests/diffusion_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.hpp"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
 #include "framework/builder/framework_builder_i.hpp"
 #include "framework/builder/tests/framework_builder_mock.hpp"

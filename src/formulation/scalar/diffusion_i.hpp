@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_H_
-#define BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_H_
+#ifndef BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_HPP_
+#define BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_HPP_
 
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
@@ -72,4 +72,4 @@ class DiffusionI : public utility::HasDescription {
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_H_
+#endif //BART_SRC_FORMULATION_SCALAR_DIFFUSION_I_HPP_

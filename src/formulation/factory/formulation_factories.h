@@ -7,7 +7,7 @@
 
 // Formulations
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
-#include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/diffusion_i.hpp"
 
 // Stamper
 #include "formulation/stamper_i.hpp"

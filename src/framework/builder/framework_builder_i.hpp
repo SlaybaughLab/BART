@@ -13,7 +13,7 @@
 #include "framework/framework_i.hpp"
 #include "framework/framework_parameters.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
-#include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/diffusion_i.hpp"
 #include "formulation/scalar/drift_diffusion_i.hpp"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"

@@ -3,7 +3,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
-#include "formulation/scalar/tests/diffusion_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.hpp"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
 #include "formulation/tests/stamper_mock.hpp"
 #include "formulation/updater/tests/updater_tests.h"

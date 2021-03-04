@@ -1,11 +1,11 @@
-#ifndef BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_H_
-#define BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_H_
+#ifndef BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_HPP_
+#define BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_HPP_
 
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
 #include "system/moments/spherical_harmonic_types.h"
-#include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/diffusion_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace bart {
@@ -60,4 +60,4 @@ class DiffusionMock : public DiffusionI<dim> {
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_H_
+#endif //BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_HPP_

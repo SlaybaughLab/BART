@@ -1,5 +1,5 @@
-#ifndef BART_SRC_FORMULATION_SCALAR_DIFFUSION_H_
-#define BART_SRC_FORMULATION_SCALAR_DIFFUSION_H_
+#ifndef BART_SRC_FORMULATION_SCALAR_DIFFUSION_HPP_
+#define BART_SRC_FORMULATION_SCALAR_DIFFUSION_HPP_
 
 #include <memory>
 
@@ -8,7 +8,7 @@
 #include "system/moments/spherical_harmonic_types.h"
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
-#include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/diffusion_i.hpp"
 
 namespace bart {
 
@@ -111,4 +111,4 @@ class Diffusion : public DiffusionI<dim> {
 
 } // namespace bart
 
-#endif //BART_SRC_FORMULATION_SCALAR_DIFFUSION_H_
+#endif //BART_SRC_FORMULATION_SCALAR_DIFFUSION_HPP_

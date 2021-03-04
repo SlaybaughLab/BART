@@ -1,4 +1,4 @@
-#include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/diffusion.hpp"
 
 namespace bart {
 
