@@ -145,8 +145,9 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
 
   // Set call expectations
   EXPECT_CALL(*fe_mock_ptr, SetCell(_)).Times(1);
-  EXPECT_CALL(*fe_mock_ptr, ShapeValue(_,_)).Times(16).WillRepeatedly(DoDefault());
-  EXPECT_CALL(*fe_mock_ptr, ShapeGradient(_,_)).Times(16).WillRepeatedly(DoDefault());
+  // These are called at least 4 times which is the minimum required for 2 dofs and 2 quadrature points
+  EXPECT_CALL(*fe_mock_ptr, ShapeValue(_,_)).Times(::testing::AtLeast(4)).WillRepeatedly(DoDefault());
+  EXPECT_CALL(*fe_mock_ptr, ShapeGradient(_,_)).Times(::testing::AtLeast(4)).WillRepeatedly(DoDefault());
 
   test_diffusion.Precalculate(cell_ptr_);
   auto shape_squared = test_diffusion.GetShapeSquared();

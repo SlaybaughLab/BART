@@ -8,56 +8,30 @@
 #include "formulation/scalar/diffusion_i.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
-namespace bart {
-
-namespace formulation {
-
-namespace scalar {
+namespace bart::formulation::scalar {
 
 template <int dim>
 class DiffusionMock : public DiffusionI<dim> {
  public:
   using typename DiffusionI<dim>::BoundaryType;
-
   using typename DiffusionI<dim>::CellPtr;
   using typename DiffusionI<dim>::Matrix;
   using typename DiffusionI<dim>::Vector;
   using typename DiffusionI<dim>::GroupNumber;
   using typename DiffusionI<dim>::FaceNumber;
 
-  MOCK_METHOD(void, Precalculate, (const CellPtr& cell_ptr),
-              (override));
-  MOCK_METHOD(void, FillCellStreamingTerm,
-              (Matrix&, const CellPtr&, const GroupNumber), (const, override));
-
-  MOCK_METHOD(void, FillCellCollisionTerm,
-              (Matrix&, const CellPtr&, const GroupNumber), (const, override));
-
-  MOCK_METHOD(void, FillBoundaryTerm,
-              (Matrix&, const CellPtr&, const FaceNumber, const BoundaryType),
-              (const, override));
-
-  MOCK_METHOD(void, FillCellFixedSource,
-              (Vector& to_fill, const CellPtr&, const GroupNumber),
-              (const, override));
-
-  MOCK_METHOD(void, FillCellFissionSource,
-              (Vector&, const CellPtr&, const GroupNumber,const double,
-                  const system::moments::MomentVector&,
-                  const system::moments::MomentsMap&), (const, override));
-
-  MOCK_METHOD(void, FillCellScatteringSource,
-              (Vector&, const CellPtr&, const GroupNumber,
-                  const system::moments::MomentsMap&), (const, override));
-
+  MOCK_METHOD(void, Precalculate, (const CellPtr& cell_ptr), (override));
+  MOCK_METHOD(void, FillCellStreamingTerm, (Matrix&, const CellPtr&, GroupNumber), (const, override));
+  MOCK_METHOD(void, FillCellCollisionTerm, (Matrix&, const CellPtr&, GroupNumber), (const, override));
+  MOCK_METHOD(void, FillBoundaryTerm, (Matrix&, const CellPtr&, const FaceNumber, BoundaryType), (const, override));
+  MOCK_METHOD(void, FillCellFixedSource, (Vector& to_fill, const CellPtr&, GroupNumber), (const, override));
+  MOCK_METHOD(void, FillCellFissionSource, (Vector&, const CellPtr&, GroupNumber, double,
+      const system::moments::MomentVector&, const system::moments::MomentsMap&), (const, override));
+  MOCK_METHOD(void, FillCellScatteringSource, (Vector&, const CellPtr&, GroupNumber,
+      const system::moments::MomentsMap&), (const, override));
   MOCK_METHOD(bool, is_initialized, (), (const, override));
 };
 
-
-} // namespace scalar
-
-} // namespace formulation
-
-} // namespace bart
+} // namespace bart::formulation::scalar
 
 #endif //BART_SRC_FORMULATION_SCALAR_TESTS_DIFFUSION_MOCK_HPP_
