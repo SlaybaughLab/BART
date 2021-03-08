@@ -28,9 +28,9 @@
 
 // Formulation classes
 #include "formulation/angular/self_adjoint_angular_flux.h"
-#include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/diffusion.hpp"
 #include "formulation/scalar/drift_diffusion.hpp"
-#include "formulation/stamper.h"
+#include "formulation/stamper.hpp"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
 #include "formulation/updater/drift_diffusion_updater.hpp"
@@ -42,7 +42,7 @@
 #include "calculator/cell/total_aggregated_fission_source.hpp"
 #include "calculator/cell/integrated_fission_source.hpp"
 #include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
-#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/calculator_via_rayleigh_quotient.hpp"
 
 // Material classes
 #include "data/material/material_protobuf.hpp"
@@ -378,7 +378,7 @@ auto FrameworkBuilder<dim>::BuildInitializer(const std::shared_ptr<FixedTermUpda
 
 template<int dim>
 auto FrameworkBuilder<dim>::BuildKEffectiveUpdater() -> std::unique_ptr<KEffectiveUpdater> {
-  using ReturnType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
+  using ReturnType = eigenvalue::k_eigenvalue::CalculatorViaRayleighQuotient;
   ReportBuildingComponant("K_Effective updater");
   std::unique_ptr<KEffectiveUpdater> return_ptr{ nullptr };
   return_ptr = std::move(std::make_unique<ReturnType>());

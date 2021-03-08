@@ -5,7 +5,7 @@
 #include <optional>
 
 #include "calculator/cell/total_aggregated_fission_source_i.hpp"
-#include "eigenvalue/k_eigenvalue/calculator_via_fission_source_i.hpp"
+#include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
 
 namespace bart::eigenvalue::k_eigenvalue {
 
@@ -22,7 +22,7 @@ namespace bart::eigenvalue::k_eigenvalue {
  * calculator::cell::TotalAggregatedFissionSourceI to accomplish this. With each call of CalculateKEff, the current and
  * previous fission source values are updated. Previous values are not stored in the default implementation.
  */
-class CalculatorViaFissionSource : public CalculatorViaFissionSourceI {
+class CalculatorViaFissionSource : public K_EigenvalueCalculatorI {
  public:
   using FissionSourceCalculator = calculator::cell::TotalAggregatedFissionSourceI;
 
@@ -41,7 +41,7 @@ class CalculatorViaFissionSource : public CalculatorViaFissionSourceI {
   /*! \brief Returns initial k_eigenvalue guess */
   [[nodiscard]] auto initial_k_eigenvalue() const -> double { return initial_k_eigenvalue_; }
   /*! \brief Returns the fission source used in the numerator of the calculation.  */
-  [[nodiscard]] auto current_fission_source() const -> std::optional<double> override { return current_fission_source_; }
+  [[nodiscard]] auto current_fission_source() const -> std::optional<double> { return current_fission_source_; }
   /*! \brief Returns the fission source used in the denominator of the calculation.  */
   [[nodiscard]] auto initial_fission_source() const -> std::optional<double> { return initial_fission_source_; }
 

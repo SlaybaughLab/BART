@@ -14,14 +14,14 @@
 #include "domain/finite_element/finite_element_gaussian.hpp"
 #include "domain/domain.hpp"
 #include "eigenvalue/k_eigenvalue/calculator_via_fission_source.hpp"
-#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
-#include "formulation/scalar/diffusion.h"
+#include "eigenvalue/k_eigenvalue/calculator_via_rayleigh_quotient.hpp"
+#include "formulation/scalar/diffusion.hpp"
 #include "formulation/scalar/drift_diffusion.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
 #include "formulation/updater/saaf_updater.h"
 #include "formulation/updater/diffusion_updater.hpp"
 #include "formulation/updater/drift_diffusion_updater.hpp"
-#include "formulation/stamper.h"
+#include "formulation/stamper.hpp"
 #include "instrumentation/instrument.h"
 #include "instrumentation/basic_instrument.h"
 #include "iteration/outer/outer_power_iteration.hpp"
@@ -48,9 +48,9 @@
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
-#include "formulation/scalar/tests/diffusion_mock.h"
+#include "formulation/scalar/tests/diffusion_mock.hpp"
 #include "formulation/scalar/tests/drift_diffusion_mock.hpp"
-#include "formulation/tests/stamper_mock.h"
+#include "formulation/tests/stamper_mock.hpp"
 #include "formulation/updater/tests/boundary_conditions_updater_mock.h"
 #include "formulation/updater/tests/scattering_source_updater_mock.h"
 #include "formulation/updater/tests/fission_source_updater_mock.h"
@@ -587,7 +587,7 @@ TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdater) {
 }
 
 TYPED_TEST(FrameworkBuilderIntegrationTest, BuildKeffectiveUpdaterRayleighQuotient) {
-  using ExpectedType = eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient;
+  using ExpectedType = eigenvalue::k_eigenvalue::CalculatorViaRayleighQuotient;
 
   auto k_effective_updater_ptr = this->test_builder_ptr_->BuildKEffectiveUpdater();
   EXPECT_THAT(k_effective_updater_ptr.get(), WhenDynamicCastTo<ExpectedType*>(NotNull()));

@@ -3,14 +3,14 @@
 
 #include <memory>
 
-#include "formulation/formulation_types.h"
+#include "formulation/formulation_types.hpp"
 
 // Formulations
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
-#include "formulation/scalar/diffusion_i.h"
+#include "formulation/scalar/diffusion_i.hpp"
 
 // Stamper
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 
 // Updaters
 #include "formulation/updater/saaf_updater.h"

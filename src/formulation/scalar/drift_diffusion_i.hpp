@@ -6,7 +6,7 @@
 #include <quadrature/quadrature_types.h>
 
 #include "domain/domain_types.hpp"
-#include "formulation/formulation_types.h"
+#include "formulation/formulation_types.hpp"
 #include "system/system_types.h"
 
 namespace bart::formulation::scalar {

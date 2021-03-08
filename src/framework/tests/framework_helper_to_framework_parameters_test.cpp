@@ -186,7 +186,7 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, SAAFWithLevelSymmetric) {
 
 TEST_F(FrameworkHelperToFrameworkParametersTest, KEffectiveUpdaterRayleighQuotient) {
   auto test_parameters{ default_parameters_ };
-  test_parameters.k_effective_updater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kUpdaterViaRayleighQuotient;
+  test_parameters.k_effective_updater = eigenvalue::k_eigenvalue::K_EffectiveUpdaterName::kCalculatorViaRayleighQuotient;
 
   SetExpectations(test_parameters);
   auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);

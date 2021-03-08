@@ -1,4 +1,4 @@
-#include "eigenvalue/k_eigenvalue/updater_via_rayleigh_quotient.hpp"
+#include "eigenvalue/k_eigenvalue/calculator_via_rayleigh_quotient.hpp"
 
 #include "system/system.hpp"
 #include "system/moments/tests/spherical_harmonic_mock.h"
@@ -10,7 +10,7 @@ using namespace bart;
 
 using ::testing::DoDefault, ::testing::NiceMock, ::testing::ReturnRef;
 
-class K_EffectiveUpdaterViaRayleighQuotientTest : public ::testing::Test {
+class K_EffectiveCalculatorViaRayleighQuotientTest : public ::testing::Test {
  public:
   using SphericalHarmonicMock = NiceMock<system::moments::SphericalHarmonicMock>;
   using Vector = dealii::Vector<double>;
@@ -29,7 +29,7 @@ class K_EffectiveUpdaterViaRayleighQuotientTest : public ::testing::Test {
   auto SetUp() -> void override;
 };
 
-auto K_EffectiveUpdaterViaRayleighQuotientTest::SetUp() -> void {
+auto K_EffectiveCalculatorViaRayleighQuotientTest::SetUp() -> void {
   for (int group = 0; group < total_groups_; ++group) {
     Vector current_group_moment(vector_size_), previous_group_moment(vector_size_);
     for (int i = 0; i < vector_size_; ++i) {
@@ -57,8 +57,8 @@ auto K_EffectiveUpdaterViaRayleighQuotientTest::SetUp() -> void {
   }
 }
 
-TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, Calculate) {
-  eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
+TEST_F(K_EffectiveCalculatorViaRayleighQuotientTest, Calculate) {
+  eigenvalue::k_eigenvalue::CalculatorViaRayleighQuotient test_updater;
   EXPECT_FALSE(test_updater.k_eigenvalue().has_value());
 
   for (int group = 0; group < total_groups_; ++group) {
@@ -73,8 +73,8 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, Calculate) {
   EXPECT_EQ(calculated_k_effective, test_updater.k_eigenvalue().value());
 }
 
-TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroCurrentFlux) {
-  eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
+TEST_F(K_EffectiveCalculatorViaRayleighQuotientTest, ZeroCurrentFlux) {
+  eigenvalue::k_eigenvalue::CalculatorViaRayleighQuotient test_updater;
   EXPECT_FALSE(test_updater.k_eigenvalue().has_value());
 
   Vector zero_flux(vector_size_);
@@ -91,8 +91,8 @@ TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroCurrentFlux) {
   EXPECT_EQ(calculated_k_effective, test_updater.k_eigenvalue().value());
 }
 
-TEST_F(K_EffectiveUpdaterViaRayleighQuotientTest, ZeroPreviousFlux) {
-  eigenvalue::k_eigenvalue::UpdaterViaRayleighQuotient test_updater;
+TEST_F(K_EffectiveCalculatorViaRayleighQuotientTest, ZeroPreviousFlux) {
+  eigenvalue::k_eigenvalue::CalculatorViaRayleighQuotient test_updater;
   EXPECT_FALSE(test_updater.k_eigenvalue().has_value());
 
   Vector zero_flux(vector_size_);

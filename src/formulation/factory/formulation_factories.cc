@@ -1,8 +1,8 @@
 #include "formulation/factory/formulation_factories.h"
 
-#include "formulation/stamper.h"
+#include "formulation/stamper.hpp"
 #include "formulation/angular/self_adjoint_angular_flux.h"
-#include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/diffusion.hpp"
 
 namespace bart {
 

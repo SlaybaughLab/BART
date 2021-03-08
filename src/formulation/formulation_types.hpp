@@ -1,12 +1,10 @@
-#ifndef BART_SRC_FORMULATION_FORMULATION_TYPES_H_
-#define BART_SRC_FORMULATION_FORMULATION_TYPES_H_
+#ifndef BART_SRC_FORMULATION_FORMULATION_TYPES_HPP_
+#define BART_SRC_FORMULATION_FORMULATION_TYPES_HPP_
 
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/vector.h>
 
-namespace bart {
-
-namespace formulation {
+namespace bart::formulation {
 
 using FullMatrix = dealii::FullMatrix<double>;
 using Vector = dealii::Vector<double>;
@@ -30,8 +28,6 @@ enum class StamperImpl {
   kDefault = 0,
 };
 
-} // namespace formulation
+} // bart::formulation
 
-} // namespace bart
-
-#endif //BART_SRC_FORMULATION_FORMULATION_TYPES_H_
+#endif //BART_SRC_FORMULATION_FORMULATION_TYPES_HPP_

@@ -4,8 +4,8 @@
 #include <memory>
 #include <unordered_set>
 
-#include "formulation/scalar/diffusion_i.h"
-#include "formulation/stamper_i.h"
+#include "formulation/scalar/diffusion_i.hpp"
+#include "formulation/stamper_i.hpp"
 #include "formulation/updater/fixed_updater.hpp"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/fixed_source_updater_i.h"

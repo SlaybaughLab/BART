@@ -3,7 +3,7 @@
 
 #include "diffusion_updater.hpp"
 #include "formulation/scalar/drift_diffusion_i.hpp"
-#include "formulation/stamper_i.h"
+#include "formulation/stamper_i.hpp"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "system/solution/solution_types.h"
 #include "system/moments/spherical_harmonic_i.h"

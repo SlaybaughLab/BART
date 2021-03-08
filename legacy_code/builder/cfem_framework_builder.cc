@@ -14,7 +14,7 @@
 #include "domain/mesh/mesh_cartesian.hpp"
 #include "eigenvalue/k_effective/updater_via_fission_source.h"
 #include "formulation/cfem_diffusion_stamper.h"
-#include "formulation/scalar/diffusion.h"
+#include "formulation/scalar/diffusion.hpp"
 #include "formulation/cfem_saaf_stamper.h"
 #include "framework/framework.h"
 #include "iteration/updater/source_updater_gauss_seidel.h"
