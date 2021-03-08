@@ -8,46 +8,44 @@ DriftDiffusion<dim>::DriftDiffusion(std::shared_ptr<FiniteElement> finite_elemen
                                     std::shared_ptr<CrossSections> cross_sections_ptr,
                                     std::shared_ptr<DriftDiffusionCalculator> drift_diffusion_calculator_ptr,
                                     std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr)
-    : finite_element_ptr_(finite_element_ptr),
-      cross_sections_ptr_(cross_sections_ptr),
-      drift_diffusion_calculator_ptr_(drift_diffusion_calculator_ptr),
-      angular_flux_integrator_ptr_(angular_flux_integrator_ptr) {
+    : finite_element_ptr_(std::move(finite_element_ptr)),
+      cross_sections_ptr_(std::move(cross_sections_ptr)),
+      drift_diffusion_calculator_ptr_(std::move(drift_diffusion_calculator_ptr)),
+      angular_flux_integrator_ptr_(std::move(angular_flux_integrator_ptr)) {
   std::string function_name{"formulation::scalar::DriftDiffusion constructor"};
   AssertPointerNotNull(finite_element_ptr_.get(), "finite_element_ptr", function_name);
   AssertPointerNotNull(cross_sections_ptr_.get(), "cross_sections_ptr", function_name);
   AssertPointerNotNull(drift_diffusion_calculator_ptr_.get(), "drift_diffusion_calculator_ptr", function_name);
   AssertPointerNotNull(angular_flux_integrator_ptr_.get(), "angular flux integrator ptr", function_name);
-  cell_quadrature_points_ = finite_element_ptr->n_cell_quad_pts();
-  cell_degrees_of_freedom_ = finite_element_ptr->dofs_per_cell();
-  face_quadrature_points_ = finite_element_ptr->n_face_quad_pts();
+  cell_quadrature_points_ = finite_element_ptr_->n_cell_quad_pts();
+  cell_degrees_of_freedom_ = finite_element_ptr_->dofs_per_cell();
+  face_quadrature_points_ = finite_element_ptr_->n_face_quad_pts();
 }
 
 template <int dim>
 bool DriftDiffusion<dim>::is_registered_ =
-    DriftDiffusionIFactory<dim, std::shared_ptr<FiniteElement>, std::shared_ptr<CrossSections>,
-                           std::shared_ptr<DriftDiffusionCalculator>, std::shared_ptr<AngularFluxIntegrator>>::get()
-        .RegisterConstructor(DriftDiffusionFormulationName::kDefaultImplementation,
-                             [](std::shared_ptr<FiniteElement> finite_element_ptr,
-                                std::shared_ptr<CrossSections> cross_sections_ptr,
-                                std::shared_ptr<DriftDiffusionCalculator> drift_diffusion_calculator_ptr,
-                                std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr)
-                                -> std::unique_ptr<DriftDiffusionI<dim>> {
-                               return std::make_unique<DriftDiffusion<dim>>(finite_element_ptr,
-                                                                            cross_sections_ptr,
-                                                                            drift_diffusion_calculator_ptr,
-                                                                            angular_flux_integrator_ptr);
-                             }
-        );
+    Factory::get().RegisterConstructor(
+        DriftDiffusionFormulationName::kDefaultImplementation,
+        [](std::shared_ptr<FiniteElement> finite_element_ptr,
+           std::shared_ptr<CrossSections> cross_sections_ptr,
+           std::shared_ptr<DriftDiffusionCalculator> drift_diffusion_calculator_ptr,
+           std::shared_ptr<AngularFluxIntegrator> angular_flux_integrator_ptr) -> std::unique_ptr<DriftDiffusionI<dim>> {
+          return std::make_unique<DriftDiffusion<dim>>(std::move(finite_element_ptr),
+                                                       std::move(cross_sections_ptr),
+                                                       std::move(drift_diffusion_calculator_ptr),
+                                                       std::move(angular_flux_integrator_ptr));
+        }
+    );
 
 template<int dim>
-void DriftDiffusion<dim>::FillCellBoundaryTerm(Matrix& to_fill,
+auto DriftDiffusion<dim>::FillCellBoundaryTerm(Matrix& to_fill,
                                                const CellPtr& cell_ptr,
-                                               domain::FaceIndex face_index,
+                                               const domain::FaceIndex face_index,
                                                const BoundaryType boundary_type,
-                                               const VectorMap& group_angular_flux) const {
-  std::string error_prefix{"Error in DriftDiffusion<dim>::FillCellBoundaryTerm: "};
-  AssertThrow(static_cast<int>(to_fill.m()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong m()"))
-  AssertThrow(static_cast<int>(to_fill.n()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong n()"))
+                                               const VectorMap& group_angular_flux) const -> void {
+  std::string error_prefix{"Error in DriftDiffusion<dim>::FillCellBoundaryTerm: matrix to fill has wrong "};
+  AssertThrow(static_cast<int>(to_fill.m()) == cell_quadrature_points_, dealii::ExcMessage(error_prefix + "m()"))
+  AssertThrow(static_cast<int>(to_fill.n()) == cell_quadrature_points_, dealii::ExcMessage(error_prefix + "n()"))
 
   if (boundary_type == BoundaryType::kVacuum) {
     finite_element_ptr_->SetFace(cell_ptr, face_index);
@@ -89,10 +87,11 @@ auto DriftDiffusion<dim>::FillCellDriftDiffusionTerm(Matrix &to_fill,
                                                      const CellPtr &cell_ptr,
                                                      system::EnergyGroup group,
                                                      const Vector &group_scalar_flux,
-                                                     const std::array<Vector, dim> &current) const -> void{
-  std::string error_prefix{"Error in DriftDiffusion<dim>::FillCellDriftDiffusionTerm: "};
-  AssertThrow(static_cast<int>(to_fill.m()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong m()"))
-  AssertThrow(static_cast<int>(to_fill.n()) == cell_quadrature_points_, dealii::ExcMessage("matrix to fill has wrong n()"))
+                                                     const std::array<Vector, dim> &current) const -> void {
+  std::string error_prefix{"Error in DriftDiffusion<dim>::FillCellDriftDiffusionTerm: matrix to fill has wrong "};
+  AssertThrow(static_cast<int>(to_fill.m()) == cell_quadrature_points_, dealii::ExcMessage(error_prefix + "m()"))
+  AssertThrow(static_cast<int>(to_fill.n()) == cell_quadrature_points_, dealii::ExcMessage(error_prefix + "n()"))
+
   finite_element_ptr_->SetCell(cell_ptr);
   const auto material_id{ cell_ptr->material_id() };
   const double diffusion_coeff{ cross_sections_ptr_->diffusion_coef().at(material_id).at(group.get()) };
@@ -120,7 +119,6 @@ auto DriftDiffusion<dim>::FillCellDriftDiffusionTerm(Matrix &to_fill,
       }
     }
   }
-
 }
 
 template class DriftDiffusion<1>;
