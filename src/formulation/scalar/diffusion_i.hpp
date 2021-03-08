@@ -99,7 +99,7 @@ class DiffusionI : public utility::HasDescription {
 /*! \brief Integrates the bilinear boundary term over a cell and fills a given matrix.
    *
    * For a given cell and face in the triangulation, \f$\partial K \in \partial T_K\f$, with basis functions
-   * \f$\varphi\f$, this function integrates the bilinear SAAF streaming term for
+   * \f$\varphi\f$, this function integrates the bilinear diffusion boundary term for
    * one group using the cell quadrature and adds them to the provided
    * local cell matrix, \f$\mathbf{A}\f$. For reflective boundary conditions, nothing is added, for vacuum:
    *

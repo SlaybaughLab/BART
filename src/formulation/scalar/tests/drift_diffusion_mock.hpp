@@ -15,10 +15,10 @@ class DriftDiffusionMock : public DriftDiffusionI<dim> {
   using typename DriftDiffusionI<dim>::Vector;
   using typename DriftDiffusionI<dim>::VectorMap;
 
-  MOCK_METHOD(void, FillCellBoundaryTerm, (Matrix& to_fill, const CellPtr&, const domain::FaceIndex,
-      const BoundaryType, const VectorMap&), (const, override));
-  MOCK_METHOD(void, FillCellDriftDiffusionTerm, (Matrix& to_fill, const CellPtr&, const system::EnergyGroup,
-                  const Vector& group_scalar_flux, (const std::array<Vector, dim>)& current), (const,override));
+  MOCK_METHOD(void, FillCellBoundaryTerm, (Matrix& to_fill, const CellPtr&, domain::FaceIndex, BoundaryType,
+      const VectorMap&), (const, override));
+  MOCK_METHOD(void, FillCellDriftDiffusionTerm, (Matrix& to_fill, const CellPtr&, system::EnergyGroup,
+      const Vector&, (const std::array<Vector, dim>)&), (const,override));
 };
 
 } // namespace bart::formulation::scalar
