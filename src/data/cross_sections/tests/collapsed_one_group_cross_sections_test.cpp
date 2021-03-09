@@ -40,7 +40,7 @@ class DataCrossSectionsCollapsedOneGroup : public ::testing::Test {
 };
 
 auto DataCrossSectionsCollapsedOneGroup::SetUp() -> void {
-  auto collapse_vector = [](MaterialIDMappedTo<std::vector<double>> to_collapse) {
+  auto CollapseVector = [](MaterialIDMappedTo<std::vector<double>> to_collapse) {
     MaterialIDMappedTo<std::vector<double>> return_map;
     for (auto& [id, vector] : to_collapse) {
       double sum{ 0.0 };
@@ -50,8 +50,7 @@ auto DataCrossSectionsCollapsedOneGroup::SetUp() -> void {
     }
     return return_map;
   };
-
-  auto collapse_matrix = [G = this->total_groups](MaterialIDMappedTo<FullMatrix> to_collapse) {
+  auto CollapseMatrix = [G = this->total_groups](MaterialIDMappedTo<FullMatrix> to_collapse) {
     MaterialIDMappedTo<FullMatrix> return_map;
     for (auto& [id, matrix] : to_collapse) {
       FullMatrix material_matrix(1, 1);
@@ -65,29 +64,43 @@ auto DataCrossSectionsCollapsedOneGroup::SetUp() -> void {
     }
     return return_map;
   };
+  auto RandomMaterialVectorMap = [total_materials = this->total_materials, total_groups = this->total_groups]() {
+    MaterialIDMappedTo<std::vector<double>> return_map;
+    for (int material_id = 0; material_id < total_materials; ++material_id) {
+      return_map[material_id] = test_helpers::RandomVector(total_groups, 0, 100);
+    }
+    return return_map;
+  };
+  auto RandomMaterialMatrixMap = [total_materials = this->total_materials, total_groups = this->total_groups]() {
+    MaterialIDMappedTo<FullMatrix> return_map;
+    for (int material_id = 0; material_id < total_materials; ++material_id) {
+      return_map[material_id] = test_helpers::RandomMatrix(total_groups, total_groups, 0, 100);
+    }
+    return return_map;
+  };
 
-  auto diffusion_coef = test_helpers::RandomIntVectorMap(total_materials, total_groups);
-  collapsed_diffusion_coef_ = collapse_vector(diffusion_coef);
-  auto sigma_t = test_helpers::RandomIntVectorMap(total_materials, total_groups);
-  collapsed_sigma_t_ = collapse_vector(sigma_t);
-  auto inverse_sigma_t = test_helpers::RandomIntVectorMap(total_materials, total_groups);
-  collapsed_inverse_sigma_t_ = collapse_vector(inverse_sigma_t);
-  const auto sigma_s = test_helpers::RandomIntMatrixMap(total_materials, total_groups, total_groups);
-  collapsed_sigma_s_ = collapse_matrix(sigma_s);
-  const auto sigma_s_per_ster = test_helpers::RandomIntMatrixMap(total_materials, total_groups, total_groups);
-  collapsed_sigma_s_per_ster_ = collapse_matrix(sigma_s_per_ster);
-  auto q = test_helpers::RandomIntVectorMap(total_materials, total_groups);
-  collapsed_q_ = collapse_vector(q);
-  auto q_per_ster = test_helpers::RandomIntVectorMap(total_materials, total_groups);
-  collapsed_q_per_ster_ = collapse_vector(q_per_ster);
+  auto diffusion_coef = RandomMaterialVectorMap();
+  collapsed_diffusion_coef_ = CollapseVector(diffusion_coef);
+  auto sigma_t = RandomMaterialVectorMap();
+  collapsed_sigma_t_ = CollapseVector(sigma_t);
+  auto inverse_sigma_t = RandomMaterialVectorMap();
+  collapsed_inverse_sigma_t_ = CollapseVector(inverse_sigma_t);
+  const auto sigma_s = RandomMaterialMatrixMap();
+  collapsed_sigma_s_ = CollapseMatrix(sigma_s);
+  const auto sigma_s_per_ster = RandomMaterialMatrixMap();
+  collapsed_sigma_s_per_ster_ = CollapseMatrix(sigma_s_per_ster);
+  auto q = RandomMaterialVectorMap();
+  collapsed_q_ = CollapseVector(q);
+  auto q_per_ster = RandomMaterialVectorMap();
+  collapsed_q_per_ster_ = CollapseVector(q_per_ster);
   for (int i = 0; i < total_materials; ++i)
     is_material_fissile_[i] = test_helpers::RandomDouble(0, 1) > 0.5;
-  auto nu_sigma_f = test_helpers::RandomIntVectorMap(total_materials, total_groups);
-  collapsed_nu_sigma_f_ = collapse_vector(nu_sigma_f);
-  auto fission_transfer = test_helpers::RandomIntMatrixMap(total_materials, total_groups, total_groups);
-  collapsed_fiss_transfer_ = collapse_matrix(fission_transfer);
-  auto fission_transfer_per_ster = test_helpers::RandomIntMatrixMap(total_materials, total_groups, total_groups);
-  collapsed_fiss_transfer_per_ster_ = collapse_matrix(fission_transfer_per_ster);
+  auto nu_sigma_f = RandomMaterialVectorMap();
+  collapsed_nu_sigma_f_ = CollapseVector(nu_sigma_f);
+  auto fission_transfer = RandomMaterialMatrixMap();
+  collapsed_fiss_transfer_ = CollapseMatrix(fission_transfer);
+  auto fission_transfer_per_ster = RandomMaterialMatrixMap();
+  collapsed_fiss_transfer_per_ster_ = CollapseMatrix(fission_transfer_per_ster);
 
 
   ON_CALL(*cross_sections_mock_ptr_, diffusion_coef()).WillByDefault(Return(diffusion_coef));
