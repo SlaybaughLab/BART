@@ -28,10 +28,11 @@ auto collapse_matrix = [](MaterialIDMappedTo<FullMatrix> to_collapse) {
 } // namespace
 
 CollapsedOneGroupCrossSections::CollapsedOneGroupCrossSections(const CrossSectionsI &to_collapse) {
+  const auto sigma_s{ to_collapse.sigma_s() };
   diffusion_coef_ = collapse_vector(to_collapse.diffusion_coef());
   sigma_t_ = collapse_vector(to_collapse.sigma_t());
   inverse_sigma_t_ = collapse_vector(to_collapse.inverse_sigma_t());
-  sigma_s_ = collapse_matrix(to_collapse.sigma_s());
+  sigma_s_ = collapse_matrix(sigma_s);
   sigma_s_per_ster_ = collapse_matrix(to_collapse.sigma_s_per_ster());
   q_ = collapse_vector(to_collapse.q());
   q_per_ster_ = collapse_vector(to_collapse.q_per_ster());
@@ -39,6 +40,25 @@ CollapsedOneGroupCrossSections::CollapsedOneGroupCrossSections(const CrossSectio
   nu_sigma_f_ = collapse_vector(to_collapse.nu_sigma_f());
   fiss_transfer_ = collapse_matrix(to_collapse.fiss_transfer());
   fiss_transfer_per_ster_ = collapse_matrix(to_collapse.fiss_transfer_per_ster());
+
+  const int total_groups = sigma_s.begin()->second.m();
+  for (const auto& [material_id, sigma_t_vector] : sigma_t_) {
+    double sigma_absorption{ sigma_t_vector.at(0) };
+    double sigma_removal{ sigma_absorption };
+    for (int group = 0; group < total_groups; ++group) {
+      sigma_removal -= sigma_s.at(material_id)(group, group);
+      for (int group_in = group; group_in < total_groups; ++group_in) {
+        sigma_absorption -= sigma_s.at(material_id)(group, group_in);
+      }
+    }
+    sigma_absorption_[material_id] = sigma_absorption;
+    sigma_removal_[material_id] = sigma_removal;
+  }
+}
+
+
+void CollapsedOneGroupCrossSections::Scale(const MaterialIDMappedTo<std::vector<double>>& /*scaling_factor_by_group*/) {
+
 }
 
 } // namespace bart::data::cross_sections

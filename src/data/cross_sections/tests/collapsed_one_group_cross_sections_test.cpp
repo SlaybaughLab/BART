@@ -36,6 +36,12 @@ class DataCrossSectionsCollapsedOneGroup : public ::testing::Test {
   MaterialIDMappedTo<FullMatrix> collapsed_fiss_transfer_;
   MaterialIDMappedTo<FullMatrix> collapsed_fiss_transfer_per_ster_;
 
+  MaterialIDMappedTo<double> sigma_r_;
+  MaterialIDMappedTo<double> sigma_a_;
+
+  MaterialIDMappedTo<std::vector<double>> scaling_factor_by_group_;
+
+
   auto SetUp() -> void override;
 };
 
@@ -93,14 +99,29 @@ auto DataCrossSectionsCollapsedOneGroup::SetUp() -> void {
   collapsed_q_ = CollapseVector(q);
   auto q_per_ster = RandomMaterialVectorMap();
   collapsed_q_per_ster_ = CollapseVector(q_per_ster);
-  for (int i = 0; i < total_materials; ++i)
-    is_material_fissile_[i] = test_helpers::RandomDouble(0, 1) > 0.5;
   auto nu_sigma_f = RandomMaterialVectorMap();
   collapsed_nu_sigma_f_ = CollapseVector(nu_sigma_f);
   auto fission_transfer = RandomMaterialMatrixMap();
   collapsed_fiss_transfer_ = CollapseMatrix(fission_transfer);
   auto fission_transfer_per_ster = RandomMaterialMatrixMap();
   collapsed_fiss_transfer_per_ster_ = CollapseMatrix(fission_transfer_per_ster);
+  scaling_factor_by_group_ = RandomMaterialVectorMap();
+
+  for (int material_id = 0; material_id < total_materials; ++material_id) {
+    is_material_fissile_[material_id] = test_helpers::RandomDouble(0, 1) > 0.5;
+    double sigma_removal{ collapsed_sigma_t_.at(material_id).at(0) };
+    double sigma_absorption{ sigma_removal };
+    for (int group = 0; group < total_groups; ++group) {
+      sigma_removal -= sigma_s.at(material_id)(group, group);
+      for (int group_in = group; group_in < total_groups; ++group_in) {
+        sigma_absorption -= sigma_s.at(material_id)(group, group_in);
+      }
+    }
+    sigma_r_[material_id] = sigma_removal;
+    sigma_a_[material_id] = sigma_absorption;
+  }
+
+
 
 
   ON_CALL(*cross_sections_mock_ptr_, diffusion_coef()).WillByDefault(Return(diffusion_coef));
@@ -129,7 +150,6 @@ TEST_F(DataCrossSectionsCollapsedOneGroup, Constructor) {
   EXPECT_CALL(*cross_sections_mock_ptr_, fiss_transfer()).WillOnce(DoDefault());
   EXPECT_CALL(*cross_sections_mock_ptr_, fiss_transfer_per_ster()).WillOnce(DoDefault());
 
-
   data::cross_sections::CollapsedOneGroupCrossSections collapsed_cross_sections(*cross_sections_mock_ptr_);
 
   EXPECT_THAT(collapsed_cross_sections.diffusion_coef(), ContainerEq(collapsed_diffusion_coef_));
@@ -143,6 +163,12 @@ TEST_F(DataCrossSectionsCollapsedOneGroup, Constructor) {
   EXPECT_THAT(collapsed_cross_sections.nu_sigma_f(), ContainerEq(collapsed_nu_sigma_f_));
   EXPECT_THAT(collapsed_cross_sections.fiss_transfer(), ContainerEq(collapsed_fiss_transfer_));
   EXPECT_THAT(collapsed_cross_sections.fiss_transfer_per_ster(), ContainerEq(collapsed_fiss_transfer_per_ster_));
+  EXPECT_THAT(collapsed_cross_sections.SigmaAbsorption(), ContainerEq(sigma_a_));
+  EXPECT_THAT(collapsed_cross_sections.SigmaRemoval(), ContainerEq(sigma_r_));
+  for (int i = 0; i < total_materials; ++i) {
+    EXPECT_EQ(collapsed_cross_sections.SigmaAbsorption(i), sigma_a_.at(i));
+    EXPECT_EQ(collapsed_cross_sections.SigmaRemoval(i), sigma_r_.at(i));
+  }
 }
 
 } // namespace
