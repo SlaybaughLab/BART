@@ -5,7 +5,7 @@
 
 #include <deal.II/lac/full_matrix.h>
 
-#include "data/cross_sections/material_cross_sections.hpp"
+#include "data/cross_sections/cross_sections_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "formulation/scalar/diffusion_i.hpp"
 #include "system/moments/spherical_harmonic_types.h"
@@ -68,11 +68,14 @@ class Diffusion : public DiffusionI<dim>, public utility::HasDependencies {
    */
   auto GetGradientSquared() const -> std::vector<Matrix> { return gradient_squared_; }
 
+  auto finite_element_ptr() const { return finite_element_ptr_.get(); }
+  auto cross_sections_ptr() const { return cross_sections_ptr_.get(); }
+
  protected:
   //! Finite element object to provide shape function values
-  std::shared_ptr<FiniteElement> finite_element_ptr_;
+  std::shared_ptr<FiniteElement> finite_element_ptr_{ nullptr };
   //! Cross-sections object for cross-section data
-  std::shared_ptr<CrossSections> cross_sections_ptr_;
+  std::shared_ptr<CrossSections> cross_sections_ptr_{ nullptr };
 
   std::vector<Matrix> shape_squared_;
   std::vector<Matrix> gradient_squared_;
