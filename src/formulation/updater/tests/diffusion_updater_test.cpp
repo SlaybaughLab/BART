@@ -145,8 +145,8 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermWithRHSConstantTest) 
   quadrature::QuadraturePointIndex angle_index(this->angle_index);
   bart::system::Index scalar_index{this->group_number, 0};
   const double rhs_constant_value{ test_helpers::RandomDouble(-100, 100) };
-  dealii::Vector<double> rhs_constant_vector(this->dof_handler_.n_dofs());
-  for (auto& val : rhs_constant_vector)
+  auto rhs_constant_vector = std::make_shared<dealii::Vector<double>>(this->dof_handler_.n_dofs());
+  for (auto& val : *rhs_constant_vector)
     val = rhs_constant_value;
 
   EXPECT_CALL(*this->mock_lhs_obs_ptr_, GetFixedTermPtr(scalar_index)).WillOnce(DoDefault());
@@ -156,7 +156,7 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermWithRHSConstantTest) 
     EXPECT_CALL(*this->formulation_obs_ptr_, FillCellStreamingTerm(_, cell, this->group_number));
     EXPECT_CALL(*this->formulation_obs_ptr_, FillCellCollisionTerm(_, cell, this->group_number));
     EXPECT_CALL(*this->formulation_obs_ptr_, FillCellFixedSource(_, cell, this->group_number));
-    EXPECT_CALL(*this->formulation_obs_ptr_, FillCellConstantTerm(_, cell, rhs_constant_vector));
+    EXPECT_CALL(*this->formulation_obs_ptr_, FillCellConstantTerm(_, cell, *rhs_constant_vector));
     if (cell->at_boundary()) {
       int faces_per_cell = dealii::GeometryInfo<this->dim>::faces_per_cell;
       for (int face = 0; face < faces_per_cell; ++face) {
@@ -181,7 +181,7 @@ TYPED_TEST(FormulationUpdaterDiffusionTest, UpdateFixedTermWithRHSConstantTest) 
       .Times(2).WillRepeatedly(DoDefault());
 
   this->test_updater_ptr_->SetRHSConstant(rhs_constant_vector);
-  EXPECT_TRUE(test_helpers::AreEqual(rhs_constant_vector, this->test_updater_ptr_->rhs_constant_vector()));
+  EXPECT_EQ(rhs_constant_vector.get(), this->test_updater_ptr_->rhs_constant_vector_ptr());
   this->test_updater_ptr_->UpdateFixedTerms(this->test_system_, group_number, angle_index);
   EXPECT_TRUE(test_helpers::AreEqual(this->expected_result, *this->matrix_to_stamp));
   EXPECT_TRUE(test_helpers::AreEqual(this->expected_vector_result, *this->vector_to_stamp));
