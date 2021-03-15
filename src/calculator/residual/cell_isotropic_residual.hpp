@@ -21,13 +21,15 @@ class CellIsotropicResidual : public CellIsotropicResidualI<dim>, public utility
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
 
   CellIsotropicResidual(std::shared_ptr<CrossSections>, std::shared_ptr<FiniteElement>);
-  auto CalculateCellResidual(CellPtr, FluxMoments*, FluxMoments*, int group) -> Vector override;
+  auto CalculateCellResidual(CellPtr, FluxMoments* current_flux_moments_ptr,
+                             FluxMoments* previous_flux_moments_ptr, int group) -> double override;
 
   auto cross_sections_ptr() { return cross_sections_ptr_.get(); }
   auto finite_element_ptr() { return finite_element_ptr_.get(); }
  private:
   std::shared_ptr<CrossSections> cross_sections_ptr_{ nullptr };
   std::shared_ptr<FiniteElement> finite_element_ptr_{ nullptr };
+  const int n_cell_quadrature_points_;
 };
 
 } // namespace bart::calculator::residual

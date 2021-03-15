@@ -16,7 +16,7 @@ class CellIsotropicResidualI {
 
   ~CellIsotropicResidualI() = default;
   virtual auto CalculateCellResidual(CellPtr, FluxMoments* current_scalar_flux_, FluxMoments* previous_scalar_flux_,
-                                     int group) -> Vector = 0;
+                                     int group) -> double = 0;
 };
 
 } // namespace bart::calculator::residual
