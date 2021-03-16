@@ -17,8 +17,14 @@ TwoGridAcceleration::TwoGridAcceleration(std::unique_ptr<FluxCorrector> flux_cor
   this->AssertPointerNotNull(isotropic_residual_ptr_.get(), "isotropic residual vector", function_name);
 }
 
-auto TwoGridAcceleration::Execute(system::System &) -> void {
-
+auto TwoGridAcceleration::Execute(system::System& system) -> void {
+  isotropic_residual_ptr_->equ(1, residual_calculator_ptr_->CalculateDomainResidual(system.current_moments.get(),
+                                                                                    system.previous_moments.get()));
+  framework_ptr()->SolveSystem();
+  auto& error_vector = framework_ptr_->system()->current_moments->GetMoment({0, 0, 0});
+  for (int group = 0; group < system.total_groups; ++group) {
+    flux_corrector_ptr_->CorrectFlux(system.current_moments->GetMoment({group, 0, 0}), error_vector, group);
+  }
 }
 
 } // namespace bart::iteration::subroutine

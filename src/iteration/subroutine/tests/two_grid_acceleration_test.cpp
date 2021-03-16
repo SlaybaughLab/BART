@@ -16,6 +16,7 @@ namespace  {
 
 using namespace bart;
 using ::testing::NiceMock, ::testing::DoDefault, ::testing::Return, ::testing::ReturnRef, ::testing::_;
+using ::testing::Ref, ::testing::AtLeast;
 
 class IterationSubroutineTwoGridAccelerationTest : public ::testing::Test {
  public:
@@ -34,9 +35,11 @@ class IterationSubroutineTwoGridAccelerationTest : public ::testing::Test {
   IsotropicResidualCalculatorMock* isotropic_residual_calculator_mock_obs_ptr_;
   Moments* current_moments_obs_ptr_;
   Moments* previous_moments_obs_ptr_;
+  Moments* framework_system_current_moments_obs_ptr_;
 
   std::unique_ptr<TwoGridSubroutine> test_subroutine_;
   System test_system_;
+  std::shared_ptr<System> framework_system_{ std::make_shared<System>() };
 
   dealii::Vector<double> total_isotropic_residual_;
 
@@ -73,6 +76,10 @@ auto IterationSubroutineTwoGridAccelerationTest::SetUp() -> void {
   current_moments_obs_ptr_ = dynamic_cast<Moments*>(test_system_.current_moments.get());
   previous_moments_obs_ptr_ = dynamic_cast<Moments*>(test_system_.previous_moments.get());
 
+  framework_system_->total_groups = 1;
+  framework_system_->current_moments = std::make_shared<Moments>();
+  framework_system_current_moments_obs_ptr_ = dynamic_cast<Moments*>(framework_system_->current_moments.get());
+
   total_isotropic_residual_ = DealiiVector(test_helpers::RandomVector(vector_size_, 0, 100));
   ON_CALL(*isotropic_residual_calculator_mock_obs_ptr_, CalculateDomainResidual(_,_))
       .WillByDefault(Return(total_isotropic_residual_));
@@ -104,6 +111,20 @@ TEST_F(IterationSubroutineTwoGridAccelerationTest, Execute) {
                                                                                           previous_moments_obs_ptr_))
       .WillOnce(DoDefault());
   EXPECT_CALL(*this->framework_mock_obs_ptr_, SolveSystem());
+  EXPECT_CALL(*this->framework_mock_obs_ptr_, system())
+      .Times(AtLeast(1))
+      .WillRepeatedly(Return(this->framework_system_.get()));
+  dealii::Vector<double> error_vector(DealiiVector(test_helpers::RandomVector(this->vector_size_, 0, 100)));
+
+  EXPECT_CALL(*this->framework_system_current_moments_obs_ptr_, GetMoment(std::array<int, 3>{0, 0, 0}))
+      .WillOnce(ReturnRef(error_vector));
+  for (int group = 0; group < this->total_groups_; ++group) {
+    dealii::Vector<double> flux_to_correct(DealiiVector(test_helpers::RandomVector(this->vector_size_, 0, 100)));
+    EXPECT_CALL(*this->current_moments_obs_ptr_, GetMoment(std::array<int, 3>{group, 0, 0}))
+        .WillOnce(ReturnRef(flux_to_correct));
+    EXPECT_CALL(*this->flux_corrector_mock_obs_ptr_, CorrectFlux(Ref(flux_to_correct),
+                                                                 Ref(error_vector), group));
+  }
 
   this->test_subroutine_->Execute(this->test_system_);
 
