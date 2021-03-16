@@ -3,11 +3,21 @@
 
 #include "utility/has_description.h"
 
+#include <deal.II/lac/vector.h>
+
+#include "system/moments/spherical_harmonic_i.h"
+
 namespace bart::calculator::residual {
 
 class DomainIsotropicResidualI : public utility::HasDescription {
  public:
+  using Vector = dealii::Vector<double>;
+  using FluxMoments = system::moments::SphericalHarmonicI;
+
   virtual ~DomainIsotropicResidualI() = default;
+
+  virtual auto CalculateDomainResidual(FluxMoments* current_flux_moments,
+                                       FluxMoments* previous_flux_moments) -> Vector = 0;
 };
 
 } // namespace bart::calculator::residual
