@@ -11,7 +11,6 @@ class CellIsotropicResidualMock : public CellIsotropicResidualI<dim> {
  public:
   using typename CellIsotropicResidualI<dim>::CellPtr;
   using typename CellIsotropicResidualI<dim>::FluxMoments;
-  using typename CellIsotropicResidualI<dim>::Vector;
   MOCK_METHOD(double, CalculateCellResidual, (CellPtr, FluxMoments*, FluxMoments*, int), (override));
 };
 
