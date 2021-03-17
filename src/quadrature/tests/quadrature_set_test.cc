@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/tests/quadrature_point_mock.hpp"
 #include "quadrature/quadrature_types.h"
 #include "test_helpers/gmock_wrapper.h"
 

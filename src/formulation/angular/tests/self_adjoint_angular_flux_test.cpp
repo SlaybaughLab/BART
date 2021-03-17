@@ -6,7 +6,7 @@
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "data/material/tests/material_mock.hpp"
 #include "quadrature/tests/quadrature_set_mock.h"
-#include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/tests/quadrature_point_mock.hpp"
 #include "quadrature/utility/quadrature_utilities.h"
 #include "system/system_types.h"
 #include "test_helpers/gmock_wrapper.h"

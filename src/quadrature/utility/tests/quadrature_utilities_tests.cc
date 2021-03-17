@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/tests/quadrature_point_mock.hpp"
 #include "quadrature/tests/quadrature_generator_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
 #include "quadrature/tests/ordinate_mock.hpp"

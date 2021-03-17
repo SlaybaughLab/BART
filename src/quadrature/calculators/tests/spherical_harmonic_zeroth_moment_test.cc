@@ -9,7 +9,7 @@
 #include "system/moments/spherical_harmonic_types.h"
 #include "quadrature/utility/quadrature_utilities.h"
 #include "quadrature/tests/quadrature_set_mock.h"
-#include "quadrature/tests/quadrature_point_mock.h"
+#include "quadrature/tests/quadrature_point_mock.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 
