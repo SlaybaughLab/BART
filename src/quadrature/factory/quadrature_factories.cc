@@ -3,7 +3,7 @@
 
 #include "quadrature/ordinate.hpp"
 #include "quadrature/quadrature_point.hpp"
-#include "quadrature/quadrature_set.h"
+#include "quadrature/quadrature_set.hpp"
 #include "quadrature/angular/gauss_legendre.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
 #include "quadrature/calculators/scalar_moment.h"

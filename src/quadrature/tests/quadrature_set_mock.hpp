@@ -1,7 +1,7 @@
-#ifndef BART_SRC_QUADRATURE_TESTS_QUADRATURE_SET_MOCK_H_
-#define BART_SRC_QUADRATURE_TESTS_QUADRATURE_SET_MOCK_H_
+#ifndef BART_SRC_QUADRATURE_TESTS_QUADRATURE_SET_MOCK_HPP_
+#define BART_SRC_QUADRATURE_TESTS_QUADRATURE_SET_MOCK_HPP_
 
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 
@@ -43,4 +43,4 @@ class QuadratureSetMock : public QuadratureSetI<dim> {
 
 } // namespace bart
 
-#endif //BART_SRC_QUADRATURE_TESTS_QUADRATURE_SET_MOCK_H_
+#endif //BART_SRC_QUADRATURE_TESTS_QUADRATURE_SET_MOCK_HPP_

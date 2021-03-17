@@ -17,7 +17,7 @@
 #include "iteration/initializer/initializer_i.h"
 #include "iteration/updater/source_updater_i.h"
 #include "iteration/updater/fixed_updater_i.h"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "results/output_i.h"
 #include "solver/group/single_group_solver_i.h"

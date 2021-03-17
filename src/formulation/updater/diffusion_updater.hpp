@@ -11,7 +11,7 @@
 #include "formulation/updater/fixed_source_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/fission_source_updater_i.h"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "problem/parameter_types.hpp"
 #include "utility/has_description.h"
 

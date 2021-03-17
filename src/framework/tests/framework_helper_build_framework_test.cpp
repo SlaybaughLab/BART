@@ -26,7 +26,7 @@
 #include "domain/finite_element/tests/finite_element_mock.hpp"
 #include "domain/tests/domain_mock.hpp"
 #include "data/material/tests/material_mock.hpp"
-#include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_set_mock.hpp"
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"

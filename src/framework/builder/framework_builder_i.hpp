@@ -29,7 +29,7 @@
 #include "iteration/initializer/factory.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "problem/parameter_types.hpp"
 #include "solver/group/single_group_solver_i.h"
 #include "system/moments/spherical_harmonic_i.h"

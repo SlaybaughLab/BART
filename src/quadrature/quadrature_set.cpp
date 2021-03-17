@@ -1,20 +1,15 @@
-#include "quadrature/quadrature_set.h"
+#include "quadrature/quadrature_set.hpp"
 
 #include <algorithm>
 
-namespace bart {
-
-namespace quadrature {
+namespace bart::quadrature {
 
 template<int dim>
-bool QuadratureSet<dim>::AddPoint(
-    std::shared_ptr<QuadraturePointI<dim>> new_point_ptr) {
-  AssertThrow(new_point_ptr != nullptr,
-      dealii::ExcMessage("Error in AddPoint, pointer is null"))
-  auto status = quadrature_point_ptrs_.insert(new_point_ptr);
+auto QuadratureSet<dim>::AddPoint(std::shared_ptr<QuadraturePoint> new_point_ptr) -> bool {
+  AssertThrow(new_point_ptr != nullptr, dealii::ExcMessage("Error in AddPoint, pointer is null"))
 
-  auto max_index = std::max_element(quadrature_point_indices_.begin(),
-                                    quadrature_point_indices_.end());
+  auto status = quadrature_point_ptrs_.insert(new_point_ptr);
+  auto max_index = std::max_element(quadrature_point_indices_.begin(), quadrature_point_indices_.end());
 
   if (status.second) {
     int new_index = 0;
@@ -32,9 +27,9 @@ bool QuadratureSet<dim>::AddPoint(
 }
 
 template<int dim>
-std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetBoundaryReflection(
-    const std::shared_ptr<QuadraturePointI<dim>> &quadrature_point_to_reflect,
-    problem::Boundary boundary) const {
+auto QuadratureSet<dim>::GetBoundaryReflection(
+    const std::shared_ptr<QuadraturePoint> &quadrature_point_to_reflect,
+    problem::Boundary boundary) const -> std::shared_ptr<QuadraturePoint>{
   using Boundary = problem::Boundary;
 
   switch (boundary) {
@@ -44,10 +39,9 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetBoundaryReflection
     default: break;
   }
 
-  std::shared_ptr<QuadraturePointI<dim>> return_ptr = nullptr;
+  std::shared_ptr<QuadraturePoint> return_ptr = nullptr;
 
-  if (auto boundary_mapping = boundary_reflections_.find(boundary);
-      boundary_mapping != boundary_reflections_.end()) {
+  if (auto boundary_mapping = boundary_reflections_.find(boundary); boundary_mapping != boundary_reflections_.end()) {
     if (auto reflection_pair = boundary_mapping->second.find(quadrature_point_to_reflect);
         reflection_pair != boundary_mapping->second.end()) {
       return_ptr = reflection_pair->second;
@@ -81,33 +75,25 @@ std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetBoundaryReflection
       }
     }
 
-    boundary_reflections_.at(boundary).insert({quadrature_point_to_reflect,
-                                               return_ptr});
-    boundary_reflections_.at(boundary).insert({return_ptr,
-                                               quadrature_point_to_reflect});
+    boundary_reflections_.at(boundary).insert({quadrature_point_to_reflect, return_ptr});
+    boundary_reflections_.at(boundary).insert({return_ptr, quadrature_point_to_reflect});
 
-    AssertThrow(return_ptr != nullptr,
-                dealii::ExcMessage("GetBoundaryReflection returned null reflection"))
+    AssertThrow(return_ptr != nullptr, dealii::ExcMessage("GetBoundaryReflection returned null reflection"))
   }
-
   return return_ptr;
 }
 
 template<int dim>
-void QuadratureSet<dim>::SetReflection(
-    std::shared_ptr<QuadraturePointI<dim>> first_point,
-    std::shared_ptr<QuadraturePointI<dim>> second_point) {
+auto QuadratureSet<dim>::SetReflection(const std::shared_ptr<QuadraturePoint> first_point,
+                                       const std::shared_ptr<QuadraturePoint> second_point) -> void {
 
-  AssertThrow(first_point != second_point,
-              dealii::ExcMessage("Error in SetReflection: both points are the "
-                                 "same"));
+  AssertThrow(first_point != second_point, dealii::ExcMessage("Error in SetReflection: both points are the same"));
 
   bool both_points_in_set = (quadrature_point_ptrs_.count(first_point) == 1) &&
       (quadrature_point_ptrs_.count(second_point) == 1);
 
-  AssertThrow(both_points_in_set,
-      dealii::ExcMessage("Error in SetReflection: one or both points are not "
-                         "in the quadrature set"));
+  AssertThrow(both_points_in_set, dealii::ExcMessage("Error in SetReflection: one or both points are not "
+                                                     "in the quadrature set"));
 
   for (auto& point : {first_point, second_point}) {
     try {
@@ -123,40 +109,34 @@ void QuadratureSet<dim>::SetReflection(
 }
 
 template<int dim>
-std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetReflection(
-    std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
+auto QuadratureSet<dim>::GetReflection(
+    const std::shared_ptr<QuadraturePoint> quadrature_point) const -> std::shared_ptr<QuadraturePoint>{
   try {
     return reflection_map_.at(quadrature_point);
   } catch (const std::out_of_range&) {
     AssertThrow(quadrature_point_ptrs_.count(quadrature_point) == 1,
-                dealii::ExcMessage("Error in GetReflection, quadrature point "
-                                   "is not in quadrature set."))
+                dealii::ExcMessage("Error in GetReflection, quadrature point is not in quadrature set."))
     return nullptr;
   }
 }
 
 template<int dim>
-std::optional<int> QuadratureSet<dim>::GetReflectionIndex(
-    std::shared_ptr<QuadraturePointI<dim>> quadrature_point_ptr) const {
-
+auto QuadratureSet<dim>::GetReflectionIndex(
+    const std::shared_ptr<QuadraturePoint> quadrature_point_ptr) const -> std::optional<int> {
   std::optional<int> reflection_index;
-
   auto reflection_ptr = GetReflection(quadrature_point_ptr);
-
   if (reflection_ptr != nullptr)
     reflection_index = quadrature_point_to_index_map_.at(reflection_ptr);
-
   return reflection_index;
 }
 
 template<int dim>
-std::shared_ptr<QuadraturePointI<dim>> QuadratureSet<dim>::GetQuadraturePoint(
-    QuadraturePointIndex index) const {
+auto QuadratureSet<dim>::GetQuadraturePoint(const QuadraturePointIndex index) const -> std::shared_ptr<QuadraturePoint> {
   return index_to_quadrature_point_map_.at(index.get());
 }
+
 template<int dim>
-int QuadratureSet<dim>::GetQuadraturePointIndex(
-    std::shared_ptr<QuadraturePointI<dim>> quadrature_point) const {
+auto QuadratureSet<dim>::GetQuadraturePointIndex(const std::shared_ptr<QuadraturePoint> quadrature_point) const -> int {
   return quadrature_point_to_index_map_.at(quadrature_point);
 }
 
@@ -165,7 +145,4 @@ template class QuadratureSet<1>;
 template class QuadratureSet<2>;
 template class QuadratureSet<3>;
 
-} // namespace quadrature
-
-} // namespace bart
-
+} // namespace bart::quadrature

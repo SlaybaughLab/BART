@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 #define BART_SRC_QUADRATURE_CALCULATORS_SPHERICAL_HARMONIC_MOMENTS_I_H_
 
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/system_types.h"
 

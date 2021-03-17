@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "quadrature/calculators/spherical_harmonic_moments_i.h"
 
 namespace bart {

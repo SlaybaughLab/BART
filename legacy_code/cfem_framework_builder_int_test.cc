@@ -29,8 +29,8 @@
 #include "convergence/parameters/single_parameter_checker.h"
 #include "convergence/moments/convergence_checker_l1_norm.hpp"
 #include "solver/group/single_group_solver.h"
-#include "quadrature/quadrature_set.h"
-#include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/quadrature_set.hpp"
+#include "quadrature/tests/quadrature_set_mock.hpp"
 #include "test_helpers/dealii_test_domain.h"
 
 namespace  {

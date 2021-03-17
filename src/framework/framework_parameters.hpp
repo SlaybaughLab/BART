@@ -6,7 +6,7 @@
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "utility/named_type.h"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "system/moments/spherical_harmonic_i.h"
 #include "system/solution/solution_types.h"
 

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_set_mock.hpp"
 #include "quadrature/tests/quadrature_point_mock.hpp"
 #include "quadrature/calculators/tests/angular_flux_integrator_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"

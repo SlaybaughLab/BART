@@ -1,5 +1,5 @@
 #include "quadrature/utility/quadrature_utilities.h"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 
 #include <functional>
 
