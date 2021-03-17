@@ -1,5 +1,5 @@
-#ifndef BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_H_
-#define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_H_
+#ifndef BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_HPP_
+#define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_HPP_
 
 #include "utility/has_description.h"
 #include "system/solution/solution_types.h"
@@ -28,4 +28,4 @@ class GroupSolveIterationI : public utility::HasDescription {
 
 } // namespace bart
 
-#endif //BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_H_
+#endif //BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_HPP_

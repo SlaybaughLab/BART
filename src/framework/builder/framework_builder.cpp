@@ -50,8 +50,8 @@
 // Iteration classes
 #include "iteration/initializer/initialize_fixed_terms_once.h"
 #include "iteration/initializer/initialize_fixed_terms_reset_moments.hpp"
-#include "iteration/group/group_solve_iteration.h"
-#include "iteration/group/group_source_iteration.h"
+#include "iteration/group/group_solve_iteration.hpp"
+#include "iteration/group/group_source_iteration.hpp"
 #include "iteration/outer/outer_power_iteration.hpp"
 #include "iteration/outer/outer_fixed_source_iteration.hpp"
 

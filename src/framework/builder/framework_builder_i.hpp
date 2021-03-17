@@ -23,7 +23,7 @@
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/instrument_i.h"
 #include "iteration/initializer/initializer_i.h"
-#include "iteration/group/group_solve_iteration_i.h"
+#include "iteration/group/group_solve_iteration_i.hpp"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "iteration/subroutine/subroutine_i.hpp"
 #include "iteration/initializer/factory.hpp"

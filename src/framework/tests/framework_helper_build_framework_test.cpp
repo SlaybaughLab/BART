@@ -20,7 +20,7 @@
 #include "framework/tests/framework_helper_mock.hpp"
 #include "framework/tests/framework_mock.hpp"
 #include "iteration/initializer/tests/initializer_mock.hpp"
-#include "iteration/group/tests/group_solve_iteration_mock.h"
+#include "iteration/group/tests/group_solve_iteration_mock.hpp"
 #include "iteration/outer/tests/outer_iteration_mock.hpp"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "domain/finite_element/tests/finite_element_mock.hpp"

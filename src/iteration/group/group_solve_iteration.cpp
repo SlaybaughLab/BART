@@ -1,4 +1,4 @@
-#include "iteration/group/group_solve_iteration.h"
+#include "iteration/group/group_solve_iteration.hpp"
 
 namespace bart {
 
