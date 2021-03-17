@@ -9,6 +9,15 @@
 
 namespace bart::iteration::subroutine {
 
+/*! \brief Two-grid acceleration subroutine.
+ *
+ * The two grid-acceleration subroutine is described in <a href="https://doi.org/10.13182/NSE115-253">Adams and Morel (1993)</a>.
+ * This class is a mediator between three different classes that perform the underlying mechanics of the scheme. First,
+ * an isotropic scattering residual calculator calculates a vector to be used on the right-hand-side by the framework.
+ * Next, the framework solves for the error. This error is then used by a flux-corrector to update the system scalar
+ * fluxes based on the domain spectral radius values.
+ *
+ */
 class TwoGridAcceleration : public SubroutineI, public utility::HasDependencies {
  public:
   using FluxCorrector = acceleration::two_grid::FluxCorrectorI;
