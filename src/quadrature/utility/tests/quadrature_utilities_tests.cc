@@ -6,7 +6,7 @@
 #include "quadrature/tests/quadrature_point_mock.h"
 #include "quadrature/tests/quadrature_generator_mock.h"
 #include "quadrature/tests/quadrature_set_mock.h"
-#include "quadrature/tests/ordinate_mock.h"
+#include "quadrature/tests/ordinate_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 

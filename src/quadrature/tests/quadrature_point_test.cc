@@ -1,6 +1,6 @@
 #include "quadrature/quadrature_point.h"
 
-#include "quadrature/tests/ordinate_mock.h"
+#include "quadrature/tests/ordinate_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 
 namespace  {
