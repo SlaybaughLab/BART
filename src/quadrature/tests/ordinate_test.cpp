@@ -1,4 +1,4 @@
-#include "quadrature/ordinate.h"
+#include "quadrature/ordinate.hpp"
 
 #include "test_helpers/test_helper_functions.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -47,7 +47,7 @@ TYPED_TEST(QuadratureOrdinateTest, DefaultConstruction) {
 
   EXPECT_EQ(position, test_ordinate.cartesian_position());
 }
-
+// SetCartesianPosition should update stored cartesian position
 TYPED_TEST(QuadratureOrdinateTest, SetCartesianPosition) {
   constexpr int dim = this->dim;
 
@@ -66,7 +66,7 @@ TYPED_TEST(QuadratureOrdinateTest, SetCartesianPosition) {
   test_ordinate.set_cartesian_position(quadrature::CartesianPosition<dim>(new_position));
   EXPECT_EQ(new_position, test_ordinate.cartesian_position());
 }
-
+// Equality operator should return if cartesian positions are equal
 TYPED_TEST(QuadratureOrdinateTest, OperatorEquality) {
   constexpr int dim = this->dim;
 
@@ -79,34 +79,23 @@ TYPED_TEST(QuadratureOrdinateTest, OperatorEquality) {
     second_position.at(i) = random_second_position.at(i);
   }
 
-  quadrature::Ordinate<dim> test_ordinate{
-    quadrature::CartesianPosition<dim>(position)};
-  quadrature::Ordinate<dim> test_ordinate_negative{
-    quadrature::CartesianPosition<dim>(negative_position)};
-  quadrature::Ordinate<dim> test_ordinate_second{
-      quadrature::CartesianPosition<dim>(second_position)};
+  quadrature::Ordinate<dim> test_ordinate{quadrature::CartesianPosition<dim>(position)};
+  quadrature::Ordinate<dim> test_ordinate_negative{quadrature::CartesianPosition<dim>(negative_position)};
+  quadrature::Ordinate<dim> test_ordinate_second{quadrature::CartesianPosition<dim>(second_position)};
 
-  std::array<quadrature::Ordinate<dim>, 3> ordinates{test_ordinate,
-                                                     test_ordinate_negative,
-                                                     test_ordinate_second};
+  std::array<quadrature::Ordinate<dim>, 3> ordinates{test_ordinate, test_ordinate_negative, test_ordinate_second};
 
   for (unsigned int i = 0; i < ordinates.size(); ++i) {
     for (unsigned int j = 0; j < ordinates.size(); ++j) {
-      if (i == j) {
-        EXPECT_TRUE(ordinates.at(i) == ordinates.at(j));
-        EXPECT_TRUE(ordinates.at(i) == ordinates.at(j).cartesian_position());
-        EXPECT_FALSE(ordinates.at(i) != ordinates.at(j));
-        EXPECT_FALSE(ordinates.at(i) != ordinates.at(j).cartesian_position());
-      } else {
-        EXPECT_TRUE(ordinates.at(i) != ordinates.at(j));
-        EXPECT_TRUE(ordinates.at(i) != ordinates.at(j).cartesian_position());
-        EXPECT_FALSE(ordinates.at(i) == ordinates.at(j));
-        EXPECT_FALSE(ordinates.at(i) == ordinates.at(j).cartesian_position());
-      }
+      EXPECT_EQ(ordinates.at(i) == ordinates.at(j), i == j);
+      EXPECT_EQ(ordinates.at(i) == ordinates.at(j).cartesian_position(), i == j);
+      EXPECT_EQ(ordinates.at(i) != ordinates.at(j), i != j);
+      EXPECT_EQ(ordinates.at(i) != ordinates.at(j).cartesian_position(), i != j);
     }
   }
 }
 
+// Reflect free-function should return a reflected ordinate
 TYPED_TEST(QuadratureOrdinateTest, Reflect) {
   constexpr int dim = this->dim;
 
@@ -117,10 +106,8 @@ TYPED_TEST(QuadratureOrdinateTest, Reflect) {
     negative_position.at(i) = -random_position.at(i);
   }
 
-  quadrature::Ordinate<dim> test_ordinate{
-      quadrature::CartesianPosition<dim>(position)};
-  quadrature::Ordinate<dim> test_ordinate_negative{
-      quadrature::CartesianPosition<dim>(negative_position)};
+  quadrature::Ordinate<dim> test_ordinate{quadrature::CartesianPosition<dim>(position)};
+  quadrature::Ordinate<dim> test_ordinate_negative{quadrature::CartesianPosition<dim>(negative_position)};
 
   EXPECT_TRUE(test_ordinate == quadrature::Reflect(test_ordinate_negative));
   EXPECT_TRUE(test_ordinate_negative == quadrature::Reflect(test_ordinate));

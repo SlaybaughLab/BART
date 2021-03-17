@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "quadrature/ordinate_i.h"
+#include "quadrature/ordinate_i.hpp"
 #include "quadrature/quadrature_types.h"
 
 namespace bart {

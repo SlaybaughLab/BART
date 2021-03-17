@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "quadrature/ordinate_i.h"
+#include "quadrature/ordinate_i.hpp"
 #include "quadrature/quadrature_generator_i.h"
 #include "quadrature/quadrature_point_i.h"
 #include "quadrature/quadrature_set_i.h"

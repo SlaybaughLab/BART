@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_TESTS_ORDINATE_MOCK_HPP_
 #define BART_SRC_QUADRATURE_TESTS_ORDINATE_MOCK_HPP_
 
-#include "quadrature/ordinate_i.h"
+#include "quadrature/ordinate_i.hpp"
 
 #include "test_helpers/gmock_wrapper.h"
 

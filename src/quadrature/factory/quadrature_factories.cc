@@ -1,7 +1,7 @@
 
 #include "quadrature/factory/quadrature_factories.h"
 
-#include "quadrature/ordinate.h"
+#include "quadrature/ordinate.hpp"
 #include "quadrature/quadrature_point.h"
 #include "quadrature/quadrature_set.h"
 #include "quadrature/angular/gauss_legendre.h"

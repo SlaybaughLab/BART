@@ -2,7 +2,7 @@
 #define BART_SRC_QUADRATURE_UTILITY_QUADRATURE_UTILITIES_H_
 
 #include "quadrature/quadrature_point_i.h"
-#include "quadrature/ordinate_i.h"
+#include "quadrature/ordinate_i.hpp"
 
 namespace bart {
 
