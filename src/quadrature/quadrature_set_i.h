@@ -1,7 +1,7 @@
 #ifndef BART_SRC_QUADRATURE_QUADRATURE_SET_I_H_
 #define BART_SRC_QUADRATURE_QUADRATURE_SET_I_H_
 
-#include "quadrature/quadrature_point_i.h"
+#include "quadrature/quadrature_point_i.hpp"
 #include "quadrature/quadrature_types.h"
 #include "problem/parameter_types.hpp"
 
