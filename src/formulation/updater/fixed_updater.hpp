@@ -53,7 +53,7 @@ class FixedUpdater : public FixedUpdaterI {
   std::vector<VectorBoundaryFunction> fixed_vector_boundary_functions_{};
 
   std::shared_ptr<Stamper> stamper_ptr_{ nullptr };
-  std::shared_ptr<dealii::Vector<double>> rhs_constant_vector_ptr_;
+  std::shared_ptr<dealii::Vector<double>> rhs_constant_vector_ptr_{ nullptr };
 
 };
 

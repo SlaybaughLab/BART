@@ -44,7 +44,7 @@ auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
   auto fixed_term_function = [&, group](formulation::Vector& cell_vector, const CellPtr& cell_ptr) -> void {
     formulation_ptr_->FillCellFixedSource(cell_vector, cell_ptr, group.get()); };
   this->fixed_vector_functions_.push_back(fixed_term_function);
-  if (this->rhs_constant_vector_ptr_->size() > 0 && !this->rhs_constant_vector_ptr_->all_zero()) {
+  if (this->rhs_constant_vector_ptr_ != nullptr) {
     auto constant_term_function = [=](formulation::Vector& cell_vector, const CellPtr& cell_ptr) -> void {
       formulation_ptr_->FillCellConstantTerm(cell_vector, cell_ptr, *this->rhs_constant_vector_ptr_); };
     this->fixed_vector_functions_.push_back(constant_term_function);
