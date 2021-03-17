@@ -5,23 +5,15 @@
 
 #include "test_helpers/gmock_wrapper.h"
 
-namespace bart {
-
-namespace iteration {
-
-namespace group {
+namespace bart::iteration::group {
 
 class GroupSolveIterationMock : public GroupSolveIterationI {
  public:
   MOCK_METHOD(void, Iterate, (system::System &system), (override));
   MOCK_METHOD(GroupSolveIterationMock&, UpdateThisAngularSolutionMap,
-              (system::solution::EnergyGroupToAngularSolutionPtrMap&), (override));
+              (system::solution::EnergyGroupToAngularSolutionPtrMap), (override));
 };
 
-} // namespace group
-
-} // namespace iteration
-
-} // namespace bart
+} // namespace bart::iteration::group
 
 #endif //BART_SRC_ITERATION_GROUP_TESTS_GROUP_SOLVE_ITERATION_MOCK_HPP_

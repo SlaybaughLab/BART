@@ -1,44 +1,31 @@
 #include "iteration/group/group_solve_iteration.hpp"
 
-namespace bart {
-
-namespace iteration {
-
-namespace group {
+namespace bart::iteration::group {
 
 template <int dim>
 GroupSolveIteration<dim>::GroupSolveIteration(
     std::unique_ptr<GroupSolver> group_solver_ptr,
     std::unique_ptr<ConvergenceChecker> convergence_checker_ptr,
     std::unique_ptr<MomentCalculator> moment_calculator_ptr,
-    const std::shared_ptr<GroupSolution> &group_solution_ptr,
+    const std::shared_ptr<GroupSolution> group_solution_ptr,
     std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr)
     : group_solver_ptr_(std::move(group_solver_ptr)),
       convergence_checker_ptr_(std::move(convergence_checker_ptr)),
       moment_calculator_ptr_(std::move(moment_calculator_ptr)),
       group_solution_ptr_(group_solution_ptr),
-      moment_map_convergence_checker_ptr_(std::move(moment_map_convergence_checker_ptr)){
-
-  AssertThrow(group_solver_ptr_ != nullptr,
-              dealii::ExcMessage("Group solver pointer passed to "
-                                 "GroupSolveIteration constructor is null"));
-  AssertThrow(convergence_checker_ptr_ != nullptr,
-              dealii::ExcMessage("Convergence checker pointer passed to "
-                                 "GroupSolveIteration constructor is null"));
-  AssertThrow(moment_calculator_ptr_ != nullptr,
-              dealii::ExcMessage("Moment calculator pointer passed to "
-                                 "GroupSolveIteration constructor is null"));
-  AssertThrow(group_solution_ptr_ != nullptr,
-              dealii::ExcMessage("Group solution pointer passed to "
-                                 "GroupSolveIteration constructor is null"));
+      moment_map_convergence_checker_ptr_(std::move(moment_map_convergence_checker_ptr)) {
+  std::string function_name{ "GroupSolveIteration constructor" };
+  this->AssertPointerNotNull(group_solver_ptr_.get(), "group solver", function_name);
+  this->AssertPointerNotNull(convergence_checker_ptr_.get(), "convergence checker", function_name);
+  this->AssertPointerNotNull(moment_calculator_ptr_.get(), "moment calculator", function_name);
+  this->AssertPointerNotNull(group_solution_ptr_.get(), "group solution pointer", function_name);
 }
 
 template<int dim>
-void GroupSolveIteration<dim>::Iterate(system::System &system) {
-
-  const int total_groups = system.total_groups;
-  const int total_angles = system.total_angles;
-  system::moments::MomentVector current_scalar_flux, previous_scalar_flux;
+auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
+  const int total_groups{ system.total_groups };
+  const int total_angles{ system.total_angles };
+  MomentVector current_scalar_flux, previous_scalar_flux;
   system::moments::MomentsMap previous_moments_map;
 
   for (int group = 0; group < total_groups; ++group) {
@@ -108,54 +95,45 @@ void GroupSolveIteration<dim>::Iterate(system::System &system) {
 }
 
 template <int dim>
-void GroupSolveIteration<dim>::SolveGroup(int group, system::System &system) {
+auto GroupSolveIteration<dim>::SolveGroup(const int group, System &system) -> void {
   group_solver_ptr_->SolveGroup(group, system, *group_solution_ptr_);
 }
 
 template <int dim>
-system::moments::MomentVector GroupSolveIteration<dim>::GetScalarFlux(
-    const int group, system::System &) {
-  return moment_calculator_ptr_->CalculateMoment(group_solution_ptr_.get(),
-                                                 group, 0, 0);
+auto GroupSolveIteration<dim>::GetScalarFlux(const int group, System& /*system*/) -> MomentVector {
+  return moment_calculator_ptr_->CalculateMoment(group_solution_ptr_.get(), group, 0, 0);
 }
 
 template <int dim>
-convergence::Status GroupSolveIteration<dim>::CheckConvergence(
-    system::moments::MomentVector &current_iteration,
-    system::moments::MomentVector &previous_iteration) {
-  return convergence_checker_ptr_->ConvergenceStatus(current_iteration,
-                                                         previous_iteration);
+auto GroupSolveIteration<dim>::CheckConvergence(const MomentVector &current_iteration,
+                                                const MomentVector &previous_iteration) -> convergence::Status{
+  return convergence_checker_ptr_->ConvergenceStatus(current_iteration, previous_iteration);
 }
 
 template <int dim>
-void GroupSolveIteration<dim>::UpdateCurrentMoments(system::System &system,
-                                                    const int group) {
+auto GroupSolveIteration<dim>::UpdateCurrentMoments(System &system, const int group) -> void {
   auto& current_moments = *system.current_moments;
   const int max_harmonic_l = current_moments.max_harmonic_l();
 
-
   for (int l = 0; l <= max_harmonic_l; ++l) {
     for (int m = -l; m <= l; ++m) {
-      current_moments[{group, l, m}] = moment_calculator_ptr_->CalculateMoment(
-          group_solution_ptr_.get(), group, l, m);
+      current_moments[{group, l, m}] = moment_calculator_ptr_->CalculateMoment(group_solution_ptr_.get(), group, l, m);
     }
   }
 }
 
 template<int dim>
-void GroupSolveIteration<dim>::PerformPerGroup(system::System &/*system*/,
-                                               const int group) {
+auto GroupSolveIteration<dim>::PerformPerGroup(System& /*system*/, const int group) -> void {
   std::string report{"....Group: "};
   report += std::to_string(group);
   report += "\n";
   data_ports::StatusPort::Expose(report);
 }
+
 template<int dim>
-void GroupSolveIteration<dim>::StoreAngularSolution(system::System& system,
-                                                    const int group) {
+auto GroupSolveIteration<dim>::StoreAngularSolution(System& system, const int group) -> void {
   for (int angle = 0; angle < system.total_angles; ++angle) {
-    auto& stored_solution = angular_solution_ptr_map_.at(
-        system::SolutionIndex(group, angle));
+    auto& stored_solution = angular_solution_ptr_map_.at(system::SolutionIndex(group, angle));
     auto& current_solution = group_solution_ptr_->GetSolution(angle);
     *stored_solution = current_solution;
   }
@@ -165,8 +143,4 @@ template class GroupSolveIteration<1>;
 template class GroupSolveIteration<2>;
 template class GroupSolveIteration<3>;
 
-} // namespace group
-
-} // namespace iteration
-
-} // namespace bart
+} // namespace bart::iteration::group
