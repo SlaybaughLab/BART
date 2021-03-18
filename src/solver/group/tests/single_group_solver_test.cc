@@ -4,8 +4,8 @@
 
 #include "system/system.hpp"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
-#include "system/terms/tests/linear_term_mock.h"
-#include "system/terms/tests/bilinear_term_mock.h"
+#include "system/terms/tests/linear_term_mock.hpp"
+#include "system/terms/tests/bilinear_term_mock.hpp"
 #include "solver/linear/tests/linear_mock.h"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"

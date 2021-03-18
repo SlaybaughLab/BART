@@ -1,6 +1,6 @@
 #include "formulation/updater/saaf_updater.h"
 
-#include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_set_mock.hpp"
 #include "formulation/angular/tests/self_adjoint_angular_flux_mock.h"
 #include "formulation/tests/stamper_mock.hpp"
 #include "formulation/updater/tests/updater_tests.h"

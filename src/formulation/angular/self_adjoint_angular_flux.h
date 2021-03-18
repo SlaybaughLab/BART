@@ -4,7 +4,7 @@
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 
 #include <memory>
 

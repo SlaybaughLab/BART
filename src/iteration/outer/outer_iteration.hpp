@@ -5,7 +5,7 @@
 
 #include "convergence/iteration_completion_checker_i.hpp"
 #include "instrumentation/port.hpp"
-#include "iteration/group/group_solve_iteration_i.h"
+#include "iteration/group/group_solve_iteration_i.hpp"
 #include "iteration/outer/outer_iteration_i.hpp"
 #include "iteration/subroutine/subroutine_i.hpp"
 #include "system/system.hpp"

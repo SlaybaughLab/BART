@@ -1,7 +1,7 @@
-#ifndef BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_H_
-#define BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_H_
+#ifndef BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_HPP_
+#define BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_HPP_
 
-#include "iteration/group/group_solve_iteration.h"
+#include "iteration/group/group_solve_iteration.hpp"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/updater/boundary_conditions_updater_i.h"
 
@@ -62,4 +62,4 @@ class GroupSourceIteration : public GroupSolveIteration<dim> {
 
 } //namespace bart
 
-#endif //BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_H_
+#endif //BART_SRC_ITERATION_GROUP_GROUP_SOURCE_ITERATION_HPP_

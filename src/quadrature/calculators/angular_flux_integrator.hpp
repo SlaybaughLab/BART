@@ -3,7 +3,7 @@
 
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 #include "utility/has_dependencies.h"
 
 namespace bart::quadrature::calculators {

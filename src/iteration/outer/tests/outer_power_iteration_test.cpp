@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "instrumentation/tests/instrument_mock.h"
-#include "iteration/group/tests/group_solve_iteration_mock.h"
+#include "iteration/group/tests/group_solve_iteration_mock.hpp"
 #include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "eigenvalue/k_eigenvalue/tests/k_eigenvalue_calculator_mock.hpp"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"

@@ -20,7 +20,7 @@
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.hpp"
-#include "quadrature/quadrature_set_i.h"
+#include "quadrature/quadrature_set_i.hpp"
 
 namespace bart {
 

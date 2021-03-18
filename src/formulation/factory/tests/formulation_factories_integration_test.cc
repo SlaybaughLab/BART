@@ -16,7 +16,7 @@
 #include "formulation/scalar/tests/diffusion_mock.hpp"
 #include "formulation/tests/stamper_mock.hpp"
 #include "data/material/tests/material_mock.hpp"
-#include "quadrature/tests/quadrature_set_mock.h"
+#include "quadrature/tests/quadrature_set_mock.hpp"
 
 namespace  {
 

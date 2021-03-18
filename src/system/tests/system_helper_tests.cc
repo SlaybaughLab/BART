@@ -14,8 +14,8 @@
 #include "system/moments/spherical_harmonic.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
-#include "system/terms/tests/linear_term_mock.h"
-#include "system/terms/tests/bilinear_term_mock.h"
+#include "system/terms/tests/linear_term_mock.hpp"
+#include "system/terms/tests/bilinear_term_mock.hpp"
 #include "system/solution/solution_types.h"
 
 namespace  {

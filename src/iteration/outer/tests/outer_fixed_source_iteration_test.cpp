@@ -2,7 +2,7 @@
 
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "instrumentation/tests/instrument_mock.h"
-#include "iteration/group/tests/group_solve_iteration_mock.h"
+#include "iteration/group/tests/group_solve_iteration_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 

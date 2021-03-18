@@ -2,9 +2,9 @@
 
 #include "quadrature/angular/gauss_legendre.h"
 #include "quadrature/angular/level_symmetric_gaussian.h"
-#include "quadrature/ordinate.h"
-#include "quadrature/quadrature_point.h"
-#include "quadrature/quadrature_set.h"
+#include "quadrature/ordinate.hpp"
+#include "quadrature/quadrature_point.hpp"
+#include "quadrature/quadrature_set.hpp"
 #include "quadrature/calculators/scalar_moment.h"
 #include "quadrature/calculators/spherical_harmonic_zeroth_moment.h"
 #include "quadrature/utility/quadrature_utilities.h"
