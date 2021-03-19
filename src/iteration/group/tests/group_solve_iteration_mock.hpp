@@ -9,9 +9,11 @@ namespace bart::iteration::group {
 
 class GroupSolveIterationMock : public GroupSolveIterationI {
  public:
+  using Subroutine = subroutine::SubroutineI;
   MOCK_METHOD(void, Iterate, (system::System &system), (override));
   MOCK_METHOD(GroupSolveIterationMock&, UpdateThisAngularSolutionMap,
               (system::solution::EnergyGroupToAngularSolutionPtrMap), (override));
+  MOCK_METHOD(GroupSolveIterationI&, AddPostIterationSubroutine, (std::unique_ptr<Subroutine>), (override));
 };
 
 } // namespace bart::iteration::group

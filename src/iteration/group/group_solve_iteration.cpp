@@ -91,6 +91,11 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
       data_ports::StatusPort::Expose("....All group convergence: ");
       data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
     }
+    if (post_iteration_subroutine_ptr_ != nullptr) {
+      data_ports::StatusPort::Expose("===================== COMMENCING SUBROUTINE =====================\n");
+      post_iteration_subroutine_ptr_->Execute(system);
+      data_ports::StatusPort::Expose("===================== COMPLETED SUBROUTINE  =====================\n");
+    }
   } while(!all_group_convergence_status.is_complete);
   ExposeIterationData(system);
 }
