@@ -32,7 +32,7 @@ class CellIsotropicResidualI {
   //! Flux moments type
   using FluxMoments = system::moments::SphericalHarmonicI;
 
-  ~CellIsotropicResidualI() = default;
+  virtual ~CellIsotropicResidualI() = default;
   /*! \brief Calculate the cell residual.
    *
    * Integrated and return the cell isotropic residual component as described.
