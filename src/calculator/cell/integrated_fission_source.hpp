@@ -53,16 +53,16 @@ class IntegratedFissionSource : public IntegratedFissionSourceI<dim>, public uti
    * @param cross_sections_ptr pointer to cross-sections struct.
    */
   IntegratedFissionSource(std::shared_ptr<FiniteElement> finite_element_ptr,
-                          std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr);
+                          std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr);
   ~IntegratedFissionSource() = default;
 
-  data::cross_sections::MaterialCrossSections* cross_sections_ptr() const { return cross_sections_ptr_.get(); };
+  data::cross_sections::CrossSectionsI* cross_sections_ptr() const { return cross_sections_ptr_.get(); };
   FiniteElement* finite_element_ptr() const { return finite_element_ptr_.get(); };
 
   [[nodiscard]] auto CellValue(CellPtr cell_ptr, MomentPtr system_moments_ptr) const -> double override;
  private:
   std::shared_ptr<FiniteElement> finite_element_ptr_;
-  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr_;
+  std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr_;
   const int cell_quadrature_points_;
 };
 

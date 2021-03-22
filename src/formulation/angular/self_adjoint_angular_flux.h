@@ -20,7 +20,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   SelfAdjointAngularFlux(
       std::shared_ptr<domain::finite_element::FiniteElementI<dim>>,
-      std::shared_ptr<data::cross_sections::MaterialCrossSections>,
+      std::shared_ptr<data::cross_sections::CrossSectionsI>,
       std::shared_ptr<quadrature::QuadratureSetI<dim>>);
 
   void Initialize(const domain::CellPtr<dim>&) override;
@@ -84,7 +84,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   // Dependency getters
   domain::finite_element::FiniteElementI<dim>* finite_element_ptr() const {
     return finite_element_ptr_.get(); }
-  data::cross_sections::MaterialCrossSections* cross_sections_ptr() const {
+  data::cross_sections::CrossSectionsI* cross_sections_ptr() const {
     return cross_sections_ptr_.get(); }
   quadrature::QuadratureSetI<dim>* quadrature_set_ptr() const {
     return quadrature_set_ptr_.get(); }
@@ -124,7 +124,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   // Dependencies
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr_;
-  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr_;
+  std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr_;
   std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr_;
   // Geometric properties
   const int cell_degrees_of_freedom_ = 0; //!< Degrees of freedom per cell

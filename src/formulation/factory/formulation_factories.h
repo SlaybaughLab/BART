@@ -31,7 +31,7 @@ namespace factory {
 template <int dim>
 std::unique_ptr<formulation::scalar::DiffusionI<dim>> MakeDiffusionPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>&,
-    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
+    const std::shared_ptr<data::cross_sections::CrossSectionsI>&,
     const DiffusionFormulationImpl implementation = DiffusionFormulationImpl::kDefault);
 
 template <int dim>
@@ -42,7 +42,7 @@ std::unique_ptr<updater::DiffusionUpdater<dim>> MakeDiffusionUpdater(
 template <int dim>
 std::unique_ptr<angular::SelfAdjointAngularFluxI<dim>> MakeSAAFFormulationPtr(
     const std::shared_ptr<domain::finite_element::FiniteElementI<dim>>&,
-    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
+    const std::shared_ptr<data::cross_sections::CrossSectionsI>&,
     const std::shared_ptr<quadrature::QuadratureSetI<dim>>&,
     const SAAFFormulationImpl implementation = SAAFFormulationImpl::kDefault);
 

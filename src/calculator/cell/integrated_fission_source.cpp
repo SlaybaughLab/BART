@@ -19,7 +19,7 @@ auto GetCellQuadraturePoints(domain::finite_element::FiniteElementI<dim>* finite
 
 template<int dim>
 IntegratedFissionSource<dim>::IntegratedFissionSource(std::shared_ptr<FiniteElement> finite_element_ptr,
-                                                      std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr)
+                                                      std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr)
     : finite_element_ptr_(finite_element_ptr),
       cross_sections_ptr_(cross_sections_ptr),
       cell_quadrature_points_(GetCellQuadraturePoints(finite_element_ptr.get())) {

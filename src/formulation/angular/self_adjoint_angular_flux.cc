@@ -12,7 +12,7 @@ namespace angular {
 template <int dim>
 SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
     std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr,
-    std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr,
+    std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr,
     std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr)
     : finite_element_ptr_(finite_element_ptr),
       cross_sections_ptr_(cross_sections_ptr),
