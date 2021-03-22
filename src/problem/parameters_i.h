@@ -87,6 +87,8 @@ class ParametersI {
   virtual std::string                FuelPinMaterialMapFilename()        const = 0;
                                                             
   // Acceleration parameters
+  /*! \brief Use two-grid acceleration. */
+  virtual auto UseTwoGridAcceleration() const -> bool = 0;
   /*! \brief Gets the type of preconditioner to use */
   virtual PreconditionerType         Preconditioner()                 const = 0;
   /*! \brief Gets the damping factor for block SSOR if used */

@@ -64,6 +64,7 @@ class ParametersDealiiHandler : public ParametersI {
         "fuel pin material id file name";
     
     // Acceleration parameters
+    const std::string kUseTwoGridAcceleration_ = "use two-grid acceleration";
     const std::string kPreconditioner_ = "ho preconditioner name";
     const std::string kBSSOR_Factor_ = "ho ssor factor";
     const std::string kDoNDA_ = "do nda";
@@ -159,7 +160,9 @@ class ParametersDealiiHandler : public ParametersI {
     return fuel_pin_material_map_filename_; }
 
   // Acceleration parameters ===================================================
-  
+
+  auto UseTwoGridAcceleration() const -> bool override { return use_two_grid_acceleration_; };
+
   PreconditionerType Preconditioner() const override { return preconditioner_; }
 
   double BlockSSORFactor() const override { return block_ssor_factor_; }
@@ -231,6 +234,7 @@ class ParametersDealiiHandler : public ParametersI {
   std::string                          fuel_pin_material_map_filename_;
                                        
   // Acceleration parameters
+  bool                                 use_two_grid_acceleration_{ false };
   PreconditionerType                   preconditioner_;
   double                               block_ssor_factor_;
   bool                                 do_nda_;

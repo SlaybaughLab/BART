@@ -84,7 +84,8 @@ class ParametersMock : public ParametersI {
   MOCK_METHOD(AngularQuadType, AngularQuad, (), (const));
 
   MOCK_METHOD(int, AngularQuadOrder, (), (const));
-  
+
+  MOCK_METHOD(bool, UseTwoGridAcceleration, (), (const, override));
 };
 
 } // namespace problem 

@@ -63,6 +63,7 @@ void ParametersDealiiHandler::Parse(dealii::ParameterHandler &handler) {
   handler.leave_subsection();
   
   // Acceleration
+  use_two_grid_acceleration_ = handler.get_bool(key_words_.kUseTwoGridAcceleration_);
   preconditioner_ = kPreconditionerTypeMap_.at(
       handler.get(key_words_.kPreconditioner_));
   block_ssor_factor_ = handler.get_double(key_words_.kBSSOR_Factor_);
@@ -231,6 +232,9 @@ void ParametersDealiiHandler::SetUpAccelerationParameters(
   namespace Pattern = dealii::Patterns;
 
   std::string preconditioner_options{GetOptionString(kPreconditionerTypeMap_)};
+
+  handler.declare_entry(key_words_.kUseTwoGridAcceleration_, "false", Pattern::Bool(), "Use two-grid acceleration");
+
   handler.declare_entry(key_words_.kPreconditioner_, "amg",
                         Pattern::Selection(preconditioner_options),
                         "Preconditioner");
