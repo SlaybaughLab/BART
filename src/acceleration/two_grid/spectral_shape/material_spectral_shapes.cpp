@@ -16,14 +16,13 @@ void MaterialSpectralShapes::CalculateMaterialSpectralShapes(std::shared_ptr<Cro
   const int n_materials = sigma_t_vector_map.size();
   const int n_groups = sigma_t_vector_map.begin()->second.size();
 
-  for (int material = 0; material < n_materials; ++material) {
+  for (const auto& [material_id, sigma_t_vector] : sigma_t_vector_map) {
     DealiiMatrix sigma_t_matrix(n_groups, n_groups);
-    const auto sigma_t_vector = sigma_t_vector_map.at(material);
     for (int group = 0; group < n_groups; ++group) {
       sigma_t_matrix(group, group) = sigma_t_vector.at(group);
     }
-    material_spectral_shapes_[material] =
-        this->spectral_shape_calculator_ptr_->CalculateSpectralShape(sigma_t_matrix, sigma_s_matrix_map.at(material));
+    material_spectral_shapes_[material_id] =
+        this->spectral_shape_calculator_ptr_->CalculateSpectralShape(sigma_t_matrix, sigma_s_matrix_map.at(material_id));
   }
 }
 
