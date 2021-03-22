@@ -70,6 +70,7 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .discretization_type{ problem_parameters.Discretization() },
     .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) },
     .use_nda_{ problem_parameters.DoNDA() },
+    .use_two_grid_{ problem_parameters.UseTwoGridAcceleration() },
     .output_aggregated_source_data{ problem_parameters.OutputAggregatedSourceData() },
     .output_scalar_flux_as_vtu{ problem_parameters.OutputScalarFluxAsVTU() },
     .output_fission_source_as_vtu{ problem_parameters.OutputFissionSourceAsVTU() },
@@ -321,17 +322,24 @@ auto FrameworkHelper<dim>::BuildFramework(
 
   std::unique_ptr<iteration::subroutine::SubroutineI> group_post_processing_subroutine{ nullptr };
   if (parameters.use_two_grid_) {
+    std::cout << "Setting up two_grid ===============================================================================\n";
     acceleration::two_grid::spectral_shape::MaterialSpectralShapes material_spectral_shape_calculator(
         std::make_unique<acceleration::two_grid::spectral_shape::SpectralShape>(
             std::make_unique<solver::eigenvalue::KrylovSchurEigenvalueSolver>()));
+    std::cout << "calculate material Spectral Shape" << std::endl;
     material_spectral_shape_calculator.CalculateMaterialSpectralShapes(parameters.cross_sections_.value());
+    std::cout << "get material Spectral Shape" << std::endl;
     auto material_spectral_shapes = material_spectral_shape_calculator.material_spectral_shapes();
+    std::cout << "One group xsec" << std::endl;
     auto one_group_cross_sections = std::make_shared<data::cross_sections::CollapsedOneGroupCrossSections>(
         *parameters.cross_sections_.value(), material_spectral_shapes);
     acceleration::two_grid::spectral_shape::DomainSpectralShapes<dim> domain_spectral_shape_calculator;
+    std::cout << "Domain spectral shape" << std::endl;
     auto group_to_domain_spectral_shape_map = domain_spectral_shape_calculator.CalculateDomainSpectralShapes(
         material_spectral_shapes, *domain_ptr);
+    std::cout << "Flux corrector" << std::endl;
     auto flux_corrector = std::make_unique<acceleration::two_grid::FluxCorrector>(group_to_domain_spectral_shape_map);
+    std::cout << "Isotropic Residual" << std::endl;
     auto domain_isotropic_residual_ptr = std::make_unique<calculator::residual::DomainIsotropicResidual<dim>>(
         std::make_unique<calculator::residual::CellIsotropicResidual<dim>>(parameters.cross_sections_.value(),
                                                                            finite_element_ptr), domain_ptr);
@@ -345,6 +353,7 @@ auto FrameworkHelper<dim>::BuildFramework(
     two_grid_parameters.equation_type = problem::EquationType::kTwoGridDiffusion;
     two_grid_parameters.eigen_solver_type = std::nullopt;
     two_grid_parameters.group_solver_type = problem::InGroupSolverType::kSourceIteration;
+    two_grid_parameters.neutron_energy_groups = 1;
 
     std::unique_ptr<FrameworkI> subroutine_framework_ptr{ nullptr };
     if (subroutine_framework_helper_ptr_ != nullptr) {
@@ -366,6 +375,7 @@ auto FrameworkHelper<dim>::BuildFramework(
     group_post_processing_subroutine = std::make_unique<iteration::subroutine::TwoGridAcceleration>(
         std::move(flux_corrector), std::move(subroutine_framework_ptr),
         std::move(domain_isotropic_residual_ptr), rhs_vector);
+    std::cout << "Two grid setup complete ==========================================================================\n";
   }
 
   if (group_post_processing_subroutine != nullptr)
