@@ -4,6 +4,7 @@
 #include "eigenvalue/k_eigenvalue/factory.hpp"
 #include "problem/parameter_types.hpp"
 #include "data/cross_sections/material_cross_sections.hpp"
+#include "data/cross_sections/one_group_cross_sections_i.hpp"
 #include "utility/named_type.h"
 #include "quadrature/calculators/angular_flux_integrator_i.hpp"
 #include "quadrature/quadrature_set_i.hpp"
@@ -66,6 +67,7 @@ struct FrameworkParameters {
 
   // Acceleration methods
   bool use_nda_{ false };
+  bool use_two_grid_{ false };
   // Indicates "level" of the framework, with 0 being the top level
   int framework_level_{ 0 };
   // Higher order data to support NDA
@@ -74,7 +76,11 @@ struct FrameworkParameters {
     std::shared_ptr<Moments> higher_order_moments_ptr_{ nullptr };
     AngularFluxStorage higher_order_angular_flux_{};
   };
+  struct TwoGridData {
+    std::shared_ptr<data::cross_sections::OneGroupCrossSectionsI> one_group_cross_sections_ptr_{ nullptr };
+  };
   NDA_Data nda_data_{};
+  TwoGridData two_grid_data_{};
 
   // Instrumentation options
   bool output_aggregated_source_data{ false };

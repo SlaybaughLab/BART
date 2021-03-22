@@ -1,11 +1,21 @@
 #include "framework/framework_helper.hpp"
 
+#include "solver/eigenvalue/krylov_schur_eigenvalue_solver.hpp"
+#include "acceleration/two_grid/spectral_shape/domain_spectral_shapes.hpp"
+#include "acceleration/two_grid/spectral_shape/material_spectral_shapes.hpp"
+#include "acceleration/two_grid/spectral_shape/spectral_shape.hpp"
+#include "acceleration/two_grid/flux_corrector.hpp"
+#include "calculator/residual/cell_isotropic_residual.hpp"
+#include "calculator/residual/domain_isotropic_residual.hpp"
+#include "formulation/scalar/two_grid_diffusion.hpp"
+
 #include "framework/builder/framework_builder.hpp"
 #include "framework/framework.hpp"
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
 #include "instrumentation/converter/convert_to_string/convergence_to_string.h"
 #include "data/material/material_protobuf.hpp"
+#include "data/cross_sections/collapsed_one_group_cross_sections.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 #include "results/output_dealii_vtu.h"
 #include "system/system_helper.hpp"
@@ -14,6 +24,11 @@
 // to be removed
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/outstream/vector_to_vtu.hpp"
+#include "iteration/outer/outer_fixed_source_iteration.hpp"
+#include "iteration/group/group_source_iteration.hpp"
+#include "formulation/updater/fixed_updater.hpp"
+#include "iteration/subroutine/two_grid_acceleration.hpp"
+
 
 #include <fstream>
 
@@ -118,6 +133,8 @@ auto FrameworkHelper<dim>::BuildFramework(
                 dealii::ExcMessage(nda_dependency_error + "higher order moments ptr is null"))
   }
 
+
+
   // Build instruments to be used
   auto color_string_instrument_ptr = Shared(
       InstrumentBuilder::BuildInstrument<ColorStringPair>(InstrumentName::kColorStatusToConditionalOstream));
@@ -194,6 +211,19 @@ auto FrameworkHelper<dim>::BuildFramework(
   };
   for (auto& boundary : parameters.reflective_boundaries) {
     reflective_boundaries.at(boundary) = true;
+  }
+
+  if (parameters.equation_type == problem::EquationType::kTwoGridDiffusion) {
+    AssertThrow(parameters.two_grid_data_.one_group_cross_sections_ptr_ != nullptr,
+                dealii::ExcMessage("Not one-group cross_sections"));
+
+    auto two_grid_diffusion_formulation = std::make_unique<formulation::scalar::TwoGridDiffusion<dim>>(
+        finite_element_ptr, parameters.cross_sections_.value(),
+        parameters.two_grid_data_.one_group_cross_sections_ptr_);
+    two_grid_diffusion_formulation->Precalculate(domain_ptr->Cells().at(0));
+    updater_pointers = builder.BuildUpdaterPointers(std::move(two_grid_diffusion_formulation),
+                                                    builder.BuildStamper(domain_ptr),
+                                                    reflective_boundaries);
   }
 
   // Formulation specific builds
@@ -288,6 +318,58 @@ auto FrameworkHelper<dim>::BuildFramework(
                                         group_solution_ptr->GetSolution(0).size(),
                                         parameters.eigen_solver_type.has_value(),
                                         need_angular_solution_storage);
+
+  std::unique_ptr<iteration::subroutine::SubroutineI> group_post_processing_subroutine{ nullptr };
+  if (parameters.use_two_grid_) {
+    acceleration::two_grid::spectral_shape::MaterialSpectralShapes material_spectral_shape_calculator(
+        std::make_unique<acceleration::two_grid::spectral_shape::SpectralShape>(
+            std::make_unique<solver::eigenvalue::KrylovSchurEigenvalueSolver>()));
+    material_spectral_shape_calculator.CalculateMaterialSpectralShapes(parameters.cross_sections_.value());
+    auto material_spectral_shapes = material_spectral_shape_calculator.material_spectral_shapes();
+    auto one_group_cross_sections = std::make_shared<data::cross_sections::CollapsedOneGroupCrossSections>(
+        *parameters.cross_sections_.value(), material_spectral_shapes);
+    acceleration::two_grid::spectral_shape::DomainSpectralShapes<dim> domain_spectral_shape_calculator;
+    auto group_to_domain_spectral_shape_map = domain_spectral_shape_calculator.CalculateDomainSpectralShapes(
+        material_spectral_shapes, *domain_ptr);
+    auto flux_corrector = std::make_unique<acceleration::two_grid::FluxCorrector>(group_to_domain_spectral_shape_map);
+    auto domain_isotropic_residual_ptr = std::make_unique<calculator::residual::DomainIsotropicResidual<dim>>(
+        std::make_unique<calculator::residual::CellIsotropicResidual<dim>>(parameters.cross_sections_.value(),
+                                                                           finite_element_ptr), domain_ptr);
+    auto two_grid_parameters{parameters };
+    two_grid_parameters.name = "Two-grid diffusion";
+    two_grid_parameters.use_two_grid_ = false;
+    two_grid_parameters.framework_level_ = 1;
+    two_grid_parameters.output_filename_base = parameters.output_filename_base + "_two_grid";
+    two_grid_parameters.cross_sections_ = one_group_cross_sections;
+    two_grid_parameters.two_grid_data_.one_group_cross_sections_ptr_ = one_group_cross_sections;
+    two_grid_parameters.equation_type = problem::EquationType::kTwoGridDiffusion;
+    two_grid_parameters.eigen_solver_type = std::nullopt;
+    two_grid_parameters.group_solver_type = problem::InGroupSolverType::kSourceIteration;
+
+    std::unique_ptr<FrameworkI> subroutine_framework_ptr{ nullptr };
+    if (subroutine_framework_helper_ptr_ != nullptr) {
+      subroutine_framework_ptr = std::move(subroutine_framework_helper_ptr_->BuildFramework(builder, two_grid_parameters));
+    } else {
+      subroutine_framework_ptr = std::move(BuildFramework(builder, two_grid_parameters));
+    }
+    auto rhs_vector = std::make_shared<dealii::Vector<double>>(group_solution_ptr->GetSolution(0).size());
+
+    auto framework_ptr = dynamic_cast<Framework*>(subroutine_framework_ptr.get());
+    auto outer_iteration_ptr = dynamic_cast<iteration::outer::OuterFixedSourceIteration*>(framework_ptr->outer_iterator_ptr());
+    AssertThrow(outer_iteration_ptr != nullptr, dealii::ExcMessage("Error building Two-grid, outer iteration dynamic pointer null"))
+    auto group_iteration_ptr = dynamic_cast<typename iteration::group::GroupSourceIteration<dim>*>(outer_iteration_ptr->group_iterator_ptr());
+    AssertThrow(group_iteration_ptr != nullptr, dealii::ExcMessage("Error building Two-grid, group iteration dynamic pointer null"))
+    auto fixed_upater_ptr = dynamic_cast<formulation::updater::FixedUpdater<dim>*>(group_iteration_ptr->source_updater_ptr());
+    AssertThrow(fixed_upater_ptr != nullptr, dealii::ExcMessage("Error building Two-grid, fixed updater dynamic pointer null"))
+    fixed_upater_ptr->SetRHSConstant(rhs_vector);
+
+    group_post_processing_subroutine = std::make_unique<iteration::subroutine::TwoGridAcceleration>(
+        std::move(flux_corrector), std::move(subroutine_framework_ptr),
+        std::move(domain_isotropic_residual_ptr), rhs_vector);
+  }
+
+  if (group_post_processing_subroutine != nullptr)
+    group_iteration_ptr->AddPostIterationSubroutine(std::move(group_post_processing_subroutine));
 
   std::unique_ptr<iteration::subroutine::SubroutineI> post_processing_subroutine{ nullptr };
   // For NDA we need to build a sub-routine framework to run the NDA process
