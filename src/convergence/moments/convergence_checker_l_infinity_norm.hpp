@@ -6,6 +6,17 @@
 
 namespace bart::convergence::moments {
 
+/*! \brief Checks for convergence between flux moments using the percentage
+ * change in the \f$L_{\infty}\f$ norm, compared to the current iteration (\f$i\f$):
+ *
+ * \f[
+ *
+ * \Delta_i = \frac{|\phi_i - \phi_{i-1}|_{\infty}}{|\phi_{i}|_{\infty}}
+ *
+ * \f]
+ *
+ * Convergence is achieved if \f$\Delta_i \leq \Delta_{\text{max}}\f$.
+ * */
 class ConvergenceCheckerLInfinityNorm : public ConvergenceChecker<dealii::Vector<double>> {
  public:
   using Vector = dealii::Vector<double>;
