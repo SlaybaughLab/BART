@@ -1,0 +1,20 @@
+set problem dimension                        = 3
+set transport model                          = saaf
+set number of groups                         = 6
+set do eigenvalue calculations               = true
+set have reflective boundary                 = true
+set reflective boundary names                = xmin, xmax, ymax, ymin, zmax, zmin
+
+set x, y, z max values of boundary locations = 10.0, 10.0, 10
+set number of cells for x, y, z directions   = 10, 10, 10
+set number of materials                      = 1
+
+set finite element polynomial degree         = 1
+set angular quadrature name                  = level_symmetric_gaussian
+
+set output file name base                    = urr_6_0_in
+
+subsection material ID map
+set material id file name map                = 1: research_reactor_6_group.material
+set material id file name                    = urr_6_0_in.material_map
+end
