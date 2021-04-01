@@ -336,28 +336,50 @@ auto FrameworkHelper<dim>::BuildFramework(
     outer_iteration_ptr->AddPostIterationSubroutine(std::move(post_processing_subroutine));
   }
 
-  try {
-    // Install if port is present
-    auto vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-        std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "scattering_source", "scattering_source",
-                                                                                parameters.output_filename_base + "_scattering_source"));
-    instrumentation::GetPort<iteration::outer::data_names::ScatteringSourcePort>(*outer_iteration_ptr)
-        .AddInstrument(vector_to_vtu_instrument);
-  } catch (std::bad_cast&) {}
-  try {
-    auto fission_source_vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-        std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "fission_source", "fission_source",
-                                                                                parameters.output_filename_base + "_fission_source"));
-    instrumentation::GetPort<iteration::outer::data_names::FissionSourcePort>(*outer_iteration_ptr)
-        .AddInstrument(fission_source_vector_to_vtu_instrument);
-  } catch (std::bad_cast&) {}
-  try {
-    auto scalar_flux_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-        std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr, "scalar_flux", "scalar_flux",
-                                                                                parameters.output_filename_base + "_scalar_flux"));
-    instrumentation::GetPort<iteration::outer::data_names::ScalarFluxPort>(*outer_iteration_ptr)
-        .AddInstrument(scalar_flux_to_vtu_instrument);
-  } catch (std::bad_cast&) {}
+  if (parameters.output_scalar_flux_as_vtu) {
+    try {
+      // Install if port is present
+      auto vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
+                                                                                  "scattering_source",
+                                                                                  "scattering_source",
+                                                                                  parameters.output_filename_base
+                                                                                      + "_scattering_source"));
+      instrumentation::GetPort<iteration::outer::data_names::ScatteringSourcePort>(*outer_iteration_ptr)
+          .AddInstrument(vector_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error installing scattering source to vtu instrument, port is not present"))
+    }
+  }
+  if (parameters.output_fission_source_as_vtu) {
+    try {
+      auto fission_source_vector_to_vtu_instrument =
+          std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+              std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
+                                                                                      "fission_source",
+                                                                                      "fission_source",
+                                                                                      parameters.output_filename_base
+                                                                                          + "_fission_source"));
+      instrumentation::GetPort<iteration::outer::data_names::FissionSourcePort>(*outer_iteration_ptr)
+          .AddInstrument(fission_source_vector_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error installing fission source  to vtu instrument, port is not present"))
+    }
+  }
+  if (parameters.output_scalar_flux_as_vtu) {
+    try {
+      auto scalar_flux_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
+                                                                                  "scalar_flux",
+                                                                                  "scalar_flux",
+                                                                                  parameters.output_filename_base
+                                                                                      + "_scalar_flux"));
+      instrumentation::GetPort<iteration::outer::data_names::ScalarFluxPort>(*outer_iteration_ptr)
+          .AddInstrument(scalar_flux_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error scalar flux to vtu instrument, port is not present"))
+    }
+  }
 
   validator.ReportValidation();
 
@@ -365,6 +387,7 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                 std::move(initializer_ptr),
                                                 std::move(outer_iteration_ptr),
                                                 std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr));
+
 }
 
 template<int dim>
