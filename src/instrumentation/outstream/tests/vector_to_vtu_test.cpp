@@ -1,6 +1,6 @@
 #include "instrumentation/outstream/vector_to_vtu.hpp"
 
-#include "domain/tests/domain_mock.h"
+#include "domain/tests/domain_mock.hpp"
 #include "test_helpers/dealii_test_domain.h"
 #include "test_helpers/gmock_wrapper.h"
 
