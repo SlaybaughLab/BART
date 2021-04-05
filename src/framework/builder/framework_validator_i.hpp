@@ -1,10 +1,10 @@
 #ifndef BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_I_HPP_
 #define BART_SRC_FRAMEWORK_BUILDER_FRAMEWORK_VALIDATOR_I_HPP_
 
-#include "problem/parameters_i.h"
+#include "problem/parameters_i.hpp"
 #include "instrumentation/port.hpp"
 #include "framework/framework_parameters.hpp"
-#include "problem/parameters_i.h"
+#include "problem/parameters_i.hpp"
 
 namespace bart::framework::builder {
 

@@ -1,6 +1,6 @@
 #include "framework/framework_helper.hpp"
 
-#include "problem/tests/parameters_mock.h"
+#include "problem/tests/parameters_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "system/tests/system_helper_mock.hpp"

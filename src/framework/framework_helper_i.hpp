@@ -1,7 +1,7 @@
 #ifndef BART_SRC_FRAMEWORK_FRAMEWORK_HELPER_I_HPP_
 #define BART_SRC_FRAMEWORK_FRAMEWORK_HELPER_I_HPP_
 
-#include "problem/parameters_i.h"
+#include "problem/parameters_i.hpp"
 #include "framework/builder/framework_builder_i.hpp"
 #include "data/material/material_protobuf.hpp"
 #include "system/system_helper_i.hpp"

@@ -11,7 +11,7 @@
 #include "formulation/cfem_diffusion_stamper.h"
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "material/tests/mock_material.h"
-#include "problem/tests/parameters_mock.h"
+#include "problem/tests/parameters_mock.hpp"
 #include "domain/domain.hpp"
 #include "domain/finite_element/finite_element_gaussian.h"
 #include "domain/finite_element/tests/finite_element_mock.h"

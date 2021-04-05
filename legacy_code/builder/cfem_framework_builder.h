@@ -9,7 +9,7 @@
 #include "data/cross_sections/material_cross_sections.hpp"
 #include "domain/domain_i.hpp"
 #include "domain/finite_element/finite_element_i.h"
-#include "problem/parameters_i.h"
+#include "problem/parameters_i.hpp"
 #include "framework/framework_i.h"
 #include "framework/builder/framework_builder_i.h"
 #include "formulation/cfem_stamper_i.h"

@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <deal.II/lac/full_matrix.h>
 
-#include "problem/parameters_dealii_handler.h"
+#include "problem/parameters_dealii_handler.hpp"
 #include "data/material/tests/material_mock.hpp"
 #include "test_helpers/bart_test_helper.h"
 #include "test_helpers/gmock_wrapper.h"
