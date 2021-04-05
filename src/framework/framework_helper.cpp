@@ -54,7 +54,11 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .uniform_refinements{ problem_parameters.UniformRefinements() },
     .discretization_type{ problem_parameters.Discretization() },
     .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) },
-    .use_nda_{ problem_parameters.DoNDA() }
+    .use_nda_{ problem_parameters.DoNDA() },
+    .output_aggregated_source_data{ problem_parameters.OutputAggregatedSourceData() },
+    .output_scalar_flux_as_vtu{ problem_parameters.OutputScalarFluxAsVTU() },
+    .output_fission_source_as_vtu{ problem_parameters.OutputFissionSourceAsVTU() },
+    .output_scattering_source_as_vtu{ problem_parameters.OutputScatteringSourceAsVTU() }
   };
 
   std::set<Boundary> reflective_boundaries;
@@ -336,7 +340,7 @@ auto FrameworkHelper<dim>::BuildFramework(
     outer_iteration_ptr->AddPostIterationSubroutine(std::move(post_processing_subroutine));
   }
 
-  if (parameters.output_scalar_flux_as_vtu) {
+  if (parameters.output_scattering_source_as_vtu) {
     try {
       // Install if port is present
       auto vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
