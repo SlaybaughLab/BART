@@ -57,6 +57,10 @@ auto ParametersDealiiHandler::Parse(dealii::ParameterHandler& handler) -> void {
 
   // Instrumentation and output
   output_filename_base_ = handler.get(key_words_.kOutputFilenameBase_);
+  output_aggregated_source_data_ = handler.get_bool(key_words_.kOutputAggregatedSourceData_);
+  output_scalar_flux_as_vtu_ = handler.get_bool(key_words_.kOutputScalarFluxAsVTU_);
+  output_fission_source_as_vtu_ = handler.get_bool(key_words_.kOutputFissionSourceAsVTU_);
+  output_scattering_source_as_vtu_ = handler.get_bool(key_words_.kOutputScatteringSourceAsVTU_);
 
   // Fourier analysis
   do_dft_of_error_ = handler.get_bool(key_words_.kDoDFTOfError_);
@@ -124,6 +128,17 @@ auto ParametersDealiiHandler::SetUpBasicParameters(dealii::ParameterHandler &han
 
   handler.declare_entry(key_words_.kTransportModel_, "none", Pattern::Selection(GetOptionString(kEquationTypeMap_)),
                         "valid names such as ep");
+
+  // Instrumentation parameters
+  handler.declare_entry(key_words_.kOutputAggregatedSourceData_, "false", Pattern::Bool(),
+                        "output aggregated source data");
+  handler.declare_entry(key_words_.kOutputScalarFluxAsVTU_, "false", Pattern::Bool(),
+                        "output scalar flux as a VTU file");
+  handler.declare_entry(key_words_.kOutputFissionSourceAsVTU_, "false", Pattern::Bool(),
+                        "output fission source as a VTU file");
+  handler.declare_entry(key_words_.kOutputScatteringSourceAsVTU_, "false", Pattern::Bool(),
+                        "output scattering source as a VTU file");
+
 }
 
 // MESH PARAMETERS =============================================================

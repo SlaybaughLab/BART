@@ -41,6 +41,12 @@ class ParametersMock : public ParametersI {
 
   MOCK_METHOD(bool, DoDiscreteFourierTransformOfError, (), (const, override));
   MOCK_METHOD(std::string, OutputFilenameBase, (), (const));
+
+  MOCK_METHOD(bool, OutputAggregatedSourceData, (), (const, override));
+  MOCK_METHOD(bool, OutputScalarFluxAsVTU, (), (const, override));
+  MOCK_METHOD(bool, OutputFissionSourceAsVTU, (), (const, override));
+  MOCK_METHOD(bool, OutputScatteringSourceAsVTU, (), (const, override));
+
 };
 
 } // namespace problem 

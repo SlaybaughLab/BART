@@ -46,7 +46,7 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kFEPolynomialDegree_{ "finite element polynomial degree" };
 
     // Material parameters
-    const std::string kMaterialSubsection_ = "material ID map";
+    const std::string kMaterialSubsection_{ "material ID map" };
     const std::string kMaterialMapFilename_{ "material id file name" };
     const std::string kMaterialFilenames_{ "material id file name map" };
     const std::string kNumberOfMaterials_{ "number of materials" };
@@ -56,20 +56,24 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kDoNDA_{ "do nda" };
 
     // Solver parameters
-    const std::string kEigenSolver_ ={ "eigen solver name" };
-    const std::string kK_EffectiveUpdaterType_ ={ "k_effective updater type" };
-    const std::string kInGroupSolver_ ={ "in group solver name" };
-    const std::string kLinearSolver_ ={ "ho linear solver name" };
+    const std::string kEigenSolver_{ "eigen solver name" };
+    const std::string kK_EffectiveUpdaterType_{ "k_effective updater type" };
+    const std::string kInGroupSolver_{ "in group solver name" };
+    const std::string kLinearSolver_{ "ho linear solver name" };
 
     // Quadrature
-    const std::string kAngularQuad_ ={ "angular quadrature name" };
-    const std::string kAngularQuadOrder_ ={ "angular quadrature order" };
+    const std::string kAngularQuad_{ "angular quadrature name" };
+    const std::string kAngularQuadOrder_{ "angular quadrature order" };
 
     // Instrumentation and output
-    const std::string kOutputFilenameBase_ ={ "output file name base" };
+    const std::string kOutputFilenameBase_{ "output file name base" };
+    const std::string kOutputAggregatedSourceData_{ "output aggregated source data"};
+    const std::string kOutputScalarFluxAsVTU_{ "output scalar flux as vtu"};
+    const std::string kOutputFissionSourceAsVTU_{ "output fission source as vtu"};
+    const std::string kOutputScatteringSourceAsVTU_{ "output scattering source as vtu"};
 
     // Fourier analysis
-    const std::string kDoDFTOfError_ ={ "do dft of error" };
+    const std::string kDoDFTOfError_{ "do dft of error" };
   };
   
   ParametersDealiiHandler() = default;
@@ -124,6 +128,10 @@ class ParametersDealiiHandler : public ParametersI {
   // Instrumentation and output
   auto DoDiscreteFourierTransformOfError() const noexcept -> bool override { return do_dft_of_error_; }
   auto OutputFilenameBase() const noexcept -> std::string override { return output_filename_base_; }
+  auto OutputAggregatedSourceData() const -> bool override { return output_aggregated_source_data_; }
+  auto OutputScalarFluxAsVTU() const -> bool override { return output_scalar_flux_as_vtu_; }
+  auto OutputFissionSourceAsVTU() const -> bool override { return output_fission_source_as_vtu_; }
+  auto OutputScatteringSourceAsVTU() const -> bool override { return output_scattering_source_as_vtu_; }
 
   auto GetKeyWords() const noexcept -> KeyWords { return key_words_; }
   
@@ -158,12 +166,16 @@ class ParametersDealiiHandler : public ParametersI {
   int                                  angular_quad_order_{ 0 };
 
   // Instrumentation and output
-  bool                                 do_dft_of_error_{ false };
   std::string                          output_filename_base_{};
+  bool                                 do_dft_of_error_{ false };
+  bool                                 output_aggregated_source_data_{ false };
+  bool                                 output_scalar_flux_as_vtu_{ false };
+  bool                                 output_fission_source_as_vtu_{ false };
+  bool                                 output_scattering_source_as_vtu_{ false };
 
   // Key-words struct                  
   KeyWords                             key_words_{};
-  
+
   // Options mapping
   // The KeyWords struct provides the "key words" that dealii identifies when looking for options, these are
   // the options and what they map to.

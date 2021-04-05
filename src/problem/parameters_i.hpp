@@ -88,6 +88,10 @@ class ParametersI {
   /*! \brief Gets the base filename used for generating output files */
   virtual auto DoDiscreteFourierTransformOfError() const -> bool = 0;
   virtual auto OutputFilenameBase() const -> std::string = 0;
+  virtual auto OutputAggregatedSourceData() const -> bool = 0;
+  virtual auto OutputScalarFluxAsVTU() const -> bool = 0;
+  virtual auto OutputFissionSourceAsVTU() const -> bool = 0;
+  virtual auto OutputScatteringSourceAsVTU() const -> bool = 0;
 };
 
 } // namespace bart::problem

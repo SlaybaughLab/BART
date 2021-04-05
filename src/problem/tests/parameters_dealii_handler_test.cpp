@@ -44,6 +44,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   ASSERT_EQ(test_parameters.ReflectiveBoundary(), test_reflective_map) << "Default first reflective boundaries";
   ASSERT_EQ(test_parameters.OutputFilenameBase(), "bart_output") << "Default spatial dimension";
   ASSERT_EQ(test_parameters.TransportModel(), EquationType::kNone) << "Default transport model";
+  EXPECT_FALSE(test_parameters.OutputAggregatedSourceData());
+  EXPECT_FALSE(test_parameters.OutputScalarFluxAsVTU());
+  EXPECT_FALSE(test_parameters.OutputFissionSourceAsVTU());
+  EXPECT_FALSE(test_parameters.OutputScatteringSourceAsVTU());
 }
 
 TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
@@ -105,6 +109,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(key_words.kSpatialDimension_, static_cast<double>(spatial_max.size()));
   test_parameter_handler.set(key_words.kSpatialMax_, "10.0, 5.0, 8.0");
   test_parameter_handler.set(key_words.kTransportModel_, "saaf");
+  test_parameter_handler.set(key_words.kOutputAggregatedSourceData_, "true");
+  test_parameter_handler.set(key_words.kOutputScalarFluxAsVTU_, "true");
+  test_parameter_handler.set(key_words.kOutputFissionSourceAsVTU_, "true");
+  test_parameter_handler.set(key_words.kOutputScatteringSourceAsVTU_, "true");
   
   test_parameters.Parse(test_parameter_handler);
 
@@ -119,6 +127,10 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   ASSERT_EQ(test_parameters.SpatialDimension(), 3.0) << "Parsed spatial dimension";
   ASSERT_EQ(test_parameters.SpatialMax(), spatial_max) << "Parsed spatial maximums";
   ASSERT_EQ(test_parameters.TransportModel(), EquationType::kSelfAdjointAngularFlux) << "Parsed transport model";
+  EXPECT_TRUE(test_parameters.OutputAggregatedSourceData());
+  EXPECT_TRUE(test_parameters.OutputScalarFluxAsVTU());
+  EXPECT_TRUE(test_parameters.OutputFissionSourceAsVTU());
+  EXPECT_TRUE(test_parameters.OutputScatteringSourceAsVTU());
 }
 
 TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {
