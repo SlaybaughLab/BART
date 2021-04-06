@@ -10,6 +10,8 @@
 #include "formulation/updater/tests/fission_source_updater_mock.h"
 #include "test_helpers/gmock_wrapper.h"
 #include "system/system.hpp"
+#include "system/moments/tests/spherical_harmonic_mock.h"
+#include "system/terms/tests/linear_term_mock.hpp"
 
 namespace  {
 
@@ -30,10 +32,16 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using ConvergenceChecker = convergence::IterationCompletionCheckerMock<double>;
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using ErrorInstrumentType = instrumentation::InstrumentMock<std::pair<int, double>>;
+  using FissionSourceInstrumentMock = instrumentation::InstrumentMock<dealii::Vector<double>>;
   using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
+  using MomentsMock = system::moments::SphericalHarmonicMock;
+  using RightHandSideMock = system::terms::LinearTermMock;
+  using ScalarFluxInstrumentMock = instrumentation::InstrumentMock<dealii::Vector<double>>;
+  using ScatteringSourceInstrumentMock = instrumentation::InstrumentMock<dealii::Vector<double>>;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
+  using SolutionMomentsInstrumentMock = instrumentation::InstrumentMock<bart::system::moments::SphericalHarmonicI>;
   using Subroutine = iteration::subroutine::SubroutineMock;
 
   std::unique_ptr<OuterPowerIteration> test_iterator;
@@ -44,15 +52,24 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   // Mock instruments
   std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_{ std::make_shared<ConvergenceInstrumentType>() };
   std::shared_ptr<ErrorInstrumentType> error_instrument_ptr_{ std::make_shared<ErrorInstrumentType>() };
+  std::shared_ptr<FissionSourceInstrumentMock> fission_source_instrument_ptr_{
+      std::make_shared<FissionSourceInstrumentMock>() };
   std::shared_ptr<StatusInstrumentType> status_instrument_ptr_{ std::make_shared<StatusInstrumentType>() };
+  std::shared_ptr<ScalarFluxInstrumentMock> scalar_flux_instrument_ptr_{ std::make_shared<ScalarFluxInstrumentMock>() };
+  std::shared_ptr<ScatteringSourceInstrumentMock> scattering_source_instrument_ptr_{
+      std::make_shared<ScatteringSourceInstrumentMock>() };
+  std::shared_ptr<SolutionMomentsInstrumentMock> solution_moments_instrument_ptr_{
+    std::make_shared<SolutionMomentsInstrumentMock>() };
 
   // Supporting objects
   system::System test_system;
 
-  // Observation pointers
+  // Mocks observation pointers
+  std::shared_ptr<MomentsMock> current_moments_mock_ptr_{std::make_shared<MomentsMock>() };
   GroupIterator* group_iterator_obs_ptr_;
   ConvergenceChecker* convergence_checker_obs_ptr_;
   K_EffectiveUpdater* k_effective_updater_obs_ptr_;
+  RightHandSideMock* right_hand_side_obs_ptr_;
   Subroutine* post_iteration_subroutine_obs_ptr_;
 
   // Test parameters
@@ -73,10 +90,14 @@ void IterationOuterPowerIterationTest::SetUp() {
   k_effective_updater_obs_ptr_ = k_effective_updater_ptr.get();
   auto post_iteration_subroutine_ptr = std::make_unique<Subroutine>();
   post_iteration_subroutine_obs_ptr_ = post_iteration_subroutine_ptr.get();
+  auto right_hand_side_ptr = std::make_unique<RightHandSideMock>();
+  right_hand_side_obs_ptr_ = right_hand_side_ptr.get();
 
   // Set up system
   test_system.total_angles = total_angles;
   test_system.total_groups = total_groups;
+  test_system.current_moments = this->current_moments_mock_ptr_;
+  test_system.right_hand_side_ptr_ = std::move(right_hand_side_ptr);
 
   // Construct test object
   test_iterator = std::make_unique<OuterPowerIteration>(
@@ -88,10 +109,18 @@ void IterationOuterPowerIterationTest::SetUp() {
 
   using ConvergenceStatusPort = iteration::outer::data_names::ConvergenceStatusPort;
   instrumentation::GetPort<ConvergenceStatusPort>(*test_iterator).AddInstrument(convergence_instrument_ptr_);
+  using FissionSourcePort = iteration::outer::data_names::FissionSourcePort;
+  instrumentation::GetPort<FissionSourcePort>(*test_iterator).AddInstrument(fission_source_instrument_ptr_);
   using StatusPort = iteration::outer::data_names::StatusPort;
   instrumentation::GetPort<StatusPort>(*test_iterator).AddInstrument(status_instrument_ptr_);
   using IterationErrorPort = iteration::outer::data_names::IterationErrorPort;
   instrumentation::GetPort<IterationErrorPort>(*test_iterator).AddInstrument(error_instrument_ptr_);
+  using ScalarFluxPort = iteration::outer::data_names::ScalarFluxPort;
+  instrumentation::GetPort<ScalarFluxPort>(*test_iterator).AddInstrument(scalar_flux_instrument_ptr_);
+  using ScatteringSourcePort = iteration::outer::data_names::ScatteringSourcePort;
+  instrumentation::GetPort<ScatteringSourcePort>(*test_iterator).AddInstrument(scattering_source_instrument_ptr_);
+  using SolutionMomentsPort = iteration::outer::data_names::SolutionMomentsPort;
+  instrumentation::GetPort<SolutionMomentsPort>(*test_iterator).AddInstrument(solution_moments_instrument_ptr_);
 }
 
 /* Constructor (called in SetUp()) should have stored the correct pointers in the test object */
@@ -175,6 +204,25 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   EXPECT_CALL(*this->post_iteration_subroutine_obs_ptr_, Execute(Ref(this->test_system))).Times(this->iterations_);
   EXPECT_CALL(*this->status_instrument_ptr_, Read(_)).Times(AtLeast(this->iterations_));
   EXPECT_CALL(*this->error_instrument_ptr_, Read(_)).Times(this->iterations_ - 1);
+
+  dealii::Vector<double> flux;
+  EXPECT_CALL(*this->current_moments_mock_ptr_, GetMoment(std::array{0, 0, 0}))
+      .Times(this->iterations_)
+      .WillRepeatedly(::testing::ReturnRef(flux));
+  EXPECT_CALL(*this->scalar_flux_instrument_ptr_, Read(Ref(flux))).Times(this->iterations_);
+  EXPECT_CALL(*this->solution_moments_instrument_ptr_, Read(Ref(*this->current_moments_mock_ptr_)))
+      .Times(this->iterations_);
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  auto scattering_source_vector_ptr = std::make_shared<system::MPIVector>();
+  auto fission_source_vector_ptr = std::make_shared<system::MPIVector>();
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, VariableLinearTerms::kScatteringSource))
+      .Times(this->iterations_)
+      .WillRepeatedly(Return(scattering_source_vector_ptr));
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, VariableLinearTerms::kFissionSource))
+      .Times(this->iterations_)
+      .WillRepeatedly(Return(fission_source_vector_ptr));
+  EXPECT_CALL(*this->fission_source_instrument_ptr_, Read(_)).Times(iterations_);
+  EXPECT_CALL(*this->scattering_source_instrument_ptr_, Read(_)).Times(iterations_);
 
   this->test_iterator->IterateToConvergence(this->test_system);
 }
