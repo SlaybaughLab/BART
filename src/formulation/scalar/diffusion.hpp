@@ -25,7 +25,7 @@ class Diffusion : public DiffusionI<dim>, public utility::HasDependencies {
 
   // Dependency types
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
-  using CrossSections = data::cross_sections::MaterialCrossSections;
+  using CrossSections = data::cross_sections::CrossSectionsI;
 
   // Moment types
   using MomentVector = system::moments::MomentVector;

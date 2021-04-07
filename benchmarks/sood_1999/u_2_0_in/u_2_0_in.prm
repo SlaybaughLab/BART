@@ -1,9 +1,11 @@
 set problem dimension                        = 1
 set transport model                          = diffusion
 set number of groups                         = 2
-set do eigenvalue calculations               = true
 set have reflective boundary                 = true
 set reflective boundary names                = xmin
+
+set eigen solver name                        = pi
+set k_effective updater type                 = rayleigh quotient
 
 set x, y, z max values of boundary locations = 300
 set number of cells for x, y, z directions   = 10

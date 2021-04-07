@@ -20,7 +20,7 @@ class SelfAdjointAngularFluxMock :
       const domain::FaceIndex,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number), (override));
-  MOCK_METHOD(void, FillReflectiveBoundaryLinearTerm, (Vector&,
+  MOCK_METHOD(double, FillReflectiveBoundaryLinearTerm, (Vector&,
       const domain::CellPtr<dim>&,
       const domain::FaceIndex,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
@@ -28,7 +28,7 @@ class SelfAdjointAngularFluxMock :
   MOCK_METHOD(void, FillCellCollisionTerm, (FullMatrix&,
       const domain::CellPtr<dim>&,
       const system::EnergyGroup), (override));
-  MOCK_METHOD(void, FillCellFissionSourceTerm, (Vector&,
+  MOCK_METHOD(double, FillCellFissionSourceTerm, (Vector&,
       const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const double,
@@ -38,7 +38,7 @@ class SelfAdjointAngularFluxMock :
       const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup), (override));
-  MOCK_METHOD(void, FillCellScatteringSourceTerm, (Vector&,
+  MOCK_METHOD(double, FillCellScatteringSourceTerm, (Vector&,
       const domain::CellPtr<dim>&,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>>,
       const system::EnergyGroup, const system::moments::MomentVector&,

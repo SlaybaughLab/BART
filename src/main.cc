@@ -11,7 +11,7 @@
 #include "framework/builder/framework_validator.hpp"
 #include "instrumentation/builder/instrument_builder.hpp"
 #include "instrumentation/port.hpp"
-#include "problem/parameters_dealii_handler.h"
+#include "problem/parameters_dealii_handler.hpp"
 #include "utility/runtime/runtime_helper.h"
 #include "system/system_helper.hpp"
 

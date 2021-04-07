@@ -8,6 +8,7 @@
 #include "convergence/status.hpp"
 #include "instrumentation/converter/dealii_to_complex_vector.h"
 #include "instrumentation/converter/calculator/vector_subtractor.h"
+#include "instrumentation/converter/convert_to_string/double_to_string.h"
 #include "instrumentation/converter/convert_to_string/string_color_pair_to_string.h"
 #include "instrumentation/converter/convert_to_string/convergence_to_string.h"
 #include "instrumentation/converter/convert_to_string/int_double_pair_to_string.h"
@@ -215,6 +216,20 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
   EXPECT_EQ(remove(filename.c_str()), 0);
 }
 
+TEST_F(InstrumentationBuilderInstrumentBuilderTest, DoubleToFile) {
+  const std::string filename{ "filename.csv" };
+  using InstrumentType = instrumentation::Instrument<double, std::string>;
+  using ConverterType = instrumentation::converter::convert_to_string::DoubleToString;
+  using OutstreamType = instrumentation::outstream::ToOstream;
+  auto instrument_ptr = Builder::BuildInstrument<double>(InstrumentName::kDoubleToFile, filename);
+  ASSERT_NE(instrument_ptr, nullptr);
+  auto dynamic_ptr = dynamic_cast<InstrumentType*>(instrument_ptr.get());
+  ASSERT_NE(dynamic_ptr, nullptr);
+  ASSERT_NE(dynamic_cast<ConverterType*>(dynamic_ptr->converter_ptr()), nullptr);
+  ASSERT_NE(dynamic_cast<OutstreamType*>(dynamic_ptr->outstream_ptr()), nullptr);
+  EXPECT_EQ(remove(filename.c_str()), 0);
+}
+
 TEST_F(InstrumentationBuilderInstrumentBuilderTest,
        StringToConditionalOstream) {
   using InstrumentType = instrumentation::BasicInstrument<std::string>;
@@ -243,6 +258,12 @@ TEST_F(InstrumentationBuilderInstrumentBuilderTest,
                         InstrumentName::kStringToConditionalOstream,
                         InstrumentName::kConvergenceStatusToConditionalOstream}) {
     EXPECT_ANY_THROW(Builder::BuildInstrument<IntDoublePair>(bad_name, std::string{}));
+  }
+
+  for (auto bad_name : {InstrumentName::kColorStatusToConditionalOstream,
+                        InstrumentName::kStringToConditionalOstream,
+                        InstrumentName::kConvergenceStatusToConditionalOstream}) {
+    EXPECT_ANY_THROW(Builder::BuildInstrument<double>(bad_name, std::string{}));
   }
 
   for (auto bad_name : {InstrumentName::kColorStatusToConditionalOstream,

@@ -4,7 +4,7 @@
 #include <deal.II/base/parameter_handler.h>
 
 #include "common/bart_driver.h"
-#include "problem/parameters_dealii_handler.h"
+#include "problem/parameters_dealii_handler.hpp"
 #include "problem/locator.h"
 
 int main(int argc, char* argv[]) {

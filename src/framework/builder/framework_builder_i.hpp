@@ -15,8 +15,8 @@
 #include "formulation/angular/self_adjoint_angular_flux_i.h"
 #include "formulation/scalar/diffusion_i.hpp"
 #include "formulation/scalar/drift_diffusion_i.hpp"
-#include "formulation/updater/boundary_conditions_updater_i.h"
-#include "formulation/updater/fission_source_updater_i.h"
+#include "formulation/updater/boundary_conditions_updater_i.hpp"
+#include "formulation/updater/fission_source_updater_i.hpp"
 #include "formulation/updater/fixed_updater_i.h"
 #include "formulation/updater/scattering_source_updater_i.h"
 #include "formulation/stamper_i.hpp"
@@ -45,7 +45,7 @@ class FrameworkBuilderI {
  public:
   // Classes built by member functions
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
-  using CrossSections = data::cross_sections::MaterialCrossSections;
+  using CrossSections = data::cross_sections::CrossSectionsI;
   using DiffusionFormulation = typename formulation::scalar::DiffusionI<dim>;
   using DriftDiffusionFormulation = typename formulation::scalar::DriftDiffusionI<dim>;
   using Domain = typename domain::DomainI<dim>;
@@ -103,12 +103,12 @@ class FrameworkBuilderI {
       const std::shared_ptr<QuadratureSet>) -> std::unique_ptr<AngularFluxIntegrator> = 0;
   virtual auto BuildDiffusionFormulation(
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
+      const std::shared_ptr<data::cross_sections::CrossSectionsI>&,
       const DiffusionFormulationImpl) -> std::unique_ptr<DiffusionFormulation> = 0;
   virtual auto BuildDriftDiffusionFormulation(
       const std::shared_ptr<AngularFluxIntegrator>&,
       const std::shared_ptr<FiniteElement>&,
-      const std::shared_ptr<data::cross_sections::MaterialCrossSections>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
+      const std::shared_ptr<data::cross_sections::CrossSectionsI>&) -> std::unique_ptr<DriftDiffusionFormulation> = 0;
   virtual auto BuildDomain(const FrameworkParameters::DomainSize,
                            const FrameworkParameters::NumberOfCells,
                            const std::shared_ptr<FiniteElement>&,
@@ -159,7 +159,7 @@ class FrameworkBuilderI {
       const problem::AngularQuadType,
       const FrameworkParameters::AngularQuadratureOrder) -> std::shared_ptr<QuadratureSet> = 0;
   virtual auto BuildSAAFFormulation(const std::shared_ptr<FiniteElement>&,
-                                    const std::shared_ptr<data::cross_sections::MaterialCrossSections>&,
+                                    const std::shared_ptr<data::cross_sections::CrossSectionsI>&,
                                     const std::shared_ptr<QuadratureSet>&,
                                     const formulation::SAAFFormulationImpl) -> std::unique_ptr<SAAFFormulation> = 0;
   virtual auto BuildSingleGroupSolver(const int max_iterations,

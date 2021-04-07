@@ -27,6 +27,7 @@ void OuterIteration<ConvergenceType>::IterateToConvergence(system::System &syste
       post_iteration_subroutine_ptr_->Execute(system);
       data_names::StatusPort::Expose("===================== COMPLETED SUBROUTINE  =====================\n");
     }
+    ExposeIterationData(system);
   } while (!is_complete);
 }
 
@@ -53,9 +54,31 @@ auto OuterIteration<ConvergenceType>::Iterate(system::System &system) -> bool {
 
   data_names::StatusPort::Expose("Outer iteration Status: ");
   data_names::ConvergenceStatusPort::Expose(convergence_status);
-  data_names::SolutionMomentsPort::Expose(*system.current_moments);
 
   return convergence_status.is_complete;
+}
+
+template<typename ConvergenceType>
+auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system) -> void {
+  if (system.current_moments != nullptr) {
+    data_names::SolutionMomentsPort::Expose(*system.current_moments);
+    data_names::ScalarFluxPort::Expose(system.current_moments->GetMoment({0, 0, 0}));
+  }
+
+  if (system.right_hand_side_ptr_ != nullptr) {
+    auto scattering_source_ptr =
+        system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kScatteringSource);
+    if (scattering_source_ptr != nullptr) {
+      dealii::Vector<double> scattering_source(*scattering_source_ptr);
+      data_names::ScatteringSourcePort::Expose(scattering_source);
+    }
+    auto fission_source_ptr =
+        system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kFissionSource);
+    if (fission_source_ptr != nullptr) {
+      dealii::Vector<double> fission_source(*fission_source_ptr);
+      data_names::FissionSourcePort::Expose(fission_source);
+    }
+  }
 }
 
 template class OuterIteration<double>;

@@ -2,7 +2,7 @@
 #define BART_SRC_FRAMEWORK_FRAMEWORK_HELPER_HPP_
 
 #include "framework/framework_helper_i.hpp"
-#include "problem/parameters_i.h"
+#include "problem/parameters_i.hpp"
 #include "framework/builder/framework_builder_i.hpp"
 #include "data/material/material_protobuf.hpp"
 #include "system/system_helper_i.hpp"

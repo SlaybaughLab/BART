@@ -22,7 +22,7 @@ template <int dim>
 class DriftDiffusion : public DriftDiffusionI<dim>, public utility::HasDependencies {
  public:
   using AngularFluxIntegrator = quadrature::calculators::AngularFluxIntegratorI;
-  using CrossSections = data::cross_sections::MaterialCrossSections;
+  using CrossSections = data::cross_sections::CrossSectionsI;
   using DriftDiffusionCalculator = typename calculator::drift_diffusion::DriftDiffusionVectorCalculatorI<dim>;
   using FiniteElement = typename domain::finite_element::FiniteElementI<dim>;
   using typename DriftDiffusionI<dim>::Matrix;

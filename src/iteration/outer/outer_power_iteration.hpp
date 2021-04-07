@@ -1,8 +1,8 @@
 #ifndef BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 #define BART_SRC_ITERATION_OUTER_OUTER_POWER_ITERATION_HPP_
 
-#include "formulation/updater/fission_source_updater_i.h"
 #include "eigenvalue/k_eigenvalue/k_eigenvalue_calculator_i.hpp"
+#include "formulation/updater/fission_source_updater_i.hpp"
 #include "iteration/outer/outer_iteration.hpp"
 
 namespace bart {
@@ -35,6 +35,7 @@ class OuterPowerIteration : public OuterIteration<double> {
  protected:
   convergence::Status CheckConvergence(system::System &system) override;
   void UpdateSystem(system::System &system, const int group, const int angle) override;
+  auto ExposeIterationData(system::System& system) -> void override;
 
   std::shared_ptr<SourceUpdaterType> source_updater_ptr_ = nullptr;
   std::unique_ptr<K_EffectiveUpdater> k_effective_updater_ptr_ = nullptr;

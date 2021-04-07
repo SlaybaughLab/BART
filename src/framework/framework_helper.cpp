@@ -11,6 +11,10 @@
 #include "system/system_helper.hpp"
 #include "system/solution/solution_types.h"
 
+// to be removed
+#include "instrumentation/basic_instrument.h"
+#include "instrumentation/outstream/vector_to_vtu.hpp"
+
 #include <fstream>
 
 #include <fmt/color.h>
@@ -50,7 +54,11 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .uniform_refinements{ problem_parameters.UniformRefinements() },
     .discretization_type{ problem_parameters.Discretization() },
     .polynomial_degree{ framework::FrameworkParameters::PolynomialDegree(problem_parameters.FEPolynomialDegree()) },
-    .use_nda_{ problem_parameters.DoNDA() }
+    .use_nda_{ problem_parameters.DoNDA() },
+    .output_aggregated_source_data{ problem_parameters.OutputAggregatedSourceData() },
+    .output_scalar_flux_as_vtu{ problem_parameters.OutputScalarFluxAsVTU() },
+    .output_fission_source_as_vtu{ problem_parameters.OutputFissionSourceAsVTU() },
+    .output_scattering_source_as_vtu{ problem_parameters.OutputScatteringSourceAsVTU() }
   };
 
   std::set<Boundary> reflective_boundaries;
@@ -232,6 +240,28 @@ auto FrameworkHelper<dim>::BuildFramework(
     }
   }
 
+  if (parameters.output_aggregated_source_data) {
+    auto make_source_instrument = [](const std::string filename) {
+      return Shared(InstrumentBuilder::BuildInstrument<double>(
+          InstrumentName::kDoubleToFile, filename));
+    };
+    if (updater_pointers.fission_source_updater_ptr != nullptr) {
+      instrumentation::GetPort<formulation::updater::data_port::AggregatedFissionSourceValue>(
+          *updater_pointers.fission_source_updater_ptr.get())
+          .AddInstrument(make_source_instrument(parameters.output_filename_base + "_fission_source.csv"));
+    }
+    if (updater_pointers.scattering_source_updater_ptr != nullptr) {
+      instrumentation::GetPort<formulation::updater::data_port::AggregatedScatteringSourceValue>(
+          *updater_pointers.scattering_source_updater_ptr.get())
+          .AddInstrument(make_source_instrument(parameters.output_filename_base + "_scattering_source.csv"));
+    }
+    if (updater_pointers.boundary_conditions_updater_ptr != nullptr) {
+      instrumentation::GetPort<formulation::updater::data_port::AggregatedBoundaryConditionValue>(
+          *updater_pointers.boundary_conditions_updater_ptr.get())
+          .AddInstrument(make_source_instrument(parameters.output_filename_base + "_boundary_source.csv"));
+    }
+  }
+
   auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
                                                   parameters.neutron_energy_groups,
                                                   n_angles);
@@ -310,12 +340,58 @@ auto FrameworkHelper<dim>::BuildFramework(
     outer_iteration_ptr->AddPostIterationSubroutine(std::move(post_processing_subroutine));
   }
 
+  if (parameters.output_scattering_source_as_vtu) {
+    try {
+      // Install if port is present
+      auto vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
+                                                                                  "scattering_source",
+                                                                                  "scattering_source",
+                                                                                  parameters.output_filename_base
+                                                                                      + "_scattering_source"));
+      instrumentation::GetPort<iteration::outer::data_names::ScatteringSourcePort>(*outer_iteration_ptr)
+          .AddInstrument(vector_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error installing scattering source to vtu instrument, port is not present"))
+    }
+  }
+  if (parameters.output_fission_source_as_vtu) {
+    try {
+      auto fission_source_vector_to_vtu_instrument =
+          std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+              std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
+                                                                                      "fission_source",
+                                                                                      "fission_source",
+                                                                                      parameters.output_filename_base
+                                                                                          + "_fission_source"));
+      instrumentation::GetPort<iteration::outer::data_names::FissionSourcePort>(*outer_iteration_ptr)
+          .AddInstrument(fission_source_vector_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error installing fission source  to vtu instrument, port is not present"))
+    }
+  }
+  if (parameters.output_scalar_flux_as_vtu) {
+    try {
+      auto scalar_flux_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
+          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
+                                                                                  "scalar_flux",
+                                                                                  "scalar_flux",
+                                                                                  parameters.output_filename_base
+                                                                                      + "_scalar_flux"));
+      instrumentation::GetPort<iteration::outer::data_names::ScalarFluxPort>(*outer_iteration_ptr)
+          .AddInstrument(scalar_flux_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error scalar flux to vtu instrument, port is not present"))
+    }
+  }
+
   validator.ReportValidation();
 
   return std::make_unique<framework::Framework>(std::move(system_ptr),
                                                 std::move(initializer_ptr),
                                                 std::move(outer_iteration_ptr),
                                                 std::make_unique<results::OutputDealiiVtu<dim>>(domain_ptr));
+
 }
 
 template<int dim>

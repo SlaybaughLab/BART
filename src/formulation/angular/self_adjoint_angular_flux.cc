@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <cstdlib>
 
 namespace bart {
 
@@ -12,7 +13,7 @@ namespace angular {
 template <int dim>
 SelfAdjointAngularFlux<dim>::SelfAdjointAngularFlux(
     std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr,
-    std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr,
+    std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr,
     std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr)
     : finite_element_ptr_(finite_element_ptr),
       cross_sections_ptr_(cross_sections_ptr),
@@ -108,12 +109,12 @@ void SelfAdjointAngularFlux<dim>::FillBoundaryBilinearTerm(
 }
 
 template<int dim>
-void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
+auto SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
     Vector& to_fill,
     const domain::CellPtr<dim>& cell_ptr,
     domain::FaceIndex face_number,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-    const dealii::Vector<double>& incoming_flux) {
+    const dealii::Vector<double>& incoming_flux) -> double {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSize(to_fill, __FUNCTION__);
   AssertThrow(cell_ptr.state() == dealii::IteratorState::valid,
@@ -122,6 +123,7 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
 
   auto normal_vector = finite_element_ptr_->FaceNormal();
   auto omega = quadrature_point->cartesian_position_tensor();
+  double total_value_added{ 0 };
 
   const double normal_dot_omega = normal_vector * omega;
 
@@ -131,13 +133,16 @@ void SelfAdjointAngularFlux<dim>::FillReflectiveBoundaryLinearTerm(
     for (int f_q = 0; f_q < face_quadrature_points_; ++f_q) {
       const double jacobian = finite_element_ptr_->FaceJacobian(f_q);
       for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-        to_fill(i) -= normal_dot_omega
+        const double value_to_add = normal_dot_omega
             * finite_element_ptr_->FaceShapeValue(i, f_q)
             * incoming_angular_flux.at(f_q)
             * jacobian;
+        to_fill(i) -= value_to_add;
+        total_value_added += std::abs(value_to_add);
       }
     }
   }
+  return total_value_added;
 }
 
 template<int dim>
@@ -164,19 +169,20 @@ void SelfAdjointAngularFlux<dim>::FillCellCollisionTerm(
 }
 
 template<int dim>
-void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
+auto SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
     Vector &to_fill,
     const domain::CellPtr<dim> & cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
     const double k_eff,
     const system::moments::MomentVector & in_group_moment,
-    const system::moments::MomentsMap & group_moments) {
+    const system::moments::MomentsMap & group_moments) -> double {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
   const int material_id = cell_ptr->material_id();
   const int group = group_number.get();
+  double total_value_added{ 0 };
 
   if (cross_sections_ptr_->is_material_fissile().at(material_id)) {
 
@@ -211,9 +217,10 @@ void SelfAdjointAngularFlux<dim>::FillCellFissionSourceTerm(
       }
     }
 
-    FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
-                       fission_source);
+    total_value_added += std::abs(FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
+                                                     fission_source));
   }
+  return total_value_added;
 }
 
 template<int dim>
@@ -241,13 +248,13 @@ void SelfAdjointAngularFlux<dim>::FillCellFixedSourceTerm(
 }
 
 template<int dim>
-void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
+auto SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     Vector &to_fill,
     const domain::CellPtr<dim> &cell_ptr,
     const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
     const system::EnergyGroup group_number,
     const system::moments::MomentVector &in_group_moment,
-    const system::moments::MomentsMap &group_moments) {
+    const system::moments::MomentsMap &group_moments) -> double {
   VerifyInitialized(__FUNCTION__);
   ValidateVectorSizeAndSetCell(cell_ptr, to_fill, __FUNCTION__);
 
@@ -283,8 +290,7 @@ void SelfAdjointAngularFlux<dim>::FillCellScatteringSourceTerm(
     }
   }
 
-  FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number,
-                     scattering_source);
+  return std::abs(FillCellSourceTerm(to_fill, material_id, quadrature_point, group_number, scattering_source));
 }
 
 template<int dim>
@@ -385,12 +391,13 @@ void SelfAdjointAngularFlux<dim>::ValidateVectorSize(
 
 
 template <int dim>
-void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
+auto SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
     bart::formulation::Vector &to_fill,
     const int material_id,
     const std::shared_ptr<bart::quadrature::QuadraturePointI<dim>> quadrature_point,
     const bart::system::EnergyGroup group_number,
-    std::vector<double> source) {
+    std::vector<double> source) -> double {
+  double total_value_added{ 0 };
   const double inverse_sigma_t =
       cross_sections_ptr_->inverse_sigma_t().at(material_id).at(group_number.get());
   const int angle_index = quadrature_set_ptr_->GetQuadraturePointIndex(
@@ -402,12 +409,13 @@ void SelfAdjointAngularFlux<dim>::FillCellSourceTerm(
         q, quadrature::QuadraturePointIndex(angle_index));
 
     for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
-      to_fill(i) += jacobian * source.at(q) * (
-          finite_element_ptr_->ShapeValue(i, q) +
-              omega_dot_gradient.at(i) * inverse_sigma_t
-      );
+      const double value_to_add{ jacobian * source.at(q) * (finite_element_ptr_->ShapeValue(i, q) +
+          omega_dot_gradient.at(i) * inverse_sigma_t)};
+      to_fill(i) += value_to_add;
+      total_value_added += std::abs(value_to_add);
     }
   }
+  return total_value_added;
 }
 
 template<int dim>

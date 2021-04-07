@@ -11,36 +11,31 @@ auto MultiMomentCheckerMax::IsConverged(const MomentsMap &current_iteration,
   AssertThrow(previous_iteration.size() == current_iteration.size(),
               dealii::ExcMessage("Current and previous iterations must be the same size"));
   is_converged_ = true;
+  delta_ = std::nullopt;
+  failed_index_ = std::nullopt;
 
-  for (auto &previous_pair : previous_iteration) {
-    auto &[index, previous_moment] = previous_pair;
+  for (const auto &[index, previous_moment] : previous_iteration) {
+    const auto &[group, harmonic_l, harmonic_m] = index;
 
     // Check that l = m = 0 (scalar flux)
-    if (index[1] == 0 && index[2] == 0) {
+    if (harmonic_l == 0 && harmonic_m == 0) {
       try {
         auto current_moment = current_iteration.at(index);
 
         if (!checker_->IsConverged(current_moment, previous_moment)) {
           is_converged_ = false;
 
-          double delta = checker_->delta().value_or(0);
+          const double delta = checker_->delta().value_or(0);
 
           if (delta > delta_.value_or(0)) {
             delta_ = delta;
-            failed_index_ = index[0];
+            failed_index_ = group;
           }
         }
       } catch (std::out_of_range &exc) {
-        AssertThrow(false,
-            dealii::ExcMessage("Current iteration lacks a group that previous"
-                               "iteration had"));
+        AssertThrow(false, dealii::ExcMessage("Current iteration lacks a group that previous iteration had"));
       }
     }
-  }
-
-  if (is_converged_) {
-    delta_ = std::nullopt;
-    failed_index_ = std::nullopt;
   }
 
   return is_converged_;

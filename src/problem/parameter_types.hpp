@@ -35,18 +35,11 @@ enum class EquationType {
   kNone,
   kDiffusion,
   kDriftDiffusion,
-  kEvenParity,
   kSelfAdjointAngularFlux,
 };
 
 enum class CellFiniteElementType {
   kGaussian = 0,
-};
-
-enum class FuelPinTriangulationType {
-  kNone,
-  kSimple,
-  kComposite,
 };
 
 enum class InGroupSolverType {
@@ -56,25 +49,8 @@ enum class InGroupSolverType {
 
 enum class LinearSolverType {
   kNone,
-  kConjugateGradient,
   kGMRES,
-  kBiCGSTAB,
-  kDirect,
 };
-
-enum class MultiGroupSolverType {
-  kNone,
-  kGaussSeidel,
-};
-
-enum class PreconditionerType {
-  kNone,
-  kAMG,
-  kParaSails,
-  kBlockJacobi,
-  kJacobi,
-  kBlockSSOR,
-};  
 
 } // namespace problem
 

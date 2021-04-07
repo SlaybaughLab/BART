@@ -19,6 +19,9 @@ using ConvergenceStatusPort = instrumentation::Port<convergence::Status, struct 
 using StatusPort = instrumentation::Port<std::string, struct Status>;
 using IterationErrorPort = instrumentation::Port<std::pair<int, double>, struct IterationError>;
 using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, struct SolutionMoments>;
+using ScatteringSourcePort = instrumentation::Port<dealii::Vector<double>, struct ScatteringSourcePortParameter>;
+using FissionSourcePort = instrumentation::Port<dealii::Vector<double>, struct FissionSourcePortParameter>;
+using ScalarFluxPort = instrumentation::Port<dealii::Vector<double>, struct ScalarFluxPortParameter>;
 } // namespace data_names
 
 
@@ -28,6 +31,9 @@ class OuterIteration : public OuterIterationI,
                        public data_names::ConvergenceStatusPort,
                        public data_names::StatusPort,
                        public data_names::IterationErrorPort,
+                       public data_names::FissionSourcePort,
+                       public data_names::ScatteringSourcePort,
+                       public data_names::ScalarFluxPort,
                        public data_names::SolutionMomentsPort {
  public:
   using GroupIterator = iteration::group::GroupSolveIterationI;
@@ -51,8 +57,8 @@ class OuterIteration : public OuterIterationI,
   virtual void InnerIterationToConvergence(system::System &system);
   virtual auto Iterate(system::System &system) -> bool;
   virtual convergence::Status CheckConvergence(system::System &system) = 0;
-  virtual void UpdateSystem(system::System& system, const int group,
-                            const int angle) = 0;
+  virtual auto ExposeIterationData(system::System& system) -> void;
+  virtual void UpdateSystem(system::System& system, const int group, const int angle) = 0;
 
   std::unique_ptr<GroupIterator> group_iterator_ptr_{ nullptr };
   std::unique_ptr<ConvergenceChecker> convergence_checker_ptr_{ nullptr };

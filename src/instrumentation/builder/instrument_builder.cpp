@@ -157,6 +157,25 @@ auto InstrumentBuilder::BuildInstrument<system::moments::SphericalHarmonicI>(
   }
 }
 
+// DOUBLE
+template <>
+auto InstrumentBuilder::BuildInstrument<double>(const InstrumentName name, const std::string filename)
+    -> std::unique_ptr<InstrumentI<double>> {
+  switch (name) {
+    case InstrumentName::kDoubleToFile: {
+      std::unique_ptr<std::ostream> file_stream = std::make_unique<std::ofstream>(filename);
+      return std::make_unique<Instrument<double, std::string>>(
+          converter::ConverterIFactory<double, std::string>::get()
+              .GetConstructor(ConverterName::kDoubleToString)(),
+          outstream::OutstreamIFactory<std::string, std::unique_ptr<std::ostream>>::get()
+              .GetConstructor(OutstreamName::kToOstream)(std::move(file_stream)));
+    }
+    default:
+    AssertThrow(false,dealii::ExcMessage("Bad instrument name passed to builder"))
+  }
+}
+
+
 // INT-DOUBLE-PAIR =============================================================
 template <>
 auto InstrumentBuilder::BuildInstrument<IntDoublePair>(

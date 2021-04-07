@@ -20,7 +20,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
 
   SelfAdjointAngularFlux(
       std::shared_ptr<domain::finite_element::FiniteElementI<dim>>,
-      std::shared_ptr<data::cross_sections::MaterialCrossSections>,
+      std::shared_ptr<data::cross_sections::CrossSectionsI>,
       std::shared_ptr<quadrature::QuadratureSetI<dim>>);
 
   void Initialize(const domain::CellPtr<dim>&) override;
@@ -34,26 +34,26 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
-  void FillReflectiveBoundaryLinearTerm(
+  auto FillReflectiveBoundaryLinearTerm(
       Vector &to_fill,
       const domain::CellPtr<dim> &cell_ptr,
       domain::FaceIndex face_number,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
-      const dealii::Vector<double>& incoming_flux) override;
+      const dealii::Vector<double>& incoming_flux) -> double override;
 
   void FillCellCollisionTerm(
       FullMatrix &to_fill,
       const domain::CellPtr<dim> &cell_ptr,
       const system::EnergyGroup group_number) override;
 
-  void FillCellFissionSourceTerm(
+  auto FillCellFissionSourceTerm(
       Vector &to_fill,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const double k_eff,
       const system::moments::MomentVector &in_group_moment,
-      const system::moments::MomentsMap &group_moments) override;
+      const system::moments::MomentsMap &group_moments) -> double override;
 
   void FillCellFixedSourceTerm(
       Vector &to_fill,
@@ -61,13 +61,13 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number) override;
 
-  void FillCellScatteringSourceTerm(
+  auto FillCellScatteringSourceTerm(
       Vector &to_fill,
       const domain::CellPtr<dim> &cell_ptr,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
       const system::moments::MomentVector &in_group_moment,
-      const system::moments::MomentsMap &group_moments) override;
+      const system::moments::MomentsMap &group_moments) -> double override;
 
   void FillCellStreamingTerm(
       FullMatrix &to_fill,
@@ -84,7 +84,7 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   // Dependency getters
   domain::finite_element::FiniteElementI<dim>* finite_element_ptr() const {
     return finite_element_ptr_.get(); }
-  data::cross_sections::MaterialCrossSections* cross_sections_ptr() const {
+  data::cross_sections::CrossSectionsI* cross_sections_ptr() const {
     return cross_sections_ptr_.get(); }
   quadrature::QuadratureSetI<dim>* quadrature_set_ptr() const {
     return quadrature_set_ptr_.get(); }
@@ -115,16 +115,16 @@ class SelfAdjointAngularFlux : public SelfAdjointAngularFluxI<dim> {
   void VerifyInitialized(std::string called_function_name);
 
   // Combined implementation functions
-  void FillCellSourceTerm(
+  auto FillCellSourceTerm(
       Vector& to_fill,
       const int material_id,
       const std::shared_ptr<quadrature::QuadraturePointI<dim>> quadrature_point,
       const system::EnergyGroup group_number,
-      std::vector<double> source);
+      std::vector<double> source) -> double;
 
   // Dependencies
   std::shared_ptr<domain::finite_element::FiniteElementI<dim>> finite_element_ptr_;
-  std::shared_ptr<data::cross_sections::MaterialCrossSections> cross_sections_ptr_;
+  std::shared_ptr<data::cross_sections::CrossSectionsI> cross_sections_ptr_;
   std::shared_ptr<quadrature::QuadratureSetI<dim>> quadrature_set_ptr_;
   // Geometric properties
   const int cell_degrees_of_freedom_ = 0; //!< Degrees of freedom per cell

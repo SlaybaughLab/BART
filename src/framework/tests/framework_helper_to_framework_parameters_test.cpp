@@ -1,6 +1,6 @@
 #include "framework/framework_helper.hpp"
 
-#include "problem/tests/parameters_mock.h"
+#include "problem/tests/parameters_mock.hpp"
 #include "test_helpers/gmock_wrapper.h"
 #include "test_helpers/test_helper_functions.h"
 #include "system/tests/system_helper_mock.hpp"
@@ -108,6 +108,10 @@ auto FrameworkHelperToFrameworkParametersTest::SetExpectations(
   EXPECT_CALL(parameters_mock_, NumberOfMaterials()).WillOnce(Return(static_cast<int>(material_filenames_.size())));
   EXPECT_CALL(parameters_mock_, K_EffectiveUpdaterType()).WillOnce(Return(parameters.k_effective_updater));
   EXPECT_CALL(parameters_mock_, DoNDA()).WillOnce(Return(parameters.use_nda_));
+  EXPECT_CALL(parameters_mock_, OutputAggregatedSourceData()).WillOnce(Return(parameters.output_aggregated_source_data));
+  EXPECT_CALL(parameters_mock_, OutputScalarFluxAsVTU()).WillOnce(Return(parameters.output_scalar_flux_as_vtu));
+  EXPECT_CALL(parameters_mock_, OutputFissionSourceAsVTU()).WillOnce(Return(parameters.output_fission_source_as_vtu));
+  EXPECT_CALL(parameters_mock_, OutputScatteringSourceAsVTU()).WillOnce(Return(parameters.output_scattering_source_as_vtu));
 }
 
 AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framework::FrameworkParameters& rhs) {
@@ -149,6 +153,14 @@ AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framew
     return AssertionFailure() << "K-effective updaters do not match";
   } else if (lhs.use_nda_ != rhs.use_nda_) {
     return AssertionFailure() << "use NDA flag do not match";
+  } else if (lhs.output_aggregated_source_data != rhs.output_aggregated_source_data) {
+    return AssertionFailure() << "Output aggregated source data flags do not match";
+  } else if (lhs.output_scalar_flux_as_vtu != rhs.output_scalar_flux_as_vtu) {
+    return AssertionFailure() << "Output scalar flux as VTU flags do not match";
+  } else if (lhs.output_fission_source_as_vtu != rhs.output_fission_source_as_vtu) {
+    return AssertionFailure() << "Output fission source as VTU flags do not match";
+  } else if (lhs.output_scattering_source_as_vtu != rhs.output_scattering_source_as_vtu) {
+    return AssertionFailure() << "Output scattering source as VTU flags do not match";
   }
   return AssertionSuccess();
 }
@@ -217,6 +229,44 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, FixedSourceSolve) {
   ASSERT_TRUE(returned_parameters.cross_sections_.has_value());
   EXPECT_NE(returned_parameters.cross_sections_.value(), nullptr);
 }
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, OutputAggregatedSource) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.output_aggregated_source_data = true;
+
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
+}
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, OutputScalarFluxAsVTU) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.output_scalar_flux_as_vtu = true;
+
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
+}
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, OutputFissionSourceAsVtu) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.output_fission_source_as_vtu = true;
+
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
+}
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, OutputScatteringSourceAsVTU) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.output_scalar_flux_as_vtu = true;
+
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
+}
+
+
 
 // Calls that throw
 

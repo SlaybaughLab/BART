@@ -42,6 +42,11 @@ void OuterPowerIteration::UpdateSystem(system::System &system, const int group,
       quadrature::QuadraturePointIndex(angle));
 }
 
+auto OuterPowerIteration::ExposeIterationData(system::System &system) -> void {
+  OuterIteration::ExposeIterationData(system);
+  source_updater_ptr_->Expose(source_updater_ptr_->value());
+}
+
 } // namespace outer
 
 } // namespace iteration

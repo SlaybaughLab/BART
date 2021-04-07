@@ -69,12 +69,8 @@ void SAAFUpdater<dim>::UpdateBoundaryConditions(
           const auto incoming_flux = angular_solution_ptr_map_.at(
               system::SolutionIndex(group, reflected_quadrature_point_index));
           if (incoming_flux->size() > 0) {
-            formulation_ptr_->FillReflectiveBoundaryLinearTerm(
-                cell_vector,
-                cell_ptr,
-                face_index,
-                quadrature_point_ptr,
-                *incoming_flux);
+            BoundaryConditionsUpdaterI::Add(std::abs(formulation_ptr_->FillReflectiveBoundaryLinearTerm(
+                cell_vector, cell_ptr, face_index, quadrature_point_ptr, *incoming_flux)));
           }
         }
       };
@@ -137,13 +133,13 @@ void SAAFUpdater<dim>::UpdateFissionSource(system::System &to_update,
   auto fission_source_function =
       [&](formulation::Vector& cell_vector,
           const domain::CellPtr<dim> &cell_ptr) -> void {
-        formulation_ptr_->FillCellFissionSourceTerm(cell_vector,
-                                                    cell_ptr,
-                                                    quadrature_point_ptr,
-                                                    group,
-                                                    to_update.k_effective.value(),
-                                                    in_group_moment,
-                                                    current_moments);
+        FissionSourceUpdaterI::Add(formulation_ptr_->FillCellFissionSourceTerm(cell_vector,
+                                                                               cell_ptr,
+                                                                               quadrature_point_ptr,
+                                                                               group,
+                                                                               to_update.k_effective.value(),
+                                                                               in_group_moment,
+                                                                               current_moments));
       };
   *fission_source_ptr = 0;
   stamper_ptr_->StampVector(*fission_source_ptr, fission_source_function);
@@ -164,12 +160,12 @@ void SAAFUpdater<dim>::UpdateScatteringSource(
   auto scattering_source_function =
       [&](formulation::Vector& cell_vector,
           const domain::CellPtr<dim> &cell_ptr) -> void {
-    formulation_ptr_->FillCellScatteringSourceTerm(cell_vector,
-                                                   cell_ptr,
-                                                   quadrature_point_ptr,
-                                                   group,
-                                                   in_group_moment,
-                                                   current_moments);
+    ScatteringSourceUpdaterI::Add(std::abs(formulation_ptr_->FillCellScatteringSourceTerm(cell_vector,
+                                                                                 cell_ptr,
+                                                                                 quadrature_point_ptr,
+                                                                                 group,
+                                                                                 in_group_moment,
+                                                                                 current_moments)));
   };
   stamper_ptr_->StampVector(*scattering_source_ptr, scattering_source_function);
 }

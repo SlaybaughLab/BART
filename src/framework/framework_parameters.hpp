@@ -62,7 +62,7 @@ struct FrameworkParameters {
 
   // Optional shared framework parts
   template <typename Part> using OptionalSharedPart = std::optional<std::shared_ptr<Part>>;
-  OptionalSharedPart<data::cross_sections::MaterialCrossSections> cross_sections_ {std::nullopt };
+  OptionalSharedPart<data::cross_sections::CrossSectionsI> cross_sections_ {std::nullopt };
 
   // Acceleration methods
   bool use_nda_{ false };
@@ -75,6 +75,12 @@ struct FrameworkParameters {
     AngularFluxStorage higher_order_angular_flux_{};
   };
   NDA_Data nda_data_{};
+
+  // Instrumentation options
+  bool output_aggregated_source_data{ false };
+  bool output_scalar_flux_as_vtu{ false };
+  bool output_fission_source_as_vtu{ false };
+  bool output_scattering_source_as_vtu{ false };
 };
 
 } // namespace bart::framework
