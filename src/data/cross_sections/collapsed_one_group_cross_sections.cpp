@@ -67,7 +67,7 @@ CollapsedOneGroupCrossSections::CollapsedOneGroupCrossSections(const CrossSectio
     double sigma_removal{ sigma_absorption };
     for (int group = 0; group < total_groups; ++group) {
       sigma_removal -= sigma_s.at(material_id)(group, group);
-      for (int group_in = group; group_in < total_groups; ++group_in) {
+      for (int group_in = 0; group_in < total_groups; ++group_in) {
         sigma_absorption -= sigma_s.at(material_id)(group, group_in);
       }
     }
@@ -86,6 +86,7 @@ CollapsedOneGroupCrossSections::CollapsedOneGroupCrossSections(
     for (auto& value : pair.second)
       value = 1.0/value;
   }
+  //diffusion_coef_ = collapse_vector(ScaleVector(to_collapse.diffusion_coef(), inverse_scaling_factor_by_group));
   inverse_sigma_t_ = collapse_vector(ScaleVector(to_collapse.inverse_sigma_t(), inverse_scaling_factor_by_group));
   sigma_s_ = collapse_matrix(ScaleMatrix(sigma_s, scaling_factor_by_group));
   sigma_s_per_ster_ = collapse_matrix(ScaleMatrix(to_collapse.sigma_s_per_ster(), scaling_factor_by_group));
@@ -93,16 +94,25 @@ CollapsedOneGroupCrossSections::CollapsedOneGroupCrossSections(
   q_per_ster_ = collapse_vector(ScaleVector(to_collapse.q_per_ster(), scaling_factor_by_group));
   is_material_fissile_ = to_collapse.is_material_fissile();
   nu_sigma_f_ = collapse_vector(ScaleVector(to_collapse.nu_sigma_f(), scaling_factor_by_group));
-  fiss_transfer_ = collapse_matrix(ScaleMatrix(to_collapse.fiss_transfer(), scaling_factor_by_group));
-  fiss_transfer_per_ster_ = collapse_matrix(ScaleMatrix(to_collapse.fiss_transfer_per_ster(), scaling_factor_by_group));
+
+  auto transposed_fiss_transfer = to_collapse.fiss_transfer();
+  auto transposed_fiss_transfer_per_ster = to_collapse.fiss_transfer_per_ster();
+  for (auto& [id, matrix] : transposed_fiss_transfer) {
+    matrix.copy_transposed(matrix);
+    transposed_fiss_transfer_per_ster.at(id).copy_transposed(transposed_fiss_transfer_per_ster.at(id));
+  }
+
+  fiss_transfer_ = collapse_matrix(ScaleMatrix(transposed_fiss_transfer, scaling_factor_by_group));
+  fiss_transfer_per_ster_ = collapse_matrix(ScaleMatrix(transposed_fiss_transfer_per_ster, scaling_factor_by_group));
 
   const int total_groups = sigma_s.begin()->second.m();
   for (const auto& [material_id, sigma_t_vector] : sigma_t_) {
     double sigma_absorption{ sigma_t_vector.at(0) };
     double sigma_removal{ sigma_absorption };
     for (int group = 0; group < total_groups; ++group) {
-      sigma_removal -= sigma_s.at(material_id)(group, group) * scaling_factor_by_group.at(material_id).at(group);
-      for (int group_in = group; group_in < total_groups; ++group_in) {
+      const double within_group_scattering_{ sigma_s.at(material_id)(group, group) * scaling_factor_by_group.at(material_id).at(group) };
+      sigma_removal -= within_group_scattering_;
+      for (int group_in = 0; group_in < total_groups; ++group_in) {
         sigma_absorption -= sigma_s.at(material_id)(group, group_in) * scaling_factor_by_group.at(material_id).at(group_in);
       }
     }
