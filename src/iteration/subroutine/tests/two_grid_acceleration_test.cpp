@@ -40,6 +40,7 @@ class IterationSubroutineTwoGridAccelerationTest : public ::testing::Test {
   std::unique_ptr<TwoGridSubroutine> test_subroutine_;
   System test_system_;
   std::shared_ptr<System> framework_system_{ std::make_shared<System>() };
+  system::moments::MomentsMap current_moments_map_{};
 
   dealii::Vector<double> total_isotropic_residual_;
 
@@ -81,8 +82,13 @@ auto IterationSubroutineTwoGridAccelerationTest::SetUp() -> void {
   framework_system_current_moments_obs_ptr_ = dynamic_cast<Moments*>(framework_system_->current_moments.get());
 
   total_isotropic_residual_ = DealiiVector(test_helpers::RandomVector(vector_size_, 0, 100));
+
+  for (int group = 0; group < total_groups_; ++group)
+    current_moments_map_[{group, 0, 0}] = DealiiVector(test_helpers::RandomVector(vector_size_, 0, 100));
+
   ON_CALL(*isotropic_residual_calculator_mock_obs_ptr_, CalculateDomainResidual(_,_))
       .WillByDefault(Return(total_isotropic_residual_));
+  ON_CALL(*current_moments_obs_ptr_, begin()).WillByDefault(Return(current_moments_map_.begin()));
 }
 
 // Getters for depdendencies should return correct pointers to dependencies
@@ -107,9 +113,10 @@ TEST_F(IterationSubroutineTwoGridAccelerationTest, NullDependenciesThrow) {
 }
 
 TEST_F(IterationSubroutineTwoGridAccelerationTest, Execute) {
-  EXPECT_CALL(*this->isotropic_residual_calculator_mock_obs_ptr_, CalculateDomainResidual(current_moments_obs_ptr_,
-                                                                                          previous_moments_obs_ptr_))
+  EXPECT_CALL(*this->isotropic_residual_calculator_mock_obs_ptr_, CalculateDomainResidual(current_moments_obs_ptr_, _))
       .WillOnce(DoDefault());
+  EXPECT_CALL(*this->current_moments_obs_ptr_, total_groups()).WillOnce(Return(total_groups_));
+  EXPECT_CALL(*this->current_moments_obs_ptr_, begin()).Times(total_groups_).WillRepeatedly(DoDefault());
   EXPECT_CALL(*this->framework_mock_obs_ptr_, SolveSystem());
   EXPECT_CALL(*this->framework_mock_obs_ptr_, system())
       .Times(AtLeast(1))
@@ -121,9 +128,9 @@ TEST_F(IterationSubroutineTwoGridAccelerationTest, Execute) {
   for (int group = 0; group < this->total_groups_; ++group) {
     dealii::Vector<double> flux_to_correct(DealiiVector(test_helpers::RandomVector(this->vector_size_, 0, 100)));
     EXPECT_CALL(*this->current_moments_obs_ptr_, GetMoment(std::array<int, 3>{group, 0, 0}))
-        .WillOnce(ReturnRef(flux_to_correct));
-    EXPECT_CALL(*this->flux_corrector_mock_obs_ptr_, CorrectFlux(Ref(flux_to_correct),
-                                                                 Ref(error_vector), group));
+        .Times(2)
+        .WillRepeatedly(ReturnRef(flux_to_correct));
+    EXPECT_CALL(*this->flux_corrector_mock_obs_ptr_, CorrectFlux(Ref(flux_to_correct), error_vector, group));
   }
 
   this->test_subroutine_->Execute(this->test_system_);

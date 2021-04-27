@@ -18,12 +18,32 @@ TwoGridAcceleration::TwoGridAcceleration(std::unique_ptr<FluxCorrector> flux_cor
 }
 
 auto TwoGridAcceleration::Execute(system::System& system) -> void {
+  std::cout << "Starting two-grid acceleration\n";
+  if (!has_run_) {
+    std::cout << "Running two-grid first time setup\n";
+    previous_iteration_moments_ = std::make_shared<system::moments::SphericalHarmonic>(
+        system.current_moments->total_groups(), 0);
+    for (auto& moment : *previous_iteration_moments_) {
+      moment.second.reinit(system.current_moments->begin()->second.size());
+    }
+    has_run_ = true;
+  }
+
   isotropic_residual_ptr_->equ(1, residual_calculator_ptr_->CalculateDomainResidual(system.current_moments.get(),
-                                                                                    system.previous_moments.get()));
-  framework_ptr()->SolveSystem();
-  auto& error_vector = framework_ptr_->system()->current_moments->GetMoment({0, 0, 0});
+                                                                                     previous_iteration_moments_.get()));
+  std::cout << "Calculated <R>_L1 = " << isotropic_residual_ptr_->l1_norm() << '\n';
+
+  std::cout << "Solving system\n";
+  framework_ptr_->SolveSystem();
+  auto error_vector = framework_ptr_->system()->current_moments->GetMoment({0, 0, 0});
+
+  std::cout << "Correcting flux <E>_L1 = " << error_vector.l1_norm() << '\n';
   for (int group = 0; group < system.total_groups; ++group) {
     flux_corrector_ptr_->CorrectFlux(system.current_moments->GetMoment({group, 0, 0}), error_vector, group);
+  }
+
+  for (int group = 0; group < system.total_groups; ++group) {
+    previous_iteration_moments_->GetMoment({group, 0, 0}) = system.current_moments->GetMoment({group, 0, 0});
   }
 }
 

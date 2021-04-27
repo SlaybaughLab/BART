@@ -6,6 +6,7 @@
 #include "framework/framework_i.hpp"
 #include "iteration/subroutine/subroutine_i.hpp"
 #include "utility/has_dependencies.h"
+#include "system/moments/spherical_harmonic.hpp"
 
 namespace bart::iteration::subroutine {
 
@@ -40,6 +41,8 @@ class TwoGridAcceleration : public SubroutineI, public utility::HasDependencies 
   std::unique_ptr<Framework> framework_ptr_;
   std::unique_ptr<ResidualCalculator> residual_calculator_ptr_;
   std::shared_ptr<dealii::Vector<double>> isotropic_residual_ptr_;
+  std::shared_ptr<system::moments::SphericalHarmonic> previous_iteration_moments_{ nullptr };
+  bool has_run_{ false };
 };
 
 } // namespace bart::iteration::subroutine
