@@ -77,17 +77,19 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
       if (is_storing_angular_solution_)
         StoreAngularSolution(system, group);
     }
+
+    if (post_iteration_subroutine_ptr_ != nullptr) {
+      data_ports::StatusPort::Expose("==== COMMENCE GROUP SOLVE POST ITERATION SUBROUTINE ==== \n");
+      post_iteration_subroutine_ptr_->Execute(system);
+      data_ports::StatusPort::Expose("==== COMPLETED GROUP SOLVE POST ITERATION SUBROUTINE  ==== \n");
+    }
+
     if (moment_map_convergence_checker_ptr_ != nullptr) {
       all_group_convergence_status =
           moment_map_convergence_checker_ptr_->ConvergenceStatus(
               system.current_moments->moments(), previous_moments_map);
       data_ports::StatusPort::Expose("....All group convergence: ");
       data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
-    }
-    if (post_iteration_subroutine_ptr_ != nullptr) {
-      data_ports::StatusPort::Expose("===================== COMMENCING SUBROUTINE =====================\n");
-      post_iteration_subroutine_ptr_->Execute(system);
-      data_ports::StatusPort::Expose("===================== COMPLETED SUBROUTINE  =====================\n");
     }
   } while(!all_group_convergence_status.is_complete);
   ExposeIterationData(system);
