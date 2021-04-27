@@ -1,5 +1,6 @@
 #include "instrumentation/converter/convert_to_string/convergence_to_string.h"
 
+#include <iomanip>
 #include <sstream>
 
 #include "instrumentation/converter/factory.hpp"
@@ -35,7 +36,7 @@ std::string ConvergenceToString::Convert(const convergence::Status &to_convert) 
   std::string delta_string{null_character_}, index_string{null_character_};
   if (to_convert.delta.has_value()) {
     std::ostringstream delta_stream;
-    delta_stream << to_convert.delta.value();
+    delta_stream << std::scientific << std::setprecision(16) << to_convert.delta.value();
     delta_string = delta_stream.str();
   }
   if (to_convert.failed_index.has_value()) {
