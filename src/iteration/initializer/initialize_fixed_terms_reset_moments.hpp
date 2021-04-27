@@ -10,7 +10,9 @@ class InitializeFixedTermsResetMoments : public InitializeFixedTerms {
   using FixedUpdater = InitializeFixedTerms::FixedUpdaterType;
   InitializeFixedTermsResetMoments(std::shared_ptr<FixedUpdater> fixed_updater_ptr, const int total_groups,
                                    const int total_angles)
-      : InitializeFixedTerms(fixed_updater_ptr, total_groups, total_angles) {}
+      : InitializeFixedTerms(fixed_updater_ptr, total_groups, total_angles) {
+    this->set_description("fixed terms initializer with moments reset", utility::DefaultImplementation(false));
+  }
 
   void Initialize(system::System &system) override {
     for (auto& [index, moment] : *system.current_moments)
