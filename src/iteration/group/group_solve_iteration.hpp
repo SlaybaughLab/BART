@@ -18,8 +18,10 @@ namespace bart::iteration::group {
 namespace data_ports {
 struct GroupConvergenceStatus;
 struct Status;
+struct NumberOfIterations;
 //! Data port for the status of convergence.
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+using NumberOfIterationsPort = instrumentation::Port<double, NumberOfIterations>;
 //! Data port for general strings.
 using StatusPort = instrumentation::Port<std::string, Status>;
 }
@@ -41,7 +43,8 @@ using StatusPort = instrumentation::Port<std::string, Status>;
  */
 template <int dim>
 class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDependencies,
-                            public data_ports::ConvergenceStatusPort, public data_ports::StatusPort {
+                            public data_ports::ConvergenceStatusPort, public data_ports::StatusPort,
+                            public data_ports::NumberOfIterationsPort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
