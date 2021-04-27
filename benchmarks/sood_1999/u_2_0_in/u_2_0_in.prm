@@ -1,13 +1,15 @@
 set problem dimension                        = 1
-set transport model                          = diffusion
+set transport model                          = saaf
+set angular quadrature name                  = gauss_legendre
+set angular quadrature order                 = 2
 set number of groups                         = 2
 set have reflective boundary                 = true
-set reflective boundary names                = xmin
+set reflective boundary names                = xmin, xmax
 
 set eigen solver name                        = pi
 set k_effective updater type                 = rayleigh quotient
 
-set x, y, z max values of boundary locations = 300
+set x, y, z max values of boundary locations = 10
 set number of cells for x, y, z directions   = 10
 set number of materials                      = 1
 
