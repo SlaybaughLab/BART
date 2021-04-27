@@ -1,5 +1,6 @@
 #include "solver/eigenvalue/krylov_schur_eigenvalue_solver.hpp"
 
+#include <deal.II/base/mpi.h>
 #include <deal.II/lac/slepc_solver.h>
 #include <deal.II/lac/solver_control.h>
 #include <deal.II/lac/petsc_vector.h>
@@ -11,17 +12,23 @@ auto KrylovSchurEigenvalueSolver::SpectralRadius(const SpectralRadiusI::MatrixBa
   dealii::SolverControl solver_control(1000, 1e-6);
   dealii::SLEPcWrappers::SolverKrylovSchur solver(solver_control);
 
-  std::vector<double> eigenvalue(1);
-  std::vector<dealii::PETScWrappers::MPI::Vector> eigenvector(1);
-  eigenvector.at(0).reinit(MPI_COMM_WORLD, base.m(), base.m());
+  const auto m{ base.m() };
 
-  solver.solve(base, eigenvalue, eigenvector);
+  std::vector<double> eigenvalues(m);
+  std::vector<dealii::PETScWrappers::MPI::Vector> eigenvectors(m);
+  for (auto& eigenvector : eigenvectors)
+    eigenvector.reinit(MPI_COMM_WORLD, m, m);
 
-  std::vector<double> return_eigenvector(eigenvector.at(0).size());
+  solver.solve(base, eigenvalues, eigenvectors, m);
+
+  auto max_element_index = std::distance(eigenvalues.begin(), std::max_element(eigenvalues.begin(), eigenvalues.end()));
+
+  std::vector<double> return_eigenvector(m);
+
   for (int i = 0; i < return_eigenvector.size(); ++i)
-    return_eigenvector.at(i) = eigenvector.at(0)[i];
+    return_eigenvector.at(i) = eigenvectors.at(max_element_index)[i];
 
-  return {eigenvalue.at(0), return_eigenvector};
+  return {eigenvalues.at(max_element_index), return_eigenvector};
 }
 
 } // namespace bart::solver::eigenvalue
