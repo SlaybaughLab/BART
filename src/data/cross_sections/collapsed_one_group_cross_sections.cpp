@@ -95,11 +95,17 @@ CollapsedOneGroupCrossSections::CollapsedOneGroupCrossSections(
   is_material_fissile_ = to_collapse.is_material_fissile();
   nu_sigma_f_ = collapse_vector(ScaleVector(to_collapse.nu_sigma_f(), scaling_factor_by_group));
 
-  auto transposed_fiss_transfer = to_collapse.fiss_transfer();
-  auto transposed_fiss_transfer_per_ster = to_collapse.fiss_transfer_per_ster();
-  for (auto& [id, matrix] : transposed_fiss_transfer) {
-    matrix.copy_transposed(matrix);
-    transposed_fiss_transfer_per_ster.at(id).copy_transposed(transposed_fiss_transfer_per_ster.at(id));
+  MaterialIDMappedTo<FullMatrix> transposed_fiss_transfer;
+  MaterialIDMappedTo<FullMatrix> transposed_fiss_transfer_per_ster;
+
+  const auto fission_transfer = to_collapse.fiss_transfer();
+  const auto fission_transfer_per_ster = to_collapse.fiss_transfer_per_ster();
+
+  for (const auto& [id, matrix] : fission_transfer) {
+    transposed_fiss_transfer[id] = FullMatrix();
+    transposed_fiss_transfer.at(id).copy_transposed(matrix);
+    transposed_fiss_transfer_per_ster[id] = FullMatrix();
+    transposed_fiss_transfer_per_ster.at(id).copy_transposed(fission_transfer_per_ster.at(id));
   }
 
   fiss_transfer_ = collapse_matrix(ScaleMatrix(transposed_fiss_transfer, scaling_factor_by_group));

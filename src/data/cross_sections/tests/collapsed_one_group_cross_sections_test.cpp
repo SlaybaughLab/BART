@@ -112,14 +112,14 @@ auto DataCrossSectionsCollapsedOneGroup::SetUp() -> void {
     }
   }
   sigma_r_ = {{0, 0.13}, {1, -0.55}};
-  sigma_a_ = {{0, -1.13}, {1, -2.33}};
+  sigma_a_ = {{0, -2.53}, {1, -3.46}};
 
   scaling_factor_by_group_ = {{0, {0.22, 0.11, 0.67}}, {1, {0.07, 0.79, 0.14}}};
   inverse_scaling_factor_by_group_ = {{0, {1.0/0.22, 1.0/0.11, 1.0/0.67}}, {1, {1.0/0.07, 1.0/0.79, 1.0/0.14}}};
 
   scaled_collapsed_sigma_t_ = {{0, {0.314}}, {1, {0.247}}};
   scaled_sigma_r_ = {{0, -0.16}, {1, -0.5742}};
-  scaled_sigma_a_ = {{0, -0.4666}, {1, -1.1094}};
+  scaled_sigma_a_ = {{0, -0.6668}, {1, -1.3901}};
 
   auto diffusion_coef = RandomMaterialVectorMap();
   collapsed_diffusion_coef_ = CollapseVector(diffusion_coef);
@@ -150,13 +150,22 @@ auto DataCrossSectionsCollapsedOneGroup::SetUp() -> void {
   collapsed_nu_sigma_f_ = CollapseVector(nu_sigma_f);
   scaled_collapsed_nu_sigma_f_ = ScaleAndCollapseVector(nu_sigma_f, scaling_factor_by_group_);
 
-  auto fission_transfer = RandomMaterialMatrixMap();
+  const auto fission_transfer = RandomMaterialMatrixMap();
+  auto transposed_fission_transfer = fission_transfer;
+  for (const auto& [material_id, matrix] : fission_transfer ) {
+    transposed_fission_transfer.at(material_id).copy_transposed(matrix);
+  }
+
   collapsed_fiss_transfer_ = CollapseMatrix(fission_transfer);
-  scaled_collapsed_fiss_transfer_ = ScaleAndCollapseMatrix(fission_transfer, scaling_factor_by_group_);
+  scaled_collapsed_fiss_transfer_ = ScaleAndCollapseMatrix(transposed_fission_transfer, scaling_factor_by_group_);
 
   auto fission_transfer_per_ster = RandomMaterialMatrixMap();
+  auto transposed_fission_transfer_per_ster = fission_transfer_per_ster;
+  for (const auto& [material_id, matrix] : fission_transfer_per_ster)
+    transposed_fission_transfer_per_ster.at(material_id).copy_transposed(matrix);
+
   collapsed_fiss_transfer_per_ster_ = CollapseMatrix(fission_transfer_per_ster);
-  scaled_collapsed_fiss_transfer_per_ster_ = ScaleAndCollapseMatrix(fission_transfer_per_ster, scaling_factor_by_group_);
+  scaled_collapsed_fiss_transfer_per_ster_ = ScaleAndCollapseMatrix(transposed_fission_transfer_per_ster, scaling_factor_by_group_);
 
   ON_CALL(*cross_sections_mock_ptr_, diffusion_coef()).WillByDefault(Return(diffusion_coef));
   ON_CALL(*cross_sections_mock_ptr_, sigma_t()).WillByDefault(Return(sigma_t));
@@ -195,13 +204,13 @@ TEST_F(DataCrossSectionsCollapsedOneGroup, Constructor) {
   EXPECT_THAT(collapsed_cross_sections.q_per_ster(), ContainerEq(collapsed_q_per_ster_));
   EXPECT_THAT(collapsed_cross_sections.is_material_fissile(), ContainerEq(is_material_fissile_));
   EXPECT_THAT(collapsed_cross_sections.nu_sigma_f(), ContainerEq(collapsed_nu_sigma_f_));
-  EXPECT_THAT(collapsed_cross_sections.fiss_transfer(), ContainerEq(collapsed_fiss_transfer_));
   EXPECT_THAT(collapsed_cross_sections.fiss_transfer_per_ster(), ContainerEq(collapsed_fiss_transfer_per_ster_));
   for (int i = 0; i < total_materials; ++i) {
     EXPECT_NEAR(collapsed_cross_sections.SigmaRemoval().at(i), sigma_r_.at(i), 1e-10);
     EXPECT_NEAR(collapsed_cross_sections.SigmaAbsorption().at(i), sigma_a_.at(i), 1e-10);
     EXPECT_NEAR(collapsed_cross_sections.SigmaAbsorption(i), sigma_a_.at(i), 1e-10);
     EXPECT_NEAR(collapsed_cross_sections.SigmaRemoval(i), sigma_r_.at(i), 1e-10);
+    EXPECT_NEAR(collapsed_cross_sections.fiss_transfer().at(i)(0,0), collapsed_fiss_transfer_.at(i)(0,0), 1e-10);
   }
 }
 
