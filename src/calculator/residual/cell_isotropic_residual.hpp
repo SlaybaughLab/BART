@@ -24,8 +24,9 @@ class CellIsotropicResidual : public CellIsotropicResidualI<dim>, public utility
    * Takes shared ownership of cross-sections and finite-element objects.
    */
   CellIsotropicResidual(std::shared_ptr<CrossSections>, std::shared_ptr<FiniteElement>);
-  auto CalculateCellResidual(CellPtr, FluxMoments* current_flux_moments_ptr,
-                             FluxMoments* previous_flux_moments_ptr, int group) -> double override;
+
+  auto CalculateCellResidual(dealii::Vector<double> &to_fill, CellPtr, FluxMoments* current_flux_moments_ptr,
+                             FluxMoments* previous_flux_moments_ptr, int group) -> void override;
 
   /*! \brief Access cross-sections dependency. */
   auto cross_sections_ptr() { return cross_sections_ptr_.get(); }

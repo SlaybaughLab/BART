@@ -22,18 +22,26 @@ DomainIsotropicResidualI::Vector DomainIsotropicResidual<dim>::CalculateDomainRe
   AssertThrow(total_groups == previous_flux_moments->total_groups(),
               dealii::ExcMessage("Error in CalculateDomainResidual, flux moments total groups inequal"))
   Vector isotropic_residual(this->domain_ptr_->total_degrees_of_freedom());
+  Vector hit_vector(this->domain_ptr_->total_degrees_of_freedom());
+
   auto cell_vector = this->domain_ptr_->GetCellVector();
   std::vector<unsigned int> cell_global_dofs_indices(cell_vector.size());
+  cell_vector = 1;
 
   for (auto& cell : domain_ptr_->Cells()) {
-    cell_vector = 0;
     cell->get_dof_indices(cell_global_dofs_indices);
     for (int group = 0; group < total_groups; ++group) {
-      cell_vector.add(this->cell_isotropic_residual_calculator_ptr_->CalculateCellResidual(cell, current_flux_moments,
-                                                                                           previous_flux_moments,
-                                                                                           group));
+      this->cell_isotropic_residual_calculator_ptr_->CalculateCellResidual(isotropic_residual,
+                                                                           cell,
+                                                                           current_flux_moments,
+                                                                           previous_flux_moments,
+                                                                           group);
     }
-    isotropic_residual.add(cell_global_dofs_indices, cell_vector);
+    hit_vector.add(cell_global_dofs_indices, cell_vector);
+  }
+
+  for (Vector::size_type i = 0; i < isotropic_residual.size(); ++i) {
+    isotropic_residual(i) = isotropic_residual(i) / hit_vector(i);
   }
 
   return isotropic_residual;

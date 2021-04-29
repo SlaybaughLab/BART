@@ -15,12 +15,9 @@ namespace bart::calculator::residual {
  * R_{g, 0} = \sum_{g' = g + 1}^G \sigma_{s, g' \to g}\left(\phi^{k + 1/2}_{g', 0} - \phi^{k}_{g', 0}\right)
  * \f]
  *
- * This class calculates the integrated isotropic scattering residual for a specified cell \f$K \in T_K\f$ based on
- * provided scalar fluxes and for a specified group using the cell quadrature:
+ * This class calculates the isotropic scattering residual for a specified cell \f$K \in T_K\f$ based on
+ * provided scalar fluxes and for a specified group.
  *
- * * \f[
- * R_{K,g, 0} = \sum_{q = 0}^Q\left[\sum_{g' = g + 1}^G \sigma_{s, g' \to g}\left(\phi^{k + 1/2}_{K,g', 0}(q) - \phi^{k}_{K,g', 0}(q)\right)\right]J_K(q)
- * \f]
  *
  * @tparam dim spatial dimension.
  */
@@ -34,16 +31,9 @@ class CellIsotropicResidualI {
 
   virtual ~CellIsotropicResidualI() = default;
   /*! \brief Calculate the cell residual.
-   *
-   * Integrated and return the cell isotropic residual component as described.
-   *
-   * @param current_scalar_flux_ the scalar flux for step \f$k + 1/2\f$
-   * @param previous_scalar_flux_ the scalar flux for step \f$k\f$
-   * @param group the group to calculate the residual for
-   * @return double value of the cell isotropic scattering residual
    */
-  virtual auto CalculateCellResidual(CellPtr, FluxMoments* current_scalar_flux_, FluxMoments* previous_scalar_flux_,
-                                     int group) -> double = 0;
+  virtual auto CalculateCellResidual(dealii::Vector<double>& to_fill, CellPtr, FluxMoments* current_scalar_flux_,
+                                     FluxMoments* previous_scalar_flux_, int group) -> void = 0;
 };
 
 } // namespace bart::calculator::residual

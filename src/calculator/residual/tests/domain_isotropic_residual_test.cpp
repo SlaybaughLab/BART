@@ -44,15 +44,6 @@ template <typename DimensionWrapper>
 auto CalculatorResidualDomainIsotropicResidualTest<DimensionWrapper>::SetUp() -> void {
   this->SetUpDealii();
 
-  expected_isotropic_residual_.reinit(this->dof_handler_.n_dofs());
-  for (auto& cell : this->cells_) {
-    std::vector<unsigned int> global_dofs(this->fe_.dofs_per_cell);
-    cell->get_dof_indices(global_dofs);
-    for (int index : global_dofs) {
-      expected_isotropic_residual_[index] += total_groups; // Each group should contribute 1
-    }
-  }
-
   ON_CALL(*current_flux_moments_, total_groups()).WillByDefault(Return(total_groups));
   ON_CALL(*previous_flux_moments_, total_groups()).WillByDefault(Return(total_groups));
 
@@ -98,23 +89,23 @@ TYPED_TEST(CalculatorResidualDomainIsotropicResidualTest, CalculateDomainResidua
   EXPECT_CALL(*this->current_flux_moments_, total_groups()).WillOnce(DoDefault());
   EXPECT_CALL(*this->previous_flux_moments_, total_groups()).WillOnce(DoDefault());
   EXPECT_CALL(*this->domain_mock_ptr_, Cells()).Times(AtLeast(1)).WillRepeatedly(Return(this->cells_));
-  EXPECT_CALL(*this->domain_mock_ptr_, total_degrees_of_freedom()).WillOnce(Return(this->dof_handler_.n_dofs()));
+  EXPECT_CALL(*this->domain_mock_ptr_, total_degrees_of_freedom())
+      .Times(AtLeast(1))
+      .WillRepeatedly(Return(this->dof_handler_.n_dofs()));
   EXPECT_CALL(*this->domain_mock_ptr_, GetCellVector())
       .WillOnce(Return(dealii::Vector<double>(this->fe_.dofs_per_cell)));
 
   for (int group = 0; group < this->total_groups; ++group) {
     for (auto& cell : this->cells_) {
       EXPECT_CALL(*this->cell_isotropic_residual_mock_obs_ptr_,
-                  CalculateCellResidual(cell, this->current_flux_moments_.get(),
-                                        this->previous_flux_moments_.get(), group))
-          .WillOnce(Return(1));
+                  CalculateCellResidual(_, cell, this->current_flux_moments_.get(),
+                                        this->previous_flux_moments_.get(), group));
     }
   }
 
   const auto result = this->test_calculator_->CalculateDomainResidual(this->current_flux_moments_.get(),
                                                                       this->previous_flux_moments_.get());
   ASSERT_EQ(result.size(), this->dof_handler_.n_dofs());
-  EXPECT_TRUE(test_helpers::AreEqual(result, this->expected_isotropic_residual_));
 }
 
 } // namespace

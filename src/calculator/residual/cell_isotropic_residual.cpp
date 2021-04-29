@@ -23,27 +23,26 @@ CellIsotropicResidual<dim>::CellIsotropicResidual(std::shared_ptr<CrossSections>
 }
 
 template<int dim>
-auto CellIsotropicResidual<dim>::CalculateCellResidual(CellPtr cell_ptr,
+auto CellIsotropicResidual<dim>::CalculateCellResidual(dealii::Vector<double> &to_fill,
+                                                       CellPtr cell_ptr,
                                                        FluxMoments* current_flux_moments_ptr,
                                                        FluxMoments* previous_flux_moments_ptr,
-                                                       const int group) -> double {
+                                                       const int group) -> void {
+  finite_element_ptr_->SetCell(cell_ptr);
   const int total_groups = current_flux_moments_ptr->total_groups();
   const auto sigma_s{ cross_sections_ptr_->sigma_s().at(cell_ptr->material_id()) };
-  double isotropic_residual{ 0 };
-
-  finite_element_ptr_->SetCell(cell_ptr);
+  const int cell_dofs = this->finite_element_ptr_->dofs_per_cell();
+  std::vector<unsigned int> cell_global_dofs_indices(cell_dofs);
+  cell_ptr->get_dof_indices(cell_global_dofs_indices);
 
   for (int group_in = group + 1; group_in < total_groups; ++group_in) {
-    const auto current_flux_at_q{
-      this->finite_element_ptr_->ValueAtQuadrature(current_flux_moments_ptr->GetMoment({group_in, 0, 0}))};
-    const auto previous_flux_at_q{
-        this->finite_element_ptr_->ValueAtQuadrature(previous_flux_moments_ptr->GetMoment({group_in, 0, 0}))};
-    for (int q = 0; q < n_cell_quadrature_points_; ++q) {
-      isotropic_residual +=
-          finite_element_ptr_->Jacobian(q) * sigma_s(group, group_in) * (current_flux_at_q.at(q) - previous_flux_at_q.at(q));
+    auto current_flux = current_flux_moments_ptr->GetMoment({group_in, 0, 0});
+    auto previous_flux = previous_flux_moments_ptr->GetMoment({group_in, 0, 0});
+    for (int i = 0; i < cell_dofs; ++i) {
+      const auto index = cell_global_dofs_indices.at(i);
+      to_fill(i) += sigma_s(group, group_in) * (current_flux(index) - previous_flux(index));
     }
   }
-  return isotropic_residual;
 }
 
 template class CellIsotropicResidual<1>;

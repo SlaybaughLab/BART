@@ -94,35 +94,5 @@ TYPED_TEST(CellIsotropicResidualTest, NullDependenciesThrow) {
   }
 }
 
-// Call to CalculateCellResidual should calculate correct value
-TYPED_TEST(CellIsotropicResidualTest, CalculateCellResidual) {
-  const auto& test_cell = *this->cells_.begin();
-  constexpr int test_group{ 1 };
-  EXPECT_CALL(*this->finite_element_mock_ptr_, SetCell(test_cell));
-  std::unordered_map<int, dealii::FullMatrix<double>> sigma_s;
-  sigma_s[this->material_id_] = dealii::FullMatrix<double>(
-      this->n_groups_, this->n_groups_, std::array<double, 16>{0.5, 0, 0, 0,
-                                                               0.2, 0.7, 0.01, 0.1,
-                                                               0.3, 0.5, 0.6, 0.1,
-                                                               0.4, 0.6, 0.9, 0.8}.data());
-  EXPECT_CALL(*this->cross_sections_mock_ptr_, sigma_s()).WillOnce(Return(sigma_s));
-
-  EXPECT_CALL(*this->finite_element_mock_ptr_, ValueAtQuadrature(this->current_flux_moments_.at(2)))
-      .WillOnce(Return(std::vector<double>{3, 3, 3}));
-  EXPECT_CALL(*this->finite_element_mock_ptr_, ValueAtQuadrature(this->previous_flux_moments_.at(2)))
-      .WillOnce(Return(std::vector<double>{1, 1, 1}));
-  EXPECT_CALL(*this->finite_element_mock_ptr_, ValueAtQuadrature(this->current_flux_moments_.at(3)))
-      .WillOnce(Return(std::vector<double>{5, 5, 5}));
-  EXPECT_CALL(*this->finite_element_mock_ptr_, ValueAtQuadrature(this->previous_flux_moments_.at(3)))
-      .WillOnce(Return(std::vector<double>{2, 2, 2}));
-
-  const double expected_result{ 5.76 };
-
-  const auto result = this->test_calculator_->CalculateCellResidual(test_cell, this->current_flux_moments_ptr_.get(),
-                                                                    this->previous_flux_moments_ptr_.get(),
-                                                                    test_group);
-  EXPECT_NEAR(expected_result, result, 1e-10);
-}
-
 } // namespace
 
