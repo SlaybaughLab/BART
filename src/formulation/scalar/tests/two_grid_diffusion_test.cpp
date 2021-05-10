@@ -56,7 +56,7 @@ auto TwoGridDiffusionTest<DimensionWrapper>::SetUp() -> void {
       ON_CALL(*finite_element_mock_ptr_, ShapeGradient(i, q)).WillByDefault(Return(dealii::Tensor<1, dim>()));
     }
   }
-  ON_CALL(*one_group_cross_sections_mock_ptr_, SigmaRemoval(test_material_id_)).WillByDefault(Return(0.12));
+  ON_CALL(*one_group_cross_sections_mock_ptr_, SigmaAbsorption(test_material_id_)).WillByDefault(Return(0.12));
 }
 
 TYPED_TEST_SUITE(TwoGridDiffusionTest, bart::testing::AllDimensions);
@@ -97,7 +97,7 @@ TYPED_TEST(TwoGridDiffusionTest, FillCellCollisionTerm) {
   EXPECT_CALL(*this->finite_element_mock_ptr_, ShapeGradient(_,_))
       .Times(AtLeast(this->cell_dofs * this->cell_quad_pts))
       .WillRepeatedly(DoDefault());
-  EXPECT_CALL(*this->one_group_cross_sections_mock_ptr_, SigmaRemoval(this->test_material_id_)).WillOnce(DoDefault());
+  EXPECT_CALL(*this->one_group_cross_sections_mock_ptr_, SigmaAbsorption(this->test_material_id_)).WillOnce(DoDefault());
   EXPECT_CALL(*this->finite_element_mock_ptr_, Jacobian(_))
       .Times(AtLeast(this->cell_quad_pts))
       .WillRepeatedly(DoDefault());

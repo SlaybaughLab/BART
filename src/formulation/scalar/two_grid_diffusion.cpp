@@ -10,7 +10,9 @@ TwoGridDiffusion<dim>::TwoGridDiffusion(std::shared_ptr<FiniteElement> finite_el
       Diffusion<dim>(std::move(finite_element_ptr), std::move(cross_sections_ptr)) {
   this->template AssertPointerNotNull(one_group_cross_sections_ptr_.get(), "one group cross sections",
                                       "two grid diffusion constructor");
+  this->set_description("Diffusion formulation for two-grid", utility::DefaultImplementation(false));
 }
+
 template<int dim>
 auto TwoGridDiffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
                                                   const CellPtr& cell_ptr,
@@ -18,9 +20,9 @@ auto TwoGridDiffusion<dim>::FillCellCollisionTerm(Matrix& to_fill,
   this->VerifyInitialized(__FUNCTION__);
   this->finite_element_ptr_->SetCell(cell_ptr);
 
-  const double sigma_removal{ one_group_cross_sections_ptr_->SigmaRemoval(cell_ptr->material_id()) };
+  const double sigma_absorption{ one_group_cross_sections_ptr_->SigmaAbsorption(cell_ptr->material_id()) };
   for (int q = 0; q < this->cell_quadrature_points_; ++q) {
-    const double constant{ sigma_removal * this->finite_element_ptr_->Jacobian(q) };
+    const double constant{ sigma_absorption * this->finite_element_ptr_->Jacobian(q) };
     for (int i = 0; i < this->cell_degrees_of_freedom_; ++i) {
       for (int j = 0; j < this->cell_degrees_of_freedom_; ++j) {
         to_fill(i, j) += constant * this->shape_squared_.at(q)(i, j);
