@@ -199,9 +199,10 @@ auto Diffusion<dim>::FillCellScatteringSource(Vector& to_fill, const CellPtr& ce
 
   // Integrate for each degree of freedom
   for (int q = 0; q < cell_quadrature_points_; ++q) {
-    scattering_source_at_quad_points[q] *= finite_element_ptr_->Jacobian(q);
-    for (int i = 0; i < cell_degrees_of_freedom_; ++i)
-      to_fill(i) += finite_element_ptr_->ShapeValue(i, q) * scattering_source_at_quad_points[q];
+    const double constant{ finite_element_ptr_->Jacobian(q) * scattering_source_at_quad_points.at(q) };
+    for (int i = 0; i < cell_degrees_of_freedom_; ++i) {
+      to_fill(i) += finite_element_ptr_->ShapeValue(i, q) * constant;
+    }
   }
 }
 
