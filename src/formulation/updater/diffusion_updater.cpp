@@ -34,6 +34,11 @@ template<int dim>
 auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
                                                 system::EnergyGroup group,
                                                 quadrature::QuadraturePointIndex /*index*/) -> void {
+  this->fixed_matrix_functions_ = {};
+  this->fixed_vector_functions_ = {};
+  this->fixed_matrix_boundary_functions_ = {};
+  this->fixed_vector_boundary_functions_ = {};
+
   const auto streaming_term_function = [&, group](formulation::FullMatrix& cell_matrix, const CellPtr& cell_ptr) -> void {
     formulation_ptr_->FillCellStreamingTerm(cell_matrix, cell_ptr, group.get()); };
   const auto collision_term_function = [&, group](formulation::FullMatrix& cell_matrix, const CellPtr& cell_ptr) -> void {
@@ -53,11 +58,17 @@ auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
   auto boundary_function = [&](formulation::FullMatrix& cell_matrix, const domain::FaceIndex face_index,
                                const CellPtr& cell_ptr) -> void {
     using DiffusionBoundaryType = typename formulation::scalar::DiffusionI<dim>::BoundaryType;
-    problem::Boundary boundary = static_cast<problem::Boundary>(cell_ptr->face(face_index.get())->boundary_id());
-    DiffusionBoundaryType boundary_type = DiffusionBoundaryType::kVacuum;
 
-    if (reflective_boundaries_.count(boundary) == 1)
-      boundary_type = DiffusionBoundaryType::kReflective;
+    DiffusionBoundaryType boundary_type = DiffusionBoundaryType::kInterior;
+
+    if (cell_ptr->at_boundary()) {
+      problem::Boundary boundary = static_cast<problem::Boundary>(cell_ptr->face(face_index.get())->boundary_id());
+      if (reflective_boundaries_.count(boundary) == 1) {
+        boundary_type = DiffusionBoundaryType::kReflective;
+      } else {
+        boundary_type = DiffusionBoundaryType::kVacuum;
+      }
+    }
 
     formulation_ptr_->FillBoundaryTerm(cell_matrix, cell_ptr,face_index.get(), boundary_type);
   };
@@ -65,49 +76,34 @@ auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
 }
 
 template<int dim>
-void DiffusionUpdater<dim>::UpdateScatteringSource(
-    system::System &to_update,
-    system::EnergyGroup energy_group,
-    quadrature::QuadraturePointIndex /*index*/) {
-  int group = energy_group.get();
-  auto scattering_source_ptr =
-      to_update.right_hand_side_ptr_->GetVariableTermPtr({group, 0},
-                                                          system::terms::VariableLinearTerms::kScatteringSource);
+void DiffusionUpdater<dim>::UpdateScatteringSource(system::System &to_update, const system::EnergyGroup energy_group,
+                                                   quadrature::QuadraturePointIndex /*index*/) {
+  using system::terms::VariableLinearTerms;
+  using CellPtr = typename domain::CellPtr<dim>;
+  const int group = energy_group.get();
+  auto scattering_source_ptr = to_update.right_hand_side_ptr_->GetVariableTermPtr({group, 0}, VariableLinearTerms::kScatteringSource);
   *scattering_source_ptr = 0;
   const auto& current_moments = to_update.current_moments->moments();
-  auto scattering_source_function =
-      [&](formulation::Vector& cell_vector,
-          const domain::CellPtr<dim> &cell_ptr) -> void {
-        formulation_ptr_->FillCellScatteringSource(cell_vector,
-                                                   cell_ptr,
-                                                   group,
-                                                   current_moments);
-      };
+  auto scattering_source_function = [&](formulation::Vector& cell_vector, const CellPtr& cell_ptr) -> void {
+        formulation_ptr_->FillCellScatteringSource(cell_vector, cell_ptr, group, current_moments);
+  };
   stamper_ptr_->StampVector(*scattering_source_ptr, scattering_source_function);
 }
 template<int dim>
-void DiffusionUpdater<dim>::UpdateFissionSource(
-    system::System &to_update,
-    system::EnergyGroup energy_group,
+void DiffusionUpdater<dim>::UpdateFissionSource(system::System &to_update,system::EnergyGroup energy_group,
     quadrature::QuadraturePointIndex /*index*/) {
-  int group = energy_group.get();
-  auto scattering_source_ptr =
-      to_update.right_hand_side_ptr_->GetVariableTermPtr({group, 0},
-                                                         system::terms::VariableLinearTerms::kFissionSource);
-  *scattering_source_ptr = 0;
+  using system::terms::VariableLinearTerms;
+  using CellPtr = typename domain::CellPtr<dim>;
+  const int group = energy_group.get();
+  auto fission_source_ptr = to_update.right_hand_side_ptr_->GetVariableTermPtr({group, 0}, VariableLinearTerms::kFissionSource);
+  *fission_source_ptr = 0;
   const auto& current_moments = to_update.current_moments->moments();
   const auto& in_group_moment = current_moments.at({group, 0, 0});
-  auto fission_source_function =
-      [&](formulation::Vector& cell_vector,
-          const domain::CellPtr<dim> &cell_ptr) -> void {
-        formulation_ptr_->FillCellFissionSource(cell_vector,
-                                                cell_ptr,
-                                                group,
-                                                to_update.k_effective.value(),
-                                                in_group_moment,
-                                                current_moments);
-      };
-  stamper_ptr_->StampVector(*scattering_source_ptr, fission_source_function);
+  auto fission_source_function = [&](formulation::Vector& cell_vector, const CellPtr& cell_ptr) -> void {
+    formulation_ptr_->FillCellFissionSource(cell_vector, cell_ptr, group, to_update.k_effective.value(),
+                                            in_group_moment, current_moments);
+  };
+  stamper_ptr_->StampVector(*fission_source_ptr, fission_source_function);
 }
 template<int dim>
 void DiffusionUpdater<dim>::UpdateFixedSource(
