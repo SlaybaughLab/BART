@@ -9,8 +9,11 @@ auto DomainSpectralShapes<dim>::CalculateDomainSpectralShapes(
   const auto cells{ domain.Cells() };
   const int total_dofs { domain.total_degrees_of_freedom() };
   auto cell_vector = domain.GetCellVector();
+  auto hit_vector = cell_vector;
+  hit_vector.add(1);
   std::vector<unsigned int> cell_dof_indices(cell_vector.size());
   GroupToDomainSpectralShapeMap return_mapping;
+  GroupToDomainSpectralShapeMap hit_mapping;
 
   for (auto& cell : cells) {
     const int material_id = cell->material_id();
@@ -19,10 +22,19 @@ auto DomainSpectralShapes<dim>::CalculateDomainSpectralShapes(
     for (auto group = 0; group < spectral_shape_by_group.size(); ++group) {
       cell_vector = 0;
       cell_vector.add(spectral_shape_by_group.at(group));
+
       if (return_mapping.find(group) == return_mapping.end()) {
         return_mapping[group] = dealii::Vector<double>(total_dofs);
+        hit_mapping[group] = dealii::Vector<double>(total_dofs);
       }
       return_mapping[group].add(cell_dof_indices, cell_vector);
+      hit_mapping[group].add(cell_dof_indices, hit_vector);
+    }
+  }
+
+  for (const auto &[group, vector] : hit_mapping) {
+    for (int i = 0; i < vector.size(); ++i) {
+      return_mapping.at(group)(i) /= vector(i);
     }
   }
 

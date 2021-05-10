@@ -44,6 +44,7 @@ auto AccelerationTwoGridDomainSpectralShapesTest<DimensionWrapper>::SetUp() -> v
     material_spectral_shape_map_[material_id] = test_helpers::RandomVector(n_groups, 0, 10);
   for (int group = 0; group < n_groups; ++group)
     expected_domain_spectral_shape_map_[group] = Vector(this->dof_handler_.n_dofs());
+  auto cell_hit_mapping = Vector(this->dof_handler_.n_dofs());
 
   // Assign random material values and then fill in expected domain spectral shape based on cell DOFS
   for (auto& cell : this->cells_) {
@@ -51,10 +52,16 @@ auto AccelerationTwoGridDomainSpectralShapesTest<DimensionWrapper>::SetUp() -> v
     cell->set_material_id(material_id);
     std::vector<unsigned int> global_dofs(this->fe_.dofs_per_cell);
     cell->get_dof_indices(global_dofs);
-    for (int group = 0; group < n_groups; ++group) {
-      for (int index : global_dofs) {
+    for (int index : global_dofs) {
+      for (int group = 0; group < n_groups; ++group) {
         expected_domain_spectral_shape_map_[group][index] += material_spectral_shape_map_[material_id].at(group);
       }
+      cell_hit_mapping[index] += 1;
+    }
+  }
+  for (int group = 0; group < n_groups; ++group) {
+    for (int i = 0; i < this->dof_handler_.n_dofs(); ++i) {
+      expected_domain_spectral_shape_map_[group][i] /= cell_hit_mapping[i];
     }
   }
 }
