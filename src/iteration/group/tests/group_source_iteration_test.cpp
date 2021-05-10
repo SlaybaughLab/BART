@@ -339,14 +339,9 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
         EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(current_moments.at(index)));
-        const auto& const_mock_current_moments = *this->moments_obs_ptr_;
-        EXPECT_CALL(const_mock_current_moments, BracketOp(index))
-            .Times(AtLeast(1))
-            .WillRepeatedly(ReturnRef(current_moments.at(index)));
         EXPECT_CALL(*this->previous_moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(previous_moments.at(index)));
-
         EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
             this->group_solution_ptr_.get(), group, l, m))
             .Times(AtLeast(1))
@@ -377,7 +372,8 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   convergence::Status moment_map_status;
   moment_map_status.is_complete = true;
   EXPECT_CALL(*this->moments_obs_ptr_, moments())
-      .WillOnce(ReturnRef(current_moments));
+      .Times(AtLeast(1))
+      .WillRepeatedly(ReturnRef(current_moments));
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_,
               ConvergenceStatus(Ref(current_moments), _))
               .WillOnce(Return(moment_map_status));
