@@ -3,25 +3,25 @@ set number of groups                         = 7
 set have reflective boundary                 = true
 set reflective boundary names                = xmin, xmax
 
-set transport model                          = saaf
+set transport model                          = diffusion
 set angular quadrature name                  = gauss_legendre
 set angular quadrature order                 = 2
 
 set x, y, z max values of boundary locations = 10.0
-set number of cells for x, y, z directions   = 10
-set number of materials                      = 1
+set number of cells for x, y, z directions   = 30
+set number of materials                      = 2
 
 set finite element polynomial degree         = 1
 
-set output file name base                    = saaf_1d
+set output file name base                    = diffusion_1d_two_materials
 set use two-grid acceleration                = false
 
 set eigen solver name                        = pi
 set k_effective updater type                 = rayleigh quotient
 
 subsection material ID map
-set material id file name map                = 0: high_scattering_fissionable.material
-set material id file name                    = single_material.material_map
+set material id file name map                = 0: high_scattering_reflector.material, 1: high_scattering_fissionable.material
+set material id file name                    = two_materials.material_map
 end
 
 set output scalar flux as vtu                = false
