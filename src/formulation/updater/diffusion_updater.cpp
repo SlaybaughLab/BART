@@ -59,18 +59,14 @@ auto DiffusionUpdater<dim>::SetUpFixedFunctions(system::System& /*to_update*/,
                                const CellPtr& cell_ptr) -> void {
     using DiffusionBoundaryType = typename formulation::scalar::DiffusionI<dim>::BoundaryType;
 
-    DiffusionBoundaryType boundary_type = DiffusionBoundaryType::kInterior;
+    DiffusionBoundaryType boundary_type = DiffusionBoundaryType::kVacuum;
 
     if (cell_ptr->at_boundary()) {
       problem::Boundary boundary = static_cast<problem::Boundary>(cell_ptr->face(face_index.get())->boundary_id());
-      if (reflective_boundaries_.count(boundary) == 1) {
+      if (reflective_boundaries_.count(boundary) == 1)
         boundary_type = DiffusionBoundaryType::kReflective;
-      } else {
-        boundary_type = DiffusionBoundaryType::kVacuum;
-      }
+      formulation_ptr_->FillBoundaryTerm(cell_matrix, cell_ptr,face_index.get(), boundary_type);
     }
-
-    formulation_ptr_->FillBoundaryTerm(cell_matrix, cell_ptr,face_index.get(), boundary_type);
   };
   this->fixed_matrix_boundary_functions_.push_back(boundary_function);
 }
