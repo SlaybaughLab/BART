@@ -307,12 +307,17 @@ auto FrameworkHelper<dim>::BuildFramework(
       updater_pointers,
       builder.BuildMomentMapConvergenceChecker(1e-6, 1000));
 
-  try {
-    instrumentation::GetPort<iteration::group::data_ports::NumberOfIterationsPort>(*group_iteration_ptr)
-        .AddInstrument(Shared(InstrumentBuilder::BuildInstrument<double>(InstrumentName::kDoubleToFile,
-                                                                         parameters.output_filename_base
-                                                                             + "_inner_iterations.csv")));
-  } catch (std::bad_cast&) {}
+  if (parameters.output_inner_iterations_to_file) {
+    try {
+      instrumentation::GetPort<iteration::group::data_ports::NumberOfIterationsPort>(*group_iteration_ptr)
+          .AddInstrument(Shared(InstrumentBuilder::BuildInstrument<double>(InstrumentName::kDoubleToFile,
+                                                                           parameters.output_filename_base
+                                                                               + "_inner_iterations.csv")));
+    } catch (std::bad_cast&) {
+      std::cout << "Warning: Output Inner Iterations to file was selected but constructed group iteration class does "
+                   "not support required instrumentation.\n";
+    }
+  }
 
   if (need_angular_solution_storage) {
     group_iteration_ptr->UpdateThisAngularSolutionMap(angular_solutions_);

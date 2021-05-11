@@ -87,6 +87,7 @@ struct FrameworkParameters {
   bool output_scalar_flux_as_vtu{ false };
   bool output_fission_source_as_vtu{ false };
   bool output_scattering_source_as_vtu{ false };
+  bool output_inner_iterations_to_file{ false };
 };
 
 } // namespace bart::framework
