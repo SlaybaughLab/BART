@@ -18,6 +18,7 @@
 // Convergence classes
 #include "convergence/iteration_completion_checker.hpp"
 #include "convergence/moments/convergence_checker_l1_norm.hpp"
+#include "convergence/moments/convergence_checker_l_infinity_norm.hpp"
 #include "convergence/moments/multi_moment_checker_max.hpp"
 #include "convergence/parameters/single_parameter_checker.hpp"
 
@@ -454,7 +455,7 @@ auto FrameworkBuilder<dim>::BuildMomentConvergenceChecker(
   //TODO(Josh): Add option for using other than L1Norm
   ReportBuildingComponant("Moment convergence checker");
 
-  using CheckerType = convergence::moments::ConvergenceCheckerL1Norm;
+  using CheckerType = convergence::moments::ConvergenceCheckerLInfinityNorm;
   using FinalCheckerType = convergence::IterationCompletionChecker<system::moments::MomentVector>;
 
   auto return_ptr = std::make_unique<FinalCheckerType>(std::make_unique<CheckerType>(max_delta));
@@ -468,7 +469,7 @@ auto FrameworkBuilder<dim>::BuildMomentMapConvergenceChecker(
 -> std::unique_ptr<MomentMapConvergenceChecker> {
   ReportBuildingComponant("Moment map convergence checker");
 
-  using SingleCheckerType = convergence::moments::ConvergenceCheckerL1Norm;
+  using SingleCheckerType = convergence::moments::ConvergenceCheckerLInfinityNorm;
   using CheckerType = convergence::moments::MultiMomentCheckerMax;
   using FinalCheckerType = convergence::IterationCompletionChecker<system::moments::MomentsMap>;
 

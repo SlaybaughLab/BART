@@ -225,10 +225,8 @@ auto FrameworkHelper<dim>::BuildFramework(
     updater_pointers = builder.BuildUpdaterPointers(std::move(two_grid_diffusion_formulation),
                                                     builder.BuildStamper(domain_ptr),
                                                     reflective_boundaries);
-  }
-
-  // Formulation specific builds
-  if (parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
+    std::cout << "Build two-grid diffusion formulation\n";
+  } else if (parameters.equation_type == problem::EquationType::kSelfAdjointAngularFlux) {
     auto saaf_formulation_ptr = builder.BuildSAAFFormulation(finite_element_ptr,
                                                              parameters.cross_sections_.value(),
                                                              quadrature_set_ptr,
@@ -295,18 +293,26 @@ auto FrameworkHelper<dim>::BuildFramework(
 
   auto initializer_ptr = builder.BuildInitializer(updater_pointers.fixed_updater_ptr,
                                                   parameters.neutron_energy_groups,
-                                                  n_angles);
+                                                  n_angles,
+                                                  iteration::initializer::InitializerName::kInitializeFixedTermsAndResetMoments);
 
   auto group_solution_ptr = Shared(builder.BuildGroupSolution(n_angles));
   system_helper_ptr_->SetUpMPIAngularSolution(*group_solution_ptr, *domain_ptr, 1.0);
 
   auto group_iteration_ptr = builder.BuildGroupSolveIteration(
       builder.BuildSingleGroupSolver(10000, 1e-10),
-      builder.BuildMomentConvergenceChecker(1e-6, 10000),
+      builder.BuildMomentConvergenceChecker(1e-6, 1000),
       std::move(moment_calculator_ptr),
       group_solution_ptr,
       updater_pointers,
       builder.BuildMomentMapConvergenceChecker(1e-6, 1000));
+
+  try {
+    instrumentation::GetPort<iteration::group::data_ports::NumberOfIterationsPort>(*group_iteration_ptr)
+        .AddInstrument(Shared(InstrumentBuilder::BuildInstrument<double>(InstrumentName::kDoubleToFile,
+                                                                         parameters.output_filename_base
+                                                                             + "_inner_iterations.csv")));
+  } catch (std::bad_cast&) {}
 
   if (need_angular_solution_storage) {
     group_iteration_ptr->UpdateThisAngularSolutionMap(angular_solutions_);
@@ -330,6 +336,14 @@ auto FrameworkHelper<dim>::BuildFramework(
     material_spectral_shape_calculator.CalculateMaterialSpectralShapes(parameters.cross_sections_.value());
     std::cout << "get material Spectral Shape" << std::endl;
     auto material_spectral_shapes = material_spectral_shape_calculator.material_spectral_shapes();
+
+    for (auto& [id, vector] : material_spectral_shapes) {
+      std::cout << "Material " << id << " spectral shape: ";
+      for (auto& val : vector)
+        std::cout << val << ",";
+      std::cout << std::endl;
+    }
+
     std::cout << "One group xsec" << std::endl;
     auto one_group_cross_sections = std::make_shared<data::cross_sections::CollapsedOneGroupCrossSections>(
         *parameters.cross_sections_.value(), material_spectral_shapes);
@@ -343,7 +357,7 @@ auto FrameworkHelper<dim>::BuildFramework(
     auto domain_isotropic_residual_ptr = std::make_unique<calculator::residual::DomainIsotropicResidual<dim>>(
         std::make_unique<calculator::residual::CellIsotropicResidual<dim>>(parameters.cross_sections_.value(),
                                                                            finite_element_ptr), domain_ptr);
-    auto two_grid_parameters{parameters };
+    auto two_grid_parameters{ parameters };
     two_grid_parameters.name = "Two-grid diffusion";
     two_grid_parameters.use_two_grid_ = false;
     two_grid_parameters.framework_level_ = 1;
@@ -361,7 +375,7 @@ auto FrameworkHelper<dim>::BuildFramework(
     } else {
       subroutine_framework_ptr = std::move(BuildFramework(builder, two_grid_parameters));
     }
-    auto rhs_vector = std::make_shared<dealii::Vector<double>>(group_solution_ptr->GetSolution(0).size());
+    auto rhs_vector = std::make_shared<dealii::Vector<double>>(system_ptr->current_moments->GetMoment({0, 0, 0}).size());
 
     auto framework_ptr = dynamic_cast<Framework*>(subroutine_framework_ptr.get());
     auto outer_iteration_ptr = dynamic_cast<iteration::outer::OuterFixedSourceIteration*>(framework_ptr->outer_iterator_ptr());
