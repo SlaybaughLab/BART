@@ -74,7 +74,8 @@ auto FrameworkHelper<dim>::ToFrameworkParameters(
     .output_aggregated_source_data{ problem_parameters.OutputAggregatedSourceData() },
     .output_scalar_flux_as_vtu{ problem_parameters.OutputScalarFluxAsVTU() },
     .output_fission_source_as_vtu{ problem_parameters.OutputFissionSourceAsVTU() },
-    .output_scattering_source_as_vtu{ problem_parameters.OutputScatteringSourceAsVTU() }
+    .output_scattering_source_as_vtu{ problem_parameters.OutputScatteringSourceAsVTU() },
+    .output_inner_iterations_to_file{ problem_parameters.OutputInnerIterationsToFile() }
   };
 
   std::set<Boundary> reflective_boundaries;

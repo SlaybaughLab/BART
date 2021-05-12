@@ -112,6 +112,7 @@ auto FrameworkHelperToFrameworkParametersTest::SetExpectations(
   EXPECT_CALL(parameters_mock_, OutputScalarFluxAsVTU()).WillOnce(Return(parameters.output_scalar_flux_as_vtu));
   EXPECT_CALL(parameters_mock_, OutputFissionSourceAsVTU()).WillOnce(Return(parameters.output_fission_source_as_vtu));
   EXPECT_CALL(parameters_mock_, OutputScatteringSourceAsVTU()).WillOnce(Return(parameters.output_scattering_source_as_vtu));
+  EXPECT_CALL(parameters_mock_, OutputInnerIterationsToFile()).WillOnce(Return(parameters.output_inner_iterations_to_file));
 }
 
 AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framework::FrameworkParameters& rhs) {
@@ -161,6 +162,8 @@ AssertionResult AreEqual(const framework::FrameworkParameters& lhs, const framew
     return AssertionFailure() << "Output fission source as VTU flags do not match";
   } else if (lhs.output_scattering_source_as_vtu != rhs.output_scattering_source_as_vtu) {
     return AssertionFailure() << "Output scattering source as VTU flags do not match";
+  } else if (lhs.output_inner_iterations_to_file != rhs.output_inner_iterations_to_file) {
+    return AssertionFailure() << "Output inner iterations to file flags do not match";
   }
   return AssertionSuccess();
 }
@@ -258,6 +261,15 @@ TEST_F(FrameworkHelperToFrameworkParametersTest, OutputFissionSourceAsVtu) {
 }
 
 TEST_F(FrameworkHelperToFrameworkParametersTest, OutputScatteringSourceAsVTU) {
+  auto test_parameters{ default_parameters_ };
+  test_parameters.output_scalar_flux_as_vtu = true;
+
+  SetExpectations(test_parameters);
+  auto returned_parameters = test_helper_ptr_->ToFrameworkParameters(parameters_mock_);
+  EXPECT_TRUE(AreEqual(test_parameters, returned_parameters));
+}
+
+TEST_F(FrameworkHelperToFrameworkParametersTest, OutputInnerIterationsToFile) {
   auto test_parameters{ default_parameters_ };
   test_parameters.output_scalar_flux_as_vtu = true;
 
