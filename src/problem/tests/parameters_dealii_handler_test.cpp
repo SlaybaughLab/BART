@@ -48,6 +48,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersDefault) {
   EXPECT_FALSE(test_parameters.OutputScalarFluxAsVTU());
   EXPECT_FALSE(test_parameters.OutputFissionSourceAsVTU());
   EXPECT_FALSE(test_parameters.OutputScatteringSourceAsVTU());
+  EXPECT_FALSE(test_parameters.OutputInnerIterationsToFile());
 }
 
 TEST_F(ParametersDealiiHandlerTest, MeshParametersDefault) {
@@ -113,6 +114,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   test_parameter_handler.set(key_words.kOutputScalarFluxAsVTU_, "true");
   test_parameter_handler.set(key_words.kOutputFissionSourceAsVTU_, "true");
   test_parameter_handler.set(key_words.kOutputScatteringSourceAsVTU_, "true");
+  test_parameter_handler.set(key_words.kOutputInnerIterationsToFile_, "true");
   
   test_parameters.Parse(test_parameter_handler);
 
@@ -131,6 +133,7 @@ TEST_F(ParametersDealiiHandlerTest, BasicParametersParse) {
   EXPECT_TRUE(test_parameters.OutputScalarFluxAsVTU());
   EXPECT_TRUE(test_parameters.OutputFissionSourceAsVTU());
   EXPECT_TRUE(test_parameters.OutputScatteringSourceAsVTU());
+  EXPECT_TRUE(test_parameters.OutputInnerIterationsToFile());
 }
 
 TEST_F(ParametersDealiiHandlerTest, MeshParametersParsed) {

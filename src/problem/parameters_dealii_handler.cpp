@@ -61,6 +61,7 @@ auto ParametersDealiiHandler::Parse(dealii::ParameterHandler& handler) -> void {
   output_scalar_flux_as_vtu_ = handler.get_bool(key_words_.kOutputScalarFluxAsVTU_);
   output_fission_source_as_vtu_ = handler.get_bool(key_words_.kOutputFissionSourceAsVTU_);
   output_scattering_source_as_vtu_ = handler.get_bool(key_words_.kOutputScatteringSourceAsVTU_);
+  output_inner_iterations_to_file_ = handler.get_bool(key_words_.kOutputInnerIterationsToFile_);
 
   // Fourier analysis
   do_dft_of_error_ = handler.get_bool(key_words_.kDoDFTOfError_);
@@ -138,6 +139,8 @@ auto ParametersDealiiHandler::SetUpBasicParameters(dealii::ParameterHandler &han
                         "output fission source as a VTU file");
   handler.declare_entry(key_words_.kOutputScatteringSourceAsVTU_, "false", Pattern::Bool(),
                         "output scattering source as a VTU file");
+  handler.declare_entry(key_words_.kOutputInnerIterationsToFile_, "false", Pattern::Bool(),
+                        "output number of inner iterations to a file");
 
 }
 

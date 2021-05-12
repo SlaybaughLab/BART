@@ -71,6 +71,7 @@ class ParametersDealiiHandler : public ParametersI {
     const std::string kOutputScalarFluxAsVTU_{ "output scalar flux as vtu"};
     const std::string kOutputFissionSourceAsVTU_{ "output fission source as vtu"};
     const std::string kOutputScatteringSourceAsVTU_{ "output scattering source as vtu"};
+    const std::string kOutputInnerIterationsToFile_{ "output inner iterations to file"};
 
     // Fourier analysis
     const std::string kDoDFTOfError_{ "do dft of error" };
@@ -132,6 +133,7 @@ class ParametersDealiiHandler : public ParametersI {
   auto OutputScalarFluxAsVTU() const -> bool override { return output_scalar_flux_as_vtu_; }
   auto OutputFissionSourceAsVTU() const -> bool override { return output_fission_source_as_vtu_; }
   auto OutputScatteringSourceAsVTU() const -> bool override { return output_scattering_source_as_vtu_; }
+  auto OutputInnerIterationsToFile() const -> bool override { return output_inner_iterations_to_file_; }
 
   auto GetKeyWords() const noexcept -> KeyWords { return key_words_; }
   
@@ -172,6 +174,7 @@ class ParametersDealiiHandler : public ParametersI {
   bool                                 output_scalar_flux_as_vtu_{ false };
   bool                                 output_fission_source_as_vtu_{ false };
   bool                                 output_scattering_source_as_vtu_{ false };
+  bool                                 output_inner_iterations_to_file_{ false };
 
   // Key-words struct                  
   KeyWords                             key_words_{};
