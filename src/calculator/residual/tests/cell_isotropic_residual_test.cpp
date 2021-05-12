@@ -34,10 +34,7 @@ class CellIsotropicResidualTest : public bart::testing::DealiiTestDomain<Dimensi
   // Support objects
   std::unordered_map<int, Vector> current_flux_moments_, previous_flux_moments_;
 
-  static constexpr int n_cell_quad_{ 3 };
-  static constexpr int n_cell_dofs_{ 2 };
-  static constexpr int n_groups_{ 4 };
-  static constexpr int global_dofs_{ 10 };
+  static constexpr int n_groups_{ 3 };
   const int material_id_{ test_helpers::RandomInt(0, 10) };
   auto SetUp() -> void;
 };
@@ -48,23 +45,26 @@ auto CellIsotropicResidualTest<DimensionWrapper>::SetUp() -> void {
 
   ON_CALL(*current_flux_moments_ptr_, total_groups()).WillByDefault(Return(n_groups_));
   ON_CALL(*previous_flux_moments_ptr_, total_groups()).WillByDefault(Return(n_groups_));
+  ON_CALL(*finite_element_mock_ptr_, dofs_per_cell()).WillByDefault(Return(this->fe_.dofs_per_cell));
 
   for (int group = 0; group < n_groups_; ++group) {
     const std::array<int, 3> index{ group, 0, 0};
-    auto current_flux_values{ test_helpers::RandomVector(global_dofs_, 0, 100) };
-    auto previous_flux_values{ test_helpers::RandomVector(global_dofs_, 0, 100) };
 
-    current_flux_moments_[group] = Vector(current_flux_values.cbegin(), current_flux_values.cend());
-    previous_flux_moments_[group] = Vector(previous_flux_values.cbegin(), previous_flux_values.cend());
+    current_flux_moments_[group] = Vector(this->dof_handler_.n_dofs());
+    previous_flux_moments_[group] = Vector(this->dof_handler_.n_dofs());
+    current_flux_moments_[group].add(10 * (group + 1));
+    previous_flux_moments_[group].add(group + 1);
 
     ON_CALL(*current_flux_moments_ptr_, GetMoment(index)).WillByDefault(ReturnRef(current_flux_moments_.at(group)));
     ON_CALL(*previous_flux_moments_ptr_, GetMoment(index)).WillByDefault(ReturnRef(previous_flux_moments_.at(group)));
   }
 
-  ON_CALL(*finite_element_mock_ptr_, n_cell_quad_pts()).WillByDefault(Return(n_cell_quad_));
-  for (int q = 0; q < n_cell_quad_; ++q) {
-    ON_CALL(*finite_element_mock_ptr_, Jacobian(q)).WillByDefault(Return((q + 1) * 3));
-  }
+  using MaterialIDMappedToSigmaS = CrossSectionsMock::MaterialIDMappedTo<dealii::FullMatrix<double>>;
+  std::array<double, 9> sigma_s_values{2, 0.5, 0.25, 1.0/3.0, 3, 2.0/3.0, 1.0/5.0, 2.0/5.0, 5};
+  dealii::FullMatrix<double> sigma_s_matrix(3, 3, sigma_s_values.data());
+  MaterialIDMappedToSigmaS sigma_s_map{{material_id_, sigma_s_matrix}};
+  ON_CALL(*cross_sections_mock_ptr_, sigma_s()).WillByDefault(Return(sigma_s_map));
+
   test_calculator_ = std::make_unique<CellIsotropicResidualCalculator>(cross_sections_mock_ptr_,
                                                                        finite_element_mock_ptr_);
 
@@ -91,6 +91,40 @@ TYPED_TEST(CellIsotropicResidualTest, NullDependenciesThrow) {
                        CellIsotropicResidualCalculator( i == 0 ? nullptr : std::make_shared<CrossSectionsMock>(),
                                                         i == 1 ? nullptr : std::make_shared<FiniteElementMock>());
                      });
+  }
+}
+
+TYPED_TEST(CellIsotropicResidualTest, CalculateCellResidual) {
+  const int n_cells = this->cells_.size();
+  const int total_calls{ n_cells * this->n_groups_ };
+
+  EXPECT_CALL(*this->current_flux_moments_ptr_, total_groups()).Times(total_calls).WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->cross_sections_mock_ptr_, sigma_s()).Times(total_calls).WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->finite_element_mock_ptr_, dofs_per_cell()).Times(total_calls).WillRepeatedly(DoDefault());
+
+
+
+  dealii::Vector<double> expected_residual(this->dof_handler_.n_dofs());
+  std::fill(expected_residual.begin(), expected_residual.end(), 33.75);
+  dealii::Vector<double> calculated_residual(this->dof_handler_.n_dofs());
+
+  for (int group = 0; group < this->n_groups_; ++group) {
+    for (int group_in = group + 1; group_in < this->n_groups_; ++group_in) {
+      std::array<int, 3> index{group_in, 0, 0};
+      EXPECT_CALL(*this->current_flux_moments_ptr_, GetMoment(index))
+          .Times(AtLeast(1)).WillRepeatedly(DoDefault());
+      EXPECT_CALL(*this->previous_flux_moments_ptr_, GetMoment(index))
+          .Times(AtLeast(1)).WillRepeatedly(DoDefault());
+    }
+    for (const auto cell : this->cells_) {
+      this->test_calculator_->CalculateCellResidual(calculated_residual, cell,
+                                                    this->current_flux_moments_ptr_.get(),
+                                                    this->previous_flux_moments_ptr_.get(),
+                                                    group);
+    }
+  }
+  for (int i = 0; i < this->dof_handler_.n_dofs(); ++i) {
+    EXPECT_NEAR(std::fmod(calculated_residual(i), 33.75), 0, 1e-10);
   }
 }
 

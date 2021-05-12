@@ -28,7 +28,7 @@ auto CellIsotropicResidual<dim>::CalculateCellResidual(dealii::Vector<double> &t
                                                        FluxMoments* current_flux_moments_ptr,
                                                        FluxMoments* previous_flux_moments_ptr,
                                                        const int group) -> void {
-  finite_element_ptr_->SetCell(cell_ptr);
+  //finite_element_ptr_->SetCell(cell_ptr);
   const int total_groups = current_flux_moments_ptr->total_groups();
   const auto sigma_s{ cross_sections_ptr_->sigma_s().at(cell_ptr->material_id()) };
   const int cell_dofs = this->finite_element_ptr_->dofs_per_cell();
@@ -40,7 +40,7 @@ auto CellIsotropicResidual<dim>::CalculateCellResidual(dealii::Vector<double> &t
     auto previous_flux = previous_flux_moments_ptr->GetMoment({group_in, 0, 0});
     for (int i = 0; i < cell_dofs; ++i) {
       const auto index = cell_global_dofs_indices.at(i);
-      to_fill(i) += sigma_s(group, group_in) * (current_flux(index) - previous_flux(index));
+      to_fill(index) += sigma_s(group, group_in) * (current_flux(index) - previous_flux(index));
     }
   }
 }
