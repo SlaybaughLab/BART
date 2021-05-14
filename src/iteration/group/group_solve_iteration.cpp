@@ -43,15 +43,8 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
   convergence::Status all_group_convergence_status;
   all_group_convergence_status.is_complete = true;
   do {
-    for (int group = 0; group < total_groups; ++group) {
-      const auto& current_moments = *system.current_moments;
-      const int max_harmonic_l = current_moments.max_harmonic_l();
-      for (int l = 0; l <= max_harmonic_l; ++l) {
-        for (int m = -l; m <= l; ++m) {
-          previous_moments_map[{group, l, m}] = current_moments[{group, l, m}];
-        }
-      }
-    }
+    previous_moments_map = system.current_moments->moments();
+
     for (int group = 0; group < total_groups; ++group) {
       PerformPerGroup(system, group);
 
@@ -84,6 +77,13 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
       if (is_storing_angular_solution_)
         StoreAngularSolution(system, group);
     }
+
+    if (post_iteration_subroutine_ptr_ != nullptr) {
+      data_ports::StatusPort::Expose("==== COMMENCE GROUP SOLVE POST ITERATION SUBROUTINE ==== \n");
+      post_iteration_subroutine_ptr_->Execute(system);
+      data_ports::StatusPort::Expose("==== COMPLETED GROUP SOLVE POST ITERATION SUBROUTINE  ==== \n");
+    }
+
     if (moment_map_convergence_checker_ptr_ != nullptr) {
       all_group_convergence_status =
           moment_map_convergence_checker_ptr_->ConvergenceStatus(
@@ -92,6 +92,7 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
       data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
     }
   } while(!all_group_convergence_status.is_complete);
+  data_ports::NumberOfIterationsPort::Expose(all_group_convergence_status.iteration_number);
   ExposeIterationData(system);
 }
 

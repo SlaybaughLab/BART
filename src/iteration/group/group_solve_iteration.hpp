@@ -18,8 +18,10 @@ namespace bart::iteration::group {
 namespace data_ports {
 struct GroupConvergenceStatus;
 struct Status;
+struct NumberOfIterations;
 //! Data port for the status of convergence.
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
+using NumberOfIterationsPort = instrumentation::Port<double, NumberOfIterations>;
 //! Data port for general strings.
 using StatusPort = instrumentation::Port<std::string, Status>;
 }
@@ -41,7 +43,8 @@ using StatusPort = instrumentation::Port<std::string, Status>;
  */
 template <int dim>
 class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDependencies,
-                            public data_ports::ConvergenceStatusPort, public data_ports::StatusPort {
+                            public data_ports::ConvergenceStatusPort, public data_ports::StatusPort,
+                            public data_ports::NumberOfIterationsPort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
@@ -50,6 +53,7 @@ class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDepe
   using MomentVector = system::moments::MomentVector;
   using GroupSolution = system::solution::MPIGroupAngularSolutionI;
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
+  using Subroutine = iteration::subroutine::SubroutineI;
   using System = system::System;
 
   // Data ports
@@ -70,12 +74,16 @@ class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDepe
   [[nodiscard]] auto is_storing_angular_solution() const -> bool { return is_storing_angular_solution_; }
   [[nodiscard]] auto angular_solution_ptr_map() const { return angular_solution_ptr_map_; }
 
+  auto AddPostIterationSubroutine(std::unique_ptr<Subroutine> subroutine_ptr) -> GroupSolveIteration<dim>& override {
+    post_iteration_subroutine_ptr_ = std::move(subroutine_ptr);
+    return *this; };
+
   auto group_solver_ptr() const { return group_solver_ptr_.get(); }
   auto convergence_checker_ptr() const { return convergence_checker_ptr_.get(); }
   auto moment_calculator_ptr() const { return moment_calculator_ptr_.get(); }
   auto moment_map_convergence_checker_ptr() const { return moment_map_convergence_checker_ptr_.get(); }
   [[nodiscard]] auto group_solution_ptr() const -> std::shared_ptr<GroupSolution> { return group_solution_ptr_; }
-
+  auto post_iteration_subroutine_ptr() const { return post_iteration_subroutine_ptr_.get(); }
  protected:
   virtual auto PerformPerGroup(System& system, int group) -> void;
   virtual auto SolveGroup(int group, System &system) -> void;
@@ -92,6 +100,7 @@ class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDepe
   std::unique_ptr<MomentCalculator> moment_calculator_ptr_{ nullptr };
   std::shared_ptr<GroupSolution> group_solution_ptr_{ nullptr };
   std::unique_ptr<MomentMapConvergenceChecker> moment_map_convergence_checker_ptr_{ nullptr };
+  std::unique_ptr<Subroutine> post_iteration_subroutine_ptr_{ nullptr };
   bool is_storing_angular_solution_{ false };
   EnergyGroupToAngularSolutionPtrMap angular_solution_ptr_map_{};
 };

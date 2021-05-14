@@ -13,6 +13,7 @@
 #include "quadrature/calculators/tests/spherical_harmonic_moments_mock.h"
 #include "convergence/tests/iteration_completion_checker_mock.hpp"
 #include "instrumentation/tests/instrument_mock.h"
+#include "iteration/subroutine/tests/subroutine_mock.hpp"
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
@@ -44,6 +45,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
+  using Subroutine = iteration::subroutine::SubroutineMock;
 
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
@@ -72,6 +74,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   MomentMapConvergenceChecker* moment_map_convergence_checker_obs_ptr_ = nullptr;
   Moments* moments_obs_ptr_ = nullptr;
   Moments* previous_moments_obs_ptr_ = nullptr;
+  Subroutine* subroutine_obs_ptr_{ nullptr };
 
   void SetUp() override;
 };
@@ -88,6 +91,8 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   moment_calculator_obs_ptr_ = moment_calculator_ptr_.get();
   auto moment_map_convergence_checker_ptr_ = std::make_unique<MomentMapConvergenceChecker>();
   moment_map_convergence_checker_obs_ptr_ = moment_map_convergence_checker_ptr_.get();
+  auto subroutine_ptr = std::make_unique<Subroutine>();
+  subroutine_obs_ptr_ = subroutine_ptr.get();
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
@@ -100,6 +105,7 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   using ConvergenceStatusPort = iteration::group::data_ports::ConvergenceStatusPort;
   test_iterator_ptr_->ConvergenceStatusPort::AddInstrument(convergence_instrument_ptr_);
   test_iterator_ptr_->AddInstrument(status_instrument_ptr_);
+  test_iterator_ptr_->AddPostIterationSubroutine(std::move(subroutine_ptr));
 }
 
 TYPED_TEST(IterationGroupSourceIterationTest, Constructor) {
@@ -166,6 +172,9 @@ TYPED_TEST(IterationGroupSourceIterationTest, ConstructorThrowNoBoundaryUpdater)
   });
 }
 
+TYPED_TEST(IterationGroupSourceIterationTest, SubroutineGetter) {
+  EXPECT_EQ(this->test_iterator_ptr_->post_iteration_subroutine_ptr(), this->subroutine_obs_ptr_);
+}
 
 template <typename DimensionWrapper>
 class IterationGroupSourceSystemSolvingTest :
@@ -330,14 +339,9 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
         EXPECT_CALL(*this->moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(current_moments.at(index)));
-        const auto& const_mock_current_moments = *this->moments_obs_ptr_;
-        EXPECT_CALL(const_mock_current_moments, BracketOp(index))
-            .Times(AtLeast(1))
-            .WillRepeatedly(ReturnRef(current_moments.at(index)));
         EXPECT_CALL(*this->previous_moments_obs_ptr_, BracketOp(index))
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(previous_moments.at(index)));
-
         EXPECT_CALL(*this->moment_calculator_obs_ptr_, CalculateMoment(
             this->group_solution_ptr_.get(), group, l, m))
             .Times(AtLeast(1))
@@ -368,7 +372,8 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
   convergence::Status moment_map_status;
   moment_map_status.is_complete = true;
   EXPECT_CALL(*this->moments_obs_ptr_, moments())
-      .WillOnce(ReturnRef(current_moments));
+      .Times(AtLeast(1))
+      .WillRepeatedly(ReturnRef(current_moments));
   EXPECT_CALL(*this->moment_map_convergence_checker_obs_ptr_,
               ConvergenceStatus(Ref(current_moments), _))
               .WillOnce(Return(moment_map_status));
@@ -391,6 +396,7 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       .Times(AtLeast(1));
   EXPECT_CALL(*this->status_instrument_ptr_, Read(_))
       .Times(AtLeast(1));
+  EXPECT_CALL(*this->subroutine_obs_ptr_, Execute(Ref(this->test_system))).Times(AtLeast(1));
 
   this->test_system.total_groups = this->total_groups;
   this->test_system.total_angles = this->total_angles;

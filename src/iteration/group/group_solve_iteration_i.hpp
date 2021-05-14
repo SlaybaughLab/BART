@@ -1,6 +1,7 @@
 #ifndef BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_HPP_
 #define BART_SRC_ITERATION_GROUP_GROUP_SOLVE_ITERATION_I_HPP_
 
+#include "iteration/subroutine/subroutine_i.hpp"
 #include "utility/has_description.h"
 #include "system/solution/solution_types.h"
 #include "system/system.hpp"
@@ -18,11 +19,13 @@ namespace bart::iteration::group {
 class GroupSolveIterationI : public utility::HasDescription {
  public:
   using EnergyGroupToAngularSolutionPtrMap = system::solution::EnergyGroupToAngularSolutionPtrMap;
+  using Subroutine = subroutine::SubroutineI;
   virtual ~GroupSolveIterationI() = default;
   /*! \brief Iterate system until all groups have converged. */
   virtual auto Iterate(system::System &system) -> void = 0;
   /*! \brief Provide a mapping of group to pointers to angular solutions to update. */
   virtual auto UpdateThisAngularSolutionMap(EnergyGroupToAngularSolutionPtrMap) -> GroupSolveIterationI& = 0;
+  virtual auto AddPostIterationSubroutine(std::unique_ptr<Subroutine>) -> GroupSolveIterationI& = 0;
 };
 
 } // namespace bart::iteration::group

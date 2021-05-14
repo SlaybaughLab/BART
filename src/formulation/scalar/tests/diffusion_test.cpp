@@ -25,6 +25,8 @@ using ::testing::DoDefault;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::_;
+using ::testing::Ref;
+using ::testing::AtLeast;
 using namespace bart;
 
 namespace test_helpers = bart::test_helpers;
@@ -158,6 +160,28 @@ TEST_F(FormulationCFEMDiffusionTest, PrecalculateTest) {
   EXPECT_TRUE(AreEqual(gradient_matrix_q_0, gradient_squared.at(0)));
   EXPECT_TRUE(AreEqual(gradient_matrix_q_1, gradient_squared.at(1)));
   EXPECT_TRUE(test_diffusion.is_initialized());
+}
+
+TEST_F(FormulationCFEMDiffusionTest, FillCellConstantTermTest) {
+  dealii::Vector<double> test_vector(2);
+  dealii::Vector<double> expected_values{ 54, 129 };
+  dealii::Vector<double> constant_vector_at_dofs(2);
+  std::vector<double> constant_vector_at_quadrature{ 7, 9 };
+
+  formulation::scalar::Diffusion<2> test_diffusion(fe_mock_ptr, cross_sections_ptr);
+  EXPECT_CALL(*fe_mock_ptr, SetCell(cell_ptr_)).Times(1);
+  EXPECT_CALL(*fe_mock_ptr, ValueAtQuadrature(Ref(constant_vector_at_dofs)))
+      .WillOnce(Return(constant_vector_at_quadrature));
+
+  for (int q = 0; q < 2; ++q) {
+    EXPECT_CALL(*fe_mock_ptr, Jacobian(q)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+    for (int i = 0; i < 2; ++i) {
+      EXPECT_CALL(*fe_mock_ptr, ShapeValue(i,q)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+    }
+  }
+
+  test_diffusion.FillCellConstantTerm(test_vector, cell_ptr_, constant_vector_at_dofs);
+  EXPECT_TRUE(AreEqual(expected_values, test_vector));
 }
 
 TEST_F(FormulationCFEMDiffusionTest, FillCellStreamingTermTest) {

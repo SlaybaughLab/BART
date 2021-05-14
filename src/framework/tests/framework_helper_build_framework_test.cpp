@@ -151,6 +151,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   default_parameters_.domain_size = DomainSize(test_helpers::RandomVector(dim, 0, 100));
   default_parameters_.uniform_refinements = test_helpers::RandomInt(1, 4);
   default_parameters_.use_nda_ = false;
+  default_parameters_.use_two_grid_ = false;
 
   auto random_n_cells_double = test_helpers::RandomVector(dim, 10, 20);
   std::vector<int> random_n_cells(random_n_cells_double.cbegin(), random_n_cells_double.cend());
@@ -233,7 +234,7 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetUp() ->
   ON_CALL(mock_builder_, BuildFiniteElement(_,_,_)).WillByDefault(ReturnByMove(finite_element_ptr));
   ON_CALL(mock_builder_, BuildGroupSolution(_)).WillByDefault(ReturnByMove(group_solution_ptr));
   ON_CALL(mock_builder_, BuildGroupSolveIteration(_,_,_,_,_,_)).WillByDefault(ReturnByMove(group_solve_iteration_ptr));
-  ON_CALL(mock_builder_, BuildInitializer(_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
+  ON_CALL(mock_builder_, BuildInitializer(_,_,_,_)).WillByDefault(ReturnByMove(initializer_ptr));
   ON_CALL(mock_builder_, BuildKEffectiveUpdater(_,_,_)).WillByDefault(ReturnByMove(k_effective_updater_ptr));
   ON_CALL(mock_builder_, BuildKEffectiveUpdater()).WillByDefault(ReturnByMove(k_effective_updater_rayleigh_ptr));
   ON_CALL(mock_builder_, BuildMomentCalculator(_)).WillByDefault(ReturnByMove(moment_calculator_ptr));
@@ -396,12 +397,14 @@ auto FrameworkHelperBuildFrameworkIntegrationTests<DimensionWrapper>::SetExpecta
 
   EXPECT_CALL(mock_builder, BuildInitializer(Pointee(Ref(*updater_pointers_.fixed_updater_ptr)),
                                              parameters.neutron_energy_groups,
-                                             n_angles)).WillOnce(DoDefault());
+                                             n_angles,
+                                             iteration::initializer::InitializerName::kInitializeFixedTermsAndResetMoments))
+      .WillOnce(DoDefault());
   EXPECT_CALL(*system_helper_mock_ptr_, SetUpMPIAngularSolution(Ref(*group_solution_obs_ptr_),
                                                                 Ref(*domain_obs_ptr_),
                                                                 1.0));
   EXPECT_CALL(mock_builder, BuildSingleGroupSolver(10000, 1e-10)).WillOnce(DoDefault());
-  EXPECT_CALL(mock_builder, BuildMomentConvergenceChecker(1e-6, 10000)).WillOnce(DoDefault());
+  EXPECT_CALL(mock_builder, BuildMomentConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
   EXPECT_CALL(mock_builder, BuildMomentMapConvergenceChecker(1e-6, 1000)).WillOnce(DoDefault());
 
   EXPECT_CALL(mock_builder, BuildGroupSolveIteration(Pointee(Ref(*single_group_solver_obs_ptr_)),

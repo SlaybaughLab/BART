@@ -66,17 +66,23 @@ auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system
   }
 
   if (system.right_hand_side_ptr_ != nullptr) {
-    auto scattering_source_ptr =
-        system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kScatteringSource);
-    if (scattering_source_ptr != nullptr) {
-      dealii::Vector<double> scattering_source(*scattering_source_ptr);
-      data_names::ScatteringSourcePort::Expose(scattering_source);
+    auto variable_terms = system.right_hand_side_ptr_->GetVariableTerms();
+
+    if (variable_terms.contains(system::terms::VariableLinearTerms::kScatteringSource)) {
+      auto scattering_source_ptr =
+          system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kScatteringSource);
+      if (scattering_source_ptr != nullptr) {
+        dealii::Vector<double> scattering_source(*scattering_source_ptr);
+        data_names::ScatteringSourcePort::Expose(scattering_source);
+      }
     }
-    auto fission_source_ptr =
-        system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kFissionSource);
-    if (fission_source_ptr != nullptr) {
-      dealii::Vector<double> fission_source(*fission_source_ptr);
-      data_names::FissionSourcePort::Expose(fission_source);
+    if (variable_terms.contains(system::terms::VariableLinearTerms::kFissionSource)) {
+      auto fission_source_ptr =
+          system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kFissionSource);
+      if (fission_source_ptr != nullptr) {
+        dealii::Vector<double> fission_source(*fission_source_ptr);
+        data_names::FissionSourcePort::Expose(fission_source);
+      }
     }
   }
 }

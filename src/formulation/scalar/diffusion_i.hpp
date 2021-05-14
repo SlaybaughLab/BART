@@ -4,6 +4,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/dofs/dof_accessor.h>
 
+#include "formulation/common/rhs_constant_i.hpp"
 #include "system/moments/spherical_harmonic_types.h"
 #include "utility/has_description.h"
 
@@ -41,7 +42,7 @@ namespace bart::formulation::scalar {
  * @tparam dim spatial dimension
  */
 template <int dim>
-class DiffusionI : public utility::HasDescription {
+class DiffusionI : public common::RHSConstantI<dim>, public utility::HasDescription {
  public:
   //! Types of boundaries for the diffusion equation
   enum class BoundaryType {

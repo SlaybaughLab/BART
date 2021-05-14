@@ -43,6 +43,8 @@ class FixedUpdater : public FixedUpdaterI {
     // LCOV_EXCL_STOP
   }
 
+  auto SetRHSConstant(std::shared_ptr<dealii::Vector<double>> to_set) { rhs_constant_vector_ptr_ = to_set; }
+  auto rhs_constant_vector_ptr() const { return rhs_constant_vector_ptr_.get(); }
  protected:
   virtual auto SetUpFixedFunctions(system::System&, system::EnergyGroup, quadrature::QuadraturePointIndex) -> void = 0;
   std::vector<MatrixFunction> fixed_matrix_functions_{};
@@ -51,6 +53,7 @@ class FixedUpdater : public FixedUpdaterI {
   std::vector<VectorBoundaryFunction> fixed_vector_boundary_functions_{};
 
   std::shared_ptr<Stamper> stamper_ptr_{ nullptr };
+  std::shared_ptr<dealii::Vector<double>> rhs_constant_vector_ptr_{ nullptr };
 
 };
 

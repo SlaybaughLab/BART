@@ -1,0 +1,28 @@
+set problem dimension                        = 2
+set number of groups                         = 7
+set have reflective boundary                 = true
+set reflective boundary names                = xmin, xmax, ymin, ymax
+
+set transport model                          = diffusion
+set angular quadrature name                  = level_symmetric_gaussian
+set angular quadrature order                 = 2
+
+set x, y, z max values of boundary locations = 10.0, 10.0
+set number of cells for x, y, z directions   = 5, 5
+set number of materials                      = 2
+
+set finite element polynomial degree         = 1
+
+set output file name base                    = c5g7
+set use two-grid acceleration                = false
+
+set eigen solver name                        = pi
+set k_effective updater type                 = rayleigh quotient
+
+subsection material ID map
+set material id file name map                = 1: uo2.material, 0: moderator.material
+set material id file name                    = c5g7.material_map
+end
+
+set output scalar flux as vtu                = true
+set output scattering source as vtu          = true

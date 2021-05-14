@@ -206,13 +206,18 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   EXPECT_CALL(*this->error_instrument_ptr_, Read(_)).Times(this->iterations_ - 1);
 
   dealii::Vector<double> flux;
+  using VariableLinearTerms = system::terms::VariableLinearTerms;
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTerms())
+      .Times(iterations_)
+      .WillRepeatedly(Return(std::unordered_set{VariableLinearTerms::kScatteringSource,
+                                                VariableLinearTerms::kFissionSource}));
   EXPECT_CALL(*this->current_moments_mock_ptr_, GetMoment(std::array{0, 0, 0}))
       .Times(this->iterations_)
       .WillRepeatedly(::testing::ReturnRef(flux));
   EXPECT_CALL(*this->scalar_flux_instrument_ptr_, Read(Ref(flux))).Times(this->iterations_);
   EXPECT_CALL(*this->solution_moments_instrument_ptr_, Read(Ref(*this->current_moments_mock_ptr_)))
       .Times(this->iterations_);
-  using VariableLinearTerms = system::terms::VariableLinearTerms;
+
   auto scattering_source_vector_ptr = std::make_shared<system::MPIVector>();
   auto fission_source_vector_ptr = std::make_shared<system::MPIVector>();
   EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, VariableLinearTerms::kScatteringSource))

@@ -92,6 +92,7 @@ class ParametersI {
   virtual auto OutputScalarFluxAsVTU() const -> bool = 0;
   virtual auto OutputFissionSourceAsVTU() const -> bool = 0;
   virtual auto OutputScatteringSourceAsVTU() const -> bool = 0;
+  virtual auto OutputInnerIterationsToFile() const -> bool = 0;
 };
 
 } // namespace bart::problem

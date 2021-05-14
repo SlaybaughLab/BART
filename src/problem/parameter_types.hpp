@@ -36,6 +36,7 @@ enum class EquationType {
   kDiffusion,
   kDriftDiffusion,
   kSelfAdjointAngularFlux,
+  kTwoGridDiffusion
 };
 
 enum class CellFiniteElementType {

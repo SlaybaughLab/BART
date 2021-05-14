@@ -46,6 +46,7 @@ class ParametersMock : public ParametersI {
   MOCK_METHOD(bool, OutputScalarFluxAsVTU, (), (const, override));
   MOCK_METHOD(bool, OutputFissionSourceAsVTU, (), (const, override));
   MOCK_METHOD(bool, OutputScatteringSourceAsVTU, (), (const, override));
+  MOCK_METHOD(bool, OutputInnerIterationsToFile, (), (const, override));
 
 };
 

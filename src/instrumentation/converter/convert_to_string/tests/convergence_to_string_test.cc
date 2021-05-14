@@ -58,7 +58,7 @@ std::string InstrumentationConverterConvergenceToStringTest::GetExpectedOutput(
   // Delta
   std::ostringstream delta_stream;
   if (status.delta.has_value()) {
-    delta_stream << status.delta.value();
+    delta_stream << std::scientific << std::setprecision(16) << status.delta.value();
   } else {
     delta_stream << null_character;
   }
