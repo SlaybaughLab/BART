@@ -48,7 +48,6 @@ TYPED_TEST(InstrumentationOutstreamVectorToVtuTest, Constructor) {
 TYPED_TEST(InstrumentationOutstreamVectorToVtuTest, Output) {
   constexpr int dim = this->dim;
   namespace fs = std::filesystem;
-  fs::create_directory(this->directory);
 
   instrumentation::outstream::VectorToVTU<dim> test_outstream(this->domain_ptr_, this->data_name, this->directory,
                                                               this->filename_base);
