@@ -17,6 +17,7 @@
 #include "solver/group/tests/single_group_solver_mock.h"
 #include "system/moments/tests/spherical_harmonic_mock.h"
 #include "system/solution/tests/mpi_group_angular_solution_mock.h"
+#include "system/terms/tests/linear_term_mock.hpp"
 #include "system/system.hpp"
 #include "system/solution/solution_types.h"
 #include "test_helpers/gmock_wrapper.h"
@@ -28,7 +29,7 @@ using namespace bart;
 
 using ::testing::AtLeast, ::testing::ExpectationSet, ::testing::Return, ::testing::Pointee, ::testing::Ref;
 using ::testing::ReturnRef, ::testing::Sequence, ::testing::_, ::testing::InvokeWithoutArgs;
-using ::testing::Unused, ::testing::A;
+using ::testing::Unused, ::testing::A, ::testing::DoDefault;
 
 template <typename DimensionWrapper>
 class IterationGroupSourceIterationTest : public ::testing::Test {
@@ -45,10 +46,13 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   using BoundaryConditionsUpdater = formulation::updater::BoundaryConditionsUpdaterMock;
   using SourceUpdater = formulation::updater::ScatteringSourceUpdaterMock;
   using Moments = system::moments::SphericalHarmonicMock;
+  using RightHandSide = system::terms::LinearTermMock;
   using Subroutine = iteration::subroutine::SubroutineMock;
+
 
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
+  using ScatteringSourceInstrument = instrumentation::InstrumentMock<dealii::Vector<double>>;
 
   virtual ~IterationGroupSourceIterationTest() = default;
 
@@ -60,12 +64,15 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_{
     std::make_shared<BoundaryConditionsUpdater>() };
   std::shared_ptr<SourceUpdater> source_updater_ptr_{std::make_shared<SourceUpdater>() };
+  std::shared_ptr<dealii::PETScWrappers::MPI::Vector> scattering_source_ptr_;
 
   // Supporting objects
   system::System test_system;
   EnergyGroupToAngularSolutionPtrMap energy_group_angular_solution_ptr_map_;
   std::shared_ptr<ConvergenceInstrumentType> convergence_instrument_ptr_{ std::make_shared<ConvergenceInstrumentType>() };
   std::shared_ptr<StatusInstrumentType> status_instrument_ptr_{ std::make_shared<StatusInstrumentType>() };
+  std::shared_ptr<ScatteringSourceInstrument> scattering_source_instrument_ptr_{
+    std::make_shared<ScatteringSourceInstrument>() };
 
   // Observing pointers
   GroupSolver* single_group_obs_ptr_ = nullptr;
@@ -74,8 +81,11 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   MomentMapConvergenceChecker* moment_map_convergence_checker_obs_ptr_ = nullptr;
   Moments* moments_obs_ptr_ = nullptr;
   Moments* previous_moments_obs_ptr_ = nullptr;
+  RightHandSide* right_hand_side_obs_ptr_{ nullptr };
   Subroutine* subroutine_obs_ptr_{ nullptr };
 
+  // Other test parameters
+  static constexpr int solution_size =  10;
   void SetUp() override;
 };
 
@@ -94,17 +104,30 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   auto subroutine_ptr = std::make_unique<Subroutine>();
   subroutine_obs_ptr_ = subroutine_ptr.get();
 
+  scattering_source_ptr_ = std::make_shared<system::MPIVector>(MPI_COMM_WORLD, solution_size, solution_size);
+
+  using VariableTerm = system::terms::VariableLinearTerms;
+  auto right_hand_side_ptr = std::make_unique<RightHandSide>();
+  right_hand_side_obs_ptr_ = right_hand_side_ptr.get();
+  ON_CALL(*right_hand_side_ptr, GetVariableTerms())
+      .WillByDefault(Return(std::unordered_set<VariableTerm>{VariableTerm::kScatteringSource}));
+  ON_CALL(*right_hand_side_ptr, GetVariableTermPtr(0, VariableTerm::kScatteringSource))
+      .WillByDefault(Return(scattering_source_ptr_));
+
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
   test_system.previous_moments = std::make_unique<Moments>();
   previous_moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.previous_moments.get());
+  test_system.right_hand_side_ptr_ = std::move(right_hand_side_ptr);
 
   test_iterator_ptr_ = std::make_unique<TestGroupIterator>(std::move(single_group_solver_ptr_),
       std::move(convergence_checker_ptr_), std::move(moment_calculator_ptr_), group_solution_ptr_,
       source_updater_ptr_, boundary_conditions_updater_ptr_, std::move(moment_map_convergence_checker_ptr_));
   using ConvergenceStatusPort = iteration::group::data_ports::ConvergenceStatusPort;
+  using ScatteringSourcePort = iteration::group::data_ports::ScatteringSourcePort;
   test_iterator_ptr_->ConvergenceStatusPort::AddInstrument(convergence_instrument_ptr_);
   test_iterator_ptr_->AddInstrument(status_instrument_ptr_);
+  test_iterator_ptr_->ScatteringSourcePort::AddInstrument(scattering_source_instrument_ptr_);
   test_iterator_ptr_->AddPostIterationSubroutine(std::move(subroutine_ptr));
 }
 
@@ -406,6 +429,10 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
 
   this->test_iterator_ptr_->UpdateThisAngularSolutionMap(
       this->energy_group_angular_solution_ptr_map_);
+
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTerms()).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, _)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+  EXPECT_CALL(*this->scattering_source_instrument_ptr_, Read(_)).Times(AtLeast(1));
 
   this->test_iterator_ptr_->Iterate(this->test_system);
   EXPECT_LT(this->iterations, this->max_iterations);

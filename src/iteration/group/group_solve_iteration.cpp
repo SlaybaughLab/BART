@@ -90,6 +90,19 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
               system.current_moments->moments(), previous_moments_map);
       data_ports::StatusPort::Expose("....All group convergence: ");
       data_ports::ConvergenceStatusPort::Expose(all_group_convergence_status);
+
+      if (system.right_hand_side_ptr_ != nullptr) {
+        using VariableTerms = system::terms::VariableLinearTerms;
+        auto variable_terms{ system.right_hand_side_ptr_->GetVariableTerms() };
+        if (variable_terms.contains(VariableTerms::kScatteringSource)) {
+          auto scattering_source_ptr =system.right_hand_side_ptr_->GetVariableTermPtr(0, VariableTerms::kScatteringSource);
+          if (scattering_source_ptr != nullptr) {
+            dealii::Vector<double> scattering_source(*scattering_source_ptr);
+            data_ports::ScatteringSourcePort::Expose(scattering_source);
+          }
+        }
+      }
+
     }
   } while(!all_group_convergence_status.is_complete);
   data_ports::NumberOfIterationsPort::Expose(all_group_convergence_status.iteration_number);

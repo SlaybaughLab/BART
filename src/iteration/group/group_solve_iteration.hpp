@@ -19,11 +19,14 @@ namespace data_ports {
 struct GroupConvergenceStatus;
 struct Status;
 struct NumberOfIterations;
+struct ScatteringSourcePortParameter;
 //! Data port for the status of convergence.
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, GroupConvergenceStatus>;
 using NumberOfIterationsPort = instrumentation::Port<double, NumberOfIterations>;
 //! Data port for general strings.
 using StatusPort = instrumentation::Port<std::string, Status>;
+//! Scattering source port
+using ScatteringSourcePort = instrumentation::Port<dealii::Vector<double>, ScatteringSourcePortParameter>;
 }
 
 /*! \brief Default implementation for group solve iterations.
@@ -44,7 +47,8 @@ using StatusPort = instrumentation::Port<std::string, Status>;
 template <int dim>
 class GroupSolveIteration : public GroupSolveIterationI, public utility::HasDependencies,
                             public data_ports::ConvergenceStatusPort, public data_ports::StatusPort,
-                            public data_ports::NumberOfIterationsPort {
+                            public data_ports::NumberOfIterationsPort,
+                            public data_ports::ScatteringSourcePort {
  public:
   using GroupSolver = solver::group::SingleGroupSolverI;
   using ConvergenceChecker = convergence::IterationCompletionCheckerI<system::moments::MomentVector>;
