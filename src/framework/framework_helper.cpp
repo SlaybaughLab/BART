@@ -484,13 +484,14 @@ auto FrameworkHelper<dim>::BuildFramework(
   }
   if (parameters.output_fission_source_as_vtu) {
     try {
-      auto fission_source_vector_to_vtu_instrument =
-          std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-              std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
-                                                                                      "fission_source",
-                                                                                      "fission_source",
-                                                                                      parameters.output_filename_base
-                                                                                          + "_fission_source"));
+      using VectorMap = std::unordered_map<int, dealii::Vector<double>>;
+      using VectorMapInstrument = instrumentation::BasicInstrument<VectorMap>;
+      using VectorMapOutstream = typename instrumentation::outstream::VectorMapToVTU<dim>;
+      std::string filename_base{ parameters.output_filename_base + "_fission_source" };
+
+      auto fission_source_vector_to_vtu_instrument = std::make_shared<VectorMapInstrument>(
+          std::make_unique<VectorMapOutstream>(domain_ptr, "fission_source",filename_base + "/outer_iteration",
+                                               filename_base));
       instrumentation::GetPort<iteration::outer::data_names::FissionSourcePort>(*outer_iteration_ptr)
           .AddInstrument(fission_source_vector_to_vtu_instrument);
     } catch (std::bad_cast &) {

@@ -32,7 +32,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using ConvergenceChecker = convergence::IterationCompletionCheckerMock<double>;
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using ErrorInstrumentType = instrumentation::InstrumentMock<std::pair<int, double>>;
-  using FissionSourceInstrumentMock = instrumentation::InstrumentMock<dealii::Vector<double>>;
+  using FissionSourceInstrumentMock = instrumentation::InstrumentMock<std::unordered_map<int, dealii::Vector<double>>>;
   using K_EffectiveUpdater = eigenvalue::k_eigenvalue::K_EigenvalueCalculatorMock;
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using MomentsMock = system::moments::SphericalHarmonicMock;
@@ -76,6 +76,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   static constexpr int total_groups{ 2 };
   static constexpr int total_angles{ 3 };
   static constexpr int iterations_{ 4 };
+  static constexpr int total_degrees_of_freedom_{ 10 };
 
   void SetUp() override;
 };
@@ -211,27 +212,38 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
       .WillRepeatedly(Return(std::unordered_set{VariableLinearTerms::kScatteringSource,
                                                 VariableLinearTerms::kFissionSource}));
 
+  // Instrumentation
   std::unordered_map<int, dealii::Vector<double>> flux_map;
+  std::unordered_map<int, dealii::Vector<double>> fission_source_map;
+
   for (int group = 0; group < total_groups; ++group) {
-    flux_map[group] = dealii::Vector<double>(10);
+    auto fission_source_vector_ptr = std::make_shared<system::MPIVector>(MPI_COMM_WORLD, total_degrees_of_freedom_,
+                                                                         total_degrees_of_freedom_);
+    fission_source_vector_ptr->add(2 * (group + 1 ));
+    fission_source_vector_ptr->compress(dealii::VectorOperation::add);
+    flux_map[group] = dealii::Vector<double>(total_degrees_of_freedom_);
+    fission_source_map[group] = dealii::Vector<double>(total_degrees_of_freedom_);
+    flux_map.at(group).add(group + 1);
+    fission_source_map.at(group).add(2 * (group + 1 ));
+
     EXPECT_CALL(*this->current_moments_mock_ptr_, GetMoment(std::array{group, 0, 0}))
         .Times(this->iterations_)
         .WillRepeatedly(::testing::ReturnRef(flux_map.at(group)));
+    EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(group, VariableLinearTerms::kFissionSource))
+        .Times(this->iterations_)
+        .WillRepeatedly(Return(fission_source_vector_ptr));
   }
   EXPECT_CALL(*this->scalar_flux_instrument_ptr_, Read(flux_map)).Times(this->iterations_);
+  EXPECT_CALL(*this->fission_source_instrument_ptr_, Read(fission_source_map)).Times(iterations_);
 
   EXPECT_CALL(*this->solution_moments_instrument_ptr_, Read(Ref(*this->current_moments_mock_ptr_)))
       .Times(this->iterations_);
 
   auto scattering_source_vector_ptr = std::make_shared<system::MPIVector>();
-  auto fission_source_vector_ptr = std::make_shared<system::MPIVector>();
   EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, VariableLinearTerms::kScatteringSource))
       .Times(this->iterations_)
       .WillRepeatedly(Return(scattering_source_vector_ptr));
-  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, VariableLinearTerms::kFissionSource))
-      .Times(this->iterations_)
-      .WillRepeatedly(Return(fission_source_vector_ptr));
-  EXPECT_CALL(*this->fission_source_instrument_ptr_, Read(_)).Times(iterations_);
+
   EXPECT_CALL(*this->scattering_source_instrument_ptr_, Read(_)).Times(iterations_);
 
   this->test_iterator->IterateToConvergence(this->test_system);
