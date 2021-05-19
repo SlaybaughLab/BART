@@ -62,10 +62,17 @@ template<typename ConvergenceType>
 auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system) -> void {
   if (system.current_moments != nullptr) {
     data_names::SolutionMomentsPort::Expose(*system.current_moments);
-    data_names::ScalarFluxPort::Expose(system.current_moments->GetMoment({0, 0, 0}));
+
+    std::unordered_map<int, dealii::Vector<double>> scalar_flux_map;
+    for (int group = 0; group < system.total_groups; ++group) {
+      scalar_flux_map[group] = dealii::Vector<double>(system.current_moments->GetMoment({group, 0, 0}));
+    }
+
+    data_names::ScalarFluxPort::Expose(scalar_flux_map);
   }
 
   if (system.right_hand_side_ptr_ != nullptr) {
+    using VariableLinearTerms = system::terms::VariableLinearTerms;
     auto variable_terms = system.right_hand_side_ptr_->GetVariableTerms();
 
     if (variable_terms.contains(system::terms::VariableLinearTerms::kScatteringSource)) {
@@ -76,13 +83,15 @@ auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system
         data_names::ScatteringSourcePort::Expose(scattering_source);
       }
     }
-    if (variable_terms.contains(system::terms::VariableLinearTerms::kFissionSource)) {
-      auto fission_source_ptr =
-          system.right_hand_side_ptr_->GetVariableTermPtr(0, system::terms::VariableLinearTerms::kFissionSource);
-      if (fission_source_ptr != nullptr) {
-        dealii::Vector<double> fission_source(*fission_source_ptr);
-        data_names::FissionSourcePort::Expose(fission_source);
+    if (variable_terms.contains(VariableLinearTerms::kFissionSource)) {
+      std::unordered_map<int, dealii::Vector<double>> fission_source_map;
+      for (int group = 0; group < system.total_groups; ++group) {
+        auto fission_source_ptr = system.right_hand_side_ptr_->GetVariableTermPtr(group,
+                                                                                  VariableLinearTerms::kFissionSource);
+        if (fission_source_ptr != nullptr)
+          fission_source_map[group] = dealii::Vector<double>(*fission_source_ptr);
       }
+      data_names::FissionSourcePort::Expose(fission_source_map);
     }
   }
 }

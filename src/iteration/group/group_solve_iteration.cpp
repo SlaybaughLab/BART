@@ -84,6 +84,22 @@ auto GroupSolveIteration<dim>::Iterate(System &system) -> void {
       data_ports::StatusPort::Expose("==== COMPLETED GROUP SOLVE POST ITERATION SUBROUTINE  ==== \n");
     }
 
+    if (system.right_hand_side_ptr_ != nullptr) {
+      using VariableTerms = system::terms::VariableLinearTerms;
+      auto variable_terms{ system.right_hand_side_ptr_->GetVariableTerms() };
+      if (variable_terms.contains(VariableTerms::kScatteringSource)) {
+
+        std::unordered_map<int, dealii::Vector<double>> scattering_source_map;
+        for (int group = 0; group < system.total_groups; ++group) {
+          auto scattering_source_ptr =system.right_hand_side_ptr_->GetVariableTermPtr(group, VariableTerms::kScatteringSource);
+          if (scattering_source_ptr != nullptr) {
+            scattering_source_map[group] = dealii::Vector<double>(*scattering_source_ptr);
+          }
+        }
+        data_ports::ScatteringSourcePort::Expose(scattering_source_map);
+      }
+    }
+
     if (moment_map_convergence_checker_ptr_ != nullptr) {
       all_group_convergence_status =
           moment_map_convergence_checker_ptr_->ConvergenceStatus(

@@ -15,13 +15,15 @@
 namespace bart::iteration::outer {
 
 namespace data_names {
+using GroupVectorMap = std::unordered_map<int, dealii::Vector<double>>;
+
 using ConvergenceStatusPort = instrumentation::Port<convergence::Status, struct GroupConvergenceStatus>;
 using StatusPort = instrumentation::Port<std::string, struct Status>;
 using IterationErrorPort = instrumentation::Port<std::pair<int, double>, struct IterationError>;
 using SolutionMomentsPort = instrumentation::Port<system::moments::SphericalHarmonicI, struct SolutionMoments>;
 using ScatteringSourcePort = instrumentation::Port<dealii::Vector<double>, struct ScatteringSourcePortParameter>;
-using FissionSourcePort = instrumentation::Port<dealii::Vector<double>, struct FissionSourcePortParameter>;
-using ScalarFluxPort = instrumentation::Port<dealii::Vector<double>, struct ScalarFluxPortParameter>;
+using FissionSourcePort = instrumentation::Port<GroupVectorMap, struct FissionSourcePortParameter>;
+using ScalarFluxPort = instrumentation::Port<GroupVectorMap, struct ScalarFluxPortParameter>;
 } // namespace data_names
 
 
