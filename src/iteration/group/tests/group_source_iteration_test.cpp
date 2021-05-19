@@ -52,7 +52,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
 
   using ConvergenceInstrumentType = instrumentation::InstrumentMock<convergence::Status>;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
-  using ScatteringSourceInstrument = instrumentation::InstrumentMock<dealii::Vector<double>>;
+  using ScatteringSourceInstrument = instrumentation::InstrumentMock<std::unordered_map<int, dealii::Vector<double>>>;
 
   virtual ~IterationGroupSourceIterationTest() = default;
 
@@ -64,7 +64,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
   std::shared_ptr<BoundaryConditionsUpdater> boundary_conditions_updater_ptr_{
     std::make_shared<BoundaryConditionsUpdater>() };
   std::shared_ptr<SourceUpdater> source_updater_ptr_{std::make_shared<SourceUpdater>() };
-  std::shared_ptr<dealii::PETScWrappers::MPI::Vector> scattering_source_ptr_;
+  std::unordered_map<int, std::shared_ptr<dealii::PETScWrappers::MPI::Vector>> scattering_source_ptr_map_;
 
   // Supporting objects
   system::System test_system;
@@ -86,6 +86,7 @@ class IterationGroupSourceIterationTest : public ::testing::Test {
 
   // Other test parameters
   static constexpr int solution_size =  10;
+  static constexpr int total_groups = 3;
   void SetUp() override;
 };
 
@@ -104,15 +105,17 @@ void IterationGroupSourceIterationTest<DimensionWrapper>::SetUp() {
   auto subroutine_ptr = std::make_unique<Subroutine>();
   subroutine_obs_ptr_ = subroutine_ptr.get();
 
-  scattering_source_ptr_ = std::make_shared<system::MPIVector>(MPI_COMM_WORLD, solution_size, solution_size);
-
   using VariableTerm = system::terms::VariableLinearTerms;
   auto right_hand_side_ptr = std::make_unique<RightHandSide>();
   right_hand_side_obs_ptr_ = right_hand_side_ptr.get();
+
+  for (int group = 0; group < total_groups; ++group) {
+    scattering_source_ptr_map_[group] = std::make_shared<system::MPIVector>(MPI_COMM_WORLD, solution_size, solution_size);
+    ON_CALL(*right_hand_side_ptr, GetVariableTermPtr(group, VariableTerm::kScatteringSource))
+        .WillByDefault(Return(scattering_source_ptr_map_.at(group)));
+  }
   ON_CALL(*right_hand_side_ptr, GetVariableTerms())
       .WillByDefault(Return(std::unordered_set<VariableTerm>{VariableTerm::kScatteringSource}));
-  ON_CALL(*right_hand_side_ptr, GetVariableTermPtr(0, VariableTerm::kScatteringSource))
-      .WillByDefault(Return(scattering_source_ptr_));
 
   test_system.current_moments = std::make_unique<Moments>();
   moments_obs_ptr_ = dynamic_cast<Moments*>(test_system.current_moments.get());
@@ -431,14 +434,18 @@ TYPED_TEST(IterationGroupSourceSystemSolvingTest, Iterate) {
       this->energy_group_angular_solution_ptr_map_);
 
   EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTerms()).Times(AtLeast(1)).WillRepeatedly(DoDefault());
-  EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(0, _)).Times(AtLeast(1)).WillRepeatedly(DoDefault());
+
+  for (int group = 0; group < this->total_groups; ++group) {
+    EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTermPtr(group, _))
+        .Times(AtLeast(1)).WillRepeatedly(DoDefault());
+  }
+
   EXPECT_CALL(*this->scattering_source_instrument_ptr_, Read(_)).Times(AtLeast(1));
 
   this->test_iterator_ptr_->Iterate(this->test_system);
   EXPECT_LT(this->iterations, this->max_iterations);
   for (int i = 0; i < 4; ++i) {
-    EXPECT_NEAR(current_moments.at({0, 0, 0})[i],
-                     this->true_scalar_flux_[i], 1e-6);
+    EXPECT_NEAR(current_moments.at({0, 0, 0})[i], this->true_scalar_flux_[i], 1e-6);
   }
   for (const auto& [index, solution_ptr] : this->energy_group_angular_solution_ptr_map_) {
     dealii::Vector<double> expected_solution;

@@ -24,6 +24,7 @@
 // to be removed
 #include "instrumentation/basic_instrument.h"
 #include "instrumentation/outstream/vector_to_vtu.hpp"
+#include "instrumentation/outstream/vector_map_to_vtu.hpp"
 #include "iteration/outer/outer_fixed_source_iteration.hpp"
 #include "iteration/group/group_source_iteration.hpp"
 #include "formulation/updater/fixed_updater.hpp"
@@ -423,6 +424,22 @@ auto FrameworkHelper<dim>::BuildFramework(
                                                          iteration::subroutine::SubroutineName::kGetScalarFluxFromFramework);
   }
 
+  if (parameters.output_scattering_source_as_vtu) {
+    try {
+      using VectorMap = std::unordered_map<int, dealii::Vector<double>>;
+      using VectorMapInstrument = instrumentation::BasicInstrument<VectorMap>;
+      using VectorMapOutstream = typename instrumentation::outstream::VectorMapToVTU<dim>;
+      // Install if port is present
+      std::string filename_base{ parameters.output_filename_base + "_scattering_source" };
+      auto vector_to_vtu_instrument = std::make_shared<VectorMapInstrument>(std::make_unique<VectorMapOutstream>(
+          domain_ptr, "scattering_source", filename_base + "/inner_iteration", filename_base));
+      instrumentation::GetPort<iteration::group::data_ports::ScatteringSourcePort>(*group_iteration_ptr)
+          .AddInstrument(vector_to_vtu_instrument);
+    } catch (std::bad_cast &) {
+      AssertThrow(false, dealii::ExcMessage("Error installing scattering source to vtu instrument for inner iteration, port is not present"))
+    }
+  }
+
   std::unique_ptr<OuterIteration> outer_iteration_ptr{ nullptr };
 
   if (parameters.eigen_solver_type.has_value()){
@@ -455,12 +472,10 @@ auto FrameworkHelper<dim>::BuildFramework(
   if (parameters.output_scattering_source_as_vtu) {
     try {
       // Install if port is present
+      std::string filename_base{ parameters.output_filename_base + "_scattering_source" };
       auto vector_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
-                                                                                  "scattering_source",
-                                                                                  "scattering_source",
-                                                                                  parameters.output_filename_base
-                                                                                      + "_scattering_source"));
+          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(
+              domain_ptr, "scattering_source", filename_base + "/outer_iteration", filename_base));
       instrumentation::GetPort<iteration::outer::data_names::ScatteringSourcePort>(*outer_iteration_ptr)
           .AddInstrument(vector_to_vtu_instrument);
     } catch (std::bad_cast &) {

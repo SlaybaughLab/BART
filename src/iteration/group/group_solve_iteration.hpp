@@ -26,7 +26,7 @@ using NumberOfIterationsPort = instrumentation::Port<double, NumberOfIterations>
 //! Data port for general strings.
 using StatusPort = instrumentation::Port<std::string, Status>;
 //! Scattering source port
-using ScatteringSourcePort = instrumentation::Port<dealii::Vector<double>, ScatteringSourcePortParameter>;
+using ScatteringSourcePort = instrumentation::Port<std::unordered_map<int, dealii::Vector<double>>, ScatteringSourcePortParameter>;
 }
 
 /*! \brief Default implementation for group solve iterations.
