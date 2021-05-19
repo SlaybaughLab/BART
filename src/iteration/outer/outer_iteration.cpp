@@ -62,7 +62,13 @@ template<typename ConvergenceType>
 auto OuterIteration<ConvergenceType>::ExposeIterationData(system::System &system) -> void {
   if (system.current_moments != nullptr) {
     data_names::SolutionMomentsPort::Expose(*system.current_moments);
-    data_names::ScalarFluxPort::Expose(system.current_moments->GetMoment({0, 0, 0}));
+
+    std::unordered_map<int, dealii::Vector<double>> scalar_flux_map;
+    for (int group = 0; group < system.total_groups; ++group) {
+      scalar_flux_map[group] = dealii::Vector<double>(system.current_moments->GetMoment({group, 0, 0}));
+    }
+
+    data_names::ScalarFluxPort::Expose(scalar_flux_map);
   }
 
   if (system.right_hand_side_ptr_ != nullptr) {

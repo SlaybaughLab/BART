@@ -37,7 +37,7 @@ class IterationOuterPowerIterationTest : public ::testing::Test {
   using OuterPowerIteration = iteration::outer::OuterPowerIteration;
   using MomentsMock = system::moments::SphericalHarmonicMock;
   using RightHandSideMock = system::terms::LinearTermMock;
-  using ScalarFluxInstrumentMock = instrumentation::InstrumentMock<dealii::Vector<double>>;
+  using ScalarFluxInstrumentMock = instrumentation::InstrumentMock<std::unordered_map<int, dealii::Vector<double>>>;
   using ScatteringSourceInstrumentMock = instrumentation::InstrumentMock<dealii::Vector<double>>;
   using SourceUpdater = formulation::updater::FissionSourceUpdaterMock;
   using StatusInstrumentType = instrumentation::InstrumentMock<std::string>;
@@ -205,16 +205,21 @@ TEST_F(IterationOuterPowerIterationTest, IterateToConvergenceTest) {
   EXPECT_CALL(*this->status_instrument_ptr_, Read(_)).Times(AtLeast(this->iterations_));
   EXPECT_CALL(*this->error_instrument_ptr_, Read(_)).Times(this->iterations_ - 1);
 
-  dealii::Vector<double> flux;
   using VariableLinearTerms = system::terms::VariableLinearTerms;
   EXPECT_CALL(*this->right_hand_side_obs_ptr_, GetVariableTerms())
       .Times(iterations_)
       .WillRepeatedly(Return(std::unordered_set{VariableLinearTerms::kScatteringSource,
                                                 VariableLinearTerms::kFissionSource}));
-  EXPECT_CALL(*this->current_moments_mock_ptr_, GetMoment(std::array{0, 0, 0}))
-      .Times(this->iterations_)
-      .WillRepeatedly(::testing::ReturnRef(flux));
-  EXPECT_CALL(*this->scalar_flux_instrument_ptr_, Read(Ref(flux))).Times(this->iterations_);
+
+  std::unordered_map<int, dealii::Vector<double>> flux_map;
+  for (int group = 0; group < total_groups; ++group) {
+    flux_map[group] = dealii::Vector<double>(10);
+    EXPECT_CALL(*this->current_moments_mock_ptr_, GetMoment(std::array{group, 0, 0}))
+        .Times(this->iterations_)
+        .WillRepeatedly(::testing::ReturnRef(flux_map.at(group)));
+  }
+  EXPECT_CALL(*this->scalar_flux_instrument_ptr_, Read(flux_map)).Times(this->iterations_);
+
   EXPECT_CALL(*this->solution_moments_instrument_ptr_, Read(Ref(*this->current_moments_mock_ptr_)))
       .Times(this->iterations_);
 

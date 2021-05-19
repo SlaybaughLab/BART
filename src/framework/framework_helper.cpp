@@ -499,12 +499,12 @@ auto FrameworkHelper<dim>::BuildFramework(
   }
   if (parameters.output_scalar_flux_as_vtu) {
     try {
-      auto scalar_flux_to_vtu_instrument = std::make_shared<instrumentation::BasicInstrument<dealii::Vector<double>>>(
-          std::make_unique<typename instrumentation::outstream::VectorToVTU<dim>>(domain_ptr,
-                                                                                  "scalar_flux",
-                                                                                  "scalar_flux",
-                                                                                  parameters.output_filename_base
-                                                                                      + "_scalar_flux"));
+      using VectorMap = std::unordered_map<int, dealii::Vector<double>>;
+      using VectorMapInstrument = instrumentation::BasicInstrument<VectorMap>;
+      using VectorMapOutstream = typename instrumentation::outstream::VectorMapToVTU<dim>;
+      std::string filename_base{ parameters.output_filename_base + "_scalar_flux" };
+      auto scalar_flux_to_vtu_instrument = std::make_shared<VectorMapInstrument>(std::make_unique<VectorMapOutstream>(
+          domain_ptr, "scalar_flux", filename_base + "/outer_iteration", filename_base));
       instrumentation::GetPort<iteration::outer::data_names::ScalarFluxPort>(*outer_iteration_ptr)
           .AddInstrument(scalar_flux_to_vtu_instrument);
     } catch (std::bad_cast &) {
